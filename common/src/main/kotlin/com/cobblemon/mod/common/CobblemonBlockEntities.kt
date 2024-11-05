@@ -87,6 +87,11 @@ object CobblemonBlockEntities : PlatformRegistry<Registry<BlockEntityType<*>>, R
         BlockEntityType.Builder.of(::DisplayCaseBlockEntity, CobblemonBlocks.DISPLAY_CASE).build(null)
     )
 
+    @JvmField
+    val INCENSE_SWEET: BlockEntityType<SweetIncenseBlockEntity> = this.create("incense_sweet",
+            BlockEntityType.Builder.of(::SweetIncenseBlockEntity, CobblemonBlocks.INCENSE_SWEET).build(null)
+    )
+
     /*@JvmField
     val COOKING_POT: BlockEntityType<CookingPotBlockEntity> = this.create("cooking_pot",
             BlockEntityType.Builder.create(::CookingPotBlockEntity, CobblemonBlocks.COOKING_POT).build(null)

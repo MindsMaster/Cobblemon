@@ -327,6 +327,9 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     val DISPLAY_CASE = blockItem("display_case", CobblemonBlocks.DISPLAY_CASE)
     @JvmField
     val LECTERN = blockItem("lectern", CobblemonBlocks.LECTERN)
+    @JvmField
+    val INCENSE_SWEET = blockItem("incense_sweet", CobblemonBlocks.INCENSE_SWEET)
+
 
     // Evolution items
     @JvmField val LINK_CABLE = create("link_cable", LinkCableItem())
