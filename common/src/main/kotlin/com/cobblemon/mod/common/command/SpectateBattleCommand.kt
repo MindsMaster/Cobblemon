@@ -10,11 +10,8 @@ package com.cobblemon.mod.common.command
 
 import com.cobblemon.mod.common.api.permission.CobblemonPermissions
 import com.cobblemon.mod.common.api.text.text
-import com.cobblemon.mod.common.net.messages.server.battle.SpectateBattlePacket
 import com.cobblemon.mod.common.net.serverhandling.battle.SpectateBattleHandler
-import com.cobblemon.mod.common.util.isInBattle
 import com.cobblemon.mod.common.util.permission
-import com.cobblemon.mod.common.util.server
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.context.CommandContext
@@ -40,22 +37,7 @@ object SpectateBattleCommand {
 
         val target = EntityArgument.getPlayer(context, "player")
 
-        if (player == target) {
-            context.source.sendFailure("You can't spectate yourself.".text())
-            return 0
-        }
-
-        if (player.isInBattle()) {
-            context.source.sendFailure("You can't spectate other people while battling.".text())
-            return 0
-        }
-
-        if (!target.isInBattle()) {
-            context.source.sendFailure("This player is not in a battle.".text())
-            return 0
-        }
-
-        server()?.let { SpectateBattleHandler.handle(SpectateBattlePacket(target.uuid), it, player) }
+        SpectateBattleHandler.spectateBattle(target, player)
 
         return Command.SINGLE_SUCCESS
     }

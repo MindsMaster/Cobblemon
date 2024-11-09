@@ -11,6 +11,7 @@ package com.cobblemon.mod.common.net.serverhandling.battle
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.CobblemonNetwork.sendPacket
 import com.cobblemon.mod.common.api.net.ServerNetworkPacketHandler
+import com.cobblemon.mod.common.api.text.red
 import com.cobblemon.mod.common.api.text.yellow
 import com.cobblemon.mod.common.battles.BattleRegistry
 import com.cobblemon.mod.common.battles.actor.PlayerBattleActor
@@ -18,9 +19,7 @@ import com.cobblemon.mod.common.net.messages.client.battle.BattleInitializePacke
 import com.cobblemon.mod.common.net.messages.client.battle.BattleMessagePacket
 import com.cobblemon.mod.common.net.messages.client.battle.BattleMusicPacket
 import com.cobblemon.mod.common.net.messages.server.battle.SpectateBattlePacket
-import com.cobblemon.mod.common.util.getPlayer
-import com.cobblemon.mod.common.util.lang
-import com.cobblemon.mod.common.util.traceFirstEntityCollision
+import com.cobblemon.mod.common.util.*
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.LivingEntity
@@ -37,6 +36,11 @@ object SpectateBattleHandler : ServerNetworkPacketHandler<SpectateBattlePacket> 
         val battle = BattleRegistry.getBattleByParticipatingPlayerId(packet.targetedEntityId)
         if (battle != null && Cobblemon.config.allowSpectating) {
             val target = battle.actors.filterIsInstance<PlayerBattleActor>().firstOrNull { it.uuid == packet.targetedEntityId }
+
+            if (player.isInBattle()) {
+                player.sendSystemMessage(lang("command.spectatebattle.while_battling_disallowed").red())
+                return
+            }
 
             // Check los and range
             val targetedPlayerEntity = packet.targetedEntityId.getPlayer() ?: return
@@ -55,6 +59,22 @@ object SpectateBattleHandler : ServerNetworkPacketHandler<SpectateBattlePacket> 
         }
         else {
             LOGGER.error("Battle of player id ${packet.targetedEntityId} not found (${player.uuid} tried spectating)")
+        }
+    }
+
+    fun spectateBattle(target: ServerPlayer, player: ServerPlayer) {
+        if (player == target) {
+            player.sendSystemMessage(lang("command.spectatebattle.self_spectate_disallowed").red())
+            return
+        }
+
+        if (!target.isInBattle()) {
+            player.sendSystemMessage(lang("command.spectatebattle.player_not_in_battle").red())
+            return
+        }
+
+        server()?.let {
+            handle(SpectateBattlePacket(target.uuid), it, player)
         }
     }
 
