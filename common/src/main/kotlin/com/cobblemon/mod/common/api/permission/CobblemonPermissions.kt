@@ -81,6 +81,8 @@ object CobblemonPermissions {
 
     val ABANDON_MULTITEAM = this.create("${COMMAND_PREFIX}abandonmultiteam", PermissionLevel.NONE)
 
+    val SPECTATE_BATTLE = this.create("${COMMAND_PREFIX}spectatebattle", PermissionLevel.ALL_COMMANDS)
+
     fun all(): Iterable<Permission> = this.permissions
 
     private fun create(node: String, level: PermissionLevel): Permission {
