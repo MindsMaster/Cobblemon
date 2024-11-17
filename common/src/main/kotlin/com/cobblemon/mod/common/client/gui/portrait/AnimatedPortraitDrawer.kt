@@ -49,6 +49,7 @@ abstract class AnimatedPortraitDrawer : PortraitDrawer {
         if (state.first != pokemon.uuid) {
             val newState = this.createState(pokemon)
             this.stateAtIndex[index] = pokemon.uuid to newState
+            return newState
         }
         return state.second
     }
