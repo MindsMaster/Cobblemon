@@ -19,5 +19,8 @@
         "hasBait": true
       }
     }
+  },
+  "rewards": {
+    "experience": 100
   }
 }
