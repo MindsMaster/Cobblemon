@@ -1,14 +1,15 @@
 {
   "display": {
     "icon": {
-      "id": "cobblemon:oran_berry"
+      "id": "cobblemon:razz_berry"
     },
     "title": {
-      "translate": "advancements.cobblemon.use_bait"
+      "translate": "advancements.cobblemon.use_all_bait"
     },
     "description": {
-      "translate": "advancements.cobblemon.use_bait.description"
-    }
+      "translate": "advancements.cobblemon.use_all_bait.description"
+    },
+    "frame": "challenge"
   },
   "parent": "cobblemon:craft_rod",
   "criteria": {
