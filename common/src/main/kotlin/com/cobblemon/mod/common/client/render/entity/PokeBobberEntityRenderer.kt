@@ -179,8 +179,8 @@ class PokeBobberEntityRenderer(context: EntityRendererProvider.Context?) : Entit
         matrixStack.popPose() // close bobber rendering transforms
 
         var armOffset = if (playerEntity.mainArm == HumanoidArm.RIGHT) 1 else -1
-        val itemStack = playerEntity.mainHandItem
-        if (itemStack.item !is PokerodItem) {
+        val item = playerEntity.mainHandItem.item
+        if ((item !is PokerodItem) || item.pokeRodId != pokeRodId) {
             armOffset = -armOffset
         }
         val handSwingProgress = playerEntity.getAttackAnim(tickDelta)

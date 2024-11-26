@@ -224,7 +224,8 @@ class PokerodItem(val pokeRodId: ResourceLocation, settings: Properties) : Fishi
                     { event -> return InteractionResultHolder.fail(itemStack) },
                     { event ->
                         world.addFreshEntity(bobberEntity)
-                        CobblemonCriteria.CAST_POKE_ROD.trigger(user as ServerPlayer, baitOnRod != null)
+                        val bait = getBaitOnRod(itemStack)
+                        CobblemonCriteria.CAST_POKE_ROD.trigger(user as ServerPlayer, bait?.item)
 
                         CobblemonEvents.POKEROD_CAST_POST.post(
                             PokerodCastEvent.Post(itemStack, bobberEntity, getBaitStackOnRod(itemStack))

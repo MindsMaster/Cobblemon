@@ -100,7 +100,7 @@ object CobblemonEvents {
 
     // instructions
     @JvmField
-    val MEGA_EVOLUTON = EventObservable<MegaEvolutionEvent>()
+    val MEGA_EVOLUTION = EventObservable<MegaEvolutionEvent>()
     @JvmField
     val TERASTALLIZATION = EventObservable<TerastallizationEvent>()
     @JvmField

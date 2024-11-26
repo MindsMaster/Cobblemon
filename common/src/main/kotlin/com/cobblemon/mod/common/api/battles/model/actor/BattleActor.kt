@@ -40,6 +40,7 @@ abstract class BattleActor(
 
     lateinit var showdownId: String
     lateinit var battle: PokemonBattle
+    fun isInitialized() = this::battle.isInitialized && this::showdownId.isInitialized
 
     val activePokemon = mutableListOf<ActiveBattlePokemon>()
     var canDynamax = false

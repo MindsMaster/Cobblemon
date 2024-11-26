@@ -8,7 +8,17 @@
 				"texture": "textures/particles/powder"
 			}
 		},
+		"events": {
+			"event_sound": {
+				"sound_effect": {
+					"event_name": "cobblemon:move.sandattack.target"
+				}
+			}
+		},
 		"components": {
+			"minecraft:emitter_lifetime_events": {
+				"creation_event": "event_sound"
+			},
 			"minecraft:emitter_rate_steady": {
 				"spawn_rate": 500,
 				"max_particles": 25

@@ -89,20 +89,24 @@ on the idle activity so that it automatically transitions activities when a batt
 ### switch_npc_from_battle
 The 'switch_npc_from_battle' type creates a task that will switch NPC entities from the battle activity when it is no longer in a battle. You should
 put this in the battle activity so that it automatically transitions activities when a battle ends. If the NPC is in multiple battles, this
-will only activate when no battles remain.
-- `activity`: The activity to switch to when the NPC is no longer in a battle. Defaults to `minecraft:idle`.
+will only activate when no battles remain. It will rely on the brain schedule to decide what activity to switch back to (usually idle).
 
 ### look_at_battling_pokemon
 The 'look_at_battling_pokemon' type creates a task that will set the entity's look target to switch between the battling Pokémon.
 - `minDurationTicks`: A MoLang expression that determines the minimum number of ticks that the entity will look at a specific battling Pokémon. Defaults to 40.
 - `maxDurationTicks`: A MoLang expression that determines the maximum number of ticks that the entity will look at a specific battling Pokémon. Defaults to 80.
 
+### exit_battle_when_hurt
+The 'exit_battle_when_hurt' type creates a task that will make the entity exit the battle when it is hurt.
+- `condition`: A MoLang expression (with `q.entity` as the entity) that determines if this entire task should exist on the entity or not. This runs at the time of entity creation, not on tick.
+- `includePassiveDamage`: A boolean that determines if passive damage (like poison or cacti) should trigger this task. Defaults to true.
+
 ### switch_to_chatting
 The 'switch_to_chatting' type creates a task that will switch the entity to the chatting activity when a dialogue has been opened with that NPC.
 
 ### switch_from_chatting
 The 'switch_from_chatting' type creates a task that will switch the entity from the chatting activity when the dialogue has been closed with that NPC.
-- `activity`: The activity to switch to when the NPC is no longer chatting. Defaults to `minecraft:idle`.
+It will rely on the brain schedule to decide what activity to switch back to (usually idle).
 
 ### look_at_speaker
 The 'look_at_speaker' type creates a task that will set the entity's look target to the speaker of the dialogue.
@@ -112,7 +116,7 @@ The 'switch_to_action_effect' type creates a task that will switch the entity to
 
 ### switch_from_action_effect
 The 'switch_from_action_effect' type creates a task that will switch the entity from the action effect activity when it is no longer performing an action effect.
-- `activity`: The activity to switch to when the NPC is no longer performing an action effect. Defaults to `minecraft:idle`.
+It will rely on the brain schedule to decide what activity to switch back to (usually idle).
 
 ### switch_to_fight
 The 'switch_to_fight' type creates a task that will switch the entity to the fight activity when it has an attack target.
@@ -120,8 +124,7 @@ The 'switch_to_fight' type creates a task that will switch the entity to the fig
 - `activity`: The activity to switch to when the NPC is in a fight. Defaults to `minecraft:fight`.
 
 ### switch_from_fight
-The 'switch_from_fight' type creates a task that will switch the entity from the fight activity when it no longer has an attack target.
-- `activity`: The activity to switch to when the NPC is no longer in a fight. Defaults to `minecraft:idle`.
+The 'switch_from_fight' type creates a task that will switch the entity from the fight activity when it no longer has an attack target. It will rely on the brain schedule to decide what activity to switch back to (usually idle).
 
 ### get_angry_at_attacker
 The 'get_angry_at_attacker' type creates a task that will make the entity get angry at the attacker when it is attacked.
@@ -144,3 +147,29 @@ The 'melee_attack' type creates a task that will make the entity perform a melee
 - `condition`: A MoLang expression (with `q.entity` as the entity) that determines if this entire task should exist on the entity or not. This runs at the time of entity creation, not on tick.
 - `range`: A MoLang expression that determines the maximum distance from the attack target that the entity can be to perform the attack. Defaults to 1.5.
 - `cooldownTicks`: A MoLang expression that determines the number of ticks to wait before performing another attack. Defaults to 30.
+
+### switch_to_panic_when_hurt
+The 'switch_to_panic_when_hurt' type creates a task that will switch the entity to the panic activity when it is hurt.
+- `condition`: A MoLang expression (with `q.entity` as the entity) that determines if this entire task should exist on the entity or not. This runs at the time of entity creation, not on tick.
+- `includePassiveDamage`: A boolean that determines if passive damage (like poison or cacti) should trigger this task. Defaults to false.
+
+### switch_to_panic_when_hostiles_nearby
+The 'switch_to_panic_when_hostiles_nearby' type creates a task that will switch the entity to the panic activity when hostiles are nearby. The definition of nearby depends
+on the entity type and this piggy-backs off the Minecraft list of aggressive mobs and the right distances.
+- `condition`: A MoLang expression (with `q.entity` as the entity) that determines if this entire task should exist on the entity or not. This runs at the time of entity creation, not on tick.
+
+### calm_down
+The 'calm_down' type creates a task that will make the entity calm down when it is no longer being hurt and is far from hostiles and its attacker.
+- `condition`: A MoLang expression (with `q.entity` as the entity) that determines if this entire task should exist on the entity or not. This runs at the time of entity creation, not on tick.
+
+### flee_attacker
+The 'flee_attacker' type creates a task that will make the entity flee from its attacker when it is hurt.
+- `condition`: A MoLang expression (with `q.entity` as the entity) that determines if this entire task should exist on the entity or not. This runs at the time of entity creation, not on tick.
+- `speedMultiplier`: A MoLang expression that determines the speed multiplier for fleeing from the attacker. Defaults to 0.5 which is an elevated speed to usual.
+- `desiredDistance`: A MoLang expression that determines the distance from the attacker that the entity should try to maintain. Defaults to 9.
+
+### flee_nearest_hostile
+The 'flee_nearest_hostile' type creates a task that will make the entity flee from the nearest hostile entity when it is hurt.
+- `condition`: A MoLang expression (with `q.entity` as the entity) that determines if this entire task should exist on the entity or not. This runs at the time of entity creation, not on tick.
+- `speedMultiplier`: A MoLang expression that determines the speed multiplier for fleeing from the nearest hostile. Defaults to 0.5 which is an elevated speed to usual.
+- `desiredDistance`: A MoLang expression that determines the distance from the nearest hostile that the entity should try to maintain. Defaults to 9.

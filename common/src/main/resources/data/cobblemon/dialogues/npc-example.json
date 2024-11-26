@@ -1,5 +1,5 @@
 {
-  "initializationAction": "q.npc.is_in_battle_with(q.player) ? q.dialogue.close()",
+  "initializationAction": "(q.npc.is_in_battle_with(q.player) || !q.npc.is_doing_activity('minecraft:idle', 'cobblemon:battling')) ? q.dialogue.close()",
   "speakers": {
     "npc": {
       "name": {

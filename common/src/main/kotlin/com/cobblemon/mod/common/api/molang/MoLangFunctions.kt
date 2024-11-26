@@ -27,9 +27,16 @@ import com.cobblemon.mod.common.api.dialogue.ReferenceDialogueFaceProvider
 import com.cobblemon.mod.common.api.moves.animations.ActionEffectContext
 import com.cobblemon.mod.common.api.moves.animations.ActionEffects
 import com.cobblemon.mod.common.api.moves.animations.NPCProvider
+import com.cobblemon.mod.common.api.pokemon.stats.Stats
 import com.cobblemon.mod.common.api.scripting.CobblemonScripts
+import com.cobblemon.mod.common.api.spawning.context.SpawningContext
+import com.cobblemon.mod.common.api.storage.PokemonStore
 import com.cobblemon.mod.common.api.storage.party.PartyStore
+import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore
+import com.cobblemon.mod.common.api.storage.pc.PCPosition
+import com.cobblemon.mod.common.api.storage.pc.PCStore
 import com.cobblemon.mod.common.api.text.text
+import com.cobblemon.mod.common.battles.BattleRegistry
 import com.cobblemon.mod.common.client.render.models.blockbench.wavefunction.WaveFunctions
 import com.cobblemon.mod.common.entity.npc.NPCEntity
 import com.cobblemon.mod.common.entity.pokemon.PokemonBehaviourFlag
@@ -43,6 +50,7 @@ import java.util.UUID
 import net.minecraft.commands.arguments.EntityAnchorArgument
 import net.minecraft.core.Holder
 import net.minecraft.core.Registry
+import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.DoubleTag
@@ -125,15 +133,12 @@ object MoLangFunctions {
             val map = hashMapOf<String, java.util.function.Function<MoParams, Any>>()
             map.put("username") { _ -> StringValue(player.gameProfile.name) }
             map.put("uuid") { _ -> StringValue(player.gameProfile.id.toString()) }
-            map.put("data") { _ -> return@put if (player is ServerPlayer) Cobblemon.molangData.load(player.uuid) else DoubleValue(0) }
-            map.put("save_data") { _ -> if (player is ServerPlayer) Cobblemon.molangData.save(player.uuid) else DoubleValue(0) }
             map.put("main_held_item") { _ -> player.level().itemRegistry.wrapAsHolder(player.mainHandItem.item).asMoLangValue(Registries.ITEM) }
             map.put("off_held_item") { _ -> player.level().itemRegistry.wrapAsHolder(player.offhandItem.item).asMoLangValue(Registries.ITEM) }
             map.put("face") { params -> ObjectValue(PlayerDialogueFaceProvider(player.uuid, params.getBooleanOrNull(0) != false)) }
             map.put("swing_hand") { _ -> player.swing(player.usedItemHand) }
             map.put("food_level") { _ -> DoubleValue(player.foodData.foodLevel) }
             map.put("saturation_level") { _ -> DoubleValue(player.foodData.saturationLevel) }
-//            map.put("has_permission") { params -> DoubleValue(Cobblemon.permissionValidator.hasPermission(player, Permission)) }
             map.put("tell") { params ->
                 val message = params.getString(0).text()
                 val overlay = params.getBooleanOrNull(1) ?: false
@@ -176,6 +181,13 @@ object MoLangFunctions {
                         return@put DoubleValue.ZERO
                     }
                 }
+                map.put("party") { player.party().struct }
+                map.put("pc") { player.pc().struct }
+                map.put("has_permission") { params -> DoubleValue(Cobblemon.permissionValidator.hasPermission(player, params.getString(0), params.getIntOrNull(1) ?: 4)) }
+                map.put("data") { _ -> Cobblemon.molangData.load(player.uuid) }
+                map.put("save_data") { _ -> Cobblemon.molangData.save(player.uuid) }
+                map.put("in_battle") { DoubleValue(player.isInBattle()) }
+                map.put("battle") { player.getBattleState()?.first?.struct ?: DoubleValue.ZERO }
             }
             map
         }
@@ -255,6 +267,17 @@ object MoLangFunctions {
             map.put("has_aspect") { params -> DoubleValue(npc.aspects.contains(params.getString(0))) }
             map.put("face") { params -> ObjectValue(ReferenceDialogueFaceProvider(npc.id, params.getBooleanOrNull(0) != false)) }
             map.put("in_battle") { DoubleValue(npc.isInBattle()) }
+            map.put("battles") { ArrayStruct(npc.battleIds.mapNotNull { BattleRegistry.getBattle(it)?.struct }.mapIndexed { index, value -> "$index" to value }.toMap()) }
+            map.put("stop_battles") { _ -> npc.battleIds.forEach { BattleRegistry.getBattle(it)?.stop() } }
+            map.put("is_doing_activity") { params ->
+                val identifiers = params.params.map { it.asString().asIdentifierDefaultingNamespace(namespace = "minecraft") }
+                val activities = identifiers.mapNotNull { identifier -> BuiltInRegistries.ACTIVITY.get(identifier) }
+                if (activities.isNotEmpty()) {
+                    return@put DoubleValue(activities.any { activity -> npc.brain.isActive(activity) })
+                } else {
+                    return@put DoubleValue.ZERO
+                }
+            }
             map.put("run_script_on_client") { params ->
                 val world = npc.level()
                 if (world is ServerLevel) {
@@ -311,6 +334,8 @@ object MoLangFunctions {
                 npc.lookAt(EntityAnchorArgument.Anchor.EYES, pos)
             }
             map.put("environment") { _ -> npc.runtime.environment }
+            map.put("party") { npc.party?.struct ?: DoubleValue.ZERO }
+            map.put("has_party") { DoubleValue(npc.party != null) }
             map
         }
     )
@@ -329,6 +354,7 @@ object MoLangFunctions {
                 val actor = battle.actors.find { it.uuid == uuid } ?: return@put DoubleValue.ZERO
                 return@put actor.struct
             }
+            map.put("stop") { _ -> battle.stop() }
             map
         }
     )
@@ -336,10 +362,30 @@ object MoLangFunctions {
     val pokemonFunctions = mutableListOf<(Pokemon) -> HashMap<String, java.util.function.Function<MoParams, Any>>>(
         { pokemon ->
             val map = hashMapOf<String, java.util.function.Function<MoParams, Any>>()
+            map.put("id") { StringValue(pokemon.uuid.toString()) }
+            map.put("level") { DoubleValue(pokemon.level.toDouble()) }
+            map.put("max_hp") { DoubleValue(pokemon.maxHealth.toDouble()) }
+            map.put("current_hp") { DoubleValue(pokemon.currentHealth.toDouble()) }
+            map.put("friendship") { DoubleValue(pokemon.friendship.toDouble()) }
+            map.put("evs") {
+                val struct = QueryStruct(hashMapOf())
+                for (stat in Stats.PERMANENT) {
+                    struct.addFunction(stat.showdownId) { DoubleValue(pokemon.evs.getOrDefault(stat).toDouble()) }
+                }
+                struct
+            }
+            map.put("ivs") {
+                val struct = QueryStruct(hashMapOf())
+                for (stat in Stats.PERMANENT) {
+                    struct.addFunction(stat.showdownId) { DoubleValue(pokemon.ivs.getOrDefault(stat).toDouble()) }
+                }
+                struct
+            }
             map.put("is_wild") { DoubleValue(pokemon.entity?.let { it.ownerUUID == null } == true) }
             map.put("is_shiny") { DoubleValue(pokemon.shiny) }
             map.put("form") { StringValue(pokemon.form.name) }
             map.put("weight") { DoubleValue(pokemon.species.weight.toDouble()) }
+            map.put("matches") { params -> DoubleValue(params.getString(0).toProperties().matches(pokemon)) }
             map
         }
     )
@@ -355,20 +401,139 @@ object MoLangFunctions {
         }
     )
 
+    val pokemonStoreFunctions = mutableListOf<(PokemonStore<*>) -> HashMap<String, java.util.function.Function<MoParams, Any>>>(
+        { store ->
+            val map = hashMapOf<String, java.util.function.Function<MoParams, Any>>()
+            map.put("add") { params ->
+                val pokemon = params.get<ObjectValue<Pokemon>>(0)
+                return@put DoubleValue(store.add(pokemon.obj))
+            }
+            map.put("add_by_properties") { params ->
+                val props = params.getString(0).toProperties()
+                val player = (store as? PlayerPartyStore)?.playerUUID?.getPlayer() // Only really know for sure when it's a player party store
+                val pokemon = props.create(player = player)
+                return@put DoubleValue(store.add(pokemon))
+            }
+            map.put("find_by_properties") { params ->
+                val props = params.getString(0).toProperties()
+                val pokemon = store.find { props.matches(it) }
+                return@put pokemon?.asStruct() ?: DoubleValue.ZERO
+            }
+            map.put("find_all_by_properties") { params ->
+                val props = params.getString(0).toProperties()
+                val pokemon = store.filter { props.matches(it) }
+                return@put ArrayStruct(pokemon.mapIndexed { index, value -> "$index" to value.asStruct() }.toMap())
+            }
+            map.put("find_by_id") { params ->
+                val id = params.getString(0).asUUID
+                val pokemon = store.find { it.uuid == id }
+                return@put pokemon?.asStruct() ?: DoubleValue.ZERO
+            }
+            map.put("remove_by_id") { params ->
+                val id = params.getString(0).asUUID
+                val pokemon = store.find { it.uuid == id } ?: return@put DoubleValue.ZERO
+                return@put DoubleValue(store.remove(pokemon))
+            }
+            map.put("average_level") { _ ->
+                var numberOfPokemon = 0
+                var totalLevel = 0
+                for (pokemon in store) {
+                    totalLevel += pokemon.level
+                    numberOfPokemon++
+                }
+                if (numberOfPokemon == 0) {
+                    return@put DoubleValue.ZERO
+                }
+                return@put DoubleValue(totalLevel.toDouble() / numberOfPokemon)
+            }
+            map.put("count") { _ -> DoubleValue(store.count()) }
+            map.put("count_by_properties") { params ->
+                val props = params.getString(0).toProperties()
+                return@put DoubleValue(store.count { props.matches(it) })
+            }
+            map.put("highest_level") {
+                val highest = store.maxOfOrNull { it.level } ?: 0
+                return@put DoubleValue(highest)
+            }
+            map.put("lowest_level") {
+                val lowest = store.minOfOrNull { it.level } ?: 0
+                return@put DoubleValue(lowest)
+            }
+            map.put("heal") {
+                for (pokemon in store) {
+                    pokemon.heal()
+                }
+                return@put DoubleValue.ONE
+            }
+            map.put("healing_remainder_percent") { _ ->
+                var totalPercent = 0.0f
+                for (pokemon in store) {
+                    totalPercent += (1.0f - (pokemon.currentHealth.toFloat() / pokemon.maxHealth))
+                }
+                DoubleValue(totalPercent)
+            }
+            map.put("has_usable_pokemon") { _ -> DoubleValue(store.any { !it.isFainted() }) }
+            map
+        }
+    )
+
     val partyFunctions = mutableListOf<(PartyStore) -> HashMap<String, java.util.function.Function<MoParams, Any>>>(
         { party ->
             val map = hashMapOf<String, java.util.function.Function<MoParams, Any>>()
             map.put("get_pokemon") { params ->
                 val index = params.getInt(0)
                 val pokemon = party.get(index) ?: return@put DoubleValue.ZERO
-                val struct = VariableStruct()
-                pokemon.writeVariables(struct)
-                return@put struct
+                return@put pokemon.struct
             }
-            map.put("healing_remainder_percent") { _ -> DoubleValue(party.getHealingRemainderPercent()) }
-
             return@mutableListOf map
         })
+
+    val pcFunctions = mutableListOf<(PCStore) -> HashMap<String, java.util.function.Function<MoParams, Any>>>(
+        { pc ->
+            val map = hashMapOf<String, java.util.function.Function<MoParams, Any>>()
+            map.put("get_pokemon") { params ->
+                val box = params.getInt(0)
+                val slot = params.getInt(1)
+                val pokemon = pc[PCPosition(box, slot)] ?: return@put DoubleValue.ZERO
+                return@put pokemon.struct
+            }
+            map.put("resize") { params ->
+                val newSize = params.getInt(0)
+                val lockNewSize = params.getBooleanOrNull(1) == true
+                pc.resize(newSize, lockNewSize)
+                return@put DoubleValue.ONE
+            }
+            map.put("get_box_count") { _ -> DoubleValue(pc.boxes.size.toDouble()) }
+            return@mutableListOf map
+        }
+    )
+
+    val spawningContextFunctions = mutableListOf<(SpawningContext) -> HashMap<String, java.util.function.Function<MoParams, Any>>>(
+        { spawningContext ->
+            val map = hashMapOf<String, java.util.function.Function<MoParams, Any>>()
+            val worldValue = spawningContext.world.registryAccess().registryOrThrow(Registries.DIMENSION).wrapAsHolder(spawningContext.world).asWorldMoLangValue()
+            val biomeValue = spawningContext.biomeRegistry.wrapAsHolder(spawningContext.biome).asBiomeMoLangValue()
+            map.put("biome") { _ -> biomeValue }
+            map.put("world") { _ -> worldValue }
+            map.put("light") { _ -> DoubleValue(spawningContext.light.toDouble()) }
+            map.put("x") { _ -> DoubleValue(spawningContext.position.x.toDouble()) }
+            map.put("y") { _ -> DoubleValue(spawningContext.position.y.toDouble()) }
+            map.put("z") { _ -> DoubleValue(spawningContext.position.z.toDouble()) }
+            map.put("moon_phase") { _ -> DoubleValue(spawningContext.moonPhase.toDouble()) }
+            map.put("can_see_sky") { _ -> DoubleValue(spawningContext.canSeeSky) }
+            map.put("sky_light") { _ -> DoubleValue(spawningContext.skyLight.toDouble()) }
+            map.put("bucket") { _ -> StringValue(spawningContext.cause.bucket.name) }
+            map.put("player") { _ ->
+                val causeEntity = spawningContext.cause.entity ?: return@put DoubleValue.ZERO
+                if (causeEntity is ServerPlayer) {
+                    return@put causeEntity.asMoLangValue()
+                } else {
+                    return@put DoubleValue.ZERO
+                }
+            }
+            map
+        }
+    )
 
     fun Holder<Biome>.asBiomeMoLangValue() = asMoLangValue(Registries.BIOME).addFunctions(biomeFunctions)
     fun Holder<Level>.asWorldMoLangValue() = asMoLangValue(Registries.DIMENSION).addFunctions(worldFunctions)
@@ -381,6 +546,33 @@ object MoLangFunctions {
         )
         value.addFunctions(entityFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())
         value.addFunctions(playerFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())
+        return value
+    }
+
+    // We need to migrate the writeVariables thing to be all about query structs, variable doesn't make sense and I don't want to break fringe 1.6 compatibility issues close to release
+    fun Pokemon.asStruct(): ObjectValue<Pokemon> {
+        val queryStruct = ObjectValue(this)
+        queryStruct.addFunctions(pokemonFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())
+        return queryStruct
+    }
+
+    fun PartyStore.asMoLangValue(): ObjectValue<PartyStore> {
+        val value = ObjectValue(
+            obj = this,
+            stringify = { it.toString() }
+        )
+        value.addFunctions(pokemonStoreFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())
+        value.addFunctions(partyFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())
+        return value
+    }
+
+    fun PCStore.asMoLangValue(): ObjectValue<PCStore> {
+        val value = ObjectValue(
+            obj = this,
+            stringify = { it.toString() }
+        )
+        value.addFunctions(pokemonStoreFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())
+        value.addFunctions(pcFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())
         return value
     }
 
@@ -400,6 +592,15 @@ object MoLangFunctions {
             stringify = { it.battleId.toString() }
         )
         value.addFunctions(battleFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())
+        return value
+    }
+
+    fun SpawningContext.asMoLangValue(): ObjectValue<SpawningContext> {
+        val value = ObjectValue(
+            obj = this,
+            stringify = { it.toString() }
+        )
+        value.addFunctions(spawningContextFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())
         return value
     }
 

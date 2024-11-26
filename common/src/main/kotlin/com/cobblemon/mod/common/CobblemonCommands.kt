@@ -52,6 +52,7 @@ object CobblemonCommands {
         BedrockParticleCommand.register(dispatcher)
         OpenDialogueCommand.register(dispatcher)
         NPCEditCommand.register(dispatcher)
+        NPCDeleteCommand.register(dispatcher)
         AbandonMultiTeam.register(dispatcher)
         FreezePokemonCommand.register(dispatcher)
         ApplyPlayerTextureCommand.register(dispatcher)

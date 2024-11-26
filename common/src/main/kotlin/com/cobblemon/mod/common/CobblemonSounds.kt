@@ -47,16 +47,6 @@ object CobblemonSounds : PlatformRegistry<Registry<SoundEvent>, ResourceKey<Regi
     val HEALING_MACHINE_ACTIVE = this.create("block.healing_machine.active")
 
     @JvmField
-    val POKE_BALL_CAPTURE_STARTED = this.create("poke_ball.capture_started")
-    @JvmField
-    val POKE_BALL_CAPTURE_SUCCEEDED = this.create("poke_ball.capture_succeeded")
-    @JvmField
-    val POKE_BALL_SHAKE = this.create("poke_ball.shake")
-    @JvmField
-    val POKE_BALL_OPEN = this.create("poke_ball.open")
-    @JvmField
-    val POKE_BALL_SHINY_OPEN = this.create("poke_ball.shiny_open")
-    @JvmField
     val POKE_BALL_HIT = this.create("poke_ball.hit")
     @JvmField
     val POKE_BALL_SEND_OUT = this.create("poke_ball.send_out")

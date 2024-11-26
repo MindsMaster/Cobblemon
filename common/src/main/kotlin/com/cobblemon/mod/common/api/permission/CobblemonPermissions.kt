@@ -76,6 +76,7 @@ object CobblemonPermissions {
     val POKEDEX = this.create("${COMMAND_PREFIX}pokedex", PermissionLevel.CHEAT_COMMANDS_AND_COMMAND_BLOCKS)
 
     val NPC_EDIT = this.create("${COMMAND_PREFIX}npcedit", PermissionLevel.CHEAT_COMMANDS_AND_COMMAND_BLOCKS)
+    val NPC_DELETE = this.create("${COMMAND_PREFIX}npcdelete", PermissionLevel.CHEAT_COMMANDS_AND_COMMAND_BLOCKS)
     val FREEZE_POKEMON = this.create("${COMMAND_PREFIX}freezepokemon", PermissionLevel.CHEAT_COMMANDS_AND_COMMAND_BLOCKS)
     val APPLY_PLAYER_TEXTURE = this.create("${COMMAND_PREFIX}applyplayertexture", PermissionLevel.CHEAT_COMMANDS_AND_COMMAND_BLOCKS)
 

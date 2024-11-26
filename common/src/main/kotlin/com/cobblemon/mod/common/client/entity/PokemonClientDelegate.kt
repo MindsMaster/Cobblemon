@@ -379,7 +379,7 @@ class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
         val player = Minecraft.getInstance().player ?: return
         val isWithinRange = player.position().distanceTo(currentEntity.position()) <= Cobblemon.config.shinyNoticeParticlesDistance
 
-        if (currentEntity.pokemon.shiny && currentEntity.ownerUUID == null) {
+        if (currentEntity.pokemon.shiny && currentEntity.ownerUUID == null && !player.isSpectator ) {
             if (isWithinRange && !shined) {
                 playShinyEffect("cobblemon:wild_shiny_ring")
                 shined = true

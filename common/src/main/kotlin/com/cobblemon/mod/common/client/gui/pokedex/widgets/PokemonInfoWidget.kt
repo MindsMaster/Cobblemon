@@ -368,7 +368,7 @@ class PokemonInfoWidget(val pX: Int, val pY: Int, val updateForm: (PokedexForm) 
             matrices.translate(
                 pX.toDouble() + (POKEMON_PORTRAIT_WIDTH.toDouble() + 2)/2,
                 pY.toDouble() + portraitStartY - 12,
-                0.0
+                1000.0 // Prevent model from clipping into background
             )
             matrices.scale(scaleAmount, scaleAmount, scaleAmount)
             val rotationVector = Vector3f(13F, rotationY, 0F)
@@ -398,7 +398,7 @@ class PokemonInfoWidget(val pX: Int, val pY: Int, val updateForm: (PokedexForm) 
 
         // Ensure elements are not hidden behind Pokémon render
         matrices.pushPose()
-        matrices.translate(0.0, 0.0, 1000.0)
+        matrices.translate(0.0, 0.0, 2000.0)
 
         if (isSelectedPokemonOwned()) {
             val primaryType = type[0]

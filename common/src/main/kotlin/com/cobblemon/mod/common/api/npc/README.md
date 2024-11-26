@@ -349,6 +349,21 @@ Whether or not the NPC's party will be healed between battles. If the NPC has a 
 do nothing. If the NPC has a static party and this option is false, their Pokémon will not be healed and the
 NPC will have to use healing machines to heal them if they have that enabled in their AI.
 
+### isMovable
+Controls whether the NPC can be moved by players or other entities. If disabled, the NPC will remain 
+stationary.
+
+### isInvulnerable
+Controls whether the NPC is immune to all damage sources.
+
+### isLeashable
+Controls whether players can attach a lead to a NPC. If disabled, players will be unable to leash 
+the NPC and move them using leads.
+
+### allowProjectileHits
+Controls whether the NPC can be hit by projectiles. Disabling this option prevents unwanted 
+interactions, such as players moving the NPC with fishing rods or other projectiles.
+
 ### ai
 The AI property is an array of brain configurations. This is used to configure the behaviours of the NPC. See
 the documentation for brain configurations at [AI Configuration](../ai/config/README.md).

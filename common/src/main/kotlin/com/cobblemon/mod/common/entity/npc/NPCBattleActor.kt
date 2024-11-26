@@ -79,17 +79,11 @@ class NPCBattleActor(
     override fun win(otherWinners: List<BattleActor>, losers: List<BattleActor>) {
         super.win(otherWinners, losers)
         npc.playAnimation(NPCEntity.WIN_ANIMATION)
-        if (npc.npc.autoHealParty) {
-            npc.party?.heal()
-        }
     }
 
     override fun lose(winners: List<BattleActor>, otherLosers: List<BattleActor>) {
         super.lose(winners, otherLosers)
         npc.playAnimation(NPCEntity.LOSE_ANIMATION)
-        if (npc.npc.autoHealParty) {
-            npc.party?.heal()
-        }
 //        winners.forEach {
 //            rewards.forEach {
 //                winner give reward :))

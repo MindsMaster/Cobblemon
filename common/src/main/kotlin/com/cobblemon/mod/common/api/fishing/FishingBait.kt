@@ -10,16 +10,14 @@ package com.cobblemon.mod.common.api.fishing
 
 import com.cobblemon.mod.common.api.events.CobblemonEvents
 import com.cobblemon.mod.common.api.events.fishing.BaitEffectFunctionRegistryEvent
-import com.cobblemon.mod.common.api.fishing.FishingBait.Effect
 import com.cobblemon.mod.common.api.spawning.fishing.FishingSpawnCause
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.cobblemonResource
-import com.cobblemon.mod.common.util.codec.kotlinOptionalFieldOf
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
+import java.util.Optional
 import net.minecraft.core.Registry
 import net.minecraft.network.codec.ByteBufCodecs
-import net.minecraft.nbt.StringTag
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
@@ -36,11 +34,13 @@ data class FishingBait(
         val chance: Double = 0.0,
         val value: Double = 0.0
     ) {
+        constructor(type: ResourceLocation, subcategory: Optional<ResourceLocation>, chance: Double, value: Double) : this(type, subcategory.orElse(null), chance, value)
+
         companion object {
             val CODEC = RecordCodecBuilder.create<Effect> { instance ->
                 instance.group(
                     ResourceLocation.CODEC.fieldOf("type").forGetter { it.type },
-                    ResourceLocation.CODEC.kotlinOptionalFieldOf("subcategory").forGetter { it.subcategory },
+                    ResourceLocation.CODEC.optionalFieldOf("subcategory").forGetter { Optional.ofNullable(it.subcategory) },
                     Codec.DOUBLE.fieldOf("chance").forGetter { it.chance },
                     Codec.DOUBLE.fieldOf("value").forGetter { it.value }
                 ).apply(instance, ::Effect)

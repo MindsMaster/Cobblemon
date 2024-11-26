@@ -32,6 +32,9 @@ class NPCPreset {
     var autoHealParty: Boolean? = null
     var battleTheme: ResourceLocation? = null
     var isMovable: Boolean? = null
+    var isInvulnerable: Boolean? = null
+    var isLeashable: Boolean? = null
+    var allowProjectileHits: Boolean? = null
 
     fun applyTo(npcClass: NPCClass) {
         resourceIdentifier?.let { npcClass.resourceIdentifier = it }
@@ -53,5 +56,8 @@ class NPCPreset {
         battleTheme?.let { npcClass.battleTheme = it }
         ai?.let { npcClass.ai.addAll(it) }
         isMovable?.let { npcClass.isMovable = it }
+        isInvulnerable?.let { npcClass.isInvulnerable = it }
+        isLeashable?.let { npcClass.isLeashable = it }
+        allowProjectileHits?.let { npcClass.allowProjectileHits = it }
     }
 }

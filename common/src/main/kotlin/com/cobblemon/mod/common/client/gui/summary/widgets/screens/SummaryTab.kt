@@ -46,8 +46,8 @@ class SummaryTab(
                 texture = icon,
                 x = (x + 21) / 0.5F,
                 y = (y + 3.5) / 0.5F,
-                width = 16,
-                height = 16,
+                width = 17,
+                height = 17,
                 scale = 0.5F
             )
         }

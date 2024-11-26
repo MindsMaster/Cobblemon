@@ -156,7 +156,7 @@ object CobblemonClient {
                     return@subscribe
                 }
                 val nearbyShinies = player?.level()?.getEntities(player, AABB.ofSize(player.position(), 16.0, 16.0, 16.0)) { (it is PokemonEntity) && it.pokemon.shiny }
-                nearbyShinies?.firstOrNull { player.isLookingAt(it) }.let {
+                nearbyShinies?.firstOrNull { player.isLookingAt(it) && !player.isSpectator }.let {
                     if(it is PokemonEntity)
                         it.delegate.spawnShinyParticle(player!!)
                 }

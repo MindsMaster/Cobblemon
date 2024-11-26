@@ -94,7 +94,7 @@ abstract class AbstractPokedexManager {
         if (formRecord == null || formRecord.knowledge == PokedexEntryProgress.NONE) {
             return PokedexLearnedInformation.FORM
         }
-        if (pokedexEntityData.aspects.none(speciesRecord::hasAspect) || pokedexEntityData.gender !in formRecord.getGenders() || !formRecord.hasSeenShinyState(pokedexEntityData.shiny)) {
+        if (pokedexEntityData.aspects.any{ !speciesRecord.hasAspect(it) } || pokedexEntityData.gender !in formRecord.getGenders() || !formRecord.hasSeenShinyState(pokedexEntityData.shiny)) {
             return PokedexLearnedInformation.VARIATION
         }
         return PokedexLearnedInformation.NONE

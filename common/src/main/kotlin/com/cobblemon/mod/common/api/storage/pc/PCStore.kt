@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.api.storage.pc
 
 import com.cobblemon.mod.common.Cobblemon
+import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMoLangValue
 import com.cobblemon.mod.common.api.reactive.SimpleObservable
 import com.cobblemon.mod.common.api.storage.BottomlessStore
 import com.cobblemon.mod.common.api.storage.PokemonStore
@@ -23,11 +24,11 @@ import com.cobblemon.mod.common.util.DataKeys
 import com.cobblemon.mod.common.util.getPlayer
 import com.cobblemon.mod.common.util.lang
 import com.google.gson.JsonObject
+import java.util.UUID
+import net.minecraft.core.RegistryAccess
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.server.level.ServerPlayer
-import java.util.*
-import net.minecraft.core.RegistryAccess
 
 /**
  * The store used for PCs. It is divided into some number of [PCBox]es, and can
@@ -54,6 +55,9 @@ open class PCStore(
 
     override fun iterator() = boxes.flatMap { it.toList() }.iterator()
     override fun getObservingPlayers() = observingUUIDs.mapNotNull { it.getPlayer() }
+
+    val struct = asMoLangValue()
+
     fun addObserver(player: ServerPlayer) {
         observingUUIDs.add(player.uuid)
         sendTo(player)

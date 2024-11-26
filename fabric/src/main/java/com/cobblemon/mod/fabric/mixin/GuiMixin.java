@@ -39,6 +39,7 @@ public class GuiMixin {
         }
         lastTimeMillis = System.currentTimeMillis();
     }
+
     //Modifies the render condition passed in the LayeredDraw so the layer doesnt render when pokedex is open
     @WrapOperation(
         method = "<init>(Lnet/minecraft/client/Minecraft;)V",
@@ -51,8 +52,10 @@ public class GuiMixin {
         Operation<LayeredDraw> original
     ) {
         BooleanSupplier newBool = () -> {
-            boolean shouldRender = !CobblemonClient.INSTANCE.getPokedexUsageContext().getScanningGuiOpen() && Minecraft.getInstance().options.getCameraType().isFirstPerson();
-            return renderInner.getAsBoolean() && shouldRender;
+            if (CobblemonClient.INSTANCE.getPokedexUsageContext().getScanningGuiOpen() && Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
+                return false;
+            }
+            return renderInner.getAsBoolean();
         };
         return original.call(instance, layeredDraw, newBool);
     }

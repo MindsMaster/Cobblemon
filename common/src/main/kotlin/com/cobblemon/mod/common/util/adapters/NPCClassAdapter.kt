@@ -73,6 +73,9 @@ object NPCClassAdapter : JsonDeserializer<NPCClass> {
         obj.get("battleTheme")?.let { npcClass.battleTheme = it.asString.asIdentifierDefaultingNamespace() }
         obj.get("ai")?.let { npcClass.ai.addAll(it.asJsonArray.map<JsonElement, BrainConfig> { ctx.deserialize(it, BrainConfig::class.java) }.toMutableList()) }
         obj.get("isMovable")?.let { npcClass.isMovable = it.asBoolean }
+        obj.get("isInvulnerable")?.let { npcClass.isInvulnerable = it.asBoolean }
+        obj.get("isLeashable")?.let { npcClass.isLeashable = it.asBoolean }
+        obj.get("allowProjectileHits")?.let { npcClass.allowProjectileHits = it.asBoolean }
 
         return npcClass
     }

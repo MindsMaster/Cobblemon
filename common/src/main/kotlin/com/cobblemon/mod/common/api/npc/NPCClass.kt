@@ -51,6 +51,9 @@ class NPCClass {
     var battleTheme: ResourceLocation? = null
     var ai: MutableList<BrainConfig> = mutableListOf()
     var isMovable: Boolean = true
+    var isInvulnerable = false
+    var isLeashable = true
+    var allowProjectileHits = true
 
     // If you're adding stuff here, add it to NPCPreset and NPCClassAdapter too
 
@@ -86,6 +89,9 @@ class NPCClass {
         }
         buffer.writeNullable(battleTheme) { _, v -> buffer.writeIdentifier(v) }
         buffer.writeBoolean(isMovable)
+        buffer.writeBoolean(isInvulnerable)
+        buffer.writeBoolean(isLeashable)
+        buffer.writeBoolean(allowProjectileHits)
     }
 
     fun decode(buffer: RegistryFriendlyByteBuf) {
@@ -132,5 +138,8 @@ class NPCClass {
         }
         battleTheme = buffer.readNullable { buffer.readIdentifier() }
         isMovable = buffer.readBoolean()
+        isInvulnerable = buffer.readBoolean()
+        isLeashable = buffer.readBoolean()
+        allowProjectileHits = buffer.readBoolean()
     }
 }
