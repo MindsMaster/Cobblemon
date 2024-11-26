@@ -1333,6 +1333,10 @@
   "advancements.cobblemon.craft_rod.description": "Craft a Poké Rod using a Poké Rod Smithing Template",
   "advancements.cobblemon.use_bait": "A Berry Good Lure",
   "advancements.cobblemon.use_bait.description": "Use a berry as bait for your Poké Rod",
+  "advancements.cobblemon.use_bait.oran": "Oran't you glad I'm here",
+  "advancements.cobblemon.use_bait.oran.description": "Use an oran berry as bait for your Poké Rod",
+  "advancements.cobblemon.reel_in_pokemon.magikarp": "Karptastic",
+  "advancements.cobblemon.reel_in_pokemon.magikarp.description": "Reel-in a Magikarp with a pokerod",
   "advancements.cobblemon.craft_master_rod": "Masterful Dedication",
   "advancements.cobblemon.craft_master_rod.description": "Craft a Poké Rod using a Master Ball",
 

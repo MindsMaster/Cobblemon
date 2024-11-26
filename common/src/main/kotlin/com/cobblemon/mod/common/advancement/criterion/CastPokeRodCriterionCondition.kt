@@ -15,19 +15,20 @@ import java.util.Optional
 import net.minecraft.advancements.critereon.ContextAwarePredicate
 import net.minecraft.advancements.critereon.EntityPredicate
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.resources.ResourceLocation
 
 class CastPokeRodCriterionCondition(
-    playerCtx: Optional<ContextAwarePredicate>,
-    val hasBait: Boolean
-): SimpleCriterionCondition<Boolean>(playerCtx) {
+        playerCtx: Optional<ContextAwarePredicate>,
+        val baitId: Optional<ResourceLocation>
+) : SimpleCriterionCondition<ResourceLocation?>(playerCtx) {
     companion object {
         val CODEC: Codec<CastPokeRodCriterionCondition> = RecordCodecBuilder.create { it.group(
-            EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(CastPokeRodCriterionCondition::playerCtx),
-            PrimitiveCodec.BOOL.fieldOf("hasBait").forGetter(CastPokeRodCriterionCondition::hasBait)
+                EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(CastPokeRodCriterionCondition::playerCtx),
+                ResourceLocation.CODEC.optionalFieldOf("baitId").forGetter(CastPokeRodCriterionCondition::baitId)
         ).apply(it, ::CastPokeRodCriterionCondition) }
     }
 
-    override fun matches(player: ServerPlayer, context: Boolean): Boolean {
-        return hasBait == context
+    override fun matches(player: ServerPlayer, context: ResourceLocation?): Boolean {
+        return baitId.isEmpty || baitId.get() == context
     }
 }
