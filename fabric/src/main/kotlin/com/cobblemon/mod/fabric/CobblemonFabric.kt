@@ -277,6 +277,10 @@ object CobblemonFabric : CobblemonImplementation {
         CobblemonParticles.register { identifier, particleType -> Registry.register(CobblemonParticles.registry, identifier, particleType) }
     }
 
+    override fun registerMenu() {
+        CobblemonMenuType.register { identifier, factory -> Registry.register(CobblemonMenuType.registry, identifier, factory) }
+    }
+
     override fun addFeatureToWorldGen(feature: ResourceKey<PlacedFeature>, step: GenerationStep.Decoration, validTag: TagKey<Biome>?) {
         val predicate: (BiomeSelectionContext) -> Boolean = { context -> validTag == null || context.hasTag(validTag) }
         BiomeModifications.addFeature(predicate, step, feature)

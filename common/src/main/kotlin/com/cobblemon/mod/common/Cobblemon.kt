@@ -178,6 +178,7 @@ object Cobblemon {
         implementation.registerVillagers()
         implementation.registerWorldGenFeatures()
         implementation.registerParticles()
+        implementation.registerMenu()
         implementation.registerEntityDataSerializers()
         implementation.registerCriteria()
         implementation.registerEntitySubPredicates()

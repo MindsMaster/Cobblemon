@@ -111,6 +111,8 @@ interface CobblemonImplementation {
 
     fun registerParticles()
 
+    fun registerMenu()
+
     fun registerEntitySubPredicates()
 
 

@@ -44,6 +44,7 @@ import java.util.concurrent.ExecutionException
 import kotlin.reflect.KClass
 import net.minecraft.commands.synchronization.ArgumentTypeInfo
 import net.minecraft.commands.synchronization.ArgumentTypeInfos
+import net.minecraft.core.Registry
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceKey
@@ -264,6 +265,10 @@ class CobblemonNeoForge : CobblemonImplementation {
                 CobblemonParticles.register { identifier, particleType -> helper.register(identifier, particleType) }
             }
         }
+    }
+
+    override fun registerMenu() {
+        CobblemonMenuType.register { identifier, factory -> Registry.register(CobblemonMenuType.registry, identifier, factory) }
     }
 
     private fun handleBlockStripping(e: BlockEvent.BlockToolModificationEvent) {

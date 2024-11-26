@@ -112,3 +112,11 @@ transitive-extendable method net/minecraft/world/entity/LivingEntity getDimensio
 transitive-accessible field net/minecraft/world/level/material/MapColor MATERIAL_COLORS [Lnet/minecraft/world/level/material/MapColor;
 
 transitive-accessible field net/minecraft/client/Minecraft textureManager Lnet/minecraft/client/renderer/texture/TextureManager;
+
+transitive-accessible method net/minecraft/world/inventory/MenuType register (Ljava/lang/String;Lnet/minecraft/world/inventory/MenuType$MenuSupplier;)Lnet/minecraft/world/inventory/MenuType;
+transitive-accessible class net/minecraft/world/inventory/MenuType$MenuSupplier
+transitive-accessible method net/minecraft/world/inventory/MenuType <init> (Lnet/minecraft/world/inventory/MenuType$MenuSupplier;Lnet/minecraft/world/flag/FeatureFlagSet;)V
+transitive-accessible class net/minecraft/client/gui/screens/MenuScreens$ScreenConstructor
+transitive-accessible method net/minecraft/client/gui/screens/MenuScreens register (Lnet/minecraft/world/inventory/MenuType;Lnet/minecraft/client/gui/screens/MenuScreens$ScreenConstructor;)V
+
+
