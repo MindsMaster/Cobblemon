@@ -260,7 +260,7 @@
     "use_liechi_berry": {
       "trigger": "cobblemon:cast_poke_rod",
       "conditions": {
-        "baitId": "cobblemon:leichi_berry"
+        "baitId": "cobblemon:liechi_berry"
       }
     },
     "use_ganlon_berry": {
