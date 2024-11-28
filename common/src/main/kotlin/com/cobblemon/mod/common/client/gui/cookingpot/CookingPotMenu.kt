@@ -66,12 +66,36 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe> {
     }
 
     fun canCook(): Boolean {
-        return this.level.recipeManager.getRecipeFor(this.recipeType, craftSlots.asCraftInput(), this.level).isPresent
+        val optionalRecipe = this.level.recipeManager.getRecipeFor(
+                CobblemonRecipeTypes.COOKING_POT_COOKING,
+                craftSlots.asCraftInput(),
+                this.level
+        )
+        println("Checking if cooking is possible. Found recipe: ${optionalRecipe.isPresent}")
+        return optionalRecipe.isPresent
     }
 
     override fun slotsChanged(container: Container) {
+        CobblemonRecipeTypes.logLoadedRecipes()
 
+        println("Slots changed. Checking for matching recipes...")
+
+        val currentInput = craftSlots.items
+        println("Crafting Slots Content: $currentInput")
+
+        val matchingRecipe = level.recipeManager.getRecipeFor(
+                CobblemonRecipeTypes.COOKING_POT_COOKING,
+                craftSlots.asCraftInput(),
+                level
+        )
+
+        if (matchingRecipe.isPresent) {
+            println("Matching Recipe Found: ${matchingRecipe.get()}")
+        } else {
+            println("No matching recipe found.")
+        }
     }
+
 
     override fun removed(player: Player) {
         super.removed(player)
@@ -89,9 +113,15 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe> {
     }
 
     override fun recipeMatches(recipe: RecipeHolder<CookingPotRecipe?>): Boolean {
-        return recipe.value()?.matches(this.craftSlots.asCraftInput(), this.player.level()) == true
-
+        val matches = recipe.value()?.matches(this.craftSlots.asCraftInput(), this.player.level()) == true
+        if (matches) {
+            println("Recipe matched: ${recipe.value()}")
+        } else {
+            println("Recipe did not match: ${recipe.value()}")
+        }
+        return matches
     }
+
 
     override fun getResultSlotIndex(): Int {
         return 0

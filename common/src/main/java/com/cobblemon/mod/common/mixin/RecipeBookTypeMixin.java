@@ -34,5 +34,6 @@ public class RecipeBookTypeMixin {
         ArrayList<RecipeBookType> types = new ArrayList<>(List.of($VALUES));
         types.add(cobblemon$createBookType("COOKING_POT", $VALUES.length));
         $VALUES = types.toArray(RecipeBookType[]::new);
+        System.out.println("Registered RecipeBookType: COOKING_POT");
     }
 }

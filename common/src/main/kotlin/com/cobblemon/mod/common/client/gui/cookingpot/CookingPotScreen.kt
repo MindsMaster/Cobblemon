@@ -8,7 +8,9 @@
 
 package com.cobblemon.mod.common.client.gui.cookingpot
 
+import com.cobblemon.mod.common.CobblemonRecipeTypes
 import com.cobblemon.mod.common.api.gui.blitk
+import com.cobblemon.mod.common.mixin.RecipeBookTypeMixin
 import com.cobblemon.mod.common.util.cobblemonResource
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
@@ -20,6 +22,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.inventory.ClickType
 import net.minecraft.world.inventory.RecipeBookMenu
+import net.minecraft.world.inventory.RecipeBookType
 import net.minecraft.world.inventory.Slot
 
 class CookingPotScreen : AbstractContainerScreen<CookingPotMenu>, RecipeUpdateListener {
@@ -47,6 +50,21 @@ class CookingPotScreen : AbstractContainerScreen<CookingPotMenu>, RecipeUpdateLi
         super.init()
         this.widthTooNarrow = this.width < 379
         this.recipeBookComponent.init(this.width, this.height, this.minecraft!!, this.widthTooNarrow, this.menu)
+        println("Initialized CookingPotScreen with RecipeBookComponent for menu type: ${(this.menu as? CookingPotMenu)?.getRecipeBookType()}")
+
+        Minecraft.getInstance().player?.recipeBook?.collections?.forEach { collection ->
+            val cookingPotRecipes = collection.recipes.filter { recipeHolder ->
+                // Unwrap the recipe holder and check if it's a CookingPotRecipe
+                (recipeHolder.value() as? CookingPotRecipe) != null
+            }
+            println("RecipeBook Collection: ${cookingPotRecipes.size} Cooking Pot recipes")
+            cookingPotRecipes.forEach { recipeHolder ->
+                val recipe = recipeHolder.value() as CookingPotRecipe
+                println("Cooking Pot Recipe: $recipe")
+            }
+        }
+
+
         this.leftPos = this.recipeBookComponent.updateScreenPosition(this.width, this.imageWidth)
         val recipeBookButton = ImageButton(
             this.leftPos + 10, this.height / 2 - 35, 20, 18, RecipeBookComponent.RECIPE_BUTTON_SPRITES

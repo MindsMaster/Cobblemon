@@ -21,7 +21,9 @@ import net.minecraft.world.item.crafting.RecipeType
 
 object CobblemonRecipeTypes : PlatformRegistry<Registry<RecipeType<*>>, ResourceKey<Registry<RecipeType<*>>>, RecipeType<*>>() {
 
-    val COOKING_POT_COOKING : RecipeType<CookingPotRecipe> = register("cobblemon:cooking_pot")
+    val COOKING_POT_COOKING: RecipeType<CookingPotRecipe> = register<CookingPotRecipe>("cobblemon:cooking_pot").also {
+        println("Registered recipe type: $it")
+    }
 
     override val registry: Registry<RecipeType<*>>
         get() = BuiltInRegistries.RECIPE_TYPE
@@ -30,15 +32,24 @@ object CobblemonRecipeTypes : PlatformRegistry<Registry<RecipeType<*>>, Resource
 
     fun <T : Recipe<*>> register(identifier: String): RecipeType<T> {
         return Registry.register(
-            BuiltInRegistries.RECIPE_TYPE,
-            identifier,
-            object : RecipeType<T> {
-                override fun toString(): String {
-                    return identifier
+                BuiltInRegistries.RECIPE_TYPE,
+                identifier,
+                object : RecipeType<T> {
+                    override fun toString(): String {
+                        return identifier
+                    }
                 }
-            }
-        ) as RecipeType<T>
+        ).also { println("Registered recipe type with identifier: $identifier") }
     }
 
+    fun logLoadedRecipes() {
+        val level = net.minecraft.client.Minecraft.getInstance().level ?: return
+        val recipeManager = level.recipeManager
+        val recipes = recipeManager.getAllRecipesFor(COOKING_POT_COOKING)
 
+        println("Loaded ${recipes.size} Cooking Pot recipes:")
+        recipes.forEach { recipe ->
+            println(" - Recipe: $recipe")
+        }
+    }
 }

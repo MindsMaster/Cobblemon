@@ -32,11 +32,10 @@ class CookingPotRecipe(
         return groupName
     }
 
-    override fun matches(
-        input: CraftingInput,
-        level: Level
-    ): Boolean {
-        return this.pattern.matches(input)
+    override fun matches(input: CraftingInput, level: Level): Boolean {
+        val matches = this.pattern.matches(input)
+        println("Matching recipe: $this, Input: $input, Matches: $matches")
+        return matches
     }
 
     override fun assemble(
