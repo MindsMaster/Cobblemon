@@ -11,15 +11,41 @@
     "standing": {
       "poseTypes": [
         "STAND",
-        "WALK",
-        "SWIM",
-        "FLOAT",
         "PORTRAIT",
         "PROFILE",
         "NONE"
       ],
-      "animations": ["q.bedrock('feebas', 'ground_idle')"],
+      "animations": [
+        "q.bedrock('feebas', 'ground_idle')"
+      ],
+      "quirks": [
+        "q.bedrock_quirk('feebas', 'blink')"
+      ]
+    },
+    "walking": {
+      "poseTypes": ["WALK"],
+      "animations": [
+        "q.bedrock('feebas', 'ground_walk')"
+      ],
       "quirks": ["q.bedrock_quirk('feebas', 'blink')"]
+    },
+    "float": {
+      "poseTypes": ["FLOAT"],
+      "animations": [
+        "q.bedrock('feebas', 'water_idle')"
+      ],
+      "quirks": ["q.bedrock_quirk('feebas', 'blink')"]
+    },
+    "swim": {
+      "poseTypes": ["SWIM"],
+      "animations": [
+        "q.bedrock('feebas', 'water_swim')"
+      ],
+      "quirks": ["q.bedrock_quirk('feebas', 'blink')"]
+    },
+    "sleep": {
+      "poseTypes": ["SLEEP"],
+      "animations": ["q.bedrock('feebas', 'sleep')"]
     }
   }
 }

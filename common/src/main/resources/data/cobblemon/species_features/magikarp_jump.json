@@ -1,9 +1,8 @@
 {
   "type": "choice",
   "keys": ["magikarp_jump"],
-  "default": "standard",
+  "default": "none",
   "choices": [
-    "standard",
     "apricot-stripes",
     "apricot-tiger",
     "apricot-zebra",

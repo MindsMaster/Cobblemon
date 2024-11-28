@@ -2,7 +2,6 @@
 	"format_version": "1.8.0",
 	"animations": {
 		"animation.seaking.ground_idle": {
-			"loop": true,
 			"animation_length": 0.5417,
 			"bones": {
 				"tail_back_left1": {
@@ -42,14 +41,14 @@
 				"fin_right2": {
 					"rotation": [0.88045, -9.96156, -5.07673]
 				},
-				"seaking_male": {
-					"position": [0, 0, 1]
-				},
 				"pupil_right": {
 					"position": [0, 0, 0]
 				},
 				"pupil_left": {
 					"position": [0, 0, 0]
+				},
+				"body": {
+					"position": [0, 0, 1]
 				}
 			}
 		},

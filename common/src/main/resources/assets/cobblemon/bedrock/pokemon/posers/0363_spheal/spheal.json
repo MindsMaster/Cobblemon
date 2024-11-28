@@ -11,7 +11,6 @@
     "standing": {
       "poseTypes": [
         "STAND",
-        "WALK",
         "SWIM",
         "FLOAT",
         "PORTRAIT",
@@ -20,6 +19,12 @@
       ],
       "animations": ["q.bedrock('spheal', 'ground_idle')"],
       "quirks": ["q.bedrock_quirk('spheal', 'blink')"]
+    },
+    "walking": {
+      "poseTypes": [
+        "WALK"
+      ],
+      "animations": ["q.bedrock('spheal', 'ground_walk_placeholder')"]
     }
   }
 }

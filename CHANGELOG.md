@@ -390,6 +390,7 @@
 - Fixed Grafaiai's walk speed to prevent model sliding. 
 - Fixed Alolan Exeggutor's tail not showing in the party UI. It will now also stand in front of all Pokémon in the party menu :)
 - Fixed Timburr duplicating its log while fainting.
+- Fixed hitbox sizes for Grotle and Torterra being set to default values.
 - Fixed reviving items throwing an exception when used in battle.
 - Fixed messages for Focus Sash, Confusion, Mummy, Ice Face, Own Tempo, and Revive.
 - Improve error handling when loading spawn-sets to ensure invalid configurations don't crash the server.

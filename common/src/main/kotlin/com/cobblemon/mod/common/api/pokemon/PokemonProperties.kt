@@ -657,8 +657,8 @@ open class PokemonProperties {
         nature = if (tag.contains(DataKeys.POKEMON_NATURE)) tag.getString(DataKeys.POKEMON_NATURE) else null
         ability = if (tag.contains(DataKeys.POKEMON_ABILITY)) tag.getString(DataKeys.POKEMON_ABILITY) else null
         status = if (tag.contains(DataKeys.POKEMON_STATUS_NAME)) tag.getString(DataKeys.POKEMON_STATUS_NAME) else null
-        ivs = if (tag.contains(DataKeys.POKEMON_IVS)) ivs?.loadFromNBT(tag.getCompound(DataKeys.POKEMON_IVS)) as IVs? else null
-        evs = if (tag.contains(DataKeys.POKEMON_EVS)) evs?.loadFromNBT(tag.getCompound(DataKeys.POKEMON_EVS)) as EVs? else null
+        ivs = if (tag.contains(DataKeys.POKEMON_IVS)) IVs().loadFromNBT(tag.getCompound(DataKeys.POKEMON_IVS)) as IVs else null
+        evs = if (tag.contains(DataKeys.POKEMON_EVS)) EVs().loadFromNBT(tag.getCompound(DataKeys.POKEMON_EVS)) as EVs else null
         type = if (tag.contains(DataKeys.ELEMENTAL_TYPE)) tag.getString(DataKeys.ELEMENTAL_TYPE) else null
         teraType = if (tag.contains(DataKeys.POKEMON_TERA_TYPE)) tag.getString(DataKeys.POKEMON_TERA_TYPE) else null
         dmaxLevel = if (tag.contains(DataKeys.POKEMON_DMAX_LEVEL)) tag.getInt(DataKeys.POKEMON_DMAX_LEVEL) else null
@@ -722,8 +722,8 @@ open class PokemonProperties {
         nature = json.get(DataKeys.POKEMON_NATURE)?.asString
         ability = json.get(DataKeys.POKEMON_ABILITY)?.asString
         status = json.get(DataKeys.POKEMON_STATUS_NAME)?.asString
-        ivs?.loadFromJSON(json.getAsJsonObject(DataKeys.POKEMON_IVS))
-        evs?.loadFromJSON(json.getAsJsonObject(DataKeys.POKEMON_EVS))
+        ivs = json.getAsJsonObject(DataKeys.POKEMON_IVS)?.let { IVs().loadFromJSON(it) } as IVs
+        evs = json.getAsJsonObject(DataKeys.POKEMON_EVS)?.let { EVs().loadFromJSON(it) } as EVs
         type = json.get(DataKeys.ELEMENTAL_TYPE)?.asString
         teraType = json.get(DataKeys.POKEMON_TERA_TYPE)?.asString
         dmaxLevel = json.get(DataKeys.POKEMON_DMAX_LEVEL)?.asInt

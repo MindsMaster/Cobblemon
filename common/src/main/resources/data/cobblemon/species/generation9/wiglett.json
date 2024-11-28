@@ -89,6 +89,14 @@
     "fixed": false
   },
   "aspects": [],
+  "behaviour": {
+    "moving": {
+      "swim": {
+        "canSwimInWater": false,
+        "canBreatheUnderwater": true
+      }
+    }
+  },
   "height": 12,
   "weight": 18,
   "evolutions": [

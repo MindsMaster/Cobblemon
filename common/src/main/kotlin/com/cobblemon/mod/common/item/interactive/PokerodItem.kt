@@ -162,16 +162,29 @@ class PokerodItem(val pokeRodId: ResourceLocation, settings: Properties) : Fishi
         val offHandItem = user.getItemInHand(InteractionHand.OFF_HAND)
         val offHandBait = FishingBaits.getFromBaitItemStack(offHandItem)
 
-        // if there already is bait on the bobber then drop it on the ground
         var baitOnRod = getBaitOnRod(itemStack)
-        // If rod is empty and offhand has bait, add bait from offhand
-        if (!world.isClientSide && user.fishing == null && offHandBait != null && baitOnRod == null) {
+
+        // Check if offhand item is valid bait and the rod is not in use, if so then apply bait from offhand
+        if (!world.isClientSide && user.fishing == null && offHandBait != null) {
             CobblemonEvents.BAIT_SET_PRE.postThen(BaitSetEvent(itemStack, offHandItem), { event ->
                 return InteractionResultHolder.fail(itemStack)
             }, {
                 playAttachSound(user)
-                setBait(itemStack, offHandItem.copy())
-                offHandItem.shrink(offHandItem.count)
+
+                // if there is bait on the rod already then drop it on the ground before applying offhand bait
+                if (baitOnRod != null) {
+                    val baitStack = baitOnRod.toItemStack(world.itemRegistry) // Convert the bait to an ItemStack
+                    if (!baitStack.isEmpty) {
+                        baitStack.count = getBaitStackOnRod(itemStack).count
+                        user.drop(baitStack, true) // Drop the full stack
+                    }
+                }
+
+                // apply single bait item from offhand
+                val singleBait = offHandItem.copy()
+                singleBait.count = 1
+                setBait(itemStack, singleBait)
+                offHandItem.shrink(1)
             })
         }
 

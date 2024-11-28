@@ -12,12 +12,12 @@
 			},
 			"bones": [
 				{
-					"name": "hattena",
+					"name": "hatenna",
 					"pivot": [0, 0, 0]
 				},
 				{
 					"name": "body",
-					"parent": "hattena",
+					"parent": "hatenna",
 					"pivot": [0, 7, 0]
 				},
 				{

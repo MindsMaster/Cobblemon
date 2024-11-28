@@ -11,7 +11,7 @@
   "poses": {
     "portrait": {
       "poseTypes": ["PORTRAIT", "PROFILE"],
-      "animations": ["q.bedrock('flamigo'', 'ground_idle')"],
+      "animations": ["q.bedrock('flamigo', 'ground_idle')"],
       "quirks": ["q.bedrock_quirk('flamigo', 'blink')"]
     },
     "battle-standing": {
