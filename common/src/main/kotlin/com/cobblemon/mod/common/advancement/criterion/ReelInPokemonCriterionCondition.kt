@@ -6,20 +6,27 @@ import java.util.Optional
 import net.minecraft.advancements.critereon.ContextAwarePredicate
 import net.minecraft.advancements.critereon.EntityPredicate
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.resources.ResourceLocation
 
 class ReelInPokemonCriterionCondition(
         playerCtx: Optional<ContextAwarePredicate>,
-        val pokemonId: Optional<String>
-) : SimpleCriterionCondition<String?>(playerCtx) {
+        val pokemonId: Optional<ResourceLocation>,
+        val baitId: Optional<ResourceLocation>
+) : SimpleCriterionCondition<Pair<ResourceLocation?, ResourceLocation?>>(playerCtx) {
+
     companion object {
         val CODEC: Codec<ReelInPokemonCriterionCondition> = RecordCodecBuilder.create { it.group(
-                EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(ReelInPokemonCriterionCondition::playerCtx),
-                Codec.STRING.optionalFieldOf("pokemonId").forGetter(ReelInPokemonCriterionCondition::pokemonId)
+                EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter { it.playerCtx },
+                ResourceLocation.CODEC.optionalFieldOf("pokemonId").forGetter { it.pokemonId },
+                ResourceLocation.CODEC.optionalFieldOf("baitId").forGetter { it.baitId }
         ).apply(it, ::ReelInPokemonCriterionCondition) }
     }
 
-    override fun matches(player: ServerPlayer, context: String?): Boolean {
-        println("Matching pokemonId: ${pokemonId.orElse("null")}, context: $context")
-        return pokemonId.isEmpty || pokemonId.get() == context
+    override fun matches(player: ServerPlayer, context: Pair<ResourceLocation?, ResourceLocation?>): Boolean {
+        val (contextPokemonId, contextBaitId) = context
+
+        val pokemonMatches = pokemonId.isEmpty || pokemonId.get() == contextPokemonId
+        val baitMatches = baitId.isEmpty || baitId.get() == contextBaitId
+        return pokemonMatches && baitMatches
     }
 }

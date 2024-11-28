@@ -1,0 +1,29 @@
+{
+  "display": {
+    "icon": {
+      "id": "cobblemon:pokemon_model",
+      "components": {
+        "cobblemon:pokemon_item": {
+          "species": "cobblemon:magikarp",
+          "aspects": []
+        }
+      }
+    },
+    "title": {
+      "translate": "advancements.cobblemon.reel_in_pokemon.magikarp_with_berry"
+    },
+    "description": {
+      "translate": "advancements.cobblemon.reel_in_pokemon.magikarp_with_berry.description"
+    }
+  },
+  "parent": "cobblemon:use_bait",
+  "criteria": {
+    "reel_in_magikarp_with_oran_berry": {
+      "trigger": "cobblemon:reel_in_pokemon",
+      "conditions": {
+        "pokemonId": "cobblemon:magikarp",
+        "baitId": "cobblemon:oran_berry"
+      }
+    }
+  }
+}
