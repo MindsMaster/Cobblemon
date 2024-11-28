@@ -279,6 +279,10 @@ class CobblemonNeoForge : CobblemonImplementation {
         }
     }
 
+    override fun registerRecipeTypes() {
+        CobblemonRecipeTypes.register { identifier, factory -> Registry.register(CobblemonRecipeTypes.registry, identifier, factory) }
+    }
+
     override fun registerItems() {
         with(MOD_BUS) {
             addListener<RegisterEvent> { event ->

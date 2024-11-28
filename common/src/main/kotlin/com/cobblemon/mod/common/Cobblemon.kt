@@ -118,6 +118,7 @@ import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaField
 import net.minecraft.client.Minecraft
 import net.minecraft.commands.synchronization.SingletonArgumentInfo
+import net.minecraft.core.registries.Registries
 import net.minecraft.resources.ResourceKey
 import net.minecraft.world.item.NameTagItem
 import net.minecraft.world.level.Level
@@ -167,6 +168,8 @@ object Cobblemon {
             this.LOGGER.info("  - Branch: ${CobblemonBuildDetails.BRANCH}")
         }
 
+        implementation.registerRecipeSerializers()
+        implementation.registerRecipeTypes()
         implementation.registerPermissionValidator()
         implementation.registerSoundEvents()
         implementation.registerDataComponents()
@@ -249,8 +252,6 @@ object Cobblemon {
         }
 
         HeldItemProvider.register(CobblemonHeldItemManager, Priority.LOWEST)
-
-
     }
 
     fun initialize() {

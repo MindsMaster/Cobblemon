@@ -213,8 +213,8 @@ class CookingPotScreenHandler : RecipeBookMenu<CraftingContainer> {
         return 10
     }
 
-    override fun getRecipeBookType(): RecipeBookType {
-        return RecipeBookType.CRAFTING
+    override fun getRecipeBookType(): RecipeBookTypeMixin {
+        return RecipeBookTypeMixin.CRAFTING
     }
 
     override fun shouldMoveToInventory(index: Int): Boolean {

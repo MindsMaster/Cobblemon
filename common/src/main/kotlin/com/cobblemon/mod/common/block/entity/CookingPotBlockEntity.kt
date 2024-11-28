@@ -22,6 +22,7 @@ import net.minecraft.world.inventory.RecipeCraftingHolder
 import net.minecraft.world.inventory.StackedContentsCompatible
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.crafting.RecipeHolder
+import net.minecraft.world.item.crafting.RecipeType
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity
 import net.minecraft.world.level.block.state.BlockState
 

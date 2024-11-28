@@ -103,6 +103,10 @@ interface CobblemonImplementation {
      */
     fun registerVillagers()
 
+    fun registerRecipeSerializers()
+    fun registerRecipeTypes()
+
+
     /**
      * TODO
      *

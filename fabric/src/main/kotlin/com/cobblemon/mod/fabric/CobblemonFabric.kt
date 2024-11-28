@@ -12,20 +12,12 @@ import com.cobblemon.mod.common.*
 import com.cobblemon.mod.common.advancement.CobblemonCriteria
 import com.cobblemon.mod.common.advancement.predicate.CobblemonEntitySubPredicates
 import com.cobblemon.mod.common.api.data.JsonDataRegistry
-import com.cobblemon.mod.common.api.net.serializers.IdentifierDataSerializer
-import com.cobblemon.mod.common.api.net.serializers.NPCPlayerTextureSerializer
-import com.cobblemon.mod.common.api.net.serializers.PoseTypeDataSerializer
-import com.cobblemon.mod.common.api.net.serializers.StringSetDataSerializer
-import com.cobblemon.mod.common.api.net.serializers.UUIDSetDataSerializer
-import com.cobblemon.mod.common.api.net.serializers.Vec3DataSerializer
+import com.cobblemon.mod.common.api.net.serializers.*
+import com.cobblemon.mod.common.compat.ClassTinkerers
 import com.cobblemon.mod.common.item.group.CobblemonItemGroups
 import com.cobblemon.mod.common.loot.LootInjector
 import com.cobblemon.mod.common.particle.CobblemonParticles
-import com.cobblemon.mod.common.platform.events.ChangeDimensionEvent
-import com.cobblemon.mod.common.platform.events.PlatformEvents
-import com.cobblemon.mod.common.platform.events.ServerEvent
-import com.cobblemon.mod.common.platform.events.ServerPlayerEvent
-import com.cobblemon.mod.common.platform.events.ServerTickEvent
+import com.cobblemon.mod.common.platform.events.*
 import com.cobblemon.mod.common.sherds.CobblemonSherds
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.common.util.didSleep
@@ -39,11 +31,6 @@ import com.cobblemon.mod.common.world.structureprocessors.CobblemonStructureProc
 import com.cobblemon.mod.fabric.net.CobblemonFabricNetworkManager
 import com.cobblemon.mod.fabric.permission.FabricPermissionValidator
 import com.mojang.brigadier.arguments.ArgumentType
-import java.io.File
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.Executor
-import kotlin.reflect.KClass
 import net.fabricmc.api.EnvType
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectionContext
@@ -87,11 +74,17 @@ import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.tags.TagKey
 import net.minecraft.util.profiling.ProfilerFiller
 import net.minecraft.world.InteractionResult
+import net.minecraft.world.inventory.RecipeBookType
 import net.minecraft.world.level.GameRules
 import net.minecraft.world.level.ItemLike
 import net.minecraft.world.level.biome.Biome
 import net.minecraft.world.level.levelgen.GenerationStep
 import net.minecraft.world.level.levelgen.placement.PlacedFeature
+import java.io.File
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executor
+import kotlin.reflect.KClass
 
 object CobblemonFabric : CobblemonImplementation {
 
@@ -110,7 +103,6 @@ object CobblemonFabric : CobblemonImplementation {
 
         //This has to be registered elsewhere on forge so we cant do it in common
         CobblemonSherds.registerSherds()
-
         CobblemonBlockPredicates.touch()
         CobblemonPlacementModifierTypes.touch()
         CobblemonProcessorTypes.touch()
@@ -188,7 +180,6 @@ object CobblemonFabric : CobblemonImplementation {
         }
 
         CommandRegistrationCallback.EVENT.register(CobblemonCommands::register)
-
         this.attemptModCompat()
     }
 
@@ -268,6 +259,15 @@ object CobblemonFabric : CobblemonImplementation {
         // 1 = common trades, 2 = rare, it has no concept of levels
         CobblemonTradeOffers.resolveWanderingTradeOffers().forEach { tradeOffer -> TradeOfferHelper.registerWanderingTraderOffers(if (tradeOffer.isRareTrade) 2 else 1) { factories -> factories.addAll(tradeOffer.tradeOffers) } }
     }
+
+    override fun registerRecipeSerializers() {
+        CobblemonRecipeSerializers.register { identifier, factory -> Registry.register(CobblemonRecipeSerializers.registry, identifier, factory) }
+    }
+
+    override fun registerRecipeTypes() {
+        CobblemonRecipeTypes.register { identifier, factory -> Registry.register(CobblemonRecipeTypes.registry, identifier, factory) }
+    }
+
 
     override fun registerWorldGenFeatures() {
         CobblemonFeatures.register { identifier, feature -> Registry.register(CobblemonFeatures.registry, identifier, feature) }

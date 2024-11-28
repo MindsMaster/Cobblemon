@@ -1,0 +1,17 @@
+{
+  "type": "cobblemon:cooking_pot",
+  "category": "misc",
+  "key": {
+    "#": {
+      "item": "cobblemon:dawn_stone"
+    }
+  },
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "result": {
+    "id": "cobblemon:dawn_stone_block"
+  }
+}

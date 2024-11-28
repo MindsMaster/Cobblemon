@@ -1,104 +1,120 @@
+/*
+ * Copyright (C) 2023 Cobblemon Contributors
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package com.cobblemon.mod.common.client.gui.cookingpot
 
+
 import com.cobblemon.mod.common.CobblemonMenuType
-import net.minecraft.world.SimpleContainer
+import com.cobblemon.mod.common.CobblemonRecipeTypes
+import com.cobblemon.mod.common.compat.Test
+import net.minecraft.world.Container
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.player.StackedContents
 import net.minecraft.world.inventory.*
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.crafting.AbstractCookingRecipe
-import net.minecraft.world.item.crafting.CraftingInput
-import net.minecraft.world.item.crafting.RecipeHolder
-import net.minecraft.world.item.crafting.SingleRecipeInput
+import net.minecraft.world.item.crafting.*
+import net.minecraft.world.level.Level
 
-class CookingPotMenu : RecipeBookMenu<SingleRecipeInput, AbstractCookingRecipe>{
-
-    companion object {
-        const val RESULT_ID = 0
-        private const val INPUT_START = 1
-        private const val INPUT_END = 10
-        private const val INVENTORY_START = 10
-        private const val INVENTORY_END = 37
-        private const val HOTBAR_START = 37
-        private const val HOTBAR_END = 46
-    }
+class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe> {
 
     private val containerId: Int
+    private val player: Player
+    private val level: Level
     private val playerInventory: Inventory
-    private val input: CraftingContainer
+    private val craftSlots: CraftingContainer
+    private val resultSlot: ResultContainer
+    private val recipeType: RecipeType<CookingPotRecipe> = CobblemonRecipeTypes.COOKING_POT_COOKING
 
     constructor(containerId: Int, playerInventory: Inventory) :
             super(CobblemonMenuType.COOKING_POT, containerId) {
         this.containerId = containerId
         this.playerInventory = playerInventory
-        this.input = TransientCraftingContainer(this, 3, 3)
+        this.craftSlots = TransientCraftingContainer(this, 3, 3)
+        this.resultSlot = ResultContainer()
+        this.player = playerInventory.player
+        this.level = playerInventory.player.level()
         initializeSlots(playerInventory)
     }
 
-
-
     private fun initializeSlots(playerInventory: Inventory) {
-        val craftingGridOffsetX = 14
-        val craftingGridOffsetY = 10
         val craftingOutputOffsetX = 16
         val craftingOutputOffsetY = 10
-        val playerInventoryOffsetX = 0
-        val playerInventoryOffsetY = 16
 
-        //addSlot(ResultSlot(playerInventory.player, , , 0, 124 + craftingOutputOffsetX, 35 + craftingOutputOffsetY))
-
+        addSlot(ResultSlot(playerInventory.player, this.craftSlots, this.resultSlot, 0, 124 + craftingOutputOffsetX, 35 + craftingOutputOffsetY))
 
         for (i in 0..2) {
             for (j in 0..2) {
-                addSlot(Slot(input, j + i * 3, 30 + craftingGridOffsetX + j * 18, 17 + craftingGridOffsetY + i * 18))
+                this.addSlot(Slot(this.craftSlots, j + i * 3, 44 + j * 18, 27 + i * 18))
             }
         }
+
         for (i in 0..2) {
             for (j in 0..8) {
-                addSlot(Slot(playerInventory, j + i * 9 + 9, 8 + playerInventoryOffsetX + j * 18, 84 + playerInventoryOffsetY+ i * 18))
+                this.addSlot(Slot(playerInventory, j + i * 9 + 9, 8 + j * 18, 100 + i * 18))
             }
         }
+
         for (i in 0..8) {
-            addSlot(Slot(playerInventory, i, 8 + playerInventoryOffsetX + i * 18, 142 + playerInventoryOffsetY))
+            this.addSlot(Slot(playerInventory, i, 8 + i * 18, 158))
         }
+    }
+
+    fun canCook(): Boolean {
+        return this.level.recipeManager.getRecipeFor(this.recipeType, craftSlots.asCraftInput(), this.level).isPresent
+    }
+
+    override fun slotsChanged(container: Container) {
+
+    }
+
+    override fun removed(player: Player) {
+        super.removed(player)
+
     }
 
 
     override fun fillCraftSlotsStackedContents(itemHelper: StackedContents) {
-        TODO("Not yet implemented")
+        this.craftSlots.fillStackedContents(itemHelper);
     }
 
     override fun clearCraftingContent() {
-        TODO("Not yet implemented")
+        craftSlots.clearContent()
+        resultSlot.clearContent()
     }
 
-    override fun recipeMatches(recipe: RecipeHolder<AbstractCookingRecipe?>): Boolean {
-        return false
+    override fun recipeMatches(recipe: RecipeHolder<CookingPotRecipe?>): Boolean {
+        return recipe.value()?.matches(this.craftSlots.asCraftInput(), this.player.level()) == true
+
     }
 
     override fun getResultSlotIndex(): Int {
-        return 2
+        return 0
     }
 
     override fun getGridWidth(): Int {
-        return 1
+        return this.craftSlots.width
     }
 
     override fun getGridHeight(): Int {
-        return 1
+        return this.craftSlots.height
     }
 
     override fun getSize(): Int {
-        return 3
+        return 10
     }
 
-    override fun getRecipeBookType(): RecipeBookType? {
-        return RecipeBookType.CRAFTING
+    override fun getRecipeBookType(): RecipeBookType {
+        return Test.RECIPE_TYPE_COOKING
     }
 
     override fun shouldMoveToInventory(slotIndex: Int): Boolean {
-        return false
+        return return slotIndex != this.resultSlotIndex
     }
 
     override fun quickMoveStack(
@@ -109,7 +125,7 @@ class CookingPotMenu : RecipeBookMenu<SingleRecipeInput, AbstractCookingRecipe>{
     }
 
     override fun stillValid(player: Player): Boolean {
-        return true
+        return this.craftSlots.stillValid(player)
     }
 
 
