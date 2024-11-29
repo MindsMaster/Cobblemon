@@ -268,7 +268,13 @@ class CobblemonNeoForge : CobblemonImplementation {
     }
 
     override fun registerMenu() {
-        CobblemonMenuType.register { identifier, factory -> Registry.register(CobblemonMenuType.registry, identifier, factory) }
+        with(MOD_BUS) {
+            addListener<RegisterEvent> { event ->
+                event.register(CobblemonMenuType.resourceKey) { helper ->
+                    CobblemonMenuType.register { identifier, item -> helper.register(identifier, item) }
+                }
+            }
+        }
     }
 
     private fun handleBlockStripping(e: BlockEvent.BlockToolModificationEvent) {
@@ -280,7 +286,13 @@ class CobblemonNeoForge : CobblemonImplementation {
     }
 
     override fun registerRecipeTypes() {
-        CobblemonRecipeTypes.register { identifier, factory -> Registry.register(CobblemonRecipeTypes.registry, identifier, factory) }
+        with(MOD_BUS) {
+            addListener<RegisterEvent> { event ->
+                event.register(CobblemonRecipeTypes.resourceKey) { helper ->
+                    CobblemonRecipeTypes.register { identifier, item -> helper.register(identifier, item) }
+                }
+            }
+        }
     }
 
     override fun registerItems() {
