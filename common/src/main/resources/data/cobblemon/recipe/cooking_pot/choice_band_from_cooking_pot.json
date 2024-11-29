@@ -1,0 +1,29 @@
+{
+    "type": "cobblemon:cooking_pot",
+    "category": "medicines",
+    "pattern": [
+        "WQW",
+        "LMQ",
+        "RLW"
+    ],
+    "key": {
+        "W": {
+            "item": "minecraft:white_wool"
+        },
+        "L": {
+            "item": "minecraft:lapis_lazuli"
+        },
+        "R": {
+            "item": "minecraft:redstone"
+        },
+        "M": {
+            "item": "cobblemon:muscle_band"
+        },
+        "Q": {
+            "item": "minecraft:quartz"
+        }
+    },
+    "result": {
+        "id": "cobblemon:choice_band"
+    }
+}

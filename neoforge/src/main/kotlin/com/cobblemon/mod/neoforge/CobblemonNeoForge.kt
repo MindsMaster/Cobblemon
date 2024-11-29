@@ -347,6 +347,14 @@ class CobblemonNeoForge : CobblemonImplementation {
         }
     }
 
+    override fun registerRecipeSerializers() {
+        MOD_BUS.addListener<RegisterEvent> { event ->
+            event.register(CobblemonRecipeSerializers.resourceKey) { helper ->
+                CobblemonRecipeSerializers.register { identifier, feature -> helper.register(identifier, feature) }
+            }
+        }
+    }
+
     override fun registerWorldGenFeatures() {
         MOD_BUS.addListener<RegisterEvent> { event ->
             event.register(CobblemonFeatures.resourceKey) { helper ->

@@ -9,7 +9,6 @@
 package com.cobblemon.mod.common.integration.jei
 
 import com.cobblemon.mod.common.integration.jei.berry.BerryMutationProvider
-import com.cobblemon.mod.common.integration.jei.berry.BerryRecipeCategory
 import com.cobblemon.mod.common.util.cobblemonResource
 import mezz.jei.api.IModPlugin
 import mezz.jei.api.JeiPlugin

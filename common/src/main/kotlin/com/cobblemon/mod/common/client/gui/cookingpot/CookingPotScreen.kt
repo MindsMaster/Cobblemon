@@ -8,11 +8,8 @@
 
 package com.cobblemon.mod.common.client.gui.cookingpot
 
-import com.cobblemon.mod.common.CobblemonRecipeTypes
 import com.cobblemon.mod.common.api.gui.blitk
-import com.cobblemon.mod.common.mixin.RecipeBookTypeMixin
 import com.cobblemon.mod.common.util.cobblemonResource
-import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.ImageButton
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
@@ -22,8 +19,8 @@ import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.inventory.ClickType
 import net.minecraft.world.inventory.RecipeBookMenu
-import net.minecraft.world.inventory.RecipeBookType
 import net.minecraft.world.inventory.Slot
+import net.minecraft.world.item.crafting.CraftingInput
 
 class CookingPotScreen : AbstractContainerScreen<CookingPotMenu>, RecipeUpdateListener {
 
@@ -49,22 +46,7 @@ class CookingPotScreen : AbstractContainerScreen<CookingPotMenu>, RecipeUpdateLi
     override fun init() {
         super.init()
         this.widthTooNarrow = this.width < 379
-        this.recipeBookComponent.init(this.width, this.height, this.minecraft!!, this.widthTooNarrow, this.menu)
-        println("Initialized CookingPotScreen with RecipeBookComponent for menu type: ${(this.menu as? CookingPotMenu)?.getRecipeBookType()}")
-
-        Minecraft.getInstance().player?.recipeBook?.collections?.forEach { collection ->
-            val cookingPotRecipes = collection.recipes.filter { recipeHolder ->
-                // Unwrap the recipe holder and check if it's a CookingPotRecipe
-                (recipeHolder.value() as? CookingPotRecipe) != null
-            }
-            println("RecipeBook Collection: ${cookingPotRecipes.size} Cooking Pot recipes")
-            cookingPotRecipes.forEach { recipeHolder ->
-                val recipe = recipeHolder.value() as CookingPotRecipe
-                println("Cooking Pot Recipe: $recipe")
-            }
-        }
-
-
+        this.recipeBookComponent.init(this.width, this.height, this.minecraft!!, this.widthTooNarrow, this.menu as RecipeBookMenu<CraftingInput, CookingPotRecipe>)
         this.leftPos = this.recipeBookComponent.updateScreenPosition(this.width, this.imageWidth)
         val recipeBookButton = ImageButton(
             this.leftPos + 10, this.height / 2 - 35, 20, 18, RecipeBookComponent.RECIPE_BUTTON_SPRITES
@@ -73,17 +55,17 @@ class CookingPotScreen : AbstractContainerScreen<CookingPotMenu>, RecipeUpdateLi
             this.leftPos = this.recipeBookComponent.updateScreenPosition(this.width, this.imageWidth)
             button.setPosition(this.leftPos + 10, this.height / 2 - 35)
         }
-        addRenderableWidget(recipeBookButton)
-        addWidget(recipeBookComponent)
+
+        this.addWidget(this.recipeBookComponent)
+        this.addRenderableWidget(recipeBookButton)
 
         this.titleLabelX = ((this.imageWidth - this.font.width(this.title)) / 2) - 17
         this.titleLabelY = - 10
         this.inventoryLabelX = 8
         this.inventoryLabelY = this.imageHeight - 78
 
-        Minecraft.getInstance().player?.recipeBook?.collections?.forEach { t -> println(t.recipes) }
-
     }
+
 
     override fun renderBg(
         context: GuiGraphics,
@@ -113,6 +95,7 @@ class CookingPotScreen : AbstractContainerScreen<CookingPotMenu>, RecipeUpdateLi
             this.recipeBookComponent.render(context, mouseX, mouseY, partialTicks)
             this.recipeBookComponent.renderGhostRecipe(context, this.leftPos, this.topPos, true, partialTicks)
         }
+
         this.renderTooltip(context, mouseX, mouseY)
         this.recipeBookComponent.renderTooltip(context, this.leftPos, this.topPos, mouseX, mouseY)
     }

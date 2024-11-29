@@ -1,6 +1,8 @@
 package com.cobblemon.mod.common.mixin;
 
-import com.cobblemon.mod.common.compat.Test;
+
+import com.cobblemon.mod.common.CobblemonItems;
+import com.cobblemon.mod.common.CobblemonRecipeCategories;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.RecipeBookCategories;
 import net.minecraft.world.inventory.RecipeBookType;
@@ -18,6 +20,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 @Mixin(RecipeBookCategories.class)
 public class RecipeBookCategoriesMixin {
@@ -38,14 +41,23 @@ public class RecipeBookCategoriesMixin {
     )
     private static void cobblemon$addRecipeBookType(CallbackInfo ci) {
         ArrayList<RecipeBookCategories> types = new ArrayList<>(List.of($VALUES));
-        types.add(cobblemon$createCategory("COOKING_POT_MISC", $VALUES.length, new ItemStack(Items.BARRIER)));
+        types.add(cobblemon$createCategory("COOKING_POT_SEARCH", $VALUES.length, new ItemStack(Items.COMPASS)));
+        types.add(cobblemon$createCategory("COOKING_POT_FOODS", $VALUES.length + 1, new ItemStack(CobblemonItems.ROASTED_LEEK)));
+        types.add(cobblemon$createCategory("COOKING_POT_MEDICINES", $VALUES.length + 2, new ItemStack(CobblemonItems.HP_UP)));
+        types.add(cobblemon$createCategory("COOKING_POT_BAITS", $VALUES.length + 3, new ItemStack(CobblemonItems.PERSIM_BERRY)));
+        types.add(cobblemon$createCategory("COOKING_POT_MISC", $VALUES.length + 4, new ItemStack(CobblemonItems.MIRROR_HERB)));
         $VALUES = types.toArray(RecipeBookCategories[]::new);
     }
 
     @Inject(method = "getCategories", at = @At("HEAD"), cancellable = true)
     private static void modifyCategories(RecipeBookType recipeBookType, CallbackInfoReturnable<List<RecipeBookCategories>> cir) {
-        if (recipeBookType == Test.RECIPE_TYPE_COOKING) {
-            List var10000 = ImmutableList.of(Test.COOKING_POT_MISC_CATEGORY);
+        if (recipeBookType == RecipeBookType.valueOf("COOKING_POT")) {
+            List var10000 = ImmutableList.of(
+                    CobblemonRecipeCategories.COOKING_POT_SEARCH.toVanillaCategory(),
+                    CobblemonRecipeCategories.COOKING_POT_FOODS.toVanillaCategory(),
+                    CobblemonRecipeCategories.COOKING_POT_MEDICINES.toVanillaCategory(),
+                    CobblemonRecipeCategories.COOKING_POT_BAITS.toVanillaCategory(),
+                    CobblemonRecipeCategories.COOKING_POT_MISC.toVanillaCategory());
             cir.setReturnValue(var10000);
             return;
         }

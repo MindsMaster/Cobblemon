@@ -9,7 +9,10 @@ import net.minecraft.util.StringRepresentable
 import java.util.function.IntFunction
 
 enum class CookingPotBookCategory(private val categoryName: String, private val categoryId: Int) : StringRepresentable {
-    MISC("misc", 0);
+    FOODS("foods", 0),
+    MEDICINES("medicines", 1),
+    BAITS("baits", 2),
+    MISC("misc", 3);
 
     override fun getSerializedName(): String {
         return this.categoryName

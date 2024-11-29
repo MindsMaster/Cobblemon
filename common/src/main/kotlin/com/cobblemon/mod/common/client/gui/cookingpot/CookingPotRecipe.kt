@@ -14,6 +14,7 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.minecraft.core.HolderLookup
+import net.minecraft.core.NonNullList
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.network.codec.StreamCodec
 import net.minecraft.world.item.ItemStack
@@ -46,7 +47,7 @@ class CookingPotRecipe(
     }
 
     override fun canCraftInDimensions(width: Int, height: Int): Boolean {
-        return width >= this.pattern.width() && height >= this.pattern.height()
+        return true
     }
 
     override fun getResultItem(registries: HolderLookup.Provider): ItemStack? {
@@ -60,6 +61,12 @@ class CookingPotRecipe(
     override fun getType(): RecipeType<CookingPotRecipe> {
         return CobblemonRecipeTypes.COOKING_POT_COOKING
     }
+
+    override fun getIngredients(): NonNullList<Ingredient> {
+        return this.pattern.ingredients()
+    }
+
+
 
     class Serializer : RecipeSerializer<CookingPotRecipe> {
         companion object {

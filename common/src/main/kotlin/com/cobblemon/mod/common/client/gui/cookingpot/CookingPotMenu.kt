@@ -11,7 +11,6 @@ package com.cobblemon.mod.common.client.gui.cookingpot
 
 import com.cobblemon.mod.common.CobblemonMenuType
 import com.cobblemon.mod.common.CobblemonRecipeTypes
-import com.cobblemon.mod.common.compat.Test
 import net.minecraft.world.Container
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
@@ -67,7 +66,7 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe> {
 
     fun canCook(): Boolean {
         val optionalRecipe = this.level.recipeManager.getRecipeFor(
-                CobblemonRecipeTypes.COOKING_POT_COOKING,
+                recipeType,
                 craftSlots.asCraftInput(),
                 this.level
         )
@@ -76,24 +75,6 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe> {
     }
 
     override fun slotsChanged(container: Container) {
-        CobblemonRecipeTypes.logLoadedRecipes()
-
-        println("Slots changed. Checking for matching recipes...")
-
-        val currentInput = craftSlots.items
-        println("Crafting Slots Content: $currentInput")
-
-        val matchingRecipe = level.recipeManager.getRecipeFor(
-                CobblemonRecipeTypes.COOKING_POT_COOKING,
-                craftSlots.asCraftInput(),
-                level
-        )
-
-        if (matchingRecipe.isPresent) {
-            println("Matching Recipe Found: ${matchingRecipe.get()}")
-        } else {
-            println("No matching recipe found.")
-        }
     }
 
 
@@ -101,7 +82,6 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe> {
         super.removed(player)
 
     }
-
 
     override fun fillCraftSlotsStackedContents(itemHelper: StackedContents) {
         this.craftSlots.fillStackedContents(itemHelper);
@@ -128,11 +108,11 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe> {
     }
 
     override fun getGridWidth(): Int {
-        return this.craftSlots.width
+        return 3
     }
 
     override fun getGridHeight(): Int {
-        return this.craftSlots.height
+        return 3
     }
 
     override fun getSize(): Int {
@@ -140,7 +120,7 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe> {
     }
 
     override fun getRecipeBookType(): RecipeBookType {
-        return Test.RECIPE_TYPE_COOKING
+        return RecipeBookType.valueOf("COOKING_POT")
     }
 
     override fun shouldMoveToInventory(slotIndex: Int): Boolean {

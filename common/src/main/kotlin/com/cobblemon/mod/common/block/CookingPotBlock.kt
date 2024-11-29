@@ -14,7 +14,6 @@ import com.cobblemon.mod.common.item.PokeBallItem
 import com.mojang.serialization.MapCodec
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
-import net.minecraft.stats.Stats
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.entity.player.Player
@@ -27,11 +26,15 @@ import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING
 import net.minecraft.world.level.block.RenderShape
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityTicker
+import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.level.block.state.properties.DirectionProperty
 import net.minecraft.world.level.pathfinder.PathComputationType
 import net.minecraft.world.phys.BlockHitResult
+import org.jetbrains.annotations.Nullable
 
 @Suppress("OVERRIDE_DEPRECATION")
 class CookingPotBlock(settings: Properties) : BaseEntityBlock(settings) {
@@ -67,9 +70,9 @@ class CookingPotBlock(settings: Properties) : BaseEntityBlock(settings) {
         hitResult: BlockHitResult
     ): InteractionResult? {
         if (level.isClientSide) {
-            return InteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS
         } else {
-            this.openContainer(level, pos, player);
+            this.openContainer(level, pos, player)
             return InteractionResult.CONSUME;
         }
     }
@@ -84,10 +87,6 @@ class CookingPotBlock(settings: Properties) : BaseEntityBlock(settings) {
     override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
         builder.add(FACING)
         builder.add(ITEM_DIRECTION)
-    }
-
-    override fun newBlockEntity(pos: BlockPos, state: BlockState): CookingPotBlockEntity {
-        return CookingPotBlockEntity(pos, state)
     }
 
     override fun updateShape(
@@ -124,6 +123,22 @@ class CookingPotBlock(settings: Properties) : BaseEntityBlock(settings) {
     companion object {
         val CODEC = simpleCodec(::CookingPotBlock)
         val ITEM_DIRECTION = DirectionProperty.create("item_facing")
+    }
+
+    @Nullable
+    protected fun <T : BlockEntity> createCookingPotTicker(
+        level: Level,
+        serverType: BlockEntityType<T>,
+        clientType: BlockEntityType<out CookingPotBlockEntity>
+    ): BlockEntityTicker<T>? {
+        return if (level.isClientSide) null else createTickerHelper(serverType, clientType, CookingPotBlockEntity::serverTick)
+    }
+
+    override fun newBlockEntity(
+        pos: BlockPos,
+        state: BlockState
+    ): BlockEntity? {
+        return CookingPotBlockEntity(pos, state)
     }
 
 }

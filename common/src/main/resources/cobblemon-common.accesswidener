@@ -121,3 +121,5 @@ transitive-accessible method net/minecraft/client/gui/screens/MenuScreens regist
 transitive-accessible method net/minecraft/resources/ResourceLocation <init> (Ljava/lang/String;Ljava/lang/String;)V
 transitive-accessible field net/minecraft/stats/RecipeBookSettings states Ljava/util/Map;
 transitive-accessible class net/minecraft/stats/RecipeBookSettings$TypeSettings
+transitive-accessible field net/minecraft/client/gui/screens/recipebook/RecipeBookComponent tabButtons Ljava/util/List;
+accessible field net/minecraft/client/gui/screens/recipebook/RecipeBookComponent menu Lnet/minecraft/world/inventory/RecipeBookMenu;

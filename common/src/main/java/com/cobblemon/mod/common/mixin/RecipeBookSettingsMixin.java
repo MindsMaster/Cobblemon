@@ -1,6 +1,5 @@
 package com.cobblemon.mod.common.mixin;
 
-import com.cobblemon.mod.common.compat.Test;
 import net.minecraft.stats.RecipeBookSettings;
 import net.minecraft.world.inventory.RecipeBookType;
 import org.spongepowered.asm.mixin.Final;
@@ -20,7 +19,7 @@ public class RecipeBookSettingsMixin {
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void cobblemon$init(CallbackInfo ci) {
-        states.put(Test.RECIPE_TYPE_COOKING, new RecipeBookSettings.TypeSettings(true, true));
+        states.put(RecipeBookType.valueOf("COOKING_POT"), new RecipeBookSettings.TypeSettings(true, true));
     }
 
 }
