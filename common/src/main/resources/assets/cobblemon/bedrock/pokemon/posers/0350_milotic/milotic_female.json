@@ -57,7 +57,7 @@
     },
     "sleep": {
       "poseTypes": ["SLEEP"],
-      "animations": ["q.bedrock('milotic', 'sleep_male')"]
+      "animations": ["q.bedrock('milotic', 'sleep_female')"]
     }
   }
 }

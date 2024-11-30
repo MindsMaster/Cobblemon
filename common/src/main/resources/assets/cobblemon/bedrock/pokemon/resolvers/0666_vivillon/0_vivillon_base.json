@@ -118,15 +118,6 @@
       ]
     },
     {
-      "aspects": ["vivillon-wings-modern"],
-      "layers": [
-        {
-          "name": "wings",
-          "texture": "cobblemon:textures/pokemon/0666_vivillon/vivillon_wings_modern.png"
-        }
-      ]
-    },
-    {
       "aspects": ["vivillon-wings-monsoon"],
       "layers": [
         {

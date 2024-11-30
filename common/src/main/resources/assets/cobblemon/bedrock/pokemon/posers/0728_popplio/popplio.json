@@ -6,8 +6,7 @@
   "rootBone": "popplio",
   "animations": {
     "faint": "q.bedrock_primary('popplio', 'faint', q.curve('one'))",
-    "cry": "q.bedrock_stateful('popplio', 'cry')",
-    "recoil": "q.bedrock_stateful('popplio', 'recoil')"
+    "cry": "q.bedrock_stateful('popplio', 'cry')"
   },
   "poses": {
     "battle-standing": {
@@ -43,6 +42,38 @@
         "cry": "q.bedrock_stateful('dummy', 'cry')"
       },
       "animations": ["q.bedrock('popplio', 'sleep')"]
+    },
+    "shoulder_left": {
+      "poseTypes": ["SHOULDER_LEFT"],
+      "animations": [
+        "q.look('head')",
+        "q.bedrock('popplio', 'shoulder_left')"
+      ],
+      "quirks": [
+        "q.bedrock_quirk('popplio', 'blink')"
+      ],
+      "transformedParts": [
+        {
+          "part": "body",
+          "position": [3, -0.65, 0]
+        }
+      ]
+    },
+    "shoulder_right": {
+      "poseTypes": ["SHOULDER_RIGHT"],
+      "animations": [
+        "q.look('head')",
+        "q.bedrock('popplio', 'shoulder_right')"
+      ],
+      "quirks": [
+        "q.bedrock_quirk('popplio', 'blink')"
+      ],
+      "transformedParts": [
+        {
+          "part": "body",
+          "position": [-3, -0.65, 0]
+        }
+      ]
     }
   }
 }

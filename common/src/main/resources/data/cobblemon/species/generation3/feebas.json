@@ -38,6 +38,12 @@
         "canBreatheUnderwater": true,
         "canWalkOnWater": true
       }
+    },
+    "resting": {
+      "canSleep": true,
+      "willSleepOnBed": false,
+      "depth": "normal",
+      "times": "night"
     }
   },
   "moves": [

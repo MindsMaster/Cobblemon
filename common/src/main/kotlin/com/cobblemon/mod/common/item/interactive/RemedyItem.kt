@@ -38,7 +38,7 @@ class RemedyItem(val remedyStrength: String) : CobblemonItem(Properties()), Poke
     }
 
     override val bagItem = object : BagItem {
-        override val itemName = "item.cobblemon.${ remedyStrength.takeIf(NORMAL::equals)?.let { "${it}_" } }remedy" // remedy, fine_remedy, superb_remedy
+        override val itemName = if (remedyStrength.equals(NORMAL)) "item.cobblemon.remedy" else "item.cobblemon.${remedyStrength}_remedy"  // remedy, fine_remedy, superb_remedy
         override val returnItem = Items.AIR
         override fun canUse(battle: PokemonBattle, target: BattlePokemon) = target.health > 0 && target.health < target.maxHealth
         override fun getShowdownInput(actor: BattleActor, battlePokemon: BattlePokemon, data: String?): String {

@@ -56,6 +56,8 @@
   "item.cobblemon.poke_rod": "Poké Rod",
   "cobblemon.pokerod.bobber": "Bobber: %1$s",
   "cobblemon.pokerod.bait": "Bait: %1$s ×%2$s",
+  "cobblemon.pokerod.apply": "Right-click to apply bait",
+  "cobblemon.pokerod.remove": "Right click to remove bait",
 
   "item.cobblemon.black_apricorn_seed": "Black Apricorn Sprout",
   "item.cobblemon.blue_apricorn_seed": "Blue Apricorn Sprout",
@@ -305,7 +307,7 @@
   "item.cobblemon.safari_ball.tooltip": "1.5× outside of battle",
   "item.cobblemon.fast_ball.tooltip": "4× on Pokémon with 100 or more Base Speed",
   "item.cobblemon.level_ball.tooltip": "1× to 4×, increases the higher the player's Pokémon level is compared to the target",
-  "item.cobblemon.lure_ball.tooltip": "2× on Water-types, until fishing is added",
+  "item.cobblemon.lure_ball.tooltip": "4× on Pokémon reeled in with a Poké Rod",
   "item.cobblemon.heavy_ball.tooltip": "1× to 4×, increases by target's weight",
   "item.cobblemon.love_ball.tooltip": "2.5× if the target is the opposite gender of the player's Pokémon, 8× if also the same species",
   "item.cobblemon.friend_ball.tooltip": "1×, caught Pokémon start with 150 Friendship",
@@ -1407,7 +1409,7 @@
   "cobblemon.battle.side_subject.ally": "your",
   "cobblemon.battle.side_subject.opponent": "the opposing",
   "cobblemon.battle.transform": "%1$s transformed into %2$s",
-  "cobblemon.battle.endability": "%1$s's Ability was suppressed!",
+  "cobblemon.battle.endability": "%1$s's ability was suppressed!",
   "cobblemon.battle.select_target": "Select Target",
 
   "cobblemon.battle.weather.raindance.start": "It started to rain!",
@@ -1754,6 +1756,7 @@
   "cobblemon.battle.ability.receiver": "%1$s's %2$s was taken over!",
   "cobblemon.battle.ability.generic": "%1$s's %2$s activated!",
   "cobblemon.battle.ability.magicbounce": "%1$s bounced the %2$s back!",
+  "cobblemon.battle.ability.replace": "%1$s's ability became %2$s!",
 
   "cobblemon.battle.errors.busy": "%1$s is busy!",
   "cobblemon.battle.error.in_battle": "%1$s is already in a battle.",

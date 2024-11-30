@@ -1242,7 +1242,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     private fun candyItem(name: String, calculator: CandyItem.Calculator): CandyItem  = this.create(name, CandyItem(calculator))
 
     private fun pokerodItem(pokeRodId: ResourceLocation): PokerodItem {
-        val settings = Item.Properties().stacksTo(1).durability(Items.FISHING_ROD.components().get(DataComponents.MAX_DAMAGE)!!)
+        val settings = Item.Properties().stacksTo(1).durability(256)
         val item = create(pokeRodId.path, PokerodItem(pokeRodId, settings))
         pokeRods.add(item)
         return item
