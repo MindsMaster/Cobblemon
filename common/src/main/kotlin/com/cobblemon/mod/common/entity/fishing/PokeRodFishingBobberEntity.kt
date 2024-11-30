@@ -709,7 +709,10 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
                 particleEntityHandler(this, ResourceLocation.fromNamespaceAndPath("cobblemon","accessory_fish_splash"))
 
                 if (player is ServerPlayer) {
-                    CobblemonCriteria.REEL_IN_POKEMON.trigger(player, spawnedPokemon.pokemon.species.resourceIdentifier.toString())
+                    val baitId = FishingBaits.getFromBaitItemStack(this.bobberBait)?.item
+                    val pokemonId = spawnedPokemon.pokemon.species.resourceIdentifier
+
+                    CobblemonCriteria.REEL_IN_POKEMON.trigger(player, Pair(pokemonId, baitId))
                 }
 
                 if (spawnedPokemon.pokemon.species.weight.toDouble() < 900.0) { // if weight value of Pokemon is less than 200 lbs (in hectograms) which we store weight as) then reel it in to the player
