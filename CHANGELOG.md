@@ -50,6 +50,7 @@
 - Added `submerged_shipwreck_cove` and `lush_shipwreck_cove` structures.
 - Added new sounds for Poké Balls bouncing off of Pokémon and landing on the ground during capture.
 - Added a unique set of sounds for Ancient Poké Balls.
+- Added a sound for using Exp Candy and Rare Candy items.
 
 ### Pokémon Added
 #### Gen 1
