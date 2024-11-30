@@ -1,0 +1,22 @@
+{
+  "type": "cobblemon:cooking_pot",
+  "category": "baits",
+  "key": {
+    "S": {
+      "item": "cobblemon:sweet_sap"
+    },
+    "m": {
+      "item": "minecraft:brown_mushroom"
+    },
+    "w": {
+      "item": "minecraft:wheat"
+    }
+  },
+  "pattern": [
+    "Smw"
+  ],
+  "result": {
+    "id": "cobblemon:poke_bait",
+    "count": 4
+  }
+}

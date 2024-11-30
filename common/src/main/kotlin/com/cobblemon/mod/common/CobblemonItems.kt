@@ -304,6 +304,8 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     val SWEET_SAP = noSettingsItem("sweet_sap")
     @JvmField
     val BUGWORT = bugwortItem("bugwort", BugwortItem(CobblemonBlocks.BUGWORT))
+    @JvmField
+    val POKE_BAIT = noSettingsItem("poke_bait")
 
     //@JvmField
     //val SCATTER_BANG = this.create("scatter_bang", ScatterBangItem(Item.Settings()))
