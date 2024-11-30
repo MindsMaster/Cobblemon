@@ -11,16 +11,20 @@ package com.cobblemon.mod.common.client.gui.cookingpot
 
 import com.cobblemon.mod.common.CobblemonMenuType
 import com.cobblemon.mod.common.CobblemonRecipeTypes
+import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.Container
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.player.StackedContents
 import net.minecraft.world.inventory.*
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.crafting.*
+import net.minecraft.world.item.crafting.CraftingInput
+import net.minecraft.world.item.crafting.RecipeHolder
+import net.minecraft.world.item.crafting.RecipeType
 import net.minecraft.world.level.Level
 
-class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe> {
+class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, ContainerListener {
 
     private val containerId: Int
     private val player: Player
@@ -39,6 +43,20 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe> {
         this.player = playerInventory.player
         this.level = playerInventory.player.level()
         initializeSlots(playerInventory)
+    }
+
+    constructor(containerId: Int, playerInventory: Inventory, container: CraftingContainer, containerData: ContainerData) :
+            super(CobblemonMenuType.COOKING_POT, containerId) {
+        this.containerId = containerId
+        this.playerInventory = playerInventory
+        this.craftSlots = container
+        this.resultSlot = ResultContainer()
+
+        this.player = playerInventory.player
+        this.level = playerInventory.player.level()
+        container.startOpen(playerInventory.player)
+        initializeSlots(playerInventory)
+        this.addSlotListener(this)
     }
 
     private fun initializeSlots(playerInventory: Inventory) {
@@ -70,11 +88,7 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe> {
                 craftSlots.asCraftInput(),
                 this.level
         )
-        println("Checking if cooking is possible. Found recipe: ${optionalRecipe.isPresent}")
         return optionalRecipe.isPresent
-    }
-
-    override fun slotsChanged(container: Container) {
     }
 
 
@@ -84,7 +98,7 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe> {
     }
 
     override fun fillCraftSlotsStackedContents(itemHelper: StackedContents) {
-        this.craftSlots.fillStackedContents(itemHelper);
+        this.craftSlots.fillStackedContents(itemHelper)
     }
 
     override fun clearCraftingContent() {
@@ -123,6 +137,8 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe> {
         return RecipeBookType.valueOf("COOKING_POT")
     }
 
+
+
     override fun shouldMoveToInventory(slotIndex: Int): Boolean {
         return return slotIndex != this.resultSlotIndex
     }
@@ -138,5 +154,38 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe> {
         return this.craftSlots.stillValid(player)
     }
 
+    override fun slotChanged(
+        containerToSend: AbstractContainerMenu,
+        dataSlotIndex: Int,
+        stack: ItemStack
+    ) {
+        if (!level.isClientSide) {
+            val craftingInput = craftSlots.asCraftInput()
+            val serverPlayer = player as ServerPlayer
+            var itemStack = ItemStack.EMPTY
+            val optional = level.recipeManager.getRecipeFor(recipeType, craftingInput, level)
+            if (optional.isPresent) {
+                val recipeHolder = optional.get()
+                println("Recipe holder: ${recipeHolder.value()}")
+                val craftingRecipe = recipeHolder.value()
+                if (this.resultSlot.setRecipeUsed(level, serverPlayer, recipeHolder)) {
+                    val itemStack2 = craftingRecipe.assemble(craftingInput, level.registryAccess())
+                    if (itemStack2?.isItemEnabled(level.enabledFeatures()) ?: false) {
+                        itemStack = itemStack2
+                    }
+                }
+            }
 
+            this.resultSlot.setItem(0, itemStack)
+            this.setRemoteSlot(0, itemStack)
+            serverPlayer.connection.send(ClientboundContainerSetSlotPacket(this.containerId, this.incrementStateId(), 0, itemStack))
+        }
+    }
+
+    override fun dataChanged(
+        containerMenu: AbstractContainerMenu,
+        dataSlotIndex: Int,
+        value: Int
+    ) {
+        }
 }

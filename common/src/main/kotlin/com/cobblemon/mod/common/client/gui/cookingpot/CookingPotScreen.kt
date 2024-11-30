@@ -63,7 +63,6 @@ class CookingPotScreen : AbstractContainerScreen<CookingPotMenu>, RecipeUpdateLi
         this.titleLabelY = - 10
         this.inventoryLabelX = 8
         this.inventoryLabelY = this.imageHeight - 78
-
     }
 
 
