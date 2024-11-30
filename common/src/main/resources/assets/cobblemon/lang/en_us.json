@@ -3942,6 +3942,9 @@
 
   "cobblemon.entity.pokemon": "Pokémon",
   "entity.cobblemon.empty_pokeball": "Empty Poké Ball",
+  "entity.cobblemon.poke_bobber": "Poké Bobber",
+  "entity.cobblemon.boat": "Boat",
+  "entity.cobblemon.chest_boat": "Boat with Chest",
 
   "cobblemon.species.bulbasaur.name": "Bulbasaur",
   "cobblemon.species.bulbasaur.desc": "While rare and elusive in the wild, Bulbasaur’s calm and easygoing nature makes it a popular choice for beginning trainers. The bud on its back is still developing, so this Pokémon must expend large amounts of energy to fuel its growth. As a result, it is often seen rummaging through composters in search of precious fertilizer.",
