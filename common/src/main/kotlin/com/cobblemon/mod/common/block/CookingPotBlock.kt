@@ -8,6 +8,7 @@
 
 package com.cobblemon.mod.common.block
 
+import com.cobblemon.mod.common.CobblemonBlockEntities
 import com.cobblemon.mod.common.block.entity.CookingPotBlockEntity
 import com.cobblemon.mod.common.block.entity.DisplayCaseBlockEntity
 import com.cobblemon.mod.common.item.PokeBallItem
@@ -73,14 +74,14 @@ class CookingPotBlock(settings: Properties) : BaseEntityBlock(settings) {
             return InteractionResult.SUCCESS
         } else {
             this.openContainer(level, pos, player)
-            return InteractionResult.CONSUME;
+            return InteractionResult.CONSUME
         }
     }
 
     fun openContainer(level: Level, pos: BlockPos, player: Player) {
-        var blockEntity = level.getBlockEntity(pos);
+        var blockEntity = level.getBlockEntity(pos)
         if (blockEntity is CookingPotBlockEntity) {
-            player.openMenu(blockEntity as MenuProvider);
+            player.openMenu(blockEntity as MenuProvider)
         }
     }
 
@@ -123,6 +124,14 @@ class CookingPotBlock(settings: Properties) : BaseEntityBlock(settings) {
     companion object {
         val CODEC = simpleCodec(::CookingPotBlock)
         val ITEM_DIRECTION = DirectionProperty.create("item_facing")
+    }
+
+    override fun <T : BlockEntity?> getTicker(
+        level: Level,
+        state: BlockState,
+        blockEntityType: BlockEntityType<T?>
+    ): BlockEntityTicker<T?>? {
+        return createCookingPotTicker(level, blockEntityType as BlockEntityType<*>, CobblemonBlockEntities.COOKING_POT) as BlockEntityTicker<T?>?
     }
 
     @Nullable

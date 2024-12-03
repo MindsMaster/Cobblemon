@@ -11,6 +11,7 @@ package com.cobblemon.mod.common.block.entity
 import com.cobblemon.mod.common.CobblemonBlockEntities
 import com.cobblemon.mod.common.CobblemonRecipeTypes
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotMenu
+import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotRecipe
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
@@ -18,7 +19,9 @@ import net.minecraft.core.HolderLookup
 import net.minecraft.core.NonNullList
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
+import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.ContainerHelper
 import net.minecraft.world.WorldlyContainer
 import net.minecraft.world.entity.player.Inventory
@@ -40,9 +43,19 @@ class CookingPotBlockEntity : BaseContainerBlockEntity, WorldlyContainer, Recipe
 
     companion object {
         fun serverTick(level: Level, pos: BlockPos, state: BlockState, cookingPotBlockEntity: CookingPotBlockEntity) {
-            print(cookingPotBlockEntity.items[0]);
+            if (!level.isClientSide) {
+                val craftingInput = cookingPotBlockEntity.asCraftInput()
+                var itemStack = ItemStack.EMPTY
+                cookingPotBlockEntity.quickCheck.getRecipeFor(craftingInput, level).ifPresent { cookingPotRecipe ->
+                    val recipeHolder  = cookingPotRecipe as RecipeHolder<*>
+                    recipeHolder.value.getResultItem(level.registryAccess()).let { itemStack = it }
+                    craftingInput.items().clear()
+                    cookingPotBlockEntity.items.set(9,  itemStack)
+                }
         }
     }
+    }
+
 
     private var cookingProgress : Int = 0
     private var cookingTotalTime : Int = 0
@@ -52,7 +65,7 @@ class CookingPotBlockEntity : BaseContainerBlockEntity, WorldlyContainer, Recipe
     private val quickCheck: RecipeManager.CachedCheck<CraftingInput, *>
 
     constructor(pos: BlockPos, state: BlockState) : super(CobblemonBlockEntities.COOKING_POT, pos, state) {
-        this.items = NonNullList.withSize(9, ItemStack.EMPTY);
+        this.items = NonNullList.withSize(10, ItemStack.EMPTY);
         this.recipesUsed = Object2IntOpenHashMap()
         this.quickCheck = RecipeManager.createCheck(CobblemonRecipeTypes.COOKING_POT_COOKING);
 
@@ -166,8 +179,8 @@ class CookingPotBlockEntity : BaseContainerBlockEntity, WorldlyContainer, Recipe
     }
 
     override fun fillStackedContents(contents: StackedContents) {
-        TODO("Not yet implemented")
+        for(itemStack in this.items) {
+            contents.accountSimpleStack(itemStack);
+        }
     }
-
-
 }
