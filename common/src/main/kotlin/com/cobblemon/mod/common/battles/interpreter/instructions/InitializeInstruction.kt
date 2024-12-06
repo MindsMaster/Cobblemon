@@ -8,6 +8,7 @@
 
 package com.cobblemon.mod.common.battles.interpreter.instructions
 
+import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.api.battles.interpreter.BattleMessage
 import com.cobblemon.mod.common.api.battles.model.PokemonBattle
 import com.cobblemon.mod.common.api.scheduling.afterOnServer
@@ -38,7 +39,7 @@ class InitializeInstruction(val instructionSet: InstructionSet, val message: Bat
             pokemon.entity?.let {
                 // If a Pokémon entity is being recalled with an animation,
                 // wrap up the animation and recall the Pokémon immediately.
-                if (it.beamMode == 3) {
+                if (it.beamMode == 3 && battle.battlePartyStores.isEmpty()) {
                     pokemon.effectedPokemon.recall()
                 }
                 // If already on the field, initialize for the BattleInitializePacket

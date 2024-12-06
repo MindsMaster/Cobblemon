@@ -19,7 +19,7 @@ import com.cobblemon.mod.common.api.text.gray
 import com.cobblemon.mod.common.block.BerryBlock
 import com.cobblemon.mod.common.block.MintBlock
 import com.cobblemon.mod.common.block.MintBlock.MintType
-import com.cobblemon.mod.common.client.pokedex.PokedexTypes
+import com.cobblemon.mod.common.client.pokedex.PokedexType
 import com.cobblemon.mod.common.entity.boat.CobblemonBoatType
 import com.cobblemon.mod.common.item.*
 import com.cobblemon.mod.common.item.armor.CobblemonArmorTrims
@@ -153,20 +153,21 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     @JvmField
     val ANCIENT_ORIGIN_BALL = pokeBallItem(PokeBalls.ANCIENT_ORIGIN_BALL)
 
+    val pokedexes = mutableListOf<PokedexItem>()
     @JvmField
-    val POKEDEX_BLACK = create("pokedex_black", PokedexItem(PokedexTypes.BLACK))
+    val POKEDEX_RED = pokedexItem(PokedexType.RED)
     @JvmField
-    val POKEDEX_BLUE = create("pokedex_blue", PokedexItem(PokedexTypes.BLUE))
+    val POKEDEX_YELLOW = pokedexItem(PokedexType.YELLOW)
     @JvmField
-    val POKEDEX_GREEN = create("pokedex_green", PokedexItem(PokedexTypes.GREEN))
+    val POKEDEX_GREEN = pokedexItem(PokedexType.GREEN)
     @JvmField
-    val POKEDEX_PINK = create("pokedex_pink", PokedexItem(PokedexTypes.PINK))
+    val POKEDEX_BLUE = pokedexItem(PokedexType.BLUE)
     @JvmField
-    val POKEDEX_RED = create("pokedex_red", PokedexItem(PokedexTypes.RED))
+    val POKEDEX_PINK = pokedexItem(PokedexType.PINK)
     @JvmField
-    val POKEDEX_WHITE = create("pokedex_white", PokedexItem(PokedexTypes.WHITE))
+    val POKEDEX_BLACK = pokedexItem(PokedexType.BLACK)
     @JvmField
-    val POKEDEX_YELLOW = create("pokedex_yellow", PokedexItem(PokedexTypes.YELLOW))
+    val POKEDEX_WHITE = pokedexItem(PokedexType.WHITE)
 
     @JvmField
     val VIVICHOKE = compostableItem("vivichoke")
@@ -1241,9 +1242,15 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     private fun candyItem(name: String, calculator: CandyItem.Calculator): CandyItem  = this.create(name, CandyItem(calculator))
 
     private fun pokerodItem(pokeRodId: ResourceLocation): PokerodItem {
-        val settings = Item.Properties().stacksTo(1).durability(Items.FISHING_ROD.components().get(DataComponents.MAX_DAMAGE)!!)
+        val settings = Item.Properties().stacksTo(1).durability(256)
         val item = create(pokeRodId.path, PokerodItem(pokeRodId, settings))
         pokeRods.add(item)
+        return item
+    }
+
+    private fun pokedexItem(type: PokedexType): PokedexItem {
+        val item = create("pokedex_${type.name.lowercase()}", PokedexItem(type))
+        pokedexes.add(item)
         return item
     }
 

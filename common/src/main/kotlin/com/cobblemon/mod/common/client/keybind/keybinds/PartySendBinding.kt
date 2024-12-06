@@ -10,6 +10,7 @@ package com.cobblemon.mod.common.client.keybind.keybinds
 
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.CobblemonNetwork.sendToServer
+import com.cobblemon.mod.common.battles.BattleFormat
 import com.cobblemon.mod.common.client.CobblemonClient
 import com.cobblemon.mod.common.client.gui.battle.BattleGUI
 import com.cobblemon.mod.common.client.keybind.CobblemonBlockingKeyBinding
@@ -65,10 +66,11 @@ object PartySendBinding : CobblemonBlockingKeyBinding(
 
         if (player.isSpectator) return
 
+
         val battle = CobblemonClient.battle
         if (battle != null) {
             battle.minimised = !battle.minimised
-            if (!battle.minimised) {
+            if (!battle.minimised && !Minecraft.getInstance().options.hideGui) {
                 Minecraft.getInstance().setScreen(BattleGUI())
             }
             return
@@ -76,12 +78,12 @@ object PartySendBinding : CobblemonBlockingKeyBinding(
 
         if (CobblemonClient.storage.selectedSlot != -1 && Minecraft.getInstance().screen == null) {
             val pokemon = CobblemonClient.storage.myParty.get(CobblemonClient.storage.selectedSlot)
-            if (pokemon != null && pokemon.currentHealth > 0) {
+            if (pokemon != null) {
                 val targetEntity = player.traceFirstEntityCollision(
-                        entityClass = LivingEntity::class.java,
-                        ignoreEntity = player,
-                        maxDistance = Cobblemon.config.battleSpectateMaxDistance,
-                        collideBlock = ClipContext.Fluid.NONE)
+                    entityClass = LivingEntity::class.java,
+                    ignoreEntity = player,
+                    maxDistance = Cobblemon.config.battleSpectateMaxDistance,
+                    collideBlock = ClipContext.Fluid.NONE)
                 if (targetEntity == null || (targetEntity is PokemonEntity && targetEntity.ownerUUID == player.uuid)) {
                     sendToServer(SendOutPokemonPacket(CobblemonClient.storage.selectedSlot))
                 }
@@ -101,7 +103,7 @@ object PartySendBinding : CobblemonBlockingKeyBinding(
             }
             is PokemonEntity -> {
                 if (!entity.canBattle(player) || entity.position().distanceToSqr(player.position()) > Cobblemon.config.battleWildMaxDistance.pow(2)) return
-                    sendToServer(BattleChallengePacket(entity.id,  pokemon.uuid))
+                    sendToServer(BattleChallengePacket(entity.id,  pokemon.uuid, BattleFormat.GEN_9_SINGLES))
                 }
         }
     }

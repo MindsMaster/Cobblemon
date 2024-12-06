@@ -15,6 +15,7 @@ import com.cobblemon.mod.common.CobblemonEntities
 import com.cobblemon.mod.common.CobblemonMemories
 import com.cobblemon.mod.common.CobblemonNetwork.sendPacket
 import com.cobblemon.mod.common.CobblemonSensors
+import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.entity.PokemonSender
 import com.cobblemon.mod.common.api.molang.MoLangFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addFunctions
@@ -30,9 +31,6 @@ import com.cobblemon.mod.common.api.npc.NPCClasses
 import com.cobblemon.mod.common.api.npc.configuration.NPCBattleConfiguration
 import com.cobblemon.mod.common.api.npc.configuration.NPCBehaviourConfiguration
 import com.cobblemon.mod.common.api.npc.configuration.NPCInteractConfiguration
-import com.cobblemon.mod.common.api.npc.partyproviders.DynamicNPCParty
-import com.cobblemon.mod.common.api.npc.partyproviders.NPCParty
-import com.cobblemon.mod.common.api.npc.partyproviders.StaticNPCParty
 import com.cobblemon.mod.common.api.scheduling.Schedulable
 import com.cobblemon.mod.common.api.scheduling.SchedulingTracker
 import com.cobblemon.mod.common.api.storage.party.NPCPartyStore
@@ -54,11 +52,12 @@ import com.google.common.collect.ImmutableList
 import com.mojang.authlib.GameProfile
 import com.mojang.authlib.ProfileLookupCallback
 import com.mojang.serialization.Dynamic
-import java.lang.Exception
 import java.net.URI
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
+import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.IntTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.nbt.StringTag
 import net.minecraft.nbt.Tag
@@ -66,7 +65,9 @@ import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
+import net.minecraft.network.protocol.game.DebugPackets
 import net.minecraft.network.syncher.EntityDataAccessor
+import net.minecraft.network.syncher.EntityDataSerializers
 import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerEntity
@@ -74,6 +75,7 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
+import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.entity.AgeableMob
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.Pose
@@ -103,16 +105,41 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
             field = value
             if (valueChanged) {
                 customName = value.names.randomOrNull() ?: "NPC".text()
-                brain = makeBrain(brainDynamic ?: makeEmptyBrainDynamic())
+                if (!level().isClientSide) {
+                    brain = makeBrain(brainDynamic ?: makeEmptyBrainDynamic())
+                }
             }
         }
 
-    var skill: Int? = npc.skill ?: 0 // range from 0 - 5
+    val level: Int
+        get() = entityData.get(LEVEL)
 
-    var party: NPCParty? = null
-    val staticParty: NPCPartyStore?
-        get() = (party as? StaticNPCParty)?.party
+    var skill: Int? = null // range from 0 - 5
 
+    var party: NPCPartyStore? = null
+
+    var isMovable: Boolean? = null
+
+    var isInvulnerable: Boolean? = null
+
+    var isLeashable: Boolean? = null
+
+    var allowProjectileHits: Boolean? = null
+
+    fun getPartyForChallenge(players: List<ServerPlayer>): NPCPartyStore? {
+        val party = this.party
+        return if (party != null) {
+            party
+        } else if (npc.party?.isStatic == false) {
+            npc.party?.provide(this, level, players)
+        } else {
+            null
+        }
+    }
+
+    /** Oi, dev, you no touch this one. This one is for [com.cobblemon.mod.common.api.npc.variation.NPCVariationProvider]s. */
+    val variationAspects = mutableSetOf<String>()
+    /** You can add to this one if you want, that's ok. */
     val appliedAspects = mutableSetOf<String>()
     override val delegate = if (world.isClientSide) {
         com.cobblemon.mod.common.client.entity.NPCClientDelegate()
@@ -160,19 +187,23 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
         runtime.environment.query.addFunctions(struct.functions)
         refreshDimensions()
         navigation.setCanFloat(true)
-        makeBrain(brainDynamic ?: makeEmptyBrainDynamic())
+        if (!world.isClientSide) {
+            brain = makeBrain(brainDynamic ?: makeEmptyBrainDynamic())
+        }
     }
 
     // This has to be below constructor and entity tracker fields otherwise initialization order is weird and breaks them syncing
     companion object {
         fun createAttributes(): AttributeSupplier.Builder = createMobAttributes()
             .add(Attributes.ATTACK_DAMAGE, 1.0)
+            .add(Attributes.ATTACK_KNOCKBACK)
 
         val NPC_CLASS = SynchedEntityData.defineId(NPCEntity::class.java, IdentifierDataSerializer)
         val ASPECTS = SynchedEntityData.defineId(NPCEntity::class.java, StringSetDataSerializer)
         val POSE_TYPE = SynchedEntityData.defineId(NPCEntity::class.java, PoseTypeDataSerializer)
         val BATTLE_IDS = SynchedEntityData.defineId(NPCEntity::class.java, UUIDSetDataSerializer)
         val NPC_PLAYER_TEXTURE = SynchedEntityData.defineId(NPCEntity::class.java, NPCPlayerTextureSerializer)
+        val LEVEL = SynchedEntityData.defineId(NPCEntity::class.java, EntityDataSerializers.INT)
 
 
 //        val BATTLING = Activity.register("npc_battling")
@@ -182,7 +213,8 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
             SensorType.HURT_BY,
             SensorType.NEAREST_PLAYERS,
             CobblemonSensors.BATTLING_POKEMON,
-            CobblemonSensors.NPC_BATTLING
+            CobblemonSensors.NPC_BATTLING,
+            SensorType.VILLAGER_HOSTILES
         )
 
         val MEMORY_MODULES: List<MemoryModuleType<*>> = ImmutableList.of(
@@ -202,6 +234,7 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
             MemoryModuleType.ATTACK_COOLING_DOWN,
             CobblemonMemories.DIALOGUES,
             CobblemonMemories.ACTIVE_ACTION_EFFECT,
+            MemoryModuleType.NEAREST_HOSTILE
         )
 
         const val SEND_OUT_ANIMATION = "send_out"
@@ -210,7 +243,7 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
         const val WIN_ANIMATION = "win"
     }
 
-    override fun brainProvider(): Brain.Provider<NPCEntity> = Brain.provider(MEMORY_MODULES, SENSORS)
+    override fun brainProvider() = Brain.provider<NPCEntity>(MEMORY_MODULES, SENSORS)
     override fun getBreedOffspring(world: ServerLevel, entity: AgeableMob) = null // No lovemaking! Unless...
     override fun getCurrentPoseType() = this.entityData.get(POSE_TYPE)
 
@@ -221,6 +254,7 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
         builder.define(POSE_TYPE, PoseType.STAND)
         builder.define(BATTLE_IDS, setOf())
         builder.define(NPC_PLAYER_TEXTURE, NPCPlayerTexture(ByteArray(1), NPCPlayerModelType.NONE))
+        builder.define(LEVEL, 1)
     }
 
     override fun getAddEntityPacket(serverEntity: ServerEntity) = ClientboundCustomPayloadPacket(
@@ -233,6 +267,7 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
     override fun makeBrain(dynamic: Dynamic<*>): Brain<out NPCEntity> {
         this.brainDynamic = dynamic
         val brain = brainProvider().makeBrain(dynamic)
+        this.brain = brain
         if (npc != null) {
             NPCBrain.configure(this, npc, brain)
         }
@@ -240,18 +275,25 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
     }
 
     override fun doHurtTarget(target: Entity): Boolean {
-        target as ServerPlayer
-        return target.hurt(this.damageSources().mobAttack(this), attributes.getValue(Attributes.ATTACK_DAMAGE).toFloat() * 5F)
+        val source = this.damageSources().mobAttack(this)
+        val hurt = target.hurt(source, attributes.getValue(Attributes.ATTACK_DAMAGE).toFloat() * 5F)
+        if (hurt) {
+            playAttackSound()
+        }
+        return hurt
     }
 
     override fun getBrain() = super.getBrain() as Brain<NPCEntity>
 
     fun updateAspects() {
-        entityData.set(ASPECTS, appliedAspects)
+        entityData.set(ASPECTS, appliedAspects + variationAspects)
     }
 
     fun isInBattle() = battleIds.isNotEmpty()
     fun getBattleConfiguration() = battle ?: npc.battleConfiguration
+
+    /** Retrieves the battle theme associated with this Pokemon's Species/Form, or the default PVW theme if not found. */
+    fun getBattleTheme() = this.npc.battleTheme?.let(BuiltInRegistries.SOUND_EVENT::get) ?: CobblemonSounds.PVN_BATTLE
 
     override fun tick() {
         super.tick()
@@ -264,12 +306,21 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
         getBrain().tick(level() as ServerLevel, this)
     }
 
+    override fun sendDebugPackets() {
+        super.sendDebugPackets()
+        DebugPackets.sendEntityBrain(this)
+        DebugPackets.sendGoalSelector(level(), this, this.goalSelector)
+        DebugPackets.sendPathFindingPacket(level(), this, this.navigation.path, this.navigation.path?.distToTarget ?: 0F)
+    }
+
     override fun saveWithoutId(nbt: CompoundTag): CompoundTag {
         super.saveWithoutId(nbt)
         nbt.put(DataKeys.NPC_DATA, MoLangFunctions.writeMoValueToNBT(data))
         nbt.put(DataKeys.NPC_CONFIG, MoLangFunctions.writeMoValueToNBT(config))
+        nbt.put(DataKeys.NPC_LEVEL, IntTag.valueOf(level))
         nbt.putString(DataKeys.NPC_CLASS, npc.id.toString())
         nbt.put(DataKeys.NPC_ASPECTS, ListTag().also { list -> appliedAspects.forEach { list.add(StringTag.valueOf(it)) } })
+        nbt.put(DataKeys.NPC_VARIATION_ASPECTS, ListTag().also { list -> variationAspects.forEach { list.add(StringTag.valueOf(it)) } })
         interaction?.let {
             val interactionNBT = CompoundTag()
             interactionNBT.putString(DataKeys.NPC_INTERACT_TYPE, it.type)
@@ -282,11 +333,12 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
             battle.saveToNBT(battleNBT)
             nbt.put(DataKeys.NPC_BATTLE_CONFIGURATION, battleNBT)
         }
-        nbt.putInt("skill", skill ?: 0)
+        if (skill != null) {
+            nbt.putInt(DataKeys.NPC_SKILL, skill ?: 0)
+        }
         val party = party
         if (party != null) {
             val partyNBT = CompoundTag()
-            partyNBT.putBoolean(DataKeys.NPC_PARTY_IS_STATIC, party is StaticNPCParty)
             party.saveToNBT(partyNBT, registryAccess())
             nbt.put(DataKeys.NPC_PARTY, partyNBT)
         }
@@ -297,6 +349,22 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
                 it.putByteArray(DataKeys.NPC_PLAYER_TEXTURE_TEXTURE, playerTexture.texture)
             })
         }
+        val isMovable = isMovable
+        if (isMovable != null) {
+            nbt.putBoolean(DataKeys.NPC_IS_MOVABLE, isMovable)
+        }
+        val isInvulnerable = isInvulnerable
+        if (isInvulnerable != null) {
+            nbt.putBoolean(DataKeys.NPC_IS_INVULNERABLE, isInvulnerable)
+        }
+        val isLeashable = isLeashable
+        if (isLeashable != null) {
+            nbt.putBoolean(DataKeys.NPC_IS_LEASHABLE, isLeashable)
+        }
+        val allowProjectileHits = allowProjectileHits
+        if (allowProjectileHits != null) {
+            nbt.putBoolean(DataKeys.NPC_ALLOW_PROJECTILE_HITS, allowProjectileHits)
+        }
         return nbt
     }
 
@@ -305,10 +373,12 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
 
     override fun load(nbt: CompoundTag) {
         npc = NPCClasses.getByIdentifier(ResourceLocation.parse(nbt.getString(DataKeys.NPC_CLASS))) ?: NPCClasses.classes.first()
+        entityData.set(LEVEL, nbt.getInt(DataKeys.NPC_LEVEL).takeIf { it != 0 } ?: 1)
         super.load(nbt)
         data = MoLangFunctions.readMoValueFromNBT(nbt.getCompound(DataKeys.NPC_DATA)) as VariableStruct
         config = if (nbt.contains(DataKeys.NPC_CONFIG)) MoLangFunctions.readMoValueFromNBT(nbt.getCompound(DataKeys.NPC_CONFIG)) as VariableStruct else VariableStruct()
         appliedAspects.addAll(nbt.getList(DataKeys.NPC_ASPECTS, Tag.TAG_STRING.toInt()).map { it.asString })
+        variationAspects.addAll(nbt.getList(DataKeys.NPC_VARIATION_ASPECTS, Tag.TAG_STRING.toInt()).map { it.asString })
         nbt.getCompound(DataKeys.NPC_INTERACTION).takeIf { !it.isEmpty }?.let { nbt ->
             val type = nbt.getString("type")
             val configType = NPCInteractConfiguration.types[type] ?: return@let
@@ -318,24 +388,10 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
         if (!battleNBT.isEmpty) {
             battle = NPCBattleConfiguration().also { it.loadFromNBT(battleNBT) }
         }
-        this.skill = npc.skill
+        this.skill = if (nbt.contains(DataKeys.NPC_SKILL)) nbt.getInt(DataKeys.NPC_SKILL) else null
         val partyNBT = nbt.getCompound(DataKeys.NPC_PARTY)
         if (!partyNBT.isEmpty) {
-            val isStatic = partyNBT.getBoolean(DataKeys.NPC_PARTY_IS_STATIC)
-            this.party = if (isStatic) {
-                    StaticNPCParty(NPCPartyStore(this)).also { it.loadFromNBT(partyNBT, registryAccess()) }
-            } else {
-                val type = partyNBT.getString(DataKeys.NPC_PARTY_TYPE)
-                val clazz = DynamicNPCParty.types[type]
-                if (clazz == null) {
-                    Cobblemon.LOGGER.error("Tried deserializing NPC entity with unknown party type: $type. I am at $x $y $z. Setting party to null.")
-                    null
-                } else {
-                    val party = clazz.getConstructor().newInstance()
-                    party.loadFromNBT(partyNBT, registryAccess())
-                    party
-                }
-            }
+            party = NPCPartyStore(this).also { it.loadFromNBT(partyNBT, registryAccess()) }
         }
         if (nbt.contains(DataKeys.NPC_PLAYER_TEXTURE)) {
             val textureNBT = nbt.getCompound(DataKeys.NPC_PLAYER_TEXTURE)
@@ -343,6 +399,11 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
             val texture = textureNBT.getByteArray(DataKeys.NPC_PLAYER_TEXTURE_TEXTURE)
             entityData.set(NPC_PLAYER_TEXTURE, NPCPlayerTexture(texture, model))
         }
+        this.isMovable = if (nbt.contains(DataKeys.NPC_IS_MOVABLE)) nbt.getBoolean(DataKeys.NPC_IS_MOVABLE) else null
+        this.isInvulnerable = if (nbt.contains(DataKeys.NPC_IS_INVULNERABLE)) nbt.getBoolean(DataKeys.NPC_IS_INVULNERABLE) else null
+        this.isLeashable = if (nbt.contains(DataKeys.NPC_IS_LEASHABLE)) nbt.getBoolean(DataKeys.NPC_IS_LEASHABLE) else null
+        this.allowProjectileHits = if (nbt.contains(DataKeys.NPC_ALLOW_PROJECTILE_HITS)) nbt.getBoolean(DataKeys.NPC_ALLOW_PROJECTILE_HITS) else null
+
         updateAspects()
     }
 
@@ -372,13 +433,35 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
         updateAspects()
     }
 
+    override fun isPersistenceRequired() = !npc.canDespawn
+
     override fun getDefaultDimensions(pose: Pose) = npc.hitbox
 
+    override fun isPushable(): Boolean {
+        return isMovable ?: npc.isMovable
+    }
+
+    override fun isInvulnerableTo(source: DamageSource): Boolean {
+        return isInvulnerable ?: npc.isInvulnerable
+    }
+
+    override fun canBeLeashed(): Boolean {
+        return isLeashable ?: npc.isLeashable
+    }
+
+    override fun canBeHitByProjectile(): Boolean {
+        return allowProjectileHits ?: npc.allowProjectileHits
+    }
+
     fun initialize(level: Int) {
-        appliedAspects.clear()
+        variationAspects.clear()
+        entityData.set(LEVEL, level)
         npc.config.forEach { it.applyDefault(this) }
-        npc.variations.values.forEach { this.appliedAspects.addAll(it.provideAspects(this)) }
-        party = npc.party?.provide(this, level)
+        npc.variations.values.forEach { this.variationAspects.addAll(it.provideAspects(this)) }
+        if (party == null || npc.party != null) {
+            party = npc.party?.takeIf { it.isStatic }?.provide(this, level)
+        }
+        updateAspects()
     }
 
     override fun mobInteract(player: Player, hand: InteractionHand): InteractionResult {

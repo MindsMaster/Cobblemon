@@ -245,6 +245,9 @@
       },
       "cannotDynamax": false,
       "battleOnly": false,
+      "pokedex": [
+        "cobblemon.species.raichu-alola.desc"
+      ],
       "drops": {
         "amount": 3,
         "entries": [

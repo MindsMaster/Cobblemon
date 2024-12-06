@@ -30,6 +30,7 @@ import net.minecraft.world.level.biome.Biome
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.pathfinder.PathComputationType
+import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.phys.AABB
@@ -227,7 +228,6 @@ val Level.activityRegistry: Registry<Activity>
     get() = registryAccess().registryOrThrow(Registries.ACTIVITY)
 val Level.blockRegistry: Registry<Block>
     get() = registryAccess().registryOrThrow(Registries.BLOCK)
-
 
 fun Vec3.traceDownwards(
     world: Level,

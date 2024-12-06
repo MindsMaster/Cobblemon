@@ -16,7 +16,6 @@ import com.bedrockk.molang.runtime.MoLangRuntime
 import com.bedrockk.molang.runtime.MoParams
 import com.bedrockk.molang.runtime.struct.ArrayStruct
 import com.bedrockk.molang.runtime.struct.ContextStruct
-import com.bedrockk.molang.runtime.struct.VariableStruct
 import com.bedrockk.molang.runtime.value.DoubleValue
 import com.bedrockk.molang.runtime.value.MoValue
 import com.cobblemon.mod.common.Cobblemon
@@ -42,7 +41,7 @@ fun MoLangRuntime.resolve(expression: Expression, context: Map<String, MoValue> 
     }
 //    expression.evaluate(MoScope(), environment)
 } catch (e: Exception) {
-    throw IllegalArgumentException("Unable to parse expression: ${expression.getString()}", e)
+    throw IllegalArgumentException("Unable to evaluate expression: ${expression.getString()}", e)
 }
 fun MoLangRuntime.resolveDouble(expression: Expression, context: Map<String, MoValue> = contextOrEmpty): Double = resolve(expression, context).asDouble()
 fun MoLangRuntime.resolveFloat(expression: Expression, context: Map<String, MoValue> = contextOrEmpty): Float = resolve(expression, context).asDouble().toFloat()
@@ -161,15 +160,11 @@ fun String.asExpressionLike() = try {
 fun Double.asExpression() = toString().asExpression() // Use the string route because it remembers the original string value for serialization
 
 fun MoLangEnvironment.writePokemon(pokemon: Pokemon) {
-    val pokemonStruct = VariableStruct()
-    pokemon.writeVariables(pokemonStruct)
-    setSimpleVariable("pokemon", pokemonStruct)
+    setSimpleVariable("pokemon", pokemon.struct)
 }
 
 fun MoLangEnvironment.writePokemon(pokemon: BattlePokemon) {
-    val pokemonStruct = VariableStruct()
-    pokemon.writeVariables(pokemonStruct)
-    setSimpleVariable("pokemon", pokemonStruct)
+    setSimpleVariable("pokemon", pokemon.effectedPokemon.struct)
 }
 
 fun List<String>.asExpressionLike() = joinToString(separator = "\n").asExpressionLike()
@@ -182,6 +177,7 @@ fun List<Expression>.resolveObject(runtime: MoLangRuntime, context: Map<String, 
 fun MoParams.getStringOrNull(index: Int) = if (params.size > index) getString(index) else null
 fun MoParams.getDoubleOrNull(index: Int) = if (params.size > index) getDouble(index) else null
 fun MoParams.getBooleanOrNull(index: Int) = if (params.size > index) getDouble(index) == 1.0 else null
+fun MoParams.getIntOrNull(index: Int) = if (params.size > index) getDouble(index).toInt() else null
 
 fun MoLangRuntime.withQueryValue(name: String, value: MoValue): MoLangRuntime {
     environment.query.functions.put(name) { value }
@@ -214,8 +210,16 @@ fun MoLangEnvironment.cloneFrom(other: MoLangEnvironment): MoLangEnvironment {
     return this
 }
 
-fun BlockPos.toArrayStruct() = ArrayStruct().apply {
-    map["0"] = DoubleValue(x)
-    map["1"] = DoubleValue(y)
-    map["2"] = DoubleValue(z)
+fun BlockPos.toArrayStruct() = listOf(x, y, z).asArrayValue(::DoubleValue)
+
+fun <T> Collection<T>.asArrayValue(mapper: (T) -> MoValue): ArrayStruct {
+    val array = ArrayStruct()
+    forEachIndexed { index, value -> array.setDirectly("$index", mapper(value)) }
+    return array
+}
+
+fun Iterable<MoValue>.asArrayValue(): ArrayStruct {
+    val array = ArrayStruct()
+    forEachIndexed { index, value -> array.setDirectly("$index", value) }
+    return array
 }

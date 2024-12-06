@@ -12,8 +12,12 @@ import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.CobblemonEntities
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.ModAPI
+import com.cobblemon.mod.common.api.events.CobblemonEvents
+import com.cobblemon.mod.common.api.events.fishing.BobberBucketChosenEvent
+import com.cobblemon.mod.common.api.events.fishing.BobberSpawnPokemonEvent
 import com.cobblemon.mod.common.api.fishing.FishingBait
 import com.cobblemon.mod.common.api.fishing.FishingBaits
+import com.cobblemon.mod.common.api.scheduling.afterOnServer
 import com.cobblemon.mod.common.api.spawning.BestSpawner
 import com.cobblemon.mod.common.api.spawning.SpawnBucket
 import com.cobblemon.mod.common.api.spawning.detail.EntitySpawnResult
@@ -25,6 +29,7 @@ import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.item.interactive.PokerodItem
 import com.cobblemon.mod.common.net.messages.client.effect.SpawnSnowstormParticlePacket
 import com.cobblemon.mod.common.util.cobblemonResource
+import com.cobblemon.mod.common.util.party
 import com.cobblemon.mod.common.util.toBlockPos
 import kotlin.math.sqrt
 import net.minecraft.advancements.CriteriaTriggers
@@ -67,6 +72,8 @@ import net.minecraft.world.phys.Vec3
 
 class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity>, world: Level) : FishingHook(type, world) {
 
+    private var lastRippleSpawnTime: Long = 0
+    private val rippleCooldown: Long = 20
     private val velocityRandom = RandomSource.create()
     private var caughtFish = false
     private var outOfOpenWaterTicks = 0
@@ -78,8 +85,8 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
     var inOpenWater = true
     private var hookedEntity: Entity? = null
     var state = State.FLYING
-    private var luckOfTheSeaLevel = 0
-    private var lureLevel = 0
+    var luckOfTheSeaLevel = 0
+    var lureLevel = 0
     private var typeCaught = TypeCaught.ITEM
     private var chosenBucket = Cobblemon.bestSpawner.config.buckets[0] // default to first rarity bucket
     private val pokemonSpawnChance = 85 // chance a Pokemon will be fished up % out of 100
@@ -172,7 +179,7 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
     }
 
     fun chooseAdjustedSpawnBucket(buckets: List<SpawnBucket>, luckOfTheSeaLevel: Int): SpawnBucket {
-        val baseIncreases = listOf(5.0F, 1.0F, 0.2F)  // Base increases for the first three buckets beyond the first
+        val baseIncreases = listOf(2.5F, 1.0F, 0.6F)  // Base increases for the first three buckets beyond the first
         val adjustedWeights = buckets.mapIndexed { index, bucket ->
             if (index == 0) {
                 // Placeholder, will be recalculated
@@ -301,8 +308,7 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
                     val l = h * 0.04f
 
                     // todo the fish trail that leads to the bobber
-                    serverWorld.sendParticles(ParticleTypes.FISHING, offsetX, offsetY, j, 0, l.toDouble(), 0.01, -k.toDouble(), 1.0)
-                    serverWorld.sendParticles(ParticleTypes.FISHING, offsetX, offsetY, j, 0, -l.toDouble(), 0.01, k.toDouble(), 1.0)
+                    particleCatchHandler(offsetX, offsetY, j, this, ResourceLocation.fromNamespaceAndPath("cobblemon", "fishing_wake"))
                     // create tiny splash particles for fishing trail
                     //particleEntityHandler(this, Identifier.of("cobblemon","bob_splash"))
                 }
@@ -313,6 +319,7 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
 
                 // create tiny splash particle when there is a bite
                 particleEntityHandler(this, ResourceLocation.fromNamespaceAndPath("cobblemon", "bob_splash"))
+                particleEntityHandler(this, ResourceLocation.fromNamespaceAndPath("cobblemon", "fishing_bobber_big_ripple"))
 
                 val m = this.y + 0.5
                 serverWorld.sendParticles(ParticleTypes.BUBBLE, this.x, m, this.z, (1.0f + this.bbWidth * 20.0f).toInt(), this.bbWidth.toDouble(), 0.0, this.bbWidth.toDouble(), 0.2)
@@ -326,6 +333,9 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
 
                     // choose a spawn bucket according to weights no matter how many there are
                     chosenBucket = chooseAdjustedSpawnBucket(buckets, luckOfTheSeaLevel)
+                    CobblemonEvents.BOBBER_BUCKET_CHOSEN.post(BobberBucketChosenEvent(chosenBucket, buckets, luckOfTheSeaLevel)) { event ->
+                        chosenBucket = event.chosenBucket
+                    }
                     val reactionMinMax = calculateMinMaxCountdown(chosenBucket.weight)
 
                     // set the hook reaction time to be based off the rarity of the bucket chosen
@@ -357,7 +367,12 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
                 val j = this.z + (Mth.cos(g) * h).toDouble() * 0.1 // randomized Z value
                 val blockState = serverWorld.getBlockState(BlockPos.containing(d, e - 1.0, j))
                 if (blockState.`is`(Blocks.WATER)) {
-                    serverWorld.sendParticles(ParticleTypes.SPLASH, d, e, j, 2 + random.nextInt(2), 0.10000000149011612, 0.0, 0.10000000149011612, 0.0)
+                    val currentTime = serverWorld.gameTime
+                    if (currentTime - lastRippleSpawnTime >= rippleCooldown) {
+                        particleEntityHandler(this, ResourceLocation.fromNamespaceAndPath("cobblemon", "fishing_bobber_ripple"))
+                        lastRippleSpawnTime = currentTime
+                    }
+                    particleEntityHandler(this, ResourceLocation.fromNamespaceAndPath("cobblemon", "fishing_surface_ripple"))
                 }
             }
             if (this.waitCountdown <= 0) {
@@ -400,7 +415,7 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
         val owner = this.owner
         if (this.state == State.FLYING && owner != null) {  // starts casting sound when instantiated on client
             val rand = this.level().random
-            val toPlay = EntityBoundSoundInstance(this.castingSound, SoundSource.PLAYERS, 1.0F, 1.0f / (rand.nextFloat() * 0.4f + 0.8f), owner, rand.nextLong())
+            val toPlay = EntityBoundSoundInstance(this.castingSound, SoundSource.PLAYERS, 1.0F, 1.0f, owner, rand.nextLong())
             EntitySoundTracker.play(owner.id, toPlay)
         }
     }
@@ -596,21 +611,29 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
                 } else { // logic for spawning Pokemon using rarity
                     val bobberOwner = playerOwner as ServerPlayer
 
-                    // decrememnt the bait count on the rod itself when reeling in a pokemon
-                    PokerodItem.consumeBait(rodItem!!)
+                    CobblemonEvents.BOBBER_SPAWN_POKEMON_PRE.postThen(BobberSpawnPokemonEvent.Pre(this, chosenBucket, rodItem!!),
+                        { event ->
+                            return 0
+                        },
+                        { event ->
+                            // decrememnt the bait count on the rod itself when reeling in a pokemon
+                            PokerodItem.consumeBait(rodItem!!)
 
-                    // spawn the pokemon from the chosen bucket at the bobber's location
-                    spawnPokemonFromFishing(bobberOwner, chosenBucket, bobberBait)
+                            // spawn the pokemon from the chosen bucket at the bobber's location
+                            spawnPokemonFromFishing(bobberOwner, chosenBucket, bobberBait)
 
-                    val serverWorld = level() as ServerLevel
+                            val serverWorld = level() as ServerLevel
 
-                    val g = Mth.nextFloat(random, 0.0f, 360.0f) * (Math.PI.toFloat() / 180)
-                    val h = Mth.nextFloat(random, 25.0f, 60.0f)
-                    val partX = this.x + (Mth.sin(g) * h).toDouble() * 0.1
-                    serverWorld.sendParticles(ParticleTypes.SPLASH, partX, this.y, this.z, 6 + random.nextInt(4), 0.0, 0.2, 0.0, 0.0)
+                            val g = Mth.nextFloat(random, 0.0f, 360.0f) * (Math.PI.toFloat() / 180)
+                            val h = Mth.nextFloat(random, 25.0f, 60.0f)
+                            val partX = this.x + (Mth.sin(g) * h).toDouble() * 0.1
+                            serverWorld.sendParticles(ParticleTypes.SPLASH, partX, this.y, this.z, 6 + random.nextInt(4), 0.0, 0.2, 0.0, 0.0)
 
-                    playerEntity.level().addFreshEntity(ExperienceOrb(playerEntity.level(), playerEntity.getX(), playerEntity.getY() + 0.5, playerEntity.getZ() + 0.5, random.nextInt(6) + 1))
-                }
+                            playerEntity.level().addFreshEntity(ExperienceOrb(playerEntity.level(), playerEntity.getX(), playerEntity.getY() + 0.5, playerEntity.getZ() + 0.5, random.nextInt(6) + 1))
+
+                            i = 1
+                        })
+                    }
             }
             if (this.onGround()) {
                 i = 2
@@ -702,6 +725,7 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
                     level().playSound(null, this.blockPosition(), CobblemonSounds.FISHING_SPLASH_BIG, SoundSource.BLOCKS, 1.0F, 1.0F)
 
                 }
+                CobblemonEvents.BOBBER_SPAWN_POKEMON_POST.post(BobberSpawnPokemonEvent.Post(this, chosenBucket, rodItem!!, entity as PokemonEntity))
             }
         }
 
@@ -709,8 +733,11 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
             hookedEntity = level().getEntity(hookedEntityID)
         }
 
-        if (spawnedPokemon != null) {
-            BattleBuilder.pve((player as ServerPlayer), spawnedPokemon).ifErrored { it.sendTo(player) { it.red() } }
+        afterOnServer(seconds = 1.0F) {
+            if (player !in player.level().players()) {
+                return@afterOnServer
+            }
+            spawnedPokemon?.forceBattle(player as ServerPlayer)
         }
     }
 
@@ -756,6 +783,12 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
     // Particle Stuff
     private fun particleEntityHandler(entity: Entity, particle: ResourceLocation) {
         val spawnSnowstormParticlePacket = SpawnSnowstormParticlePacket(particle, entity.position())
+        spawnSnowstormParticlePacket.sendToPlayersAround(entity.x, entity.y, entity.z, 64.0, entity.level().dimension())
+    }
+
+    private fun particleCatchHandler(x: Double, y: Double, z: Double, entity: Entity, particle: ResourceLocation) {
+        var particlePosition = Vec3(x, y, z)
+        val spawnSnowstormParticlePacket = SpawnSnowstormParticlePacket(particle, particlePosition)
         spawnSnowstormParticlePacket.sendToPlayersAround(entity.x, entity.y, entity.z, 64.0, entity.level().dimension())
     }
 

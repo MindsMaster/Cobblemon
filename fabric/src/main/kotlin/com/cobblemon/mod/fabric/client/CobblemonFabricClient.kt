@@ -14,6 +14,7 @@ import com.cobblemon.mod.common.client.CobblemonClient
 import com.cobblemon.mod.common.client.CobblemonClient.pokedexUsageContext
 import com.cobblemon.mod.common.client.CobblemonClient.reloadCodedAssets
 import com.cobblemon.mod.common.client.keybind.CobblemonKeyBinds
+import com.cobblemon.mod.common.client.pokedex.PokedexType
 import com.cobblemon.mod.common.client.render.atlas.CobblemonAtlases
 import com.cobblemon.mod.common.client.render.item.CobblemonModelPredicateRegistry
 import com.cobblemon.mod.common.item.PokedexItem
@@ -22,6 +23,7 @@ import com.cobblemon.mod.common.particle.SnowstormParticleType
 import com.cobblemon.mod.common.platform.events.*
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.fabric.CobblemonFabric
+import com.mojang.blaze3d.vertex.PoseStack
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents
@@ -31,26 +33,26 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry
-import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry
-import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry
-import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback
+import net.fabricmc.fabric.api.client.rendering.v1.*
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper
 import net.minecraft.client.Minecraft
 import net.minecraft.client.color.block.BlockColor
 import net.minecraft.client.color.item.ItemColor
+import net.minecraft.client.model.geom.ModelLayerLocation
 import net.minecraft.client.model.geom.builders.LayerDefinition
 import net.minecraft.client.particle.ParticleProvider
-import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
-import net.minecraft.client.renderer.entity.EntityRendererProvider
-import net.minecraft.client.model.geom.ModelLayerLocation
+import net.minecraft.client.particle.SpriteSet
 import net.minecraft.client.renderer.RenderType
-import net.minecraft.core.particles.ParticleType
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers
+import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.core.particles.ParticleOptions
+import net.minecraft.core.particles.ParticleType
 import net.minecraft.server.packs.PackType
 import net.minecraft.server.packs.resources.PreparableReloadListener
 import net.minecraft.server.packs.resources.ResourceManager
+import net.minecraft.util.profiling.ProfilerFiller
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.item.Item
@@ -60,17 +62,22 @@ import net.minecraft.world.level.block.entity.BlockEntityType
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
 import java.util.function.Supplier
-import net.minecraft.client.particle.SpriteSet
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderers
-import net.minecraft.util.profiling.ProfilerFiller
+import net.minecraft.world.InteractionHand
 
 class CobblemonFabricClient: ClientModInitializer, CobblemonClientImplementation {
     override fun onInitializeClient() {
         registerParticleFactory(CobblemonParticles.SNOWSTORM_PARTICLE_TYPE, SnowstormParticleType::Factory)
         CobblemonClient.initialize(this)
         ModelLoadingPlugin.register {
-            PokeBalls.all().forEach { ball ->
-                it.addModels(ball.model3d)
+            PokeBalls.all().forEach { pokeBall -> it.addModels(pokeBall.model3d) }
+            PokedexType.entries.toList().forEach { pokedex ->
+                it.addModels(
+                    pokedex.getItemModelPath(),
+                    pokedex.getItemModelPath("scanning"),
+                    pokedex.getItemModelPath("flat"),
+                    pokedex.getItemModelPath("flat_off"),
+                    pokedex.getItemModelPath("off")
+                )
             }
         }
 
@@ -99,17 +106,38 @@ class CobblemonFabricClient: ClientModInitializer, CobblemonClientImplementation
 
         })
 
-        // Register the HUD render callback for pokedex
+        // Register the HUD render callback for Pokédex
         HudRenderCallback.EVENT.register { graphics, tickDelta ->
             val client = Minecraft.getInstance()
             val player = client.player
             if (player != null) {
                 val itemStack = player.mainHandItem
-                if (itemStack.item is PokedexItem) {
-                    pokedexUsageContext.tryRenderOverlay(graphics, tickDelta)
+                val offhandStack = player.offhandItem
+                if (((itemStack.item is PokedexItem && player.usedItemHand == InteractionHand.MAIN_HAND) ||
+                    (offhandStack.item is PokedexItem && player.usedItemHand == InteractionHand.OFF_HAND))
+                ) {
+                    pokedexUsageContext.renderUpdate(graphics, tickDelta)
+                } else if (pokedexUsageContext.transitionIntervals > 0) {
+                    pokedexUsageContext.resetState()
                 }
             }
         }
+
+        ClientTickEvents.END_CLIENT_TICK.register(ClientTickEvents.EndTick { client ->
+            val player = client.player
+            if (player != null) {
+                val itemStack = player.mainHandItem
+                val offhandStack = player.offhandItem
+                if (((itemStack.item is PokedexItem && player.usedItemHand == InteractionHand.MAIN_HAND) ||
+                    (offhandStack.item is PokedexItem && player.usedItemHand == InteractionHand.OFF_HAND)) &&
+                    player.isUsingItem &&
+                    pokedexUsageContext.scanningGuiOpen
+                ) {
+                    val keyAttack = client.options.keyAttack
+                    pokedexUsageContext.attackKeyHeld(keyAttack.isDown)
+                }
+            }
+        })
 
         CobblemonKeyBinds.register(KeyBindingHelper::registerKeyBinding)
 
@@ -120,6 +148,19 @@ class CobblemonFabricClient: ClientModInitializer, CobblemonClientImplementation
         ClientPlayConnectionEvents.JOIN.register { _, _, client -> client.player?.let { PlatformEvents.CLIENT_PLAYER_LOGIN.post(ClientPlayerEvent.Login(it)) } }
         ClientPlayConnectionEvents.DISCONNECT.register { _, client -> client.player?.let { PlatformEvents.CLIENT_PLAYER_LOGOUT.post(ClientPlayerEvent.Logout(it)) } }
         ItemTooltipCallback.EVENT.register { stack, context, type, lines -> PlatformEvents.CLIENT_ITEM_TOOLTIP.post(ItemTooltipEvent(stack, context, type, lines)) }
+
+        WorldRenderEvents.AFTER_TRANSLUCENT.register { context -> PlatformEvents.RENDER.post(
+                RenderEvent(
+                    stage = RenderEvent.Stage.TRANSLUCENT,
+                    levelRenderer = context.worldRenderer(),
+                    poseStack = context.matrixStack() ?: PoseStack(),
+                    modelViewMatrix = context.positionMatrix(),
+                    projectionMatrix = context.projectionMatrix(),
+                    tickCounter = context.tickCounter(),
+                    camera = context.camera()
+                )
+            )
+        }
 
         CobblemonModelPredicateRegistry.registerPredicates()
     }

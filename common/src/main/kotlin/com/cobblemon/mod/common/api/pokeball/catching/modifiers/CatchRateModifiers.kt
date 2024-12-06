@@ -133,7 +133,7 @@ object CatchRateModifiers {
      */
     val LURE = WorldStateModifier { _, entity ->
         if (FishingSpawnCause.FISHED_ASPECT in entity.aspects)
-            4f
+            4F
         else
             1F
     }

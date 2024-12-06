@@ -14,6 +14,8 @@ import com.bedrockk.molang.runtime.value.StringValue
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.api.abilities.Abilities
 import com.cobblemon.mod.common.api.abilities.Ability
+import com.cobblemon.mod.common.api.events.CobblemonEvents
+import com.cobblemon.mod.common.api.events.pokemon.ShinyChanceCalculationEvent
 import com.cobblemon.mod.common.api.moves.Moves
 import com.cobblemon.mod.common.api.pokeball.PokeBalls
 import com.cobblemon.mod.common.api.pokemon.aspect.AspectProvider
@@ -34,7 +36,7 @@ import com.cobblemon.mod.common.pokemon.RenderablePokemon
 import com.cobblemon.mod.common.pokemon.status.PersistentStatus
 import com.cobblemon.mod.common.util.DataKeys
 import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
-import com.cobblemon.mod.common.util.isInt
+import com.cobblemon.mod.common.util.isDouble
 import com.cobblemon.mod.common.util.isUuid
 import com.cobblemon.mod.common.util.server
 import com.cobblemon.mod.common.util.simplify
@@ -49,7 +51,6 @@ import kotlin.random.Random
 import net.minecraft.ResourceLocationException
 import net.minecraft.commands.arguments.item.ItemParser
 import net.minecraft.core.HolderLookup
-import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.nbt.StringTag
@@ -57,6 +58,7 @@ import net.minecraft.nbt.Tag
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 
@@ -184,10 +186,10 @@ open class PokemonProperties {
         private fun parseIntProperty(keyPairs: MutableList<Pair<String, String?>>, labels: Iterable<String>): Int? {
             val matchingKeyPair = getMatchedKeyPair(keyPairs, labels) ?: return null
             val value = matchingKeyPair.second
-            return if (value == null || !value.isInt()) {
+            return if (value == null || !value.isDouble()) {
                 null
             } else {
-                value.toInt()
+                value.toDouble().toInt()
             }
         }
 
@@ -505,6 +507,22 @@ open class PokemonProperties {
         originalTrainer?.takeIf { it != pokemon.originalTrainer }?.let { return false }
         originalTrainerType?.takeIf { it != pokemon.originalTrainerType }?.let { return false }
         moves?.takeIf { it.any { move -> pokemon.moveSet.none { it.template.name == move } } }?.let { return false }
+        heldItem?.takeIf { itemKey ->
+            val server = server() ?: return@takeIf true
+            val parser = ItemParser(server.registryAccess())
+            val result = parser.parse(StringReader(itemKey))
+
+            if (!pokemon.heldItem.`is`(result.item)) return@takeIf true
+
+            for (entry in result.components.entrySet()) {
+                val targetPropValue = pokemon.heldItem.get(entry.key)
+                if (targetPropValue != entry.value.get()) {
+                    return@takeIf true
+                }
+            }
+
+            return@takeIf false
+        }?.let { return false }
         return true
     }
 
@@ -558,18 +576,24 @@ open class PokemonProperties {
         return true
     }
 
-    fun create(): Pokemon {
+    @JvmOverloads
+    fun create(player: ServerPlayer? = null): Pokemon {
         val pokemon = Pokemon()
         apply(pokemon)
         pokemon.initialize()
-        roll(pokemon)
+        roll(pokemon, player)
         return pokemon
     }
 
     // TEST YOUR LUCK!
-    fun roll(pokemon: Pokemon) {
+    @JvmOverloads
+    fun roll(pokemon: Pokemon, player: ServerPlayer? = null) {
         val baseTypes = pokemon.form.types.toList()
-        if (this.shiny == null) pokemon.shiny = Cobblemon.config.shinyRate.checkRate()
+        var shinyRate = Cobblemon.config.shinyRate
+        CobblemonEvents.SHINY_CHANCE_CALCULATION.post(ShinyChanceCalculationEvent(shinyRate, pokemon)) { event ->
+            shinyRate = event.calculate(player)
+        }
+        if (this.shiny == null) pokemon.shiny = shinyRate.checkRate()
         if (this.teraType == null) pokemon.teraType =
             if (Cobblemon.config.teraTypeRate.checkRate()) {
                 var picked = TeraTypes.random(true)
@@ -581,8 +605,9 @@ open class PokemonProperties {
             else TeraTypes.forElementalType(baseTypes.random())
     }
 
-    fun createEntity(world: Level): PokemonEntity {
-        return PokemonEntity(world, create()).also { applyCustomProperties(it) }
+    @JvmOverloads
+    fun createEntity(world: Level, player: ServerPlayer? = null): PokemonEntity {
+        return PokemonEntity(world, create(player)).also { applyCustomProperties(it) }
     }
 
     // TODO Codecs at some point
@@ -631,8 +656,8 @@ open class PokemonProperties {
         nature = if (tag.contains(DataKeys.POKEMON_NATURE)) tag.getString(DataKeys.POKEMON_NATURE) else null
         ability = if (tag.contains(DataKeys.POKEMON_ABILITY)) tag.getString(DataKeys.POKEMON_ABILITY) else null
         status = if (tag.contains(DataKeys.POKEMON_STATUS_NAME)) tag.getString(DataKeys.POKEMON_STATUS_NAME) else null
-        ivs = if (tag.contains(DataKeys.POKEMON_IVS)) ivs?.loadFromNBT(tag.getCompound(DataKeys.POKEMON_IVS)) as IVs? else null
-        evs = if (tag.contains(DataKeys.POKEMON_EVS)) evs?.loadFromNBT(tag.getCompound(DataKeys.POKEMON_EVS)) as EVs? else null
+        ivs = if (tag.contains(DataKeys.POKEMON_IVS)) IVs().loadFromNBT(tag.getCompound(DataKeys.POKEMON_IVS)) as IVs else null
+        evs = if (tag.contains(DataKeys.POKEMON_EVS)) EVs().loadFromNBT(tag.getCompound(DataKeys.POKEMON_EVS)) as EVs else null
         type = if (tag.contains(DataKeys.ELEMENTAL_TYPE)) tag.getString(DataKeys.ELEMENTAL_TYPE) else null
         teraType = if (tag.contains(DataKeys.POKEMON_TERA_TYPE)) tag.getString(DataKeys.POKEMON_TERA_TYPE) else null
         dmaxLevel = if (tag.contains(DataKeys.POKEMON_DMAX_LEVEL)) tag.getInt(DataKeys.POKEMON_DMAX_LEVEL) else null
@@ -696,8 +721,8 @@ open class PokemonProperties {
         nature = json.get(DataKeys.POKEMON_NATURE)?.asString
         ability = json.get(DataKeys.POKEMON_ABILITY)?.asString
         status = json.get(DataKeys.POKEMON_STATUS_NAME)?.asString
-        ivs?.loadFromJSON(json.getAsJsonObject(DataKeys.POKEMON_IVS))
-        evs?.loadFromJSON(json.getAsJsonObject(DataKeys.POKEMON_EVS))
+        ivs = json.getAsJsonObject(DataKeys.POKEMON_IVS)?.let { IVs().loadFromJSON(it) } as IVs
+        evs = json.getAsJsonObject(DataKeys.POKEMON_EVS)?.let { EVs().loadFromJSON(it) } as EVs
         type = json.get(DataKeys.ELEMENTAL_TYPE)?.asString
         teraType = json.get(DataKeys.POKEMON_TERA_TYPE)?.asString
         dmaxLevel = json.get(DataKeys.POKEMON_DMAX_LEVEL)?.asInt
@@ -768,7 +793,7 @@ open class PokemonProperties {
     }
 
     // If the config value is at least 1, then do 1/x and use that as the property chance
-    private fun Float.checkRate(): Boolean = this >= 1 && (Random.Default.nextFloat() < 1 / this)
+    private fun Float.checkRate(): Boolean = if (this >= 1) (Random.Default.nextFloat() < 1 / this) else Random.Default.nextFloat() < this
 
     /**
      * Attempts to find an ability by ID and resolve if it should be forced or if it's legal for the given form.

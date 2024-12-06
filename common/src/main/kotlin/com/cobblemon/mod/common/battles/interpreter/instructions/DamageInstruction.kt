@@ -13,6 +13,7 @@ import com.cobblemon.mod.common.api.battles.interpreter.BattleMessage
 import com.cobblemon.mod.common.api.battles.model.PokemonBattle
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor
 import com.cobblemon.mod.common.api.moves.animations.ActionEffectContext
+import com.cobblemon.mod.common.api.moves.animations.ActionEffects
 import com.cobblemon.mod.common.api.moves.animations.UsersProvider
 import com.cobblemon.mod.common.api.pokemon.status.Statuses
 import com.cobblemon.mod.common.api.text.red
@@ -28,6 +29,7 @@ import com.cobblemon.mod.common.net.messages.client.effect.RunPosableMoLangPacke
 import com.cobblemon.mod.common.pokemon.evolution.progress.DamageTakenEvolutionProgress
 import com.cobblemon.mod.common.pokemon.evolution.progress.RecoilEvolutionProgress
 import com.cobblemon.mod.common.pokemon.status.statuses.persistent.PoisonStatus
+import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
 import com.cobblemon.mod.common.util.battleLang
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.common.util.lang
@@ -100,7 +102,12 @@ class DamageInstruction(
             if (status is PoisonStatus) {
                 status = pokemon.effectedPokemon.status?.status ?: status
             }
-            val actionEffect = status?.getActionEffect() ?: return@dispatch GO
+
+            // Damage effects without a action effect receive the generic damage effect
+            val actionEffect = status?.getActionEffect() ?: effect?.let {
+                ActionEffects.actionEffects["generic_damage".asIdentifierDefaultingNamespace()]
+            } ?: return@dispatch GO
+
             val providers = mutableListOf<Any>(battle)
             battlePokemon.effectedPokemon.entity?.let { UsersProvider(it) }?.let(providers::add)
 
@@ -137,28 +144,18 @@ class DamageInstruction(
                     distance = 50.0
                 )
             }
-            //Play hit particle
-            if (pokemonEntity != null) {
-                RunPosableMoLangPacket(pokemonEntity.id, setOf("q.particle('cobblemon:hit', 'target')")).sendToPlayersAround(
-                    x = pokemonEntity.x,
-                    y = pokemonEntity.y,
-                    z = pokemonEntity.z,
-                    worldKey = pokemonEntity.level().dimension(),
-                    distance = 50.0
-                )
-            }
 
             val newHealthRatio: Float
             val remainingHealth = newHealth.split("/")[0].toInt()
 
             if (effect != null) {
                 val lang = when (effect.id) {
-                    "blacksludge", "stickybarb" -> battleLang("damage.item", pokemonName, effect.typelessData)
+                    "blacksludge", "stickybarb", "jabocaberry", "rowapberry" -> battleLang("damage.item", pokemonName, effect.typelessData)
                     "brn", "psn", "tox" -> {
                         val status = Statuses.getStatus(effect.id)?.name?.path ?: return@dispatch GO
                         lang("status.$status.hurt", pokemonName)
                     }
-                    "aftermath" -> battleLang("damage.generic", pokemonName)
+                    "aftermath", "innardsout" -> battleLang("damage.generic", pokemonName)
                     "chloroblast", "steelbeam" -> battleLang("damage.mindblown", pokemonName)
                     "jumpkick" -> battleLang("damage.highjumpkick", pokemonName)
                     else -> battleLang("damage.${effect.id}", pokemonName, source?.getName() ?: Component.literal("UNKOWN"))
@@ -212,7 +209,7 @@ class DamageInstruction(
             } else if (causedFaint) {
                 GO
             } else {
-                UntilDispatch {"effects" !in holds}
+                UntilDispatch { "effects" !in holds}
             }
         }
     }

@@ -12,12 +12,10 @@ import net.minecraft.world.entity.schedule.Activity
 
 object CobblemonActivities {
     val activities = mutableListOf<Activity>()
-    val BATTLING_ACTIVITY = Activity("pokemon_battling")
-    val NPC_BATTLING = Activity("npc_battling")
-    val NPC_ACTION_EFFECT = Activity("npc_action_effect")
-    val NPC_CHATTING = Activity("npc_chatting")
+    val BATTLING = register(Activity("battling"))
+    val ACTION_EFFECT = register(Activity("action_effect"))
+    val NPC_CHATTING = register(Activity("npc_chatting"))
     val POKEMON_SLEEPING_ACTIVITY = Activity("pokemon_sleeping")
-    val POKEMON_COMBAT_ACTIVITY = Activity("pokemon_combat")
     val POKEMON_GROW_CROP = Activity("pokemon_grow_crop")
 
     fun register(activity: Activity): Activity {
