@@ -33,13 +33,13 @@ object HandleBattleActivityGoal {
             ).apply(it) { battle, walkTarget, lookTarget ->
                 Trigger { world, entity, _ ->
                     val battleUUID = it.tryGet(battle).orElse(null)
-                    if (battleUUID != null && !entity.brain.isActive(CobblemonActivities.BATTLING_ACTIVITY)) {
-                        entity.brain.setActiveActivityToFirstValid(listOf(CobblemonActivities.BATTLING_ACTIVITY))
+                    if (battleUUID != null && !entity.brain.isActive(CobblemonActivities.BATTLING)) {
+                        entity.brain.setActiveActivityToFirstValid(listOf(CobblemonActivities.BATTLING))
                         entity.brain.eraseMemory(MemoryModuleType.WALK_TARGET)
                         entity.brain.eraseMemory(MemoryModuleType.LOOK_TARGET)
                         entity.navigation.stop()
                         return@Trigger true
-                    } else if (battleUUID == null && entity.brain.isActive(CobblemonActivities.BATTLING_ACTIVITY)) {
+                    } else if (battleUUID == null && entity.brain.isActive(CobblemonActivities.BATTLING)) {
                         entity.brain.setActiveActivityToFirstValid(listOf(Activity.IDLE))
                         entity.brain.eraseMemory(MemoryModuleType.WALK_TARGET)
                         entity.brain.eraseMemory(MemoryModuleType.LOOK_TARGET)

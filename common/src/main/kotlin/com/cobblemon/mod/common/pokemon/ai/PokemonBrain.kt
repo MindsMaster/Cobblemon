@@ -101,7 +101,7 @@ object PokemonBrain {
             ImmutableList.copyOf(idleTasks(pokemon))
         )
         brain.addActivity(
-            CobblemonActivities.BATTLING_ACTIVITY,
+            CobblemonActivities.BATTLING,
             ImmutableList.copyOf(battlingTasks())
         )
         brain.addActivity(
@@ -153,7 +153,7 @@ object PokemonBrain {
                 Activity.CORE,
                 Activity.AVOID,
                 Activity.IDLE,
-                CobblemonActivities.BATTLING_ACTIVITY,
+                CobblemonActivities.BATTLING,
                 CobblemonActivities.POKEMON_SLEEPING_ACTIVITY,
                 CobblemonActivities.POKEMON_GROW_CROP
             )
@@ -175,7 +175,7 @@ object PokemonBrain {
         add(0 toDF HandleBattleActivityGoal.create())
         add(0 toDF FollowWalkTargetTask())
 
-        add(0 toDF SwapActivityTask.possessing(CobblemonMemories.POKEMON_BATTLE, CobblemonActivities.BATTLING_ACTIVITY))
+        add(0 toDF SwapActivityTask.possessing(CobblemonMemories.POKEMON_BATTLE, CobblemonActivities.BATTLING))
     }
 
     private fun fightTasks(pokemon: Pokemon) = buildList<Pair<Int, BehaviorControl<in PokemonEntity>>> {
