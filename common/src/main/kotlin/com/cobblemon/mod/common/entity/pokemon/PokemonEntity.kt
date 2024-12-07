@@ -734,7 +734,7 @@ open class PokemonEntity(
             target = Pokemon()
         }
 
-        return PokemonBrain.makeBrain(target, brainProvider().makeBrain(dynamic))
+        return PokemonBrain.makeBrain(this, target, brainProvider().makeBrain(dynamic))
     }
 
     private fun initializeBrain() {

@@ -62,36 +62,7 @@ object PokemonBrain {
 //            CobblemonSensors.NPC_BATTLING
     )
 
-    val MEMORY_MODULES: List<MemoryModuleType<*>> = ImmutableList.of(
-        MemoryModuleType.LOOK_TARGET,
-        MemoryModuleType.WALK_TARGET,
-        MemoryModuleType.ATTACK_TARGET,
-        MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
-        MemoryModuleType.PATH,
-        MemoryModuleType.IS_PANICKING,
-        MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
-        CobblemonMemories.POKEMON_FLYING,
-        CobblemonMemories.NEAREST_VISIBLE_ATTACKER,
-        MemoryModuleType.HURT_BY,
-        MemoryModuleType.HURT_BY_ENTITY,
-        MemoryModuleType.NEAREST_PLAYERS,
-        MemoryModuleType.NEAREST_VISIBLE_PLAYER,
-        MemoryModuleType.ANGRY_AT,
-        MemoryModuleType.ATTACK_COOLING_DOWN,
-        CobblemonMemories.POKEMON_DROWSY,
-        CobblemonMemories.POKEMON_BATTLE,
-        MemoryModuleType.HOME,
-        CobblemonMemories.REST_PATH_COOLDOWN,
-        CobblemonMemories.TARGETED_BATTLE_POKEMON,
-        MemoryModuleType.NEAREST_VISIBLE_ADULT,
-        MemoryModuleType.IS_IN_WATER,
-        MemoryModuleType.DISTURBANCE_LOCATION,
-        CobblemonMemories.NEARBY_GROWABLE_CROPS,
-        MemoryModuleType.AVOID_TARGET,
-        CobblemonMemories.POKEMON_SLEEPING
-    )
-
-    fun makeBrain(pokemon: Pokemon, brain: Brain<out PokemonEntity>): Brain<*> {
+    fun makeBrain(entity: PokemonEntity, pokemon: Pokemon, brain: Brain<out PokemonEntity>): Brain<*> {
         brain.addActivity(
             Activity.CORE,
             ImmutableList.copyOf(coreTasks(pokemon))
@@ -146,6 +117,35 @@ object PokemonBrain {
 
         return brain
     }
+
+    val MEMORY_MODULES: List<MemoryModuleType<*>> = ImmutableList.of(
+        MemoryModuleType.LOOK_TARGET,
+        MemoryModuleType.WALK_TARGET,
+        MemoryModuleType.ATTACK_TARGET,
+        MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
+        MemoryModuleType.PATH,
+        MemoryModuleType.IS_PANICKING,
+        MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
+        CobblemonMemories.POKEMON_FLYING,
+        CobblemonMemories.NEAREST_VISIBLE_ATTACKER,
+        MemoryModuleType.HURT_BY,
+        MemoryModuleType.HURT_BY_ENTITY,
+        MemoryModuleType.NEAREST_PLAYERS,
+        MemoryModuleType.NEAREST_VISIBLE_PLAYER,
+        MemoryModuleType.ANGRY_AT,
+        MemoryModuleType.ATTACK_COOLING_DOWN,
+        CobblemonMemories.POKEMON_DROWSY,
+        CobblemonMemories.POKEMON_BATTLE,
+        MemoryModuleType.HOME,
+        CobblemonMemories.REST_PATH_COOLDOWN,
+        CobblemonMemories.TARGETED_BATTLE_POKEMON,
+        MemoryModuleType.NEAREST_VISIBLE_ADULT,
+        MemoryModuleType.IS_IN_WATER,
+        MemoryModuleType.DISTURBANCE_LOCATION,
+        CobblemonMemories.NEARBY_GROWABLE_CROPS,
+        MemoryModuleType.AVOID_TARGET,
+        CobblemonMemories.POKEMON_SLEEPING
+    )
 
     fun updateActivities(pokemon:PokemonEntity) {
         pokemon.brain.setActiveActivityToFirstValid(

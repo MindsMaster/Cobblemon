@@ -14,6 +14,7 @@ import com.cobblemon.mod.common.api.ai.BrainConfigurationContext
 import com.cobblemon.mod.common.battles.BattleRegistry
 import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.entity.npc.NPCEntity
+import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.asExpression
 import com.cobblemon.mod.common.util.resolveBoolean
 import com.cobblemon.mod.common.util.withQueryValue
@@ -52,7 +53,7 @@ class ExitBattleWhenHurtTaskConfig : SingleTaskConfig {
                         .apply(it) { _, _ -> Trigger { world, entity, _ -> return@Trigger cancelNPCBattles(entity as NPCEntity) } }
                 }
             }
-        } else { return null }/* else if (entity is PokemonEntity) { TODO uncomment when pokemon have brain :)
+        } else if (entity is PokemonEntity) {
             fun cancelPokemonBattle(pokemonEntity: PokemonEntity): Boolean {
                 val battle = BattleRegistry.getBattle(pokemonEntity.battleId ?: return false)
                 battle?.end()
@@ -61,15 +62,17 @@ class ExitBattleWhenHurtTaskConfig : SingleTaskConfig {
 
             return if (includePassiveDamage) {
                 BehaviorBuilder.create {
-                    it.group(it.present(MemoryModuleType.HURT_BY), it.present(CobblemonMemories.POKEMON_BATTLING))
+                    it.group(it.present(MemoryModuleType.HURT_BY), it.present(CobblemonMemories.POKEMON_BATTLE))
                         .apply(it) { _, _ -> Trigger { world, entity, _ -> return@Trigger cancelPokemonBattle(entity as PokemonEntity) } }
                 }
             } else {
                 BehaviorBuilder.create {
-                    it.group(it.present(MemoryModuleType.HURT_BY_ENTITY), it.present(CobblemonMemories.POKEMON_BATTLING))
+                    it.group(it.present(MemoryModuleType.HURT_BY_ENTITY), it.present(CobblemonMemories.POKEMON_BATTLE))
                         .apply(it) { _, _ -> Trigger { world, entity, _ -> return@Trigger cancelPokemonBattle(entity as PokemonEntity) } }
                 }
             }
-        }*/
+        } else {
+            return null
+        }
     }
 }
