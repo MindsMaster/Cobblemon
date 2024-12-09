@@ -314,6 +314,30 @@ object MoLangFunctions {
                         return@put vars
                     }
                 }
+                map.put("get_npc_variable") { params ->
+                    val npcId = (params.get<MoValue>(0) as? ObjectValue<NPCEntity>)?.obj?.stringUUID ?: params.getString(0)
+                    val variable = params.getString(1)
+                    val data = Cobblemon.molangData.load(player.uuid)
+                    if (data.map.containsKey(npcId)) {
+                        return@put (data.map[npcId] as VariableStruct).map[variable] ?: DoubleValue.ZERO
+                    }
+                }
+                map.put("set_npc_variable") { params ->
+                    val npcId = (params.get<MoValue>(0) as? ObjectValue<NPCEntity>)?.obj?.stringUUID ?: params.getString(0)
+                    val variable = params.getString(1)
+                    val value = params.get<MoValue>(2)
+                    val saveAfterwards = params.getBooleanOrNull(3) != false
+                    val data = Cobblemon.molangData.load(player.uuid)
+                    if (data.map.containsKey(npcId)) {
+                        (data.map[npcId] as VariableStruct).map[variable] = value
+                        if (saveAfterwards) {
+                            Cobblemon.molangData.save(player.uuid)
+                        }
+                        return@put DoubleValue.ONE
+                    } else {
+                        return@put DoubleValue.ZERO
+                    }
+                }
             }
             map
         }
