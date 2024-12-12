@@ -15,7 +15,7 @@ class CookingPotContainer : CraftingContainer {
 
     constructor(menu : CookingPotMenu) {
         this.menu = menu
-        this.items = NonNullList.withSize(10, ItemStack.EMPTY)
+        this.items = NonNullList.withSize(11, ItemStack.EMPTY)
     }
 
     override fun getContainerSize(): Int {
@@ -59,7 +59,16 @@ class CookingPotContainer : CraftingContainer {
     }
 
     override fun clearContent() {
-        this.items.clear()
+        this.items[0] = ItemStack.EMPTY
+        this.items[1] = ItemStack.EMPTY
+        this.items[2] = ItemStack.EMPTY
+        this.items[3] = ItemStack.EMPTY
+        this.items[4] = ItemStack.EMPTY
+        this.items[5] = ItemStack.EMPTY
+        this.items[6] = ItemStack.EMPTY
+        this.items[7] = ItemStack.EMPTY
+        this.items[8] = ItemStack.EMPTY
+        this.items[9] = ItemStack.EMPTY
     }
 
     override fun getHeight(): Int {

@@ -31,6 +31,10 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
     private val containerData: ContainerData
     private val recipeType: RecipeType<CookingPotRecipe> = CobblemonRecipeTypes.COOKING_POT_COOKING
 
+    val RESULT_SLOT = 9;
+    val CRAFT_SLOT_START = 0;
+    val CRAFT_SLOT_END = 9;
+
     constructor(containerId: Int, playerInventory: Inventory) :
             super(CobblemonMenuType.COOKING_POT, containerId) {
         this.containerId = containerId
@@ -60,7 +64,7 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
         val craftingOutputOffsetX = 16
         val craftingOutputOffsetY = 10
 
-        addSlot(CookingPotResultSlot(this.player,this.container, this.container, 9, 124 + craftingOutputOffsetX, 35 + craftingOutputOffsetY))
+        addSlot(CookingPotResultSlot(playerInventory.player, this.container, RESULT_SLOT, 124 + craftingOutputOffsetX, 35 + craftingOutputOffsetY))
 
         for (i in 0..2) {
             for (j in 0..2) {
@@ -88,7 +92,6 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
         return optionalRecipe.isPresent
     }
 
-
     override fun removed(player: Player) {
         super.removed(player)
 
@@ -100,22 +103,16 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
 
     override fun clearCraftingContent() {
         container.clearContent()
-        container.clearContent()
     }
 
     override fun recipeMatches(recipe: RecipeHolder<CookingPotRecipe?>): Boolean {
         val matches = recipe.value()?.matches(this.container.asCraftInput(), this.player.level()) == true
-        if (matches) {
-            println("Recipe matched: ${recipe.value()}")
-        } else {
-            println("Recipe did not match: ${recipe.value()}")
-        }
         return matches
     }
 
 
     override fun getResultSlotIndex(): Int {
-        return 9
+        return RESULT_SLOT
     }
 
     override fun getGridWidth(): Int {

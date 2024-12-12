@@ -20,6 +20,7 @@ import com.cobblemon.mod.common.block.BerryBlock
 import com.cobblemon.mod.common.block.MintBlock
 import com.cobblemon.mod.common.block.MintBlock.MintType
 import com.cobblemon.mod.common.client.pokedex.PokedexTypes
+import com.cobblemon.mod.common.client.pot.PotTypes
 import com.cobblemon.mod.common.entity.boat.CobblemonBoatType
 import com.cobblemon.mod.common.item.*
 import com.cobblemon.mod.common.item.armor.CobblemonArmorTrims
@@ -168,6 +169,23 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     val POKEDEX_WHITE = pokedexItem(PokedexTypes.WHITE)
     @JvmField
     val POKEDEX_YELLOW = pokedexItem(PokedexTypes.YELLOW)
+
+
+    val pots = mutableListOf<PotItem>()
+    @JvmField
+    val POT_BLACK = potItem(PotTypes.BLACK)
+    @JvmField
+    val POT_BLUE = potItem(PotTypes.BLUE)
+    @JvmField
+    val POT_GREEN = potItem(PotTypes.GREEN)
+    @JvmField
+    val POT_PINK = potItem(PotTypes.PINK)
+    @JvmField
+    val POT_RED = potItem(PotTypes.RED)
+    @JvmField
+    val POT_WHITE = potItem(PotTypes.WHITE)
+    @JvmField
+    val POT_YELLOW = potItem(PotTypes.YELLOW)
 
     @JvmField
     val VIVICHOKE = compostableItem("vivichoke")
@@ -332,7 +350,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     @JvmField
     val INCENSE_SWEET = blockItem("incense_sweet", CobblemonBlocks.INCENSE_SWEET)
     @JvmField
-    val COOKING_POT = blockItem("cooking_pot", CobblemonBlocks.COOKING_POT)
+    val CAMPFIRE = blockItem("campfire", CobblemonBlocks.CAMPFIRE)
 
 
     // Evolution items
@@ -1310,6 +1328,12 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     private fun pokedexItem(type: PokedexTypes): PokedexItem {
         val item = create("pokedex_${type.name.lowercase()}", PokedexItem(type))
         pokedexes.add(item)
+        return item
+    }
+
+    private fun potItem(type: PotTypes): PotItem {
+        val item = create("pot_${type.name.lowercase()}", PotItem(type))
+        pots.add(item)
         return item
     }
 

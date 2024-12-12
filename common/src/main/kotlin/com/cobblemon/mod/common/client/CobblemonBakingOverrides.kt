@@ -10,6 +10,7 @@ package com.cobblemon.mod.common.client
 
 import com.cobblemon.mod.common.BakingOverride
 import com.cobblemon.mod.common.client.pokedex.PokedexTypes
+import com.cobblemon.mod.common.client.pot.PotTypes
 import com.cobblemon.mod.common.util.cobblemonModel
 import com.cobblemon.mod.common.util.cobblemonResource
 import net.minecraft.client.resources.model.ModelResourceLocation
@@ -134,6 +135,35 @@ object CobblemonBakingOverrides {
         cobblemonModel("pokedex_yellow_model", "inventory")
     )
 
+    val POT_BLACK = registerOverride(
+        cobblemonResource("item/pot_black_model"),
+        cobblemonModel("pot_black_model", "inventory")
+    )
+    val POT_BLUE = registerOverride(
+        cobblemonResource("item/pot_blue_model"),
+        cobblemonModel("pot_blue_model", "inventory")
+    )
+    val POT_GREEN = registerOverride(
+        cobblemonResource("item/pot_green_model"),
+        cobblemonModel("pot_green_model", "inventory")
+    )
+    val POT_PINK = registerOverride(
+        cobblemonResource("item/pot_pink_model"),
+        cobblemonModel("pot_pink_model", "inventory")
+    )
+    val POT_RED = registerOverride(
+        cobblemonResource("item/pot_red_model"),
+        cobblemonModel("pot_red_model", "inventory")
+    )
+    val POT_WHITE = registerOverride(
+        cobblemonResource("item/pot_white_model"),
+        cobblemonModel("pot_white_model", "inventory")
+    )
+    val POT_YELLOW = registerOverride(
+        cobblemonResource("item/pot_yellow_model"),
+        cobblemonModel("pot_yellow_model", "inventory")
+    )
+
     fun getPokedexOverride(type: PokedexTypes): BakingOverride {
         return when (type) {
             PokedexTypes.BLACK -> POKEDEX_BLACK
@@ -143,6 +173,18 @@ object CobblemonBakingOverrides {
             PokedexTypes.WHITE -> POKEDEX_WHITE
             PokedexTypes.YELLOW -> POKEDEX_YELLOW
             PokedexTypes.RED -> POKEDEX_RED
+        }
+    }
+
+    fun getPotOverride(type: PotTypes): BakingOverride {
+        return when (type) {
+            PotTypes.BLACK -> POT_BLACK
+            PotTypes.BLUE -> POT_BLUE
+            PotTypes.GREEN -> POT_GREEN
+            PotTypes.PINK -> POT_PINK
+            PotTypes.WHITE -> POT_WHITE
+            PotTypes.YELLOW -> POT_YELLOW
+            PotTypes.RED -> POT_RED
         }
     }
 

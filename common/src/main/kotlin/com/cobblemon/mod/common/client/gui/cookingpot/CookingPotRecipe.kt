@@ -35,7 +35,6 @@ class CookingPotRecipe(
 
     override fun matches(input: CraftingInput, level: Level): Boolean {
         val matches = this.pattern.matches(input)
-        println("Matching recipe: $this, Input: $input, Matches: $matches")
         return matches
     }
 

@@ -11,7 +11,6 @@ package com.cobblemon.mod.common.block.entity
 import com.cobblemon.mod.common.CobblemonBlockEntities
 import com.cobblemon.mod.common.CobblemonRecipeTypes
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotMenu
-import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotRecipe
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
@@ -19,43 +18,52 @@ import net.minecraft.core.HolderLookup
 import net.minecraft.core.NonNullList
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
-import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket
+import net.minecraft.network.protocol.Packet
+import net.minecraft.network.protocol.game.ClientGamePacketListener
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.ContainerHelper
 import net.minecraft.world.WorldlyContainer
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.StackedContents
-import net.minecraft.world.inventory.AbstractContainerMenu
-import net.minecraft.world.inventory.ContainerData
-import net.minecraft.world.inventory.CraftingContainer
-import net.minecraft.world.inventory.RecipeCraftingHolder
-import net.minecraft.world.inventory.StackedContentsCompatible
+import net.minecraft.world.inventory.*
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
 import net.minecraft.world.item.crafting.CraftingInput
 import net.minecraft.world.item.crafting.RecipeHolder
 import net.minecraft.world.item.crafting.RecipeManager
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity
 import net.minecraft.world.level.block.state.BlockState
 
-class CookingPotBlockEntity : BaseContainerBlockEntity, WorldlyContainer, RecipeCraftingHolder, StackedContentsCompatible, CraftingContainer {
+class CampfireBlockEntity : BaseContainerBlockEntity, WorldlyContainer, RecipeCraftingHolder, StackedContentsCompatible, CraftingContainer {
 
     companion object {
-        fun serverTick(level: Level, pos: BlockPos, state: BlockState, cookingPotBlockEntity: CookingPotBlockEntity) {
+        fun serverTick(level: Level, pos: BlockPos, state: BlockState, campfireBlockEntity: CampfireBlockEntity) {
             if (!level.isClientSide) {
-                val craftingInput = cookingPotBlockEntity.asCraftInput()
+                val craftingInput = campfireBlockEntity.asCraftInput()
+                println("0 : " + campfireBlockEntity.items.get(0))
+                println("1 : " + campfireBlockEntity.items.get(1))
+                println("2 : " + campfireBlockEntity.items.get(2))
+                println("3 : " + campfireBlockEntity.items.get(3))
+                println("4 : " + campfireBlockEntity.items.get(4))
+                println("5 : " + campfireBlockEntity.items.get(5))
+                println("6 : " + campfireBlockEntity.items.get(6))
+                println("7 : " + campfireBlockEntity.items.get(7))
+                println("8 : " + campfireBlockEntity.items.get(8))
+                println("9 : " + campfireBlockEntity.items.get(9))
+                println("10 : " + campfireBlockEntity.items.get(10))
                 var itemStack = ItemStack.EMPTY
-                cookingPotBlockEntity.quickCheck.getRecipeFor(craftingInput, level).ifPresent { cookingPotRecipe ->
+                campfireBlockEntity.quickCheck.getRecipeFor(craftingInput, level).ifPresent { cookingPotRecipe ->
                     val recipeHolder  = cookingPotRecipe as RecipeHolder<*>
                     recipeHolder.value.getResultItem(level.registryAccess()).let { itemStack = it }
                     craftingInput.items().clear()
-                    cookingPotBlockEntity.items.set(9,  itemStack)
+                    campfireBlockEntity.items[0] = itemStack
                 }
         }
     }
     }
-
 
     private var cookingProgress : Int = 0
     private var cookingTotalTime : Int = 0
@@ -64,24 +72,24 @@ class CookingPotBlockEntity : BaseContainerBlockEntity, WorldlyContainer, Recipe
     private val recipesUsed: Object2IntOpenHashMap<ResourceLocation>
     private val quickCheck: RecipeManager.CachedCheck<CraftingInput, *>
 
-    constructor(pos: BlockPos, state: BlockState) : super(CobblemonBlockEntities.COOKING_POT, pos, state) {
-        this.items = NonNullList.withSize(10, ItemStack.EMPTY);
+    constructor(pos: BlockPos, state: BlockState) : super(CobblemonBlockEntities.CAMPFIRE, pos, state) {
+        this.items = NonNullList.withSize(11, ItemStack.EMPTY)
         this.recipesUsed = Object2IntOpenHashMap()
-        this.quickCheck = RecipeManager.createCheck(CobblemonRecipeTypes.COOKING_POT_COOKING);
+        this.quickCheck = RecipeManager.createCheck(CobblemonRecipeTypes.COOKING_POT_COOKING)
 
         this.dataAccess = object : ContainerData {
             override fun get(index: Int): Int {
                 return when (index) {
-                    0 -> this@CookingPotBlockEntity.cookingProgress
-                    1 -> this@CookingPotBlockEntity.cookingTotalTime
+                    0 -> this@CampfireBlockEntity.cookingProgress
+                    1 -> this@CampfireBlockEntity.cookingTotalTime
                     else -> 0
                 }
             }
 
             override fun set(index: Int, value: Int) {
                 when (index) {
-                    0 -> this@CookingPotBlockEntity.cookingProgress = value
-                    1 -> this@CookingPotBlockEntity.cookingTotalTime = value
+                    0 -> this@CampfireBlockEntity.cookingProgress = value
+                    1 -> this@CampfireBlockEntity.cookingTotalTime = value
                 }
             }
 
@@ -112,29 +120,38 @@ class CookingPotBlockEntity : BaseContainerBlockEntity, WorldlyContainer, Recipe
     }
 
     override fun loadAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
-        super.loadAdditional(tag, registries);
-        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
-        ContainerHelper.loadAllItems(tag, this.items, registries);
-        this.cookingProgress = tag.getShort("CookTime").toInt();
-        this.cookingTotalTime = tag.getShort("CookTimeTotal").toInt();
-        val compoundTag = tag.getCompound("RecipesUsed");
+        super.loadAdditional(tag, registries)
+        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY)
+        ContainerHelper.loadAllItems(tag, this.items, registries)
+        this.cookingProgress = tag.getShort("CookTime").toInt()
+        this.cookingTotalTime = tag.getShort("CookTimeTotal").toInt()
+        val compoundTag = tag.getCompound("RecipesUsed")
 
         for(string in compoundTag.getAllKeys()) {
-            this.recipesUsed.put(ResourceLocation.parse(string), compoundTag.getInt(string));
+            this.recipesUsed.put(ResourceLocation.parse(string), compoundTag.getInt(string))
         }
     }
 
     override fun saveAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
-        super.saveAdditional(tag, registries);
-        tag.putShort("CookTime", this.cookingProgress.toShort());
-        tag.putShort("CookTimeTotal", this.cookingTotalTime.toShort());
-        ContainerHelper.saveAllItems(tag, this.items, registries);
-        val compoundTag = CompoundTag();
+        super.saveAdditional(tag, registries)
+        tag.putShort("CookTime", this.cookingProgress.toShort())
+        tag.putShort("CookTimeTotal", this.cookingTotalTime.toShort())
+        ContainerHelper.saveAllItems(tag, this.items, true, registries)
+        val compoundTag = CompoundTag()
         this.recipesUsed.forEach { resourceLocation, integer ->
             compoundTag.putInt(resourceLocation.toString(), integer)
         }
-        tag.put("RecipesUsed", compoundTag);
+        tag.put("RecipesUsed", compoundTag)
     }
+
+    override fun getUpdateTag(registryLookup: HolderLookup.Provider): CompoundTag {
+        return this.saveWithoutMetadata(registryLookup)
+    }
+
+    override fun getUpdatePacket(): Packet<ClientGamePacketListener>? {
+        return ClientboundBlockEntityDataPacket.create(this)
+    }
+
 
     override fun createMenu(
         containerId: Int,
@@ -169,8 +186,8 @@ class CookingPotBlockEntity : BaseContainerBlockEntity, WorldlyContainer, Recipe
 
     override fun setRecipeUsed(recipe: RecipeHolder<*>?) {
         if (recipe != null) {
-            val resourceLocation = recipe.id();
-            this.recipesUsed.addTo(resourceLocation, 1);
+            val resourceLocation = recipe.id()
+            this.recipesUsed.addTo(resourceLocation, 1)
         }
     }
 
@@ -183,4 +200,30 @@ class CookingPotBlockEntity : BaseContainerBlockEntity, WorldlyContainer, Recipe
             contents.accountSimpleStack(itemStack);
         }
     }
+
+    fun getItemStack(): ItemStack = items[10]
+
+    fun setItemStack(itemStack: ItemStack) {
+        if (level != null) {
+            items[10] = itemStack
+            onItemUpdate(level!!)
+        }
+    }
+
+    fun removeItemStack(): ItemStack {
+        if (level != null) {
+            val itemStack = ContainerHelper.removeItem(items, 10, 1)
+            onItemUpdate(level!!)
+            return itemStack
+        }
+        return ItemStack.EMPTY
+    }
+
+    private fun onItemUpdate(level: Level) {
+        val oldState = level.getBlockState(blockPos)
+        level.sendBlockUpdated(blockPos, oldState, level.getBlockState(blockPos), Block.UPDATE_ALL)
+        level.updateNeighbourForOutputSignal(blockPos, level.getBlockState(blockPos).block)
+        setChanged()
+    }
+
 }

@@ -436,6 +436,14 @@
   "item.cobblemon.black_tumblestone": "Black Tumblestone",
   "item.cobblemon.sky_tumblestone": "Sky Tumblestone",
 
+  "item.cobblemon.pot_black": "Black Pot",
+  "item.cobblemon.pot_blue": "Blue Pot",
+  "item.cobblemon.pot_green": "Green Pot",
+  "item.cobblemon.pot_pink": "Pink Pot",
+  "item.cobblemon.pot_red": "Red Pot",
+  "item.cobblemon.pot_white": "White Pot",
+  "item.cobblemon.pot_yellow": "Yellow Pot",
+
   "item.cobblemon.relic_coin": "Relic Coin",
   "block.cobblemon.relic_coin_pouch": "Relic Coin Pouch",
   "block.cobblemon.relic_coin_sack": "Relic Coin Sack",

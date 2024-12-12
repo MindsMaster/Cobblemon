@@ -13,6 +13,7 @@ import com.cobblemon.mod.common.ModAPI;
 import com.cobblemon.mod.common.client.CobblemonBakingOverrides;
 import com.cobblemon.mod.common.item.PokeBallItem;
 import com.cobblemon.mod.common.item.PokedexItem;
+import com.cobblemon.mod.common.item.PotItem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.ItemModelShaper;
@@ -60,6 +61,12 @@ public abstract class ItemRendererMixin {
             }
         } else if (shouldBe2d && stack.getItem() instanceof PokeBallItem pokeBallItem) {
             BakedModel replacementModel = this.itemModelShaper.getModelManager().getModel(new ModelResourceLocation(pokeBallItem.getPokeBall().getModel2d(), "inventory"));
+            if (!cobblemon$isSameModel(model, replacementModel)) {
+                ci.cancel();
+                render(stack, renderMode, leftHanded, matrices, multiBufferSource, light, overlay, replacementModel);
+            }
+        } else if (!shouldBe2d && stack.getItem() instanceof PotItem) {
+            BakedModel replacementModel = CobblemonBakingOverrides.INSTANCE.getPotOverride(((PotItem) stack.getItem()).getType()).getModel();
             if (!cobblemon$isSameModel(model, replacementModel)) {
                 ci.cancel();
                 render(stack, renderMode, leftHanded, matrices, multiBufferSource, light, overlay, replacementModel);

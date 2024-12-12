@@ -93,8 +93,8 @@ object CobblemonBlockEntities : PlatformRegistry<Registry<BlockEntityType<*>>, R
     )
 
     @JvmField
-    val COOKING_POT: BlockEntityType<CookingPotBlockEntity> = this.create("cooking_pot",
-            BlockEntityType.Builder.of(::CookingPotBlockEntity, CobblemonBlocks.COOKING_POT).build(null)
+    val CAMPFIRE: BlockEntityType<CampfireBlockEntity> = this.create("campfire",
+            BlockEntityType.Builder.of(::CampfireBlockEntity, CobblemonBlocks.CAMPFIRE).build(null)
     )
 
 }

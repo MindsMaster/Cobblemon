@@ -9,12 +9,16 @@
 package com.cobblemon.mod.common.block
 
 import com.cobblemon.mod.common.CobblemonBlockEntities
-import com.cobblemon.mod.common.block.entity.CookingPotBlockEntity
+import com.cobblemon.mod.common.block.entity.CampfireBlockEntity
 import com.cobblemon.mod.common.block.entity.DisplayCaseBlockEntity
 import com.cobblemon.mod.common.item.PokeBallItem
+import com.cobblemon.mod.common.item.PotItem
 import com.mojang.serialization.MapCodec
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
+import net.minecraft.sounds.SoundEvents
+import net.minecraft.sounds.SoundSource
+import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.entity.player.Player
@@ -32,16 +36,19 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker
 import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
+import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import net.minecraft.world.level.block.state.properties.DirectionProperty
 import net.minecraft.world.level.pathfinder.PathComputationType
 import net.minecraft.world.phys.BlockHitResult
 import org.jetbrains.annotations.Nullable
 
 @Suppress("OVERRIDE_DEPRECATION")
-class CookingPotBlock(settings: Properties) : BaseEntityBlock(settings) {
+class CampfireBlock(settings: Properties) : BaseEntityBlock(settings) {
+
     init {
         registerDefaultState(stateDefinition.any()
             .setValue(FACING, Direction.NORTH)
+            .setValue(LIT, true)
             .setValue(ITEM_DIRECTION, Direction.NORTH))
     }
 
@@ -70,17 +77,37 @@ class CookingPotBlock(settings: Properties) : BaseEntityBlock(settings) {
         player: Player,
         hitResult: BlockHitResult
     ): InteractionResult? {
-        if (level.isClientSide) {
-            return InteractionResult.SUCCESS
-        } else {
-            this.openContainer(level, pos, player)
-            return InteractionResult.CONSUME
+        val blockEntity = level.getBlockEntity(pos)
+        if (blockEntity is CampfireBlockEntity) {
+            val itemStack = blockEntity.getItemStack()
+            if (!itemStack.isEmpty && itemStack.item is PotItem) {
+                if (!level.isClientSide) {
+                    if (player.isCrouching) {
+                        takeStoredItem(blockEntity, state, level, pos, player)
+                    } else {
+                        this.openContainer(level, pos, player)
+                    }
+                }
+            }
+        }
+        return InteractionResult.CONSUME
+    }
+
+    private fun takeStoredItem(blockEntity: CampfireBlockEntity, blockState: BlockState, level: Level, blockPos: BlockPos, player: Player) {
+        if (player.getItemInHand(InteractionHand.MAIN_HAND).isEmpty) {
+            player.setItemInHand(InteractionHand.MAIN_HAND, blockEntity.removeItemStack())
+            blockEntity.setRemoved()
+            val facing = blockState.getValue(FACING)
+            val newBlockState = Blocks.CAMPFIRE.defaultBlockState().setValue(FACING, facing)
+            level.setBlockAndUpdate(blockPos, newBlockState)
+            level.playSound(null, blockPos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.7F, 1.0F);
         }
     }
 
+
     fun openContainer(level: Level, pos: BlockPos, player: Player) {
         var blockEntity = level.getBlockEntity(pos)
-        if (blockEntity is CookingPotBlockEntity) {
+        if (blockEntity is CampfireBlockEntity) {
             player.openMenu(blockEntity as MenuProvider)
         }
     }
@@ -88,6 +115,7 @@ class CookingPotBlock(settings: Properties) : BaseEntityBlock(settings) {
     override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
         builder.add(FACING)
         builder.add(ITEM_DIRECTION)
+        builder.add(LIT)
     }
 
     override fun updateShape(
@@ -122,8 +150,9 @@ class CookingPotBlock(settings: Properties) : BaseEntityBlock(settings) {
     override fun isPathfindable(state: BlockState, type: PathComputationType): Boolean = false
 
     companion object {
-        val CODEC = simpleCodec(::CookingPotBlock)
+        val CODEC = simpleCodec(::CampfireBlock)
         val ITEM_DIRECTION = DirectionProperty.create("item_facing")
+        val LIT = BlockStateProperties.LIT
     }
 
     override fun <T : BlockEntity?> getTicker(
@@ -131,23 +160,23 @@ class CookingPotBlock(settings: Properties) : BaseEntityBlock(settings) {
         state: BlockState,
         blockEntityType: BlockEntityType<T?>
     ): BlockEntityTicker<T?>? {
-        return createCookingPotTicker(level, blockEntityType as BlockEntityType<*>, CobblemonBlockEntities.COOKING_POT) as BlockEntityTicker<T?>?
+        return createCookingPotTicker(level, blockEntityType as BlockEntityType<*>, CobblemonBlockEntities.CAMPFIRE) as BlockEntityTicker<T?>?
     }
 
     @Nullable
     protected fun <T : BlockEntity> createCookingPotTicker(
         level: Level,
         serverType: BlockEntityType<T>,
-        clientType: BlockEntityType<out CookingPotBlockEntity>
+        clientType: BlockEntityType<out CampfireBlockEntity>
     ): BlockEntityTicker<T>? {
-        return if (level.isClientSide) null else createTickerHelper(serverType, clientType, CookingPotBlockEntity::serverTick)
+        return if (level.isClientSide) null else createTickerHelper(serverType, clientType, CampfireBlockEntity::serverTick)
     }
 
     override fun newBlockEntity(
         pos: BlockPos,
         state: BlockState
     ): BlockEntity? {
-        return CookingPotBlockEntity(pos, state)
+        return CampfireBlockEntity(pos, state)
     }
 
 }
