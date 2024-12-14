@@ -21,33 +21,32 @@ import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.network.chat.Component
 
 /**
- * A predefined variable that will be declared and filled in on any NPC that extends from the class or preset
- * that specifies this variable. This gives the client a cleaner way to represent a variable that should exist
- * on the NPC.
+ * A predefined variable that will be declared and filled in on any assigned entities. This gives the client
+ * a cleaner way to represent a variable that should exist on the entity.
  *
  * @author Hiroku
  * @since August 14th, 2023
  */
-class NPCConfigVariable(
+class MoLangConfigVariable(
     val variableName: String = "variable",
     val displayName: Component = "Variable".asTranslated(),
-    val description: Component = "A variable that can be used in the NPC's configuration.".asTranslated(),
-    val type: NPCVariableType = NPCVariableType.NUMBER,
+    val description: Component = "A variable that can be used in the entity's configuration.".asTranslated(),
+    val type: MoLangVariableType = MoLangVariableType.NUMBER,
     val defaultValue: String = "0",
 ) {
     companion object {
-        fun decode(buffer: RegistryFriendlyByteBuf): NPCConfigVariable {
-            return NPCConfigVariable(
+        fun decode(buffer: RegistryFriendlyByteBuf): MoLangConfigVariable {
+            return MoLangConfigVariable(
                 buffer.readString(),
                 buffer.readText(),
                 buffer.readText(),
-                buffer.readEnum(NPCVariableType::class.java),
+                buffer.readEnum(MoLangVariableType::class.java),
                 buffer.readString()
             )
         }
     }
 
-    enum class NPCVariableType {
+    enum class MoLangVariableType {
         NUMBER,
         TEXT,
         BOOLEAN;
@@ -67,13 +66,5 @@ class NPCConfigVariable(
         buffer.writeText(description)
         buffer.writeEnum(type)
         buffer.writeString(defaultValue)
-    }
-
-    fun apply(npc: NPCEntity, value: MoValue) {
-        npc.config.setDirectly(variableName, value)
-    }
-
-    fun applyDefault(npc: NPCEntity) {
-        npc.config.setDirectly(variableName, type.toMoValue(defaultValue))
     }
 }

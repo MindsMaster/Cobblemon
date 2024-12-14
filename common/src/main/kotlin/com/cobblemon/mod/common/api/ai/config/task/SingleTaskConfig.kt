@@ -12,7 +12,7 @@ import com.cobblemon.mod.common.api.ai.BrainConfigurationContext
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.ai.behavior.BehaviorControl
 
-fun interface SingleTaskConfig : TaskConfig {
+interface SingleTaskConfig : TaskConfig {
     override fun createTasks(
         entity: LivingEntity,
         brainConfigurationContext: BrainConfigurationContext

@@ -13,6 +13,7 @@ import com.bedrockk.molang.runtime.struct.QueryStruct
 import com.cobblemon.mod.common.api.ai.BrainConfigurationContext
 import com.cobblemon.mod.common.api.ai.config.task.TaskConfig
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.setup
+import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
 import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.util.asExpressionLike
 import com.cobblemon.mod.common.util.resolveBoolean
@@ -24,6 +25,9 @@ class AddTasksToActivity : BrainConfig {
     val activity = Activity.IDLE
     val condition = "true".asExpressionLike()
     val tasksByPriority = mutableMapOf<Int, List<TaskConfig>>()
+    override val variables: List<MoLangConfigVariable>
+        get() =
+
 
     override fun configure(entity: LivingEntity, brainConfigurationContext: BrainConfigurationContext) {
         val runtime = MoLangRuntime().setup()

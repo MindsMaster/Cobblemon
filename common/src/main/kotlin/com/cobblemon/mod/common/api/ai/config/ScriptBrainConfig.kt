@@ -17,6 +17,7 @@ import com.cobblemon.mod.common.api.ai.BrainConfigurationContext
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addStandardFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.setup
 import com.cobblemon.mod.common.api.molang.ObjectValue
+import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
 import com.cobblemon.mod.common.api.scripting.CobblemonScripts
 import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.util.activityRegistry
@@ -33,6 +34,7 @@ import net.minecraft.world.entity.ai.behavior.BehaviorControl
 class ScriptBrainConfig : BrainConfig {
     val condition = "true".asExpressionLike()
     val script = cobblemonResource("dummy")
+    override val variables: MutableList<MoLangConfigVariable> = mutableListOf()
 
     override fun configure(entity: LivingEntity, context: BrainConfigurationContext) {
         val runtime = MoLangRuntime().setup()

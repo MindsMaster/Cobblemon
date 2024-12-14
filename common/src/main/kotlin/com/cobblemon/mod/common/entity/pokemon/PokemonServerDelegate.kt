@@ -95,6 +95,8 @@ class PokemonServerDelegate : PokemonSideDelegate {
         with(entity) {
             speed = 0.1F
             entity.despawner.beginTracking(this)
+
+            initializeScripting()
         }
         updateTrackedValues()
     }

@@ -9,10 +9,12 @@
 package com.cobblemon.mod.common.api.ai.config.task
 
 import com.bedrockk.molang.Expression
+import com.bedrockk.molang.runtime.MoLangRuntime
 import com.bedrockk.molang.runtime.struct.QueryStruct
 import com.cobblemon.mod.common.api.ai.BrainConfigurationContext
 import com.cobblemon.mod.common.api.ai.WrapperLivingEntityTask
 import com.cobblemon.mod.common.api.molang.ExpressionLike
+import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
 import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.entity.ai.FollowWalkTargetTask
 import com.cobblemon.mod.common.util.asExpression
@@ -29,6 +31,7 @@ class FollowWalkTargetTaskConfig : SingleTaskConfig {
     val minRunTicks: Expression = "150".asExpression()
     val maxRunTicks: Expression = "250".asExpression()
 
+    override val variables = emptyList<MoLangConfigVariable>()
     override fun createTask(entity: LivingEntity, brainConfigurationContext: BrainConfigurationContext): BehaviorControl<LivingEntity>? {
         runtime.withQueryValue("entity", (entity as? PosableEntity)?.struct ?: QueryStruct(hashMapOf()))
         if (!runtime.resolveBoolean(condition)) return null

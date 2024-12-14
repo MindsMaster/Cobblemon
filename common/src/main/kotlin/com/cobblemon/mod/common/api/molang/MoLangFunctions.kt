@@ -948,6 +948,7 @@ object MoLangFunctions {
             .flatMap { it.invoke(pokemonEntity).entries }
             .associate { it.key to it.value }
         functions.putAll(addedFunctions)
+        pokemonEntity.registerFunctionsForScripting(this)
         return this
     }
 

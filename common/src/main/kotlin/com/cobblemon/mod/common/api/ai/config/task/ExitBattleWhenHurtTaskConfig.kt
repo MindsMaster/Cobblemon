@@ -11,6 +11,7 @@ package com.cobblemon.mod.common.api.ai.config.task
 import com.bedrockk.molang.runtime.struct.QueryStruct
 import com.cobblemon.mod.common.CobblemonMemories
 import com.cobblemon.mod.common.api.ai.BrainConfigurationContext
+import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
 import com.cobblemon.mod.common.battles.BattleRegistry
 import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.entity.npc.NPCEntity
@@ -27,6 +28,14 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType
 class ExitBattleWhenHurtTaskConfig : SingleTaskConfig {
     var condition = "true".asExpression()
     var includePassiveDamage = true
+
+    override val variables: List<MoLangConfigVariable>
+        get() = listOf(
+            MoLangConfigVariable(
+                variableName = "exit_battle_from_passive_damage",
+                type = MoLangConfigVariable.MoLangVariableType.BOOLEAN,
+                includePassiveDamage.asExpression())
+        )
 
     override fun createTask(
         entity: LivingEntity,

@@ -9,8 +9,8 @@
 package com.cobblemon.mod.common.client.gui.npc.widgets
 
 import com.cobblemon.mod.common.api.npc.NPCClasses
-import com.cobblemon.mod.common.api.npc.configuration.NPCConfigVariable
-import com.cobblemon.mod.common.api.npc.configuration.NPCConfigVariable.NPCVariableType
+import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
+import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable.MoLangVariableType
 import com.cobblemon.mod.common.client.gui.npc.NPCEditorScreen
 import com.cobblemon.mod.common.client.gui.npc.widgets.ConfigVariableList.ConfigVariable
 import com.cobblemon.mod.common.client.render.drawScaledText
@@ -119,7 +119,7 @@ class ConfigVariableList(
 
     fun isHovered(mouseX: Double, mouseY: Double) = mouseX.toFloat() in (x.toFloat()..(x.toFloat() + WIDTH)) && mouseY.toFloat() in (y.toFloat()..(y.toFloat() + HEIGHT))
 
-    class ConfigVariable(val variable: NPCConfigVariable, val value: String, private val parent: ConfigVariableList) : Entry<ConfigVariable>() {
+    class ConfigVariable(val variable: MoLangConfigVariable, val value: String, private val parent: ConfigVariableList) : Entry<ConfigVariable>() {
         val client: Minecraft = Minecraft.getInstance()
         var _focused = false
         var children = mutableListOf<GuiEventListener>()
@@ -131,7 +131,7 @@ class ConfigVariableList(
             client.font,
             parent.listX,
             parent.listY + 4,
-            if (variable.type == NPCVariableType.NUMBER) SLOT_WIDTH - 100 else SLOT_WIDTH,
+            if (variable.type == MoLangVariableType.NUMBER) SLOT_WIDTH - 100 else SLOT_WIDTH,
             SLOT_HEIGHT - 8,
             variable.displayName,
         ).also {
@@ -143,7 +143,7 @@ class ConfigVariableList(
                 textValue = it
                 parent.parent.dto.variables[variable.variableName] = it
             }
-            if (variable.type == NPCVariableType.NUMBER) {
+            if (variable.type == MoLangVariableType.NUMBER) {
                 it.setFilter { value -> value.toDoubleOrNull() != null || value.isBlank() || value == "." || value == "-" }
             }
         }
@@ -157,7 +157,7 @@ class ConfigVariableList(
         }
 
         init {
-            if (variable.type == NPCVariableType.BOOLEAN) {
+            if (variable.type == MoLangVariableType.BOOLEAN) {
                 children.add(cycleButton)
             } else {
                 children.add(editBox)
@@ -200,7 +200,7 @@ class ConfigVariableList(
 //                textureHeight = SLOT_HEIGHT * 2
 //            )
 
-            if (variable.type == NPCVariableType.BOOLEAN) {
+            if (variable.type == MoLangVariableType.BOOLEAN) {
                 cycleButton.x = x
                 cycleButton.y = y + 6
                 cycleButton.render(context, mouseX, mouseY, partialTicks)

@@ -13,7 +13,7 @@ import com.bedrockk.molang.runtime.value.MoValue
 import com.bedrockk.molang.runtime.value.StringValue
 import com.cobblemon.mod.common.api.ai.config.BrainConfig
 import com.cobblemon.mod.common.api.npc.configuration.NPCBattleConfiguration
-import com.cobblemon.mod.common.api.npc.configuration.NPCConfigVariable
+import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
 import com.cobblemon.mod.common.api.npc.configuration.NPCInteractConfiguration
 import com.cobblemon.mod.common.api.npc.variation.NPCVariationProvider
 import com.cobblemon.mod.common.api.npc.variation.RandomNPCVariationProvider
@@ -43,7 +43,7 @@ class NPCClass {
     var interaction: NPCInteractConfiguration? = null
     var canDespawn = true
     var variations: MutableMap<String, NPCVariationProvider> = mutableMapOf()
-    var config: MutableList<NPCConfigVariable> = mutableListOf()
+    var config: MutableList<MoLangConfigVariable> = mutableListOf()
     var variables = mutableMapOf<String, MoValue>() // Questionable whether this should be here.
     var party: NPCPartyProvider? = null
     var skill: Int = 0
@@ -121,9 +121,9 @@ class NPCClass {
             val variableName = buffer.readString()
             val displayName = buffer.readText()
             val description = buffer.readText()
-            val type = buffer.readEnumConstant(NPCConfigVariable.NPCVariableType::class.java)
+            val type = buffer.readEnumConstant(MoLangConfigVariable.MoLangVariableType::class.java)
             val defaultValue = buffer.readString()
-            NPCConfigVariable(variableName, displayName, description, type, defaultValue)
+            MoLangConfigVariable(variableName, displayName, description, type, defaultValue)
         }.toMutableList()
         skill = buffer.readInt()
         autoHealParty = buffer.readBoolean()

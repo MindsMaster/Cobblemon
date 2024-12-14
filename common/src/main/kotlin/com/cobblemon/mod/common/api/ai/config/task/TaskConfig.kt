@@ -11,6 +11,7 @@ package com.cobblemon.mod.common.api.ai.config.task
 import com.bedrockk.molang.runtime.MoLangRuntime
 import com.cobblemon.mod.common.api.ai.BrainConfigurationContext
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.setup
+import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.ai.behavior.BehaviorControl
 
@@ -23,7 +24,7 @@ import net.minecraft.world.entity.ai.behavior.BehaviorControl
  * @author Hiroku
  * @since October 14th, 2024
  */
-fun interface TaskConfig {
+interface TaskConfig {
     companion object {
         val types = mutableMapOf<String, Class<out TaskConfig>>(
             "one_of" to OneOfTaskConfig::class.java,
@@ -68,6 +69,8 @@ fun interface TaskConfig {
     val runtime: MoLangRuntime
         get() = Companion.runtime
 
+    /** The variables that this task config uses. These are used to declare variables on the entity cleanly. */
+    val variables: List<MoLangConfigVariable>
     /** Given the entity in construction, returns a list of tasks. */
     fun createTasks(entity: LivingEntity, brainConfigurationContext: BrainConfigurationContext): List<BehaviorControl<in LivingEntity>>
 }

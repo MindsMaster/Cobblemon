@@ -11,6 +11,7 @@ package com.cobblemon.mod.common.api.ai.config.task
 import com.bedrockk.molang.runtime.struct.QueryStruct
 import com.cobblemon.mod.common.api.ai.BrainConfigurationContext
 import com.cobblemon.mod.common.api.molang.ExpressionLike
+import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
 import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.util.asExpression
 import com.cobblemon.mod.common.util.asExpressionLike
@@ -22,6 +23,7 @@ import net.minecraft.world.entity.ai.behavior.BehaviorControl
 import net.minecraft.world.entity.ai.behavior.DoNothing
 
 class DoNothingTaskConfig : SingleTaskConfig {
+    override val variables = emptyList<MoLangConfigVariable>()
     val condition: ExpressionLike = "true".asExpressionLike()
     val minDurationTicks = "40".asExpression()
     val maxDurationTicks = "80".asExpression()

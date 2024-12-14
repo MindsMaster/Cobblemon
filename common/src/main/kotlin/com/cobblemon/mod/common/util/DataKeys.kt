@@ -203,8 +203,6 @@ object DataKeys {
     const val NPC_PARTY_TYPE = "PartyType"
     const val NPC_ASPECTS = "AppliedAspects"
     const val NPC_VARIATION_ASPECTS = "VariationAspects"
-    const val NPC_DATA = "Data"
-    const val NPC_CONFIG = "Config"
     const val NPC_INTERACTION = "Interaction"
     const val NPC_INTERACT_TYPE = "Type"
     const val NPC_INTERACT_SCRIPT = "Script"
@@ -219,6 +217,9 @@ object DataKeys {
     const val NPC_IS_INVULNERABLE = "IsInvulnerable"
     const val NPC_IS_LEASHABLE = "IsLeashable"
     const val NPC_ALLOW_PROJECTILE_HITS = "AllowProjectileHits"
+
+    const val SCRIPTED_DATA = "Data"
+    const val SCRIPTED_CONFIG = "Config"
 
     // PokemonProperties
     const val ELEMENTAL_TYPE = "ElementalType"

@@ -8,8 +8,8 @@
 
 package com.cobblemon.mod.common.entity.pokemon
 
+import com.bedrockk.molang.runtime.struct.VariableStruct
 import com.cobblemon.mod.common.Cobblemon
-import com.cobblemon.mod.common.Cobblemon.LOGGER
 import com.cobblemon.mod.common.CobblemonEntities
 import com.cobblemon.mod.common.CobblemonItems
 import com.cobblemon.mod.common.CobblemonMemories
@@ -33,6 +33,7 @@ import com.cobblemon.mod.common.api.molang.ObjectValue
 import com.cobblemon.mod.common.api.net.serializers.PlatformTypeDataSerializer
 import com.cobblemon.mod.common.api.net.serializers.PoseTypeDataSerializer
 import com.cobblemon.mod.common.api.net.serializers.StringSetDataSerializer
+import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.api.pokemon.feature.ChoiceSpeciesFeatureProvider
 import com.cobblemon.mod.common.api.pokemon.feature.FlagSpeciesFeature
@@ -51,6 +52,7 @@ import com.cobblemon.mod.common.battles.BattleBuilder
 import com.cobblemon.mod.common.battles.BattleRegistry
 import com.cobblemon.mod.common.block.entity.PokemonPastureBlockEntity
 import com.cobblemon.mod.common.client.entity.PokemonClientDelegate
+import com.cobblemon.mod.common.entity.MoLangScriptingEntity
 import com.cobblemon.mod.common.entity.PlatformType
 import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.entity.PoseType
@@ -151,7 +153,7 @@ open class PokemonEntity(
     world: Level,
     pokemon: Pokemon = Pokemon().apply { isClient = world.isClientSide },
     type: EntityType<out PokemonEntity> = CobblemonEntities.POKEMON,
-) : ShoulderRidingEntity(type, world), PosableEntity, Shearable, Schedulable, ScannableEntity {
+) : ShoulderRidingEntity(type, world), PosableEntity, Shearable, Schedulable, ScannableEntity, MoLangScriptingEntity {
     companion object {
         @JvmStatic val SPECIES = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.STRING)
         @JvmStatic val NICKNAME = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.COMPONENT)
@@ -195,6 +197,9 @@ open class PokemonEntity(
     val behaviour: FormPokemonBehaviour
         get() = form.behaviour
 
+    /** Essentially a cached form of what was serialized to make memory reloads still work despite dynamic brain activities. */
+    private var brainDynamic: Dynamic<*>? = null
+
     var pokemon: Pokemon = pokemon
         set(value) {
             value.isClient = this.level().isClientSide
@@ -204,7 +209,9 @@ open class PokemonEntity(
             //This used to be referring to this.updateEyeHeight, I think this is the best conversion
             // We need to update this value every time the Pokémon changes, other eye height related things will be dynamic.
             this.refreshDimensions()
-            this.refreshBrain()
+            if (!level().isClientSide) {
+                brain = makeBrain(brainDynamic ?: makeEmptyBrainDynamic())
+            }
         }
 
     var despawner: Despawner<PokemonEntity> = Cobblemon.bestSpawner.defaultPokemonDespawner
@@ -284,6 +291,10 @@ open class PokemonEntity(
     /** The pokeball exposed to the client. Used for sendout animation. */
     val exposedBall: PokeBall get() = this.effects.mockEffect?.exposedBall ?: this.pokemon.caughtBall
 
+    override val registeredVariables = mutableListOf<MoLangConfigVariable>()
+    override var config = VariableStruct()
+    override var data = VariableStruct()
+
     var platform : PlatformType
         get() = entityData.get(PLATFORM_TYPE)
         set(value) { entityData.set(PLATFORM_TYPE, value) }
@@ -302,8 +313,9 @@ open class PokemonEntity(
         addPosableFunctions(struct)
         moveControl = PokemonMoveControl(this)
         if (!world.isClientSide) {
-            initializeBrain()
+            brain = makeBrain(brainDynamic ?: makeEmptyBrainDynamic())
         }
+        initializeScripting()
         refreshDimensions()
     }
 
@@ -591,6 +603,8 @@ open class PokemonEntity(
         nbt.putString(DataKeys.POKEMON_POSE_TYPE, entityData.get(POSE_TYPE).name)
         nbt.putByte(DataKeys.POKEMON_BEHAVIOUR_FLAGS, entityData.get(BEHAVIOUR_FLAGS))
 
+        saveScriptingToNBT(nbt)
+
         if (entityData.get(HIDE_LABEL)) {
             nbt.putBoolean(DataKeys.POKEMON_HIDE_LABEL, true)
         }
@@ -657,14 +671,15 @@ open class PokemonEntity(
             }
         }
 
-        val savedBattleId =
-            if (nbt.hasUUID(DataKeys.POKEMON_BATTLE_ID)) nbt.getUUID(DataKeys.POKEMON_BATTLE_ID) else null
+        val savedBattleId = if (nbt.hasUUID(DataKeys.POKEMON_BATTLE_ID)) nbt.getUUID(DataKeys.POKEMON_BATTLE_ID) else null
         if (savedBattleId != null) {
             val battle = BattleRegistry.getBattle(savedBattleId)
             if (battle != null) {
                 battleId = savedBattleId
             }
         }
+
+        loadScriptingFromNBT(nbt)
 
         // apply active effects
         if (nbt.contains(DataKeys.ENTITY_EFFECTS)) effects.loadFromNBT(
@@ -725,37 +740,27 @@ open class PokemonEntity(
     override fun getNavigation() = navigation as PokemonNavigation
     override fun createNavigation(world: Level) = PokemonNavigation(world, this)
 
-    override fun makeBrain(dynamic: Dynamic<*>): Brain<*> {
-        var target = pokemon
+//    override fun makeBrain(dynamic: Dynamic<*>): Brain<*> {
+//        var target = pokemon
+//
+//        // todo: can happen with new pokemon, actor isn't finished at this point.
+//        if (target == null) {
+//            LOGGER.warn("could not make brain for pokemon {}", position())
+//            target = Pokemon()
+//        }
+//
+//        return PokemonBrain.makeBrain(this, target, brainProvider().makeBrain(dynamic))
+//    }
 
-        // todo: can happen with new pokemon, actor isn't finished at this point.
-        if (target == null) {
-            LOGGER.warn("could not make brain for pokemon {}", position())
-            target = Pokemon()
+    override fun makeBrain(dynamic: Dynamic<*>): Brain<out PokemonEntity> {
+        this.brainDynamic = dynamic
+        val brain = brainProvider().makeBrain(dynamic)
+        this.brain = brain
+        val target = pokemon
+        if (target != null) {
+            PokemonBrain.makeBrain(this, target, brain)
         }
-
-        return PokemonBrain.makeBrain(this, target, brainProvider().makeBrain(dynamic))
-    }
-
-    private fun initializeBrain() {
-        val nbtOps = NbtOps.INSTANCE
-        this.brain = this.makeBrain(
-            Dynamic(
-                nbtOps, nbtOps.createMap(
-                    ImmutableMap.of(
-                        nbtOps.createString("memories"),
-                        nbtOps.emptyMap()
-                    )
-                )
-            )
-        )
-    }
-
-    private fun refreshBrain() {
-        if (pokemon == null) {
-            val brain = this.makeBrain(Dynamic(NbtOps.INSTANCE, CompoundTag()))
-            this.brain = brain
-        } else initializeBrain()
+        return brain
     }
 
     // cast is safe, mojang do the same thing.

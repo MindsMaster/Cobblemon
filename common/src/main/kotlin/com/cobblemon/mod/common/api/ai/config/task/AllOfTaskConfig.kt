@@ -10,6 +10,7 @@ package com.cobblemon.mod.common.api.ai.config.task
 
 import com.bedrockk.molang.runtime.struct.QueryStruct
 import com.cobblemon.mod.common.api.ai.BrainConfigurationContext
+import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
 import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.util.asExpressionLike
 import com.cobblemon.mod.common.util.resolveBoolean
@@ -21,6 +22,7 @@ class AllOfTaskConfig : TaskConfig {
     val condition = "true".asExpressionLike()
     val tasks: List<TaskConfig> = emptyList()
 
+    override val variables = tasks.flatMap { it.variables }
     override fun createTasks(
         entity: LivingEntity,
         brainConfigurationContext: BrainConfigurationContext
