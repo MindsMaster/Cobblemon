@@ -11,6 +11,7 @@
   "poses": {
     "battle-standing": {
       "poseTypes": ["STAND"],
+      "isTouchingWater": false,
       "isBattle": true,
       "animations": ["q.look('head')", "q.bedrock('magikarp', 'ground_idle')"],
       "quirks": ["q.bedrock_quirk('magikarp', 'blink')"]

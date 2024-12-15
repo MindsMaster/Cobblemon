@@ -47,7 +47,7 @@ class IllusionEffect(
     override fun revert(entity: PokemonEntity, future: CompletableFuture<PokemonEntity>) {
         entity.effects.mockEffect = null
 
-        if (!entity.exposedSpecies.behaviour.moving.fly.canFly && entity.getBehaviourFlag(PokemonBehaviourFlag.FLYING)) {
+        if (!entity.exposedForm.behaviour.moving.fly.canFly && entity.getBehaviourFlag(PokemonBehaviourFlag.FLYING)) {
             // Transitioning from a flying form to a non-flying form.
             // If we were flying, need to turn the behavior flag off or the pokemon will continue to float in the air.
             entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, false)

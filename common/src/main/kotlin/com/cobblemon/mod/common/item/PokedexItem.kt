@@ -12,6 +12,7 @@ import com.cobblemon.mod.common.client.CobblemonClient
 import com.cobblemon.mod.common.client.pokedex.PokedexType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.isLookingAt
+import com.cobblemon.mod.common.util.isServerSide
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
@@ -51,6 +52,11 @@ class PokedexItem(val type: PokedexType): CobblemonItem(Item.Properties().stacks
         stack: ItemStack,
         remainingUseTicks: Int
     ) {
+        if (world.isServerSide() && user is ServerPlayer && user.isChangingDimension) {
+            user.stopUsingItem()
+            return
+        }
+
         if (world.isClientSide && user is LocalPlayer) {
             val usageContext = CobblemonClient.pokedexUsageContext
             val ticksInUse = getUseDuration(stack, user) - remainingUseTicks

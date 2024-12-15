@@ -201,7 +201,7 @@ class PokemonMoveControl(val pokemonEntity: PokemonEntity) : MoveControl(pokemon
             // Borrowing hard from Minecraft's Boat logic
             if (this.pokemonEntity.isBattling && mob.isInWater) {
                 var e = 0.0F
-                val exposedSpecies = this.pokemonEntity.exposedSpecies
+                val exposedForm = this.pokemonEntity.exposedForm
                 if (isUnderwater()) {
                     if (this.pokemonEntity.platform != PlatformType.NONE) {
                         // Float up if on a platform
@@ -211,7 +211,7 @@ class PokemonMoveControl(val pokemonEntity: PokemonEntity) : MoveControl(pokemon
                     if (this.pokemonEntity.platform != PlatformType.NONE ) {
                         // Hold Steady
                         e = ((this.waterLevel - this.pokemonEntity.y) / this.pokemonEntity.bbHeight).toFloat()
-                    } else if (exposedSpecies.behaviour.moving.swim.canBreatheUnderwater) {
+                    } else if (exposedForm.behaviour.moving.swim.canBreatheUnderwater) {
                         // allow swimmers to sink a bit into the water
                         e = -1.5F
                     }
@@ -230,7 +230,7 @@ class PokemonMoveControl(val pokemonEntity: PokemonEntity) : MoveControl(pokemon
      */
     private fun getStableBattleFloatHeight(): Double {
         val aABB: AABB = this.pokemonEntity.boundingBox
-        return if (this.pokemonEntity.exposedSpecies.behaviour.moving.swim.canBreatheUnderwater) ((aABB.maxY - aABB.minY) / 2.0) else 0.05
+        return if (this.pokemonEntity.exposedForm.behaviour.moving.swim.canBreatheUnderwater) ((aABB.maxY - aABB.minY) / 2.0) else 0.05
     }
 
     /*

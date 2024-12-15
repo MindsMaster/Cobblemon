@@ -14,5 +14,4 @@ import java.util.UUID
 data class PokemonGainedEvent(
     val playerId: UUID,
     val pokemon: Pokemon
-) {
-}
+)

@@ -17,6 +17,9 @@
     "speed": 45
   },
   "behaviour": {
+    "walk": {
+      "walkSpeed": 0.27
+    },
     "resting": {
       "canSleep": true,
       "willSleepOnBed": true,

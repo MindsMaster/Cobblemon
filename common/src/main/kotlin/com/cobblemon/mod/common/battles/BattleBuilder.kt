@@ -100,6 +100,10 @@ object BattleBuilder {
                 )
             }
 
+            if (actor.pokemonList.any { it.entity?.isBusy == true }) {
+                errors.participantErrors[actor] += BattleStartError.targetIsBusy(player.displayName ?: player.name)
+            }
+
             if (BattleRegistry.getBattleByParticipatingPlayer(player) != null) {
                 errors.participantErrors[actor] += BattleStartError.alreadyInBattle(player)
             }
@@ -178,6 +182,10 @@ object BattleBuilder {
                 )
             }
 
+            if (actor.pokemonList.any { it.entity?.isBusy == true }) {
+                errors.participantErrors[actor] += BattleStartError.targetIsBusy(player.displayName ?: player.name)
+            }
+
             if (BattleRegistry.getBattleByParticipatingPlayer(player) != null) {
                 errors.participantErrors[actor] += BattleStartError.alreadyInBattle(player)
             }
@@ -248,7 +256,7 @@ object BattleBuilder {
         val wildActor = PokemonBattleActor(pokemonEntity.pokemon.uuid, BattlePokemon(pokemonEntity.pokemon), fleeDistance)
         val errors = ErroredBattleStart()
 
-        if(playerTeam.isNotEmpty() && playerTeam[0].health <= 0){
+        if (playerTeam.isNotEmpty() && playerTeam[0].health <= 0){
             errors.participantErrors[playerActor] += BattleStartError.insufficientPokemon(
                actorEntity = player,
                 requiredCount = battleFormat.battleType.slotsPerActor,
@@ -262,6 +270,10 @@ object BattleBuilder {
                 requiredCount = battleFormat.battleType.slotsPerActor,
                 hadCount = playerActor.pokemonList.size
             )
+        }
+
+        if (playerActor.pokemonList.any { it.entity?.isBusy == true }) {
+            errors.participantErrors[playerActor] += BattleStartError.targetIsBusy(player.displayName ?: player.name)
         }
 
         if (BattleRegistry.getBattleByParticipatingPlayer(player) != null) {
@@ -348,6 +360,10 @@ object BattleBuilder {
             )
         }
 
+        if (playerActor.pokemonList.any { it.entity?.isBusy == true }) {
+            errors.participantErrors[playerActor] += BattleStartError.targetIsBusy(player.displayName ?: player.name)
+        }
+
         playerActor.battleTheme = npcEntity.getBattleTheme()
 
         return if (errors.isEmpty) {
@@ -394,7 +410,7 @@ interface BattleStartError {
         fun alreadyInBattle(pokemonEntity: PokemonEntity) = AlreadyInBattleError(pokemonEntity.uuid, pokemonEntity.effectiveName())
         fun alreadyInBattle(actor: BattleActor) = AlreadyInBattleError(actor.uuid, actor.getName())
         fun noParty(npcEntity: NPCEntity) = NoPartyError(npcEntity)
-        fun targetIsBusy(targetName: MutableComponent) = BusyError(targetName)
+        fun targetIsBusy(targetName: Component) = BusyError(targetName)
         fun insufficientPokemon(
             actorEntity: Entity,
             requiredCount: Int,
@@ -474,7 +490,7 @@ class AlreadyInBattleError(
     }
 }
 class BusyError(
-    val targetName: MutableComponent
+    val targetName: Component
 ): BattleStartError {
     override fun getMessageFor(entity: Entity) = battleLang("errors.busy", targetName)
 }

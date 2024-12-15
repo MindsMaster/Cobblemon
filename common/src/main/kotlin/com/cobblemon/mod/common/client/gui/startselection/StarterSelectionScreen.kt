@@ -132,7 +132,8 @@ class StarterSelectionScreen(private val categories: List<RenderableStarterCateg
                 pX = x + 85, pY = y + 50,
                 pWidth = 102, pHeight = 100,
                 pokemon = this,
-                baseScale = 2.0f
+                baseScale = 2.0f,
+                playCryOnClick = true,
             )
 
             typeWidget = typeWidget(this, x, y)

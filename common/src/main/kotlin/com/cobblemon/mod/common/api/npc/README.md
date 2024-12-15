@@ -291,6 +291,7 @@ each being an object with several properties.
 - The `selectableTimes` property is the maximum number of times that the entry can be selected in the party. Defaults to 1.
 - The `npcLevels` property is a range of seed levels that the Pokémon can be generated at. For example, if the NPC is spawned with seed level 10, and the range is 5-9, the Pokémon will not be selected. The actual level of the Pokémon will be the seed level. Defaults to "1-100".
 - The `levelVariation` property is the amount of variation the Pokémon's level can have from the NPC seed level. For example, a value of 2 will mean that for an NPC generated with seed level 10, the Pokémon will be generated somewhere between level 8 and 12 inclusive. Defaults to zero.
+- The `level` property can be used instead of `levelVariation` to force a specific level. This is a MoLang expression.
 
 For `minPokemon`, `maxPokemon`, `weight`, `selectableTimes`, and `levelVariation`, the values can be a simple number or be full MoLang expressions. At the time
 of seeding an NPC, the cosmetic variations have already been applied. Therefore, it's possible to make these properties
@@ -343,7 +344,8 @@ a single battle challenge and this is a dynamic party, there will also be a `q.p
             "pokemon": "butterfree",
             "weight": "5",
             "npcLevels": "10-15",
-            "selectableTimes": "1"
+            "selectableTimes": "1",
+            "level": "q.player.highest_level"
           }
         ]
       }

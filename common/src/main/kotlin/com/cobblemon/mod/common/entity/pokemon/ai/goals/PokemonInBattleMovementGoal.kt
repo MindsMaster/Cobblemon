@@ -44,7 +44,7 @@ class PokemonInBattleMovementGoal(val entity: PokemonEntity, val range: Int) : G
             entity.lookControl.setLookAt(closestPokemonEntity.x, closestPokemonEntity.eyeY, closestPokemonEntity.z)
         }
 
-        if (entity.exposedSpecies.behaviour.moving.fly.canFly) {
+        if (entity.exposedForm.behaviour.moving.fly.canFly) {
             // Flyer logic
             if (!hasMovedToPos) {
                 entity.navigation.moveTo(battlePos!!.x, battlePos!!.y, battlePos!!.z, 1.0)
