@@ -48,6 +48,8 @@ object CobblemonFlows : DataRegistry {
     val flows = hashMapOf<ResourceLocation, MutableList<ExpressionLike>>()
 
     override fun reload(manager: ResourceManager) {
+        clientFlows.clear()
+        flows.clear()
         val folderBeforeNameRegex = ".*\\/([^\\/]+)\\/[^\\/]+\$".toRegex()
         manager.listResources("flows") { path -> path.endsWith(CobblemonScripts.MOLANG_EXTENSION) }.forEach { (identifier, resource) ->
             resource.openAsReader().use { stream ->

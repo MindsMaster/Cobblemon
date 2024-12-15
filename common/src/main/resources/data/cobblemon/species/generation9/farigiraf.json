@@ -120,7 +120,7 @@
     "gen9"
   ],
   "aspects": [],
-  "baseScale": 0.95,
+  "baseScale": 1.5,
   "hitbox": {
     "width": 1.4,
     "height": 4.23,

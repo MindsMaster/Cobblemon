@@ -11,6 +11,8 @@ package com.cobblemon.mod.common.api.pokedex
 import com.bedrockk.molang.runtime.struct.QueryStruct
 import com.bedrockk.molang.runtime.struct.VariableStruct
 import com.bedrockk.molang.runtime.value.StringValue
+import com.cobblemon.mod.common.api.events.CobblemonEvents
+import com.cobblemon.mod.common.api.events.pokemon.PokedexDataChangedEvent
 import com.cobblemon.mod.common.pokedex.scanner.PokedexEntityData
 import com.cobblemon.mod.common.pokemon.Gender
 import com.cobblemon.mod.common.pokemon.Pokemon
@@ -19,6 +21,7 @@ import com.cobblemon.mod.common.util.readString
 import com.cobblemon.mod.common.util.writeEnumConstant
 import com.cobblemon.mod.common.util.writeString
 import com.google.common.collect.Sets
+import com.mojang.datafixers.util.Either
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.ListCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
@@ -123,6 +126,10 @@ class FormDexRecord {
         }
         speciesDexRecord.addInformation(pokemon, knowledge)
         speciesDexRecord.onFormRecordUpdated(this)
+
+        (speciesDexRecord.pokedexManager as? PokedexManager)?.let { pokedexManager ->
+            CobblemonEvents.POKEDEX_DATA_CHANGED.post(PokedexDataChangedEvent(Either.right(pokemon), knowledge, pokedexManager.uuid, this))
+        }
     }
 
     private fun addInformation(pokedexEntityData: PokedexEntityData, knowledge: PokedexEntryProgress) {
@@ -133,6 +140,10 @@ class FormDexRecord {
         }
         speciesDexRecord.addInformation(pokedexEntityData, knowledge)
         speciesDexRecord.onFormRecordUpdated(this)
+
+        (speciesDexRecord.pokedexManager as? PokedexManager)?.let { pokedexManager ->
+            CobblemonEvents.POKEDEX_DATA_CHANGED.post(PokedexDataChangedEvent(Either.left(pokedexEntityData), knowledge, pokedexManager.uuid, this))
+        }
     }
 
     /** Returns whether the given [Pokemon] and [knowledge] would add new information to the Pokédex.*/

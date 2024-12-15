@@ -26,6 +26,7 @@ import com.cobblemon.mod.common.util.withQueryValue
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
+import kotlin.random.Random
 import net.minecraft.server.level.ServerPlayer
 
 /**
@@ -50,6 +51,7 @@ class PoolPartyProvider : NPCPartyProvider {
     override val type = TYPE
 
     override var isStatic: Boolean = false
+    var useFixedRandom: Boolean = false
     var minPokemon: Expression = "1".asExpression()
     var maxPokemon: Expression = "6".asExpression()
     var pool = mutableListOf<DynamicPokemon>()
@@ -63,6 +65,7 @@ class PoolPartyProvider : NPCPartyProvider {
                 return@map DynamicPokemon(
                     PokemonProperties.parse(it.asString),
                     "0".asExpression(),
+                    null,
                     1..100,
                     "1".asExpression(),
                     "1".asExpression()
@@ -71,19 +74,22 @@ class PoolPartyProvider : NPCPartyProvider {
 
             it as JsonObject
             DynamicPokemon(
-                PokemonProperties.parse(it.getAsJsonPrimitive("pokemon").asString),
-                it.getAsJsonPrimitive("levelVariation")?.asString?.asExpression() ?: "0".asExpression(),
-                it.getAsJsonPrimitive("npcLevels")?.asString?.split("-")?.let { it[0].toInt()..it[1].toInt() } ?: 1..100,
-                it.getAsJsonPrimitive("selectableTimes")?.asString?.asExpression() ?: "1".asExpression(),
-                it.getAsJsonPrimitive("weight")?.asString?.asExpression() ?: "1".asExpression()
+                PokemonProperties.parse(it.get("pokemon").asString),
+                it.get("levelVariation")?.asString?.asExpression() ?: "0".asExpression(),
+                it.get("level")?.asString?.asExpression(),
+                it.get("npcLevels")?.asString?.split("-")?.let { it[0].toInt()..it[1].toInt() } ?: 1..100,
+                it.get("selectableTimes")?.asString?.asExpression() ?: "1".asExpression(),
+                it.get("weight")?.asString?.asExpression() ?: "1".asExpression()
             )
         }.toMutableList()
-        isStatic = json.getAsJsonPrimitive("isStatic").asBoolean
+        isStatic = json.get("isStatic").asBoolean
+        json.get("useFixedRandom")?.asBoolean?.let { useFixedRandom = it }
     }
 
     class DynamicPokemon(
         val pokemon: PokemonProperties,
         val levelVariation: Expression,
+        val level: Expression? = null,
         val npcLevels: IntRange,
         val selectableTimes: Expression,
         val weight: Expression = "1".asExpression()
@@ -99,6 +105,7 @@ class PoolPartyProvider : NPCPartyProvider {
 
     fun formulateParty(npc: NPCEntity, level: Int, players: List<ServerPlayer>, party: NPCPartyStore) {
         val runtime = MoLangRuntime().setup().withQueryValue("npc", npc.struct)
+        val random = if (useFixedRandom) Random(npc.uuid.hashCode()) else Random.Default
         runtime.withQueryValue("level", DoubleValue(level))
         runtime.withQueryValue("players", players.asArrayValue { it.asMoLangValue() })
         if (players.size == 1) {
@@ -107,14 +114,14 @@ class PoolPartyProvider : NPCPartyProvider {
         }
         val minPokemon = runtime.resolveInt(this.minPokemon)
         val maxPokemon = runtime.resolveInt(this.maxPokemon)
-        var desiredPokemonCount = (minPokemon..maxPokemon).random()
+        var desiredPokemonCount = (minPokemon..maxPokemon).random(random)
 
         val workingPool = pool.filter { level in it.npcLevels && runtime.resolveInt(it.selectableTimes) > 0 }.toMutableList()
         val useCounts = mutableMapOf<DynamicPokemon, Int>()
 
         while (desiredPokemonCount > 0 && workingPool.any { it.hasWeight(runtime) }) {
-            val selected = workingPool.filter { it.getWeight(runtime) == -1F }.randomOrNull()
-                ?: workingPool.weightedSelection { it.getWeight(runtime) }
+            val selected = workingPool.filter { it.getWeight(runtime) == -1F }.randomOrNull(random)
+                ?: workingPool.weightedSelection(random = random) { it.getWeight(runtime) }
                 ?: break
             useCounts[selected] = useCounts.getOrDefault(selected, 0) + 1
             val allowedSelections = runtime.resolveInt(selected.selectableTimes)
@@ -124,9 +131,10 @@ class PoolPartyProvider : NPCPartyProvider {
             desiredPokemonCount--
 
             // If the Pokémon's props specifies a level then use that, otherwise choose a random level within the range
-            val levelVariation = (0..runtime.resolveInt(selected.levelVariation)).random()
+            val levelVariation = (0..runtime.resolveInt(selected.levelVariation)).random(random)
             val randomLevel = level + levelVariation
-            val instance = selected.pokemon.copy().also { it.level = it.level ?: randomLevel }.create()
+            val dictatedLevel = selected.level?.let { runtime.resolveInt(it) }
+            val instance = selected.pokemon.copy().also { it.level = it.level ?: dictatedLevel ?: randomLevel }.create()
             party.add(instance)
         }
     }

@@ -4743,6 +4743,9 @@
   "pokemon.sneasel.cry": {
     "sounds": [ { "name": "cobblemon:pokemon/sneasel/sneasel_cry", "volume": 0.8 } ]
   },
+  "pokemon.sneasel_hisuian.cry": {
+    "sounds": [ { "name": "cobblemon:pokemon/sneasel/sneasel_hisuian_cry", "volume": 0.8 } ]
+  },
   "pokemon.teddiursa.cry": {
     "sounds": [ { "name": "cobblemon:pokemon/teddiursa/teddiursa_cry", "volume": 0.8 } ]
   },

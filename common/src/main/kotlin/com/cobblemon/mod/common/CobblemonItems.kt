@@ -55,6 +55,9 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     override val resourceKey: ResourceKey<Registry<Item>> = Registries.ITEM
 
     @JvmField
+    val NPC_EDITOR = create("npc_editor", CobblemonItem(Item.Properties().stacksTo(1)))
+
+    @JvmField
     val pokeBalls = mutableListOf<PokeBallItem>()
     @JvmField
     val POKE_BALL = pokeBallItem(PokeBalls.POKE_BALL)
