@@ -462,6 +462,7 @@
     - Added HealingSource, an interface applied to all sources of healing from player actions, for easier tracking of healing sources.
   - Move Change
   - Shiny Chance Calculation Event (with player context)
+  - Dex Information Changed; this event is fired when the Pokédex is updated with new information.
 - Rebuilt large swaths of the model animation code to simplify it.
 - Renamed a bunch of things from %Poseable% to %Posable% because spelling.
 - Renamed StatelessAnimation to PoseAnimation.
@@ -1728,6 +1729,7 @@ Thank you so much to all of our community translators that bring the mod to the 
 - Lowered spawn rate of Tauros.
 - Sableye now spawns near gem ores as well as amethyst.
 - Added evolution stones and items to item tags
+- Pokémon now play their cry animations when clicked on the starter selection screen.
 
 ### Fixes
 - Fixed catch rates being entirely too difficult.

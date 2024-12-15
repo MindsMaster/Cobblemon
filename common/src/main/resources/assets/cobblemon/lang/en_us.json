@@ -87,6 +87,8 @@
   "item.cobblemon.pokedex_white": "Pokédex",
   "item.cobblemon.pokedex_yellow": "Pokédex",
 
+  "item.cobblemon.npc_editor": "NPC's Trainer Card",
+
   "item.cobblemon.link_cable": "Link Cable",
   "item.cobblemon.link_cable.tooltip": "Evolves pokemon that require trading",
   "item.cobblemon.dragon_scale": "Dragon Scale",
@@ -932,6 +934,7 @@
 
   "cobblemon.ui.generic.yes": "Yes",
   "cobblemon.ui.generic.no": "No",
+  "cobblemon.ui.generic.save": "Save",
 
   "cobblemon.ui.pokenav.title": "PokéNav",
   "cobblemon.ui.pokenav.narrator.backbutton": "Poke Nav button pressed",

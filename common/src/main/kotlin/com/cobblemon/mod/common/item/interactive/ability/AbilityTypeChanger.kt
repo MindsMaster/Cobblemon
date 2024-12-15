@@ -8,6 +8,7 @@
 
 package com.cobblemon.mod.common.item.interactive.ability
 
+import com.cobblemon.mod.common.api.Priority
 import com.cobblemon.mod.common.api.abilities.*
 import com.cobblemon.mod.common.api.item.ability.AbilityChanger
 import com.cobblemon.mod.common.pokemon.Pokemon
@@ -38,7 +39,12 @@ open class AbilityTypeChanger<T : PotentialAbility>(
         val possible = this.queryPossible(pokemon)
         val picked = possible.randomOrNull() ?: return false
         val old = pokemon.ability.template
-        pokemon.updateAbility(picked.create(forced = false))
+        val priority = when (type) {
+            HiddenAbilityType -> if (currentType == HiddenAbilityType) Priority.LOWEST else Priority.LOW
+            CommonAbilityType -> Priority.LOWEST
+            else -> Priority.LOWEST
+        }
+        pokemon.updateAbility(picked.create(forced = false, priority = priority))
         return pokemon.ability.template != old
     }
 

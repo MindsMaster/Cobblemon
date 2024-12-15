@@ -10,12 +10,8 @@ package com.cobblemon.mod.common.entity.npc
 
 import com.bedrockk.molang.runtime.MoLangRuntime
 import com.bedrockk.molang.runtime.struct.VariableStruct
-import com.cobblemon.mod.common.Cobblemon
-import com.cobblemon.mod.common.CobblemonEntities
-import com.cobblemon.mod.common.CobblemonMemories
+import com.cobblemon.mod.common.*
 import com.cobblemon.mod.common.CobblemonNetwork.sendPacket
-import com.cobblemon.mod.common.CobblemonSensors
-import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.entity.PokemonSender
 import com.cobblemon.mod.common.api.molang.MoLangFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addFunctions
@@ -43,11 +39,7 @@ import com.cobblemon.mod.common.net.messages.client.npc.CloseNPCEditorPacket
 import com.cobblemon.mod.common.net.messages.client.npc.OpenNPCEditorPacket
 import com.cobblemon.mod.common.net.messages.client.spawn.SpawnNPCPacket
 import com.cobblemon.mod.common.pokemon.Pokemon
-import com.cobblemon.mod.common.util.DataKeys
-import com.cobblemon.mod.common.util.getBattleState
-import com.cobblemon.mod.common.util.getPlayer
-import com.cobblemon.mod.common.util.makeEmptyBrainDynamic
-import com.cobblemon.mod.common.util.withNPCValue
+import com.cobblemon.mod.common.util.*
 import com.google.common.collect.ImmutableList
 import com.mojang.authlib.GameProfile
 import com.mojang.authlib.ProfileLookupCallback
@@ -141,6 +133,7 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
     val variationAspects = mutableSetOf<String>()
     /** You can add to this one if you want, that's ok. */
     val appliedAspects = mutableSetOf<String>()
+
     override val delegate = if (world.isClientSide) {
         com.cobblemon.mod.common.client.entity.NPCClientDelegate()
     } else {
@@ -465,23 +458,28 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
     }
 
     override fun mobInteract(player: Player, hand: InteractionHand): InteractionResult {
-        if (player is ServerPlayer && hand == InteractionHand.MAIN_HAND) {
-            if (player.getBattleState()?.first?.getActor(this) != null) {
-                return InteractionResult.PASS
+        if (player is ServerPlayer) {
+            if (player.isCreative && player.getItemInHand(hand).item.toString() == CobblemonItems.NPC_EDITOR.toString()) {
+                edit(player)
+            } else if (hand == InteractionHand.MAIN_HAND) {
+                if (player.getBattleState()?.first?.getActor(this) != null) {
+                    return InteractionResult.PASS
+                }
+
+                (interaction ?: npc.interaction)?.interact(this, player)
+//                val battle = getBattleConfiguration()
+//                if (battle.canChallenge) {
+//                    val provider = battle.party
+//                    if (provider != null) {
+//                        val party = provider.provide(this, listOf(player))
+//                        val result = BattleBuilder.pvn(
+//                            player = player,
+//                            npcEntity = this
+//                        )
+//                    }
+//                }
             }
 
-            (interaction ?: npc.interaction)?.interact(this, player)
-//            val battle = getBattleConfiguration()
-//            if (battle.canChallenge) {
-//                val provider = battle.party
-//                if (provider != null) {
-//                    val party = provider.provide(this, listOf(player))
-//                    val result = BattleBuilder.pvn(
-//                        player = player,
-//                        npcEntity = this
-//                    )
-//                }
-//            }
         }
         return InteractionResult.SUCCESS
     }

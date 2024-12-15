@@ -19,6 +19,7 @@ object FlowHandler {
     fun setup() {
         CobblemonEvents.POKEMON_CAPTURED.subscribe { CobblemonFlows.run(cobblemonResource("pokemon_captured"), it.context) }
         CobblemonEvents.BATTLE_VICTORY.subscribe { CobblemonFlows.run(cobblemonResource("battle_victory"), it.context) }
+        CobblemonEvents.POKEDEX_DATA_CHANGED.subscribe { CobblemonFlows.run(cobblemonResource("pokedex_data_changed"), it.context) }
     }
 }
 

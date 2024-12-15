@@ -29,6 +29,13 @@ import com.cobblemon.mod.common.api.dialogue.ReferenceDialogueFaceProvider
 import com.cobblemon.mod.common.api.moves.animations.ActionEffectContext
 import com.cobblemon.mod.common.api.moves.animations.ActionEffects
 import com.cobblemon.mod.common.api.moves.animations.NPCProvider
+import com.cobblemon.mod.common.api.pokedex.AbstractPokedexManager
+import com.cobblemon.mod.common.api.pokedex.CaughtCount
+import com.cobblemon.mod.common.api.pokedex.CaughtPercent
+import com.cobblemon.mod.common.api.pokedex.PokedexEntryProgress
+import com.cobblemon.mod.common.api.pokedex.PokedexManager
+import com.cobblemon.mod.common.api.pokedex.SeenCount
+import com.cobblemon.mod.common.api.pokedex.SeenPercent
 import com.cobblemon.mod.common.api.pokemon.stats.Stats
 import com.cobblemon.mod.common.api.scripting.CobblemonScripts
 import com.cobblemon.mod.common.api.spawning.context.SpawningContext
@@ -50,6 +57,7 @@ import com.cobblemon.mod.common.entity.pokemon.ai.PokemonMoveControl
 import com.cobblemon.mod.common.net.messages.client.animation.PlayPosableAnimationPacket
 import com.cobblemon.mod.common.net.messages.client.effect.RunPosableMoLangPacket
 import com.cobblemon.mod.common.pokemon.Pokemon
+import com.cobblemon.mod.common.pokemon.Species
 import com.cobblemon.mod.common.util.*
 import com.mojang.datafixers.util.Either
 import java.util.UUID
@@ -343,6 +351,7 @@ object MoLangFunctions {
                     }
                     return@put DoubleValue.ONE
                 }
+                map.put("pokedex") { player.pokedex().struct }
             }
             map
         }
@@ -599,6 +608,7 @@ object MoLangFunctions {
             }
             map.put("is_wild") { DoubleValue(pokemon.entity?.let { it.ownerUUID == null } == true) }
             map.put("is_shiny") { DoubleValue(pokemon.shiny) }
+            map.put("species") { pokemon.species.struct }
             map.put("form") { StringValue(pokemon.form.name) }
             map.put("weight") { DoubleValue(pokemon.species.weight.toDouble()) }
             map.put("matches") { params -> DoubleValue(params.getString(0).toProperties().matches(pokemon)) }
@@ -809,6 +819,78 @@ object MoLangFunctions {
         }
     )
 
+    val pokedexFunctions: MutableList<(AbstractPokedexManager) -> HashMap<String, java.util.function.Function<MoParams, Any>>> = mutableListOf(
+        { pokedex ->
+            val map = hashMapOf<String, java.util.function.Function<MoParams, Any>>()
+            map.put("get_species_record") { params ->
+                val speciesId = params.getString(0).asIdentifierDefaultingNamespace()
+                pokedex.speciesRecords[speciesId]?.struct ?: QueryStruct(hashMapOf())
+            }
+
+            map.put("has_seen") { params ->
+                val speciesId = params.getString(0).asIdentifierDefaultingNamespace()
+                val formName = params.getStringOrNull(1)
+
+                if (formName == null) {
+                    return@put DoubleValue(pokedex.getHighestKnowledgeForSpecies(speciesId).ordinal >= PokedexEntryProgress.ENCOUNTERED.ordinal)
+                } else {
+                    return@put DoubleValue((pokedex.getSpeciesRecord(speciesId)?.getFormRecord(formName)?.knowledge?.ordinal ?: 0) >= PokedexEntryProgress.ENCOUNTERED.ordinal)
+                }
+            }
+
+            map.put("has_caught") { params ->
+                val speciesId = params.getString(0).asIdentifierDefaultingNamespace()
+                val formName = params.getStringOrNull(1)
+                if (formName == null) {
+                    return@put DoubleValue(pokedex.getHighestKnowledgeForSpecies(speciesId) == PokedexEntryProgress.CAUGHT)
+                } else {
+                    return@put DoubleValue(pokedex.getSpeciesRecord(speciesId)?.getFormRecord(formName)?.knowledge == PokedexEntryProgress.CAUGHT)
+                }
+            }
+            map.put("caught_count") { DoubleValue(pokedex.getGlobalCalculatedValue(CaughtCount)) }
+            map.put("seen_count") { DoubleValue(pokedex.getGlobalCalculatedValue(SeenCount)) }
+            map.put("caught_percent") { DoubleValue(pokedex.getGlobalCalculatedValue(CaughtPercent)) }
+            map.put("seen_percent") { DoubleValue(pokedex.getGlobalCalculatedValue(SeenPercent)) }
+
+            if (pokedex is PokedexManager) {
+                map.put("player_id") { StringValue(pokedex.uuid.toString()) }
+                map.put("see") { params ->
+                    val pokemon = params.get<ObjectValue<Pokemon>>(0).obj
+                    pokedex.encounter(pokemon)
+                    return@put DoubleValue.ONE
+                }
+                map.put("catch") { params ->
+                    val pokemon = params.get<ObjectValue<Pokemon>>(0).obj
+                    pokedex.catch(pokemon)
+                    return@put DoubleValue.ONE
+                }
+            }
+
+            map
+        }
+    )
+
+    val speciesFunctions: MutableList<(Species) -> HashMap<String, java.util.function.Function<MoParams, Any>>> = mutableListOf(
+        { species ->
+            val map = hashMapOf<String, java.util.function.Function<MoParams, Any>>()
+
+            map.put("identifier") { StringValue(species.resourceIdentifier.toString()) }
+            map.put("name") { StringValue(species.name) }
+            map.put("primary_type") { StringValue(species.primaryType.name) }
+            map.put("secondary_type") { StringValue(species.secondaryType?.name ?: "null") }
+            map.put("experience_group") { StringValue(species.experienceGroup.name) }
+            map.put("height") { DoubleValue(species.height) }
+            map.put("weight") { DoubleValue(species.weight) }
+            map.put("base_scale") { DoubleValue(species.baseScale) }
+            map.put("hitbox_width") { DoubleValue(species.hitbox.width) }
+            map.put("hitbox_height") { DoubleValue(species.hitbox.height) }
+            map.put("hitbox_fixed") { DoubleValue(species.hitbox.fixed) }
+            map.put("catch_rate") { DoubleValue(species.catchRate) }
+
+            map
+        }
+    )
+
     fun Holder<Biome>.asBiomeMoLangValue() = asMoLangValue(Registries.BIOME).addFunctions(biomeFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())
     fun Holder<Level>.asWorldMoLangValue() = asMoLangValue(Registries.DIMENSION).addFunctions(worldFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())
     fun Holder<Block>.asBlockMoLangValue() = asMoLangValue(Registries.BLOCK).addFunctions(blockFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())
@@ -935,6 +1017,22 @@ object MoLangFunctions {
     fun QueryStruct.addEntityFunctions(entity: LivingEntity): QueryStruct {
         val addedFunctions = entityFunctions
             .flatMap { it.invoke(entity).entries }
+            .associate { it.key to it.value }
+        functions.putAll(addedFunctions)
+        return this
+    }
+
+    fun QueryStruct.addPokedexFunctions(pokedexManager: AbstractPokedexManager): QueryStruct {
+        val addedFunctions = pokedexFunctions
+            .flatMap { it.invoke(pokedexManager).entries }
+            .associate { it.key to it.value }
+        functions.putAll(addedFunctions)
+        return this
+    }
+
+    fun QueryStruct.addSpeciesFunctions(species: Species): QueryStruct {
+        val addedFunctions = speciesFunctions
+            .flatMap { it.invoke(species).entries }
             .associate { it.key to it.value }
         functions.putAll(addedFunctions)
         return this
