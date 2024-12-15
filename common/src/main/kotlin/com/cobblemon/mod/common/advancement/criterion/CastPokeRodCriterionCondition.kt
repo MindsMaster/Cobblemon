@@ -8,8 +8,8 @@
 
 package com.cobblemon.mod.common.advancement.criterion
 
+import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
 import com.mojang.serialization.Codec
-import com.mojang.serialization.codecs.PrimitiveCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import java.util.Optional
 import net.minecraft.advancements.critereon.ContextAwarePredicate
@@ -17,18 +17,21 @@ import net.minecraft.advancements.critereon.EntityPredicate
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.resources.ResourceLocation
 
+class CastPokeRodContext(val baitId: ResourceLocation)
+
 class CastPokeRodCriterionCondition(
         playerCtx: Optional<ContextAwarePredicate>,
-        val baitId: Optional<ResourceLocation>
-) : SimpleCriterionCondition<ResourceLocation?>(playerCtx) {
+        val baitId: String
+): SimpleCriterionCondition<CastPokeRodContext>(playerCtx) {
+
     companion object {
         val CODEC: Codec<CastPokeRodCriterionCondition> = RecordCodecBuilder.create { it.group(
                 EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(CastPokeRodCriterionCondition::playerCtx),
-                ResourceLocation.CODEC.optionalFieldOf("baitId").forGetter(CastPokeRodCriterionCondition::baitId)
-        ).apply(it, ::CastPokeRodCriterionCondition) }
+                Codec.STRING.optionalFieldOf("baitId", "empty_bait").forGetter(CastPokeRodCriterionCondition::baitId)
+        ).apply(it, { playerCtx, baitId -> CastPokeRodCriterionCondition(playerCtx, baitId.ifEmpty { "empty_bait" }) }) }
     }
 
-    override fun matches(player: ServerPlayer, context: ResourceLocation?): Boolean {
-        return baitId.isEmpty || baitId.get() == context
+    override fun matches(player: ServerPlayer, context: CastPokeRodContext): Boolean {
+        return (context.baitId == this.baitId.asIdentifierDefaultingNamespace() || this.baitId.equals("empty_bait"))
     }
 }

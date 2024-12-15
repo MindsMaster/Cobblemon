@@ -1,5 +1,6 @@
 package com.cobblemon.mod.common.advancement.criterion
 
+import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import java.util.Optional
@@ -8,25 +9,23 @@ import net.minecraft.advancements.critereon.EntityPredicate
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.resources.ResourceLocation
 
+class ReelInPokemonContext(val pokemonId : ResourceLocation, val baitId: ResourceLocation)
+
 class ReelInPokemonCriterionCondition(
         playerCtx: Optional<ContextAwarePredicate>,
-        val pokemonId: Optional<ResourceLocation>,
-        val baitId: Optional<ResourceLocation>
-) : SimpleCriterionCondition<Pair<ResourceLocation?, ResourceLocation?>>(playerCtx) {
+        val pokemonId: String,
+        val baitId: String
+) : SimpleCriterionCondition<ReelInPokemonContext>(playerCtx) {
 
     companion object {
         val CODEC: Codec<ReelInPokemonCriterionCondition> = RecordCodecBuilder.create { it.group(
-                EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter { it.playerCtx },
-                ResourceLocation.CODEC.optionalFieldOf("pokemonId").forGetter { it.pokemonId },
-                ResourceLocation.CODEC.optionalFieldOf("baitId").forGetter { it.baitId }
-        ).apply(it, ::ReelInPokemonCriterionCondition) }
+            EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter { it.playerCtx },
+            Codec.STRING.optionalFieldOf("pokemonId", "any").forGetter { it.pokemonId },
+            Codec.STRING.optionalFieldOf("baitId", "empty_bait").forGetter { it.baitId }
+        ).apply(it, { playerCtx, pokemonId, baitId -> ReelInPokemonCriterionCondition(playerCtx, pokemonId, baitId.ifEmpty { "empty_bait" }) }) }
     }
 
-    override fun matches(player: ServerPlayer, context: Pair<ResourceLocation?, ResourceLocation?>): Boolean {
-        val (contextPokemonId, contextBaitId) = context
-
-        val pokemonMatches = pokemonId.isEmpty || pokemonId.get() == contextPokemonId
-        val baitMatches = baitId.isEmpty || baitId.get() == contextBaitId
-        return pokemonMatches && baitMatches
+    override fun matches(player: ServerPlayer, context: ReelInPokemonContext): Boolean {
+        return (context.pokemonId == this.pokemonId.asIdentifierDefaultingNamespace() || this.pokemonId == "any") && (context.baitId == this.baitId.asIdentifierDefaultingNamespace() || this.baitId == "empty_bait")
     }
 }

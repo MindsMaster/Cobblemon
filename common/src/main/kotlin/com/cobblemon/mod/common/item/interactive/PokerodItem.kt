@@ -11,6 +11,7 @@ package com.cobblemon.mod.common.item.interactive
 import com.cobblemon.mod.common.CobblemonItemComponents
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.advancement.CobblemonCriteria
+import com.cobblemon.mod.common.advancement.criterion.CastPokeRodContext
 import com.cobblemon.mod.common.api.events.CobblemonEvents
 import com.cobblemon.mod.common.api.events.fishing.BaitConsumedEvent
 import com.cobblemon.mod.common.api.events.fishing.BaitSetEvent
@@ -238,8 +239,11 @@ class PokerodItem(val pokeRodId: ResourceLocation, settings: Properties) : Fishi
                     { event -> return InteractionResultHolder.fail(itemStack) },
                     { event ->
                         world.addFreshEntity(bobberEntity)
-                        val bait = getBaitOnRod(itemStack)
-                        CobblemonCriteria.CAST_POKE_ROD.trigger(user as ServerPlayer, bait?.item)
+                        var baitId = getBaitOnRod(itemStack)?.item
+                        if (baitId == null) {
+                            baitId = ResourceLocation.fromNamespaceAndPath("cobblemon", "empty_bait")
+                        }
+                        CobblemonCriteria.CAST_POKE_ROD.trigger(user as ServerPlayer, CastPokeRodContext(baitId))
 
                         CobblemonEvents.POKEROD_CAST_POST.post(
                             PokerodCastEvent.Post(itemStack, bobberEntity, getBaitStackOnRod(itemStack))
