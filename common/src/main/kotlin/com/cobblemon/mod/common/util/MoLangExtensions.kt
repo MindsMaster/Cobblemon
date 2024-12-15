@@ -41,7 +41,7 @@ fun MoLangRuntime.resolve(expression: Expression, context: Map<String, MoValue> 
     }
 //    expression.evaluate(MoScope(), environment)
 } catch (e: Exception) {
-    throw IllegalArgumentException("Unable to parse expression: ${expression.getString()}", e)
+    throw IllegalArgumentException("Unable to evaluate expression: ${expression.getString()}", e)
 }
 fun MoLangRuntime.resolveDouble(expression: Expression, context: Map<String, MoValue> = contextOrEmpty): Double = resolve(expression, context).asDouble()
 fun MoLangRuntime.resolveFloat(expression: Expression, context: Map<String, MoValue> = contextOrEmpty): Float = resolve(expression, context).asDouble().toFloat()
@@ -210,8 +210,16 @@ fun MoLangEnvironment.cloneFrom(other: MoLangEnvironment): MoLangEnvironment {
     return this
 }
 
-fun BlockPos.toArrayStruct() = ArrayStruct().apply {
-    map["0"] = DoubleValue(x)
-    map["1"] = DoubleValue(y)
-    map["2"] = DoubleValue(z)
+fun BlockPos.toArrayStruct() = listOf(x, y, z).asArrayValue(::DoubleValue)
+
+fun <T> Collection<T>.asArrayValue(mapper: (T) -> MoValue): ArrayStruct {
+    val array = ArrayStruct()
+    forEachIndexed { index, value -> array.setDirectly("$index", mapper(value)) }
+    return array
+}
+
+fun Iterable<MoValue>.asArrayValue(): ArrayStruct {
+    val array = ArrayStruct()
+    forEachIndexed { index, value -> array.setDirectly("$index", value) }
+    return array
 }

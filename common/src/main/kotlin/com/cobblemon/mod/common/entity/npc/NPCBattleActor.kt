@@ -8,7 +8,6 @@
 
 package com.cobblemon.mod.common.entity.npc
 
-import com.bedrockk.molang.runtime.value.DoubleValue
 import com.cobblemon.mod.common.api.battles.model.actor.AIBattleActor
 import com.cobblemon.mod.common.api.battles.model.actor.ActorType
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor
@@ -48,11 +47,6 @@ class NPCBattleActor(
         party.toBattleTeam(healPokemon = npc.npc.autoHealParty),
         skill
     )
-
-    override fun setupStruct() {
-        super.setupStruct()
-        struct.addFunction("skill") { DoubleValue(skill) }
-    }
 
     override fun sendUpdate(packet: NetworkPacket<*>) {
         super.sendUpdate(packet)

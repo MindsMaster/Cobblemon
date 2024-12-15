@@ -11,9 +11,9 @@ package com.cobblemon.mod.neoforge
 import com.cobblemon.mod.common.*
 import com.cobblemon.mod.common.advancement.CobblemonCriteria
 import com.cobblemon.mod.common.advancement.predicate.CobblemonEntitySubPredicates
-import com.cobblemon.mod.common.api.data.JsonDataRegistry
 import com.cobblemon.mod.common.api.net.serializers.IdentifierDataSerializer
 import com.cobblemon.mod.common.api.net.serializers.NPCPlayerTextureSerializer
+import com.cobblemon.mod.common.api.net.serializers.PlatformTypeDataSerializer
 import com.cobblemon.mod.common.api.net.serializers.PoseTypeDataSerializer
 import com.cobblemon.mod.common.api.net.serializers.StringSetDataSerializer
 import com.cobblemon.mod.common.api.net.serializers.UUIDSetDataSerializer
@@ -24,7 +24,6 @@ import com.cobblemon.mod.common.particle.CobblemonParticles
 import com.cobblemon.mod.common.sherds.CobblemonSherds
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.common.util.didSleep
-import com.cobblemon.mod.common.util.endsWith
 import com.cobblemon.mod.common.world.CobblemonStructures
 import com.cobblemon.mod.common.world.feature.CobblemonFeatures
 import com.cobblemon.mod.common.world.placementmodifier.CobblemonPlacementModifierTypes
@@ -38,9 +37,8 @@ import com.cobblemon.mod.neoforge.net.CobblemonNeoForgeNetworkManager
 import com.cobblemon.mod.neoforge.permission.ForgePermissionValidator
 import com.cobblemon.mod.neoforge.worldgen.CobblemonBiomeModifiers
 import com.mojang.brigadier.arguments.ArgumentType
-import java.io.File
+import java.util.Optional
 import java.util.UUID
-import java.util.concurrent.ExecutionException
 import kotlin.reflect.KClass
 import net.minecraft.commands.synchronization.ArgumentTypeInfo
 import net.minecraft.commands.synchronization.ArgumentTypeInfos
@@ -60,7 +58,6 @@ import net.minecraft.server.packs.repository.Pack
 import net.minecraft.server.packs.repository.Pack.Position
 import net.minecraft.server.packs.repository.PackSource
 import net.minecraft.server.packs.resources.PreparableReloadListener
-import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.tags.TagKey
 import net.minecraft.world.item.CreativeModeTab
 import net.minecraft.world.item.CreativeModeTab.TabVisibility
@@ -100,7 +97,6 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries
 import net.neoforged.neoforge.registries.RegisterEvent
 import net.neoforged.neoforge.server.ServerLifecycleHooks
 import thedarkcolour.kotlinforforge.neoforge.forge.MOD_BUS
-import java.util.Optional
 
 @Mod(Cobblemon.MODID)
 class CobblemonNeoForge : CobblemonImplementation {
@@ -243,6 +239,7 @@ class CobblemonNeoForge : CobblemonImplementation {
                 helper.register(Vec3DataSerializer.ID, Vec3DataSerializer)
                 helper.register(StringSetDataSerializer.ID, StringSetDataSerializer)
                 helper.register(PoseTypeDataSerializer.ID, PoseTypeDataSerializer)
+                helper.register(PlatformTypeDataSerializer.ID, PlatformTypeDataSerializer)
                 helper.register(IdentifierDataSerializer.ID, IdentifierDataSerializer)
                 helper.register(UUIDSetDataSerializer.ID, UUIDSetDataSerializer)
                 helper.register(NPCPlayerTextureSerializer.ID, NPCPlayerTextureSerializer)
@@ -396,28 +393,6 @@ class CobblemonNeoForge : CobblemonImplementation {
     }
 
     override fun server(): MinecraftServer? = ServerLifecycleHooks.getCurrentServer()
-
-    override fun <T> reloadJsonRegistry(registry: JsonDataRegistry<T>, manager: ResourceManager): HashMap<ResourceLocation, T> {
-        val data = hashMapOf<ResourceLocation, T>()
-
-        manager.listResources(registry.resourcePath) { path -> path.endsWith(JsonDataRegistry.JSON_EXTENSION) }.forEach { (identifier, resource) ->
-            if (identifier.namespace == "pixelmon") {
-                return@forEach
-            }
-
-            resource.open().use { stream ->
-                stream.bufferedReader().use { reader ->
-                    val resolvedIdentifier = ResourceLocation.fromNamespaceAndPath(identifier.namespace, File(identifier.path).nameWithoutExtension)
-                    try {
-                        data[resolvedIdentifier] = registry.gson.fromJson(reader, registry.typeToken.type)
-                    } catch (exception: Exception) {
-                        throw ExecutionException("Error loading JSON for data: $identifier", exception)
-                    }
-                }
-            }
-        }
-        return data
-    }
 
     override fun registerCompostable(item: ItemLike, chance: Float) {
         this.queuedWork += {

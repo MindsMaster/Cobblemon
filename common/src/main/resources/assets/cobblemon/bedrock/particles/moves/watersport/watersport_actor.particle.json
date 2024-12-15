@@ -16,6 +16,13 @@
 				"nodes": [1, 1, 1, 1, 1, 1, 0.5, 0]
 			}
 		},
+		"events": {
+			"event_sound": {
+				"sound_effect": {
+					"event_name": "cobblemon:move.watersport.actor"
+				}
+			}
+		},
 		"components": {
 			"minecraft:emitter_rate_steady": {
 				"spawn_rate": 500,

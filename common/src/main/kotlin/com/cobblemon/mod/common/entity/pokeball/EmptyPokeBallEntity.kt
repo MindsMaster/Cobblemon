@@ -46,6 +46,7 @@ import com.cobblemon.mod.common.net.messages.client.effect.SpawnSnowstormEntityP
 import com.cobblemon.mod.common.net.messages.client.spawn.SpawnPokeballPacket
 import com.cobblemon.mod.common.pokeball.PokeBall
 import com.cobblemon.mod.common.pokemon.properties.UncatchableProperty
+import com.cobblemon.mod.common.util.asArrayValue
 import com.cobblemon.mod.common.util.*
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.Minecraft
@@ -118,6 +119,7 @@ class EmptyPokeBallEntity : ThrowableItemProjectile, PosableEntity, WaterDragMod
     override val struct = QueryStruct(hashMapOf())
         .addFunction("capture_state") { StringValue(captureState.name) }
         .addFunction("ball_type") { StringValue(pokeBall.name.toString()) }
+        .addFunction("aspects") { aspects.asArrayValue { StringValue(it) } }
 
     override fun defineSynchedData(builder: SynchedEntityData.Builder) {
         pokeBall = PokeBalls.POKE_BALL

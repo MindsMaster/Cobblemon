@@ -11,9 +11,9 @@ package com.cobblemon.mod.fabric
 import com.cobblemon.mod.common.*
 import com.cobblemon.mod.common.advancement.CobblemonCriteria
 import com.cobblemon.mod.common.advancement.predicate.CobblemonEntitySubPredicates
-import com.cobblemon.mod.common.api.data.JsonDataRegistry
 import com.cobblemon.mod.common.api.net.serializers.IdentifierDataSerializer
 import com.cobblemon.mod.common.api.net.serializers.NPCPlayerTextureSerializer
+import com.cobblemon.mod.common.api.net.serializers.PlatformTypeDataSerializer
 import com.cobblemon.mod.common.api.net.serializers.PoseTypeDataSerializer
 import com.cobblemon.mod.common.api.net.serializers.StringSetDataSerializer
 import com.cobblemon.mod.common.api.net.serializers.UUIDSetDataSerializer
@@ -29,7 +29,6 @@ import com.cobblemon.mod.common.platform.events.ServerTickEvent
 import com.cobblemon.mod.common.sherds.CobblemonSherds
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.common.util.didSleep
-import com.cobblemon.mod.common.util.endsWith
 import com.cobblemon.mod.common.world.CobblemonStructures
 import com.cobblemon.mod.common.world.feature.CobblemonFeatures
 import com.cobblemon.mod.common.world.placementmodifier.CobblemonPlacementModifierTypes
@@ -39,9 +38,7 @@ import com.cobblemon.mod.common.world.structureprocessors.CobblemonStructureProc
 import com.cobblemon.mod.fabric.net.CobblemonFabricNetworkManager
 import com.cobblemon.mod.fabric.permission.FabricPermissionValidator
 import com.mojang.brigadier.arguments.ArgumentType
-import java.io.File
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
 import kotlin.reflect.KClass
 import net.fabricmc.api.EnvType
@@ -220,6 +217,7 @@ object CobblemonFabric : CobblemonImplementation {
         EntityDataSerializers.registerSerializer(Vec3DataSerializer)
         EntityDataSerializers.registerSerializer(StringSetDataSerializer)
         EntityDataSerializers.registerSerializer(PoseTypeDataSerializer)
+        EntityDataSerializers.registerSerializer(PlatformTypeDataSerializer)
         EntityDataSerializers.registerSerializer(IdentifierDataSerializer)
         EntityDataSerializers.registerSerializer(UUIDSetDataSerializer)
         EntityDataSerializers.registerSerializer(NPCPlayerTextureSerializer)
@@ -305,66 +303,6 @@ object CobblemonFabric : CobblemonImplementation {
     }
 
     override fun server(): MinecraftServer? = if (this.environment() == Environment.CLIENT) Minecraft.getInstance().singleplayerServer else this.server
-
-    override fun <T> reloadJsonRegistry(registry: JsonDataRegistry<T>, manager: ResourceManager): HashMap<ResourceLocation, T> {
-        val data = hashMapOf<ResourceLocation, T>()
-
-        if (!Cobblemon.isDedicatedServer) {
-            manager.listResources(registry.resourcePath) { path -> path.endsWith(JsonDataRegistry.JSON_EXTENSION) }.forEach { (identifier, resource) ->
-                if (identifier.namespace == "pixelmon") {
-                    return@forEach
-                }
-
-                resource.open().use { stream ->
-                    stream.bufferedReader().use { reader ->
-                        val resolvedIdentifier = ResourceLocation.fromNamespaceAndPath(identifier.namespace, File(identifier.path).nameWithoutExtension)
-                        try {
-                            data[resolvedIdentifier] = registry.gson.fromJson(reader, registry.typeToken.type)
-                        } catch (exception: Exception) {
-                            throw ExecutionException("Error loading JSON for data: $identifier", exception)
-                        }
-                    }
-                }
-            }
-        } else {
-            // Currently in Fabric API, the ResourceManager does not work as expected when using findResources.
-            // It will treat built-in resources as priority over datapack resources.
-            manager.listResourceStacks(registry.resourcePath) { path -> path.endsWith(JsonDataRegistry.JSON_EXTENSION) }.forEach { (identifier, resources) ->
-                if (identifier.namespace == "pixelmon") {
-                    return@forEach
-                }
-
-                if (resources.isEmpty()) {
-                    return@forEach
-                }
-
-                val orderedResources = if (resources.size > 1) {
-                    val sorted = resources.sortedBy { it.sourcePackId().replace("file/", "") }.toMutableList()
-                    val fabric = sorted.find { it.sourcePackId() == "fabric" }
-
-                    if (fabric != null) {
-                        sorted.remove(fabric)
-                        sorted.add(fabric)
-                    }
-                    sorted
-                } else {
-                    resources
-                }
-
-                orderedResources[0].open().use { stream ->
-                    stream.bufferedReader().use { reader ->
-                        val resolvedIdentifier = ResourceLocation.fromNamespaceAndPath(identifier.namespace, File(identifier.path).nameWithoutExtension)
-                        try {
-                            data[resolvedIdentifier] = registry.gson.fromJson(reader, registry.typeToken.type)
-                        } catch (exception: Exception) {
-                            throw ExecutionException("Error loading JSON for data: $identifier", exception)
-                        }
-                    }
-                }
-            }
-        }
-        return data
-    }
 
     override fun registerCompostable(item: ItemLike, chance: Float) {
         CompostingChanceRegistry.INSTANCE.add(item, chance)

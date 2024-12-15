@@ -105,7 +105,7 @@ class BedrockSoundKeyframe(
             if (entity != null) {
                 entity.level().playLocalSound(entity, soundEvent, entity.soundSource, 1F, 1F)
             } else {
-                Minecraft.getInstance().soundManager.play(SimpleSoundInstance.forUI(soundEvent, 1F))
+                Minecraft.getInstance().soundManager.play(SimpleSoundInstance.forUI(soundEvent, 1F, 1F))
             }
         }
     }

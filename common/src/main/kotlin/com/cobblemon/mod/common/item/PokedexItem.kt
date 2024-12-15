@@ -9,9 +9,10 @@
 package com.cobblemon.mod.common.item
 
 import com.cobblemon.mod.common.client.CobblemonClient
-import com.cobblemon.mod.common.client.pokedex.PokedexTypes
+import com.cobblemon.mod.common.client.pokedex.PokedexType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.isLookingAt
+import com.cobblemon.mod.common.util.isServerSide
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
@@ -24,7 +25,7 @@ import net.minecraft.world.item.UseAnim
 import net.minecraft.world.level.Level
 import net.minecraft.world.phys.AABB
 
-class PokedexItem(val type: PokedexTypes): CobblemonItem(Item.Properties().stacksTo(1)) {
+class PokedexItem(val type: PokedexType): CobblemonItem(Item.Properties().stacksTo(1)) {
 
     override fun getUseAnimation(itemStack: ItemStack): UseAnim? = UseAnim.TOOT_HORN
 
@@ -51,6 +52,11 @@ class PokedexItem(val type: PokedexTypes): CobblemonItem(Item.Properties().stack
         stack: ItemStack,
         remainingUseTicks: Int
     ) {
+        if (world.isServerSide() && user is ServerPlayer && user.isChangingDimension) {
+            user.stopUsingItem()
+            return
+        }
+
         if (world.isClientSide && user is LocalPlayer) {
             val usageContext = CobblemonClient.pokedexUsageContext
             val ticksInUse = getUseDuration(stack, user) - remainingUseTicks

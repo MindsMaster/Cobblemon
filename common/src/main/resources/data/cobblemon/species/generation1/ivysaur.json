@@ -17,6 +17,11 @@
     "speed": 60
   },
   "behaviour": {
+    "moving": {
+      "walk": {
+        "walkSpeed": 0.25
+      }
+    },
     "resting": {
       "canSleep": true,
       "depth": "normal",

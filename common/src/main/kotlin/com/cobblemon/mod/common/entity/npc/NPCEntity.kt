@@ -126,17 +126,20 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
 
     var allowProjectileHits: Boolean? = null
 
-    fun getPartyForChallenge(player: ServerPlayer): NPCPartyStore? {
+    fun getPartyForChallenge(players: List<ServerPlayer>): NPCPartyStore? {
         val party = this.party
         return if (party != null) {
             party
         } else if (npc.party?.isStatic == false) {
-            npc.party?.provide(this, level)
+            npc.party?.provide(this, level, players)
         } else {
             null
         }
     }
 
+    /** Oi, dev, you no touch this one. This one is for [com.cobblemon.mod.common.api.npc.variation.NPCVariationProvider]s. */
+    val variationAspects = mutableSetOf<String>()
+    /** You can add to this one if you want, that's ok. */
     val appliedAspects = mutableSetOf<String>()
     override val delegate = if (world.isClientSide) {
         com.cobblemon.mod.common.client.entity.NPCClientDelegate()
@@ -283,7 +286,7 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
     override fun getBrain() = super.getBrain() as Brain<NPCEntity>
 
     fun updateAspects() {
-        entityData.set(ASPECTS, appliedAspects)
+        entityData.set(ASPECTS, appliedAspects + variationAspects)
     }
 
     fun isInBattle() = battleIds.isNotEmpty()
@@ -317,6 +320,7 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
         nbt.put(DataKeys.NPC_LEVEL, IntTag.valueOf(level))
         nbt.putString(DataKeys.NPC_CLASS, npc.id.toString())
         nbt.put(DataKeys.NPC_ASPECTS, ListTag().also { list -> appliedAspects.forEach { list.add(StringTag.valueOf(it)) } })
+        nbt.put(DataKeys.NPC_VARIATION_ASPECTS, ListTag().also { list -> variationAspects.forEach { list.add(StringTag.valueOf(it)) } })
         interaction?.let {
             val interactionNBT = CompoundTag()
             interactionNBT.putString(DataKeys.NPC_INTERACT_TYPE, it.type)
@@ -374,6 +378,7 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
         data = MoLangFunctions.readMoValueFromNBT(nbt.getCompound(DataKeys.NPC_DATA)) as VariableStruct
         config = if (nbt.contains(DataKeys.NPC_CONFIG)) MoLangFunctions.readMoValueFromNBT(nbt.getCompound(DataKeys.NPC_CONFIG)) as VariableStruct else VariableStruct()
         appliedAspects.addAll(nbt.getList(DataKeys.NPC_ASPECTS, Tag.TAG_STRING.toInt()).map { it.asString })
+        variationAspects.addAll(nbt.getList(DataKeys.NPC_VARIATION_ASPECTS, Tag.TAG_STRING.toInt()).map { it.asString })
         nbt.getCompound(DataKeys.NPC_INTERACTION).takeIf { !it.isEmpty }?.let { nbt ->
             val type = nbt.getString("type")
             val configType = NPCInteractConfiguration.types[type] ?: return@let
@@ -449,10 +454,10 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
     }
 
     fun initialize(level: Int) {
-        appliedAspects.clear()
+        variationAspects.clear()
         entityData.set(LEVEL, level)
         npc.config.forEach { it.applyDefault(this) }
-        npc.variations.values.forEach { this.appliedAspects.addAll(it.provideAspects(this)) }
+        npc.variations.values.forEach { this.variationAspects.addAll(it.provideAspects(this)) }
         if (party == null || npc.party != null) {
             party = npc.party?.takeIf { it.isStatic }?.provide(this, level)
         }

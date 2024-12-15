@@ -8,6 +8,9 @@
 
 package com.cobblemon.mod.common.pokemon
 
+import com.bedrockk.molang.runtime.struct.QueryStruct
+import com.bedrockk.molang.runtime.value.DoubleValue
+import com.bedrockk.molang.runtime.value.StringValue
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.Priority
@@ -160,6 +163,21 @@ class Species : ClientDataSynchronizer<Species>, ShowdownIdentifiable {
 
     var lightingData: LightingData? = null
         private set
+
+    @Transient
+    val struct = QueryStruct(hashMapOf())
+        .addFunction("identifier") { StringValue(this.resourceIdentifier.toString()) }
+        .addFunction("primary_type") { StringValue(this.primaryType.name) }
+        .addFunction("secondary_type") { StringValue(this.secondaryType?.name ?: "null") }
+        .addFunction("experience_group") { StringValue(this.experienceGroup.name) }
+        .addFunction("height") { DoubleValue(this.height) }
+        .addFunction("weight") { DoubleValue(this.weight) }
+        .addFunction("base_scale") { DoubleValue(this.baseScale) }
+        .addFunction("hitbox_width") { DoubleValue(this.hitbox.width) }
+        .addFunction("hitbox_height") { DoubleValue(this.hitbox.height) }
+        .addFunction("hitbox_fixed") { DoubleValue(this.hitbox.fixed) }
+        .addFunction("catch_rate") { DoubleValue(this.catchRate) }
+
 
     fun initialize() {
         Cobblemon.statProvider.provide(this)

@@ -51,6 +51,8 @@
 - Added new sounds for Poké Balls bouncing off of Pokémon and landing on the ground during capture.
 - Added a unique set of sounds for Ancient Poké Balls.
 - Added a sound for using Exp Candy and Rare Candy items.
+- Added raft platforms for non-swimming, non-flying Pokémon to stand on during battles that take place on the water's surface. (Flying Pokémon will fly over water in battle, and water breathing Pokémon will swim in water during battle.)
+- Added `hiddenability=false` option to `/spawnpokemon` and `/pokemonedit` commands, allowing the Pokémon's ability to be reverted to a normal ability.
 
 ### Pokémon Added
 #### Gen 1
@@ -339,8 +341,11 @@
     - A high jump indicates 2 shakes.
     - A medium jump indicates 3 shakes.
     - A short jump indicates that you caught the Pokémon.
+- Pokémon sent out during battle will spawn facing their opponent.
+- Pokémon sent out outside a battle will spawn facing their trainer.
 
 ### Fixes
+- Fixed Ability Patches not reverting Hidden Abilities back to Normal Abilities.
 - Fixed awarding Pokémon experience upon forfeiting battles.
 - Scaled down Amaura's fetus model to avoid clipping through the tank while animating.
 - Fixed Cubone's cry not having a sound.
@@ -392,6 +397,9 @@
 - Fixed Alolan Exeggutor's tail not showing in the party UI. It will now also stand in front of all Pokémon in the party menu :)
 - Fixed Timburr duplicating its log while fainting.
 - Fixed hitbox sizes for Grotle and Torterra being set to default values.
+- Fixed Hisuian Sneasel using Johtonian Sneasel's cry
+- Fixed Trevenant t-posing after 8 seconds of sleep.
+- Fixed Bewear t-posing for a bit if a wild one fainted.
 - Fixed reviving items throwing an exception when used in battle.
 - Fixed messages for Focus Sash, Confusion, Mummy, Ice Face, Own Tempo, and Revive.
 - Improve error handling when loading spawn-sets to ensure invalid configurations don't crash the server.
@@ -421,6 +429,8 @@
 - Delay when successfully catching a Pokémon in an Ancient Poké Ball has been increased to account for the new sounds and particles.
 - Prevent summary stats tab from making sounds when clicking on an already open tab.
 - Fixed display case not being able to be fed items from underneath.
+- Fixed Pokémon battling in water continuously sinking to the bottom.
+- Fixed passive healing and wake from faint not disabling when their config values are set to 0.
 
 ### Developer
 - `SpawnCause` is now an implementation of `SpawningInfluence`.
@@ -480,6 +490,10 @@
 - Added support for conditional pose animations.
 - Added a new universal locator called "top".
 - Added `eggs_collected` and `eggs_hatched` Advancement triggers.
+- Added missing `minYaw` configuration to the `q.look()` function for JSON posers.
+- Some pose condition names have been changed: 
+  - `isTouchingWaterOrRain` has been changed to `isInWaterOrRain`
+  - `isSubermegedInWater` has been changed to `isUnderWater`
 
 ### Localization
 - Updated translations for:

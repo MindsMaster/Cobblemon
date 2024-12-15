@@ -15,6 +15,7 @@ import com.cobblemon.mod.common.api.npc.NPCPartyProvider
 import com.cobblemon.mod.common.api.npc.NPCPreset
 import com.cobblemon.mod.common.api.npc.NPCPresets
 import com.cobblemon.mod.common.api.npc.configuration.NPCBattleConfiguration
+import com.cobblemon.mod.common.api.npc.configuration.NPCConfigVariable
 import com.cobblemon.mod.common.api.npc.configuration.NPCInteractConfiguration
 import com.cobblemon.mod.common.api.npc.variation.NPCVariationProvider
 import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
@@ -60,6 +61,10 @@ object NPCClassAdapter : JsonDeserializer<NPCClass> {
         obj.get("battleConfiguration")?.let { npcClass.battleConfiguration = ctx.deserialize(it, NPCBattleConfiguration::class.java) }
         obj.get("interaction")?.let { npcClass.interaction = ctx.deserialize(it, NPCInteractConfiguration::class.java) }
         obj.get("canDespawn")?.let { npcClass.canDespawn = it.asBoolean }
+        obj.get("config")?.let {
+            val obj = it.asJsonArray
+            obj.forEach { npcClass.config.add(ctx.deserialize(it, NPCConfigVariable::class.java)) }
+        }
         obj.get("variations")?.let {
             val obj = it.asJsonObject
             obj.entrySet().forEach { (key, value) ->
