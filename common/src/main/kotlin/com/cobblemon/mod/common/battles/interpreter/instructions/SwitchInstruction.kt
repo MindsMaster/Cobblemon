@@ -68,7 +68,7 @@ class SwitchInstruction(val instructionSet: InstructionSet, val battleActor: Bat
                 else if (pokemonEntity == null && entity != null) {
                     activePokemon.battlePokemon = pokemon
                     activePokemon.illusion = illusion
-                    val targetPos = ShowdownInterpreter.getSendoutPosition(battle, activePokemon, battleActor)
+                    val targetPos = ShowdownInterpreter.getSendOutPosition(battle, activePokemon, battleActor)
                     if (targetPos != null) {
                         val battleSendoutCount = activePokemon.getActorShowdownId()[1].digitToInt() - 1 + actor.stillSendingOutCount
                         actor.stillSendingOutCount++
@@ -178,7 +178,7 @@ class SwitchInstruction(val instructionSet: InstructionSet, val battleActor: Bat
                     }
                 } else {
                     // For Singles, we modify the sendout position based on the pokemon's hitbox size
-                    val pos = (if (battle.format.battleType.pokemonPerSide == 1) ShowdownInterpreter.getSendoutPosition(battle, activePokemon, actor)
+                    val pos = (if (battle.format.battleType.pokemonPerSide == 1) ShowdownInterpreter.getSendOutPosition(battle, activePokemon, actor)
                         else  activePokemon.position?.second) ?: entity.position()
                     // Send out at previous Pokémon's location if it is known, otherwise actor location
                     val world = entity.level() as ServerLevel

@@ -21,7 +21,10 @@ import com.cobblemon.mod.common.battles.interpreter.ContextManager
 import com.cobblemon.mod.common.battles.interpreter.instructions.*
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon
 import com.cobblemon.mod.common.util.battleLang
+import com.cobblemon.mod.common.util.raycastSafeSendout
 import com.cobblemon.mod.common.util.runOnServer
+import com.cobblemon.mod.common.util.setPositionSafely
+import net.minecraft.world.level.ClipContext
 import net.minecraft.world.phys.Vec3
 import java.util.UUID
 import kotlin.collections.Iterator
@@ -34,6 +37,7 @@ import kotlin.collections.mutableMapOf
 import kotlin.collections.set
 import kotlin.collections.toMutableList
 import kotlin.collections.toTypedArray
+import kotlin.time.measureTime
 
 @Suppress("KotlinPlaceholderCountMatchesArgumentCount", "UNUSED_PARAMETER")
 object ShowdownInterpreter {
@@ -143,7 +147,7 @@ object ShowdownInterpreter {
      * 
      *
      */
-     fun getSendoutPosition(battle: PokemonBattle, activePokemon: ActiveBattlePokemon, battleActor: BattleActor): Vec3? {
+     fun getSendOutPosition(battle: PokemonBattle, activePokemon: ActiveBattlePokemon, battleActor: BattleActor): Vec3? {
         val pnx = activePokemon.getPNX()
         val actorEntityPosList = battleActor.getSide().actors.mapNotNull { if (it is EntityBackedBattleActor<*>) it.initialPos else null }
         val actorEntityPos = if (actorEntityPosList.size == 1)
@@ -210,6 +214,16 @@ object ShowdownInterpreter {
                         else -> result
                     }
                 }
+            }
+
+            if (battleActor is EntityBackedBattleActor<*> && result != null) {
+                val entity = battleActor.entity ?: return result
+                val elapsedTime = measureTime {
+                    val collisionResult = entity.level().clip(ClipContext(actorEntityPos!!.add(Vec3(0.0,entity.eyeHeight.toDouble(),0.0)), result!!, ClipContext.Block.OUTLINE, ClipContext.Fluid.ANY, entity))
+                    result = collisionResult.location
+                }
+                println(elapsedTime)
+
             }
         }
         return result

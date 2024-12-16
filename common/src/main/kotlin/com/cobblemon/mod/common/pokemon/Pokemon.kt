@@ -625,7 +625,7 @@ open class Pokemon : ShowdownIdentifiable {
                                 battleActor is EntityBackedBattleActor<*> && battleActor.entity != null && battleActor.entity?.uuid !== owner.uuid
                             } as EntityBackedBattleActor<*>
                             if (activeBattlePokemon != null) {
-                                opposingEntityPos = ShowdownInterpreter.getSendoutPosition(battle, activeBattlePokemon, opposingEntityBattleActor as BattleActor)
+                                opposingEntityPos = ShowdownInterpreter.getSendOutPosition(battle, activeBattlePokemon, opposingEntityBattleActor as BattleActor)
                             }
                             if (opposingEntityPos == null) {
                                 // Sendout calculation failed, fallback to using the opposing actor's position

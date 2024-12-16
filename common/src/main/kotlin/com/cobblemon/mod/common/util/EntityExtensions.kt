@@ -28,6 +28,7 @@ import net.minecraft.world.phys.shapes.CollisionContext
 import net.minecraft.world.phys.shapes.Shapes
 import java.util.*
 import kotlin.math.ceil
+import kotlin.math.max
 import kotlin.math.min
 import kotlin.time.measureTime
 
@@ -60,96 +61,34 @@ fun Entity.setPositionSafely(pos: Vec3): Boolean {
 //        return true
 //    }
 
-
-    fun isPositionValid(level: Level, entity: Entity, pos: BlockPos): Boolean {
-        if(!level.getBlockState(pos).getCollisionShape(level, pos, CollisionContext.empty()).isEmpty) {
-            // do not consider positions where the base pos has collision
-            // This helps in ruling out positions in which the pokemon would spawn in the ground
-            // Also avoids a great deal of unnecessary AABB checks
-            return false
-        }
-        val boundingBox = entity.boundingBox.move(Vec3(pos.x + 0.5, pos.y.toDouble(), pos.z + 0.5).subtract(entity.boundingBox.bottomCenter))
-        return level.noBlockCollision(entity, boundingBox)
-    }
-
     val directions = listOf(
             BlockPos(0, 1, 0), BlockPos(0, -1, 0), // Up and down
             BlockPos(1, 0, 0), BlockPos(-1, 0, 0), // East and west
             BlockPos(0, 0, 1), BlockPos(0, 0, -1)  // North and south
     )
 
-
-    fun findPerfectPositionBFS(
-            entity: Entity,
-            pos: Vec3,
-            level: Level,
-            maxRadius: Int = min(ceil(entity.bbWidth * 1.5).toInt(), 7)
-    ): BlockPos? {
-        val queue = ArrayDeque<BlockPos>()
-        val visited = mutableSetOf<BlockPos>()
-        val centerPos = BlockPos(pos.x.toInt(), pos.y.toInt(), pos.z.toInt())
-        queue.add(centerPos)
-
-        while (queue.isNotEmpty()) {
-            val current = queue.removeFirst()
-            if (current in visited) continue
-            visited.add(current)
-
-            if (isPositionValid(level, entity, current)) {
-                return current
-            }
-
-            // Add neighbors (up to maxRadius)
-            for (dir in directions) {
-                val neighbor = current.offset(dir)
-                if (neighbor.distManhattan(centerPos) <= maxRadius) {
-                    queue.add(neighbor)
-                }
-            }
-        }
-        return null
-    }
-
-    fun getPosScore(level: Level, entity: Entity, pos: BlockPos, minScore : Int = Int.MAX_VALUE): Int {
-        var score = 0
+    fun getPosScore(level: Level, entity: Entity, box: AABB, pos: BlockPos, minScore : Int = Int.MAX_VALUE): Int {
+        val score = 0
         if(!level.getBlockState(pos).getCollisionShape(level, pos, CollisionContext.empty()).isEmpty) {
             // do not consider positions where the base pos has collision
             // This helps in ruling out positions in which the pokemon would spawn in the ground
             // Also avoids a great deal of unnecessary AABB checks
             return Int.MAX_VALUE
         }
-        val boundingBox = entity.boundingBox.move(Vec3(pos.x + 0.5, pos.y.toDouble(), pos.z + 0.5).subtract(entity.boundingBox.bottomCenter))
 
-        if(entity.bbWidth > 3 && !level.noBlockCollision(entity, boundingBox.contract(0.0, (bbHeight - 1).toDouble(), 0.0))) {
-            score += (1 * bbWidth * bbWidth).toInt()
-        }
+        val movedBox = box.move(Vec3(pos.x + 0.5, pos.y.toDouble(), pos.z + 0.5).subtract(box.bottomCenter))
         return if (score < minScore) {
-            score + level.getBlockCollisions(entity, boundingBox).count()
+            score + level.getBlockCollisions(entity, movedBox).count()
         } else {
             score
         }
     }
 
-//    fun canSeeOwner(entity: Entity, pos: Vec3) : Boolean {
-//        if (entity is PokemonEntity) {
-//           val actor = entity.owner
-//            if(actor is ServerPlayer) {
-//
-//                val result = actor.traceBlockCollision(
-//                        maxDistance = actor.position().distanceTo(pos).toFloat(),
-//                        direction = pos.subtract(actor.position()).normalize(),
-//                ) == null
-//                return result
-//            }
-//        }
-//        return false
-//    }
-
     fun findBestBlockPosBFS(
             entity: Entity,
             pos: Vec3,
             level: Level,
-            maxRadius: Int = min(ceil(entity.bbWidth * 1.5).toInt(), 8)
+            maxRadius: Int = max(3, min(ceil(entity.bbWidth * 1.5).toInt(), 4))
     ): BlockPos {
         val queue = ArrayDeque<BlockPos>()
         val visited = mutableSetOf<BlockPos>()
@@ -157,23 +96,33 @@ fun Entity.setPositionSafely(pos: Vec3): Boolean {
         queue.add(centerPos)
         var bestScore = Int.MAX_VALUE
         var bestPos = centerPos
+        var deflatedBox = entity.boundingBox
+        val maxHeight = 3
+        val maxWidth = 3
+        // We deflate the box to make collision checks cheaper for large pokemon.
+        if(bbWidth > maxWidth) {
+            deflatedBox = deflatedBox.deflate((bbWidth - maxWidth) / 2.0, 0.0, (bbWidth - maxWidth) / 2.0)
+        }
+        if(bbHeight > maxHeight) {
+            deflatedBox = deflatedBox.deflate(0.0, (bbWidth - maxHeight) / 2.0, 0.0)
+        }
 
         while (queue.isNotEmpty()) {
-            val current = queue.removeFirst()
-            if (current in visited) continue
-            visited.add(current)
+            val currentPos = queue.removeFirst()
+            if (currentPos in visited) continue
+            visited.add(currentPos)
 
-            val score = getPosScore(level, entity, current, bestScore)
-            if (score < 1) {
-                return current
+            val score = getPosScore(level, this, deflatedBox, currentPos, bestScore)
+            if (score == 0) {
+                return currentPos
             } else if (bestScore > score) {
-                bestPos = current
+                bestPos = currentPos
                 bestScore = score
             }
 
             // Add neighbors (up to maxRadius)
             for (dir in directions) {
-                val neighbor = current.offset(dir)
+                val neighbor = currentPos.offset(dir)
                 if (neighbor.distManhattan(centerPos) <= maxRadius) {
                     queue.add(neighbor)
                 }
@@ -182,28 +131,16 @@ fun Entity.setPositionSafely(pos: Vec3): Boolean {
         return bestPos
     }
 
-
-
     val box = boundingBox.move(pos.subtract(boundingBox.bottomCenter))
-
 
     if (level().noBlockCollision(this, box)) {
         // Given position is valid so no need to do extra work
         setPos(pos)
         return true
     }
-//    var elapsedTime = measureTime {
-//        perfectPosition = findPerfectPositionBFS(this, pos, level())
-//    }
-//    println(elapsedTime)
-//
-//    if (perfectPosition != null) {
-//       setPos(Vec3(perfectPosition!!.x + 0.5, perfectPosition!!.y.toDouble(), perfectPosition!!.z + 0.5))
-//        return true
-//    }
 
     var bestPosition: BlockPos
-    var elapsedTime = measureTime {
+    val elapsedTime = measureTime {
         bestPosition = findBestBlockPosBFS(this, pos, level())
         setPos(Vec3(bestPosition.x + 0.5, bestPosition.y.toDouble(), bestPosition.z + 0.5))
     }
@@ -232,6 +169,7 @@ fun Entity.setPositionSafely(pos: Vec3): Boolean {
                 )
         if (collides) break
     }
+    this.setPos(result)
     if (collides) {
 //        this.setPos(pos)
         return false
