@@ -13,19 +13,22 @@ import com.cobblemon.mod.common.api.ai.BrainConfigurationContext
 import com.cobblemon.mod.common.api.molang.ExpressionLike
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMostSpecificMoLangValue
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.setup
+import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
 import com.cobblemon.mod.common.entity.MoLangScriptingEntity
 import com.cobblemon.mod.common.util.resolve
 import com.cobblemon.mod.common.util.withQueryValue
 import net.minecraft.world.entity.LivingEntity
 
 class SetVariablesConfig : BrainConfig {
-    var variables = mutableMapOf<String, ExpressionLike>()
+    var variableValues = mutableMapOf<String, ExpressionLike>()
+
+    override val variables: List<MoLangConfigVariable> = emptyList()
 
     override fun configure(entity: LivingEntity, brainConfigurationContext: BrainConfigurationContext) {
         val runtime = MoLangRuntime().setup()
         runtime.withQueryValue("entity", entity.asMostSpecificMoLangValue())
         if (entity is MoLangScriptingEntity) {
-            variables.forEach { (variableName, valueExpression) ->
+            variableValues.forEach { (variableName, valueExpression) ->
                 entity.config.setDirectly(variableName, runtime.resolve(valueExpression))
             }
         }

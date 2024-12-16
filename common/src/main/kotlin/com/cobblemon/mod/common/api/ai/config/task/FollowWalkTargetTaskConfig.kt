@@ -14,11 +14,13 @@ import com.bedrockk.molang.runtime.struct.QueryStruct
 import com.cobblemon.mod.common.api.ai.BrainConfigurationContext
 import com.cobblemon.mod.common.api.ai.WrapperLivingEntityTask
 import com.cobblemon.mod.common.api.molang.ExpressionLike
+import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMostSpecificMoLangValue
 import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
 import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.entity.ai.FollowWalkTargetTask
 import com.cobblemon.mod.common.util.asExpression
 import com.cobblemon.mod.common.util.asExpressionLike
+import com.cobblemon.mod.common.util.lang
 import com.cobblemon.mod.common.util.resolveBoolean
 import com.cobblemon.mod.common.util.resolveInt
 import com.cobblemon.mod.common.util.withQueryValue
@@ -27,14 +29,27 @@ import net.minecraft.world.entity.PathfinderMob
 import net.minecraft.world.entity.ai.behavior.BehaviorControl
 
 class FollowWalkTargetTaskConfig : SingleTaskConfig {
-    val condition: ExpressionLike = "true".asExpressionLike()
+    companion object {
+        const val FOLLOW_WALK_TARGET = "follow_walk_target"
+    }
+
+    val condition = true
     val minRunTicks: Expression = "150".asExpression()
     val maxRunTicks: Expression = "250".asExpression()
 
-    override val variables = emptyList<MoLangConfigVariable>()
+    override val variables = listOf<MoLangConfigVariable>(
+        MoLangConfigVariable(
+            variableName = FOLLOW_WALK_TARGET,
+            type = MoLangConfigVariable.MoLangVariableType.BOOLEAN,
+            displayName = lang("entity.variable.follow_walk_target.name"),
+            description = lang("entity.variable.follow_walk_target.desc"),
+            defaultValue = condition.toString()
+        )
+    )
+
     override fun createTask(entity: LivingEntity, brainConfigurationContext: BrainConfigurationContext): BehaviorControl<LivingEntity>? {
-        runtime.withQueryValue("entity", (entity as? PosableEntity)?.struct ?: QueryStruct(hashMapOf()))
-        if (!runtime.resolveBoolean(condition)) return null
+        runtime.withQueryValue("entity", entity.asMostSpecificMoLangValue())
+        if (!runtime.resolveBoolean("q.entity.variable.$FOLLOW_WALK_TARGET".asExpression())) return null
         return WrapperLivingEntityTask(
             FollowWalkTargetTask(runtime.resolveInt(minRunTicks), runtime.resolveInt(maxRunTicks)),
             PathfinderMob::class.java

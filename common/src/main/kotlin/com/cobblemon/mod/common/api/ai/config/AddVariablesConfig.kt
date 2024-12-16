@@ -14,15 +14,8 @@ import com.cobblemon.mod.common.entity.MoLangScriptingEntity
 import net.minecraft.world.entity.LivingEntity
 
 class AddVariablesConfig : BrainConfig {
-    var variables = mutableListOf<MoLangConfigVariable>()
+    override val variables = mutableListOf<MoLangConfigVariable>()
 
-    override fun configure(entity: LivingEntity, brainConfigurationContext: BrainConfigurationContext) {
-        if (entity is MoLangScriptingEntity) {
-            variables.forEach { variable ->
-                if (entity.registeredVariables.none { it.variableName == variable.variableName }) {
-                    entity.registeredVariables.add(variable)
-                }
-            }
-        }
-    }
+    // Configuration happens naturally through the override on variables
+    override fun configure(entity: LivingEntity, brainConfigurationContext: BrainConfigurationContext) {}
 }

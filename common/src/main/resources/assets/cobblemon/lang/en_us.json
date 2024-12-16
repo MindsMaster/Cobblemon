@@ -2425,6 +2425,12 @@
   "entity.variable.locked_pitch.name": "Pitch",
   "entity.variable.locked_pitch.desc": "Pitch rotation (degrees) of the entity. Only locks if Locked Rotation is ON",
 
+  "entity.variable.exit_battle_when_hurt.name": "Exit Battle When Hurt",
+  "entity.variable.exit_battle_when_hurt.desc": "Whether the entity will exit the battle when hurt.",
+
+  "entity.variable.exit_battle_from_passive_damage.name": "Exit Battle From Passive Damage",
+  "entity.variable.exit_battle_from_passive_damage.desc": "Whether the entity will exit the battle from passive damage like cactus or falling.",
+
   "cobblemon.move.10000000voltthunderbolt": "10,000,000 Volt Thunderbolt",
   "cobblemon.move.10000000voltthunderbolt.desc": "The user, Pikachu wearing a cap, powers up a jolt of electricity using its Z-Power and unleashes it. Critical hits land more easily.",
   "cobblemon.move.absorb": "Absorb",

@@ -11,6 +11,7 @@ package com.cobblemon.mod.common.api.ai.config.task
 import com.bedrockk.molang.runtime.struct.QueryStruct
 import com.cobblemon.mod.common.api.ai.BrainConfigurationContext
 import com.cobblemon.mod.common.api.molang.ExpressionLike
+import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
 import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.entity.ai.GetAngryAtAttackerTask
 import com.cobblemon.mod.common.util.asExpressionLike
@@ -21,6 +22,8 @@ import net.minecraft.world.entity.ai.behavior.BehaviorControl
 
 class GetAngryAtAttackerTaskConfig : SingleTaskConfig {
     val condition: ExpressionLike = "true".asExpressionLike()
+
+    override val variables = emptyList<MoLangConfigVariable>()
 
     override fun createTask(
         entity: LivingEntity,

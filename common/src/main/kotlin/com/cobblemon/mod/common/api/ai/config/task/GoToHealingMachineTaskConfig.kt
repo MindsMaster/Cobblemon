@@ -12,6 +12,8 @@ import com.bedrockk.molang.Expression
 import com.bedrockk.molang.runtime.struct.QueryStruct
 import com.cobblemon.mod.common.api.ai.BrainConfigurationContext
 import com.cobblemon.mod.common.api.molang.ExpressionLike
+import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMostSpecificMoLangValue
+import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
 import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.entity.npc.ai.GoToHealingMachineTask
 import com.cobblemon.mod.common.util.asExpression
@@ -28,11 +30,15 @@ class GoToHealingMachineTaskConfig(
     val speedMultiplier: Expression = "0.35".asExpression(),
     val completionRange: Expression = "1".asExpression()
 ) : SingleTaskConfig {
+//    override val variables = listOf<MoLangConfigVariable>(
+//
+//    )
+
     override fun createTask(
         entity: LivingEntity,
         brainConfigurationContext: BrainConfigurationContext
     ): BehaviorControl<in LivingEntity>? {
-        runtime.withQueryValue("entity", (entity as? PosableEntity)?.struct ?: QueryStruct(hashMapOf()))
+        runtime.withQueryValue("entity", entity.asMostSpecificMoLangValue())
         if (!runtime.resolveBoolean(condition)) return null
 
         return GoToHealingMachineTask.create(

@@ -982,7 +982,7 @@ object MoLangFunctions {
     }
 
     /**
-     * Different functions exist depending on
+     * Different functions exist depending on the entity type, this tries to make the struct that's most specific to the type.
      */
     fun LivingEntity.asMostSpecificMoLangValue(): ObjectValue<out LivingEntity> {
         return when (this) {

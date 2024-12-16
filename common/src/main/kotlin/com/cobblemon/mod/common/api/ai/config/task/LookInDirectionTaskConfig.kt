@@ -55,5 +55,9 @@ class LookInDirectionTaskConfig : SingleTaskConfig {
     override fun createTask(
         entity: LivingEntity,
         brainConfigurationContext: BrainConfigurationContext
-    ) = LookInDirectionTask("q.entity.config.$BRAIN_LOOK_LOCKED".asExpression(), "q.entity.config.$BRAIN_LOOK_DIRECTION_YAW".asExpression(), "q.entity.config.$BRAIN_LOOK_DIRECTION_PITCH".asExpression())
+    ) = LookInDirectionTask(
+        shouldLock = "q.entity.config.$BRAIN_LOOK_LOCKED".asExpression(),
+        yaw = "q.entity.config.$BRAIN_LOOK_DIRECTION_YAW".asExpression(),
+        pitch = "q.entity.config.$BRAIN_LOOK_DIRECTION_PITCH".asExpression()
+    )
 }

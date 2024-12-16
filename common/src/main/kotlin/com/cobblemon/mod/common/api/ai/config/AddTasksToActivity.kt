@@ -26,7 +26,7 @@ class AddTasksToActivity : BrainConfig {
     val condition = "true".asExpressionLike()
     val tasksByPriority = mutableMapOf<Int, List<TaskConfig>>()
     override val variables: List<MoLangConfigVariable>
-        get() =
+        get() = tasksByPriority.values.flatten().flatMap { it.variables }
 
 
     override fun configure(entity: LivingEntity, brainConfigurationContext: BrainConfigurationContext) {

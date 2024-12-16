@@ -14,6 +14,7 @@ import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.CobblemonBrainConfigs
 import com.cobblemon.mod.common.api.ai.BrainConfigurationContext
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.setup
+import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
 import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.util.asExpressionLike
 import com.cobblemon.mod.common.util.resolveBoolean
@@ -24,12 +25,15 @@ import net.minecraft.world.entity.LivingEntity
 class ApplyPresets : BrainConfig {
     val condition = "true".asExpressionLike()
     val presets = mutableListOf<ResourceLocation>()
+    override val variables: List<MoLangConfigVariable>
+        get() = presets.flatMap { CobblemonBrainConfigs.presets[it]?.configurations?.flatMap { it.variables } ?: emptyList() }
+
     override fun configure(entity: LivingEntity, brainConfigurationContext: BrainConfigurationContext) {
         val runtime = MoLangRuntime().setup()
         runtime.withQueryValue("entity", (entity as? PosableEntity)?.struct ?: QueryStruct(hashMapOf()))
         if (!runtime.resolveBoolean(condition)) return
 
-        val presetConfigs = presets.flatMap { CobblemonBrainConfigs.presets[it] ?: return Cobblemon.LOGGER.warn("Preset $it not found") }
+        val presetConfigs = presets.flatMap { CobblemonBrainConfigs.presets[it]?.configurations ?: return Cobblemon.LOGGER.warn("Preset $it not found") }
         presetConfigs.forEach { it.configure(entity, brainConfigurationContext) }
     }
 }
