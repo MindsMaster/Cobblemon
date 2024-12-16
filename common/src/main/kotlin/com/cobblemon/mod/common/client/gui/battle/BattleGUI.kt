@@ -13,6 +13,7 @@ import com.cobblemon.mod.common.battles.ShowdownActionResponse
 import com.cobblemon.mod.common.client.CobblemonClient
 import com.cobblemon.mod.common.client.battle.ClientBattleActor
 import com.cobblemon.mod.common.client.battle.SingleActionRequest
+import com.cobblemon.mod.common.client.gui.CobblemonRenderable
 import com.cobblemon.mod.common.client.gui.battle.subscreen.BattleActionSelection
 import com.cobblemon.mod.common.client.gui.battle.subscreen.BattleBackButton
 import com.cobblemon.mod.common.client.gui.battle.subscreen.BattleGeneralActionSelection
@@ -29,7 +30,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.screens.Screen
 
-class BattleGUI : Screen(battleLang("gui.title")) {
+class BattleGUI : Screen(battleLang("gui.title")), CobblemonRenderable {
     companion object {
         const val OPTION_VERTICAL_SPACING = 3
         const val OPTION_HORIZONTAL_SPACING = 3
