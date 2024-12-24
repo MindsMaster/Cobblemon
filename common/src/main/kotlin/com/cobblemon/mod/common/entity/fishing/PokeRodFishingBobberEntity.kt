@@ -12,6 +12,8 @@ import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.CobblemonEntities
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.ModAPI
+import com.cobblemon.mod.common.advancement.CobblemonCriteria
+import com.cobblemon.mod.common.advancement.criterion.ReelInPokemonContext
 import com.cobblemon.mod.common.api.events.CobblemonEvents
 import com.cobblemon.mod.common.api.events.fishing.BobberBucketChosenEvent
 import com.cobblemon.mod.common.api.events.fishing.BobberSpawnPokemonEvent
@@ -22,11 +24,14 @@ import com.cobblemon.mod.common.api.spawning.BestSpawner
 import com.cobblemon.mod.common.api.spawning.SpawnBucket
 import com.cobblemon.mod.common.api.spawning.detail.EntitySpawnResult
 import com.cobblemon.mod.common.api.spawning.fishing.FishingSpawnCause
+import com.cobblemon.mod.common.api.spawning.influence.PlayerLevelRangeInfluence
+import com.cobblemon.mod.common.api.spawning.influence.PlayerLevelRangeInfluence.Companion.TYPICAL_VARIATION
 import com.cobblemon.mod.common.api.text.red
 import com.cobblemon.mod.common.client.sound.EntitySoundTracker
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.item.interactive.PokerodItem
 import com.cobblemon.mod.common.net.messages.client.effect.SpawnSnowstormParticlePacket
+import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.common.util.toBlockPos
 import kotlin.math.sqrt
@@ -177,7 +182,7 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
     }
 
     fun chooseAdjustedSpawnBucket(buckets: List<SpawnBucket>, luckOfTheSeaLevel: Int): SpawnBucket {
-        val baseIncreases = listOf(2.5F, 1.0F, 0.6F)  // Base increases for the first three buckets beyond the first
+        val baseIncreases = listOf(2.5F, 0.5F, 0.2F)  // Base increases for the first three buckets beyond the first
         val adjustedWeights = buckets.mapIndexed { index, bucket ->
             if (index == 0) {
                 // Placeholder, will be recalculated
@@ -673,7 +678,7 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
 
     fun spawnPokemonFromFishing(player: Player, chosenBucket: SpawnBucket, rodItemStack: ItemStack) {
         var hookedEntityID: Int? = null
-        
+
         val spawner = BestSpawner.fishingSpawner
 
         val spawnCause = FishingSpawnCause(
@@ -684,7 +689,12 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
         )
 
 
-        val result = spawner.run(spawnCause, level() as ServerLevel, position().toBlockPos())
+        val result = spawner.run(
+            cause = spawnCause,
+            world = level() as ServerLevel,
+            pos = position().toBlockPos(),
+            influences = listOf(PlayerLevelRangeInfluence(player as ServerPlayer, TYPICAL_VARIATION))
+        )
 
         if (result == null) {
         // This has a chance to fail, if the position has no suitability for a fishing context
@@ -705,6 +715,15 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
 
                 // create accessory splash particle when you fish something up
                 particleEntityHandler(this, ResourceLocation.fromNamespaceAndPath("cobblemon","accessory_fish_splash"))
+
+                if (player is ServerPlayer) {
+                    var baitId = FishingBaits.getFromBaitItemStack(this.bobberBait)?.item
+                    val pokemonId = spawnedPokemon.pokemon.species.resourceIdentifier
+                    if (bobberBait.isEmpty) {
+                        baitId = "empty_bait".asIdentifierDefaultingNamespace()
+                    }
+                    CobblemonCriteria.REEL_IN_POKEMON.trigger(player, ReelInPokemonContext(pokemonId, baitId!!))
+                }
 
                 if (spawnedPokemon.pokemon.species.weight.toDouble() < 900.0) { // if weight value of Pokemon is less than 200 lbs (in hectograms) which we store weight as) then reel it in to the player
                     // play sound for small splash when this weight class is fished up

@@ -1615,12 +1615,14 @@
   "advancements.cobblemon.grow_tumblestone.description": "Place a Tumblestone near Lava or Magma to grow it over time",
   "advancements.cobblemon.craft_ancient_balls": "A True Antiquarian",
   "advancements.cobblemon.craft_ancient_balls.description": "Utilize Tumblestones to craft all fifteen Ancient Balls",
-  "advancements.cobblemon.craft_rod": "Gone Fishin'",
-  "advancements.cobblemon.craft_rod.description": "Craft a Poké Rod using a Poké Rod Smithing Template",
-  "advancements.cobblemon.use_bait": "A Berry Good Lure",
-  "advancements.cobblemon.use_bait.description": "Use a berry as bait for your Poké Rod",
+  "advancements.cobblemon.craft_rod": "New Angles for Angling",
+  "advancements.cobblemon.craft_rod.description": "Unlock new ways to fish by creating a Poké Rod at a Smithing Table",
+  "advancements.cobblemon.use_all_berry_bait": "Some Berry Good Lures",
+  "advancements.cobblemon.use_all_berry_bait.description": "Reel in a Pokémon with one of each of the different berries attached to your Poké Rod",
   "advancements.cobblemon.craft_master_rod": "Masterful Dedication",
   "advancements.cobblemon.craft_master_rod.description": "Craft a Poké Rod using a Master Ball",
+  "advancements.cobblemon.craft_pokedex": "Researcher Recruit",
+  "advancements.cobblemon.craft_pokedex.description": "Craft a Pokédex out of Apricorns, Iron, Copper, and any glowing powder",
 
   "cobblemon.battle.crash": "A battle error has occurred. If playing single-player, report this to the mod team. Otherwise, report this to the servers administrator.",
   "cobblemon.battle.damage_dealt": "%1$s took %2$s damage!",
@@ -2003,6 +2005,7 @@
   "cobblemon.battle.end.illusion": "%1$s's illusion wore off!",
   "cobblemon.battle.end.neutralizinggas": "The effects of the neutralizing gas wore off!",
   "cobblemon.battle.end.stockpile": "%1$s's stockpiled effect wore off!",
+  "cobblemon.battle.end.infestation": "%1$s was freed from Infestation!",
 
   "cobblemon.battle.block.sweetveil": "%1$s can't fall asleep due to a veil of sweetness!",
   "cobblemon.battle.block.uproar": "But the uproar kept %1$s awake!",
@@ -2139,9 +2142,15 @@
 
   "cobblemon.battle.terastallize": "%1$s has Terastallized into the %2$s-type!",
 
-  "cobblemon.battle.detailschange.mega": "%1$s is reacting to the Key Stone!",
-  "cobblemon.battle.detailschange.noice": "%1$s transformed!",
-  "cobblemon.battle.detailschange.eiscue": "%1$s transformed!",
+  "cobblemon.battle.formechange.default.permanent": "%1$s transformed into its %2$s form!",
+  "cobblemon.battle.formechange.default.temporary": "%1$s changed to its %2$s form!",
+  "cobblemon.battle.formechange.default.temporary.ended": "%1$s changed to its base form.",
+  "cobblemon.battle.formechange.mega": "%1$s is reacting to the Key Stone!",
+  "cobblemon.battle.formechange.ash": "%1$s became Ash-Greninja!",
+  "cobblemon.battle.formechange.school": "%1$s formed a school!",
+  "cobblemon.battle.formechange.wishiwashi": "%1$s stopped schooling!",
+  "cobblemon.battle.formechange.meteor": "%1$s shielded itself.",
+  "cobblemon.battle.formechange.minior": "%1$s stopped shielding itself.",
 
   "cobblemon.battle.mega": "%1$s has Mega Evolved!",
 
@@ -4256,6 +4265,9 @@
 
   "cobblemon.entity.pokemon": "Pokémon",
   "entity.cobblemon.empty_pokeball": "Empty Poké Ball",
+  "entity.cobblemon.poke_bobber": "Poké Bobber",
+  "entity.cobblemon.boat": "Boat",
+  "entity.cobblemon.chest_boat": "Boat with Chest",
 
   "cobblemon.species.bulbasaur.name": "Bulbasaur",
   "cobblemon.species.bulbasaur.desc": "While rare and elusive in the wild, Bulbasaur’s calm and easygoing nature makes it a popular choice for beginning trainers. The bud on its back is still developing, so this Pokémon must expend large amounts of energy to fuel its growth. As a result, it is often seen rummaging through composters in search of precious fertilizer.",
@@ -6765,7 +6777,7 @@
   "cobblemon.ability.schooling": "Schooling",
   "cobblemon.ability.schooling.desc": "When it has a lot of HP, the Pokémon forms a powerful school. It stops schooling when its HP is low.",
   "cobblemon.ability.scrappy": "Scrappy",
-  "cobblemon.ability.scrappy.desc": "The Pokémon can hit Ghost-type Pokémon with Normal- and Fighting-type moves.",
+  "cobblemon.ability.scrappy.desc": "The Pokémon can hit Ghost-type Pokémon with Normal- and Fighting-type moves. It also grants immunity to Intimidate.",
   "cobblemon.ability.screencleaner": "Screen Cleaner",
   "cobblemon.ability.screencleaner.desc": "When the Pokémon enters a battle, the effects of Light Screen, Reflect, and Aurora Veil are nullified for both opposing and ally Pokémon.",
   "cobblemon.ability.seedsower": "Seed Sower",
