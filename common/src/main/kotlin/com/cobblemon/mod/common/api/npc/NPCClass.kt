@@ -62,9 +62,9 @@ class NPCClass {
     fun encode(buffer: RegistryFriendlyByteBuf) {
         buffer.writeString(resourceIdentifier.toString())
         buffer.writeCollection(names) { _, v -> buffer.writeText(v) }
-        buffer.writeFloat(this.hitbox.width)
-        buffer.writeFloat(this.hitbox.height)
-        buffer.writeBoolean(this.hitbox.fixed)
+        buffer.writeFloat(hitbox.width)
+        buffer.writeFloat(hitbox.height)
+        buffer.writeBoolean(hitbox.fixed)
         battleConfiguration.encode(buffer)
         buffer.writeNullable(interaction) { _, value ->
             buffer.writeString(value.type)

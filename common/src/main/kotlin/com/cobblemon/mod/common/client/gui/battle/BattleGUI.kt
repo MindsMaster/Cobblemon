@@ -184,20 +184,28 @@ class BattleGUI : Screen(battleLang("gui.title")), CobblemonRenderable {
 
     override fun charTyped(chr: Char, modifiers: Int): Boolean {
         if (chr.toString().equals(PartySendBinding.boundKey().displayName.string, ignoreCase = true) && CobblemonClient.battleOverlay.opacity == BattleOverlay.MAX_OPACITY && PartySendBinding.canAction()) {
-            val battle = CobblemonClient.battle ?: return false
-            battle.minimised = !battle.minimised
-            PartySendBinding.actioned()
-            return true
+            return minimizeBattle()
         }
         return super.charTyped(chr, modifiers)
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
+        if (button == PartySendBinding.boundKey().value && CobblemonClient.battleOverlay.opacity == BattleOverlay.MAX_OPACITY && PartySendBinding.canAction()) {
+            return minimizeBattle()
+        }
+
         val battle = CobblemonClient.battle
         if (battle?.spectating == true && specBackButton.isHovered(mouseX, mouseY)) {
             RemoveSpectatorPacket(battle.battleId).sendToServer()
             CobblemonClient.endBattle()
         }
         return super.mouseClicked(mouseX, mouseY, button)
+    }
+
+    private fun minimizeBattle(): Boolean {
+        val battle = CobblemonClient.battle ?: return false
+        battle.minimised = !battle.minimised
+        PartySendBinding.actioned()
+        return true
     }
 }
