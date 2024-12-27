@@ -5,15 +5,16 @@ import net.minecraft.world.ContainerHelper
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.player.StackedContents
 import net.minecraft.world.inventory.CraftingContainer
+import net.minecraft.world.inventory.TransientCraftingContainer
 import net.minecraft.world.item.ItemStack
 import java.util.List;
 
-class CookingPotContainer : CraftingContainer {
+class CookingPotContainer : TransientCraftingContainer {
 
     val menu : CookingPotMenu
     val items : NonNullList<ItemStack>
 
-    constructor(menu : CookingPotMenu) {
+    constructor(menu : CookingPotMenu, width: Int, height: Int) : super(menu, width, height) {
         this.menu = menu
         this.items = NonNullList.withSize(11, ItemStack.EMPTY)
     }

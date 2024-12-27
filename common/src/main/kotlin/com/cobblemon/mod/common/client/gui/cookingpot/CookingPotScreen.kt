@@ -30,6 +30,7 @@ class CookingPotScreen : AbstractContainerScreen<CookingPotMenu>, RecipeUpdateLi
         private val BACKGROUND = cobblemonResource("textures/gui/cookingpot/cooking_pot.png")
     }
 
+
     private val recipeBookComponent: RecipeBookComponent = RecipeBookComponent()
     private var widthTooNarrow : Boolean = false
 

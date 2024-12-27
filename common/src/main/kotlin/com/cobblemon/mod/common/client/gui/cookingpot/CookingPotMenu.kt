@@ -28,18 +28,19 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
     private val level: Level
     private val playerInventory: Inventory
     private val container: CraftingContainer
+    private val resultContainer: ResultContainer
     private val containerData: ContainerData
     private val recipeType: RecipeType<CookingPotRecipe> = CobblemonRecipeTypes.COOKING_POT_COOKING
 
     val RESULT_SLOT = 9;
-    val CRAFT_SLOT_START = 0;
-    val CRAFT_SLOT_END = 9;
 
     constructor(containerId: Int, playerInventory: Inventory) :
             super(CobblemonMenuType.COOKING_POT, containerId) {
         this.containerId = containerId
         this.playerInventory = playerInventory
-        this.container = CookingPotContainer(this)
+        this.container = CookingPotContainer(this, 3, 3)
+        this.resultContainer = ResultContainer()
+        this.resultContainer.setItem(0, container.getItem(RESULT_SLOT))
         this.containerData = SimpleContainerData(4)
         this.player = playerInventory.player
         this.level = playerInventory.player.level()
@@ -52,7 +53,8 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
         this.playerInventory = playerInventory
         this.container = container
         this.containerData = containerData
-
+        this.resultContainer = ResultContainer()
+        this.resultContainer.setItem(0, container.getItem(RESULT_SLOT))
         this.player = playerInventory.player
         this.level = playerInventory.player.level()
         container.startOpen(playerInventory.player)
@@ -64,11 +66,11 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
         val craftingOutputOffsetX = 16
         val craftingOutputOffsetY = 10
 
-        addSlot(CookingPotResultSlot(playerInventory.player, this.container, RESULT_SLOT, 124 + craftingOutputOffsetX, 35 + craftingOutputOffsetY))
+        addSlot(CookingPotResultSlot(playerInventory.player, resultContainer, 0, 124 + craftingOutputOffsetX, 35 + craftingOutputOffsetY))
 
         for (i in 0..2) {
             for (j in 0..2) {
-                this.addSlot(Slot(this.container, j + i * 3, 44 + j * 18, 27 + i * 18))
+                this.addSlot(Slot(this.container, j + i * 3 + 1, 44 + j * 18, 27 + i * 18))
             }
         }
 
@@ -161,7 +163,8 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
         dataSlotIndex: Int,
         stack: ItemStack
     ) {
-
+        container.items.forEach { stack -> println(stack.item.getName(stack)) }
+        this.resultContainer.setItem(0, container.items[RESULT_SLOT])
     }
 
     override fun dataChanged(

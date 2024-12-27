@@ -65,8 +65,6 @@ class CookingPotRecipe(
         return this.pattern.ingredients()
     }
 
-
-
     class Serializer : RecipeSerializer<CookingPotRecipe> {
         companion object {
             val CODEC: MapCodec<CookingPotRecipe> = RecordCodecBuilder.mapCodec { instance ->

@@ -42,24 +42,15 @@ class CampfireBlockEntity : BaseContainerBlockEntity, WorldlyContainer, RecipeCr
     companion object {
         fun serverTick(level: Level, pos: BlockPos, state: BlockState, campfireBlockEntity: CampfireBlockEntity) {
             if (!level.isClientSide) {
-                val craftingInput = campfireBlockEntity.asCraftInput()
-                println("0 : " + campfireBlockEntity.items.get(0))
-                println("1 : " + campfireBlockEntity.items.get(1))
-                println("2 : " + campfireBlockEntity.items.get(2))
-                println("3 : " + campfireBlockEntity.items.get(3))
-                println("4 : " + campfireBlockEntity.items.get(4))
-                println("5 : " + campfireBlockEntity.items.get(5))
-                println("6 : " + campfireBlockEntity.items.get(6))
-                println("7 : " + campfireBlockEntity.items.get(7))
-                println("8 : " + campfireBlockEntity.items.get(8))
-                println("9 : " + campfireBlockEntity.items.get(9))
-                println("10 : " + campfireBlockEntity.items.get(10))
                 var itemStack = ItemStack.EMPTY
-                campfireBlockEntity.quickCheck.getRecipeFor(craftingInput, level).ifPresent { cookingPotRecipe ->
-                    val recipeHolder  = cookingPotRecipe as RecipeHolder<*>
+                campfireBlockEntity.quickCheck.getRecipeFor(CraftingInput.of(3, 3, campfireBlockEntity.items), level).ifPresent { cookingPotRecipe ->
+                    val recipeHolder = cookingPotRecipe as RecipeHolder<*>
                     recipeHolder.value.getResultItem(level.registryAccess()).let { itemStack = it }
-                    craftingInput.items().clear()
-                    campfireBlockEntity.items[0] = itemStack
+                    if (!itemStack.isEmpty) {
+                        campfireBlockEntity.recipeUsed = recipeHolder
+                        println(itemStack)
+                        campfireBlockEntity.items[9] = itemStack.copy()
+                    }
                 }
         }
     }
