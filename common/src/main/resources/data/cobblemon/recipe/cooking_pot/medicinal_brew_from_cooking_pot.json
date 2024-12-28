@@ -3,7 +3,7 @@
     "category": "medicines",
     "key": {
         "w": {
-            "item": "minecraft:water_bottle"
+            "item": "minecraft:potion"
         },
         "M": {
             "item": "cobblemon:medicinal_leek"
