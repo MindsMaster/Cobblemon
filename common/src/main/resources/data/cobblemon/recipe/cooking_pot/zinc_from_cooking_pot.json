@@ -1,0 +1,26 @@
+{
+    "type": "cobblemon:cooking_pot",
+    "category": "misc",
+    "key": {
+        "m": {
+            "item": "cobblemon:medicinal_brew"
+        },
+        "b": {
+            "item": "#minecraft:foods/raw_fish"
+        },
+        "h": {
+            "item": "cobblemon:grepa_berry"
+        },
+        "c": {
+            "item": "cobblemon:pink_mint_leaf"
+        }
+    },
+    "pattern": [
+        "mbb",
+        "hhc",
+        "c  "
+    ],
+    "result": {
+        "id": "cobblemon:zinc"
+    }
+}

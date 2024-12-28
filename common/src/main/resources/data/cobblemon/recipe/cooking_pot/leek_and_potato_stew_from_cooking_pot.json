@@ -1,0 +1,22 @@
+{
+    "type": "cobblemon:cooking_pot",
+    "category": "foods",
+    "key": {
+        "m": {
+            "item": "cobblemon:roasted_leek"
+        },
+        "b": {
+            "item": "minecraft:baked_potato"
+        },
+        "h": {
+            "item": "minecraft:bowl"
+        }
+    },
+    "pattern": [
+        "mb",
+        "h "
+    ],
+    "result": {
+        "id": "cobblemon:leek_and_potato_stew"
+    }
+}

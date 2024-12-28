@@ -1,0 +1,19 @@
+{
+    "type": "cobblemon:cooking_pot",
+    "category": "medicines",
+    "key": {
+        "r": {
+            "item": "cobblemon:revive"
+        },
+        "V": {
+            "item": "cobblemon:vivichoke"
+        }
+    },
+    "pattern": [
+        "rr",
+        "rV"
+    ],
+    "result": {
+        "id": "cobblemon:max_revive"
+    }
+}

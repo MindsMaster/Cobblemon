@@ -1,0 +1,22 @@
+{
+    "type": "cobblemon:cooking_pot",
+    "category": "misc",
+    "key": {
+        "g": {
+            "item": "minecraft:glass_bottle"
+        },
+        "p": {
+            "item": "cobblemon:pep_up_flower"
+        },
+        "t": {
+            "item": "cobblemon:petaya_berry"
+        }
+    },
+    "pattern": [
+        "gp",
+        "tt"
+    ],
+    "result": {
+        "id": "cobblemon:x_special_attack"
+    }
+}

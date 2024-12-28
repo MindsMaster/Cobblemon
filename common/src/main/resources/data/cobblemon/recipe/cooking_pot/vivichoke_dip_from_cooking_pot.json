@@ -1,18 +1,23 @@
 {
-    "type": "minecraft:crafting_shapeless",
-    "ingredients": [
-        {
+    "type": "cobblemon:cooking_pot",
+    "category": "foods",
+    "key": {
+        "m": {
             "item": "cobblemon:vivichoke"
         },
-        {
+        "b": {
             "item": "minecraft:milk_bucket"
         },
-        {
+        "h": {
             "item": "minecraft:bowl"
         },
-        {
+        "c": {
             "item": "minecraft:bread"
         }
+    },
+    "pattern": [
+        "mb",
+        "hc"
     ],
     "result": {
         "id": "cobblemon:vivichoke_dip"

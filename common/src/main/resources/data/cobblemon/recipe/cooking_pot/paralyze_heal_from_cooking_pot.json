@@ -1,0 +1,18 @@
+{
+    "type": "cobblemon:cooking_pot",
+    "category": "medicines",
+    "key": {
+        "M": {
+            "item": "cobblemon:medicinal_brew"
+        },
+        "o": {
+            "item": "cobblemon:cheri_berry"
+        }
+    },
+    "pattern": [
+        "Mo"
+    ],
+    "result": {
+        "id": "cobblemon:paralyze_heal"
+    }
+}

@@ -1,0 +1,22 @@
+{
+    "type": "cobblemon:cooking_pot",
+    "category": "misc",
+    "key": {
+        "g": {
+            "item": "minecraft:glass_bottle"
+        },
+        "p": {
+            "item": "cobblemon:pep_up_flower"
+        },
+        "t": {
+            "item": "cobblemon:starf_berry"
+        }
+    },
+    "pattern": [
+        "gp",
+        "tt"
+    ],
+    "result": {
+        "id": "cobblemon:guard_spec"
+    }
+}

@@ -1,0 +1,26 @@
+{
+    "type": "cobblemon:cooking_pot",
+    "category": "misc",
+    "key": {
+        "m": {
+            "item": "cobblemon:pp_up"
+        },
+        "b": {
+            "item": "cobblemon:pep_up_flower"
+        },
+        "h": {
+            "item": "cobblemon:hopo_berry"
+        },
+        "c": {
+            "item": "cobblemon:vivichoke"
+        }
+    },
+    "pattern": [
+        "mbb",
+        "hhc",
+        "c  "
+    ],
+    "result": {
+        "id": "cobblemon:pp_max"
+    }
+}

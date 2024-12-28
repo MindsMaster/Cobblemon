@@ -1,0 +1,18 @@
+{
+    "type": "cobblemon:cooking_pot",
+    "category": "medicines",
+    "key": {
+        "s": {
+            "item": "minecraft:sculk"
+        },
+        "h": {
+            "item": "minecraft:honeycomb"
+        }
+    },
+    "pattern": [
+        "sh"
+    ],
+    "result": {
+        "id": "cobblemon:exp_candy_xs"
+    }
+}
