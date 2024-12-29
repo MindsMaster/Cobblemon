@@ -68,6 +68,7 @@ object PokedexCommand {
             ))
         )
         commandArgumentBuilder
+            .permission(CobblemonPermissions.POKEDEX)
             .then(grantCommandBuilder)
             .then(revokeCommandBuilder)
             .then(Commands.literal("printcalculations")
@@ -75,7 +76,6 @@ object PokedexCommand {
                     .executes(::printValuesGlobal)
                     .then(Commands.argument("dex", DexArgumentType.dex())
                         .executes(::printValues))))
-            .permission(CobblemonPermissions.POKEDEX)
 
 
         dispatcher.register(commandArgumentBuilder)

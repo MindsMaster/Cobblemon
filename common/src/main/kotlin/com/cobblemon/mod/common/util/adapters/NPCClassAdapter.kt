@@ -15,6 +15,7 @@ import com.cobblemon.mod.common.api.npc.NPCPartyProvider
 import com.cobblemon.mod.common.api.npc.NPCPreset
 import com.cobblemon.mod.common.api.npc.NPCPresets
 import com.cobblemon.mod.common.api.npc.configuration.NPCBattleConfiguration
+import com.cobblemon.mod.common.api.npc.configuration.NPCConfigVariable
 import com.cobblemon.mod.common.api.npc.configuration.NPCInteractConfiguration
 import com.cobblemon.mod.common.api.npc.variation.NPCVariationProvider
 import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
@@ -60,6 +61,10 @@ object NPCClassAdapter : JsonDeserializer<NPCClass> {
         obj.get("battleConfiguration")?.let { npcClass.battleConfiguration = ctx.deserialize(it, NPCBattleConfiguration::class.java) }
         obj.get("interaction")?.let { npcClass.interaction = ctx.deserialize(it, NPCInteractConfiguration::class.java) }
         obj.get("canDespawn")?.let { npcClass.canDespawn = it.asBoolean }
+        obj.get("config")?.let {
+            val obj = it.asJsonArray
+            obj.forEach { npcClass.config.add(ctx.deserialize(it, NPCConfigVariable::class.java)) }
+        }
         obj.get("variations")?.let {
             val obj = it.asJsonObject
             obj.entrySet().forEach { (key, value) ->
@@ -69,8 +74,14 @@ object NPCClassAdapter : JsonDeserializer<NPCClass> {
         }
         obj.get("party")?.let { npcClass.party = ctx.deserialize(it, NPCPartyProvider::class.java) }
         obj.get("skill")?.let { npcClass.skill = it.asInt }
+        obj.get("autoHealParty")?.let { npcClass.autoHealParty = it.asBoolean }
+        obj.get("randomizePartyOrder")?.let { npcClass.randomizePartyOrder = it.asBoolean }
         obj.get("battleTheme")?.let { npcClass.battleTheme = it.asString.asIdentifierDefaultingNamespace() }
         obj.get("ai")?.let { npcClass.ai.addAll(it.asJsonArray.map<JsonElement, BrainConfig> { ctx.deserialize(it, BrainConfig::class.java) }.toMutableList()) }
+        obj.get("isMovable")?.let { npcClass.isMovable = it.asBoolean }
+        obj.get("isInvulnerable")?.let { npcClass.isInvulnerable = it.asBoolean }
+        obj.get("isLeashable")?.let { npcClass.isLeashable = it.asBoolean }
+        obj.get("allowProjectileHits")?.let { npcClass.allowProjectileHits = it.asBoolean }
 
         return npcClass
     }

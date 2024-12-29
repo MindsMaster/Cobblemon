@@ -10,24 +10,29 @@ package com.cobblemon.mod.common.client.gui.interact.battleRequest
 
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.gui.blitk
+import com.cobblemon.mod.common.client.gui.CobblemonRenderable
 import com.cobblemon.mod.common.util.cobblemonResource
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
 import net.minecraft.client.sounds.SoundManager
 import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceLocation
 
 class BattleRequestNavigationButton(
-    pX: Int, pY: Int,
-    private val clickHeight: Float = HEIGHT,
+    pX: Number, pY: Number,
+    private val clickHeight: Int = HEIGHT,
     private val forward: Boolean,
+    private val forwardIcon: ResourceLocation = forwardButtonResource,
+    private val backwardIcon: ResourceLocation = backwardsButtonResource,
     onPress: OnPress
-): Button(pX, pY, (WIDTH * SCALE).toInt(), (clickHeight * SCALE).toInt(), Component.literal("Navigation"), onPress, DEFAULT_NARRATION) {
+): Button(pX.toInt(), pY.toInt(), (WIDTH * SCALE).toInt(), (clickHeight * SCALE).toInt(), Component.literal("Navigation"), onPress, DEFAULT_NARRATION), CobblemonRenderable {
 
     companion object {
-        const val WIDTH = 9F
-        const val HEIGHT = 16F
+        const val HEIGHT = 16
+        const val WIDTH = 9
         const val SCALE = 0.5F
+
         private val forwardButtonResource = cobblemonResource("textures/gui/interact/request/arrow_right.png")
         private val backwardsButtonResource = cobblemonResource("textures/gui/interact/request/arrow_left.png")
     }
@@ -41,7 +46,7 @@ class BattleRequestNavigationButton(
             matrixStack = context.pose(),
             x = x / SCALE,
             y = (y + (clickHeight - HEIGHT) / 4) / SCALE,
-            texture = if (forward) forwardButtonResource else backwardsButtonResource,
+            texture = if (forward) forwardIcon else backwardIcon,
             width = WIDTH,
             height = HEIGHT,
             vOffset = if (hovered) HEIGHT else 0,

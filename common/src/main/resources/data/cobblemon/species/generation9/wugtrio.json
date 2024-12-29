@@ -84,6 +84,14 @@
   "labels": [
     "gen9"
   ],
+  "behaviour": {
+    "moving": {
+      "swim": {
+        "canSwimInWater": false,
+        "canBreatheUnderwater": true
+      }
+    }
+  },
   "aspects": [],
   "baseScale": 0.7,
   "hitbox": {

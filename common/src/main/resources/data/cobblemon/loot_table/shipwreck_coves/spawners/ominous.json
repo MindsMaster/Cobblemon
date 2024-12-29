@@ -20,6 +20,22 @@
                     ],
                     "name": "cobblemon:relic_coin",
                     "weight": 10
+                },
+                {
+                    "type": "minecraft:item",
+                    "functions": [
+                        {
+                            "add": false,
+                            "count": {
+                                "type": "minecraft:uniform",
+                                "max": 3.0,
+                                "min": 5.0
+                            },
+                            "function": "minecraft:set_count"
+                        }
+                    ],
+                    "name": "cobblemon:rare_candy",
+                    "weight": 10
                 }
             ]
         }

@@ -57,7 +57,7 @@ class PokedexManager(
         uuid.getPlayer()?.sendPacket(
             SetClientPlayerDataPacket(
                 type = PlayerInstancedDataStoreTypes.POKEDEX,
-                playerData = ClientPokedexManager(mutableMapOf(speciesDexRecord.id to speciesDexRecord)),
+                playerData = ClientPokedexManager(mutableMapOf(speciesDexRecord.id to speciesDexRecord.clone())),
                 isIncremental = true
             )
         )
@@ -75,5 +75,9 @@ class PokedexManager(
         }
     }
 
-    override fun toClientData() = ClientPokedexManager(speciesRecords)
+    override fun toClientData(): ClientPokedexManager {
+        val copied = mutableMapOf<ResourceLocation, SpeciesDexRecord>()
+        speciesRecords.forEach { (key, value) -> copied[key] = value.clone() }
+        return ClientPokedexManager(copied)
+    }
 }

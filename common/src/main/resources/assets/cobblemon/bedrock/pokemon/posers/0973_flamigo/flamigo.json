@@ -9,6 +9,11 @@
     "recoil": "q.bedrock_stateful('flamigo', 'recoil')"
   },
   "poses": {
+    "portrait": {
+      "poseTypes": ["PORTRAIT", "PROFILE"],
+      "animations": ["q.bedrock('flamigo', 'ground_idle')"],
+      "quirks": ["q.bedrock_quirk('flamigo', 'blink')"]
+    },
     "battle-standing": {
       "poseTypes": ["STAND"],
       "isBattle": true,
@@ -16,7 +21,7 @@
       "quirks": ["q.bedrock_quirk('flamigo', 'blink')"]
     },
     "standing": {
-      "poseTypes": ["STAND", "NONE", "PORTRAIT", "PROFILE"],
+      "poseTypes": ["STAND", "NONE"],
       "isBattle": false,
       "isTouchingWater": false,
       "animations": ["q.look('head')", "q.bedrock('flamigo', 'ground_idle')"],

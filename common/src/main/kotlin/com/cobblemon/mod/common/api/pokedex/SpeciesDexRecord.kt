@@ -51,6 +51,10 @@ class SpeciesDexRecord {
     private val aspects: MutableSet<String> = mutableSetOf()
     private val formRecords: MutableMap<String, FormDexRecord> = mutableMapOf()
 
+    fun describe(): String {
+        return "SpeciesDexRecord(aspects=$aspects, formRecords=$formRecords)"
+    }
+
     @Transient
     val struct = QueryStruct(hashMapOf()).addStandardFunctions()
         .addFunction("get_form_record") { params ->
@@ -79,7 +83,7 @@ class SpeciesDexRecord {
     fun initialize(pokedexManager: AbstractPokedexManager, id: ResourceLocation) {
         this.id = id
         this.pokedexManager = pokedexManager
-        this.formRecords.forEach { it.value.initialize(this) }
+        this.formRecords.forEach { it.value.initialize(this, it.key) }
     }
 
     fun onFormRecordUpdated(formDexRecord: FormDexRecord) {
@@ -106,8 +110,7 @@ class SpeciesDexRecord {
     fun getOrCreateFormRecord(formName: String): FormDexRecord {
         return formRecords.getOrPut(formName.lowercase()) {
             val record = FormDexRecord()
-            record.initialize(this)
-            onFormRecordUpdated(record)
+            record.initialize(this, formName)
             // Some more stuff eventually
             record
         }
@@ -119,6 +122,11 @@ class SpeciesDexRecord {
 
     fun deleteFormRecord(formName: String) {
         formRecords.remove(formName)
+    }
+
+    fun clone() = SpeciesDexRecord().also {
+        it.aspects.addAll(aspects)
+        it.formRecords.putAll(formRecords.mapValues { it.value.clone() })
     }
 
     fun getAspects(): Set<String> = this.aspects

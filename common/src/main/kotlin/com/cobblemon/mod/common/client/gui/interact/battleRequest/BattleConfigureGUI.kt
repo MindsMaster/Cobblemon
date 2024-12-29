@@ -8,15 +8,14 @@
 
 package com.cobblemon.mod.common.client.gui.interact.battleRequest
 
-import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.api.gui.ColourLibrary
 import com.cobblemon.mod.common.api.gui.blitk
 import com.cobblemon.mod.common.api.text.bold
 import com.cobblemon.mod.common.battles.BattleFormat
-import com.cobblemon.mod.common.client.CobblemonClient
 import com.cobblemon.mod.common.client.CobblemonResources
 import com.cobblemon.mod.common.client.battle.ClientBattleChallenge
 import com.cobblemon.mod.common.client.battle.ClientTeamRequest
+import com.cobblemon.mod.common.client.gui.CobblemonRenderable
 import com.cobblemon.mod.common.client.render.drawScaledText
 import com.cobblemon.mod.common.net.messages.client.PlayerInteractOptionsPacket
 import com.cobblemon.mod.common.net.messages.server.*
@@ -37,7 +36,7 @@ class BattleConfigureGUI(
         private val packet: PlayerInteractOptionsPacket,
         private val activeRequest: ClientBattleChallenge? = null,
         private val activeTeamRequest: ClientTeamRequest? = null
-) : Screen(lang("ui.challenge.challenge_title")) {
+) : Screen(lang("ui.challenge.challenge_title")), CobblemonRenderable {
     companion object {
         const val SIZE = 113
         private val backgroundResource = cobblemonResource("textures/gui/interact/request/battle_request.png")
@@ -47,106 +46,106 @@ class BattleConfigureGUI(
         var autoLevelNavButtonRight: BattleRequestNavigationButton? = null
 
         val battleRequestMap = mutableMapOf(
-                Pair(
-                        PlayerInteractOptionsPacket.Options.SINGLE_BATTLE,
-                        BattleTypeTile(
-                                option = PlayerInteractOptionsPacket.Options.SINGLE_BATTLE,
-                                battleFormat = BattleFormat.GEN_9_SINGLES,
-                                tileTexture = cobblemonResource("textures/gui/interact/request/battle_request_single.png"),
-                                overlayTexture = cobblemonResource("textures/gui/interact/request/battle_request_overlay.png"),
-                                title = lang("ui.challenge.challenge_title").bold(),
-                                subTitle = lang("battle.types.singles").bold(),
-                                buttonText = lang("ui.challenge.challenge").bold(),
-                                onRequest = { packet, battleFormat -> sendBattleRequest(battleFormat, packet) },
-                                onResponse = { packet, requestID, accept -> sendBattleResponse(packet, requestID, accept) }
-                        )
-                ),
-                Pair(
-                        PlayerInteractOptionsPacket.Options.DOUBLE_BATTLE,
-                        BattleTypeTile(
-                                option = PlayerInteractOptionsPacket.Options.DOUBLE_BATTLE,
-                                battleFormat = BattleFormat.GEN_9_DOUBLES,
-                                tileTexture = cobblemonResource("textures/gui/interact/request/battle_request_double.png"),
-                                overlayTexture = cobblemonResource("textures/gui/interact/request/battle_request_overlay.png"),
-                                title = lang("ui.challenge.challenge_title").bold(),
-                                subTitle = lang("battle.types.doubles").bold(),
-                                buttonText = lang("ui.challenge.challenge").bold(),
-                                onRequest = { packet, battleFormat -> sendBattleRequest(battleFormat, packet) },
-                                onResponse = { packet, requestID, accept -> sendBattleResponse(packet, requestID, accept) }
-                        ),
-                ),
-                Pair(
-                        PlayerInteractOptionsPacket.Options.TRIPLE_BATTLE,
-                        BattleTypeTile(
-                                option = PlayerInteractOptionsPacket.Options.TRIPLE_BATTLE,
-                                battleFormat = BattleFormat.GEN_9_TRIPLES,
-                                tileTexture = cobblemonResource("textures/gui/interact/request/battle_request_triple.png"),
-                                overlayTexture = cobblemonResource("textures/gui/interact/request/battle_request_overlay.png"),
-                                title = lang("ui.challenge.challenge_title").bold(),
-                                subTitle = lang("battle.types.triples").bold(),
-                                buttonText = lang("ui.challenge.challenge").bold(),
-                                onRequest = { packet, battleFormat -> sendBattleRequest(battleFormat, packet) },
-                                onResponse = { packet, requestID, accept -> sendBattleResponse(packet, requestID, accept) }
-                        ),
-                ),
-                Pair(
-                        PlayerInteractOptionsPacket.Options.TEAM_REQUEST,
-                        BattleTypeTile(
-                                option = PlayerInteractOptionsPacket.Options.TEAM_REQUEST,
-                                battleFormat = BattleFormat.GEN_9_MULTI,
-                                tileTexture = cobblemonResource("textures/gui/interact/request/battle_request_multi.png"),
-                                overlayTexture = cobblemonResource("textures/gui/interact/request/battle_request_multi_overlay_partner.png"),
-                                title = lang("ui.team.invite_title").bold(),
-                                subTitle = lang("battle.types.multi").bold(),
-                                buttonText = lang("ui.team.invite").bold(),
-                                color = ColourLibrary.SIDE_1_ALLY_BATTLE_COLOUR,
-                                onRequest = { packet, battleFormat -> BattleTeamRequestPacket(packet.numericTargetId).sendToServer()  },
-                                onResponse = { packet, requestID, accept -> sendTeamResponse(packet, requestID, accept) }
-                        ),
-                ),
-                Pair(
-                        PlayerInteractOptionsPacket.Options.TEAM_LEAVE,
-                        BattleTypeTile(
-                                option = PlayerInteractOptionsPacket.Options.TEAM_LEAVE,
-                                battleFormat = BattleFormat.GEN_9_MULTI,
-                                tileTexture = cobblemonResource("textures/gui/interact/request/battle_request_multi.png"),
-                                overlayTexture = cobblemonResource("textures/gui/interact/request/battle_request_multi_overlay_partner_leave.png"),
-                                title = lang("ui.team.leave_title").bold(),
-                                subTitle = lang("battle.types.multi").bold(),
-                                buttonText = lang("ui.team.leave").bold(),
-                                color = ColourLibrary.SIDE_1_ALLY_BATTLE_COLOUR,
-                                onRequest = { _, _ -> BattleTeamLeavePacket().sendToServer() },
-                                onResponse = { _, _, _ -> Unit }
-                        ),
-                ),
-                Pair(
-                        PlayerInteractOptionsPacket.Options.MULTI_BATTLE,
-                        BattleTypeTile(
-                                option = PlayerInteractOptionsPacket.Options.MULTI_BATTLE,
-                                battleFormat = BattleFormat.GEN_9_MULTI,
-                                tileTexture = cobblemonResource("textures/gui/interact/request/battle_request_multi.png"),
-                                overlayTexture = cobblemonResource("textures/gui/interact/request/battle_request_multi_overlay_opponent.png"),
-                                title = lang("ui.challenge.challenge_title").bold(),
-                                subTitle = lang("battle.types.multi").bold(),
-                                buttonText = lang("ui.challenge.challenge").bold(),
-                                onRequest = { packet, battleFormat -> sendBattleRequest(battleFormat, packet) },
-                                onResponse = { packet, requestID, accept -> sendBattleResponse(packet, requestID, accept) }
-                        ),
-                ),
-                Pair(
-                        PlayerInteractOptionsPacket.Options.ROYAL_BATTLE,
-                        BattleTypeTile(
-                                option = PlayerInteractOptionsPacket.Options.ROYAL_BATTLE,
-                                battleFormat =  BattleFormat.GEN_9_ROYAL,
-                                tileTexture = cobblemonResource("textures/gui/interact/request/battle_request_royal.png"),
-                                overlayTexture = cobblemonResource("textures/gui/interact/request/battle_request_royal_overlay.png"),
-                                title = lang("ui.challenge.challenge_title").bold(),
-                                subTitle = lang("battle.types.freeforall").bold(),
-                                buttonText = lang("ui.challenge.challenge").bold(),
-                                onRequest = { packet, battleFormat -> sendBattleRequest(battleFormat, packet) },
-                                onResponse = { packet, requestID, accept -> sendBattleResponse(packet, requestID, accept) }
-                        ),
-                ),
+            Pair(
+                PlayerInteractOptionsPacket.Options.SINGLE_BATTLE,
+                BattleTypeTile(
+                    option = PlayerInteractOptionsPacket.Options.SINGLE_BATTLE,
+                    battleFormat = BattleFormat.GEN_9_SINGLES,
+                    tileTexture = cobblemonResource("textures/gui/interact/request/battle_request_single.png"),
+                    overlayTexture = cobblemonResource("textures/gui/interact/request/battle_request_overlay.png"),
+                    title = lang("ui.challenge.challenge_title").bold(),
+                    subTitle = lang("battle.types.singles").bold(),
+                    buttonText = lang("ui.challenge.challenge").bold(),
+                    onRequest = { packet, battleFormat -> sendBattleRequest(battleFormat, packet) },
+                    onResponse = { packet, requestID, accept -> sendBattleResponse(packet, requestID, accept) }
+                )
+            ),
+            Pair(
+                PlayerInteractOptionsPacket.Options.DOUBLE_BATTLE,
+                BattleTypeTile(
+                    option = PlayerInteractOptionsPacket.Options.DOUBLE_BATTLE,
+                    battleFormat = BattleFormat.GEN_9_DOUBLES,
+                    tileTexture = cobblemonResource("textures/gui/interact/request/battle_request_double.png"),
+                    overlayTexture = cobblemonResource("textures/gui/interact/request/battle_request_overlay.png"),
+                    title = lang("ui.challenge.challenge_title").bold(),
+                    subTitle = lang("battle.types.doubles").bold(),
+                    buttonText = lang("ui.challenge.challenge").bold(),
+                    onRequest = { packet, battleFormat -> sendBattleRequest(battleFormat, packet) },
+                    onResponse = { packet, requestID, accept -> sendBattleResponse(packet, requestID, accept) }
+                )
+            ),
+            Pair(
+                PlayerInteractOptionsPacket.Options.TRIPLE_BATTLE,
+                BattleTypeTile(
+                    option = PlayerInteractOptionsPacket.Options.TRIPLE_BATTLE,
+                    battleFormat = BattleFormat.GEN_9_TRIPLES,
+                    tileTexture = cobblemonResource("textures/gui/interact/request/battle_request_triple.png"),
+                    overlayTexture = cobblemonResource("textures/gui/interact/request/battle_request_overlay.png"),
+                    title = lang("ui.challenge.challenge_title").bold(),
+                    subTitle = lang("battle.types.triples").bold(),
+                    buttonText = lang("ui.challenge.challenge").bold(),
+                    onRequest = { packet, battleFormat -> sendBattleRequest(battleFormat, packet) },
+                    onResponse = { packet, requestID, accept -> sendBattleResponse(packet, requestID, accept) }
+                )
+            ),
+            Pair(
+                PlayerInteractOptionsPacket.Options.TEAM_REQUEST,
+                BattleTypeTile(
+                    option = PlayerInteractOptionsPacket.Options.TEAM_REQUEST,
+                    battleFormat = BattleFormat.GEN_9_MULTI,
+                    tileTexture = cobblemonResource("textures/gui/interact/request/battle_request_multi.png"),
+                    overlayTexture = cobblemonResource("textures/gui/interact/request/battle_request_multi_overlay_partner.png"),
+                    title = lang("ui.team.invite_title").bold(),
+                    subTitle = lang("battle.types.multi").bold(),
+                    buttonText = lang("ui.team.invite").bold(),
+                    color = ColourLibrary.SIDE_1_ALLY_BATTLE_COLOUR,
+                    onRequest = { packet, battleFormat -> BattleTeamRequestPacket(packet.numericTargetId).sendToServer()  },
+                    onResponse = { packet, requestID, accept -> sendTeamResponse(packet, requestID, accept) }
+                )
+            ),
+            Pair(
+                PlayerInteractOptionsPacket.Options.TEAM_LEAVE,
+                BattleTypeTile(
+                    option = PlayerInteractOptionsPacket.Options.TEAM_LEAVE,
+                    battleFormat = BattleFormat.GEN_9_MULTI,
+                    tileTexture = cobblemonResource("textures/gui/interact/request/battle_request_multi.png"),
+                    overlayTexture = cobblemonResource("textures/gui/interact/request/battle_request_multi_overlay_partner_leave.png"),
+                    title = lang("ui.team.leave_title").bold(),
+                    subTitle = lang("battle.types.multi").bold(),
+                    buttonText = lang("ui.team.leave").bold(),
+                    color = ColourLibrary.SIDE_1_ALLY_BATTLE_COLOUR,
+                    onRequest = { _, _ -> BattleTeamLeavePacket().sendToServer() },
+                    onResponse = { _, _, _ -> Unit }
+                )
+            ),
+            Pair(
+                PlayerInteractOptionsPacket.Options.MULTI_BATTLE,
+                BattleTypeTile(
+                    option = PlayerInteractOptionsPacket.Options.MULTI_BATTLE,
+                    battleFormat = BattleFormat.GEN_9_MULTI,
+                    tileTexture = cobblemonResource("textures/gui/interact/request/battle_request_multi.png"),
+                    overlayTexture = cobblemonResource("textures/gui/interact/request/battle_request_multi_overlay_opponent.png"),
+                    title = lang("ui.challenge.challenge_title").bold(),
+                    subTitle = lang("battle.types.multi").bold(),
+                    buttonText = lang("ui.challenge.challenge").bold(),
+                    onRequest = { packet, battleFormat -> sendBattleRequest(battleFormat, packet) },
+                    onResponse = { packet, requestID, accept -> sendBattleResponse(packet, requestID, accept) }
+                )
+            ),
+            Pair(
+                PlayerInteractOptionsPacket.Options.ROYAL_BATTLE,
+                BattleTypeTile(
+                    option = PlayerInteractOptionsPacket.Options.ROYAL_BATTLE,
+                    battleFormat =  BattleFormat.GEN_9_ROYAL,
+                    tileTexture = cobblemonResource("textures/gui/interact/request/battle_request_royal.png"),
+                    overlayTexture = cobblemonResource("textures/gui/interact/request/battle_request_royal_overlay.png"),
+                    title = lang("ui.challenge.challenge_title").bold(),
+                    subTitle = lang("battle.types.freeforall").bold(),
+                    buttonText = lang("ui.challenge.challenge").bold(),
+                    onRequest = { packet, battleFormat -> sendBattleRequest(battleFormat, packet) },
+                    onResponse = { packet, requestID, accept -> sendBattleResponse(packet, requestID, accept) }
+                )
+            )
         )
 
         val levelRulesetOption = mutableListOf(-1, 50, 100, 5)
@@ -266,42 +265,43 @@ class BattleConfigureGUI(
 
             // BattleFormat Selection buttons
             this.addRenderableWidget(
-                    BattleRequestNavigationButton(
-                    pX = x + 2,
-                    pY = y + 30,
-                    clickHeight = BattleRequestNavigationButton.HEIGHT * 6,
-                    forward = false
-                    ) { currentPage = (currentPage - 1) % options.count()
-                        updateRequestButtonText()
-                    }
+                BattleRequestNavigationButton(
+                pX = x + 2,
+                pY = y + 30,
+                clickHeight = BattleRequestNavigationButton.HEIGHT * 6,
+                forward = false
+                ) { currentPage = (currentPage - 1) % options.count()
+                    updateRequestButtonText()
+                }
             )
 
             this.addRenderableWidget(
-                    BattleRequestNavigationButton(
-                    pX = x + 106,
-                    pY = y + 30,
-                    clickHeight = BattleRequestNavigationButton.HEIGHT * 6,
-                    forward = true
-                    ) { currentPage = (currentPage + 1) % options.count()
-                        updateRequestButtonText()
-                    }
+                BattleRequestNavigationButton(
+                pX = x + 106,
+                pY = y + 30,
+                clickHeight = BattleRequestNavigationButton.HEIGHT * 6,
+                forward = true
+                ) { currentPage = (currentPage + 1) % options.count()
+                    updateRequestButtonText()
+                }
             )
 
 
             if (battleRequestMap[options[currentPage]]?.option != PlayerInteractOptionsPacket.Options.TEAM_REQUEST) {
-
                 // Level Selection buttons
                 autoLevelNavButtonLeft = BattleRequestNavigationButton(
-                        pX = x + 15,
-                        pY = y + 75,
-                        forward = false
+                    pX = x + 15,
+                    pY = y + 76,
+                    backwardIcon = cobblemonResource("textures/gui/interact/request/label_arrow_left.png"),
+                    forward = false
                 ) { levelRulesetOptionIndex -= 1 }
                 this.addRenderableWidget(autoLevelNavButtonLeft)
 
                 autoLevelNavButtonRight = BattleRequestNavigationButton(
-                        pX = x + 93,
-                        pY = y + 75,
-                        forward = true
+                    pX = x + 94,
+                    pY = y + 76,
+                    forwardIcon = cobblemonResource("textures/gui/interact/request/label_arrow_right.png"),
+                    forward = true
                 ) {levelRulesetOptionIndex += 1 }
                 this.addRenderableWidget(autoLevelNavButtonRight)
             }

@@ -8,7 +8,7 @@
       "type": "entity_particles",
       "effect": "cobblemon:statdown_actor",
       "delay": 0.1,
-      "locator": "top"
+      "locators": ["top"]
     },
     {
       "type": "pause",

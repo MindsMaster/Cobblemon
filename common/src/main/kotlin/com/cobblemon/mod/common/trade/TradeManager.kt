@@ -67,8 +67,8 @@ object TradeManager : RequestManager<TradeManager.TradeRequest>() {
     override fun onAccept(request: TradeRequest) {
         val trade = ActiveTrade(PlayerTradeParticipant(request.receiver), PlayerTradeParticipant(request.sender))
         activeTrades.add(trade)
-        request.sendToSender(TradeStartedPacket(request.sender.uuid, request.sender.name.copy(), trade.player2.party.mapNullPreserving(::TradeablePokemon)))
-        request.sendToReceiver(TradeStartedPacket(request.receiver.uuid, request.receiver.name.copy(), trade.player1.party.mapNullPreserving(::TradeablePokemon)))
+        request.sendToSender(TradeStartedPacket(request.sender.uuid, request.receiver.name.plainCopy(), trade.player1.party.mapNullPreserving(::TradeablePokemon)))
+        request.sendToReceiver(TradeStartedPacket(request.receiver.uuid, request.sender.name.plainCopy(), trade.player2.party.mapNullPreserving(::TradeablePokemon)))
     }
 
     override fun canAccept(request: TradeRequest): Boolean {

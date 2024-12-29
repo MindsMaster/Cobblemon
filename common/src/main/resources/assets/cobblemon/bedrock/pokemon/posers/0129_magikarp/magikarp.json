@@ -5,11 +5,13 @@
   "profileTranslation": [-0.05, 0.57, 0],
   "rootBone": "magikarp",
   "animations": {
-    "cry": "q.bedrock_stateful('magikarp', 'cry')"
+    "cry": "q.bedrock_stateful('magikarp', 'cry')",
+    "faint": "q.bedrock_primary('magikarp', 'ground_faint', q.curve('one'))"
   },
   "poses": {
     "battle-standing": {
       "poseTypes": ["STAND"],
+      "isTouchingWater": false,
       "isBattle": true,
       "animations": ["q.look('head')", "q.bedrock('magikarp', 'ground_idle')"],
       "quirks": ["q.bedrock_quirk('magikarp', 'blink')"]
@@ -29,13 +31,17 @@
     },
     "float": {
       "poseTypes": ["PORTRAIT", "PROFILE", "FLOAT"],
-      "isUnderWater": true,
+      "namedAnimations": {
+        "faint": "q.bedrock_primary('magikarp', 'water_faint', q.curve('one'))"
+      },
       "animations": ["q.look('head')", "q.bedrock('magikarp', 'water_idle')"],
       "quirks": ["q.bedrock_quirk('magikarp', 'blink')"]
     },
     "swim": {
       "poseTypes": ["SWIM"],
-      "isUnderWater": true,
+      "namedAnimations": {
+        "faint": "q.bedrock_primary('magikarp', 'water_faint', q.curve('one'))"
+      },
       "animations": ["q.look('head')", "q.bedrock('magikarp', 'water_swim')"],
       "quirks": ["q.bedrock_quirk('magikarp', 'blink')"]
     },
@@ -48,7 +54,9 @@
     "surface_idle": {
       "poseTypes": ["STAND"],
       "isTouchingWater": true,
-      "isUnderWater": false,
+      "namedAnimations": {
+        "faint": "q.bedrock_primary('magikarp', 'ground_faint', q.curve('one'))"
+      },
       "animations": [
         "q.look('head')",
         "q.bedrock('magikarp', 'surfacewater_idle')"
@@ -67,7 +75,9 @@
     "surface_swim": {
       "poseTypes": ["WALK"],
       "isTouchingWater": true,
-      "isUnderWater": false,
+      "namedAnimations": {
+        "faint": "q.bedrock_primary('magikarp', 'ground_faint', q.curve('one'))"
+      },
       "animations": [
         "q.look('head')",
         "q.bedrock('magikarp', 'surfacewater_swim')"

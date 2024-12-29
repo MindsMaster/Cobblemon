@@ -1,7 +1,7 @@
 [
   {
     "type": "add_tasks_to_activity",
-    "activity": "cobblemon:npc_battling",
+    "activity": "cobblemon:battling",
     "tasksByPriority": {
       "0": [
         "switch_npc_from_battle",

@@ -15,12 +15,12 @@
         {
           "type": "entity_particles",
           "effect": "cobblemon:mudsport_actor",
-          "locator": "root"
+          "locators": ["root"]
         },
         {
           "type": "entity_particles",
           "effect": "cobblemon:mudsport_actorbubbles",
-          "locator": "root"
+          "locators": ["root"]
         }
       ]
     },
@@ -31,7 +31,7 @@
     {
       "type": "entity_particles",
       "effect": "cobblemon:mudsport_targetbubbles",
-      "locator": "root",
+      "locators": ["root"],
       "delay": 1.75
     },
     {

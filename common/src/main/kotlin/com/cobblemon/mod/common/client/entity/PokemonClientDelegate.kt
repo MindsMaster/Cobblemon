@@ -14,7 +14,9 @@ import com.bedrockk.molang.runtime.value.StringValue
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.entity.PokemonSideDelegate
+import com.cobblemon.mod.common.api.molang.MoLangFunctions.addEntityFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addFunctions
+import com.cobblemon.mod.common.api.pokeball.PokeBalls
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.api.scheduling.ScheduledTask
 import com.cobblemon.mod.common.api.scheduling.SchedulingTracker
@@ -31,10 +33,7 @@ import com.cobblemon.mod.common.client.render.models.blockbench.repository.Pokem
 import com.cobblemon.mod.common.client.render.pokemon.PokemonRenderer.Companion.ease
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.pokemon.Pokemon
-import com.cobblemon.mod.common.util.MovingSoundInstance
-import com.cobblemon.mod.common.util.asExpressionLike
-import com.cobblemon.mod.common.util.cobblemonResource
-import com.cobblemon.mod.common.util.resolve
+import com.cobblemon.mod.common.util.*
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.Minecraft
 import net.minecraft.network.syncher.EntityDataAccessor
@@ -45,8 +44,6 @@ import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.Vec3
-import java.util.UUID
-import java.util.concurrent.ConcurrentHashMap
 
 class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
     companion object {
@@ -106,6 +103,10 @@ class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
             } else if (data == PokemonEntity.ASPECTS) {
                 currentAspects = currentEntity.entityData.get(PokemonEntity.ASPECTS)
                 currentEntity.pokemon.shiny = currentAspects.contains("shiny")
+            } else if (data == PokemonEntity.CAUGHT_BALL) {
+                PokeBalls.getPokeBall(currentEntity.entityData.get(PokemonEntity.CAUGHT_BALL).asIdentifierDefaultingNamespace())?.let {
+                    currentEntity.pokemon.caughtBall = it
+                }
             } else if (data == PokemonEntity.DYING_EFFECTS_STARTED) {
                 val isDying = currentEntity.entityData.get(PokemonEntity.DYING_EFFECTS_STARTED)
                 if (isDying) {
@@ -191,15 +192,18 @@ class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
                                         val ballType =
                                             currentEntity.pokemon.caughtBall.name.path.toLowerCase().replace("_", "")
                                         val mode = if (currentEntity.isBattling) "battle" else "casual"
+                                        //TODO: A lot of this is probably able to be simplified by just using a single particle with events
+                                        //Do it in the particle file, not code.
                                         val sendflash =
                                             BedrockParticleOptionsRepository.getEffect(cobblemonResource("${ballType}/${mode}/sendflash"))
                                         sendflash?.let { effect ->
                                             val wrapper = MatrixWrapper()
                                             val matrix = PoseStack()
-                                            matrix.translate(newPos.x, newPos.y, newPos.z)
+                                            //This could potentially cause strange issues if the matrix has a translation component here.
                                             wrapper.updateMatrix(matrix.last().pose())
+                                            wrapper.updatePosition(Vec3(newPos.x, newPos.y, newPos.z))
                                             val world = Minecraft.getInstance().level ?: return@let
-                                            ParticleStorm(effect, wrapper, world).spawn()
+                                            ParticleStorm(effect, wrapper, wrapper, world).spawn()
                                             val ballsparks =
                                                 BedrockParticleOptionsRepository.getEffect(cobblemonResource("${ballType}/${mode}/ballsparks"))
                                             val ballsendsparkle =
@@ -210,12 +214,14 @@ class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
                                                     ParticleStorm(
                                                         effect,
                                                         wrapper,
+                                                        wrapper,
                                                         world
                                                     ).spawn()
                                                 }
                                                 ballsendsparkle?.let { effect ->
                                                     ParticleStorm(
                                                         effect,
+                                                        wrapper,
                                                         wrapper,
                                                         world
                                                     ).spawn()
@@ -227,15 +233,9 @@ class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
                                                         ParticleStorm(
                                                             effect,
                                                             wrapper,
+                                                            wrapper,
                                                             world
                                                         ).spawn()
-                                                    }
-                                                    currentEntity.after(seconds = 0.1f) {
-                                                        //This is only for when the player is sending out the Pokemon into the world and not a battle.
-                                                        if (currentEntity.pokemon.shiny && !currentEntity.isBattling) {
-                                                            playShinyEffect("cobblemon:shiny_ring")
-                                                            lastShinyParticle = System.currentTimeMillis()
-                                                        }
                                                     }
                                                 }
                                             }
@@ -384,7 +384,7 @@ class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
         val player = Minecraft.getInstance().player ?: return
         val isWithinRange = player.position().distanceTo(currentEntity.position()) <= Cobblemon.config.shinyNoticeParticlesDistance
 
-        if (currentEntity.pokemon.shiny && currentEntity.ownerUUID == null) {
+        if (currentEntity.pokemon.shiny && currentEntity.ownerUUID == null && !player.isSpectator ) {
             if (isWithinRange && !shined) {
                 playShinyEffect("cobblemon:wild_shiny_ring")
                 shined = true

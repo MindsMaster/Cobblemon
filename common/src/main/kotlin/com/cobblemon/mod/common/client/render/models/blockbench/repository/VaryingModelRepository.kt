@@ -136,7 +136,7 @@ abstract class VaryingModelRepository<T : PosableModel> {
         val jsonObject = gson.fromJson(json, JsonObject::class.java)
         return {
             var boneName = jsonObject.getAsJsonPrimitive("rootBone")
-            adapter.modelPart = if (boneName != null && it.children[boneName.asString] != null) it.children[boneName.asString] else it.children[fileName] ?: it.children.values.first()
+            adapter.modelPart = if (boneName != null && it.children[boneName.asString] != null) it.children[boneName.asString] else it.children[fileName] ?: it.children.entries.filter { LocatorAccess.PREFIX !in it.key }.first().value
             gson.fromJson(jsonObject, poserClass).also {
                 it.poses.forEach { (poseName, pose) -> pose.poseName = poseName }
             }

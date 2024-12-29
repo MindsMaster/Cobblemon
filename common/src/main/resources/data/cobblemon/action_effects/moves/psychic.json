@@ -12,22 +12,22 @@
     {
       "type": "entity_particles",
       "effect": "cobblemon:psychic_actor",
-      "locator": "special_attack"
+      "locators": ["special_attack"]
     },
     {
       "type": "entity_particles",
       "effect": "cobblemon:psychic_actordots",
-      "locator": "special_attack"
+      "locators": ["special_attack"]
     },
     {
       "type": "pause",
-      "pause": 0.65
+      "pause": 0.35
     },
     {
       "type": "entity_particles",
       "entityCondition": "q.entity.is_user == false && q.missed(q.entity.uuid) == false",
       "effect": "cobblemon:psychic_target",
-      "locator": "root"
+      "locators": ["root"]
     },
     {
       "type": "entity_molang",
@@ -36,19 +36,28 @@
     },
     {
       "type": "pause",
-      "pause": 0.95
+      "pause": 0.25
+    },
+    {
+      "type": "entity_sound",
+      "entityCondition": "q.entity.is_user == false && q.missed(q.entity.uuid) == false",
+      "sound": "move.psychic.target"
+    },
+    {
+      "type": "pause",
+      "pause": 0.70
     },
     {
       "type": "entity_particles",
       "entityCondition": "q.entity.is_user == false && q.missed(q.entity.uuid) == false",
       "effect": "cobblemon:psychic_impact",
-      "locator": "target"
+      "locators": ["target"]
     },
     {
       "type": "entity_particles",
       "entityCondition": "q.entity.is_user == false && q.missed(q.entity.uuid) == false",
       "effect": "cobblemon:psychic_impactdots",
-      "locator": "target"
+      "locators": ["target"]
     },
     {
       "type": "remove_holds",

@@ -27,7 +27,7 @@ class LocatorAccess(
     val children: List<LocatorAccess> = listOf()
 ) {
     companion object {
-        const val PREFIX = "locator_"
+        const val PREFIX = "internal_locator__"
 
         fun resolve(part: Bone): LocatorAccess? {
             val (

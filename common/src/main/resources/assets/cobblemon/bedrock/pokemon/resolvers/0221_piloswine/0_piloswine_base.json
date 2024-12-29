@@ -11,7 +11,7 @@
     },
     {
       "aspects": ["shiny"],
-      "texture": "cobblemon:textures/pokemon/0221_piloswine/piloswine.png"
+      "texture": "cobblemon:textures/pokemon/0221_piloswine/piloswine_shiny.png"
     }
   ]
 }

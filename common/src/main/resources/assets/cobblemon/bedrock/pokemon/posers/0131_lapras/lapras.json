@@ -77,6 +77,12 @@
       "quirks": [
         "q.bedrock_quirk('lapras', 'blink')",
         "q.bedrock_quirk('lapras', q.array('quirk', 'quirk2'))"
+      ],
+      "transformedParts": [
+        {
+          "part": "body",
+          "position": [0, 4.5, 0]
+        }
       ]
     },
     "float": {
@@ -97,7 +103,13 @@
         "q.look('head')",
         "q.bedrock('lapras', 'surfacewater_swim')"
       ],
-      "quirks": ["q.bedrock_quirk('lapras', 'blink')"]
+      "quirks": ["q.bedrock_quirk('lapras', 'blink')"],
+      "transformedParts": [
+        {
+          "part": "body",
+          "position": [0, 4.5, 0]
+        }
+      ]
     },
     "swim": {
       "poseTypes": ["SWIM"],

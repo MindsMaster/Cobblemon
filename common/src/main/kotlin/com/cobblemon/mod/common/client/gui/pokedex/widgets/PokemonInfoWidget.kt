@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.client.gui.pokedex.widgets
 
 import com.bedrockk.molang.runtime.MoLangRuntime
+import com.cobblemon.mod.common.api.gui.ParentWidget
 import com.cobblemon.mod.common.api.gui.blitk
 import com.cobblemon.mod.common.api.pokedex.entry.PokedexEntry
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.setup
@@ -368,7 +369,7 @@ class PokemonInfoWidget(val pX: Int, val pY: Int, val updateForm: (PokedexForm) 
             matrices.translate(
                 pX.toDouble() + (POKEMON_PORTRAIT_WIDTH.toDouble() + 2)/2,
                 pY.toDouble() + portraitStartY - 12,
-                0.0
+                1000.0 // Prevent model from clipping into background
             )
             matrices.scale(scaleAmount, scaleAmount, scaleAmount)
             val rotationVector = Vector3f(13F, rotationY, 0F)
@@ -398,7 +399,7 @@ class PokemonInfoWidget(val pX: Int, val pY: Int, val updateForm: (PokedexForm) 
 
         // Ensure elements are not hidden behind Pokémon render
         matrices.pushPose()
-        matrices.translate(0.0, 0.0, 1000.0)
+        matrices.translate(0.0, 0.0, 2000.0)
 
         if (isSelectedPokemonOwned()) {
             val primaryType = type[0]
@@ -594,6 +595,8 @@ class PokemonInfoWidget(val pX: Int, val pY: Int, val updateForm: (PokedexForm) 
     }
 
     private fun switchForm(nextIndex: Boolean) {
+        selectedPoseIndex = 0
+
         if (nextIndex) {
             if (selectedFormIndex < visibleForms.lastIndex) selectedFormIndex++
             else selectedFormIndex = 0
@@ -688,6 +691,7 @@ class PokemonInfoWidget(val pX: Int, val pY: Int, val updateForm: (PokedexForm) 
     fun isWithinPortraitSpace(mouseX: Double, mouseY: Double): Boolean =
         mouseX.toInt() in pX + 15..(pX + 15 + PORTRAIT_POKE_BALL_WIDTH)
         && mouseY.toInt() in pY + 25..(pY + 25 + PORTRAIT_POKE_BALL_HEIGHT)
+        && !children.any { it.isMouseOver(mouseX, mouseY) && it is ScaledButton }
 
     private fun isSelectedPokemonOwned(): Boolean {
         return currentEntry?.let { CobblemonClient.clientPokedexData.getKnowledgeForSpecies(it.speciesId) } == PokedexEntryProgress.CAUGHT

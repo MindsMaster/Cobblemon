@@ -49,6 +49,14 @@ object FishingRodTooltipGenerator : TooltipGenerator() {
                 }
         }
 
+        // grey text for context for players on how to apply/remove bait to/from rod
+        val greyText = if (FishingBaits.getFromRodItemStack(stack) != null) {
+            Component.translatable("cobblemon.pokerod.remove").gray()
+        } else {
+            Component.translatable("cobblemon.pokerod.apply").gray()
+        }
+        resultLines.addLast(greyText)
+
         return resultLines
     }
 }
