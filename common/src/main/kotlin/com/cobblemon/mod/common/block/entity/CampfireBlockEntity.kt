@@ -45,9 +45,9 @@ class CampfireBlockEntity : BaseContainerBlockEntity, WorldlyContainer, RecipeCr
                 var itemStack = ItemStack.EMPTY
 
                 // Validate items before creating the crafting input
-                val validItems = campfireBlockEntity.items.filterNotNull().take(9)
-                if (validItems.size < 9) {
-                    println("Not enough items in crafting grid for recipe matching.")
+                val validItems = campfireBlockEntity.items.subList(1, 10) // Extract elements 1 through 9
+                if (validItems.any { it == null }) {
+                    println("One or more items in the crafting grid are null.")
                     return
                 }
 
@@ -73,7 +73,7 @@ class CampfireBlockEntity : BaseContainerBlockEntity, WorldlyContainer, RecipeCr
     private val quickCheck: RecipeManager.CachedCheck<CraftingInput, *>
 
     constructor(pos: BlockPos, state: BlockState) : super(CobblemonBlockEntities.CAMPFIRE, pos, state) {
-        this.items = NonNullList.withSize(10, ItemStack.EMPTY)
+        this.items = NonNullList.withSize(11, ItemStack.EMPTY)
         this.recipesUsed = Object2IntOpenHashMap()
         this.quickCheck = RecipeManager.createCheck(CobblemonRecipeTypes.COOKING_POT_COOKING)
 
@@ -201,18 +201,18 @@ class CampfireBlockEntity : BaseContainerBlockEntity, WorldlyContainer, RecipeCr
         }
     }
 
-    fun getItemStack(): ItemStack = items[0]
+    fun getItemStack(): ItemStack = items[10]
 
     fun setItemStack(itemStack: ItemStack) {
         if (level != null) {
-            items[0] = itemStack
+            items[10] = itemStack
             onItemUpdate(level!!)
         }
     }
 
     fun removeItemStack(): ItemStack {
         if (level != null) {
-            val itemStack = ContainerHelper.removeItem(items, 0, 1)
+            val itemStack = ContainerHelper.removeItem(items, 10, 1)
             onItemUpdate(level!!)
             return itemStack
         }

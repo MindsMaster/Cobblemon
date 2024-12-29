@@ -104,7 +104,7 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
         )
 
         // Debugging: Log grid contents
-        for (i in 0..8) {
+        for (i in 1..9) {
             println("Crafting slot $i: ${container.getItem(i).item} (${container.getItem(i).count})")
         }
 
@@ -180,6 +180,16 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
         dataSlotIndex: Int,
         stack: ItemStack
     ) {
+        container.items.forEach { stack -> println(stack.item.getName(stack)) }
+        this.resultContainer.setItem(0, container.items[RESULT_SLOT])
+    }
+
+
+    /*override fun slotChanged(
+        containerToSend: AbstractContainerMenu,
+        dataSlotIndex: Int,
+        stack: ItemStack
+    ) {
         println("Slot changed - Index: $dataSlotIndex, Item: ${stack.item}, Count: ${stack.count}")
 
         if (dataSlotIndex in 1..9) { // Crafting grid slots
@@ -203,7 +213,7 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
                 println("Cleared result slot (no matching recipe).")
             }
         }
-    }
+    }*/
 
 
 
