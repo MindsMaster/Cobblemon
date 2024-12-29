@@ -122,8 +122,8 @@ class CookingPotScreen : AbstractContainerScreen<CookingPotMenu>, RecipeUpdateLi
     }
 
     override fun slotClicked(slot: Slot?, slotId: Int, mouseButton: Int, type: ClickType) {
+        println("Slot clicked - ID: $slotId, Slot: ${slot?.index}, MouseButton: $mouseButton, Type: $type")
         super.slotClicked(slot, slotId, mouseButton, type)
-        recipeBookComponent.slotClicked(slot)
     }
 
 

@@ -32,7 +32,7 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
     private val containerData: ContainerData
     private val recipeType: RecipeType<CookingPotRecipe> = CobblemonRecipeTypes.COOKING_POT_COOKING
 
-    val RESULT_SLOT = 9;
+    val RESULT_SLOT = 0;
 
     constructor(containerId: Int, playerInventory: Inventory) :
             super(CobblemonMenuType.COOKING_POT, containerId) {
@@ -67,30 +67,47 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
         val craftingOutputOffsetY = 10
 
         addSlot(CookingPotResultSlot(playerInventory.player, resultContainer, 0, 124 + craftingOutputOffsetX, 35 + craftingOutputOffsetY))
+        println("Initialized result slot at index 0")
 
         for (i in 0..2) {
             for (j in 0..2) {
-                this.addSlot(Slot(this.container, j + i * 3 + 1, 44 + j * 18, 27 + i * 18))
+                val slotIndex = j + i * 3
+                val containerIndex = slotIndex + 1
+                addSlot(Slot(this.container, containerIndex, 44 + j * 18, 27 + i * 18))
+                println("Initialized crafting slot Grid[$i, $j] -> container index $containerIndex")
             }
         }
 
         for (i in 0..2) {
             for (j in 0..8) {
-                this.addSlot(Slot(playerInventory, j + i * 9 + 9, 8 + j * 18, 100 + i * 18))
+                val index = j + i * 9 + 9
+                val x = 8 + j * 18
+                val y = 100 + i * 18
+                addSlot(Slot(playerInventory, index, x, y))
+                println("Initialized player inventory slot $index at ($x, $y)")
             }
         }
 
         for (i in 0..8) {
-            this.addSlot(Slot(playerInventory, i, 8 + i * 18, 158))
+            val x = 8 + i * 18
+            val y = 158
+            addSlot(Slot(playerInventory, i, x, y))
+            println("Initialized hotbar slot $i at ($x, $y)")
         }
     }
 
     fun canCook(): Boolean {
         val optionalRecipe = this.level.recipeManager.getRecipeFor(
-                recipeType,
-                container.asCraftInput(),
-                this.level
+            recipeType,
+            container.asCraftInput(),
+            this.level
         )
+
+        // Debugging: Log grid contents
+        for (i in 0..8) {
+            println("Crafting slot $i: ${container.getItem(i).item} (${container.getItem(i).count})")
+        }
+
         return optionalRecipe.isPresent
     }
 
@@ -163,9 +180,32 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
         dataSlotIndex: Int,
         stack: ItemStack
     ) {
-        container.items.forEach { stack -> println(stack.item.getName(stack)) }
-        this.resultContainer.setItem(0, container.items[RESULT_SLOT])
+        println("Slot changed - Index: $dataSlotIndex, Item: ${stack.item}, Count: ${stack.count}")
+
+        if (dataSlotIndex in 1..9) { // Crafting grid slots
+            val optionalRecipe = this.level.recipeManager.getRecipeFor(
+                recipeType,
+                container.asCraftInput(),
+                this.level
+            )
+
+            if (optionalRecipe.isPresent) {
+                val recipe = optionalRecipe.get()
+                if (recipe is CookingPotRecipe) { // Ensure proper type
+                    val result = recipe.assemble(this.container.asCraftInput(), this.level.registryAccess())
+                    this.resultContainer.setItem(0, result ?: ItemStack.EMPTY)
+                    println("Updated result slot with recipe output: ${result?.item}")
+                } else {
+                    println("Error: Recipe is not of type CookingPotRecipe.")
+                }
+            } else {
+                this.resultContainer.setItem(0, ItemStack.EMPTY)
+                println("Cleared result slot (no matching recipe).")
+            }
+        }
     }
+
+
 
     override fun dataChanged(
         containerMenu: AbstractContainerMenu,
