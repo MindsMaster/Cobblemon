@@ -66,7 +66,7 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
         val craftingOutputOffsetX = 16
         val craftingOutputOffsetY = 10
 
-        addSlot(CookingPotResultSlot(playerInventory.player, resultContainer, 0, 124 + craftingOutputOffsetX, 35 + craftingOutputOffsetY))
+        addSlot(CookingPotResultSlot(playerInventory.player, resultContainer, RESULT_SLOT, 124 + craftingOutputOffsetX, 35 + craftingOutputOffsetY))
         println("Initialized result slot at index 0")
 
         for (i in 0..2) {

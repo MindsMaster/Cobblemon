@@ -11,12 +11,13 @@ import java.util.List;
 
 class CookingPotContainer : TransientCraftingContainer {
 
-    val menu : CookingPotMenu
+    val menu : CookingPotMenu?
     val items : NonNullList<ItemStack>
+    var outputSlot: ItemStack = ItemStack.EMPTY
 
     constructor(menu : CookingPotMenu, width: Int, height: Int) : super(menu, width, height) {
         this.menu = menu
-        this.items = NonNullList.withSize(11, ItemStack.EMPTY)
+        this.items = NonNullList.withSize(10, ItemStack.EMPTY)
     }
 
     override fun getContainerSize(): Int {
@@ -33,8 +34,14 @@ class CookingPotContainer : TransientCraftingContainer {
     }
 
     override fun getItem(slot: Int): ItemStack {
-        return if (slot >= this.getContainerSize()) ItemStack.EMPTY else this.items[slot]
+        return when (slot) {
+            0 -> outputSlot // Result slot
+            in 1..9 -> if (slot - 1 < items.size) this.items[slot - 1] else ItemStack.EMPTY
+            else -> ItemStack.EMPTY // Invalid slot
+        }
     }
+
+
 
     override fun removeItemNoUpdate(slot: Int): ItemStack {
         return ContainerHelper.takeItem(this.items, slot)
@@ -43,15 +50,19 @@ class CookingPotContainer : TransientCraftingContainer {
     override fun removeItem(slot: Int, amount: Int): ItemStack {
         val itemStack = ContainerHelper.removeItem(this.items, slot, amount)
         if (!itemStack.isEmpty) {
-            this.menu.slotsChanged(this)
+            this.menu?.slotsChanged(this)
         }
         return itemStack
     }
 
     override fun setItem(slot: Int, stack: ItemStack) {
-        this.items[slot] = stack
-        this.menu.slotsChanged(this)
+        when (slot) {
+            0 -> outputSlot = stack // Result slot
+            in 1..9 -> this.items[slot - 1] = stack // Adjust for crafting slots
+            else -> println("Invalid slot index: $slot")
+        }
     }
+
 
     override fun setChanged() {}
 

@@ -8,6 +8,7 @@
 
 package com.cobblemon.mod.common.client.gui.cookingpot
 
+import com.cobblemon.mod.common.CobblemonItems
 import com.cobblemon.mod.common.CobblemonRecipeSerializers
 import com.cobblemon.mod.common.CobblemonRecipeTypes
 import com.mojang.serialization.Codec
@@ -33,10 +34,50 @@ class CookingPotRecipe(
         return groupName
     }
 
-    override fun matches(input: CraftingInput, level: Level): Boolean {
+    /*override fun matches(input: CraftingInput, level: Level): Boolean {
         val matches = this.pattern.matches(input)
         return matches
+    }*/
+
+    /*override fun matches(input: CraftingInput, level: Level): Boolean {
+        val craftingItems = (1..9).map { input.getItem(it) }
+        val filteredInput = CraftingInput.of(3, 3, craftingItems)
+        return this.pattern.matches(filteredInput)
+    }*/
+
+    override fun matches(input: CraftingInput, level: Level): Boolean {
+        println("Validating recipe match in CookingPotRecipe...")
+
+        // Create a filtered CraftingInput with only slots 1-9
+        val filteredItems = (1..9).mapNotNull { index ->
+            if (index < input.size()) input.getItem(index) else ItemStack.EMPTY
+        }
+        val filteredInput = CraftingInput.of(3, 3, filteredItems)
+
+        // Debugging: Log filtered crafting grid contents
+        for (i in 0 until filteredInput.size()) {
+            val itemStack = filteredInput.getItem(i)
+            println("Filtered crafting slot $i: ${itemStack.item} (${itemStack.count})")
+        }
+
+        // Perform pattern matching on the filtered input
+        val matches = this.pattern.matches(filteredInput)
+        println("Pattern match result: $matches")
+
+        // Additional logic for specific recipes
+        if (this.pattern.width() == 3 && this.pattern.height() == 3) {
+            if (this.result.item == CobblemonItems.DAWN_STONE_BLOCK.asItem()) {
+                println("Special case for Dawn Stone Block recipe.")
+            }
+        }
+
+        if (matches == true) {
+            val test = 1
+        }
+
+        return matches
     }
+
 
     override fun assemble(
         input: CraftingInput,
