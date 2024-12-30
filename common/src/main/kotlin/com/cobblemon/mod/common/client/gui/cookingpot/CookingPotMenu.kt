@@ -180,7 +180,7 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
         dataSlotIndex: Int,
         stack: ItemStack
     ) {
-        container.items.forEach { stack -> println(stack.item.getName(stack)) }
+        //container.items.forEach { stack -> println(stack.item.getName(stack)) }
         this.resultContainer.setItem(0, container.items[RESULT_SLOT])
     }
 

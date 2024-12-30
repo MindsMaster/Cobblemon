@@ -49,7 +49,7 @@ class CookingPotRecipe(
         println("Validating recipe match in CookingPotRecipe...")
 
         // Create a filtered CraftingInput with only slots 1-9
-        val filteredItems = (1..9).mapNotNull { index ->
+        val filteredItems = (0..8).mapNotNull { index ->
             if (index < input.size()) input.getItem(index) else ItemStack.EMPTY
         }
         val filteredInput = CraftingInput.of(3, 3, filteredItems)

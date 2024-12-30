@@ -16,7 +16,8 @@ class CookingPotResultSlot : Slot {
     }
 
     override fun onTake(player: Player, stack: ItemStack) {
-
+        println("Item taken from result slot: ${stack.item}, Count: ${stack.count}")
+        super.onTake(player, stack)
     }
 
     override fun mayPlace(stack: ItemStack): Boolean {

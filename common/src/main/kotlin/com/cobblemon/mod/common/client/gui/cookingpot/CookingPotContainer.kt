@@ -34,11 +34,12 @@ class CookingPotContainer : TransientCraftingContainer {
     }
 
     override fun getItem(slot: Int): ItemStack {
-        return when (slot) {
-            0 -> outputSlot // Result slot
-            in 1..9 -> if (slot - 1 < items.size) this.items[slot - 1] else ItemStack.EMPTY
-            else -> ItemStack.EMPTY // Invalid slot
-        }
+        return if (slot >= this.getContainerSize()) ItemStack.EMPTY else this.items[slot]
+    }
+
+    override fun setItem(slot: Int, stack: ItemStack) {
+        this.items[slot] = stack
+        this.menu?.slotsChanged(this)
     }
 
 
@@ -54,15 +55,6 @@ class CookingPotContainer : TransientCraftingContainer {
         }
         return itemStack
     }
-
-    override fun setItem(slot: Int, stack: ItemStack) {
-        when (slot) {
-            0 -> outputSlot = stack // Result slot
-            in 1..9 -> this.items[slot - 1] = stack // Adjust for crafting slots
-            else -> println("Invalid slot index: $slot")
-        }
-    }
-
 
     override fun setChanged() {}
 

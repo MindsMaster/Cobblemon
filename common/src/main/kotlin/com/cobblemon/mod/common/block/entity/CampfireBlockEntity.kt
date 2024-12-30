@@ -43,24 +43,18 @@ class CampfireBlockEntity : BaseContainerBlockEntity, WorldlyContainer, RecipeCr
         fun serverTick(level: Level, pos: BlockPos, state: BlockState, campfireBlockEntity: CampfireBlockEntity) {
             if (!level.isClientSide) {
                 var itemStack = ItemStack.EMPTY
-
-                // Validate items before creating the crafting input
-                val validItems = campfireBlockEntity.items.subList(1, 10) // Extract elements 1 through 9
-                if (validItems.any { it == null }) {
-                    println("One or more items in the crafting grid are null.")
-                    return
-                }
-
-                campfireBlockEntity.quickCheck.getRecipeFor(CraftingInput.of(3, 3, validItems), level).ifPresent { cookingPotRecipe ->
-                    val recipeHolder = cookingPotRecipe as RecipeHolder<*>
-                    recipeHolder.value.getResultItem(level.registryAccess()).let { itemStack = it }
-                    if (!itemStack.isEmpty) {
-                        campfireBlockEntity.recipeUsed = recipeHolder
-                        println(itemStack)
-                        campfireBlockEntity.items[0] = itemStack.copy()
+                campfireBlockEntity.quickCheck.getRecipeFor(CraftingInput.of(3, 3, campfireBlockEntity.items.subList(1,10)), level)
+                    .ifPresent { cookingPotRecipe ->
+                        val recipeHolder = cookingPotRecipe as RecipeHolder<*>
+                        recipeHolder.value.getResultItem(level.registryAccess()).let { itemStack = it }
+                        if (!itemStack.isEmpty) {
+                            campfireBlockEntity.recipeUsed = recipeHolder
+                            println(itemStack)
+                            campfireBlockEntity.items[0] = itemStack.copy()
+                        }
                     }
-                }
             }
+
         }
     }
 
@@ -113,10 +107,12 @@ class CampfireBlockEntity : BaseContainerBlockEntity, WorldlyContainer, RecipeCr
 
     override fun getItems(): NonNullList<ItemStack?>? {
         return this.items
+        onItemUpdate(level!!)
     }
 
     override fun setItems(items: NonNullList<ItemStack?>) {
         this.items = items
+        onItemUpdate(level!!)
     }
 
     override fun loadAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
@@ -224,6 +220,7 @@ class CampfireBlockEntity : BaseContainerBlockEntity, WorldlyContainer, RecipeCr
         level.sendBlockUpdated(blockPos, oldState, level.getBlockState(blockPos), Block.UPDATE_ALL)
         level.updateNeighbourForOutputSignal(blockPos, level.getBlockState(blockPos).block)
         setChanged()
+        level.sendBlockUpdated(blockPos, oldState, level.getBlockState(blockPos), Block.UPDATE_ALL)
     }
 
 }
