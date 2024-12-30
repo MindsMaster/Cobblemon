@@ -102,21 +102,28 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
     }
 
     private fun updateResultSlot() {
-        val input = CraftingInput.of(3, 3, this.container.items.subList(1, 10))
-        val optionalRecipe = quickCheck.getRecipeFor(input, this.level)
+        val craftingInput = CraftingInput.of(3, 3, container.items.subList(1, 10))
+        val optionalRecipe = level.recipeManager.getRecipeFor(
+            CobblemonRecipeTypes.COOKING_POT_COOKING,
+            craftingInput,
+            level
+        )
 
         if (optionalRecipe.isPresent) {
-            val recipe = optionalRecipe.get()
-            val result = (recipe.value as CookingPotRecipe).assemble(this.container.asCraftInput(), this.level.registryAccess())
-            this.resultContainer.setItem(0, result ?: ItemStack.EMPTY)
+            val recipe = optionalRecipe.get().value as CookingPotRecipe
+            val result = recipe.assemble(craftingInput, level.registryAccess())
+            resultContainer.setItem(0, result ?: ItemStack.EMPTY)
+            container.setItem(0, result ?: ItemStack.EMPTY) // Update items[0]
             println("Updated result slot with recipe output: ${result?.item}")
         } else {
-            this.resultContainer.setItem(0, ItemStack.EMPTY)
-            println("Cleared result slot (no matching recipe).")
+            resultContainer.setItem(0, ItemStack.EMPTY)
+            container.setItem(0, ItemStack.EMPTY) // Ensure items[0] is cleared
+            println("No matching recipe found, cleared result slot.")
         }
 
         broadcastChanges() // Notify the client of changes
     }
+
 
 
 
