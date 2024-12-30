@@ -18,6 +18,7 @@ import net.minecraft.world.inventory.*
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.crafting.CraftingInput
 import net.minecraft.world.item.crafting.RecipeHolder
+import net.minecraft.world.item.crafting.RecipeManager
 import net.minecraft.world.item.crafting.RecipeType
 import net.minecraft.world.level.Level
 
@@ -31,6 +32,8 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
     private val resultContainer: ResultContainer
     private val containerData: ContainerData
     private val recipeType: RecipeType<CookingPotRecipe> = CobblemonRecipeTypes.COOKING_POT_COOKING
+    private val quickCheck = RecipeManager.createCheck(CobblemonRecipeTypes.COOKING_POT_COOKING)
+
 
     val RESULT_SLOT = 0;
 
@@ -94,7 +97,28 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
             addSlot(Slot(playerInventory, i, x, y))
             println("Initialized hotbar slot $i at ($x, $y)")
         }
+
+        updateResultSlot()
     }
+
+    private fun updateResultSlot() {
+        val input = CraftingInput.of(3, 3, this.container.items.subList(1, 10))
+        val optionalRecipe = quickCheck.getRecipeFor(input, this.level)
+
+        if (optionalRecipe.isPresent) {
+            val recipe = optionalRecipe.get()
+            val result = (recipe.value as CookingPotRecipe).assemble(this.container.asCraftInput(), this.level.registryAccess())
+            this.resultContainer.setItem(0, result ?: ItemStack.EMPTY)
+            println("Updated result slot with recipe output: ${result?.item}")
+        } else {
+            this.resultContainer.setItem(0, ItemStack.EMPTY)
+            println("Cleared result slot (no matching recipe).")
+        }
+
+        broadcastChanges() // Notify the client of changes
+    }
+
+
 
     fun canCook(): Boolean {
         val optionalRecipe = this.level.recipeManager.getRecipeFor(
@@ -189,6 +213,10 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
             }
             container.setChanged() // Notify container of changes
         }*/
+        if (dataSlotIndex in 0..9) { // Check if a crafting grid slot changed
+            updateResultSlot()
+        }
+
         this.resultContainer.setItem(0, container.items[RESULT_SLOT])
     }
 

@@ -46,7 +46,7 @@ class CookingPotRecipe(
     }*/
 
     override fun matches(input: CraftingInput, level: Level): Boolean {
-        println("Validating recipe match in CookingPotRecipe...")
+        //println("Validating recipe match in CookingPotRecipe...")
 
         // Create a filtered CraftingInput with only slots 1-9
         val filteredItems = (0..8).mapNotNull { index ->
@@ -54,22 +54,22 @@ class CookingPotRecipe(
         }
         val filteredInput = CraftingInput.of(3, 3, filteredItems)
 
-        // Debugging: Log filtered crafting grid contents
+        /*// Debugging: Log filtered crafting grid contents
         for (i in 0 until filteredInput.size()) {
             val itemStack = filteredInput.getItem(i)
             println("Filtered crafting slot $i: ${itemStack.item} (${itemStack.count})")
-        }
+        }*/
 
         // Perform pattern matching on the filtered input
         val matches = this.pattern.matches(filteredInput)
-        println("Pattern match result: $matches")
+        //println("Pattern match result: $matches")
 
-        // Additional logic for specific recipes
+        /*// Additional logic for specific recipes
         if (this.pattern.width() == 3 && this.pattern.height() == 3) {
             if (this.result.item == CobblemonItems.DAWN_STONE_BLOCK.asItem()) {
                 println("Special case for Dawn Stone Block recipe.")
             }
-        }
+        }*/
 
         if (matches == true) {
             val test = 1
