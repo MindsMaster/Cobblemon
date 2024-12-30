@@ -9,7 +9,6 @@
 package com.cobblemon.mod.common.command
 
 import com.cobblemon.mod.common.api.permission.CobblemonPermissions
-import com.cobblemon.mod.common.api.text.text
 import com.cobblemon.mod.common.net.serverhandling.battle.SpectateBattleHandler
 import com.cobblemon.mod.common.util.permission
 import com.mojang.brigadier.Command
@@ -31,9 +30,7 @@ object SpectateBattleCommand {
     }
 
     private fun execute(context: CommandContext<CommandSourceStack>): Int {
-        val player = context.source.player ?: return 0.also {
-            context.source.sendFailure("You are not a player.".text())
-        }
+        val player = context.source.playerOrException
 
         val target = EntityArgument.getPlayer(context, "player")
 

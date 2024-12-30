@@ -37,11 +37,6 @@ object SpectateBattleHandler : ServerNetworkPacketHandler<SpectateBattlePacket> 
         if (battle != null && Cobblemon.config.allowSpectating) {
             val target = battle.actors.filterIsInstance<PlayerBattleActor>().firstOrNull { it.uuid == packet.targetedEntityId }
 
-            if (player.isInBattle()) {
-                player.sendSystemMessage(lang("command.spectatebattle.while_battling_disallowed").red())
-                return
-            }
-
             // Check los and range
             val targetedPlayerEntity = packet.targetedEntityId.getPlayer() ?: return
             if (player.traceFirstEntityCollision(
@@ -52,9 +47,10 @@ object SpectateBattleHandler : ServerNetworkPacketHandler<SpectateBattlePacket> 
                 player.sendSystemMessage(lang("ui.interact.failed").yellow())
                 return
             }
-            battle.spectators.add(player.uuid)
-            player.sendPacket(BattleInitializePacket(battle, null))
-            player.sendPacket(BattleMessagePacket(battle.chatLog))
+
+            this.spectateBattle(targetedPlayerEntity, player)
+
+            // Handle music
             target?.battleTheme?.let { player.sendPacket(BattleMusicPacket(it)) }
         }
         else {
@@ -73,9 +69,16 @@ object SpectateBattleHandler : ServerNetworkPacketHandler<SpectateBattlePacket> 
             return
         }
 
-        server()?.let {
-            handle(SpectateBattlePacket(target.uuid), it, player)
+        if (player.isInBattle()) {
+            player.sendSystemMessage(lang("command.spectatebattle.while_battling_disallowed").red())
+            return
         }
+
+        val battle = BattleRegistry.getBattleByParticipatingPlayer(target) ?: return
+
+        battle.spectators.add(player.uuid)
+        player.sendPacket(BattleInitializePacket(battle, null))
+        player.sendPacket(BattleMessagePacket(battle.chatLog))
     }
 
 }
