@@ -1,5 +1,6 @@
 package com.cobblemon.mod.common.client.gui.cookingpot
 
+import com.cobblemon.mod.common.block.entity.CampfireBlockEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.CraftingContainer
 import net.minecraft.world.inventory.ResultContainer
@@ -16,9 +17,29 @@ class CookingPotResultSlot : Slot {
     }
 
     override fun onTake(player: Player, stack: ItemStack) {
-        println("Item taken from result slot: ${stack.item}, Count: ${stack.count}")
         super.onTake(player, stack)
+
+        // Clear or decrement items in the crafting slots
+        val menu = player.containerMenu
+        if (menu is CookingPotMenu) {
+            for (i in 1..9) { // Assuming crafting slots are indices 1 to 9 in menu.items
+                val itemInSlot = menu.items[i]
+                if (!itemInSlot.isEmpty) {
+                    itemInSlot.shrink(1) // Decrease count by 1
+                    if (itemInSlot.count <= 0) {
+                        menu.items[i] = ItemStack.EMPTY // Clear slot if count reaches 0
+                    }
+                }
+            }
+            menu.broadcastChanges() // Notify the client of changes
+        } else {
+            println("Player menu is not CookingPotMenu!")
+        }
     }
+
+
+
+
 
     override fun mayPlace(stack: ItemStack): Boolean {
         return false

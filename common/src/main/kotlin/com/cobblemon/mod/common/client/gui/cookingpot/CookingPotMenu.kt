@@ -175,14 +175,24 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
         return this.container.stillValid(player)
     }
 
-    override fun slotChanged(
-        containerToSend: AbstractContainerMenu,
-        dataSlotIndex: Int,
-        stack: ItemStack
-    ) {
-        //container.items.forEach { stack -> println(stack.item.getName(stack)) }
+    override fun slotChanged(containerToSend: AbstractContainerMenu, dataSlotIndex: Int, stack: ItemStack) {
+        /*if (dataSlotIndex == RESULT_SLOT && !stack.isEmpty) {
+            // Clear crafting slots after result is taken
+            for (i in 1..9) { // Assuming crafting slots are indices 1 to 9
+                val craftingItem = container.getItem(i)
+                if (!craftingItem.isEmpty) {
+                    craftingItem.shrink(1) // Decrease count by 1
+                    if (craftingItem.count <= 0) {
+                        container.setItem(i, ItemStack.EMPTY) // Clear slot if empty
+                    }
+                }
+            }
+            container.setChanged() // Notify container of changes
+        }*/
         this.resultContainer.setItem(0, container.items[RESULT_SLOT])
     }
+
+
 
 
     /*override fun slotChanged(

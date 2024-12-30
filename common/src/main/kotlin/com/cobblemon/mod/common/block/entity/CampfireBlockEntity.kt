@@ -206,6 +206,17 @@ class CampfireBlockEntity : BaseContainerBlockEntity, WorldlyContainer, RecipeCr
         }
     }
 
+    fun clearCraftingSlots() {
+        for (i in 1..9) { // Assuming crafting slots are indices 1 to 9
+            if (!items[i].isEmpty) {
+                items[i] = ItemStack.EMPTY // Clear the crafting slots
+            }
+        }
+        setChanged() // Mark the block entity as updated
+        onItemUpdate(level!!) // Ensure client updates
+    }
+
+
     fun removeItemStack(): ItemStack {
         if (level != null) {
             val itemStack = ContainerHelper.removeItem(items, 10, 1)
