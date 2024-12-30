@@ -462,6 +462,11 @@ object MoLangFunctions {
             }
             map.put("max_health") { _ -> DoubleValue(entity.maxHealth) }
             map.put("name") { _ -> StringValue(entity.effectiveName().string) }
+            map.put("type") { _ ->
+                entity.registryAccess().registry(Registries.ENTITY_TYPE).get().getKey(entity.type)?.toString()?.let {
+                    StringValue(it)
+                } ?: DoubleValue.ZERO
+            }
             map.put("yaw") { _ -> DoubleValue(entity.yRot.toDouble()) }
             map.put("pitch") { _ -> DoubleValue(entity.xRot.toDouble()) }
             map.put("x") { _ -> DoubleValue(entity.x) }
@@ -508,6 +513,17 @@ object MoLangFunctions {
                     .filterIsInstance<LivingEntity>()
                     .map { it.asMostSpecificMoLangValue() }
                     .asArrayValue()
+            }
+            map.put("is_standing_on_blocks") { params ->
+                val depth = params.getDouble(0).toInt()
+                val blocks: MutableSet<Block> = mutableSetOf()
+                for (blockIndex in 1..<params.params.size) {
+                    val blockString = params.getString(blockIndex)
+                    val block = BuiltInRegistries.BLOCK.get(blockString.asIdentifierDefaultingNamespace("minecraft"))
+                    blocks.add(block)
+                }
+
+                return@put if (entity.isStandingOn(blocks, depth)) DoubleValue.ONE else DoubleValue.ZERO
             }
             if (entity is PosableEntity) {
                 map.put("play_animation") { params ->
@@ -598,7 +614,8 @@ object MoLangFunctions {
                     val context = ActionEffectContext(
                         actionEffect = actionEffect,
                         providers = mutableListOf(NPCProvider(npc)),
-                        runtime = runtime
+                        runtime = runtime,
+                        level = npc.level()
                     )
                     npc.actionEffect = context
                     npc.brain.setMemory(CobblemonMemories.ACTIVE_ACTION_EFFECT, context)

@@ -382,9 +382,9 @@ class CobblemonNeoForge : CobblemonImplementation {
     override fun server(): MinecraftServer? = ServerLifecycleHooks.getCurrentServer()
 
     override fun registerCompostable(item: ItemLike, chance: Float) {
-        this.queuedWork += {
-            ComposterBlock.COMPOSTABLES.put(item, chance)
-        }
+        // NeoForge uses data-driven files to determine compostable, vanilla code is ignored
+        // eventually we probaly want to datagen the output file maybe?
+        // check neoforged/resources/data/neoforge/data_maps/item/compostables.json for all considered entries
     }
 
     private fun onVillagerTradesRegistry(e: VillagerTradesEvent) {

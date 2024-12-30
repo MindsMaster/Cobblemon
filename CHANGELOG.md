@@ -1,5 +1,44 @@
 # Changelog
-## [1.6.0 - The Record Catch Update (Month Xth, 2024)](#1-6-0)
+## [1.6.1 (Release TBD)](#1-6-1)
+
+### Additions
+- Added config setting `maxPokedexScanningDetectionRange` to control from what distance the player can scan Pokémon using the Pokédex.
+- Added the `is_standing_on_blocks(depth, blocks...)` MoLang function, which returns whether the specified entity is standing on a specific block or set of blocks. Example usage: `q.is_standing_on_blocks(2, minecraft:sand)` 
+- Added config setting `hideUnimplementedPokemonInThePokedex` which hides unimplemented Pokémon from the Pokédex when set to true. 
+- Added molang particle queries for getting distance to targeted entities
+- Added debug renderer for poseable entity locators
+
+### Fixes
+- Fix Pokédex sometimes crashing when switching forms
+- Fix crash related to Tom's Simple Storage and Fossil Machine
+- Fixed not being able to retrieve a fossil from the Fossil Machine with an empty hand
+- Fix Pokémon being collidable while being captured by a Pokéball.
+- Fixed `full_party`, `own_zangoose_seviper`, `use_revive` and `use_candy` Advancement triggers
+- Fixed `healing_machine` Advancement by using the correct 1.21 trigger
+- Fixed an issue where the first Pokémon in the pastured Pokémon list clipped into the interface.
+- Fixed all Pokémon facing South on spawn
+- Fixed not being able to retrieve a fossil from the Fossil Machine with an empty hand 
+- Parametric particle motion now works
+- Event spawned particles now work
+- Particles can now have independent coordinate spaces
+- Fixed bait being consumed when not reeling in any pokémon.
+- Fix Miltank milk magically disappearing out of your bucket
+- Fix Cobblemon Nicknames migrating from 1.5.2 not being displayed properly
+- Fix capitalization in one of our config fields, but allowing typo'd version to still be valid
+- Fix Pokerod not working if lure or luck of the sea enchantments get removed by other mods
+- Fix crashes related to Pokémon when they are ready to evolve while holding an enchanted item
+- Fix crashes that sometimes occur when evolving Nincada
+- Fix plants not being compostible on NeoForge
+- Fix hide UI (F1 key) not hiding the party overlay.
+- Fixed NPC MoLang command `player_lose_command` not working.
+- Corrected misaligned tooltips with editboxes in the NPC editor screen.
+- Fixed Pokémon riding two boats when attempting to deploy a platform on water.
+- Made berry trees be shearable by dispenser blocks
+- Fix the summary screen showing there's experience to reach the next level when at level cap.
+- Fix Pokémon forgetting moves when evolving on specific cases.
+- Fixed Adorn compatibility, including improvements when using JEI/REI (Apricorn items now show up under the collapsed entries rather than standalone)
+
+## [1.6.0 - The Record Catch Update (December 25th, 2024)](#1-6-0)
 #### "Now that there's a fishing mechanic, the mod is actually good!"
 
 ### Additions
@@ -9,7 +48,7 @@
 - Added Repeat Ball functionality, increasing the catch rate of Pokémon that are already registered as caught in a player's Pokédex.
 - Added flat level battling with options to set all Pokémon to level 50, 100, or 5 for the duration of a battle. No experience or EVs are granted for a flat battle.
 - Added support for Double Battles, Triple Battles, and Multi-battles.
-- Added raft platforms for non-swimming, non-flying Pokémon to stand on during battles that take place on the water's surface. (Flying Pokémon will fly over water in battle, and water breathing Pokémon will swim in water during battle.)
+- Added raft platforms for non-swimming, non-flying Pokémon to stand on during battles that take place on the water's surface (Flying Pokémon will fly over water in battle, and water breathing Pokémon will swim in water during battle).
 - Added smarter send-out positions for Pokémon in battle. They should get in your way less!
 - CriticalCaptures and Pokédex progress capture multiplier now work with the Pokédex.
 - Added shiny Pokémon particle effects and sounds to help find them.
@@ -19,7 +58,7 @@
 - Added Polished Tumblestone and Tumblestone Brick block sets from Tumblestone, Black Tumblestone, and Sky Tumblestone.
 - Moves impacted by the abilities Pixelate, Refrigerate, Aerilate, Galvanize, and Normalize now display as their altered typing.
 - Added Fire, Water, Thunder, Leaf, Ice, Sun, Moon, Shiny, Dawn, and Dusk Stone storage blocks.
-- Added Eject Pack, Metronome, Protective Pads, Punching Glove, Room Service, Scope Lens, Shed Shell, Terrain Extender, Throat Spray, Utility Umbrella, Wide Lens, and Zoom Lens held items
+- Added Eject Pack, Metronome, Protective Pads, Punching Glove, Room Service, Scope Lens, Shed Shell, Terrain Extender, Throat Spray, Utility Umbrella, Wide Lens, and Zoom Lens held items.
 - Added a full evolution particle effect for Pokémon that are sent out when evolution is started.
 - Added a Nurse profession that can be unlocked by having villagers claim a healing machine block.
 - Pokémon are now animated when seen in any GUI that isn't the party GUI.
@@ -31,7 +70,7 @@
 - Added a sound for using Exp Candy and Rare Candy items.
 - Added revamped Poké Ball animation for Pokémon breaking out.
 - Added battle log messages for switching out Pokémon.
-- Added config setting `displayEntityNameLabel` and `displayEntityLabelsWhenCrouchingOnly` to control what and when is displayed for the pokemon label
+- Added config setting `displayEntityNameLabel` and `displayEntityLabelsWhenCrouchingOnly` to control what and when is displayed for the pokemon label.
 - Added `no_ai` and `freeze_frame` options to the `/spawnpokemon` command.
 - Added `moves` option to Pokémon properties, allowing you to set the moves of a Pokémon in commands and spawn files using comma-separated move names.
 - Added a `natural` block state property for the healing machine block; when property is set to true, the block will have a different texture and drop an iron ingot instead of itself.
@@ -51,7 +90,7 @@
  
 ### Pokémon Added
 #### Gen 1
-- Alola Bias Cubone (in-built resource pack)
+- Alola Bias Cubone (built-in resource pack)
 - Alolan Marowak
 
 #### Gen 2
@@ -124,9 +163,6 @@
 #### Gen 9
 - Wattrel
 - Kilowattrel
-- Wiglett
-- Wugtrio
-- Flamigo
 - Veluza
 - Farigiraf
 - Klawf
@@ -138,8 +174,8 @@
 - Dondozo
 
 #### Unique Forms
-- Magikarp Jump variants (in-built resource pack)
-- Gyarados Jump variants (in-built resource pack, disabled by default)
+- Magikarp Jump variants for Magikarp
+- Magikarp Jump variants for Gyarados (built-in resource pack, enabled by default on Fabric)
 
 ### Added cries to the following Pokémon
 - Sandshrew, Sandslash
@@ -323,7 +359,7 @@
 - Updated particles on Gastly.
 - Revamped stat buff and de-buff particles.
 - Improved the performance of display cases that contain Pokémon photos.
-- Updated sounds for Poké Balls.
+- Updated sounds for Poké Balls closing, opening and for Pokémon breaking out.
 - Improved the performance of display cases that contain Pokémon Model items.
 - Removed species Base Stats from the summary interface as it is now viewable within the Pokédex.
 - Changed summary tab text labels to icons. You'll get used to them. Or else.
@@ -337,8 +373,8 @@
 - Pokémon sent out during battle will spawn facing their opponent.
 - Pokémon sent out outside a battle will spawn facing their trainer.
 - Wailord is now 25% bigger. ... [But I have an idea.](https://tenor.com/view/star-wars-more-gif-21856591)
-- Region-biased Pokémon forms are now optional to an in-built resource pack. For NeoForge users, all our in-built resource packs default to disabled because that's all it supports right now.
-- Update item sprites for Cell Battery, Chipped Pot, Covert Cloak, Cracked Pot, Eject Pack, Masterpiece Teacup, Red Card, Sachet, Terrain Extender, Unremarkable Teacup, and Utility Umbrella.
+- Region-biased Pokémon forms are now optional to a built-in resource pack. This pack is enabled by default for Fabric. For NeoForge users, all our built-in resource packs default to disabled because that's all it supports right now.
+- Update item sprites for Cell Battery, Chipped Pot, Covert Cloak, Cracked Pot, Masterpiece Teacup, Red Card, Sachet, and Unremarkable Teacup.
 
 ### Fixes
 - Fixed Ability Patches not reverting Hidden Abilities back to Normal Abilities.
@@ -362,7 +398,7 @@
 - Fixed Tumbling Down advancement not being granted by tumblestone variants.
 - Improve error handling when loading spawn sets to ensure invalid configurations don't crash the server.
 - Fixed empty `JsonPlayerData` files resulting in players being unable to join server/world.
-- Evolution notification and UI sound is now correctly playing (again).
+- Sound for evolving Pokémon through the Summary Menu is now correctly playing again.
 - Fix Starter prompt not showing up.
 - Fixed owned Poké balls floating upwards if pausing the game mid-transition (which looked absolutely hilarious).
 - Fixed all mouse buttons working for Battle UI navigation (now it's only primary/left click).
@@ -454,28 +490,28 @@
 - Renamed StatelessAnimation to PoseAnimation.
 - Renamed StatefulAnimation to ActiveAnimation.
 - Documented the animation system.
-- Allowed for SpawnSnowstormEntityParticleHandler to handle non-posable entities (due to being non-posable, locators are useless - to set the offset use the settings in the particle itself)
+- Allowed for SpawnSnowstormEntityParticleHandler to handle non-posable entities (due to being non-posable, locators are useless - to set the offset use the settings in the particle itself).
 - Added property chaining support for duplicate CustomPokemonPropertyType elements.
 
 ### Data Pack & Resource Pack Creators
-- Added experimental "flow" datapack folder for handling events using MoLang event handlers.
+- Added experimental `flow` datapack directory for handling events using MoLang event handlers.
 - Added support for "shedders" similar to Shedinja's evolution logic.
 - Fixed the placeholder `WingFlapIdle` animation so the wings are not rotating opposite to each other.
 - 'player' type dialogue faces can now be explicitly stated so that NPC mods that use fake players can show in dialogue portraits.
 - Added `isLeftSide` field for dialogue faces. This determines what side of dialogue box the portrait is on.
-- "sounds/attacks" folder has been renamed to "sounds/move"
+- `sounds/attacks` directory has been renamed to `sounds/move`.
 - Moves sharing generic sounds now have unique sound events, allowing them to be changed with resource packs.
-- All move sound events have been renamed to "move.NAME.SOURCE" for consistency.
-- Status moves have been moved out of the 'attacks' folder and split into volatile and nonvolatile.
-- 'status.badlypoison.actor' sound event has been renamed to "status.toxpoison.actor"
-- Mulch and berry harvesting sound events have been renamed and moved to their respective folders in "sounds/block."
-- All sounds related to evolving Pokémon have been moved to the "sounds/evolution" folder.
-- Sound events for all blocks now start with "block."
+- All move sound events have been renamed to `move.<NAME>.<SOURCE>` for consistency.
+- Status moves have been moved out of the `attacks` directory and split into volatile and nonvolatile.
+- `status.badlypoison.actor` sound event has been renamed to `status.toxpoison.actor`
+- Mulch and berry harvesting sound events have been renamed and moved to their respective directories in `sounds/block`.
+- All sounds related to evolving Pokémon have been moved to the `sounds/evolution` directory.
+- Sound events for all blocks now start with `block`.
 - Gimmighoul chest and item interaction sounds have been moved to where its cry is.
 - Unused sound files and sound events have been removed.
 - Poké Ball sounds are now in their animation files, making them more flexible to edit.
 - Added MoLang compatibility in the isVisible property for transformed parts.
-- Added q.has_aspect('some_aspect') function to animations, posers, and entity particle effects.
+- Added `q.has_aspect('some_aspect')` function to animations, posers, and entity particle effects.
 - Added support for conditional pose animations.
 - Added a new universal locator called "top".
 - Added `eggs_collected` and `eggs_hatched` Advancement triggers.

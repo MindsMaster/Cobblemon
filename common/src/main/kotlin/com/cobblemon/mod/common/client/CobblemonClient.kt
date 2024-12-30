@@ -106,7 +106,7 @@ object CobblemonClient {
 
     @JvmStatic
     val builtinResourcePacks = listOf<CobblemonResourcePack>(
-        CobblemonResourcePack(id = "adorncompatibility", name = "Adorn Compatibility", activationBehaviour = ResourcePackActivationBehaviour.DEFAULT_ENABLED, neededMods = setOf("adorn")),
+        CobblemonResourcePack(id = "adorncompatibility", name = "Adorn Compatibility", activationBehaviour = ResourcePackActivationBehaviour.ALWAYS_ENABLED, neededMods = setOf("adorn")),
         CobblemonResourcePack(id = "gyaradosjump", name = "Gyarados Jump Patterns", activationBehaviour = ResourcePackActivationBehaviour.DEFAULT_ENABLED),
         CobblemonResourcePack(id = "regionbiasforms", name = "Region Bias Forms", activationBehaviour = ResourcePackActivationBehaviour.DEFAULT_ENABLED),
         CobblemonResourcePack(id = "uniqueshinyforms", name = "Shinies for Magikarp Jump", activationBehaviour = ResourcePackActivationBehaviour.NORMAL),
