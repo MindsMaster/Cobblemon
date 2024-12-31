@@ -19,15 +19,16 @@ class CookingPotResultSlot : Slot {
     override fun onTake(player: Player, stack: ItemStack) {
         super.onTake(player, stack)
 
-        // Clear or decrement items in the crafting slots
+        // Consume one of each ingredient in the crafting slots
         val menu = player.containerMenu
         if (menu is CookingPotMenu) {
-            menu.clearCraftingContent()
-            menu.broadcastChanges()
+            menu.consumeCraftingIngredients() // Decrement ingredients
+            menu.broadcastChanges() // Notify the client
         } else {
             println("Player menu is not CookingPotMenu!")
         }
     }
+
 
 
 

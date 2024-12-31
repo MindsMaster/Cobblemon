@@ -23,6 +23,7 @@ import net.minecraft.world.InteractionResult
 import net.minecraft.world.MenuProvider
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.BlockItem
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.context.BlockPlaceContext
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.LevelAccessor
@@ -76,31 +77,46 @@ class CampfireBlock(settings: Properties) : BaseEntityBlock(settings) {
         pos: BlockPos,
         player: Player,
         hitResult: BlockHitResult
-    ): InteractionResult? {
+    ): InteractionResult {
         val blockEntity = level.getBlockEntity(pos)
         if (blockEntity is CampfireBlockEntity) {
-            val itemStack = blockEntity.getItemStack()
-            if (!itemStack.isEmpty && itemStack.item is PotItem) {
+            val potItem = blockEntity.getPotItem()
+            if (!potItem?.isEmpty!! && potItem.item is PotItem) {
                 if (!level.isClientSide) {
                     if (player.isCrouching) {
-                        takeStoredItem(blockEntity, state, level, pos, player)
+                        // Remove the pot item and give it to the player
+                        removePotItem(blockEntity, state, level, pos, player)
                     } else {
-                        this.openContainer(level, pos, player)
+                        // Open the cooking pot's container
+                        openContainer(level, pos, player)
                     }
+                }
+                return InteractionResult.SUCCESS
+            } else if (player.getItemInHand(InteractionHand.MAIN_HAND).item is PotItem) {
+                // Add the pot item to the block entity
+                if (potItem.isEmpty) {
+                    val heldItem = player.getItemInHand(InteractionHand.MAIN_HAND)
+                    blockEntity.setPotItem(heldItem.split(1))
+                    level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.7F, 1.0F)
+                    return InteractionResult.SUCCESS
                 }
             }
         }
-        return InteractionResult.CONSUME
+        return InteractionResult.PASS
     }
 
-    private fun takeStoredItem(blockEntity: CampfireBlockEntity, blockState: BlockState, level: Level, blockPos: BlockPos, player: Player) {
+    private fun removePotItem(
+        blockEntity: CampfireBlockEntity,
+        blockState: BlockState,
+        level: Level,
+        blockPos: BlockPos,
+        player: Player
+    ) {
         if (player.getItemInHand(InteractionHand.MAIN_HAND).isEmpty) {
-            player.setItemInHand(InteractionHand.MAIN_HAND, blockEntity.removeItemStack())
-            blockEntity.setRemoved()
-            val facing = blockState.getValue(FACING)
-            val newBlockState = Blocks.CAMPFIRE.defaultBlockState().setValue(FACING, facing)
-            level.setBlockAndUpdate(blockPos, newBlockState)
-            level.playSound(null, blockPos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.7F, 1.0F);
+            val potItem = blockEntity.getPotItem()
+            player.setItemInHand(InteractionHand.MAIN_HAND, potItem)
+            blockEntity.setPotItem(ItemStack.EMPTY)
+            level.playSound(null, blockPos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.7F, 1.0F)
         }
     }
 

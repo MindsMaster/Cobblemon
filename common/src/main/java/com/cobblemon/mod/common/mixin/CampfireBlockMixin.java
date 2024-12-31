@@ -13,6 +13,8 @@ import com.cobblemon.mod.common.block.entity.CampfireBlockEntity;
 import com.cobblemon.mod.common.item.PotItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -36,21 +38,21 @@ public abstract class CampfireBlockMixin {
     private void cobblemon$useItemOn(ItemStack itemStack, BlockState blockState, Level world, BlockPos blockPos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult, CallbackInfoReturnable<ItemInteractionResult> cir) {
         if (!world.isClientSide && itemStack.getItem() instanceof PotItem) {
             BlockEntity blockEntity = world.getBlockEntity(blockPos);
-            if (blockEntity instanceof net.minecraft.world.level.block.entity.CampfireBlockEntity
-                && blockState.getBlock() instanceof LecternBlock) return;
+            if (blockEntity instanceof CampfireBlockEntity) {
+                CampfireBlockEntity campfireEntity = (CampfireBlockEntity) blockEntity;
 
-            ItemStack potItem = itemStack.copy();
-            Direction facing = blockState.getValue(HorizontalDirectionalBlock.FACING);
-            itemStack.consumeAndReturn(1, player);
-            blockEntity.setRemoved();
-            BlockState newBlockState = CobblemonBlocks.CAMPFIRE.defaultBlockState().setValue(HorizontalDirectionalBlock.FACING, facing);
-            world.setBlockAndUpdate(blockPos, newBlockState);
-            BlockEntity campfireEntity = world.getBlockEntity(blockPos);
-
-            if (campfireEntity instanceof CampfireBlockEntity) {
-                ((CampfireBlockEntity) campfireEntity).setItemStack((potItem));
+                if (campfireEntity.getPotItem() == null || campfireEntity.getPotItem().isEmpty()) {
+                    campfireEntity.setPotItem(itemStack.split(1));
+                    world.playSound(null, blockPos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.7F, 1.0F);
+                    cir.setReturnValue(ItemInteractionResult.SUCCESS);
+                } else {
+                    cir.setReturnValue(ItemInteractionResult.FAIL);
+                }
             }
-            cir.setReturnValue(itemStack.isEmpty() && interactionHand == InteractionHand.MAIN_HAND ? ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION);
         }
     }
 }
+
+
+
+

@@ -19,9 +19,14 @@ import net.minecraft.world.item.ItemDisplayContext
 class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : BlockEntityRenderer<CampfireBlockEntity> {
 
     override fun render(blockEntity: CampfireBlockEntity, tickDelta: Float, poseStack: PoseStack, multiBufferSource: MultiBufferSource, light: Int, overlay: Int ) {
-        poseStack.pushPose()
-        poseStack.translate(0.5, 0.65, 0.5)
-        Minecraft.getInstance().itemRenderer.renderStatic(blockEntity.getItemStack(), ItemDisplayContext.GROUND, light, overlay, poseStack, multiBufferSource, blockEntity.level, 0)
-        poseStack.popPose()
+        val potItem = blockEntity.getPotItem()
+        potItem?.isEmpty?.let {
+            if (!it) {
+                poseStack.pushPose()
+                poseStack.translate(0.5, 0.65, 0.5)
+                Minecraft.getInstance().itemRenderer.renderStatic(blockEntity.getPotItem(), ItemDisplayContext.GROUND, light, overlay, poseStack, multiBufferSource, blockEntity.level, 0)
+                poseStack.popPose()
+            }
+        }
     }
 }

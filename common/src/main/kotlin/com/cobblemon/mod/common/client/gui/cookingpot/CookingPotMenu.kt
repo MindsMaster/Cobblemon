@@ -81,9 +81,17 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
             }
         }
 
+        // Initialize the three new slots (indices 10–12)
+        for (j in 0..2) { // Three slots in a row
+            val containerIndex = 10 + j
+            addSlot(Slot(this.container, containerIndex, 44 + j * 18, 9)) // Adjust Y-coordinate as needed
+            println("Initialized additional slot $containerIndex at (${44 + j * 18}, 9)")
+        }
+
+        // Initialize the player inventory slots (indices 13–39)
         for (i in 0..2) {
             for (j in 0..8) {
-                val index = j + i * 9 + 9
+                val index = 13 + j + i * 9
                 val x = 8 + j * 18
                 val y = 100 + i * 18
                 addSlot(Slot(playerInventory, index, x, y))
@@ -91,15 +99,31 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
             }
         }
 
+        // Initialize the hotbar slots (indices 40–48)
         for (i in 0..8) {
+            val index = 40 + i
             val x = 8 + i * 18
             val y = 158
-            addSlot(Slot(playerInventory, i, x, y))
-            println("Initialized hotbar slot $i at ($x, $y)")
+            addSlot(Slot(playerInventory, index, x, y))
+            println("Initialized hotbar slot $index at ($x, $y)")
         }
 
         updateResultSlot()
     }
+
+    fun consumeCraftingIngredients() {
+        for (i in 1..13) { // Assuming crafting slots are indices 1 to 9
+            val itemInSlot = container.getItem(i)
+            if (!itemInSlot.isEmpty) {
+                itemInSlot.shrink(1) // Decrease the stack size by 1
+                if (itemInSlot.count <= 0) {
+                    container.setItem(i, ItemStack.EMPTY) // Clear the slot if empty
+                }
+            }
+        }
+        broadcastChanges() // Notify the client of changes
+    }
+
 
     private fun updateResultSlot() {
         val craftingInput = CraftingInput.of(3, 3, container.items.subList(1, 10))
@@ -133,11 +157,6 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
             container.asCraftInput(),
             this.level
         )
-
-        // Debugging: Log grid contents
-        for (i in 1..9) {
-            println("Crafting slot $i: ${container.getItem(i).item} (${container.getItem(i).count})")
-        }
 
         return optionalRecipe.isPresent
     }
@@ -174,7 +193,7 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
     }
 
     override fun getSize(): Int {
-        return 10
+        return 13
     }
 
     fun getBurnProgress(): Float {
@@ -220,7 +239,7 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
             }
             container.setChanged() // Notify container of changes
         }*/
-        if (dataSlotIndex in 0..9) { // Check if a crafting grid slot changed
+        if (dataSlotIndex in 0..13) { // Check if a crafting grid slot changed
             updateResultSlot()
         }
 

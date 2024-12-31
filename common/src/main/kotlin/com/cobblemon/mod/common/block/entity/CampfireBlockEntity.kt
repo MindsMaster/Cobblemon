@@ -8,6 +8,7 @@
 
 package com.cobblemon.mod.common.block.entity
 
+import PotComponent
 import com.cobblemon.mod.common.CobblemonBlockEntities
 import com.cobblemon.mod.common.CobblemonRecipeTypes
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotMenu
@@ -17,10 +18,12 @@ import net.minecraft.core.Direction
 import net.minecraft.core.HolderLookup
 import net.minecraft.core.NonNullList
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.NbtOps
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket
+import net.minecraft.resources.RegistryOps
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.ContainerHelper
 import net.minecraft.world.WorldlyContainer
@@ -65,9 +68,10 @@ class CampfireBlockEntity : BaseContainerBlockEntity, WorldlyContainer, RecipeCr
     private var items : NonNullList<ItemStack?>
     private val recipesUsed: Object2IntOpenHashMap<ResourceLocation>
     private val quickCheck: RecipeManager.CachedCheck<CraftingInput, *>
+    private var potComponent: PotComponent? = null
 
     constructor(pos: BlockPos, state: BlockState) : super(CobblemonBlockEntities.CAMPFIRE, pos, state) {
-        this.items = NonNullList.withSize(11, ItemStack.EMPTY)
+        this.items = NonNullList.withSize(14, ItemStack.EMPTY)
         this.recipesUsed = Object2IntOpenHashMap()
         this.quickCheck = RecipeManager.createCheck(CobblemonRecipeTypes.COOKING_POT_COOKING)
 
@@ -106,48 +110,15 @@ class CampfireBlockEntity : BaseContainerBlockEntity, WorldlyContainer, RecipeCr
     }
 
     override fun getItems(): NonNullList<ItemStack?>? {
-        return this.items
         onItemUpdate(level!!)
+        return this.items
     }
 
     override fun setItems(items: NonNullList<ItemStack?>) {
-        this.items = items
-        onItemUpdate(level!!)
+        this.items.clear()
+        this.items.addAll(items)
+        onItemUpdate(level!!) // Notify the system about updates
     }
-
-    override fun loadAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
-        super.loadAdditional(tag, registries)
-        this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY)
-        ContainerHelper.loadAllItems(tag, this.items, registries)
-        this.cookingProgress = tag.getShort("CookTime").toInt()
-        this.cookingTotalTime = tag.getShort("CookTimeTotal").toInt()
-        val compoundTag = tag.getCompound("RecipesUsed")
-
-        for(string in compoundTag.getAllKeys()) {
-            this.recipesUsed.put(ResourceLocation.parse(string), compoundTag.getInt(string))
-        }
-    }
-
-    override fun saveAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
-        super.saveAdditional(tag, registries)
-        tag.putShort("CookTime", this.cookingProgress.toShort())
-        tag.putShort("CookTimeTotal", this.cookingTotalTime.toShort())
-        ContainerHelper.saveAllItems(tag, this.items, true, registries)
-        val compoundTag = CompoundTag()
-        this.recipesUsed.forEach { resourceLocation, integer ->
-            compoundTag.putInt(resourceLocation.toString(), integer)
-        }
-        tag.put("RecipesUsed", compoundTag)
-    }
-
-    override fun getUpdateTag(registryLookup: HolderLookup.Provider): CompoundTag {
-        return this.saveWithoutMetadata(registryLookup)
-    }
-
-    override fun getUpdatePacket(): Packet<ClientGamePacketListener>? {
-        return ClientboundBlockEntityDataPacket.create(this)
-    }
-
 
     override fun createMenu(
         containerId: Int,
@@ -197,23 +168,47 @@ class CampfireBlockEntity : BaseContainerBlockEntity, WorldlyContainer, RecipeCr
         }
     }
 
-    fun getItemStack(): ItemStack = items[10]
+    override fun getItem(slot: Int): ItemStack {
+        return if (slot in 0 until items.size) items[slot] else ItemStack.EMPTY
+    }
 
-    fun setItemStack(itemStack: ItemStack) {
-        if (level != null) {
-            items[10] = itemStack
-            onItemUpdate(level!!)
+    fun getPotItem(): ItemStack? {
+        return potComponent?.potItem
+    }
+
+    fun setPotItem(stack: ItemStack?) {
+        this.potComponent = PotComponent(stack)
+        setChanged()
+        level?.sendBlockUpdated(blockPos, blockState, blockState, Block.UPDATE_CLIENTS)
+    }
+
+    override fun saveAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
+        super.saveAdditional(tag, registries)
+        potComponent?.let { component ->
+            PotComponent.CODEC.encodeStart(NbtOps.INSTANCE, component)
+                .result()
+                ?.ifPresent { encoded -> tag.put("PotComponent", encoded) }
         }
     }
 
-    fun removeItemStack(): ItemStack {
-        if (level != null) {
-            val itemStack = ContainerHelper.removeItem(items, 10, 1)
-            onItemUpdate(level!!)
-            return itemStack
+    override fun loadAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
+        super.loadAdditional(tag, registries)
+        if (tag.contains("PotComponent")) {
+            val component = PotComponent.CODEC.parse(NbtOps.INSTANCE, tag.getCompound("PotComponent"))
+                .result()
+                ?.orElse(null)
+            potComponent = component
         }
-        return ItemStack.EMPTY
     }
+
+    override fun getUpdatePacket(): Packet<ClientGamePacketListener>? {
+        return ClientboundBlockEntityDataPacket.create(this)
+    }
+
+    override fun getUpdateTag(registryLookup: HolderLookup.Provider): CompoundTag {
+        return saveWithoutMetadata(registryLookup)
+    }
+
 
     private fun onItemUpdate(level: Level) {
         val oldState = level.getBlockState(blockPos)

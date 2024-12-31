@@ -17,7 +17,7 @@ class CookingPotContainer : TransientCraftingContainer {
 
     constructor(menu : CookingPotMenu, width: Int, height: Int) : super(menu, width, height) {
         this.menu = menu
-        this.items = NonNullList.withSize(11, ItemStack.EMPTY)
+        this.items = NonNullList.withSize(14, ItemStack.EMPTY)
     }
 
     override fun getContainerSize(): Int {
@@ -73,6 +73,9 @@ class CookingPotContainer : TransientCraftingContainer {
         this.items[7] = ItemStack.EMPTY
         this.items[8] = ItemStack.EMPTY
         this.items[9] = ItemStack.EMPTY
+        this.items[11] = ItemStack.EMPTY
+        this.items[12] = ItemStack.EMPTY
+        this.items[13] = ItemStack.EMPTY
     }
 
     override fun getHeight(): Int {
