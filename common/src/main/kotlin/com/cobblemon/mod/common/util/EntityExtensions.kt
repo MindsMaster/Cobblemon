@@ -28,9 +28,7 @@ import net.minecraft.world.phys.shapes.BooleanOp
 import net.minecraft.world.phys.shapes.CollisionContext
 import net.minecraft.world.phys.shapes.Shapes
 import java.util.*
-import kotlin.math.ceil
-import kotlin.math.max
-import kotlin.math.min
+import kotlin.math.floor
 import kotlin.time.measureTime
 
 
@@ -41,7 +39,10 @@ fun Entity.makeEmptyBrainDynamic() = Dynamic(
 
 fun Entity.effectiveName() = this.displayName ?: this.name
 
+
+
 fun Entity.setPositionSafely(pos: Vec3): Boolean {
+
     // TODO: Rework this function. Best way to do it would be to define a vertical and horizontal min/max shift based on the Pokemon's hitbox.
     // Then loop through horizontal/vertical shifts, and detect collisions in three categories: suffocation, damaging blocks, and general collision
     // The closest position with the least severe collision types will be selected to move the Pokemon to
@@ -70,13 +71,6 @@ fun Entity.setPositionSafely(pos: Vec3): Boolean {
 
     fun getPosScore(level: Level, entity: Entity, box: AABB, pos: BlockPos, minScore : Int = Int.MAX_VALUE): Int {
         val score = 0
-        if(!level.getBlockState(pos).getCollisionShape(level, pos, CollisionContext.empty()).isEmpty) {
-            // do not consider positions where the base pos has collision
-            // This helps in ruling out positions in which the pokemon would spawn in the ground
-            // Also avoids a great deal of unnecessary AABB checks
-            return Int.MAX_VALUE
-        }
-
         val movedBox = box.move(Vec3(pos.x + 0.5, pos.y.toDouble(), pos.z + 0.5).subtract(box.bottomCenter))
         return if (score < minScore) {
             score + level.getBlockCollisions(entity, movedBox).count()
@@ -89,11 +83,11 @@ fun Entity.setPositionSafely(pos: Vec3): Boolean {
             entity: Entity,
             pos: Vec3,
             level: Level,
-            maxRadius: Int = max(3, min(ceil(entity.bbWidth * 1.5).toInt(), 4))
+            maxRadius: Int = 4
     ): BlockPos {
         val queue = ArrayDeque<BlockPos>()
         val visited = mutableSetOf<BlockPos>()
-        val centerPos = BlockPos(pos.x.toInt(), pos.y.toInt(), pos.z.toInt())
+        val centerPos = BlockPos(if (pos.x > 0) pos.x.toInt() else floor(pos.x).toInt(), if (pos.y > 0) pos.y.toInt() else floor(pos.y).toInt(), if (pos.z > 0) pos.z.toInt() else floor(pos.z).toInt())
         queue.add(centerPos)
         var bestScore = Int.MAX_VALUE
         var bestPos = centerPos
@@ -113,10 +107,15 @@ fun Entity.setPositionSafely(pos: Vec3): Boolean {
             if (currentPos in visited) continue
             visited.add(currentPos)
 
-            val score = getPosScore(level, this, deflatedBox, currentPos, bestScore)
+            val blockPosHasCollision = !level.getBlockState(currentPos).getCollisionShape(level, currentPos, CollisionContext.empty()).isEmpty
+
+            // Ignore blockPositions that have collision
+            val score = if (blockPosHasCollision) Int.MAX_VALUE else getPosScore(level, this, deflatedBox, currentPos, bestScore)
             if (score == 0) {
+                // Position found with zero collisions return immediately.
                 return currentPos
             } else if (bestScore > score) {
+                // Only take better scores, ensures that positions closer to the original position win ties.
                 bestPos = currentPos
                 bestScore = score
             }
@@ -124,7 +123,8 @@ fun Entity.setPositionSafely(pos: Vec3): Boolean {
             // Add neighbors (up to maxRadius)
             for (dir in directions) {
                 val neighbor = currentPos.offset(dir)
-                if (neighbor.distManhattan(centerPos) <= maxRadius) {
+                // stay within the max radius and do not pathfind into a wall
+                if (neighbor.distManhattan(centerPos) <= maxRadius && (blockPosHasCollision || level.getBlockState(neighbor).getCollisionShape(level, neighbor, CollisionContext.empty()).isEmpty)) {
                     queue.add(neighbor)
                 }
             }
@@ -140,17 +140,19 @@ fun Entity.setPositionSafely(pos: Vec3): Boolean {
         return true
     }
 
-    var bestPosition: BlockPos
+    var bestBlockPosition: BlockPos
+    var bestPosition: Vec3
     val elapsedTime = measureTime {
-        bestPosition = findBestBlockPosBFS(this, pos, level())
-        setPos(Vec3(bestPosition.x + 0.5, bestPosition.y.toDouble(), bestPosition.z + 0.5))
+        bestBlockPosition = findBestBlockPosBFS(this, pos, level())
+        bestPosition = Vec3(bestBlockPosition.x + 0.5, bestBlockPosition.y.toDouble(), bestBlockPosition.z + 0.5)
+        setPos(bestPosition)
     }
     println(elapsedTime)
     server()?.playerList?.players?.forEach {
         it.sendSystemMessage("Send out for ${(this as PokemonEntity).pokemon.species.name} completed in $elapsedTime".yellow())
     }
 
-    val result = Vec3(bestPosition.x.toDouble(), bestPosition.y.toDouble(), bestPosition.z.toDouble())
+    val result = bestPosition
 
     // This final check guarantees that the sendout will return to the original position if the Pokemon will suffocate in the new one
     // This will only happen if the horizontal shift moved the Pokemon into a suffocating position, and there was no valid vertical shift
@@ -171,13 +173,7 @@ fun Entity.setPositionSafely(pos: Vec3): Boolean {
         if (collides) break
     }
     this.setPos(result)
-    if (collides) {
-//        this.setPos(pos)
-        return false
-    } else {
-//        this.setPos(result)
-        return true
-    }
+    return !collides
 }
 
 fun Entity.isDusk(): Boolean {

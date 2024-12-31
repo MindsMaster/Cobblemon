@@ -21,10 +21,9 @@ import com.cobblemon.mod.common.battles.interpreter.ContextManager
 import com.cobblemon.mod.common.battles.interpreter.instructions.*
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon
 import com.cobblemon.mod.common.util.battleLang
-import com.cobblemon.mod.common.util.raycastSafeSendout
 import com.cobblemon.mod.common.util.runOnServer
-import com.cobblemon.mod.common.util.setPositionSafely
 import net.minecraft.world.level.ClipContext
+import net.minecraft.world.phys.HitResult
 import net.minecraft.world.phys.Vec3
 import java.util.UUID
 import kotlin.collections.Iterator
@@ -190,41 +189,71 @@ object ShowdownInterpreter {
                 result = actorEntityPos?.subtract(temp.subtract(actorOffset))
                 actorOffset = temp
             }
-            var vector = Vec3(actorOffset.x, 0.0, actorOffset.z).normalize()
-            vector = vector.cross(Vec3(0.0, 1.0, 0.0))
+            // orthogonalVector is the sideways displacement from the battle actors
+            var orthogonalVector = Vec3(actorOffset.x, 0.0, actorOffset.z).normalize()
+            orthogonalVector = orthogonalVector.cross(Vec3(0.0, 1.0, 0.0))
 
             if (battle.format.battleType.pokemonPerSide == 1) { // Singles
                 result = result?.add(actorOffset.scale(if (battle.isPvW) 0.4 else 0.3))
                 activePokemon.battlePokemon?.let { battlePokemon ->
                     val hitbox = battlePokemon.originalPokemon.form.hitbox
                     val scale = battlePokemon.originalPokemon.form.baseScale
-                    activePokemon.getAdjacentOpponents()
-                    result = result?.add(vector.scale(-0.3 - hitbox.width * scale ))
+                    orthogonalVector = orthogonalVector.scale(-0.3 - hitbox.width * scale )
                 }
             } else if (battle.format.battleType.pokemonPerSide == 2) { // Doubles/Multi
-                if (battle.actors.first() !== battle.actors.last()) {
-                    val offsetB = if (pnx[2] == 'a') vector.scale(-1.0) else vector
-                    result = result?.add(actorOffset.scale(0.33))?.add(offsetB.scale(2.5))
+                if (battle.actors.first() != battle.actors.last()) {
+                    val offsetB = if (pnx[2] == 'a') orthogonalVector.scale(-1.0) else orthogonalVector
+                    result = result?.add(actorOffset.scale(0.33))
+                    orthogonalVector = offsetB.scale(2.5)
                 }
             } else if (battle.format.battleType.pokemonPerSide == 3) { // Triples
-                if (battle.actors.first() !== battle.actors.last()) {
+                if (battle.actors.first() != battle.actors.last()) {
                     result = when (pnx[2]) {
-                        'a' -> result?.add(actorOffset.scale(0.15))?.add(vector.scale(-3.5))
-                        'b' -> result?.add(actorOffset.scale(0.3))
-                        'c' -> result?.add(actorOffset.scale(0.15))?.add(vector.scale(3.5))
+                        'a' -> {
+                            orthogonalVector = orthogonalVector.scale(-3.5)
+                            result?.add(actorOffset.scale(0.15))
+                        }
+                        'b' -> {
+                            orthogonalVector = Vec3.ZERO
+                            result?.add(actorOffset.scale(0.3))
+                        }
+                        'c' -> {
+                            orthogonalVector = orthogonalVector.scale(3.5)
+                            result?.add(actorOffset.scale(0.15))
+                        }
                         else -> result
                     }
                 }
             }
-
+            val fallbackPos = result
+            result = result?.add(orthogonalVector)
             if (battleActor is EntityBackedBattleActor<*> && result != null) {
                 val entity = battleActor.entity ?: return result
                 val elapsedTime = measureTime {
-                    val collisionResult = entity.level().clip(ClipContext(actorEntityPos!!.add(Vec3(0.0,entity.eyeHeight.toDouble(),0.0)), result!!, ClipContext.Block.OUTLINE, ClipContext.Fluid.ANY, entity))
-                    result = collisionResult.location
+                    // Do a single raycast to estimate if we're trying to throw a pokemon into a wall
+                    // Try to find a more reasonable position if the collision is too close to the actor.
+                    // The purpose here is to try to give setPositionSafely something more reasonable to work with
+                    val collisionResult = entity.level().clip(
+                        ClipContext(
+                            actorEntityPos!!.add(Vec3(0.0,entity.eyeHeight.toDouble(),0.0)), // start position
+                            Vec3(result!!.x, entity.y + entity.eyeHeight.toDouble(), result!!.z), // end position
+                            ClipContext.Block.OUTLINE,
+                            ClipContext.Fluid.ANY,
+                            entity
+                        )
+                    )
+                    if (collisionResult.type == HitResult.Type.BLOCK) {
+                        // Collided with terrain
+                        if (collisionResult.location.distanceToSqr(actorEntityPos) < 4.0) {
+                            // Fallback to in between the two actors, dropping the orthogonal vector
+                            // Ideally this keeps a pokemon in between the actors in a narrow tunnel
+                            result = fallbackPos
+                        } else {
+                            result = Vec3(collisionResult.location.x, result!!.y, collisionResult.location.z)
+                        }
+                    }
                 }
                 println(elapsedTime)
-
             }
         }
         return result
