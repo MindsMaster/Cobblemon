@@ -8,6 +8,7 @@
 
 package com.cobblemon.mod.common
 
+import com.cobblemon.mod.common.block.PotComponent
 import com.cobblemon.mod.common.item.components.HeldItemCapableComponent
 import com.cobblemon.mod.common.item.components.PokemonItemComponent
 import com.cobblemon.mod.common.item.RodBaitComponent

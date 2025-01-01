@@ -1,3 +1,5 @@
+package com.cobblemon.mod.common.block
+
 import com.cobblemon.mod.common.CobblemonItemComponents
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder

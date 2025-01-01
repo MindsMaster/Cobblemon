@@ -8,9 +8,9 @@
 
 package com.cobblemon.mod.common.block.entity
 
-import PotComponent
 import com.cobblemon.mod.common.CobblemonBlockEntities
 import com.cobblemon.mod.common.CobblemonRecipeTypes
+import com.cobblemon.mod.common.block.PotComponent
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotMenu
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import net.minecraft.core.BlockPos
