@@ -36,24 +36,16 @@ object CobblemonItemComponents : PlatformRegistry<Registry<DataComponentType<*>>
         .networkSynchronized(RodBaitComponent.PACKET_CODEC)
         .build())
 
-    val POT_ITEM: DataComponentType<PotComponent> = create("pot_item", DataComponentType.builder<PotComponent>()
+    val POT_DATA: DataComponentType<PotComponent> = create("cooking_pot_item", DataComponentType.builder<PotComponent>()
         .persistent(PotComponent.CODEC)
         .networkSynchronized(PotComponent.PACKET_CODEC)
         .build())
 
 
-
-
     fun register() {
         Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, ResourceLocation.parse("cobblemon:pokemon_item"), POKEMON_ITEM)
         Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, ResourceLocation.parse("cobblemon:bait"), BAIT)
-        //Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, ResourceLocation.parse("cobblemon:pot_item"), POT_ITEM)
-        Registry.register(
-            BuiltInRegistries.DATA_COMPONENT_TYPE,
-            ResourceLocation("cobblemon", "pot_item"),
-            POT_ITEM
-        )
-
+        Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, ResourceLocation.parse("cobblemon:cooking_pot_item"), POT_DATA)
     }
 
     override val registry = BuiltInRegistries.DATA_COMPONENT_TYPE

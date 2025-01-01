@@ -177,7 +177,7 @@ class CampfireBlockEntity : BaseContainerBlockEntity, WorldlyContainer, RecipeCr
     }
 
     fun setPotItem(stack: ItemStack?) {
-        this.potComponent = PotComponent(stack)
+        this.potComponent = PotComponent(stack ?: ItemStack.EMPTY) // Ensure a non-null value is passed
         setChanged()
         level?.sendBlockUpdated(blockPos, blockState, blockState, Block.UPDATE_CLIENTS)
     }
