@@ -24,7 +24,7 @@ import net.minecraft.world.level.Level
 
 class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, ContainerListener {
 
-    private val containerId: Int
+    private var containerId: Int
     private val player: Player
     private val level: Level
     private val playerInventory: Inventory
@@ -68,6 +68,9 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
     private fun initializeSlots(playerInventory: Inventory) {
         val craftingOutputOffsetX = 16
         val craftingOutputOffsetY = 10
+
+        println("Initialized player inventory for player:")
+        println(playerInventory.player.name.string)
 
         addSlot(CookingPotResultSlot(playerInventory.player, resultContainer, RESULT_SLOT, 124 + craftingOutputOffsetX, 35 + craftingOutputOffsetY))
         println("Initialized result slot at index 0")

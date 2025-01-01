@@ -38,21 +38,38 @@ public abstract class CampfireBlockMixin {
     private void cobblemon$useItemOn(ItemStack itemStack, BlockState blockState, Level world, BlockPos blockPos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult, CallbackInfoReturnable<ItemInteractionResult> cir) {
         if (!world.isClientSide && itemStack.getItem() instanceof PotItem) {
             BlockEntity blockEntity = world.getBlockEntity(blockPos);
-            if (blockEntity instanceof CampfireBlockEntity) {
-                CampfireBlockEntity campfireEntity = (CampfireBlockEntity) blockEntity;
+
+            // Check if the block entity is an instance of the vanilla CampfireBlockEntity and skip if so
+            if (blockEntity instanceof net.minecraft.world.level.block.entity.CampfireBlockEntity
+                    && blockState.getBlock() instanceof LecternBlock) return;
+
+            // Remove the existing block entity and replace with the custom CampfireBlockEntity
+            Direction facing = blockState.getValue(HorizontalDirectionalBlock.FACING);
+            itemStack.consumeAndReturn(1, player);
+            if (blockEntity != null) {
+                blockEntity.setRemoved();
+            }
+            BlockState newBlockState = CobblemonBlocks.CAMPFIRE.defaultBlockState().setValue(HorizontalDirectionalBlock.FACING, facing);
+            world.setBlockAndUpdate(blockPos, newBlockState);
+
+            // Retrieve the new block entity and set the PotItem
+            BlockEntity newBlockEntity = world.getBlockEntity(blockPos);
+            if (newBlockEntity instanceof CampfireBlockEntity) {
+                CampfireBlockEntity campfireEntity = (CampfireBlockEntity) newBlockEntity;
 
                 if (campfireEntity.getPotItem() == null || campfireEntity.getPotItem().isEmpty()) {
                     campfireEntity.setPotItem(itemStack.split(1));
                     world.playSound(null, blockPos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.7F, 1.0F);
                     cir.setReturnValue(ItemInteractionResult.SUCCESS);
-                } else {
-                    cir.setReturnValue(ItemInteractionResult.FAIL);
+                    return;
                 }
             }
+
+            // If unable to place the item, fail the interaction
+            cir.setReturnValue(ItemInteractionResult.FAIL);
         }
     }
 }
-
 
 
 
