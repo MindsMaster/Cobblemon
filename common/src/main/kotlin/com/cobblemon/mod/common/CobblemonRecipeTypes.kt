@@ -10,6 +10,7 @@ package com.cobblemon.mod.common
 
 
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotRecipe
+import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotShapelessRecipe
 import com.cobblemon.mod.common.platform.PlatformRegistry
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.BuiltInRegistries
@@ -22,6 +23,7 @@ import net.minecraft.world.item.crafting.RecipeType
 object CobblemonRecipeTypes : PlatformRegistry<Registry<RecipeType<*>>, ResourceKey<Registry<RecipeType<*>>>, RecipeType<*>>() {
 
     val COOKING_POT_COOKING: RecipeType<CookingPotRecipe> = register<CookingPotRecipe>("cobblemon:cooking_pot")
+    val COOKING_POT_SHAPELESS: RecipeType<CookingPotShapelessRecipe> = register<CookingPotShapelessRecipe>("cobblemon:cooking_pot_shapeless")
 
     override val registry: Registry<RecipeType<*>>
         get() = BuiltInRegistries.RECIPE_TYPE

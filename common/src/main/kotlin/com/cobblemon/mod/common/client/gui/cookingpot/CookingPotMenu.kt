@@ -11,12 +11,15 @@ package com.cobblemon.mod.common.client.gui.cookingpot
 
 import com.cobblemon.mod.common.CobblemonMenuType
 import com.cobblemon.mod.common.CobblemonRecipeTypes
+import net.minecraft.recipebook.ServerPlaceRecipe
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.player.StackedContents
 import net.minecraft.world.inventory.*
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.crafting.CraftingInput
+import net.minecraft.world.item.crafting.CraftingRecipe
 import net.minecraft.world.item.crafting.RecipeHolder
 import net.minecraft.world.item.crafting.RecipeManager
 import net.minecraft.world.item.crafting.RecipeType
@@ -69,18 +72,18 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
         val craftingOutputOffsetX = 16
         val craftingOutputOffsetY = 10
 
-        println("Initialized player inventory for player:")
+        //println("Initialized player inventory for player:")
         println(playerInventory.player.name.string)
 
         addSlot(CookingPotResultSlot(playerInventory.player, resultContainer, RESULT_SLOT, 124 + craftingOutputOffsetX, 35 + craftingOutputOffsetY))
-        println("Initialized result slot at index 0")
+        //println("Initialized result slot at index 0")
 
         // Crafting Grid Slots (Indices 1–9)
         for (i in 0..2) {
             for (j in 0..2) {
                 val slotIndex = j + i * 3 + 1 // Indices start at 1
                 addSlot(Slot(this.container, slotIndex, 44 + j * 18, 27 + i * 18))
-                println("Initialized crafting slot Grid[$i, $j] -> container index $slotIndex")
+                //println("Initialized crafting slot Grid[$i, $j] -> container index $slotIndex")
             }
         }
 
@@ -88,7 +91,7 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
         for (j in 0..2) {
             val slotIndex = 10 + j
             addSlot(Slot(this.container, slotIndex, 44 + j * 18, 1)) // Adjust Y-coordinate as needed
-            println("Initialized additional slot $slotIndex at (${44 + j * 18}, 9)")
+            //println("Initialized additional slot $slotIndex at (${44 + j * 18}, 9)")
         }
 
         // Player Inventory Slots (Indices 13–39)
@@ -98,7 +101,7 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
                 val x = 8 + j * 18
                 val y = 100 + i * 18
                 addSlot(Slot(playerInventory, slotIndex - 13 + 9, x, y)) // Adjust to map to player's inventory indices
-                println("Initialized player inventory slot $slotIndex at ($x, $y)")
+                //println("Initialized player inventory slot $slotIndex at ($x, $y)")
             }
         }
 
@@ -108,7 +111,7 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
             val x = 8 + i * 18
             val y = 158
             addSlot(Slot(playerInventory, i, x, y)) // Direct mapping to hotbar indices
-            println("Initialized hotbar slot $slotIndex at ($x, $y)")
+            //println("Initialized hotbar slot $slotIndex at ($x, $y)")
         }
 
         updateResultSlot()
@@ -129,37 +132,62 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
 
     override fun broadcastChanges() {
         super.broadcastChanges()
-        slots.forEachIndexed { index, slot ->
+        /*slots.forEachIndexed { index, slot ->
             println("Slot $index contains: ${slot.item}")
-        }
+        }*/
     }
+
+    /*override fun handlePlacement(placeAll: Boolean, recipe: RecipeHolder<*>, player: ServerPlayer) {
+        beginPlacingRecipe()
+
+        try {
+            val serverPlaceRecipe = ServerPlaceRecipe(this)
+
+            when (val recipeValue = recipe.value()) {
+                is CookingPotRecipe -> {
+                    @Suppress("UNCHECKED_CAST")
+                    serverPlaceRecipe.recipeClicked(player, recipe as RecipeHolder<CookingPotRecipe>, placeAll)
+                }
+                is CookingPotShapelessRecipe -> {
+                    @Suppress("UNCHECKED_CAST")
+                    serverPlaceRecipe.recipeClicked(player, recipe as RecipeHolder<CookingPotShapelessRecipe>, placeAll)
+                }
+                else -> {
+                    println("Unknown recipe type: ${recipeValue::class.simpleName}")
+                }
+            }
+        } finally {
+            finishPlacingRecipe(recipe)
+        }
+    }*/
+
+
 
 
     private fun updateResultSlot() {
         val craftingInput = CraftingInput.of(3, 3, container.items.subList(1, 10))
         val optionalRecipe = level.recipeManager.getRecipeFor(
-            CobblemonRecipeTypes.COOKING_POT_COOKING,
+            CobblemonRecipeTypes.COOKING_POT_COOKING, // Adjust if multiple types are involved
             craftingInput,
             level
         )
 
         if (optionalRecipe.isPresent) {
-            val recipe = optionalRecipe.get().value as CookingPotRecipe
-            val result = recipe.assemble(craftingInput, level.registryAccess())
-            resultContainer.setItem(0, result ?: ItemStack.EMPTY)
-            container.setItem(0, result ?: ItemStack.EMPTY) // Update items[0]
-            println("Updated result slot with recipe output: ${result?.item}")
+            val recipe = optionalRecipe.get().value()
+            val result = when (recipe) {
+                is CookingPotRecipe -> recipe.assemble(craftingInput, level.registryAccess())
+                is CookingPotShapelessRecipe -> recipe.assemble(craftingInput, level.registryAccess())
+                else -> ItemStack.EMPTY
+            }
+            resultContainer.setItem(0, result)
+            container.setItem(0, result) // Update items[0]
         } else {
             resultContainer.setItem(0, ItemStack.EMPTY)
             container.setItem(0, ItemStack.EMPTY) // Ensure items[0] is cleared
-            println("No matching recipe found, cleared result slot.")
         }
 
         broadcastChanges() // Notify the client of changes
     }
-
-
-
 
     fun canCook(): Boolean {
         val optionalRecipe = this.level.recipeManager.getRecipeFor(
@@ -185,8 +213,12 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
     }
 
     override fun recipeMatches(recipe: RecipeHolder<CookingPotRecipe?>): Boolean {
-        val matches = recipe.value()?.matches(this.container.asCraftInput(), this.player.level()) == true
-        return matches
+        val recipeValue = recipe.value()
+        return when (recipeValue) {
+            is CookingPotRecipe -> recipeValue.matches(container.asCraftInput(), level)
+            is CookingPotShapelessRecipe -> recipeValue.matches(container.asCraftInput(), level)
+            else -> false
+        }
     }
 
 

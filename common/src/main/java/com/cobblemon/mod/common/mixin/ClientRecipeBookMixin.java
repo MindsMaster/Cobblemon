@@ -2,7 +2,9 @@ package com.cobblemon.mod.common.mixin;
 
 import com.cobblemon.mod.common.CobblemonRecipeCategories;
 import com.cobblemon.mod.common.CobblemonRecipeTypes;
+import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotBookCategory;
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotRecipe;
+import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotShapelessRecipe;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -39,11 +41,13 @@ public abstract class ClientRecipeBookMixin {
     @Inject(method = "getCategory", at = @At(value = "HEAD"), cancellable = true)
     private static void addCustomCategory(RecipeHolder<?> recipe, CallbackInfoReturnable<RecipeBookCategories> cir) {
         Recipe<?> recipe2 = recipe.value();
-        if (recipe2 instanceof CookingPotRecipe) {
-            CookingPotRecipe craftingRecipe = (CookingPotRecipe)recipe2;
+        if (recipe2 instanceof CookingPotRecipe || recipe2 instanceof CookingPotShapelessRecipe) {
+            CookingPotBookCategory category = recipe2 instanceof CookingPotRecipe
+                    ? ((CookingPotRecipe) recipe2).getCategory()
+                    : ((CookingPotShapelessRecipe) recipe2).category();
             RecipeBookCategories var7;
-            System.out.println(craftingRecipe.getCategory());
-            switch (craftingRecipe.getCategory()) {
+            System.out.println(category);
+            switch (category) {
                 case MISC -> var7 = CobblemonRecipeCategories.COOKING_POT_MISC.toVanillaCategory();
                 case FOODS -> var7 = CobblemonRecipeCategories.COOKING_POT_FOODS.toVanillaCategory();
                 case MEDICINES -> var7 = CobblemonRecipeCategories.COOKING_POT_MEDICINES.toVanillaCategory();

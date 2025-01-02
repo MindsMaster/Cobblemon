@@ -1,6 +1,7 @@
 package com.cobblemon.mod.common.client.gui.cookingpot
 
 import com.mojang.serialization.Codec
+import com.mojang.serialization.DataResult
 import io.netty.buffer.ByteBuf
 import net.minecraft.network.codec.ByteBufCodecs
 import net.minecraft.network.codec.StreamCodec
@@ -23,7 +24,22 @@ enum class CookingPotBookCategory(private val categoryName: String, private val 
     }
 
     companion object {
-        val CODEC: Codec<CookingPotBookCategory> = StringRepresentable.fromEnum(::values)
+        val CODEC: Codec<CookingPotBookCategory> = Codec.STRING.flatXmap(
+            { name ->
+                val category = CookingPotBookCategory.values().firstOrNull { it.categoryName.equals(name, ignoreCase = true) }
+                if (category != null) {
+                    println("Successfully parsed category: $name -> ${category.name}")
+                    DataResult.success(category)
+                } else {
+                    println("Failed to parse category: $name")
+                    DataResult.error { "Unknown category: $name" }
+                }
+            },
+            { category ->
+                println("Serializing category: ${category.categoryName}")
+                DataResult.success(category.categoryName)
+            }
+        )
         val BY_ID: IntFunction<CookingPotBookCategory> = ByIdMap.continuous(CookingPotBookCategory::getCategoryId,
             CookingPotBookCategory.entries.toTypedArray(), ByIdMap.OutOfBoundsStrategy.ZERO)
         val STREAM_CODEC: StreamCodec<ByteBuf, CookingPotBookCategory> = ByteBufCodecs.idMapper(BY_ID, CookingPotBookCategory::getCategoryId)

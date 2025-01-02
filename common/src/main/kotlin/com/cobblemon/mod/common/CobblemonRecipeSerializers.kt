@@ -10,6 +10,7 @@ package com.cobblemon.mod.common
 
 
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotRecipe
+import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotShapelessRecipe
 import com.cobblemon.mod.common.platform.PlatformRegistry
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.BuiltInRegistries
@@ -22,6 +23,13 @@ object CobblemonRecipeSerializers : PlatformRegistry<Registry<RecipeSerializer<*
 
     val COOKING_POT_COOKING: RecipeSerializer<*> = register("cobblemon:cooking_pot", CookingPotRecipe.Serializer()).also {
         println("Registered cooking pot recipe serializer: $it")
+    }
+
+    val COOKING_POT_SHAPELESS: RecipeSerializer<*> = register(
+        "cobblemon:cooking_pot_shapeless",
+        CookingPotShapelessRecipe.Serializer()
+    ).also {
+        println("Registered cooking pot shapeless recipe serializer: $it")
     }
 
     override val registry: Registry<RecipeSerializer<*>>
