@@ -26,7 +26,7 @@ class CookingPotShapelessRecipe(
     private val category: CookingPotBookCategory,
     private val result: ItemStack,
     private val ingredients: NonNullList<Ingredient>
-) : Recipe<CraftingInput> {
+) : Recipe<CraftingInput>, CookingPotRecipeBase {
 
     override fun getSerializer(): RecipeSerializer<*> {
         return CobblemonRecipeSerializers.COOKING_POT_SHAPELESS
@@ -51,15 +51,39 @@ class CookingPotShapelessRecipe(
     }
 
     override fun matches(input: CraftingInput, level: Level): Boolean {
-        return if (input.ingredientCount() != ingredients.size) {
-            false
-        } else {
-            if (input.size() == 1 && ingredients.size == 1) {
-                ingredients[0].test(input.getItem(0))
+        //println("Debug: Starting matches check for CookingPotShapelessRecipe")
+
+        // Debug input crafting grid
+        for (i in 0 until input.size()) {
+            val stack = input.getItem(i)
+            //println("Debug: Slot $i contains item ${stack.item} with count ${stack.count}")
+        }
+
+        // Check ingredient count
+        if (input.ingredientCount() != ingredients.size) {
+            //println("Debug: Ingredient count mismatch. Expected ${ingredients.size}, but got ${input.ingredientCount()}")
+            return false
+        }
+
+        // Match ingredients in any order
+        val matchedIngredients = mutableListOf<Ingredient>()
+        for (item in input.items()) {
+            if (item.isEmpty) continue
+
+            // Find matching ingredient
+            val matchingIngredient = ingredients.find { it.test(item) && it !in matchedIngredients }
+            if (matchingIngredient != null) {
+                matchedIngredients.add(matchingIngredient)
+                //println("Debug: Matched item ${item.item} with ingredient $matchingIngredient")
             } else {
-                input.stackedContents().canCraft(this, null)
+                //println("Debug: No matching ingredient found for item ${item.item}")
+                return false
             }
         }
+
+        val matches = matchedIngredients.size == ingredients.size
+        //println("Debug: Final matches result: $matches")
+        return matches
     }
 
     override fun assemble(input: CraftingInput, registries: HolderLookup.Provider): ItemStack {

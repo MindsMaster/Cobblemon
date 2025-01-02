@@ -28,7 +28,7 @@ class CookingPotRecipe(
     val groupName: String,
     val category: CookingPotBookCategory,
     val showNotification: Boolean
-) : Recipe<CraftingInput> {
+) : Recipe<CraftingInput>, CookingPotRecipeBase {
 
     override fun getGroup(): String {
         return groupName
@@ -82,19 +82,19 @@ class CookingPotRecipe(
     override fun assemble(
         input: CraftingInput,
         registries: HolderLookup.Provider
-    ): ItemStack? {
-        return this.getResultItem(registries)?.copy()
+    ): ItemStack {
+        return this.getResultItem(registries).copy()
     }
 
     override fun canCraftInDimensions(width: Int, height: Int): Boolean {
         return true
     }
 
-    override fun getResultItem(registries: HolderLookup.Provider): ItemStack? {
+    override fun getResultItem(registries: HolderLookup.Provider): ItemStack {
         return this.result
     }
 
-    override fun getSerializer(): RecipeSerializer<*>? {
+    override fun getSerializer(): RecipeSerializer<*> {
         return CobblemonRecipeSerializers.COOKING_POT_COOKING
     }
 

@@ -12,6 +12,9 @@ import com.cobblemon.mod.common.CobblemonBlockEntities
 import com.cobblemon.mod.common.CobblemonRecipeTypes
 import com.cobblemon.mod.common.block.PotComponent
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotMenu
+import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotRecipe
+import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotRecipeBase
+import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotShapelessRecipe
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
@@ -46,20 +49,32 @@ class CampfireBlockEntity : BaseContainerBlockEntity, WorldlyContainer, RecipeCr
         fun serverTick(level: Level, pos: BlockPos, state: BlockState, campfireBlockEntity: CampfireBlockEntity) {
             if (!level.isClientSide) {
                 var itemStack = ItemStack.EMPTY
-                campfireBlockEntity.quickCheck.getRecipeFor(CraftingInput.of(3, 3, campfireBlockEntity.items.subList(1,10)), level)
-                    .ifPresent { cookingPotRecipe ->
-                        val recipeHolder = cookingPotRecipe as RecipeHolder<*>
-                        recipeHolder.value.getResultItem(level.registryAccess()).let { itemStack = it }
-                        if (!itemStack.isEmpty) {
-                            campfireBlockEntity.recipeUsed = recipeHolder
-                            println(itemStack)
-                            campfireBlockEntity.items[0] = itemStack.copy()
-                        }
-                    }
-            }
+                val craftingInput = CraftingInput.of(3, 3, campfireBlockEntity.items.subList(1, 10))
 
+                // Check for matching recipe in either type
+                val optionalRecipe = level.recipeManager.getRecipeFor(CobblemonRecipeTypes.COOKING_POT_COOKING, craftingInput, level)
+                        .map { it as RecipeHolder<CookingPotRecipeBase> } // Cast to common base type
+                        .or {
+                            level.recipeManager.getRecipeFor(CobblemonRecipeTypes.COOKING_POT_SHAPELESS, craftingInput, level)
+                                    .map { it as RecipeHolder<CookingPotRecipeBase> }
+                        }
+
+                optionalRecipe.ifPresent { cookingPotRecipe ->
+                    val recipeHolder = cookingPotRecipe
+                    val resultItem = recipeHolder.value().assemble(craftingInput, level.registryAccess())
+
+                    if (!resultItem.isEmpty) {
+                        campfireBlockEntity.recipeUsed = recipeHolder
+                        campfireBlockEntity.items[0] = resultItem.copy()
+                    } else {
+                        campfireBlockEntity.items[0] = ItemStack.EMPTY
+                    }
+                }
+            }
         }
     }
+
+
 
 
     private var cookingProgress : Int = 0

@@ -18,16 +18,13 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.player.StackedContents
 import net.minecraft.world.inventory.*
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.crafting.CraftingInput
-import net.minecraft.world.item.crafting.CraftingRecipe
-import net.minecraft.world.item.crafting.RecipeHolder
-import net.minecraft.world.item.crafting.RecipeManager
-import net.minecraft.world.item.crafting.RecipeType
+import net.minecraft.world.item.crafting.*
 import net.minecraft.world.level.Level
+import java.util.*
 
-class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, ContainerListener {
+class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, ContainerListener {
 
-    private var containerId: Int
+    private val containerId: Int
     private val player: Player
     private val level: Level
     private val playerInventory: Inventory
@@ -137,57 +134,72 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
         }*/
     }
 
-    /*override fun handlePlacement(placeAll: Boolean, recipe: RecipeHolder<*>, player: ServerPlayer) {
-        beginPlacingRecipe()
-
-        try {
-            val serverPlaceRecipe = ServerPlaceRecipe(this)
-
-            when (val recipeValue = recipe.value()) {
-                is CookingPotRecipe -> {
-                    @Suppress("UNCHECKED_CAST")
-                    serverPlaceRecipe.recipeClicked(player, recipe as RecipeHolder<CookingPotRecipe>, placeAll)
-                }
-                is CookingPotShapelessRecipe -> {
-                    @Suppress("UNCHECKED_CAST")
-                    serverPlaceRecipe.recipeClicked(player, recipe as RecipeHolder<CookingPotShapelessRecipe>, placeAll)
-                }
-                else -> {
-                    println("Unknown recipe type: ${recipeValue::class.simpleName}")
-                }
+    override fun handlePlacement(placeAll: Boolean, recipe: RecipeHolder<*>, player: ServerPlayer) {
+        // Check if the recipe value implements CookingPotRecipeBase
+        val recipeValue = recipe.value()
+        if (recipeValue is CookingPotRecipeBase) {
+            @Suppress("UNCHECKED_CAST")
+            val castedRecipe = recipe as RecipeHolder<CookingPotRecipeBase>
+            this.beginPlacingRecipe()
+            try {
+                val serverPlaceRecipe = ServerPlaceRecipe(this)
+                serverPlaceRecipe.recipeClicked(player, castedRecipe, placeAll)
+            } finally {
+                this.finishPlacingRecipe(castedRecipe)
             }
-        } finally {
-            finishPlacingRecipe(recipe)
+        } else {
+            throw IllegalArgumentException("Unsupported recipe type: ${recipeValue::class.java.name}")
         }
-    }*/
-
-
-
+    }
 
     private fun updateResultSlot() {
+        //println("Debug: updateResultSlot called")
+
+        // Create crafting input from the crafting grid items
         val craftingInput = CraftingInput.of(3, 3, container.items.subList(1, 10))
-        val optionalRecipe = level.recipeManager.getRecipeFor(
-            CobblemonRecipeTypes.COOKING_POT_COOKING, // Adjust if multiple types are involved
-            craftingInput,
-            level
-        )
+        //println("Debug: Crafting input:")
+        craftingInput.items().forEachIndexed { index, item ->
+            //println(" - Slot $index: ${item.item} x ${item.count}")
+        }
+
+        fun <T : CookingPotRecipeBase> fetchRecipe(
+                recipeType: RecipeType<T>
+        ): Optional<RecipeHolder<CookingPotRecipeBase>> {
+            val optional = level.recipeManager.getRecipeFor(recipeType, craftingInput, level)
+            @Suppress("UNCHECKED_CAST")
+            return optional.map { it as RecipeHolder<CookingPotRecipeBase> }
+        }
+
+        // Check for both COOKING_POT_COOKING and COOKING_POT_SHAPELESS recipes
+        val optionalRecipe = fetchRecipe(CobblemonRecipeTypes.COOKING_POT_COOKING)
+                .or { fetchRecipe(CobblemonRecipeTypes.COOKING_POT_SHAPELESS) }
 
         if (optionalRecipe.isPresent) {
             val recipe = optionalRecipe.get().value()
-            val result = when (recipe) {
-                is CookingPotRecipe -> recipe.assemble(craftingInput, level.registryAccess())
-                is CookingPotShapelessRecipe -> recipe.assemble(craftingInput, level.registryAccess())
-                else -> ItemStack.EMPTY
+            //println("Debug: Matching recipe found of type ${recipe::class.simpleName}")
+
+            val result = recipe.assemble(craftingInput, level.registryAccess())
+            if (!result.isEmpty) {
+                resultContainer.setItem(0, result)
+                container.setItem(0, result) // Update result in the container
+                //println("Debug: Result slot updated with ${result.item} x ${result.count}")
+            } else {
+                //println("Debug: Result is empty")
+                resultContainer.setItem(0, ItemStack.EMPTY)
+                container.setItem(0, ItemStack.EMPTY)
             }
-            resultContainer.setItem(0, result)
-            container.setItem(0, result) // Update items[0]
         } else {
+            //println("Debug: No matching recipe found")
             resultContainer.setItem(0, ItemStack.EMPTY)
-            container.setItem(0, ItemStack.EMPTY) // Ensure items[0] is cleared
+            container.setItem(0, ItemStack.EMPTY) // Clear result slot
         }
 
-        broadcastChanges() // Notify the client of changes
+        broadcastChanges() // Notify client of the updates
     }
+
+
+
+
 
     fun canCook(): Boolean {
         val optionalRecipe = this.level.recipeManager.getRecipeFor(
@@ -212,14 +224,15 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
         container.clearContent()
     }
 
-    override fun recipeMatches(recipe: RecipeHolder<CookingPotRecipe?>): Boolean {
+    override fun recipeMatches(recipe: RecipeHolder<CookingPotRecipeBase>): Boolean {
         val recipeValue = recipe.value()
-        return when (recipeValue) {
-            is CookingPotRecipe -> recipeValue.matches(container.asCraftInput(), level)
-            is CookingPotShapelessRecipe -> recipeValue.matches(container.asCraftInput(), level)
-            else -> false
+        return if (recipeValue is CookingPotRecipeBase) {
+            recipeValue.matches(container.asCraftInput(), level)
+        } else {
+            false
         }
     }
+
 
 
     override fun getResultSlotIndex(): Int {
@@ -259,7 +272,7 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipe>, Containe
     override fun quickMoveStack(
         player: Player,
         index: Int
-    ): ItemStack? {
+    ): ItemStack {
         TODO("Not yet implemented")
     }
 

@@ -104,7 +104,7 @@ class CookingPotScreen : AbstractContainerScreen<CookingPotMenu>, RecipeUpdateLi
         this.recipeBookComponent.recipesUpdated()
     }
 
-    override fun getRecipeBookComponent(): RecipeBookComponent? {
+    override fun getRecipeBookComponent(): RecipeBookComponent {
         return this.recipeBookComponent
     }
 
