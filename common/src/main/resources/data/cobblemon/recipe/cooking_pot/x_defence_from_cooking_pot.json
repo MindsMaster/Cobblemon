@@ -1,20 +1,19 @@
 {
-    "type": "cobblemon:cooking_pot",
+    "type": "cobblemon:cooking_pot_shapeless",
     "category": "misc",
-    "key": {
-        "g": {
+    "ingredients": [
+        {
             "item": "minecraft:glass_bottle"
         },
-        "p": {
+        {
             "item": "cobblemon:pep_up_flower"
         },
-        "t": {
+        {
+            "item": "cobblemon:ganlon_berry"
+        },
+        {
             "item": "cobblemon:ganlon_berry"
         }
-    },
-    "pattern": [
-        "gp",
-        "tt"
     ],
     "result": {
         "id": "cobblemon:x_defence"

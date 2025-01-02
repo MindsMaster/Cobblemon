@@ -18,6 +18,7 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.player.StackedContents
 import net.minecraft.world.inventory.*
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
 import net.minecraft.world.item.crafting.*
 import net.minecraft.world.level.Level
 import java.util.*
@@ -115,17 +116,27 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
     }
 
     fun consumeCraftingIngredients() {
-        for (i in 1..13) { // Assuming crafting slots are indices 1 to 9
+        for (i in 1..13) {
             val itemInSlot = container.getItem(i)
             if (!itemInSlot.isEmpty) {
-                itemInSlot.shrink(1) // Decrease the stack size by 1
-                if (itemInSlot.count <= 0) {
-                    container.setItem(i, ItemStack.EMPTY) // Clear the slot if empty
+                when (itemInSlot.item) {
+                    Items.LAVA_BUCKET, Items.WATER_BUCKET, Items.MILK_BUCKET -> {
+                        // Replace with empty bucket
+                        container.setItem(i, ItemStack(Items.BUCKET))
+                    }
+                    else -> {
+                        // Decrease the stack size by 1
+                        itemInSlot.shrink(1)
+                        if (itemInSlot.count <= 0) {
+                            container.setItem(i, ItemStack.EMPTY) // Clear the slot if empty
+                        }
+                    }
                 }
             }
         }
         broadcastChanges() // Notify the client of changes
     }
+
 
     override fun broadcastChanges() {
         super.broadcastChanges()

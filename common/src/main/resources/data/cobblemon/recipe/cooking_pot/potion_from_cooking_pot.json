@@ -1,16 +1,13 @@
 {
-    "type": "cobblemon:cooking_pot",
+    "type": "cobblemon:cooking_pot_shapeless",
     "category": "medicines",
-    "key": {
-        "M": {
+    "ingredients": [
+        {
             "item": "cobblemon:medicinal_brew"
         },
-        "o": {
+        {
             "item": "cobblemon:oran_berry"
         }
-    },
-    "pattern": [
-        "Mo"
     ],
     "result": {
         "id": "cobblemon:potion"

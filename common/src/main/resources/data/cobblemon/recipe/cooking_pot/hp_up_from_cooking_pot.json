@@ -1,24 +1,25 @@
 {
-    "type": "cobblemon:cooking_pot",
+    "type": "cobblemon:cooking_pot_shapeless",
     "category": "misc",
-    "key": {
-        "m": {
+    "ingredients": [
+        {
             "item": "cobblemon:medicinal_brew"
         },
-        "b": {
+        {
             "item": "minecraft:sugar"
         },
-        "h": {
+        {
+            "item": "minecraft:sugar"
+        },
+        {
             "item": "cobblemon:pomeg_berry"
         },
-        "c": {
+        {
+            "item": "cobblemon:pomeg_berry"
+        },
+        {
             "item": "cobblemon:white_mint_leaf"
         }
-    },
-    "pattern": [
-        "mbb",
-        "hhc",
-        "c  "
     ],
     "result": {
         "id": "cobblemon:hp_up"

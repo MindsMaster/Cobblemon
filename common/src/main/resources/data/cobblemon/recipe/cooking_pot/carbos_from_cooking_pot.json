@@ -1,24 +1,28 @@
 {
-    "type": "cobblemon:cooking_pot",
+    "type": "cobblemon:cooking_pot_shapeless",
     "category": "misc",
-    "key": {
-        "m": {
+    "ingredients": [
+        {
             "item": "cobblemon:medicinal_brew"
         },
-        "b": {
-            "item": "minecraft:wheat"
+        {
+            "item": "cobblemon:green_mint_leaf"
         },
-        "h": {
+        {
+            "item": "cobblemon:green_mint_leaf"
+        },
+        {
             "item": "cobblemon:tamato_berry"
         },
-        "c": {
-            "item": "cobblemon:green_mint_leaf"
+        {
+            "item": "cobblemon:tamato_berry"
+        },
+        {
+            "item": "minecraft:wheat"
+        },
+        {
+            "item": "minecraft:wheat"
         }
-    },
-    "pattern": [
-        "mbb",
-        "hhc",
-        "c  "
     ],
     "result": {
         "id": "cobblemon:carbos"

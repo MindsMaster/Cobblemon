@@ -1,24 +1,25 @@
 {
-    "type": "cobblemon:cooking_pot",
+    "type": "cobblemon:cooking_pot_shapeless",
     "category": "misc",
-    "key": {
-        "m": {
+    "ingredients": [
+        {
             "item": "cobblemon:medicinal_brew"
         },
-        "b": {
-            "item": "#minecraft:foods/raw_meat"
+        {
+            "tag": "cobblemon:protein_ingredients"
         },
-        "h": {
+        {
+            "tag": "cobblemon:protein_ingredients"
+        },
+        {
             "item": "cobblemon:kelpsy_berry"
         },
-        "c": {
+        {
+            "item": "cobblemon:kelpsy_berry"
+        },
+        {
             "item": "cobblemon:red_mint_leaf"
         }
-    },
-    "pattern": [
-        "mbb",
-        "hhc",
-        "c  "
     ],
     "result": {
         "id": "cobblemon:protein"

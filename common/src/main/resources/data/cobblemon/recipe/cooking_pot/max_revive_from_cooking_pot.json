@@ -1,17 +1,19 @@
 {
-    "type": "cobblemon:cooking_pot",
+    "type": "cobblemon:cooking_pot_shapeless",
     "category": "medicines",
-    "key": {
-        "r": {
+    "ingredients": [
+        {
             "item": "cobblemon:revive"
         },
-        "V": {
+        {
+            "item": "cobblemon:revive"
+        },
+        {
+            "item": "cobblemon:revive"
+        },
+        {
             "item": "cobblemon:vivichoke"
         }
-    },
-    "pattern": [
-        "rr",
-        "rV"
     ],
     "result": {
         "id": "cobblemon:max_revive"

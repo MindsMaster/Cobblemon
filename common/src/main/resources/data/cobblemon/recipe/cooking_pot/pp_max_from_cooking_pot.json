@@ -1,24 +1,25 @@
 {
-    "type": "cobblemon:cooking_pot",
+    "type": "cobblemon:cooking_pot_shapeless",
     "category": "misc",
-    "key": {
-        "m": {
+    "ingredients": [
+        {
             "item": "cobblemon:pp_up"
         },
-        "b": {
+        {
             "item": "cobblemon:pep_up_flower"
         },
-        "h": {
+        {
+            "item": "cobblemon:pep_up_flower"
+        },
+        {
             "item": "cobblemon:hopo_berry"
         },
-        "c": {
+        {
+            "item": "cobblemon:hopo_berry"
+        },
+        {
             "item": "cobblemon:vivichoke"
         }
-    },
-    "pattern": [
-        "mbb",
-        "hhc",
-        "c  "
     ],
     "result": {
         "id": "cobblemon:pp_max"

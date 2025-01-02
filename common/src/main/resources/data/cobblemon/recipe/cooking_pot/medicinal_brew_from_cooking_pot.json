@@ -1,16 +1,13 @@
 {
-    "type": "cobblemon:cooking_pot",
+    "type": "cobblemon:cooking_pot_shapeless",
     "category": "medicines",
-    "key": {
-        "w": {
-            "item": "minecraft:potion"
+    "ingredients": [
+        {
+            "tag": "minecraft:potion"
         },
-        "M": {
+        {
             "item": "cobblemon:medicinal_leek"
         }
-    },
-    "pattern": [
-        "wM"
     ],
     "result": {
         "id": "cobblemon:medicinal_brew"

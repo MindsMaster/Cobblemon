@@ -1,24 +1,25 @@
 {
-    "type": "cobblemon:cooking_pot",
+    "type": "cobblemon:cooking_pot_shapeless",
     "category": "misc",
-    "key": {
-        "m": {
+    "ingredients": [
+        {
             "item": "cobblemon:medicinal_brew"
         },
-        "b": {
+        {
             "item": "minecraft:beetroot"
         },
-        "h": {
+        {
+            "item": "minecraft:beetroot"
+        },
+        {
             "item": "cobblemon:qualot_berry"
         },
-        "c": {
+        {
+            "item": "cobblemon:qualot_berry"
+        },
+        {
             "item": "cobblemon:blue_mint_leaf"
         }
-    },
-    "pattern": [
-        "mbb",
-        "hhc",
-        "c"
     ],
     "result": {
         "id": "cobblemon:iron"
