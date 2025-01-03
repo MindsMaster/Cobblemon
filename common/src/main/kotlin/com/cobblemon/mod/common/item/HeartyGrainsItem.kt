@@ -27,37 +27,48 @@ class HeartyGrainsItem(block: HeartyGrainsBlock) : ItemNameBlockItem(block, Prop
 
     override fun useOn(context: UseOnContext): InteractionResult {
         val world = context.level
-        val pos = context.clickedPos
+        val clickedPos = context.clickedPos
         val player = context.player ?: return InteractionResult.FAIL
 
         if (world.isClientSide) {
             return InteractionResult.SUCCESS
         }
 
-        val blockBelow = world.getBlockState(pos)
-        val fluidState = world.getFluidState(pos)
+        val clickedBlockState = world.getBlockState(clickedPos)
+        val fluidState = world.getFluidState(clickedPos)
+        val blockAbove = world.getBlockState(clickedPos.above())
+        val fluidStateAbove = world.getFluidState(clickedPos.above())
+        val block2Above = world.getBlockState(clickedPos.above(2))
+        val fluidState2Above = world.getFluidState(clickedPos.above(2))
+        val blockBelow = world.getBlockState(clickedPos.below())
 
-        // Prioritize placement in 1-block deep source water
+
+        // 1. Prioritize source water block
         if (fluidState.`is`(FluidTags.WATER) && fluidState.isSource) {
-            val blockAbove = world.getBlockState(pos.above())
-            if (blockAbove.isAir) { // Ensure it's only 1 block deep
-                if (world.setBlock(pos, this.block.defaultBlockState().setValue(HeartyGrainsBlock.WATERLOGGED, true), Block.UPDATE_CLIENTS)) {
+            // Check if it's 1 block deep water
+            if (blockAbove.isAir && !blockBelow.fluidState.isSource) {
+                if (world.setBlock(clickedPos, this.block.defaultBlockState().setValue(HeartyGrainsBlock.WATERLOGGED, true), Block.UPDATE_CLIENTS)) {
                     context.itemInHand.shrink(1)
                     return InteractionResult.SUCCESS
                 }
             }
+
+            // Fails if not 1 block deep
+            return InteractionResult.FAIL
         }
 
-        // Fallback to placement on farmland or mud
-        if (blockBelow.`is`(Blocks.FARMLAND) || blockBelow.`is`(Blocks.MUD)) {
-            if (world.setBlock(pos.above(), this.block.defaultBlockState(), Block.UPDATE_CLIENTS)) {
+        // 2. Check for farmland or mud
+        if (clickedBlockState.`is`(Blocks.FARMLAND) || clickedBlockState.`is`(Blocks.MUD) || (fluidStateAbove.`is`(FluidTags.WATER) && fluidStateAbove.isSource && block2Above.isAir)) {
+            if (world.setBlock(clickedPos.above(), this.block.defaultBlockState(), Block.UPDATE_CLIENTS)) {
                 context.itemInHand.shrink(1)
                 return InteractionResult.SUCCESS
             }
         }
 
-        return InteractionResult.PASS
+        // 3. Default: fail if neither condition matches
+        return InteractionResult.FAIL
     }
+
 
 
     private fun placeOnLand(context: UseOnContext, targetPos: BlockPos): InteractionResult {
@@ -85,7 +96,6 @@ class HeartyGrainsItem(block: HeartyGrainsBlock) : ItemNameBlockItem(block, Prop
 
     // todo is this needed like this? should it be simpler?
     override fun use(world: Level, user: Player, hand: InteractionHand): InteractionResultHolder<ItemStack> {
-        // Target both solid blocks and water
         val blockHitResult = PlaceOnWaterBlockItem.getPlayerPOVHitResult(world, user, ClipContext.Fluid.ANY)
         val stack = user.getItemInHand(hand)
 
@@ -93,29 +103,37 @@ class HeartyGrainsItem(block: HeartyGrainsBlock) : ItemNameBlockItem(block, Prop
             return InteractionResultHolder.success(stack)
         }
 
-        val pos = blockHitResult.blockPos
-        val blockBelow = world.getBlockState(pos)
-        val fluidState = world.getFluidState(pos)
+        val clickedPos = blockHitResult.blockPos
+        val clickedBlockState = world.getBlockState(clickedPos)
+        val fluidState = world.getFluidState(clickedPos)
 
-        // Prioritize placement in 1-block deep source water
+        // 1. Prioritize source water block
         if (fluidState.`is`(FluidTags.WATER) && fluidState.isSource) {
-            val blockAbove = world.getBlockState(pos.above())
-            if (blockAbove.isAir) { // Ensure it's only 1 block deep
-                if (world.setBlock(pos, this.block.defaultBlockState().setValue(HeartyGrainsBlock.WATERLOGGED, true), Block.UPDATE_CLIENTS)) {
+            val blockAbove = world.getBlockState(clickedPos.above())
+            val blockBelow = world.getBlockState(clickedPos.below())
+
+            // Check if it's 1 block deep water
+            if (blockAbove.isAir && !blockBelow.fluidState.isSource) {
+                if (world.setBlock(clickedPos, this.block.defaultBlockState().setValue(HeartyGrainsBlock.WATERLOGGED, true), Block.UPDATE_CLIENTS)) {
                     stack.shrink(1)
                     return InteractionResultHolder.success(stack)
                 }
             }
+
+            // Fails if not 1 block deep
+            return InteractionResultHolder.fail(stack)
         }
 
-        // Fallback to placement on farmland or mud
-        if (blockBelow.`is`(Blocks.FARMLAND) || blockBelow.`is`(Blocks.MUD)) {
-            if (world.setBlock(pos.above(), this.block.defaultBlockState(), Block.UPDATE_CLIENTS)) {
+        // 2. Check for farmland or mud
+        if (clickedBlockState.`is`(Blocks.FARMLAND) || clickedBlockState.`is`(Blocks.MUD)) {
+            if (world.setBlock(clickedPos.above(), this.block.defaultBlockState(), Block.UPDATE_CLIENTS)) {
                 stack.shrink(1)
                 return InteractionResultHolder.success(stack)
             }
         }
 
+        // 3. Default: fail if neither condition matches
         return InteractionResultHolder.fail(stack)
     }
+
 }
