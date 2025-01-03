@@ -226,6 +226,7 @@ object CobblemonClient {
             CobblemonBlocks.BIG_ROOT,
             CobblemonBlocks.REVIVAL_HERB,
             CobblemonBlocks.VIVICHOKE_SEEDS,
+            CobblemonBlocks.HEARTY_GRAINS,
             CobblemonBlocks.PEP_UP_FLOWER,
             CobblemonBlocks.BUGWORT,
             CobblemonBlocks.POTTED_PEP_UP_FLOWER,

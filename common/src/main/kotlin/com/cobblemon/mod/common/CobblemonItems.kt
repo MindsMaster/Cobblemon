@@ -204,6 +204,9 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     val POT_YELLOW = potItem(PotTypes.YELLOW)
 
     @JvmField
+    val Hearty_Grains = compostableItem("hearty_grains", HeartyGrainsItem(CobblemonBlocks.HEARTY_GRAINS))
+
+    @JvmField
     val VIVICHOKE = compostableItem("vivichoke")
 
     @JvmField
