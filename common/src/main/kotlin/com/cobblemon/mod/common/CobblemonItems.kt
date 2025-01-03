@@ -19,6 +19,7 @@ import com.cobblemon.mod.common.api.text.gray
 import com.cobblemon.mod.common.block.BerryBlock
 import com.cobblemon.mod.common.block.MintBlock
 import com.cobblemon.mod.common.block.MintBlock.MintType
+import com.cobblemon.mod.common.client.cooking.AprijuiceTypes
 import com.cobblemon.mod.common.client.pokedex.PokedexTypes
 import com.cobblemon.mod.common.client.pot.PotTypes
 import com.cobblemon.mod.common.entity.boat.CobblemonBoatType
@@ -170,6 +171,21 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     @JvmField
     val POKEDEX_YELLOW = pokedexItem(PokedexTypes.YELLOW)
 
+    val aprijuices = mutableListOf<AprijuiceItem>()
+    @JvmField
+    val APRIJUICE_BLACK = aprijuiceItem(AprijuiceTypes.BLACK)
+    @JvmField
+    val APRIJUICE_RED = aprijuiceItem(AprijuiceTypes.RED)
+    @JvmField
+    val APRIJUICE_BLUE = aprijuiceItem(AprijuiceTypes.BLUE)
+    @JvmField
+    val APRIJUICE_GREEN = aprijuiceItem(AprijuiceTypes.GREEN)
+    @JvmField
+    val APRIJUICE_YELLOW = aprijuiceItem(AprijuiceTypes.YELLOW)
+    @JvmField
+    val APRIJUICE_WHITE = aprijuiceItem(AprijuiceTypes.WHITE)
+    @JvmField
+    val APRIJUICE_PINK = aprijuiceItem(AprijuiceTypes.PINK)
 
     val pots = mutableListOf<PotItem>()
     @JvmField
@@ -1334,6 +1350,12 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     private fun potItem(type: PotTypes): PotItem {
         val item = create("pot_${type.name.lowercase()}", PotItem(type))
         pots.add(item)
+        return item
+    }
+
+    private fun aprijuiceItem(type: AprijuiceTypes): AprijuiceItem {
+        val item = create("aprijuice_${type.name.lowercase()}", AprijuiceItem(type))
+        aprijuices.add(item)
         return item
     }
 
