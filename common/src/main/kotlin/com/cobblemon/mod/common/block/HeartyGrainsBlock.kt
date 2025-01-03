@@ -27,6 +27,7 @@ import net.minecraft.world.level.LevelReader
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.CropBlock
+import net.minecraft.world.level.block.SimpleWaterloggedBlock
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.level.block.state.properties.BlockStateProperties
@@ -38,13 +39,13 @@ import net.minecraft.world.phys.shapes.CollisionContext
 import net.minecraft.world.phys.shapes.VoxelShape
 
 @Suppress("OVERRIDE_DEPRECATION")
-class HeartyGrainsBlock(settings: Properties) : CropBlock(settings) {
+class HeartyGrainsBlock(settings: Properties) : CropBlock(settings), SimpleWaterloggedBlock {
 
     override fun getAgeProperty(): IntegerProperty = AGE
 
     override fun getMaxAge(): Int = MATURE_AGE
 
-    private val ageAfterHarvest = 1
+    private val ageAfterHarvest = 3
 
     override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
         builder.add(AGE, PART, WATERLOGGED)
@@ -86,17 +87,20 @@ class HeartyGrainsBlock(settings: Properties) : CropBlock(settings) {
     }
 
     override fun playerWillDestroy(world: Level, pos: BlockPos, state: BlockState, player: Player): BlockState {
-        if (state.getValue(PART) == Part.UPPER) {
+        if (state.getValue(PART) == Part.UPPER && state.block is HeartyGrainsBlock) {
             val belowPos = pos.below()
             val belowState = world.getBlockState(belowPos)
-            if (belowState.block is HeartyGrainsBlock && belowState.getValue(PART) == Part.LOWER) {
-                world.destroyBlock(belowPos, false) // Break the lower block without drops
-            }
+            world.destroyBlock(pos, true) // Break the lower block without drops
+            world.setBlock(
+                belowPos,
+                belowState.setValue(AGE, ageAfterHarvest), // Reset age to simulate regrowth preparation
+                UPDATE_CLIENTS
+            )
         } else if (state.getValue(PART) == Part.LOWER) {
             val abovePos = pos.above()
             val aboveState = world.getBlockState(abovePos)
             if (aboveState.block is HeartyGrainsBlock && aboveState.getValue(PART) == Part.UPPER) {
-                world.destroyBlock(abovePos, false) // Break the upper block without drops
+                world.destroyBlock(abovePos, true) // Break the upper block without drops
             }
         }
         return super.playerWillDestroy(world, pos, state, player)
@@ -153,19 +157,28 @@ class HeartyGrainsBlock(settings: Properties) : CropBlock(settings) {
                 val floor = world.getBlockState(pos.below())
                 val fluidState = world.getFluidState(pos)
 
+                // Check if bottom part is submerged in water
+                val isSubmergedInWater = fluidState.`is`(FluidTags.WATER) && fluidState.isSource
+
+                // Check for adjacency to water
                 val isNearWater = BlockPos.betweenClosed(pos.offset(-1, 0, -1), pos.offset(1, 0, 1))
                     .any { world.getFluidState(it).`is`(FluidTags.WATER) }
 
-                val isInWater = fluidState.`is`(FluidTags.WATER) && fluidState.isSource
+                // Check waterlogging state
+                val isWaterlogged = state.getValue(WATERLOGGED)
 
-                isInWater || isNearWater || floor.`is`(CobblemonBlockTags.HEARTY_GRAINS_PLANTABLE) || floor.`is`(Blocks.MUD)
+                // Check for valid soil or survival conditions
+                isSubmergedInWater || isWaterlogged || isNearWater || floor.`is`(CobblemonBlockTags.HEARTY_GRAINS_PLANTABLE) || floor.`is`(Blocks.MUD) || floor.`is`(Blocks.FARMLAND)
             }
             Part.UPPER -> {
                 val below = world.getBlockState(pos.below())
                 below.block is HeartyGrainsBlock && below.getValue(PART) == Part.LOWER
+                // Upper part survives only if the lower part is valid
             }
         }
     }
+
+
 
     override fun codec(): MapCodec<out CropBlock> = CODEC
 
