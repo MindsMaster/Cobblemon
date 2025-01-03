@@ -12,6 +12,7 @@ import com.cobblemon.mod.common.CobblemonItems
 import com.cobblemon.mod.common.api.tags.CobblemonBlockTags
 import com.mojang.serialization.MapCodec
 import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.tags.FluidTags
 import net.minecraft.util.RandomSource
@@ -21,6 +22,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.BlockGetter
 import net.minecraft.world.level.ItemLike
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.LevelAccessor
 import net.minecraft.world.level.LevelReader
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
@@ -30,6 +32,8 @@ import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import net.minecraft.world.level.block.state.properties.EnumProperty
 import net.minecraft.world.level.block.state.properties.IntegerProperty
+import net.minecraft.world.level.material.FluidState
+import net.minecraft.world.level.material.Fluids
 import net.minecraft.world.phys.shapes.CollisionContext
 import net.minecraft.world.phys.shapes.VoxelShape
 
@@ -43,13 +47,17 @@ class HeartyGrainsBlock(settings: Properties) : CropBlock(settings) {
     private val ageAfterHarvest = 1
 
     override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
-        builder.add(AGE, PART)
+        builder.add(AGE, PART, WATERLOGGED)
     }
 
     override fun getBaseSeedId(): ItemLike = CobblemonItems.Hearty_Grains
 
     override fun getShape(state: BlockState, world: BlockGetter, pos: BlockPos, context: CollisionContext): VoxelShape {
         return AGE_TO_SHAPE[this.getAge(state)]
+    }
+
+    override fun getFluidState(state: BlockState): FluidState {
+        return if (state.getValue(WATERLOGGED)) Fluids.WATER.defaultFluidState() else Fluids.EMPTY.defaultFluidState()
     }
 
     override fun randomTick(state: BlockState, world: ServerLevel, pos: BlockPos, random: RandomSource) {
@@ -94,6 +102,27 @@ class HeartyGrainsBlock(settings: Properties) : CropBlock(settings) {
         return super.playerWillDestroy(world, pos, state, player)
     }
 
+    override fun updateShape(
+        state: BlockState,
+        direction: Direction,
+        neighborState: BlockState,
+        world: LevelAccessor,
+        pos: BlockPos,
+        neighborPos: BlockPos
+    ): BlockState {
+        if (state.getValue(WATERLOGGED)) {
+            world.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world))
+        }
+        return if (!canSurvive(state, world, pos)) Blocks.AIR.defaultBlockState() else super.updateShape(
+            state,
+            direction,
+            neighborState,
+            world,
+            pos,
+            neighborPos
+        )
+    }
+
     override fun isValidBonemealTarget(world: LevelReader, pos: BlockPos, state: BlockState): Boolean {
         return !this.isMaxAge(state) && state.getValue(PART) == Part.LOWER
     }
@@ -124,14 +153,12 @@ class HeartyGrainsBlock(settings: Properties) : CropBlock(settings) {
                 val floor = world.getBlockState(pos.below())
                 val fluidState = world.getFluidState(pos)
 
-                val isInOneBlockDeepWater = fluidState.`is`(FluidTags.WATER) &&
-                        fluidState.isSource &&
-                        world.getBlockState(pos.above()).isAir
-
                 val isNearWater = BlockPos.betweenClosed(pos.offset(-1, 0, -1), pos.offset(1, 0, 1))
                     .any { world.getFluidState(it).`is`(FluidTags.WATER) }
 
-                isInOneBlockDeepWater || floor.`is`(CobblemonBlockTags.HEARTY_GRAINS_PLANTABLE) || floor.`is`(Blocks.MUD) || isNearWater
+                val isInWater = fluidState.`is`(FluidTags.WATER) && fluidState.isSource
+
+                isInWater || isNearWater || floor.`is`(CobblemonBlockTags.HEARTY_GRAINS_PLANTABLE) || floor.`is`(Blocks.MUD)
             }
             Part.UPPER -> {
                 val below = world.getBlockState(pos.below())
@@ -145,15 +172,16 @@ class HeartyGrainsBlock(settings: Properties) : CropBlock(settings) {
     companion object {
         val CODEC = simpleCodec(::HeartyGrainsBlock)
         const val MATURE_AGE = 4
+        val WATERLOGGED = BlockStateProperties.WATERLOGGED
         val AGE: IntegerProperty = BlockStateProperties.AGE_4
         val PART: EnumProperty<Part> = EnumProperty.create("part", Part::class.java)
 
         val AGE_TO_SHAPE = arrayOf(
-            box(0.0, 0.0, 0.0, 16.0, 3.0, 16.0),
-            box(0.0, 0.0, 0.0, 16.0, 6.0, 16.0),
-            box(0.0, 0.0, 0.0, 16.0, 9.0, 16.0),
-            box(0.0, 0.0, 0.0, 16.0, 12.0, 16.0),
-            box(0.0, 0.0, 0.0, 16.0, 16.0, 16.0)
+            box(2.0, 0.0, 0.0, 16.0, 17.0, 16.0), // Stage 1
+            box(2.0, 0.0, 0.0, 16.0, 17.0, 16.0), // Stage 2
+            box(2.0, 0.0, 0.0, 16.0, 17.0, 16.0), // Stage 3
+            box(2.0, 0.0, 0.0, 16.0, 17.0, 16.0), // Stage 4 (Bottom)
+            box(2.0, 0.0, 0.0, 16.0, 17.0, 16.0)  // Stage 5 (Bottom)
         )
     }
 
@@ -168,6 +196,7 @@ class HeartyGrainsBlock(settings: Properties) : CropBlock(settings) {
             this.stateDefinition.any()
                 .setValue(AGE, 0)
                 .setValue(PART, Part.LOWER)
+                .setValue(WATERLOGGED, false)
         )
     }
 }
