@@ -1,8 +1,9 @@
 {
-    "type": "minecraft:crafting_shapeless",
+    "type": "cobblemon:cooking_pot_shapeless",
+    "category": "misc",
     "ingredients": [
         {
-            "item": "minecraft:purple_dye"
+            "item": "minecraft:yellow_dye"
         },
         {
             "item": "minecraft:honey_bottle"
@@ -12,6 +13,6 @@
         }
     ],
     "result": {
-        "id": "cobblemon:ribbon_sweet"
+        "id": "cobblemon:star_sweet"
     }
 }

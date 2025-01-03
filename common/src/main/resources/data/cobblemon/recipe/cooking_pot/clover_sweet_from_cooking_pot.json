@@ -1,8 +1,9 @@
 {
-    "type": "minecraft:crafting_shapeless",
+    "type": "cobblemon:cooking_pot_shapeless",
+    "category": "misc",
     "ingredients": [
         {
-            "item": "minecraft:blue_dye"
+            "item": "minecraft:green_dye"
         },
         {
             "item": "minecraft:honey_bottle"
@@ -12,6 +13,6 @@
         }
     ],
     "result": {
-        "id": "cobblemon:berry_sweet"
+        "id": "cobblemon:clover_sweet"
     }
 }

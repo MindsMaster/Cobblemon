@@ -124,6 +124,10 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
                         // Replace with empty bucket
                         container.setItem(i, ItemStack(Items.BUCKET))
                     }
+                    Items.HONEY_BOTTLE -> {
+                        // Replace with empty glass bottle
+                        container.setItem(i, ItemStack(Items.GLASS_BOTTLE))
+                    }
                     else -> {
                         // Decrease the stack size by 1
                         itemInSlot.shrink(1)
@@ -136,6 +140,7 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
         }
         broadcastChanges() // Notify the client of changes
     }
+
 
 
     override fun broadcastChanges() {

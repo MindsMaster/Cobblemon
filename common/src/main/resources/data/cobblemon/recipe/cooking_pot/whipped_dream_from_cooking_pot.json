@@ -1,24 +1,20 @@
 {
-    "type": "minecraft:crafting_shaped",
-    "pattern": [
-        " B ",
-        "SMS",
-        "HSH"
-    ],
-    "key": {
-        "B": {
+    "type": "cobblemon:cooking_pot_shapeless",
+    "category": "misc",
+    "ingredients": [
+        {
             "item": "minecraft:sweet_berries"
         },
-        "S": {
+        {
             "item": "minecraft:sugar"
         },
-        "M": {
+        {
             "item": "minecraft:milk_bucket"
         },
-        "H": {
+        {
             "item": "minecraft:honey_bottle"
         }
-    },
+    ],
     "result": {
         "id": "cobblemon:whipped_dream"
     }
