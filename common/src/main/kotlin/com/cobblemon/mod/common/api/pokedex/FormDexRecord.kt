@@ -13,6 +13,7 @@ import com.bedrockk.molang.runtime.struct.VariableStruct
 import com.bedrockk.molang.runtime.value.StringValue
 import com.cobblemon.mod.common.api.events.CobblemonEvents
 import com.cobblemon.mod.common.api.events.pokemon.PokedexDataChangedEvent
+import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.pokedex.scanner.PokedexEntityData
 import com.cobblemon.mod.common.pokemon.Gender
 import com.cobblemon.mod.common.pokemon.Pokemon
@@ -112,8 +113,11 @@ class FormDexRecord {
 
     //Used when granting all entries in dex, should figure out better way
     fun addAllShinyStatesAndGenders() {
-        genders.addAll(listOf(Gender.MALE, Gender.FEMALE))
+        val form = PokemonSpecies.getByIdentifier(speciesDexRecord.id)?.getFormByName(formName)
+        genders.addAll(form?.possibleGenders ?: listOf(Gender.MALE, Gender.FEMALE))
+
         seenShinyStates.addAll(listOf("shiny", "normal"))
+        speciesDexRecord.onFormRecordUpdated(this)
     }
 
     fun setKnowledgeProgress(newKnowledge: PokedexEntryProgress) {

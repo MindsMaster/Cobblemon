@@ -38,6 +38,7 @@ class NPCClass {
     var resourceIdentifier: ResourceLocation = cobblemonResource("dummy")
     var names: MutableList<Component> = mutableListOf()
     var aspects: MutableSet<String> = mutableSetOf() // These only make sense when applied via presets
+    var baseScale: Float = 1F
     var hitbox = EntityDimensions.scalable(0.6F, 1.8F).withEyeHeight(1.62F)
     var modelScale: Float = 0.94F
     var battleConfiguration = NPCBattleConfiguration()
@@ -62,6 +63,7 @@ class NPCClass {
     fun encode(buffer: RegistryFriendlyByteBuf) {
         buffer.writeString(resourceIdentifier.toString())
         buffer.writeCollection(names) { _, v -> buffer.writeText(v) }
+        buffer.writeFloat(baseScale)
         buffer.writeFloat(hitbox.width)
         buffer.writeFloat(hitbox.height)
         buffer.writeBoolean(hitbox.fixed)
@@ -100,6 +102,7 @@ class NPCClass {
     fun decode(buffer: RegistryFriendlyByteBuf) {
         resourceIdentifier = ResourceLocation.parse(buffer.readString().toString())
         names = buffer.readList { buffer.readText().copy() }.toMutableList()
+        baseScale = buffer.readFloat()
         val length = buffer.readFloat()
         val width = buffer.readFloat()
         val fixed = buffer.readBoolean()

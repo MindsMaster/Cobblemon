@@ -32,6 +32,18 @@ abstract class AbstractPokedexManager {
         markDirty()
     }
 
+    fun deleteFormRecord(speciesId: ResourceLocation, formName: String) {
+        val speciesRecord = speciesRecords[speciesId] ?: return
+        speciesRecord.deleteFormRecord(formName)
+
+        if (speciesRecord.isFormRecordsEmpty) {
+            deleteSpeciesRecord(speciesId)
+            return
+        }
+
+        markDirty()
+    }
+
     fun getSpeciesRecord(speciesId: ResourceLocation): SpeciesDexRecord? {
         return speciesRecords[speciesId]
     }
