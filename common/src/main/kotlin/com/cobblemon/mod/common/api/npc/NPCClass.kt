@@ -78,6 +78,7 @@ class NPCClass {
         }
         buffer.writeCollection(config) { _, v ->
             buffer.writeString(v.variableName)
+            buffer.writeText(v.category)
             buffer.writeText(v.displayName)
             buffer.writeText(v.description)
             buffer.writeEnumConstant(v.type)
@@ -122,11 +123,12 @@ class NPCClass {
         }
         config = buffer.readList {
             val variableName = buffer.readString()
+            val category = buffer.readText()
             val displayName = buffer.readText()
             val description = buffer.readText()
             val type = buffer.readEnumConstant(MoLangConfigVariable.MoLangVariableType::class.java)
             val defaultValue = buffer.readString()
-            MoLangConfigVariable(variableName, displayName, description, type, defaultValue)
+            MoLangConfigVariable(variableName, category, displayName, description, type, defaultValue)
         }.toMutableList()
         skill = buffer.readInt()
         autoHealParty = buffer.readBoolean()

@@ -8,15 +8,18 @@
 
 package com.cobblemon.mod.common.api.npc.configuration
 
+import com.bedrockk.molang.Expression
 import com.bedrockk.molang.runtime.value.DoubleValue
 import com.bedrockk.molang.runtime.value.MoValue
 import com.bedrockk.molang.runtime.value.StringValue
+import com.cobblemon.mod.common.api.ai.ExpressionOrEntityVariable
 import com.cobblemon.mod.common.entity.npc.NPCEntity
 import com.cobblemon.mod.common.util.asTranslated
 import com.cobblemon.mod.common.util.readString
 import com.cobblemon.mod.common.util.readText
 import com.cobblemon.mod.common.util.writeString
 import com.cobblemon.mod.common.util.writeText
+import com.mojang.datafixers.util.Either
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.network.chat.Component
 
@@ -29,6 +32,7 @@ import net.minecraft.network.chat.Component
  */
 class MoLangConfigVariable(
     val variableName: String = "variable",
+    val category: Component = "Variables".asTranslated(),
     val displayName: Component = "Variable".asTranslated(),
     val description: Component = "A variable that can be used in the entity's configuration.".asTranslated(),
     val type: MoLangVariableType = MoLangVariableType.NUMBER,
@@ -40,11 +44,14 @@ class MoLangConfigVariable(
                 buffer.readString(),
                 buffer.readText(),
                 buffer.readText(),
+                buffer.readText(),
                 buffer.readEnum(MoLangVariableType::class.java),
                 buffer.readString()
             )
         }
     }
+
+    fun asExpressible(): ExpressionOrEntityVariable = Either.right(this)
 
     enum class MoLangVariableType {
         NUMBER,
@@ -62,6 +69,7 @@ class MoLangConfigVariable(
 
     fun encode(buffer: RegistryFriendlyByteBuf) {
         buffer.writeString(variableName)
+        buffer.writeText(category)
         buffer.writeText(displayName)
         buffer.writeText(description)
         buffer.writeEnum(type)

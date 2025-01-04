@@ -11,6 +11,8 @@ package com.cobblemon.mod.common.pokemon.ai
 import com.cobblemon.mod.common.CobblemonActivities
 import com.cobblemon.mod.common.CobblemonMemories
 import com.cobblemon.mod.common.CobblemonSensors
+import com.cobblemon.mod.common.api.ai.config.ApplyPresets
+import com.cobblemon.mod.common.api.ai.config.BrainConfig
 import com.cobblemon.mod.common.entity.ai.AttackAngryAtTask
 import com.cobblemon.mod.common.entity.ai.ChooseLandWanderTargetTask
 import com.cobblemon.mod.common.entity.ai.FleeFromAttackerTask
@@ -63,6 +65,17 @@ object PokemonBrain {
     )
 
     fun makeBrain(entity: PokemonEntity, pokemon: Pokemon, brain: Brain<out PokemonEntity>): Brain<*> {
+        val brainConfigurations: List<BrainConfig>
+        if (entity.behavioursAreCustom) {
+            brainConfigurations = listOf(ApplyPresets().apply { presets.addAll(entity.behaviours) })
+        } else {
+//            brainConfigurations = npcClass.ai
+//            entity.behaviours.clear()
+//            entity.behaviours.addAll(brainConfigurations.filterIsInstance<ApplyPresets>().flatMap { it.presets }.toMutableList())
+        }
+        // Use brain configs, apply from some kind of pokemon species AI data if it isn't custom blabla
+
+
         brain.addActivity(
             Activity.CORE,
             ImmutableList.copyOf(coreTasks(pokemon))

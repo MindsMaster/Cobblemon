@@ -13,6 +13,7 @@ import com.bedrockk.molang.runtime.struct.QueryStruct
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.CobblemonBrainConfigs
 import com.cobblemon.mod.common.api.ai.BrainConfigurationContext
+import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMostSpecificMoLangValue
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.setup
 import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
 import com.cobblemon.mod.common.entity.PosableEntity
@@ -30,7 +31,7 @@ class ApplyPresets : BrainConfig {
 
     override fun configure(entity: LivingEntity, brainConfigurationContext: BrainConfigurationContext) {
         val runtime = MoLangRuntime().setup()
-        runtime.withQueryValue("entity", (entity as? PosableEntity)?.struct ?: QueryStruct(hashMapOf()))
+        runtime.withQueryValue("entity", entity.asMostSpecificMoLangValue())
         if (!runtime.resolveBoolean(condition)) return
 
         val presetConfigs = presets.flatMap { CobblemonBrainConfigs.presets[it]?.configurations ?: return Cobblemon.LOGGER.warn("Preset $it not found") }

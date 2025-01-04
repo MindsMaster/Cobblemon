@@ -12,8 +12,8 @@ import com.cobblemon.mod.common.api.ai.config.BrainConfig
 import com.cobblemon.mod.common.util.asTranslated
 import net.minecraft.network.chat.Component
 
-class BrainPreset {
-    val name: Component = "dummy".asTranslated()
-    val description: Component = "".asTranslated()
-    val configurations = mutableListOf<BrainConfig>()
-}
+class BrainPreset(
+    val name: Component = "dummy".asTranslated(),
+    val description: Component = "".asTranslated(),
+    val configurations: List<BrainConfig> = mutableListOf()
+)

@@ -8,17 +8,14 @@
 
 package com.cobblemon.mod.common.api.ai.config.task
 
-import com.bedrockk.molang.runtime.struct.QueryStruct
 import com.cobblemon.mod.common.CobblemonMemories
 import com.cobblemon.mod.common.api.ai.BrainConfigurationContext
+import com.cobblemon.mod.common.api.ai.asVariables
+import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMostSpecificMoLangValue
 import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
 import com.cobblemon.mod.common.battles.BattleRegistry
-import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.entity.npc.NPCEntity
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
-import com.cobblemon.mod.common.util.asExpression
-import com.cobblemon.mod.common.util.lang
-import com.cobblemon.mod.common.util.resolveBoolean
 import com.cobblemon.mod.common.util.withQueryValue
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.ai.behavior.BehaviorControl
@@ -27,40 +24,22 @@ import net.minecraft.world.entity.ai.behavior.declarative.Trigger
 import net.minecraft.world.entity.ai.memory.MemoryModuleType
 
 class ExitBattleWhenHurtTaskConfig : SingleTaskConfig {
-    companion object {
-        const val EXIT_BATTLE_WHEN_HURT = "exit_battle_when_hurt"
-        const val EXIT_BATTLE_FROM_PASSIVE = "exit_battle_from_passive_damage"
-    }
-
-    var condition = "true".asExpression()
-    var includePassiveDamage = true
+    var condition = booleanVariable(SharedEntityVariables.BATTLING_CATEGORY, "exit_battle_when_hurt", true).asExpressible()
+    var includePassiveDamage = booleanVariable(SharedEntityVariables.BATTLING_CATEGORY, "exit_battle_from_passive_damage", true).asExpressible()
 
     override val variables: List<MoLangConfigVariable>
         get() = listOf(
-            MoLangConfigVariable(
-                variableName = EXIT_BATTLE_WHEN_HURT,
-                type = MoLangConfigVariable.MoLangVariableType.BOOLEAN,
-                displayName = lang("entity.variable.exit_battle_when_hurt.name"),
-                description = lang("entity.variable.exit_battle_when_hurt.desc"),
-                defaultValue = condition.originalString
-            ),
-            MoLangConfigVariable(
-                variableName = EXIT_BATTLE_FROM_PASSIVE,
-                type = MoLangConfigVariable.MoLangVariableType.BOOLEAN,
-                displayName = lang("entity.variable.exit_battle_from_passive_damage.name"),
-                description = lang("entity.variable.exit_battle_from_passive_damage.desc"),
-                defaultValue = includePassiveDamage.toString()
-            )
-        )
+            condition,
+            includePassiveDamage
+        ).asVariables()
 
     override fun createTask(
         entity: LivingEntity,
         brainConfigurationContext: BrainConfigurationContext
     ): BehaviorControl<in LivingEntity>? {
-        runtime.withQueryValue("entity", (entity as? PosableEntity)?.struct ?: QueryStruct(hashMapOf()))
-        val includePassiveDamage = runtime.resolveBoolean("q.entity.config.$EXIT_BATTLE_FROM_PASSIVE".asExpression())
-        val condition = runtime.resolveBoolean("q.entity.config.$EXIT_BATTLE_WHEN_HURT".asExpression())
-        if (!condition) return null
+        runtime.withQueryValue("entity", entity.asMostSpecificMoLangValue())
+        val includePassiveDamage = includePassiveDamage.resolveBoolean()
+        if (!condition.resolveBoolean()) return null
 
         if (entity is NPCEntity) {
             fun cancelNPCBattles(npcEntity: NPCEntity): Boolean {

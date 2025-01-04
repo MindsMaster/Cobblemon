@@ -9,23 +9,28 @@
 package com.cobblemon.mod.common
 
 import com.bedrockk.molang.Expression
+import com.cobblemon.mod.common.CobblemonNetwork.sendPacket
 import com.cobblemon.mod.common.api.ai.BrainPreset
 import com.cobblemon.mod.common.api.ai.config.BrainConfig
 import com.cobblemon.mod.common.api.ai.config.task.TaskConfig
-import com.cobblemon.mod.common.api.data.DataRegistry
 import com.cobblemon.mod.common.api.data.JsonDataRegistry
 import com.cobblemon.mod.common.api.molang.ExpressionLike
+import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
 import com.cobblemon.mod.common.api.reactive.SimpleObservable
+import com.cobblemon.mod.common.net.messages.client.data.BrainPresetSyncPacket
 import com.cobblemon.mod.common.util.adapters.ActivityAdapter
 import com.cobblemon.mod.common.util.adapters.BrainConfigAdapter
 import com.cobblemon.mod.common.util.adapters.ExpressionAdapter
 import com.cobblemon.mod.common.util.adapters.ExpressionLikeAdapter
+import com.cobblemon.mod.common.util.adapters.ExpressionOrEntityVariableAdapter
+import com.cobblemon.mod.common.util.adapters.IdentifierAdapter
 import com.cobblemon.mod.common.util.adapters.TaskConfigAdapter
 import com.cobblemon.mod.common.util.adapters.TranslatedTextAdapter
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
+import com.mojang.datafixers.util.Either
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
@@ -40,7 +45,12 @@ object CobblemonBrainConfigs : JsonDataRegistry<BrainPreset> {
         .registerTypeAdapter(ExpressionLike::class.java, ExpressionLikeAdapter)
         .registerTypeAdapter(BrainConfig::class.java, BrainConfigAdapter)
         .registerTypeAdapter(TaskConfig::class.java, TaskConfigAdapter)
+        .registerTypeAdapter(
+            TypeToken.getParameterized(Either::class.java, Expression::class.java, MoLangConfigVariable::class.java).type,
+            ExpressionOrEntityVariableAdapter
+        )
         .registerTypeAdapter(Component::class.java, TranslatedTextAdapter)
+        .registerTypeAdapter(ResourceLocation::class.java, IdentifierAdapter)
         .create()
 
     override val typeToken = TypeToken.get(BrainPreset::class.java)
@@ -52,7 +62,7 @@ object CobblemonBrainConfigs : JsonDataRegistry<BrainPreset> {
     val presets = mutableMapOf<ResourceLocation, BrainPreset>()
 
     override fun sync(player: ServerPlayer) {
-        // TODO implement probs ay
+        player.sendPacket(BrainPresetSyncPacket(presets))
     }
 
     override fun reload(data: Map<ResourceLocation, BrainPreset>) {

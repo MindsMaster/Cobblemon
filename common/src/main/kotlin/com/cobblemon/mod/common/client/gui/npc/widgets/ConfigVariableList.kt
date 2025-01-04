@@ -9,11 +9,10 @@
 package com.cobblemon.mod.common.client.gui.npc.widgets
 
 import com.cobblemon.mod.common.api.gui.blitk
-import com.cobblemon.mod.common.api.npc.NPCClasses
-import com.cobblemon.mod.common.client.gui.CobblemonRenderable
-import com.cobblemon.mod.common.client.gui.npc.NPCEditorButton
 import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
 import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable.MoLangVariableType
+import com.cobblemon.mod.common.client.gui.CobblemonRenderable
+import com.cobblemon.mod.common.client.gui.npc.NPCEditorButton
 import com.cobblemon.mod.common.client.gui.npc.NPCEditorScreen
 import com.cobblemon.mod.common.client.gui.npc.widgets.ConfigVariableList.ConfigVariable
 import com.cobblemon.mod.common.client.render.drawScaledText
@@ -57,12 +56,9 @@ class ConfigVariableList(
         this.y = listY
         correctSize()
         setRenderHeader(false, 0)
-        val npcClass = NPCClasses.getByIdentifier(parent.dto.npcClass)
-        if (npcClass != null) {
-            npcClass.config.forEach { variable ->
-                val value = parent.dto.variables[variable.variableName] ?: variable.defaultValue
-                addEntry(ConfigVariable(variable, value, this))
-            }
+        parent.dto.registeredVariables.sortedBy { it.category.string }.forEach { variable ->
+            val value = parent.dto.variables[variable.variableName] ?: variable.defaultValue
+            addEntry(ConfigVariable(variable, value, this))
         }
     }
 

@@ -298,6 +298,8 @@ open class PokemonEntity(
     /** The pokeball exposed to the client. Used for sendout animation. */
     val exposedBall: PokeBall get() = this.effects.mockEffect?.exposedBall ?: this.pokemon.caughtBall
 
+    override var behavioursAreCustom = false
+    override val behaviours = mutableListOf<ResourceLocation>()
     override val registeredVariables = mutableListOf<MoLangConfigVariable>()
     override var config = VariableStruct()
     override var data = VariableStruct()
@@ -324,6 +326,12 @@ open class PokemonEntity(
         }
         initializeScripting()
         refreshDimensions()
+    }
+
+    override fun updateBehaviours(brainPresets: Collection<ResourceLocation>) {
+        behaviours.clear()
+        behaviours.addAll(brainPresets)
+        TODO("Set this up properly the way NPCs were")
     }
 
     override fun defineSynchedData(builder: SynchedEntityData.Builder) {

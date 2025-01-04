@@ -10,13 +10,11 @@ package com.cobblemon.mod.common.api.ai.config.task
 
 import com.cobblemon.mod.common.api.ai.BrainConfigurationContext
 import com.cobblemon.mod.common.api.ai.WrapperLivingEntityTask
+import com.cobblemon.mod.common.api.ai.asVariables
+import com.cobblemon.mod.common.api.ai.config.task.SharedEntityVariables.FLEE_DESIRED_DISTANCE
+import com.cobblemon.mod.common.api.ai.config.task.SharedEntityVariables.FLEE_SPEED_MULTIPLIER
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMostSpecificMoLangValue
 import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
-import com.cobblemon.mod.common.util.asExpression
-import com.cobblemon.mod.common.util.lang
-import com.cobblemon.mod.common.util.resolveBoolean
-import com.cobblemon.mod.common.util.resolveFloat
-import com.cobblemon.mod.common.util.resolveInt
 import com.cobblemon.mod.common.util.withQueryValue
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.PathfinderMob
@@ -25,49 +23,21 @@ import net.minecraft.world.entity.ai.behavior.SetWalkTargetAwayFrom
 import net.minecraft.world.entity.ai.memory.MemoryModuleType
 
 class FleeNearestHostileTaskConfig : SingleTaskConfig {
-    companion object {
-        const val FLEE_NEAREST_HOSTILE = "flee_nearest_hostile"
-        const val FLEE_SPEED_MULTIPLIER = "flee_speed_multiplier"
-        const val FLEE_DESIRED_DISTANCE = "flee_desired_distance"
-    }
-
-    var condition = true
-    var speedMultiplier = 0.5
-    var desiredDistance = 9
+    var condition = booleanVariable(SharedEntityVariables.FEAR_CATEGORY, "flee_nearest_hostile", true).asExpressible()
+    var speedMultiplier = numberVariable(SharedEntityVariables.FEAR_CATEGORY, FLEE_SPEED_MULTIPLIER, 0.5).asExpressible()
+    var desiredDistance = numberVariable(SharedEntityVariables.FEAR_CATEGORY, FLEE_DESIRED_DISTANCE, 9).asExpressible()
 
     override val variables: List<MoLangConfigVariable>
-        get() = listOf(
-            MoLangConfigVariable(
-                variableName = FLEE_NEAREST_HOSTILE,
-                type = MoLangConfigVariable.MoLangVariableType.BOOLEAN,
-                displayName = lang("entity.variable.flee_nearest_hostile.name"),
-                description = lang("entity.variable.flee_nearest_hostile.desc"),
-                defaultValue = condition.toString()
-            ),
-            MoLangConfigVariable(
-                variableName = FLEE_SPEED_MULTIPLIER,
-                type = MoLangConfigVariable.MoLangVariableType.NUMBER,
-                displayName = lang("entity.variable.flee_speed_multiplier.name"),
-                description = lang("entity.variable.flee_speed_multiplier.desc"),
-                defaultValue = speedMultiplier.toString()
-            ),
-            MoLangConfigVariable(
-                variableName = FLEE_DESIRED_DISTANCE,
-                type = MoLangConfigVariable.MoLangVariableType.NUMBER,
-                displayName = lang("entity.variable.flee_desired_distance.name"),
-                description = lang("entity.variable.flee_desired_distance.desc"),
-                defaultValue = desiredDistance.toString()
-            )
-        )
+        get() = listOf(condition, speedMultiplier, desiredDistance).asVariables()
 
     override fun createTask(
         entity: LivingEntity,
         brainConfigurationContext: BrainConfigurationContext
     ): BehaviorControl<in LivingEntity>? {
         runtime.withQueryValue("entity", entity.asMostSpecificMoLangValue())
-        if (!runtime.resolveBoolean("q.entity.config.$FLEE_NEAREST_HOSTILE".asExpression()) || entity !is PathfinderMob) return null
-        val speedMultiplier = runtime.resolveFloat("q.entity.config.$FLEE_SPEED_MULTIPLIER".asExpression())
-        val desiredDistance = runtime.resolveInt("q.entity.config.$FLEE_DESIRED_DISTANCE".asExpression())
+        if (!condition.resolveBoolean() || entity !is PathfinderMob) return null
+        val speedMultiplier = speedMultiplier.resolveFloat()
+        val desiredDistance = desiredDistance.resolveInt()
         return WrapperLivingEntityTask(
             SetWalkTargetAwayFrom.entity(MemoryModuleType.NEAREST_HOSTILE, speedMultiplier, desiredDistance, false),
             PathfinderMob::class.java

@@ -21,7 +21,6 @@ class BrainConfigurationContext {
     var coreActivities = setOf(Activity.CORE)
     val activities = mutableListOf<ActivityConfigurationContext>()
     val schedule = Schedule.EMPTY
-    val registeredVariables: MutableList<MoLangConfigVariable> = mutableListOf()
 
     fun getOrCreateActivity(activity: Activity): ActivityConfigurationContext {
         return activities.firstOrNull { it.activity == activity } ?: ActivityConfigurationContext(activity).also(activities::add)
@@ -30,9 +29,8 @@ class BrainConfigurationContext {
     fun apply(entity: LivingEntity, brainConfigs: List<BrainConfig>) {
         val brain = entity.brain
 
-
         if (entity is MoLangScriptingEntity) {
-            registeredVariables.forEach { variable ->
+            brainConfigs.flatMap { it.variables }.forEach { variable ->
                 if (entity.registeredVariables.none { it.variableName == variable.variableName }) {
                     entity.registeredVariables.add(variable)
                 }

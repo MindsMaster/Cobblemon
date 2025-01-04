@@ -8,16 +8,12 @@
 
 package com.cobblemon.mod.common.api.ai.config.task
 
-import com.bedrockk.molang.runtime.struct.QueryStruct
 import com.cobblemon.mod.common.api.ai.BrainConfigurationContext
 import com.cobblemon.mod.common.api.ai.WrapperLivingEntityTask
-import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
-import com.cobblemon.mod.common.entity.PosableEntity
-import com.cobblemon.mod.common.util.asExpression
-import com.cobblemon.mod.common.util.lang
-import com.cobblemon.mod.common.util.resolveBoolean
-import com.cobblemon.mod.common.util.resolveFloat
-import com.cobblemon.mod.common.util.resolveInt
+import com.cobblemon.mod.common.api.ai.asVariables
+import com.cobblemon.mod.common.api.ai.config.task.SharedEntityVariables.FLEE_DESIRED_DISTANCE
+import com.cobblemon.mod.common.api.ai.config.task.SharedEntityVariables.FLEE_SPEED_MULTIPLIER
+import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMostSpecificMoLangValue
 import com.cobblemon.mod.common.util.withQueryValue
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.PathfinderMob
@@ -26,48 +22,25 @@ import net.minecraft.world.entity.ai.behavior.SetWalkTargetAwayFrom
 import net.minecraft.world.entity.ai.memory.MemoryModuleType
 
 class FleeAttackerTaskConfig : SingleTaskConfig {
-    companion object {
-        const val FLEE_ATTACKER = "flee_attacker"
-        const val FLEE_SPEED_MULTIPLIER = "flee_speed_multiplier"
-        const val FLEE_DESIRED_DISTANCE = "flee_desired_distance"
-    }
+    var condition = booleanVariable(SharedEntityVariables.FEAR_CATEGORY, "flee_attacker", true).asExpressible()
+    var speedMultiplier = numberVariable(SharedEntityVariables.FEAR_CATEGORY, FLEE_SPEED_MULTIPLIER, 0.5).asExpressible()
+    var desiredDistance = numberVariable(SharedEntityVariables.FEAR_CATEGORY, FLEE_DESIRED_DISTANCE, 9).asExpressible()
 
-    var condition = true
-    var speedMultiplier = 0.5
-    var desiredDistance = 9
-
-    override val variables = listOf(
-        MoLangConfigVariable(
-            variableName = FLEE_ATTACKER,
-            type = MoLangConfigVariable.MoLangVariableType.BOOLEAN,
-            displayName = lang("entity.variable.flee_attacker.name"),
-            description = lang("entity.variable.flee_attacker.desc"),
-            defaultValue = condition.toString()
-        ),
-        MoLangConfigVariable(
-            variableName = FLEE_SPEED_MULTIPLIER,
-            type = MoLangConfigVariable.MoLangVariableType.NUMBER,
-            displayName = lang("entity.variable.flee_speed_multiplier.name"),
-            description = lang("entity.variable.flee_speed_multiplier.desc"),
-            defaultValue = speedMultiplier.toString()
-        ),
-        MoLangConfigVariable(
-            variableName = FLEE_DESIRED_DISTANCE,
-            type = MoLangConfigVariable.MoLangVariableType.NUMBER,
-            displayName = lang("entity.variable.flee_desired_distance.name"),
-            description = lang("entity.variable.flee_desired_distance.desc"),
-            defaultValue = desiredDistance.toString()
-        )
-    )
+    override val variables // Use get() because JSON deserialization needs to put the values in first
+        get() = listOf(
+            condition,
+            speedMultiplier,
+            desiredDistance
+        ).asVariables()
 
     override fun createTask(
         entity: LivingEntity,
         brainConfigurationContext: BrainConfigurationContext
     ): BehaviorControl<in LivingEntity>? {
-        runtime.withQueryValue("entity", (entity as? PosableEntity)?.struct ?: QueryStruct(hashMapOf()))
-        if (!runtime.resolveBoolean("q.entity.config.$FLEE_ATTACKER".asExpression()) || entity !is PathfinderMob) return null
-        val speedMultiplier = runtime.resolveFloat("q.entity.config.$FLEE_SPEED_MULTIPLIER".asExpression())
-        val desiredDistance = runtime.resolveInt("q.entity.config.$FLEE_DESIRED_DISTANCE".asExpression())
+        runtime.withQueryValue("entity", entity.asMostSpecificMoLangValue())
+        if (!condition.resolveBoolean() || entity !is PathfinderMob) return null
+        val speedMultiplier = speedMultiplier.resolveFloat()
+        val desiredDistance = desiredDistance.resolveInt()
         return WrapperLivingEntityTask(
             SetWalkTargetAwayFrom.entity(MemoryModuleType.HURT_BY_ENTITY, speedMultiplier, desiredDistance, false),
             PathfinderMob::class.java

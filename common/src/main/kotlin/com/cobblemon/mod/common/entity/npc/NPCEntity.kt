@@ -13,7 +13,6 @@ import com.bedrockk.molang.runtime.struct.VariableStruct
 import com.cobblemon.mod.common.*
 import com.cobblemon.mod.common.CobblemonNetwork.sendPacket
 import com.cobblemon.mod.common.api.entity.PokemonSender
-import com.cobblemon.mod.common.api.molang.MoLangFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMoLangValue
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.setup
@@ -152,6 +151,8 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
 
     var interaction: NPCInteractConfiguration? = null
 
+    override var behavioursAreCustom = false
+    override val behaviours = mutableListOf<ResourceLocation>()
     override val registeredVariables: MutableList<MoLangConfigVariable> = mutableListOf()
     override var data = VariableStruct()
     override var config = VariableStruct()
@@ -275,6 +276,13 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
         return brain
     }
 
+    override fun updateBehaviours(brainPresets: Collection<ResourceLocation>) {
+        behaviours.clear()
+        behaviours.addAll(brainPresets)
+        behavioursAreCustom = true
+        setupScriptedBrain()
+    }
+
     override fun doHurtTarget(target: Entity): Boolean {
         val source = this.damageSources().mobAttack(this)
         val hurt = target.hurt(source, attributes.getValue(Attributes.ATTACK_DAMAGE).toFloat() * 5F)
@@ -381,6 +389,7 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
         entityData.set(LEVEL, nbt.getInt(DataKeys.NPC_LEVEL).takeIf { it != 0 } ?: 1)
         super.load(nbt)
         loadScriptingFromNBT(nbt)
+        setupScriptedBrain()
         appliedAspects.addAll(nbt.getList(DataKeys.NPC_ASPECTS, Tag.TAG_STRING.toInt()).map { it.asString })
         variationAspects.addAll(nbt.getList(DataKeys.NPC_VARIATION_ASPECTS, Tag.TAG_STRING.toInt()).map { it.asString })
         nbt.getCompound(DataKeys.NPC_INTERACTION).takeIf { !it.isEmpty }?.let { nbt ->
@@ -475,14 +484,19 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
     fun initialize(level: Int) {
         variationAspects.clear()
         entityData.set(LEVEL, level)
-        registeredVariables.clear()
-        registeredVariables.addAll(npc.config)
-        initializeScripting()
+        setupScriptedBrain()
         npc.variations.values.forEach { this.variationAspects.addAll(it.provideAspects(this)) }
         if (party == null || npc.party != null) {
             party = npc.party?.takeIf { it.isStatic }?.provide(this, level)
         }
         updateAspects()
+    }
+
+    fun setupScriptedBrain() {
+        registeredVariables.clear()
+        makeBrain(dynamic = brainDynamic ?: makeEmptyBrainDynamic())
+        registeredVariables.addAll(npc.config)
+        initializeScripting()
     }
 
     override fun mobInteract(player: Player, hand: InteractionHand): InteractionResult {

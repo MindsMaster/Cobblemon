@@ -222,6 +222,8 @@ object DataKeys {
     const val NPC_HITBOX_HEIGHT = "Height"
     const val NPC_HITBOX_FIXED = "Fixed"
 
+    const val SCRIPTED_BRAIN_IS_CUSTOM = "BehavioursAreCustom"
+    const val SCRIPTED_BRAIN_PRESETS = "BrainPresets"
     const val SCRIPTED_DATA = "Data"
     const val SCRIPTED_CONFIG = "Config"
 
