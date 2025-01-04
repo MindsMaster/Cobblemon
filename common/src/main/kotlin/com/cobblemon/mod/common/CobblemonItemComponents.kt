@@ -11,6 +11,7 @@ package com.cobblemon.mod.common
 import com.cobblemon.mod.common.block.PotComponent
 import com.cobblemon.mod.common.item.components.HeldItemCapableComponent
 import com.cobblemon.mod.common.item.components.PokemonItemComponent
+import com.cobblemon.mod.common.item.components.CookingComponent
 import com.cobblemon.mod.common.item.RodBaitComponent
 import com.cobblemon.mod.common.platform.PlatformRegistry
 import net.minecraft.core.Registry
@@ -42,11 +43,17 @@ object CobblemonItemComponents : PlatformRegistry<Registry<DataComponentType<*>>
         .networkSynchronized(PotComponent.PACKET_CODEC)
         .build())
 
+    val COOKING_COMPONENT: DataComponentType<CookingComponent> = create("cooking_component", DataComponentType.builder<CookingComponent>()
+        .persistent(CookingComponent.CODEC)
+        .networkSynchronized(CookingComponent.PACKET_CODEC) // Use CODEC if no specific PACKET_CODEC is defined
+        .build())
+
 
     fun register() {
         Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, ResourceLocation.parse("cobblemon:pokemon_item"), POKEMON_ITEM)
         Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, ResourceLocation.parse("cobblemon:bait"), BAIT)
         Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, ResourceLocation.parse("cobblemon:cooking_pot_item"), POT_DATA)
+        Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, ResourceLocation.parse("cobblemon:cooking_component"), COOKING_COMPONENT)
     }
 
     override val registry = BuiltInRegistries.DATA_COMPONENT_TYPE
