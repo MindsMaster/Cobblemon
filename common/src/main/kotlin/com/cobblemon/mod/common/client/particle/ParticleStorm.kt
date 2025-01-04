@@ -110,7 +110,7 @@ class ParticleStorm(
         }
 
         runtime.environment.setSimpleVariable("target_deltax",  DoubleValue(distanceTo(destinationPosSupplier.invoke()).x))
-        runtime.environment.setSimpleVariable("target_deltay",  DoubleValue(distanceTo(destinationPosSupplier.invoke()).y))
+        runtime.environment.setSimpleVariable("target_deltay",  DoubleValue(distanceTo(destinationPosSupplier.invoke()).y * -1))
         runtime.environment.setSimpleVariable("target_deltaz",  DoubleValue(distanceTo(destinationPosSupplier.invoke()).z))
         runtime.environment.setSimpleVariable("target_distance",  DoubleValue(distanceTo(destinationPosSupplier.invoke()).length()))
     }
