@@ -42,9 +42,9 @@ fun Entity.effectiveName() = this.displayName ?: this.name
 
 
 fun Entity.setPositionSafely(pos: Vec3): Boolean {
-
-    // TODO: Rework this function. Best way to do it would be to define a vertical and horizontal min/max shift based on the Pokemon's hitbox.
-    // Then loop through horizontal/vertical shifts, and detect collisions in three categories: suffocation, damaging blocks, and general collision
+    // Unmute to view how long the BFS algorithm takes to run
+    val mute = false
+    // TODO: Rework this function. Detect collisions in three categories: suffocation, damaging blocks, and general collision
     // The closest position with the least severe collision types will be selected to move the Pokemon to
     // The throw could be cancelled if there are no viable locations without severe problems
 
@@ -69,14 +69,9 @@ fun Entity.setPositionSafely(pos: Vec3): Boolean {
             BlockPos(0, 0, 1), BlockPos(0, 0, -1)  // North and south
     )
 
-    fun getPosScore(level: Level, entity: Entity, box: AABB, pos: BlockPos, minScore : Int = Int.MAX_VALUE): Int {
-        val score = 0
+    fun getPosScore(level: Level, entity: Entity, box: AABB, pos: BlockPos): Int {
         val movedBox = box.move(Vec3(pos.x + 0.5, pos.y.toDouble(), pos.z + 0.5).subtract(box.bottomCenter))
-        return if (score < minScore) {
-            score + level.getBlockCollisions(entity, movedBox).count()
-        } else {
-            score
-        }
+        return level.getBlockCollisions(entity, movedBox).count()
     }
 
     fun findBestBlockPosBFS(
@@ -110,12 +105,12 @@ fun Entity.setPositionSafely(pos: Vec3): Boolean {
             val blockPosHasCollision = !level.getBlockState(currentPos).getCollisionShape(level, currentPos, CollisionContext.empty()).isEmpty
 
             // Ignore blockPositions that have collision
-            val score = if (blockPosHasCollision) Int.MAX_VALUE else getPosScore(level, this, deflatedBox, currentPos, bestScore)
+            val score = if (blockPosHasCollision) Int.MAX_VALUE else getPosScore(level, this, deflatedBox, currentPos)
             if (score == 0) {
-                // Position found with zero collisions return immediately.
+                // Position found with zero collisions, return immediately.
                 return currentPos
             } else if (bestScore > score) {
-                // Only take better scores, ensures that positions closer to the original position win ties.
+                // Only take better scores and ignore ties, ensures that positions closer to the original position win ties.
                 bestPos = currentPos
                 bestScore = score
             }
@@ -123,7 +118,7 @@ fun Entity.setPositionSafely(pos: Vec3): Boolean {
             // Add neighbors (up to maxRadius)
             for (dir in directions) {
                 val neighbor = currentPos.offset(dir)
-                // stay within the max radius and do not pathfind into a wall
+                // stay within the max radius and do not path find into a wall
                 if (neighbor.distManhattan(centerPos) <= maxRadius && (blockPosHasCollision || level.getBlockState(neighbor).getCollisionShape(level, neighbor, CollisionContext.empty()).isEmpty)) {
                     queue.add(neighbor)
                 }
@@ -141,21 +136,23 @@ fun Entity.setPositionSafely(pos: Vec3): Boolean {
     }
 
     var bestBlockPosition: BlockPos
-    var bestPosition: Vec3
+    var result: Vec3
     val elapsedTime = measureTime {
         bestBlockPosition = findBestBlockPosBFS(this, pos, level())
-        bestPosition = Vec3(bestBlockPosition.x + 0.5, bestBlockPosition.y.toDouble(), bestBlockPosition.z + 0.5)
-        setPos(bestPosition)
+        result = Vec3(bestBlockPosition.x + 0.5, bestBlockPosition.y.toDouble(), bestBlockPosition.z + 0.5)
+        setPos(result)
     }
-    println(elapsedTime)
-    server()?.playerList?.players?.forEach {
-        it.sendSystemMessage("Send out for ${(this as PokemonEntity).pokemon.species.name} completed in $elapsedTime".yellow())
+    if (!mute) {
+        server()?.playerList?.players?.forEach {
+            it.sendSystemMessage("Send out for ${(this as PokemonEntity).pokemon.species.name} completed in $elapsedTime".yellow())
+        }
     }
 
-    val result = bestPosition
-
-    // This final check guarantees that the sendout will return to the original position if the Pokemon will suffocate in the new one
-    // This will only happen if the horizontal shift moved the Pokemon into a suffocating position, and there was no valid vertical shift
+    // I don't see the point of returning to the original position here, as the new position is guaranteed to have equal or fewer
+    // block collisions are the original given position
+    // We will return whether the new position causes suffocation, and the caller can decide what to do with that info,
+    // but we will not revert the position here.
+    // Battle has too many use cases in which using the new position is the preferred outcome, even if it is dangerous.
     val resultEyes = result.with(Direction.Axis.Y, result.y + this.eyeHeight)
     val resultEyeBox = AABB.ofSize(resultEyes, bbWidth.toDouble(), 1.0E-6, bbWidth.toDouble())
     var collides = false

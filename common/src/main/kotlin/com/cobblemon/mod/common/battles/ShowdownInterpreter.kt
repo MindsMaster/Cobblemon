@@ -229,31 +229,28 @@ object ShowdownInterpreter {
             result = result?.add(orthogonalVector)
             if (battleActor is EntityBackedBattleActor<*> && result != null) {
                 val entity = battleActor.entity ?: return result
-                val elapsedTime = measureTime {
-                    // Do a single raycast to estimate if we're trying to throw a pokemon into a wall
-                    // Try to find a more reasonable position if the collision is too close to the actor.
-                    // The purpose here is to try to give setPositionSafely something more reasonable to work with
-                    val collisionResult = entity.level().clip(
-                        ClipContext(
-                            actorEntityPos!!.add(Vec3(0.0,entity.eyeHeight.toDouble(),0.0)), // start position
-                            Vec3(result!!.x, entity.y + entity.eyeHeight.toDouble(), result!!.z), // end position
-                            ClipContext.Block.OUTLINE,
-                            ClipContext.Fluid.ANY,
-                            entity
-                        )
+                // Do a single raycast to estimate if we're trying to throw a pokemon into a wall
+                // Try to find a more reasonable position if the collision is too close to the actor.
+                // The purpose here is to try to give setPositionSafely something more reasonable to work with
+                val collisionResult = entity.level().clip(
+                    ClipContext(
+                        actorEntityPos!!.add(Vec3(0.0,entity.eyeHeight.toDouble(),0.0)), // start position
+                        Vec3(result.x, entity.y + entity.eyeHeight.toDouble(), result.z), // end position
+                        ClipContext.Block.OUTLINE,
+                        ClipContext.Fluid.ANY,
+                        entity
                     )
-                    if (collisionResult.type == HitResult.Type.BLOCK) {
-                        // Collided with terrain
-                        if (collisionResult.location.distanceToSqr(actorEntityPos) < 4.0) {
-                            // Fallback to in between the two actors, dropping the orthogonal vector
-                            // Ideally this keeps a pokemon in between the actors in a narrow tunnel
-                            result = fallbackPos
-                        } else {
-                            result = Vec3(collisionResult.location.x, result!!.y, collisionResult.location.z)
-                        }
+                )
+                if (collisionResult.type == HitResult.Type.BLOCK) {
+                    // Collided with terrain
+                    result = if (collisionResult.location.distanceToSqr(actorEntityPos) < 4.0) {
+                        // Fallback to in between the two actors, dropping the orthogonal vector
+                        // Ideally this keeps a pokemon in between the actors in a narrow tunnel
+                        fallbackPos
+                    } else {
+                        Vec3(collisionResult.location.x, result.y, collisionResult.location.z)
                     }
                 }
-                println(elapsedTime)
             }
         }
         return result
