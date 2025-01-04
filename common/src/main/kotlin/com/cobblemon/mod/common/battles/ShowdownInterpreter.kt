@@ -237,7 +237,7 @@ object ShowdownInterpreter {
                         actorEntityPos!!.add(Vec3(0.0,entity.eyeHeight.toDouble(),0.0)), // start position
                         Vec3(result.x, entity.y + entity.eyeHeight.toDouble(), result.z), // end position
                         ClipContext.Block.OUTLINE,
-                        ClipContext.Fluid.ANY,
+                        ClipContext.Fluid.NONE,
                         entity
                     )
                 )

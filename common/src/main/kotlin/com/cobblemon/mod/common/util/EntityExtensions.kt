@@ -41,6 +41,69 @@ fun Entity.effectiveName() = this.displayName ?: this.name
 
 
 
+
+private fun getPosScore(level: Level, entity: Entity, box: AABB, pos: BlockPos): Int {
+    val movedBox = box.move(Vec3(pos.x + 0.5, pos.y.toDouble(), pos.z + 0.5).subtract(box.bottomCenter))
+    return level.getBlockCollisions(entity, movedBox).count()
+}
+private fun findBestBlockPosBFS(
+        entity: Entity,
+        pos: Vec3,
+        level: Level,
+        maxRadius: Int = 4
+): BlockPos {
+    val directions = listOf(
+            BlockPos(0, 1, 0), BlockPos(0, -1, 0), // Up and down
+            BlockPos(1, 0, 0), BlockPos(-1, 0, 0), // East and west
+            BlockPos(0, 0, 1), BlockPos(0, 0, -1)  // North and south
+    )
+    val queue = ArrayDeque<BlockPos>()
+    val visited = mutableSetOf<BlockPos>()
+    val centerPos = BlockPos(if (pos.x > 0) pos.x.toInt() else floor(pos.x).toInt(), if (pos.y > 0) pos.y.toInt() else floor(pos.y).toInt(), if (pos.z > 0) pos.z.toInt() else floor(pos.z).toInt())
+    queue.add(centerPos)
+    var bestScore = Int.MAX_VALUE
+    var bestPos = centerPos
+    var deflatedBox = entity.boundingBox
+    val maxHeight = 3
+    val maxWidth = 3
+    // We deflate the box to make collision checks cheaper for large pokemon.
+    if(entity.bbWidth > maxWidth) {
+        deflatedBox = deflatedBox.deflate((entity.bbWidth - maxWidth) / 2.0, 0.0, (entity.bbWidth - maxWidth) / 2.0)
+    }
+    if(entity.bbHeight > maxHeight) {
+        deflatedBox = deflatedBox.deflate(0.0, (entity.bbWidth - maxHeight) / 2.0, 0.0)
+    }
+
+    while (queue.isNotEmpty()) {
+        val currentPos = queue.removeFirst()
+        if (currentPos in visited) continue
+        visited.add(currentPos)
+
+        val blockPosHasCollision = !level.getBlockState(currentPos).getCollisionShape(level, currentPos, CollisionContext.empty()).isEmpty
+
+        // Ignore blockPositions that have collision
+        val score = if (blockPosHasCollision) Int.MAX_VALUE else getPosScore(level, entity, deflatedBox, currentPos)
+        if (score == 0) {
+            // Position found with zero collisions, return immediately.
+            return currentPos
+        } else if (bestScore > score) {
+            // Only take better scores and ignore ties, ensures that positions closer to the original position win ties.
+            bestPos = currentPos
+            bestScore = score
+        }
+
+        // Add neighbors (up to maxRadius)
+        for (dir in directions) {
+            val neighbor = currentPos.offset(dir)
+            // stay within the max radius and do not path find into a wall
+            if (neighbor.distManhattan(centerPos) <= maxRadius && (blockPosHasCollision || level.getBlockState(neighbor).getCollisionShape(level, neighbor, CollisionContext.empty()).isEmpty)) {
+                queue.add(neighbor)
+            }
+        }
+    }
+    return bestPos
+}
+
 fun Entity.setPositionSafely(pos: Vec3): Boolean {
     // Unmute to view how long the BFS algorithm takes to run
     val mute = false
@@ -62,70 +125,6 @@ fun Entity.setPositionSafely(pos: Vec3): Boolean {
 //        setPosition(pos)
 //        return true
 //    }
-
-    val directions = listOf(
-            BlockPos(0, 1, 0), BlockPos(0, -1, 0), // Up and down
-            BlockPos(1, 0, 0), BlockPos(-1, 0, 0), // East and west
-            BlockPos(0, 0, 1), BlockPos(0, 0, -1)  // North and south
-    )
-
-    fun getPosScore(level: Level, entity: Entity, box: AABB, pos: BlockPos): Int {
-        val movedBox = box.move(Vec3(pos.x + 0.5, pos.y.toDouble(), pos.z + 0.5).subtract(box.bottomCenter))
-        return level.getBlockCollisions(entity, movedBox).count()
-    }
-
-    fun findBestBlockPosBFS(
-            entity: Entity,
-            pos: Vec3,
-            level: Level,
-            maxRadius: Int = 4
-    ): BlockPos {
-        val queue = ArrayDeque<BlockPos>()
-        val visited = mutableSetOf<BlockPos>()
-        val centerPos = BlockPos(if (pos.x > 0) pos.x.toInt() else floor(pos.x).toInt(), if (pos.y > 0) pos.y.toInt() else floor(pos.y).toInt(), if (pos.z > 0) pos.z.toInt() else floor(pos.z).toInt())
-        queue.add(centerPos)
-        var bestScore = Int.MAX_VALUE
-        var bestPos = centerPos
-        var deflatedBox = entity.boundingBox
-        val maxHeight = 3
-        val maxWidth = 3
-        // We deflate the box to make collision checks cheaper for large pokemon.
-        if(bbWidth > maxWidth) {
-            deflatedBox = deflatedBox.deflate((bbWidth - maxWidth) / 2.0, 0.0, (bbWidth - maxWidth) / 2.0)
-        }
-        if(bbHeight > maxHeight) {
-            deflatedBox = deflatedBox.deflate(0.0, (bbWidth - maxHeight) / 2.0, 0.0)
-        }
-
-        while (queue.isNotEmpty()) {
-            val currentPos = queue.removeFirst()
-            if (currentPos in visited) continue
-            visited.add(currentPos)
-
-            val blockPosHasCollision = !level.getBlockState(currentPos).getCollisionShape(level, currentPos, CollisionContext.empty()).isEmpty
-
-            // Ignore blockPositions that have collision
-            val score = if (blockPosHasCollision) Int.MAX_VALUE else getPosScore(level, this, deflatedBox, currentPos)
-            if (score == 0) {
-                // Position found with zero collisions, return immediately.
-                return currentPos
-            } else if (bestScore > score) {
-                // Only take better scores and ignore ties, ensures that positions closer to the original position win ties.
-                bestPos = currentPos
-                bestScore = score
-            }
-
-            // Add neighbors (up to maxRadius)
-            for (dir in directions) {
-                val neighbor = currentPos.offset(dir)
-                // stay within the max radius and do not path find into a wall
-                if (neighbor.distManhattan(centerPos) <= maxRadius && (blockPosHasCollision || level.getBlockState(neighbor).getCollisionShape(level, neighbor, CollisionContext.empty()).isEmpty)) {
-                    queue.add(neighbor)
-                }
-            }
-        }
-        return bestPos
-    }
 
     val box = boundingBox.move(pos.subtract(boundingBox.bottomCenter))
 
