@@ -34,18 +34,22 @@ object Seasonings : JsonDataRegistry<Seasoning> {
     override fun reload(data: Map<ResourceLocation, Seasoning>) {
         itemMap.clear()
         data.forEach { id, seasoning ->
-            itemMap[seasoning.ingredient] = seasoning
+            println("Loaded Seasoning: $id -> $seasoning") // Debugging output
+            itemMap[id] = seasoning
         }
     }
 
     fun getFromItemStack(stack: ItemStack): Seasoning? {
         val itemId = BuiltInRegistries.ITEM.getKey(stack.item)
+        println("Checking ItemStack: ${stack.item} -> Identifier: $itemId")
         return if (itemId != null) getFromIdentifier(itemId) else null
     }
 
     fun getFromIdentifier(identifier: ResourceLocation): Seasoning? {
+        println("Looking for Identifier: $identifier in ${itemMap.keys}")
         return itemMap[identifier]
     }
+
 
     fun isSeasoning(stack: ItemStack) = BuiltInRegistries.ITEM.getKey(stack.item)?.let { itemMap.containsKey(it) } == true
 }

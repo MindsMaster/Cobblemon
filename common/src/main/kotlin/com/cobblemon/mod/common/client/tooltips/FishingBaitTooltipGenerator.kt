@@ -8,6 +8,7 @@
 
 package com.cobblemon.mod.common.client.tooltips
 
+import com.cobblemon.mod.common.CobblemonItemComponents
 import com.cobblemon.mod.common.api.fishing.FishingBaits
 import com.cobblemon.mod.common.api.text.*
 import com.cobblemon.mod.common.api.types.ElementalTypes
@@ -35,14 +36,25 @@ object FishingBaitTooltipGenerator : TooltipGenerator() {
 
     override fun generateAdditionalTooltip(stack: ItemStack, lines: MutableList<Component>): MutableList<Component>? {
         val resultLines = mutableListOf<Component>()
-        val bait =
-            (if (stack.item is PokerodItem) PokerodItem.getBaitOnRod(stack) else FishingBaits.getFromBaitItemStack(stack))
-                ?: return null
+
+        // Determine the FishingBait or combined effects from poke_bait
+        val baitEffects = when {
+            stack.item.asItem()?.toString() == "cobblemon:poke_bait" -> {
+                val cookingComponent = stack.get(CobblemonItemComponents.COOKING_COMPONENT) ?: return null
+                listOf(cookingComponent.bait1, cookingComponent.bait2, cookingComponent.bait3)
+                    .flatMap { it.effects }
+            }
+            stack.item is PokerodItem -> PokerodItem.getBaitOnRod(stack)?.effects
+            else -> FishingBaits.getFromBaitItemStack(stack)?.effects
+        } ?: return null
+
+        if (baitEffects.isEmpty()) return null
+
         resultLines.addLast(this.fishingBaitHeader)
 
         val formatter = DecimalFormat("0.##")
 
-        bait.effects.forEach { effect ->
+        baitEffects.forEach { effect ->
             val effectType = effect.type.path.toString()
             val effectSubcategory = effect.subcategory?.path
             val effectChance = effect.chance * 100
@@ -50,6 +62,7 @@ object FishingBaitTooltipGenerator : TooltipGenerator() {
                 "bite_time" -> (effect.value * 100).toInt()
                 else -> effect.value.toInt()
             }
+
             val subcategoryString: Component = if (effectSubcategory != null) {
                 when (effectType) {
                     "nature", "ev", "iv" -> com.cobblemon.mod.common.api.pokemon.stats.Stats.getStat(
@@ -64,7 +77,7 @@ object FishingBaitTooltipGenerator : TooltipGenerator() {
                 } ?: Component.literal("cursed").obfuscate()
             } else Component.literal("cursed").obfuscate()
 
-            // handle reformatting of shiny chance effectChance
+            // Adjust shiny chance effectValue
             if (effectType == "shiny_reroll") {
                 effectValue++
             }
@@ -81,4 +94,5 @@ object FishingBaitTooltipGenerator : TooltipGenerator() {
 
         return resultLines
     }
+
 }
