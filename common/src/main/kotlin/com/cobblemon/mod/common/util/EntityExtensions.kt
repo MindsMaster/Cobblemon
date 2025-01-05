@@ -28,7 +28,9 @@ import net.minecraft.world.phys.shapes.BooleanOp
 import net.minecraft.world.phys.shapes.CollisionContext
 import net.minecraft.world.phys.shapes.Shapes
 import java.util.*
+import kotlin.math.ceil
 import kotlin.math.floor
+import kotlin.math.min
 import kotlin.time.measureTime
 
 
@@ -53,9 +55,9 @@ private fun findBestBlockPosBFS(
         maxRadius: Int = 4
 ): BlockPos {
     val directions = listOf(
-            BlockPos(0, 1, 0), BlockPos(0, -1, 0), // Up and down
-            BlockPos(1, 0, 0), BlockPos(-1, 0, 0), // East and west
-            BlockPos(0, 0, 1), BlockPos(0, 0, -1)  // North and south
+        BlockPos(0, 1, 0), BlockPos(0, -1, 0), // Up and down
+        BlockPos(1, 0, 0), BlockPos(-1, 0, 0), // East and west
+        BlockPos(0, 0, 1), BlockPos(0, 0, -1)  // North and south
     )
     val queue = ArrayDeque<BlockPos>()
     val visited = mutableSetOf<BlockPos>()
@@ -137,11 +139,13 @@ fun Entity.setPositionSafely(pos: Vec3): Boolean {
     var bestBlockPosition: BlockPos
     var result: Vec3
     val elapsedTime = measureTime {
-        bestBlockPosition = findBestBlockPosBFS(this, pos, level())
+        val searchRadius = min(ceil((this.bbWidth * 2)).toInt(), 4)
+        bestBlockPosition = findBestBlockPosBFS(this, pos, level(), searchRadius)
         result = Vec3(bestBlockPosition.x + 0.5, bestBlockPosition.y.toDouble(), bestBlockPosition.z + 0.5)
         setPos(result)
     }
     if (!mute) {
+        // Displays the time taken to calculate the best position
         server()?.playerList?.players?.forEach {
             it.sendSystemMessage("Send out for ${(this as PokemonEntity).pokemon.species.name} completed in $elapsedTime".yellow())
         }

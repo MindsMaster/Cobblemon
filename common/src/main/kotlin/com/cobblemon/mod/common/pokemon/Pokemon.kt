@@ -571,7 +571,6 @@ open class Pokemon : ShowdownIdentifiable {
             illusion?.start(entity)
             val adjustedPosition = entity.getAjustedSendoutPosition(position)
             entity.setPositionSafely(adjustedPosition)
-//            entity.setPos(adjustedPosition)
             mutation(entity)
             level.addFreshEntity(entity)
             state = SentOutState(entity)

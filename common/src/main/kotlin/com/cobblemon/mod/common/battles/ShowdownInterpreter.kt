@@ -169,11 +169,13 @@ object ShowdownInterpreter {
         var result = actorEntityPos
         if (actorOffset != null) {
             var widthSum = 4.0 // Leave a constant to allow double/triples alignment to be consistent
+            var pokemonWidth = activePokemon.battlePokemon?.originalPokemon?.form?.hitbox?.width ?: 0F
+            val pokemonBaseScale = activePokemon.battlePokemon?.originalPokemon?.form?.baseScale ?: 0F
+            pokemonWidth *= pokemonBaseScale
             if (battle.format.battleType.pokemonPerSide == 1) {
                 activePokemon.battlePokemon?.let { battlePokemon ->
                     // sum of the hitbox widths of both pokemon
                     val opposingActivePokemon = (activePokemon.getOppositeOpponent() as ActiveBattlePokemon)
-                    val pokemonWidth = battlePokemon.originalPokemon.form.hitbox.width * battlePokemon.originalPokemon.form.baseScale
                     val opposingPokemonWidth = opposingActivePokemon.battlePokemon?.let {
                         it.originalPokemon.form.hitbox.width * it.originalPokemon.form.baseScale
                     } ?: pokemonWidth
@@ -243,7 +245,7 @@ object ShowdownInterpreter {
                 )
                 if (collisionResult.type == HitResult.Type.BLOCK) {
                     // Collided with terrain
-                    result = if (collisionResult.location.distanceToSqr(actorEntityPos) < 4.0) {
+                    result = if (collisionResult.location.distanceToSqr(actorEntityPos) < pokemonWidth) {
                         // Fallback to in between the two actors, dropping the orthogonal vector
                         // Ideally this keeps a pokemon in between the actors in a narrow tunnel
                         fallbackPos
