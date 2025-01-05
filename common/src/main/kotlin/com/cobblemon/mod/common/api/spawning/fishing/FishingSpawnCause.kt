@@ -10,6 +10,7 @@ package com.cobblemon.mod.common.api.spawning.fishing
 
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.Cobblemon.LOGGER
+import com.cobblemon.mod.common.CobblemonItemComponents
 import com.cobblemon.mod.common.api.Priority
 import com.cobblemon.mod.common.api.abilities.Abilities
 import com.cobblemon.mod.common.api.events.CobblemonEvents
@@ -27,9 +28,11 @@ import com.cobblemon.mod.common.api.spawning.spawner.Spawner
 import com.cobblemon.mod.common.api.types.tera.TeraTypes
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.item.interactive.PokerodItem
+import com.cobblemon.mod.common.item.interactive.PokerodItem.Companion.getCookingComponentOnRod
 import com.cobblemon.mod.common.pokemon.Gender
 import com.cobblemon.mod.common.pokemon.abilities.HiddenAbility
 import com.cobblemon.mod.common.util.cobblemonResource
+import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
 import kotlin.random.Random.Default.nextInt
@@ -141,6 +144,7 @@ class FishingSpawnCause(
     }
 
     val rodItem = rodStack.item as? PokerodItem
+    // Determine the combined bait effects if any
     val bait = PokerodItem.getBaitOnRod(rodStack)
 
     override fun affectSpawn(entity: Entity) {

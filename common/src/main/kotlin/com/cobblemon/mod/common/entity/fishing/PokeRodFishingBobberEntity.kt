@@ -27,6 +27,7 @@ import com.cobblemon.mod.common.battles.BattleBuilder
 import com.cobblemon.mod.common.client.sound.EntitySoundTracker
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.item.interactive.PokerodItem
+import com.cobblemon.mod.common.item.interactive.PokerodItem.Companion.getCookingComponentOnRod
 import com.cobblemon.mod.common.net.messages.client.effect.SpawnSnowstormParticlePacket
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.common.util.party
@@ -324,7 +325,7 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
                 serverWorld.sendParticles(ParticleTypes.FISHING, this.x, m, this.z, (1.0f + this.bbWidth * 20.0f).toInt(), this.bbWidth.toDouble(), 0.0, this.bbWidth.toDouble(), 0.2)
 
                 // check for chance to catch pokemon based on the bait
-                if (Mth.nextInt(random, 0, 100) < getPokemonSpawnChance(bobberBait)) {
+                if (Mth.nextInt(random, 0, 100) < getPokemonSpawnChance(this.rodItem ?: bobberBait)) {
                     this.typeCaught = TypeCaught.POKEMON
 
                     val buckets = Cobblemon.bestSpawner.config.buckets
@@ -391,8 +392,8 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
                 this.waitCountdown = 0
             else {
                 // check for the bait on the hook and see if the waitCountdown is reduced
-                if (checkReduceBiteTime(bobberBait))
-                    this.waitCountdown = alterBiteTimeAttempt(this.waitCountdown, this.bobberBait)
+                if (checkReduceBiteTime(this.rodItem ?: bobberBait))
+                    this.waitCountdown = alterBiteTimeAttempt(this.waitCountdown, this.rodItem ?: bobberBait)
             }
         }
     }
@@ -740,19 +741,19 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
 
     // function to return true of false if the given bait affects time to expect a bite
     fun checkReduceBiteTime(stack: ItemStack): Boolean {
-        val bait = FishingBaits.getFromBaitItemStack(stack) ?: return false
+        val bait = PokerodItem.getBaitOnRod(stack) ?: return false
         return bait.effects.any { it.type == FishingBait.Effects.BITE_TIME }
     }
 
     // function to return true of false if the given bait to make it so a Pokemon is always reeled in
     fun checkPokemonFishRate(stack: ItemStack): Boolean {
-        val bait = FishingBaits.getFromBaitItemStack(stack) ?: return false
+        val bait = PokerodItem.getBaitOnRod(stack) ?: return false
         return bait.effects.any { it.type == FishingBait.Effects.POKEMON_CHANCE }
     }
 
     // check if the bite time is reduced based on the bait bonus
     fun alterBiteTimeAttempt(waitCountdown: Int, stack: ItemStack): Int {
-        val bait = FishingBaits.getFromBaitItemStack(stack) ?: return waitCountdown
+        val bait = PokerodItem.getBaitOnRod(stack) ?: return waitCountdown
         val effect = bait.effects.filter { it.type == FishingBait.Effects.BITE_TIME }.random()
         if (!checkBaitSuccessRate(effect.chance)) return waitCountdown
         return if (waitCountdown - waitCountdown * (effect.value) <= 0)
@@ -763,7 +764,7 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
 
     // check the chance of a pokemon to spawn and if it is affected by bait
     fun getPokemonSpawnChance(stack: ItemStack): Int {
-        val bait = FishingBaits.getFromBaitItemStack(stack) ?: return this.pokemonSpawnChance
+        val bait = PokerodItem.getBaitOnRod(stack) ?: return this.pokemonSpawnChance
         val effectList = bait.effects.filter { it.type == FishingBait.Effects.POKEMON_CHANCE }
         if (effectList.isEmpty()) return this.pokemonSpawnChance
         val effect = effectList.random()

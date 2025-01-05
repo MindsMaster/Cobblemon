@@ -20,11 +20,13 @@ import com.cobblemon.mod.common.api.fishing.FishingBait
 import com.cobblemon.mod.common.api.fishing.FishingBaits
 import com.cobblemon.mod.common.entity.fishing.PokeRodFishingBobberEntity
 import com.cobblemon.mod.common.item.RodBaitComponent
+import com.cobblemon.mod.common.item.components.CookingComponent
 import com.cobblemon.mod.common.util.enchantmentRegistry
 import com.cobblemon.mod.common.util.itemRegistry
 import com.cobblemon.mod.common.util.playSoundServer
 import com.cobblemon.mod.common.util.toEquipmentSlot
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
+import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundSource
@@ -48,42 +50,82 @@ class PokerodItem(val pokeRodId: ResourceLocation, settings: Properties) : Fishi
 
     companion object {
         fun getBaitOnRod(stack: ItemStack): FishingBait? {
-            return stack.components.get(CobblemonItemComponents.BAIT)?.bait
+            return getCookingComponentOnRod(stack) ?: stack.components.get(CobblemonItemComponents.BAIT)?.bait
         }
 
         fun getBaitStackOnRod(stack: ItemStack): ItemStack {
             return stack.components.get(CobblemonItemComponents.BAIT)?.stack ?: ItemStack.EMPTY
         }
 
+        fun getCookingComponentOnRod(rodStack: ItemStack): FishingBait? {
+            // Check if the stack within the RodBaitComponent has a CookingComponent
+            val cookingComponent = rodStack.get(CobblemonItemComponents.COOKING_COMPONENT) ?: return null
+
+            // Combine effects from the CookingComponent
+            val combinedEffects = listOf(
+                cookingComponent.bait1.effects,
+                cookingComponent.bait2.effects,
+                cookingComponent.bait3.effects
+            ).flatten()
+
+            // Return a new FishingBait with combined effects
+            return FishingBait(
+                item = BuiltInRegistries.ITEM.getKey(rodStack.components.get(CobblemonItemComponents.BAIT)?.stack?.item ?: ItemStack.EMPTY.item), // Use the rodStack's item as the bait identifier
+                effects = combinedEffects
+            )
+        }
+
+
         fun setBait(stack: ItemStack, bait: ItemStack) {
             CobblemonEvents.BAIT_SET.postThen(BaitSetEvent(stack, bait), { event -> }, {
                 if (bait.isEmpty) {
                     stack.set<RodBaitComponent>(CobblemonItemComponents.BAIT, null)
+                    stack.set<CookingComponent>(CobblemonItemComponents.COOKING_COMPONENT, null)
                     return
                 }
+
+                // Retrieve FishingBait and CookingComponent from the bait ItemStack
                 val fishingBait = FishingBaits.getFromBaitItemStack(bait) ?: return
+                val cookingComponent = bait.get(CobblemonItemComponents.COOKING_COMPONENT)
+
+                // Apply both RodBaitComponent and CookingComponent to the rod ItemStack
                 stack.set(CobblemonItemComponents.BAIT, RodBaitComponent(fishingBait, bait))
-                // add a new component that stores the itemStack as a component? Yes!
+                if (cookingComponent != null) {
+                    stack.set(CobblemonItemComponents.COOKING_COMPONENT, cookingComponent)
+                } else {
+                    // Clear CookingComponent if the new bait does not have it
+                    stack.set<CookingComponent>(CobblemonItemComponents.COOKING_COMPONENT, null)
+                }
             })
         }
+
 
         fun consumeBait(stack: ItemStack) {
             CobblemonEvents.BAIT_CONSUMED.postThen(BaitConsumedEvent(stack), { event -> }, {
                 val baitStack = getBaitStackOnRod(stack)
                 val baitCount = baitStack.count
+                val cookingComponent = stack.get(CobblemonItemComponents.COOKING_COMPONENT)
+
                 if (baitCount == 1) {
                     stack.set<RodBaitComponent>(CobblemonItemComponents.BAIT, null)
+                    stack.set<CookingComponent>(CobblemonItemComponents.COOKING_COMPONENT, null)
                     return
                 }
+
                 if (baitCount > 1) {
-                    val fishingBait = FishingBaits.getFromBaitItemStack(baitStack) ?: return
+                    val fishingBait = getBaitOnRod(stack) ?: return
                     stack.set<RodBaitComponent>(
                         CobblemonItemComponents.BAIT,
                         RodBaitComponent(fishingBait, ItemStack(baitStack.item, baitCount - 1))
                     )
+                    if (cookingComponent != null) {
+                        stack.set(CobblemonItemComponents.COOKING_COMPONENT, cookingComponent)
+                    }
                 }
             })
         }
+
+
 
         fun getBaitEffects(stack: ItemStack): List<FishingBait.Effect> {
             return getBaitOnRod(stack)?.effects ?: return emptyList()
