@@ -22,7 +22,15 @@ import net.minecraft.world.inventory.RecipeBookMenu
 import net.minecraft.world.inventory.Slot
 import net.minecraft.world.item.crafting.CraftingInput
 
-class CookingPotScreen : AbstractContainerScreen<CookingPotMenu>, RecipeUpdateListener {
+class CookingPotScreen(
+    menu: CookingPotMenu,
+    playerInventory: Inventory,
+    title: Component
+) : AbstractContainerScreen<CookingPotMenu>(
+    menu,
+    playerInventory,
+    Component.translatable("cobblemon.container.cooking_pot")
+), RecipeUpdateListener {
 
     companion object {
         private const val backgroundHeight = 198
@@ -30,14 +38,13 @@ class CookingPotScreen : AbstractContainerScreen<CookingPotMenu>, RecipeUpdateLi
         private val BACKGROUND = cobblemonResource("textures/gui/cookingpot/cooking_pot.png")
     }
 
-
     private val recipeBookComponent: RecipeBookComponent = RecipeBookComponent()
     private var widthTooNarrow : Boolean = false
 
-    constructor(menu: CookingPotMenu, playerInventory: Inventory, title: Component) : super(
-        menu, playerInventory,
-        Component.translatable("cobblemon.container.cooking_pot")
-    )
+    init {
+        this.imageWidth = backgroundWidth
+        this.imageHeight = backgroundHeight
+    }
 
     override fun containerTick() {
         super.containerTick()
@@ -61,9 +68,9 @@ class CookingPotScreen : AbstractContainerScreen<CookingPotMenu>, RecipeUpdateLi
         this.addRenderableWidget(recipeBookButton)
 
         this.titleLabelX = ((this.imageWidth - this.font.width(this.title)) / 2) - 17
-        this.titleLabelY = - 10
+        this.titleLabelY = 6
         this.inventoryLabelX = 8
-        this.inventoryLabelY = this.imageHeight - 78
+        this.inventoryLabelY = this.imageHeight - 94
     }
 
 

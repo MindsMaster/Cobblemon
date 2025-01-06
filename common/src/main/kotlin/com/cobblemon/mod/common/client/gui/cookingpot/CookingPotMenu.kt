@@ -73,14 +73,14 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
         //println("Initialized player inventory for player:")
         println(playerInventory.player.name.string)
 
-        addSlot(CookingPotResultSlot(playerInventory.player, resultContainer, RESULT_SLOT, 124 + craftingOutputOffsetX, 35 + craftingOutputOffsetY))
+        addSlot(CookingPotResultSlot(playerInventory.player, resultContainer, RESULT_SLOT, 124 + craftingOutputOffsetX, 51 + craftingOutputOffsetY))
         //println("Initialized result slot at index 0")
 
         // Crafting Grid Slots (Indices 1–9)
         for (i in 0..2) {
             for (j in 0..2) {
                 val slotIndex = j + i * 3 + 1 // Indices start at 1
-                addSlot(Slot(this.container, slotIndex, 44 + j * 18, 27 + i * 18))
+                addSlot(Slot(this.container, slotIndex, 44 + j * 18, 43 + i * 18))
                 //println("Initialized crafting slot Grid[$i, $j] -> container index $slotIndex")
             }
         }
@@ -88,7 +88,7 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
         // Extra Slots (Indices 10–12)
         for (j in 0..2) {
             val slotIndex = 10 + j
-            addSlot(Slot(this.container, slotIndex, 44 + j * 18, 1)) // Adjust Y-coordinate as needed
+            addSlot(Slot(this.container, slotIndex, 44 + j * 18, 17)) // Adjust Y-coordinate as needed
             //println("Initialized additional slot $slotIndex at (${44 + j * 18}, 9)")
         }
 
@@ -97,7 +97,7 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
             for (j in 0..8) {
                 val slotIndex = 13 + j + i * 9
                 val x = 8 + j * 18
-                val y = 100 + i * 18
+                val y = 116 + i * 18
                 addSlot(Slot(playerInventory, slotIndex - 13 + 9, x, y)) // Adjust to map to player's inventory indices
                 //println("Initialized player inventory slot $slotIndex at ($x, $y)")
             }
@@ -107,7 +107,7 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
         for (i in 0..8) {
             val slotIndex = 40 + i
             val x = 8 + i * 18
-            val y = 158
+            val y = 174
             addSlot(Slot(playerInventory, i, x, y)) // Direct mapping to hotbar indices
             //println("Initialized hotbar slot $slotIndex at ($x, $y)")
         }
