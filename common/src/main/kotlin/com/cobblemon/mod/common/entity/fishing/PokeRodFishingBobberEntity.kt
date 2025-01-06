@@ -331,7 +331,7 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
                 serverWorld.sendParticles(ParticleTypes.FISHING, this.x, m, this.z, (1.0f + this.bbWidth * 20.0f).toInt(), this.bbWidth.toDouble(), 0.0, this.bbWidth.toDouble(), 0.2)
 
                 // check for chance to catch pokemon based on the bait
-                if (Mth.nextInt(random, 0, 100) < getPokemonSpawnChance(this.rodItem ?: bobberBait)) {
+                if (Mth.nextInt(random, 0, 100) < getPokemonSpawnChance(this.rodStack ?: bobberBait)) {
                     this.typeCaught = TypeCaught.POKEMON
 
                     val buckets = Cobblemon.bestSpawner.config.buckets
@@ -402,8 +402,8 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
                 this.waitCountdown = 1
             else {
                 // check for the bait on the hook and see if the waitCountdown is reduced
-                if (checkReduceBiteTime(this.rodItem ?: bobberBait))
-                    this.waitCountdown = alterBiteTimeAttempt(this.waitCountdown, this.rodItem ?: bobberBait)
+                if (checkReduceBiteTime(this.rodStack ?: bobberBait))
+                    this.waitCountdown = alterBiteTimeAttempt(this.waitCountdown, this.rodStack ?: bobberBait)
             }
         }
     }

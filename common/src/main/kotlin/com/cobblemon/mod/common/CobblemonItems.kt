@@ -20,7 +20,6 @@ import com.cobblemon.mod.common.block.BerryBlock
 import com.cobblemon.mod.common.block.MintBlock
 import com.cobblemon.mod.common.block.MintBlock.MintType
 import com.cobblemon.mod.common.client.cooking.AprijuiceTypes
-import com.cobblemon.mod.common.client.pokedex.PokedexTypes
 import com.cobblemon.mod.common.client.pot.PotTypes
 import com.cobblemon.mod.common.client.pokedex.PokedexType
 import com.cobblemon.mod.common.entity.boat.CobblemonBoatType

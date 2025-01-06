@@ -9,7 +9,7 @@
 package com.cobblemon.mod.common.client
 
 import com.cobblemon.mod.common.BakingOverride
-import com.cobblemon.mod.common.client.pokedex.PokedexTypes
+import com.cobblemon.mod.common.client.pokedex.PokedexType
 import com.cobblemon.mod.common.client.pot.PotTypes
 import com.cobblemon.mod.common.util.cobblemonModel
 import com.cobblemon.mod.common.util.cobblemonResource
@@ -164,15 +164,15 @@ object CobblemonBakingOverrides {
         cobblemonModel("pot_yellow_model", "inventory")
     )
 
-    fun getPokedexOverride(type: PokedexTypes): BakingOverride {
+    fun getPokedexOverride(type: PokedexType): BakingOverride {
         return when (type) {
-            PokedexTypes.BLACK -> POKEDEX_BLACK
-            PokedexTypes.BLUE -> POKEDEX_BLUE
-            PokedexTypes.GREEN -> POKEDEX_GREEN
-            PokedexTypes.PINK -> POKEDEX_PINK
-            PokedexTypes.WHITE -> POKEDEX_WHITE
-            PokedexTypes.YELLOW -> POKEDEX_YELLOW
-            PokedexTypes.RED -> POKEDEX_RED
+            PokedexType.BLACK -> POKEDEX_BLACK
+            PokedexType.BLUE -> POKEDEX_BLUE
+            PokedexType.GREEN -> POKEDEX_GREEN
+            PokedexType.PINK -> POKEDEX_PINK
+            PokedexType.WHITE -> POKEDEX_WHITE
+            PokedexType.YELLOW -> POKEDEX_YELLOW
+            PokedexType.RED -> POKEDEX_RED
         }
     }
 
