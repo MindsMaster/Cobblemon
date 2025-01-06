@@ -347,6 +347,9 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     @JvmField
     val POKE_BAIT = noSettingsItem("poke_bait")
 
+    @JvmField
+    val LURE_CAKE = blockItem("lure_cake", CobblemonBlocks.LURE_CAKE)
+
     //@JvmField
     //val SCATTER_BANG = this.create("scatter_bang", ScatterBangItem(Item.Settings()))
     //@JvmField
