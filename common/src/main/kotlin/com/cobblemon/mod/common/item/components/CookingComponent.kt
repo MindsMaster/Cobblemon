@@ -33,9 +33,12 @@ class CookingComponent(
                     bait1 = FishingBaits.getFromIdentifier(bait1Loc) ?: FishingBait.BLANK_BAIT,
                     bait2 = FishingBaits.getFromIdentifier(bait2Loc) ?: FishingBait.BLANK_BAIT,
                     bait3 = FishingBaits.getFromIdentifier(bait3Loc) ?: FishingBait.BLANK_BAIT,
-                    seasoning1 = Seasonings.getFromIdentifier(seasoning1Loc) ?: Seasoning(ResourceLocation("minecraft", "unknown"), "", "", 0),
-                    seasoning2 = Seasonings.getFromIdentifier(seasoning2Loc) ?: Seasoning(ResourceLocation("minecraft", "unknown"), "", "", 0),
-                    seasoning3 = Seasonings.getFromIdentifier(seasoning3Loc) ?: Seasoning(ResourceLocation("minecraft", "unknown"), "", "", 0)
+                    seasoning1 = Seasonings.getFromIdentifier(seasoning1Loc)
+                        ?: Seasoning(ResourceLocation("minecraft", "unknown"), mapOf(), "", 0),
+                    seasoning2 = Seasonings.getFromIdentifier(seasoning2Loc)
+                        ?: Seasoning(ResourceLocation("minecraft", "unknown"), mapOf(), "", 0),
+                    seasoning3 = Seasonings.getFromIdentifier(seasoning3Loc)
+                        ?: Seasoning(ResourceLocation("minecraft", "unknown"), mapOf(), "", 0)
                 )
             }
         }

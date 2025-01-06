@@ -21,17 +21,34 @@ class SeasoningRegistrySyncPacket(seasonings: List<Seasoning>) :
 
     override fun encodeEntry(buffer: RegistryFriendlyByteBuf, entry: Seasoning) {
         buffer.writeIdentifier(entry.ingredient)
-        buffer.writeUtf(entry.flavor)
+
+        // Write the flavors map
+        buffer.writeInt(entry.flavors.size) // Write the size of the map
+        entry.flavors.forEach { (key, value) ->
+            buffer.writeUtf(key) // Write each flavor key as a UTF string
+            buffer.writeInt(value) // Write each flavor value as an integer
+        }
+
         buffer.writeUtf(entry.color)
         buffer.writeInt(entry.quality)
     }
 
     override fun decodeEntry(buffer: RegistryFriendlyByteBuf): Seasoning {
         val ingredient = buffer.readIdentifier()
-        val flavor = buffer.readUtf()
+
+        // Read the flavors map
+        val flavorsSize = buffer.readInt()
+        val flavors = mutableMapOf<String, Int>()
+        repeat(flavorsSize) {
+            val key = buffer.readUtf() // Read each flavor key
+            val value = buffer.readInt() // Read each flavor value
+            flavors[key] = value
+        }
+
         val color = buffer.readUtf()
         val quality = buffer.readInt()
-        return Seasoning(ingredient, flavor, color, quality)
+
+        return Seasoning(ingredient, flavors, color, quality)
     }
 
     override fun synchronizeDecoded(entries: Collection<Seasoning>) {
