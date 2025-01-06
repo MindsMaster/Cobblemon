@@ -1,6 +1,7 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "cobblemon:item/aprijuice/aprijuice_green"
+    "layer0": "cobblemon:item/aprijuice/aprijuice_green",
+    "layer1": "cobblemon:item/aprijuice/aprijuice_overlay"
   }
 }

@@ -282,7 +282,7 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
     }
 
     override fun shouldMoveToInventory(slotIndex: Int): Boolean {
-        return return slotIndex != this.resultSlotIndex
+        return slotIndex != this.resultSlotIndex
     }
 
     override fun quickMoveStack(
