@@ -8,32 +8,28 @@
 
 package com.cobblemon.mod.common.entity.npc
 
-import com.bedrockk.molang.runtime.value.DoubleValue
-import com.bedrockk.molang.runtime.value.StringValue
-import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.api.battles.model.actor.AIBattleActor
 import com.cobblemon.mod.common.api.battles.model.actor.ActorType
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor
 import com.cobblemon.mod.common.api.battles.model.actor.EntityBackedBattleActor
 import com.cobblemon.mod.common.api.net.NetworkPacket
 import com.cobblemon.mod.common.api.storage.party.PartyStore
-import com.cobblemon.mod.common.battles.ai.RandomBattleAI
 import com.cobblemon.mod.common.battles.ai.StrongBattleAI
+import com.cobblemon.mod.common.battles.pokemon.BattlePokemon
 import com.cobblemon.mod.common.net.messages.client.battle.BattleEndPacket
 import com.cobblemon.mod.common.util.battleLang
 import com.cobblemon.mod.common.util.chainFutures
 import com.cobblemon.mod.common.util.effectiveName
 import com.cobblemon.mod.common.util.update
-import net.minecraft.world.phys.Vec3
 import java.util.concurrent.CompletableFuture
 
 class NPCBattleActor(
     val npc: NPCEntity,
-    val party: PartyStore,
+    pokemonList: List<BattlePokemon>,
     val skill: Int
 ) : AIBattleActor(
     gameId = npc.uuid,
-    pokemonList = party.toBattleTeam(),
+    pokemonList = pokemonList.let { if (npc.npc.randomizePartyOrder) it.shuffled() else it },
     battleAI = StrongBattleAI(skill)
 ), EntityBackedBattleActor<NPCEntity> {
     override val entity = npc
@@ -42,16 +38,21 @@ class NPCBattleActor(
     override fun nameOwned(name: String) = battleLang("owned_pokemon", this.getName(), name)
     override val initialPos = entity.position()
 
-    override fun setupStruct() {
-        super.setupStruct()
-        struct.addFunction("skill") { DoubleValue(skill) }
-    }
+    constructor(
+        npc: NPCEntity,
+        party: PartyStore,
+        skill: Int
+    ): this(
+        npc,
+        party.toBattleTeam(healPokemon = npc.npc.autoHealParty),
+        skill
+    )
 
     override fun sendUpdate(packet: NetworkPacket<*>) {
         super.sendUpdate(packet)
         if (packet is BattleEndPacket) {
             if (npc.isAlive) {
-                val allEntities = party.mapNotNull { it.entity }.toMutableList()
+                val allEntities = pokemonList.mapNotNull { it.entity }.toMutableList()
                 val finalFuture = CompletableFuture<Unit>()
                 chainFutures(allEntities.map { pokemonEntity -> { pokemonEntity.recallWithAnimation() } }.iterator(), finalFuture)
                 if (allEntities.isEmpty()) {

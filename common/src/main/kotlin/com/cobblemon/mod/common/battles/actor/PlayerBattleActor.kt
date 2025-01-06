@@ -24,11 +24,12 @@ import java.util.UUID
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvent
+import net.minecraft.sounds.SoundEvents
 import net.minecraft.world.phys.Vec3
 
 class PlayerBattleActor(
     uuid: UUID,
-    pokemonList: List<BattlePokemon>
+    pokemonList: List<BattlePokemon>,
 ) : BattleActor(uuid, pokemonList.toMutableList()), EntityBackedBattleActor<ServerPlayer> {
 
     override val initialPos: Vec3?
@@ -41,8 +42,7 @@ class PlayerBattleActor(
     /** The [SoundEvent] to play to the player during a battle. Will start playing as soon as the battle starts. */
     var battleTheme: SoundEvent? = null
         set(value) {
-            if (field != value && this.battle.started)
-                this.sendUpdate(BattleMusicPacket(value))
+            if (this.isInitialized() && this.battle.started) this.sendUpdate(BattleMusicPacket(value))
             field = value
         }
 

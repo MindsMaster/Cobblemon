@@ -12,12 +12,12 @@
 			},
 			"bones": [
 				{
-					"name": "girafarig_male",
+					"name": "girafarig",
 					"pivot": [0, 0, 0]
 				},
 				{
 					"name": "body",
-					"parent": "girafarig_male",
+					"parent": "girafarig",
 					"pivot": [0, 16, 0]
 				},
 				{

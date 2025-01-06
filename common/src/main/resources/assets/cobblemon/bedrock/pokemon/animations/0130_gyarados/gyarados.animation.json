@@ -919,6 +919,11 @@
 		},
 		"animation.gyarados.cry": {
 			"animation_length": 1.1667,
+			"sound_effects": {
+				"0.04": {
+					"effect": "pokemon.gyarados.cry"
+				}
+			},
 			"bones": {
 				"muzzle": {
 					"rotation": {

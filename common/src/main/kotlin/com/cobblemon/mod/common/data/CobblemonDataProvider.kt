@@ -10,6 +10,7 @@ package com.cobblemon.mod.common.data
 
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.Cobblemon.LOGGER
+import com.cobblemon.mod.common.CobblemonFlows
 import com.cobblemon.mod.common.CobblemonBrainConfigs
 import com.cobblemon.mod.common.CobblemonMechanics
 import com.cobblemon.mod.common.api.abilities.Abilities
@@ -93,6 +94,7 @@ object CobblemonDataProvider : DataProvider {
         this.register(DexEntryAdditions)
         this.register(Dexes)
         this.register(DexAdditions)
+        this.register(CobblemonFlows)
 
         CobblemonSpawnPools.load()
         this.register(PokeRods)

@@ -41,7 +41,7 @@ class SetPCBoxPokemonPacket internal constructor(val storeID: UUID, val boxNumbe
 
     override fun encode(buffer: RegistryFriendlyByteBuf) {
         buffer.writeUUID(storeID)
-        buffer.writeSizedInt(IntSize.U_BYTE, boxNumber)
+        buffer.writeSizedInt(IntSize.U_SHORT, boxNumber)
         buffer.writeMapK(map = pokemon) { (slot, pokemon) ->
             buffer.writeSizedInt(IntSize.U_BYTE, slot)
             val subBuffer = RegistryFriendlyByteBuf(Unpooled.buffer(), buffer.registryAccess())
@@ -56,7 +56,7 @@ class SetPCBoxPokemonPacket internal constructor(val storeID: UUID, val boxNumbe
         val ID = cobblemonResource("set_pc_box")
         fun decode(buffer: RegistryFriendlyByteBuf): SetPCBoxPokemonPacket {
             val storeID = buffer.readUUID()
-            val boxNumber = buffer.readSizedInt(IntSize.U_BYTE)
+            val boxNumber = buffer.readSizedInt(IntSize.U_SHORT)
             val pokemonMap = mutableMapOf<Int, (RegistryAccess) -> Pokemon>()
             buffer.readMapK(map = pokemonMap) {
                 val key = buffer.readSizedInt(IntSize.U_BYTE)

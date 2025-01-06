@@ -126,7 +126,7 @@ class FossilMultiblockStructure (
                     stack?.shrink(1)
                 }
 
-                val pokemon = this.resultingFossil?.result?.create()
+                val pokemon = this.resultingFossil?.result?.create(player)
 
                 if(pokemon != null) {
                     pokemon.caughtBall = ballType
@@ -155,7 +155,7 @@ class FossilMultiblockStructure (
 
         // Reclaim the last fossil from the machine if their hand is empty
         if (player.getItemInHand(InteractionHand.MAIN_HAND).isEmpty) {
-            if(!this.isRunning() && this.hasCreatedPokemon) {
+            if(!this.isRunning() && !this.hasCreatedPokemon) {
                 if (fossilInventory.isEmpty()) {
                     return InteractionResult.CONSUME
                 }

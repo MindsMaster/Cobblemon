@@ -8,25 +8,9 @@
 
 package com.cobblemon.mod.common.entity.npc
 
-import com.cobblemon.mod.common.CobblemonActivities
-import com.cobblemon.mod.common.CobblemonActivities.NPC_BATTLING
 import com.cobblemon.mod.common.api.ai.BrainConfigurationContext
 import com.cobblemon.mod.common.api.npc.NPCClass
-import com.cobblemon.mod.common.entity.ai.AttackAngryAtTask
-import com.cobblemon.mod.common.entity.ai.FollowWalkTargetTask
-import com.cobblemon.mod.common.entity.ai.GetAngryAtAttackerTask
-import com.cobblemon.mod.common.entity.ai.MoveToAttackTargetTask
-import com.cobblemon.mod.common.entity.ai.StayAfloatTask
-import com.cobblemon.mod.common.entity.npc.ai.*
-import com.cobblemon.mod.common.util.asExpression
-import com.google.common.collect.ImmutableList
-import com.mojang.datafixers.util.Pair
 import net.minecraft.world.entity.ai.Brain
-import net.minecraft.world.entity.ai.behavior.LookAtTargetSink
-import net.minecraft.world.entity.ai.behavior.RunOne
-import net.minecraft.world.entity.ai.behavior.SetEntityLookTarget
-import net.minecraft.world.entity.ai.behavior.StopBeingAngryIfTargetDead
-import net.minecraft.world.entity.schedule.Activity
 
 object NPCBrain {
     fun configure(npcEntity: NPCEntity, npcClass: NPCClass, brain: Brain<out NPCEntity>) {

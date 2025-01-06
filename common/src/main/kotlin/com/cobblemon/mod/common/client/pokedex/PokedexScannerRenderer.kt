@@ -126,7 +126,7 @@ class PokedexScannerRenderer {
 
                         if (infoDisplayedCounter == 2) {
                             val hasTrainer = (usageContext.scannableEntityInFocus?.resolveEntityScan() as? PokemonEntity)?.ownerUUID !== null
-                            val speciesName = pokedexEntityData.species.name.text().bold()
+                            val speciesName = pokedexEntityData.species.translatedName.bold()
                             var yOffsetName = if (hasTrainer) 2 else 0
                             if (hasTrainer) {
                                 drawScaledText(

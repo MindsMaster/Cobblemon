@@ -403,6 +403,7 @@ class ShowdownPokemon {
     lateinit var ability: String
     var baseTypes = mutableListOf<String>()
     var types = mutableListOf<String>()
+    var commanding: Boolean = false
     var reviving: Boolean = false
 
     val uuid: UUID by lazy { UUID.fromString(details.split(",")[1].trim()) }
@@ -412,6 +413,7 @@ class ShowdownPokemon {
         buffer.writeString(condition)
         buffer.writeBoolean(active)
         buffer.writeBoolean(reviving)
+        buffer.writeBoolean(commanding)
         buffer.writeSizedInt(IntSize.U_BYTE, moves.size)
         moves.forEach(buffer::writeString)
         buffer.writeString(baseAbility)
@@ -429,6 +431,7 @@ class ShowdownPokemon {
         condition = buffer.readString()
         active = buffer.readBoolean()
         reviving = buffer.readBoolean()
+        commanding = buffer.readBoolean()
         repeat(times = buffer.readSizedInt(IntSize.U_BYTE)) {
             moves.add(buffer.readString())
         }

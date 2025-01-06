@@ -26,7 +26,7 @@ class SwitchToActionEffectTaskConfig : SingleTaskConfig {
                 it.absent(CobblemonMemories.ACTIVE_ACTION_EFFECT)
             ).apply(it) { _ ->
                 Trigger { world, entity, time ->
-                    entity.brain.setActiveActivityIfPossible(CobblemonActivities.NPC_ACTION_EFFECT)
+                    entity.brain.setActiveActivityIfPossible(CobblemonActivities.ACTION_EFFECT)
                     return@Trigger true
                 }
             }

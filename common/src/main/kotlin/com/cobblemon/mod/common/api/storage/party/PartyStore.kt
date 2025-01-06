@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.api.storage.party
 
 import com.cobblemon.mod.common.CobblemonNetwork.sendPacket
+import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMoLangValue
 import com.cobblemon.mod.common.api.reactive.Observable
 import com.cobblemon.mod.common.api.reactive.Observable.Companion.stopAfter
 import com.cobblemon.mod.common.api.reactive.SimpleObservable
@@ -25,11 +26,11 @@ import com.cobblemon.mod.common.pokemon.Pokemon
 import com.cobblemon.mod.common.util.DataKeys
 import com.cobblemon.mod.common.util.server
 import com.google.gson.JsonObject
+import java.util.Collections
 import java.util.UUID
+import net.minecraft.core.RegistryAccess
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.server.level.ServerPlayer
-import java.util.Collections
-import net.minecraft.core.RegistryAccess
 
 /**
  * A [PokemonStore] for a party of Pokémon. This is a simple structure that by default will hold 6 nullable slots of Pokémon.
@@ -46,6 +47,8 @@ open class PartyStore(override val uuid: UUID) : PokemonStore<PartyPosition>() {
 
     /** A list of player UUIDs representing players that are observing this store. This is NOT serialized/deserialized. */
     var observerUUIDs = mutableListOf<UUID>()
+
+    val struct = asMoLangValue()
 
     override fun iterator() = slots.filterNotNull().iterator()
     /** Gets the Pokémon at the specified slot. It will return null if the slot is empty or the given slot is out of bounds. */
@@ -166,9 +169,9 @@ open class PartyStore(override val uuid: UUID) : PokemonStore<PartyPosition>() {
     }
 
     override fun loadFromNBT(nbt: CompoundTag, registryAccess: RegistryAccess): PartyStore {
-        val slotCount = nbt.getInt(DataKeys.STORE_SLOT_COUNT)
-        while (slotCount > slots.size) { slots.removeLast() }
-        while (slotCount < slots.size) { slots.add(null) }
+        val slotCount = nbt.getInt(DataKeys.STORE_SLOT_COUNT).takeIf { it in 1..6 } ?: 6
+        while (slotCount < slots.size) { slots.removeLast() }
+        while (slotCount > slots.size) { slots.add(null) }
         for (slot in slots.indices) {
             val pokemonNBT = nbt.getCompound(DataKeys.STORE_SLOT + slot)
             try {
@@ -266,7 +269,7 @@ open class PartyStore(override val uuid: UUID) : PokemonStore<PartyPosition>() {
                 BattlePokemon.playerOwned(it)
             }.also { if (healPokemon) it.effectedPokemon.heal() }
         }.toMutableList()
-        if(leadingPokemon != null) {
+        if (leadingPokemon != null) {
             Collections.rotate(result, result.size - this.indexOfFirst { it.uuid == leadingPokemon })
         }
         return result

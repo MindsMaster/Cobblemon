@@ -1,8 +1,6 @@
 {
   "replace": false,
   "values": [
-    "#cobblemon:is_plains",
-    "#cobblemon:is_savanna",
 	{
       "id": "biomesoplenty:bog",
       "required": false
@@ -42,6 +40,10 @@
 	{
       "id": "biomesoplenty:rocky_shrubland",
       "required": false
+    },
+	{
+      "id": "clifftree:shrubland",
+      "required": false 
     },
 	{
       "id": "terralith:alpine_highlands",

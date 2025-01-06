@@ -18,7 +18,7 @@
   "behaviour": {
     "moving": {
       "walk": {
-        "walkSpeed": 0.3
+        "walkSpeed": 0.245
       },
       "swim": {
         "swimSpeed": 0.1,
@@ -262,7 +262,7 @@
       ]
     }
   ],
-  "baseScale": 0.7,
+  "baseScale": 0.65,
   "hitbox": {
     "width": 0.75,
     "height": 1.3,

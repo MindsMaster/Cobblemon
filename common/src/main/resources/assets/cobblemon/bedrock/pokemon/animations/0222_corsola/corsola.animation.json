@@ -5,7 +5,12 @@
 			"loop": true
 		},
 		"animation.corsola.cry": {
-			"loop": true
+			"animation_length": 1.2,
+			"sound_effects": {
+				"0.04": {
+					"effect": "pokemon.corsola.cry"
+				}
+			}
 		},
 		"animation.corsola.blink": {
 			"animation_length": 0.2083,
@@ -40,6 +45,15 @@
 				},
 				"mouth_open": {
 					"position": [0, 0, -0.1]
+				}
+			}
+		},
+		"animation.corsola.ground_walk": {
+			"loop": true,
+			"bones": {
+				"body": {
+					"rotation": [0, 0, "math.clamp(15*math.sin(q.anim_time*90*4-50),-12,12)"],
+					"position": [0, "math.clamp(3*math.sin(q.anim_time*90*8),0,5)", 0]
 				}
 			}
 		}

@@ -17,15 +17,15 @@
     "speed": 80
   },
   "behaviour": {
+    "moving": {
+      "walk": {
+        "walkSpeed": 0.135
+      }
+    },
     "resting": {
       "canSleep": true,
       "depth": "normal",
       "light": "0-4"
-    },
-    "moving": {
-      "walk": {
-        "walkSpeed": 0.3
-      }
     }
   },
   "catchRate": 45,
@@ -304,6 +304,8 @@
   ],
   "preEvolution": "ivysaur",
   "evolutions": [],
+  "standingEyeHeight": 0.4,
+  "swimmingEyeHeight": 0.4,
   "baseScale": 1.2,
   "hitbox": {
     "width": 2.2,

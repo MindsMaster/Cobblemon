@@ -11,6 +11,7 @@ package com.cobblemon.mod.common.client.gui.summary.widgets.common
 import com.cobblemon.mod.common.api.gui.blitk
 import com.cobblemon.mod.common.api.text.bold
 import com.cobblemon.mod.common.client.CobblemonResources
+import com.cobblemon.mod.common.client.gui.CobblemonRenderable
 import com.cobblemon.mod.common.client.render.drawScaledText
 import com.cobblemon.mod.common.util.cobblemonResource
 import net.minecraft.client.Minecraft
@@ -29,10 +30,10 @@ abstract class SummaryScrollList<T : ObjectSelectionList.Entry<T>>(
     HEIGHT, // height
     0, // top
     slotHeight
-) {
+), CobblemonRenderable {
     companion object {
         const val WIDTH = 108
-        const val HEIGHT = 111
+        const val HEIGHT = 112
         const val SLOT_WIDTH = 91
 
         private val backgroundResource = cobblemonResource("textures/gui/summary/summary_scroll_background.png")
@@ -71,7 +72,7 @@ abstract class SummaryScrollList<T : ObjectSelectionList.Entry<T>>(
         )
         context.enableScissor(
             x,
-            y - 1,
+            y,
             x + width,
             y + height
         )

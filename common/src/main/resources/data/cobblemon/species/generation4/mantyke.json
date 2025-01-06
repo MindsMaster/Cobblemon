@@ -26,6 +26,25 @@
   "eggGroups": [
     "undiscovered"
   ],
+  "behaviour": {
+    "moving": {
+      "canLook": false,
+      "walk": {
+        "avoidsLand": true
+      },
+      "swim": {
+        "swimSpeed": 0.3,
+        "canSwimInWater": true,
+        "canBreatheUnderwater": true
+      }
+    },
+    "resting": {
+      "canSleep": true,
+      "willSleepOnBed": false,
+      "depth": "normal",
+      "light": "0-4"
+    }
+  },
   "moves": [
     "1:bubble",
     "1:tackle",
@@ -159,7 +178,7 @@
   "baseScale": 1,
   "hitbox": {
     "width": 1,
-    "height": 0.5,
+    "height": 1,
     "fixed": false
   },
   "baseFriendship": 50,
