@@ -61,14 +61,15 @@ class CookingComponent(
     }
 
     fun getDominantFlavors(): List<String> {
-        val flavors = listOf(seasoning1, seasoning2, seasoning3)
+        val flavors = getFlavorsSum()
+        val maxFlavorValue = flavors.values.maxOrNull()
+
+        return flavors.filter { it.value == maxFlavorValue }.map { it.key }
+    }
+
+    fun getFlavorsSum(): Map<String, Int> =
+        listOf(seasoning1, seasoning2, seasoning3)
             .flatMap { it.flavors.entries }
             .groupingBy { it.key }
             .fold(0) { acc, entry -> acc + entry.value }
-
-        val maxFlavorValue = flavors.values.maxOrNull()
-
-        return flavors.filter { it.value == maxFlavorValue }
-            .map { it.key }
-    }
 }

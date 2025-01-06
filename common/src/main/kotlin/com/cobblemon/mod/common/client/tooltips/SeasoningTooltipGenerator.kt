@@ -1,5 +1,6 @@
 package com.cobblemon.mod.common.client.tooltips
 
+import com.cobblemon.mod.common.CobblemonItemComponents
 import com.cobblemon.mod.common.api.cooking.Seasonings
 import com.cobblemon.mod.common.api.text.*
 import com.cobblemon.mod.common.util.lang
@@ -19,13 +20,16 @@ object SeasoningTooltipGenerator : TooltipGenerator() {
         val resultLines = mutableListOf<Component>()
 
         // Check if the stack is a valid seasoning
-        val seasoning = Seasonings.getFromItemStack(stack) ?: return null
+        val flavors: Map<String, Int> =
+            Seasonings.getFromItemStack(stack)?.flavors ?:
+            stack.get(CobblemonItemComponents.COOKING_COMPONENT)?.getFlavorsSum() ?:
+            return null
 
         // Add subheader for flavor
         resultLines.add(flavorSubHeader)
 
         // Add flavor data with language keys and matching colors for text and values
-        val flavorData = seasoning.flavors.map { (flavor, value) ->
+        val flavorData = flavors.map { (flavor, value) ->
             val flavorLangKey = when (flavor.lowercase()) {
                 "spicy" -> lang("seasoning_flavor.spicy").red()
                 "dry" -> lang("seasoning_flavor.dry").darkAqua()
