@@ -14,16 +14,17 @@ import com.cobblemon.mod.common.util.lang
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.entity.LivingEntity
 
 class BehaviourEditorScreen(
-    val entityId: Int,
+    val entity: LivingEntity,
     val appliedPresets: MutableSet<ResourceLocation>,
 ) : Screen(Component.literal("Behaviour Editor")) {
     val unadded: BehaviourOptionsList = addRenderableWidget(
         BehaviourOptionsList(
             parent = this,
             left = 50,
-            entityId = entityId,
+            entity = entity,
             appliedPresets = appliedPresets,
             addingMenu = true
         )
@@ -32,7 +33,7 @@ class BehaviourEditorScreen(
         BehaviourOptionsList(
             parent = this,
             left = 220,
-            entityId = entityId,
+            entity = entity,
             appliedPresets = appliedPresets,
             addingMenu = false
         )
@@ -48,7 +49,7 @@ class BehaviourEditorScreen(
             ) {
                 // Send packet for updating behaviours of the entity
                 // expect that it will reopen whichever GUI makes sense afterwards
-                SetEntityBehaviourPacket(entityId, appliedPresets.toSet()).sendToServer()
+                SetEntityBehaviourPacket(entity.id, appliedPresets.toSet()).sendToServer()
             }
         )
     }

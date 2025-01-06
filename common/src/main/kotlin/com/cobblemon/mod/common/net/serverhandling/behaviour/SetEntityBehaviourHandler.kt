@@ -32,6 +32,5 @@ object SetEntityBehaviourHandler : ServerNetworkPacketHandler<SetEntityBehaviour
         } else {
             player.closeContainer()
         }
-
     }
 }

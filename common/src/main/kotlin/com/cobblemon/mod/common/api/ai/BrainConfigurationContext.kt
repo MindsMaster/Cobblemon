@@ -9,7 +9,6 @@
 package com.cobblemon.mod.common.api.ai
 
 import com.cobblemon.mod.common.api.ai.config.BrainConfig
-import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
 import com.cobblemon.mod.common.entity.MoLangScriptingEntity
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.schedule.Activity
@@ -30,11 +29,8 @@ class BrainConfigurationContext {
         val brain = entity.brain
 
         if (entity is MoLangScriptingEntity) {
-            brainConfigs.flatMap { it.variables }.forEach { variable ->
-                if (entity.registeredVariables.none { it.variableName == variable.variableName }) {
-                    entity.registeredVariables.add(variable)
-                }
-            }
+            entity.registerVariables(brainConfigs.flatMap { it.variables })
+            entity.initializeScripting()
         }
 
         // Setup the brain config

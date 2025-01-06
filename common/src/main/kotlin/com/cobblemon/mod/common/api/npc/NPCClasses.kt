@@ -20,6 +20,7 @@ import com.cobblemon.mod.common.api.drop.DropEntry
 import com.cobblemon.mod.common.api.drop.ItemDropMethod
 import com.cobblemon.mod.common.api.entity.EntityDimensionsAdapter
 import com.cobblemon.mod.common.api.molang.ExpressionLike
+import com.cobblemon.mod.common.api.npc.NPCClasses.getByIdentifier
 import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
 import com.cobblemon.mod.common.api.npc.configuration.NPCInteractConfiguration
 import com.cobblemon.mod.common.api.npc.variation.NPCVariationProvider
@@ -94,14 +95,6 @@ object NPCClasses : JsonDataRegistry<NPCClass> {
 
     val classes: Collection<NPCClass>
         get() = this.npcClassesByIdentifier.values
-
-    init {
-        // NPC additions would be useful
-//        SpeciesAdditions.observable.subscribe {
-//            this.species.forEach(Species::initialize)
-//            this.species.forEach(Species::resolveEvolutionMoves)
-//        }
-    }
 
     /**
      * Finds an NPC class by the pathname of their [ResourceLocation].

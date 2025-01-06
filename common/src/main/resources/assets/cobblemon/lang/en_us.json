@@ -2521,9 +2521,6 @@
   "cobblemon.brain_preset.battle_commands.name": "Battle Commands",
   "cobblemon.brain_preset.battle_commands.desc": "Runs commands when battles end.",
 
-  "cobblemon.brain_preset.cancels_battle_when_hurt.name": "Cancels Battle When Hurt",
-  "cobblemon.brain_preset.cancels_battle_when_hurt.desc": "Cancels the battle when hurt.",
-
   "cobblemon.brain_preset.core.name": "Core Movement & Looking",
   "cobblemon.brain_preset.core.desc": "Necessary for movement and looking at targets.",
 
@@ -2562,6 +2559,9 @@
 
   "cobblemon.brain_preset.looks_around.name": "Looks Around",
   "cobblemon.brain_preset.looks_around.desc": "Looks around at nearby entities.",
+
+  "cobblemon.brain_preset.pokemon_core.name": "Pokémon Basics",
+  "cobblemon.brain_preset.pokemon_core.desc": "Core Pokémon behavior. Looking around and wandering.",
 
   "cobblemon.move.10000000voltthunderbolt": "10,000,000 Volt Thunderbolt",
   "cobblemon.move.10000000voltthunderbolt.desc": "The user, Pikachu wearing a cap, powers up a jolt of electricity using its Z-Power and unleashes it. Critical hits land more easily.",

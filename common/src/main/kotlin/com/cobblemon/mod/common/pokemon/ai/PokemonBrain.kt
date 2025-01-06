@@ -9,20 +9,13 @@
 package com.cobblemon.mod.common.pokemon.ai
 
 import com.cobblemon.mod.common.CobblemonActivities
+import com.cobblemon.mod.common.CobblemonBrainConfigs
 import com.cobblemon.mod.common.CobblemonMemories
 import com.cobblemon.mod.common.CobblemonSensors
+import com.cobblemon.mod.common.api.ai.BrainConfigurationContext
 import com.cobblemon.mod.common.api.ai.config.ApplyPresets
 import com.cobblemon.mod.common.api.ai.config.BrainConfig
-import com.cobblemon.mod.common.entity.ai.AttackAngryAtTask
-import com.cobblemon.mod.common.entity.ai.ChooseLandWanderTargetTask
-import com.cobblemon.mod.common.entity.ai.FleeFromAttackerTask
-import com.cobblemon.mod.common.entity.ai.FollowWalkTargetTask
-import com.cobblemon.mod.common.entity.ai.GetAngryAtAttackerTask
-import com.cobblemon.mod.common.entity.ai.LookAroundTaskWrapper
-import com.cobblemon.mod.common.entity.ai.LookAtMobTaskWrapper
-import com.cobblemon.mod.common.entity.ai.MoveToAttackTargetTask
-import com.cobblemon.mod.common.entity.ai.StayAfloatTask
-import com.cobblemon.mod.common.entity.ai.SwapActivityTask
+import com.cobblemon.mod.common.entity.ai.*
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.entity.pokemon.ai.tasks.*
 import com.cobblemon.mod.common.pokemon.Pokemon
@@ -35,7 +28,15 @@ import net.minecraft.util.valueproviders.UniformInt
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.ai.Brain
-import net.minecraft.world.entity.ai.behavior.*
+import net.minecraft.world.entity.ai.behavior.BehaviorControl
+import net.minecraft.world.entity.ai.behavior.DoNothing
+import net.minecraft.world.entity.ai.behavior.LookAtTargetSink
+import net.minecraft.world.entity.ai.behavior.RandomStroll
+import net.minecraft.world.entity.ai.behavior.RunOne
+import net.minecraft.world.entity.ai.behavior.SetEntityLookTargetSometimes
+import net.minecraft.world.entity.ai.behavior.SetWalkTargetAwayFrom
+import net.minecraft.world.entity.ai.behavior.SetWalkTargetFromLookTarget
+import net.minecraft.world.entity.ai.behavior.StopBeingAngryIfTargetDead
 import net.minecraft.world.entity.ai.memory.MemoryModuleType
 import net.minecraft.world.entity.ai.memory.MemoryStatus
 import net.minecraft.world.entity.ai.sensing.Sensor
@@ -69,12 +70,17 @@ object PokemonBrain {
         if (entity.behavioursAreCustom) {
             brainConfigurations = listOf(ApplyPresets().apply { presets.addAll(entity.behaviours) })
         } else {
-//            brainConfigurations = npcClass.ai
-//            entity.behaviours.clear()
-//            entity.behaviours.addAll(brainConfigurations.filterIsInstance<ApplyPresets>().flatMap { it.presets }.toMutableList())
+            brainConfigurations = (pokemon.form.baseAI + pokemon.form.ai).mapNotNull { CobblemonBrainConfigs.presets[it] }.flatMap { it.configurations }
+            entity.behaviours.clear()
+            entity.behaviours.addAll(brainConfigurations.filterIsInstance<ApplyPresets>().flatMap { it.presets }.toMutableList())
         }
         // Use brain configs, apply from some kind of pokemon species AI data if it isn't custom blabla
 
+        BrainConfigurationContext().apply(entity, brainConfigurations) // This redundancy will get cleaned up later when the rest of the framework is done
+
+        if (brainConfigurations.isNotEmpty()) {
+            return brain
+        }
 
         brain.addActivity(
             Activity.CORE,

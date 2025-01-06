@@ -29,6 +29,7 @@ import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.screens.Screen
 import java.util.UUID
+import net.minecraft.world.entity.LivingEntity
 
 class NPCEditorScreen(
     val npcId: Int,
@@ -97,7 +98,8 @@ class NPCEditorScreen(
                 label = lang("ui.entity.behaviour_editor"),
                 alignRight = true
             ) {
-                minecraft!!.setScreen(BehaviourEditorScreen(entityId = npcId, appliedPresets = dto.brainPresets))
+                val entity = this.minecraft!!.level!!.getEntity(npcId) as? LivingEntity ?: return@NPCEditorButton // Unlikely
+                minecraft!!.setScreen(BehaviourEditorScreen(entity = entity, appliedPresets = dto.brainPresets))
             }
         )
 

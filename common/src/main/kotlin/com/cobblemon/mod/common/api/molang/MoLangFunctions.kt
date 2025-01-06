@@ -980,7 +980,6 @@ object MoLangFunctions {
             map.put("hitbox_height") { DoubleValue(species.hitbox.height) }
             map.put("hitbox_fixed") { DoubleValue(species.hitbox.fixed) }
             map.put("catch_rate") { DoubleValue(species.catchRate) }
-
             map
         }
     )

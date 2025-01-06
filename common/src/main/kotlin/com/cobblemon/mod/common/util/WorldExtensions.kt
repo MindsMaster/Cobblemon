@@ -20,6 +20,7 @@ import net.minecraft.tags.FluidTags
 import net.minecraft.util.Mth.ceil
 import net.minecraft.util.Mth.floor
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.schedule.Activity
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.enchantment.Enchantment
@@ -227,6 +228,8 @@ val Level.activityRegistry: Registry<Activity>
     get() = registryAccess().registryOrThrow(Registries.ACTIVITY)
 val Level.blockRegistry: Registry<Block>
     get() = registryAccess().registryOrThrow(Registries.BLOCK)
+val Level.entityTypeRegistry: Registry<EntityType<*>>
+    get() = registryAccess().registryOrThrow(Registries.ENTITY_TYPE)
 
 fun Vec3.traceDownwards(
     world: Level,

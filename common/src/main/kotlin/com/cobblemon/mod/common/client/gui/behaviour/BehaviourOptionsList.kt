@@ -21,11 +21,12 @@ import net.minecraft.client.gui.components.ContainerObjectSelectionList
 import net.minecraft.client.gui.components.events.GuiEventListener
 import net.minecraft.client.gui.narration.NarratableEntry
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.entity.LivingEntity
 
 class BehaviourOptionsList(
     val parent: BehaviourEditorScreen,
     val left: Int,
-    val entityId: Int,
+    val entity: LivingEntity,
     val appliedPresets: MutableSet<ResourceLocation>,
     val addingMenu: Boolean // Whether this is the list for the un-added presets
 ) : ContainerObjectSelectionList<BehaviourOptionSlot>(
@@ -51,10 +52,10 @@ class BehaviourOptionsList(
     init {
         x = left
         if (addingMenu) {
-            val unaddedPresets = CobblemonBrainConfigs.presets.filter { it.key !in appliedPresets }
+            val unaddedPresets = CobblemonBrainConfigs.presets.filter { it.value.canBeApplied(entity) && it.key !in appliedPresets }
             unaddedPresets.forEach { (key, value) -> addEntry(BehaviourOptionSlot(this, key, value)) }
         } else {
-            val addedPresets = appliedPresets.mapNotNull { it to (CobblemonBrainConfigs.presets[it] ?: return@mapNotNull null) }
+            val addedPresets = appliedPresets.mapNotNull { it to (CobblemonBrainConfigs.presets[it]?.takeIf { it.canBeApplied(entity) } ?: return@mapNotNull null) }
             addedPresets.forEach { (key, value) -> addEntry(BehaviourOptionSlot(this, key, value)) }
         }
     }

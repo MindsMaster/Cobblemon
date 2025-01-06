@@ -315,23 +315,20 @@ open class PokemonEntity(
             .addPokemonEntityFunctions(this)
     }
 
-
     init {
         delegate.initialize(this)
         delegate.changePokemon(pokemon)
         addPosableFunctions(struct)
         moveControl = PokemonMoveControl(this)
-        if (!world.isClientSide) {
-            brain = makeBrain(brainDynamic ?: makeEmptyBrainDynamic())
-        }
-        initializeScripting()
+        makeBrain(dynamic = brainDynamic ?: makeEmptyBrainDynamic())
         refreshDimensions()
     }
 
     override fun updateBehaviours(brainPresets: Collection<ResourceLocation>) {
         behaviours.clear()
         behaviours.addAll(brainPresets)
-        TODO("Set this up properly the way NPCs were")
+        behavioursAreCustom = true
+        makeBrain(dynamic = brainDynamic ?: makeEmptyBrainDynamic())
     }
 
     override fun defineSynchedData(builder: SynchedEntityData.Builder) {
@@ -776,18 +773,6 @@ open class PokemonEntity(
 
     override fun getNavigation() = navigation as PokemonNavigation
     override fun createNavigation(world: Level) = PokemonNavigation(world, this)
-
-//    override fun makeBrain(dynamic: Dynamic<*>): Brain<*> {
-//        var target = pokemon
-//
-//        // todo: can happen with new pokemon, actor isn't finished at this point.
-//        if (target == null) {
-//            LOGGER.warn("could not make brain for pokemon {}", position())
-//            target = Pokemon()
-//        }
-//
-//        return PokemonBrain.makeBrain(this, target, brainProvider().makeBrain(dynamic))
-//    }
 
     override fun makeBrain(dynamic: Dynamic<*>): Brain<out PokemonEntity> {
         this.brainDynamic = dynamic

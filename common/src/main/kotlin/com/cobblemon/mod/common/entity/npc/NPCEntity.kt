@@ -280,7 +280,7 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
         behaviours.clear()
         behaviours.addAll(brainPresets)
         behavioursAreCustom = true
-        setupScriptedBrain()
+        makeBrain(dynamic = brainDynamic ?: makeEmptyBrainDynamic())
     }
 
     override fun doHurtTarget(target: Entity): Boolean {
@@ -389,7 +389,6 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
         entityData.set(LEVEL, nbt.getInt(DataKeys.NPC_LEVEL).takeIf { it != 0 } ?: 1)
         super.load(nbt)
         loadScriptingFromNBT(nbt)
-        setupScriptedBrain()
         appliedAspects.addAll(nbt.getList(DataKeys.NPC_ASPECTS, Tag.TAG_STRING.toInt()).map { it.asString })
         variationAspects.addAll(nbt.getList(DataKeys.NPC_VARIATION_ASPECTS, Tag.TAG_STRING.toInt()).map { it.asString })
         nbt.getCompound(DataKeys.NPC_INTERACTION).takeIf { !it.isEmpty }?.let { nbt ->
@@ -484,19 +483,12 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
     fun initialize(level: Int) {
         variationAspects.clear()
         entityData.set(LEVEL, level)
-        setupScriptedBrain()
+        makeBrain(dynamic = brainDynamic ?: makeEmptyBrainDynamic())
         npc.variations.values.forEach { this.variationAspects.addAll(it.provideAspects(this)) }
         if (party == null || npc.party != null) {
             party = npc.party?.takeIf { it.isStatic }?.provide(this, level)
         }
         updateAspects()
-    }
-
-    fun setupScriptedBrain() {
-        registeredVariables.clear()
-        makeBrain(dynamic = brainDynamic ?: makeEmptyBrainDynamic())
-        registeredVariables.addAll(npc.config)
-        initializeScripting()
     }
 
     override fun mobInteract(player: Player, hand: InteractionHand): InteractionResult {

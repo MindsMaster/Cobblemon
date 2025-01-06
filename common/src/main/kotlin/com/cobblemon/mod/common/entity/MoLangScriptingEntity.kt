@@ -35,6 +35,14 @@ interface MoLangScriptingEntity {
     var config: VariableStruct
     var data: VariableStruct
 
+    fun getExtraVariables(): List<MoLangConfigVariable> = emptyList()
+
+    fun registerVariables(brainVariables: Collection<MoLangConfigVariable>) {
+        registeredVariables.clear()
+        registeredVariables.addAll(brainVariables)
+        registeredVariables.addAll(getExtraVariables())
+    }
+
     fun initializeScripting() {
         registeredVariables.filter { it.variableName !in config.map }.forEach { variable -> config.setDirectly(variable.variableName, variable.type.toMoValue(variable.defaultValue)) }
         config.map.keys.filter { key -> registeredVariables.none { it.variableName == key } }.forEach { config.map.remove(it) }
