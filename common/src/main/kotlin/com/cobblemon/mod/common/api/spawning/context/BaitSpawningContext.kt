@@ -38,5 +38,5 @@ class BaitSpawningContext(
 ) {
     val nearbyBlocks = world.getBlockStates(AABB.ofSize(pos.toVec3d(), 10.0, 10.0, 10.0))
     val nearbyBlockTypes: List<Block> by lazy { nearbyBlocks.map { it.block }.distinct().toList() }
-    val baitItem = cause.baitItem
+    val baitItem = cause.baitStack
 }

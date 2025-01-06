@@ -97,4 +97,8 @@ object CobblemonBlockEntities : PlatformRegistry<Registry<BlockEntityType<*>>, R
             BlockEntityType.Builder.of(::CampfireBlockEntity, CobblemonBlocks.CAMPFIRE).build(null)
     )
 
+    @JvmField
+    val LURE_CAKE: BlockEntityType<LureCakeBlockEntity> = this.create("lure_cake",
+            BlockEntityType.Builder.of(::LureCakeBlockEntity, CobblemonBlocks.LURE_CAKE).build(null)
+    )
 }

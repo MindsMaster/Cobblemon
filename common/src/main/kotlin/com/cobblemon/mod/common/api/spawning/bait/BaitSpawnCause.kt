@@ -10,6 +10,7 @@ package com.cobblemon.mod.common.api.spawning.bait
 
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.Cobblemon.LOGGER
+import com.cobblemon.mod.common.CobblemonItemComponents
 import com.cobblemon.mod.common.api.events.CobblemonEvents
 import com.cobblemon.mod.common.api.events.fishing.BaitSpawnPokemonEvent
 import com.cobblemon.mod.common.api.fishing.FishingBait
@@ -24,12 +25,15 @@ import com.cobblemon.mod.common.api.spawning.detail.PokemonSpawnDetail
 import com.cobblemon.mod.common.api.spawning.detail.SpawnDetail
 import com.cobblemon.mod.common.api.spawning.spawner.Spawner
 import com.cobblemon.mod.common.api.types.ElementalTypes
+import com.cobblemon.mod.common.block.LureCakeBlock
+import com.cobblemon.mod.common.block.entity.LureCakeBlockEntity
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
-import com.cobblemon.mod.common.item.LureCakeItem
 import com.cobblemon.mod.common.item.PokeBaitItem
+import com.cobblemon.mod.common.item.components.CookingComponent
 import com.cobblemon.mod.common.pokemon.Gender
 import com.cobblemon.mod.common.pokemon.abilities.HiddenAbility
 import com.cobblemon.mod.common.util.cobblemonResource
+import net.minecraft.nbt.NbtOps
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
 import kotlin.collections.any
@@ -144,20 +148,28 @@ class BaitSpawnCause(
         }
     }
 
-    val baitItem = when (val item = baitStack.item) {
-        is PokeBaitItem -> item
-        is LureCakeItem -> item
+    val bait: FishingBait? = when {
+        baitStack.item is PokeBaitItem -> {
+            PokeBaitItem.getBaitOnPokeBait(baitStack)
+        }
+        baitStack.get(CobblemonItemComponents.COOKING_COMPONENT)?.let { component ->
+            FishingBait(
+                    item = cobblemonResource("lure_cake"),
+                    effects = listOf(
+                            component.bait1.effects,
+                            component.bait2.effects,
+                            component.bait3.effects
+                    ).flatten()
+            )
+        } != null -> {
+            null // Fallback in case of a failure
+        }
         else -> null
     }
 
-    // Determine the combined bait effects if any
-    val bait = baitItem?.let {
-        when (it) {
-            is PokeBaitItem -> PokeBaitItem.getBaitOnPokeBait(baitStack)
-            is LureCakeItem -> LureCakeItem.getBaitOnLureCake(baitStack)
-            else -> null
-        }
-    }
+
+
+
 
     override fun affectSpawn(entity: Entity) {
         super.affectSpawn(entity)

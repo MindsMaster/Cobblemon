@@ -6,54 +6,43 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package com.cobblemon.mod.common.item
+package com.cobblemon.mod.common.block
 
 import com.cobblemon.mod.common.CobblemonItemComponents
 import com.cobblemon.mod.common.CobblemonSounds
-import com.cobblemon.mod.common.advancement.CobblemonCriteria
-import com.cobblemon.mod.common.advancement.criterion.CastPokeRodContext
 import com.cobblemon.mod.common.api.events.CobblemonEvents
 import com.cobblemon.mod.common.api.events.fishing.BaitConsumedEvent
 import com.cobblemon.mod.common.api.events.fishing.BaitSetEvent
-import com.cobblemon.mod.common.api.events.fishing.PokerodCastEvent
-import com.cobblemon.mod.common.api.events.fishing.PokerodReelEvent
 import com.cobblemon.mod.common.api.fishing.FishingBait
 import com.cobblemon.mod.common.api.fishing.FishingBaits
-import com.cobblemon.mod.common.entity.fishing.PokeRodFishingBobberEntity
+import com.cobblemon.mod.common.block.entity.LureCakeBlockEntity
+import com.cobblemon.mod.common.item.RodBaitComponent
 import com.cobblemon.mod.common.item.components.CookingComponent
-import com.cobblemon.mod.common.util.cobblemonResource
-import com.cobblemon.mod.common.util.enchantmentRegistry
-import com.cobblemon.mod.common.util.itemRegistry
-import com.cobblemon.mod.common.util.playSoundServer
-import com.cobblemon.mod.common.util.toEquipmentSlot
+import net.minecraft.core.BlockPos
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.server.level.ServerPlayer
-import net.minecraft.sounds.SoundSource
-import net.minecraft.stats.Stats
-import net.minecraft.world.InteractionHand
-import net.minecraft.world.InteractionResultHolder
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.util.RandomSource
 import net.minecraft.world.entity.Entity
-import net.minecraft.world.entity.SlotAccess
-import net.minecraft.world.entity.player.Player
-import net.minecraft.world.entity.projectile.ThrowableItemProjectile
-import net.minecraft.world.inventory.ClickAction
-import net.minecraft.world.inventory.Slot
-import net.minecraft.world.item.FishingRodItem
-import net.minecraft.world.item.Item
+import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.Item.Properties
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.enchantment.EnchantmentHelper
-import net.minecraft.world.item.enchantment.Enchantments
+import net.minecraft.world.level.BlockGetter
 import net.minecraft.world.level.Level
-import net.minecraft.world.level.gameevent.GameEvent
-import net.minecraft.world.phys.Vec3
+import net.minecraft.world.level.LevelReader
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.state.BlockBehaviour
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.StateDefinition
+import net.minecraft.world.level.block.state.properties.BlockStateProperties
+import net.minecraft.world.level.block.state.properties.IntegerProperty
 import kotlin.collections.flatten
-import kotlin.ranges.coerceIn
 
-class LureCakeItem(val pokeRodId: ResourceLocation, settings: Properties) {
+class LureCakeBlock(settings: BlockBehaviour.Properties): Block(settings) {
 
     companion object {
+        val AGE: IntegerProperty = BlockStateProperties.AGE_5
+
         fun getBaitOnLureCake(stack: ItemStack): FishingBait? {
             return getCookingComponentOnRod(stack) ?: stack.components.get(CobblemonItemComponents.BAIT)?.bait
         }
@@ -139,6 +128,45 @@ class LureCakeItem(val pokeRodId: ResourceLocation, settings: Properties) {
         }
     }
 
+    init {
+        // Default state with age set to 0
+        registerDefaultState(this.stateDefinition.any().setValue(AGE, 0))
+    }
+
+    override fun setPlacedBy(
+            world: Level,
+            pos: BlockPos,
+            state: BlockState,
+            placer: LivingEntity?,
+            stack: ItemStack
+    ) {
+        super.setPlacedBy(world, pos, state, placer, stack)
+        val blockEntity = world.getBlockEntity(pos) as? LureCakeBlockEntity ?: return
+        blockEntity.initializeFromItemStack(stack)
+    }
+
+    override fun getCloneItemStack(level: LevelReader, pos: BlockPos, state: BlockState): ItemStack {
+        val blockEntity = level.getBlockEntity(pos) as? LureCakeBlockEntity ?: return ItemStack.EMPTY
+        return blockEntity.toItemStack()
+    }
+
+    override fun randomTick(state: BlockState, world: ServerLevel, pos: BlockPos, random: RandomSource) {
+        // Check if the block is at max age
+        if (state.getValue(AGE) < 5) {
+            // Increment the age and update the block state
+            world.setBlock(pos, state.setValue(AGE, state.getValue(AGE) + 1), 2)
+        }
+    }
+
+    override fun isRandomlyTicking(state: BlockState): Boolean {
+        // Enable random ticking for this block
+        return true
+    }
+
+    override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
+        // Register the AGE property
+        builder.add(AGE)
+    }
 
     /*// Fishing Rod: Bundle edition
     override fun overrideOtherStackedOnMe(
