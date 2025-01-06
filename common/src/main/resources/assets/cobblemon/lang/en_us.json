@@ -453,6 +453,7 @@
 
   "cobblemon.tooltip.see_more_info": "Hold shift to see info",
   "cobblemon.item_class.fishing_bait": "Fishing Bait",
+  "cobblemon.item_class.seasoning": "Seasoning",
 
   "cobblemon.fossil.armor": "Armor",
   "cobblemon.fossil.bird": "Bird",
@@ -623,6 +624,13 @@
   "cobblemon.fishing_bait_effects.pokemon_chance.tooltip": "%1$s%% - Reel in a pokemon",
   "cobblemon.fishing_bait_effects.friendship.tooltip": "%1$s%% - Boost Friendship +%3$s",
   "cobblemon.fishing_bait_effects.inert.tooltip": "No known effect",
+
+  "cobblemon.seasoning_flavor_header": "Seasoning Flavor:",
+  "cobblemon.seasoning_flavor.spicy": "Spicy",
+  "cobblemon.seasoning_flavor.dry": "Dry",
+  "cobblemon.seasoning_flavor.sweet": "Sweet",
+  "cobblemon.seasoning_flavor.bitter": "Bitter",
+  "cobblemon.seasoning_flavor.sour": "Sour",
 
   "entity.minecraft.villager.nurse": "Nurse",
   "entity.minecraft.villager.cobblemon.nurse": "Nurse",

@@ -7,8 +7,8 @@ import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
 
 object SeasoningTooltipGenerator : TooltipGenerator() {
-    private val seasoningHeader by lazy { lang("tooltip.seasoning.header").blue() }
-    private val flavorSubHeader by lazy { lang("tooltip.seasoning.flavor").gold() }
+    private val seasoningHeader by lazy { lang("item_class.seasoning").blue() }
+    private val flavorSubHeader by lazy { lang("seasoning_flavor_header").blue() }
 
     override fun generateCategoryTooltip(stack: ItemStack, lines: MutableList<Component>): MutableList<Component>? {
         if (!Seasonings.isSeasoning(stack)) return null
@@ -24,16 +24,19 @@ object SeasoningTooltipGenerator : TooltipGenerator() {
         // Add subheader for flavor
         resultLines.add(flavorSubHeader)
 
-        // Add flavor data
+        // Add flavor data with language keys and matching colors for text and values
         val flavorData = seasoning.flavors.map { (flavor, value) ->
-            when (flavor.lowercase()) {
-                "spicy" -> Component.literal("$value").red()
-                "dry" -> Component.literal("$value").blue()
-                "sweet" -> Component.literal("$value").lightPurple()
-                "bitter" -> Component.literal("$value").green()
-                "sour" -> Component.literal("$value").yellow()
-                else -> Component.literal("$value").gray() // Default for unknown flavors
+            val flavorLangKey = when (flavor.lowercase()) {
+                "spicy" -> lang("seasoning_flavor.spicy").red()
+                "dry" -> lang("seasoning_flavor.dry").darkAqua()
+                "sweet" -> lang("seasoning_flavor.sweet").lightPurple()
+                "bitter" -> lang("seasoning_flavor.bitter").green()
+                "sour" -> lang("seasoning_flavor.sour").yellow()
+                else -> lang("seasoning_flavor.unknown").gray() // Default for unknown flavors
             }
+
+            // Combine the flavor text with its value
+            Component.literal("").append(flavorLangKey).append(" $value")
         }
 
         // Combine all flavor components into a single line while keeping formatting
