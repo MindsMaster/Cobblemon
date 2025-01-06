@@ -51,6 +51,16 @@ import net.minecraft.world.phys.Vec3
 class PokerodItem(val pokeRodId: ResourceLocation, settings: Properties) : FishingRodItem(settings) {
 
     companion object {
+        fun getBaitOnRodAsItemStack(stack: ItemStack, world: Level): ItemStack {
+            val itemStack = getBaitOnRod(stack)?.toItemStack(world.itemRegistry) ?: ItemStack.EMPTY
+            stack.get(CobblemonItemComponents.BAIT)?.stack?.count?.let { itemStack.count = it }
+
+            val cookingComponent = stack.get(CobblemonItemComponents.COOKING_COMPONENT)
+            itemStack.set(CobblemonItemComponents.COOKING_COMPONENT, cookingComponent)
+
+            return itemStack
+        }
+
         fun getBaitOnRod(stack: ItemStack): FishingBait? {
             return getCookingComponentOnRod(stack) ?: stack.components.get(CobblemonItemComponents.BAIT)?.bait
         }
@@ -147,7 +157,7 @@ class PokerodItem(val pokeRodId: ResourceLocation, settings: Properties) : Fishi
         if (clickAction != ClickAction.SECONDARY || !slot.allowModification(player))
             return false
 
-        val baitStack = getBaitStackOnRod(itemStack)
+        val baitStack = getBaitOnRodAsItemStack(itemStack, player.level())
 
         CobblemonEvents.BAIT_SET_PRE.postThen(BaitSetEvent(itemStack, itemStack2), { event ->
             return event.isCanceled
@@ -267,7 +277,7 @@ class PokerodItem(val pokeRodId: ResourceLocation, settings: Properties) : Fishi
                 val bobberEntity = PokeRodFishingBobberEntity(
                     user,
                     pokeRodId,
-                    getBaitOnRod(itemStack)?.toItemStack(world.itemRegistry) ?: ItemStack.EMPTY,
+                    getBaitOnRodAsItemStack(itemStack, world),
                     world,
                     luckLevel,
                     lureLevel,
