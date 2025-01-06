@@ -30,7 +30,7 @@ import com.cobblemon.mod.common.api.spawning.detail.PokemonSpawnDetail
 import com.cobblemon.mod.common.api.spawning.detail.SpawnAction
 import com.cobblemon.mod.common.api.spawning.detail.SpawnDetail
 import com.cobblemon.mod.common.api.spawning.fishing.FishingSpawner
-import com.cobblemon.mod.common.api.spawning.influence.SpawningInfluence
+import com.cobblemon.mod.common.api.spawning.bait.BaitSpawner
 import com.cobblemon.mod.common.api.spawning.preset.BasicSpawnDetailPreset
 import com.cobblemon.mod.common.api.spawning.preset.BestSpawnerConfig
 import com.cobblemon.mod.common.api.spawning.preset.PokemonSpawnDetailPreset
@@ -82,6 +82,7 @@ object BestSpawner {
     val spawnerManagers = mutableListOf<SpawnerManager>(CobblemonWorldSpawnerManager)
     var defaultPokemonDespawner: Despawner<PokemonEntity> = CobblemonAgingDespawner(getAgeTicks = { it.ticksLived })
     lateinit var fishingSpawner: FishingSpawner
+    lateinit var baitSpawner: BaitSpawner
 
     fun loadConfig() {
         LOGGER.info("Starting the Best Spawner...")
@@ -92,6 +93,7 @@ object BestSpawner {
         SpawningCondition.register(SurfaceSpawningCondition.NAME, SurfaceSpawningCondition::class.java)
         SpawningCondition.register(SeafloorSpawningCondition.NAME, SeafloorSpawningCondition::class.java)
         SpawningCondition.register(FishingSpawningCondition.NAME, FishingSpawningCondition::class.java)
+        SpawningCondition.register(BaitSpawningCondition.NAME, BaitSpawningCondition::class.java)
 
         LOGGER.info("Loaded ${SpawningCondition.conditionTypes.size} spawning condition types.")
         SpawningContextCalculator.register(GroundedSpawningContextCalculator)
@@ -106,6 +108,7 @@ object BestSpawner {
         SpawningContext.register(name = "submerged", clazz = SubmergedSpawningContext::class.java, defaultCondition = SubmergedSpawningCondition.NAME)
         SpawningContext.register(name = "surface", clazz = SurfaceSpawningContext::class.java, defaultCondition = SurfaceSpawningCondition.NAME)
         SpawningContext.register(name = "fishing", clazz = FishingSpawningContext::class.java, defaultCondition = FishingSpawningCondition.NAME)
+        // todo do we want a bait context? Or just use Surface?
 
         LOGGER.info("Loaded ${SpawningContext.contexts.size} spawning context types.")
 
@@ -122,5 +125,6 @@ object BestSpawner {
     fun onServerStarted() {
         spawnerManagers.forEach(SpawnerManager::onServerStarted)
         fishingSpawner = FishingSpawner()
+        baitSpawner = BaitSpawner()
     }
 }
