@@ -1,11 +1,11 @@
 {
-  "ingredient": "cobblemon:oran_berry",
+  "ingredient": "cobblemon:coba_berry",
   "flavors": {
-    "spicy": 10,
+    "spicy": 0,
     "dry": 10,
     "sweet": 0,
-    "bitter": 10,
-    "sour": 10
+    "bitter": 15,
+    "sour": 0
   },
   "color": "light blue",
   "quality": 5

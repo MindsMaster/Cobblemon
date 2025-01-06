@@ -1,0 +1,12 @@
+{
+  "ingredient": "cobblemon:rawst_berry",
+  "flavors": {
+    "spicy": 0,
+    "dry": 0,
+    "sweet": 0,
+    "bitter": 10,
+    "sour": 0
+  },
+  "color": "cyan",
+  "quality": 25
+}

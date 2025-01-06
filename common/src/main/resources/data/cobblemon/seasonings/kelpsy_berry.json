@@ -1,7 +1,7 @@
 {
-  "ingredient": "cobblemon:oran_berry",
+  "ingredient": "cobblemon:kelpsy_berry",
   "flavors": {
-    "spicy": 10,
+    "spicy": 0,
     "dry": 10,
     "sweet": 0,
     "bitter": 10,
