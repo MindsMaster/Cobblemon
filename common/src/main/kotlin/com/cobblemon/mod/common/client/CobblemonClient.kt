@@ -37,6 +37,7 @@ import com.cobblemon.mod.common.client.storage.ClientStorageManager
 import com.cobblemon.mod.common.client.tooltips.CobblemonTooltipGenerator
 import com.cobblemon.mod.common.client.tooltips.FishingBaitTooltipGenerator
 import com.cobblemon.mod.common.client.tooltips.FishingRodTooltipGenerator
+import com.cobblemon.mod.common.client.tooltips.SeasoningTooltipGenerator
 import com.cobblemon.mod.common.client.tooltips.TooltipManager
 import com.cobblemon.mod.common.client.trade.ClientTrade
 import com.cobblemon.mod.common.data.CobblemonDataProvider
@@ -163,6 +164,7 @@ object CobblemonClient {
         TooltipManager.registerTooltipGenerator(CobblemonTooltipGenerator)
         TooltipManager.registerTooltipGenerator(FishingBaitTooltipGenerator)
         TooltipManager.registerTooltipGenerator(FishingRodTooltipGenerator)
+        TooltipManager.registerTooltipGenerator(SeasoningTooltipGenerator)
     }
 
     fun registerFlywheelRenderers() {
