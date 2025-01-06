@@ -60,6 +60,8 @@ class CookingComponent(
         return listOf(bait1, bait2, bait3, seasoning1, seasoning2, seasoning3).hashCode()
     }
 
+    fun getQualityAverage() = getSeasonings().map { it.quality }.average()
+
     fun getDominantFlavors(): List<String> {
         val flavors = getFlavorsSum()
         val maxFlavorValue = flavors.values.maxOrNull()
@@ -68,8 +70,10 @@ class CookingComponent(
     }
 
     fun getFlavorsSum(): Map<String, Int> =
-        listOf(seasoning1, seasoning2, seasoning3)
+        getSeasonings()
             .flatMap { it.flavors.entries }
             .groupingBy { it.key }
             .fold(0) { acc, entry -> acc + entry.value }
+
+    fun getSeasonings() = listOf(seasoning1, seasoning2, seasoning3).filter { it.quality > 0 }
 }

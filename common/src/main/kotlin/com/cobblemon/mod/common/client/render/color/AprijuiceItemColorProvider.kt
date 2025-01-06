@@ -16,6 +16,9 @@ import net.minecraft.world.item.ItemStack
 
 object AprijuiceItemColorProvider : ItemColor {
 
+    private val LEAF_INDEX = 1
+    private val JUICE_INDEX = 2
+
     private val colorMap = mapOf(
         "spicy" to ChatFormatting.RED.color,
         "dry" to ChatFormatting.BLUE.color,
@@ -28,13 +31,31 @@ object AprijuiceItemColorProvider : ItemColor {
         if (layer == 0) return -1
 
         val cookingComponent = stack.get(CobblemonItemComponents.COOKING_COMPONENT) ?: return -1
-        val dominantFlavors = cookingComponent.getDominantFlavors()
-        val colors =
-            dominantFlavors.mapNotNull { colorMap[it] }
-            .map { FastColor.ARGB32.opaque(it) }
 
-        if (colors.isEmpty()) return -1
+        if (layer == LEAF_INDEX) {
+            val quality = cookingComponent.getQualityAverage()
+            val color = when {
+                quality < 10 -> ChatFormatting.RED.color
+                quality < 20 -> ChatFormatting.YELLOW.color
+                else -> ChatFormatting.GREEN.color
+            }
 
+            color?.let { return FastColor.ARGB32.opaque(color) }
+        }
+
+        if (layer == JUICE_INDEX) {
+            val dominantFlavors = cookingComponent.getDominantFlavors()
+            val colors =
+                dominantFlavors.mapNotNull { colorMap[it] }
+                .map { FastColor.ARGB32.opaque(it) }
+
+            if (colors.isNotEmpty()) return getColorMix(colors)
+        }
+
+        return -1
+    }
+
+    private fun getColorMix(colors: List<Int>): Int {
         val (alphaSum, redSum, greenSum, blueSum) = colors.fold(IntArray(4)) { acc, color ->
             acc[0] += FastColor.ARGB32.alpha(color)
             acc[1] += FastColor.ARGB32.red(color)
