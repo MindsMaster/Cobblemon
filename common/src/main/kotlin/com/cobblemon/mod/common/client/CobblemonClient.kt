@@ -16,6 +16,7 @@ import com.cobblemon.mod.common.api.storage.player.client.ClientPokedexManager
 import com.cobblemon.mod.common.api.storage.player.client.ClientGeneralPlayerData
 import com.cobblemon.mod.common.api.tags.CobblemonItemTags
 import com.cobblemon.mod.common.client.battle.ClientBattle
+import com.cobblemon.mod.common.client.render.color.PokeBaitItemColorProvider
 import com.cobblemon.mod.common.client.gui.PartyOverlay
 import com.cobblemon.mod.common.client.gui.battle.BattleOverlay
 import com.cobblemon.mod.common.client.particle.BedrockParticleOptionsRepository
@@ -119,6 +120,7 @@ object CobblemonClient {
         //registerColors()
         registerFlywheelRenderers()
         this.registerEntityRenderers()
+        this.registerItemColors()
         Berries.observable.subscribe {
             BerryModelRepository.patchModels()
         }
@@ -312,6 +314,10 @@ object CobblemonClient {
         this.implementation.registerEntityRenderer(CobblemonEntities.POKE_BOBBER) { ctx -> PokeBobberEntityRenderer(ctx) }
         LOGGER.info("Registering NPC renderer")
         this.implementation.registerEntityRenderer(CobblemonEntities.NPC, ::NPCRenderer)
+    }
+
+    private fun registerItemColors() {
+        implementation.registerItemColors(PokeBaitItemColorProvider, CobblemonItems.POKE_BAIT)
     }
 
     fun reloadCodedAssets(resourceManager: ResourceManager) {
