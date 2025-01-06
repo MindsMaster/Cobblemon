@@ -15,21 +15,39 @@ import net.minecraft.util.FastColor
 import net.minecraft.world.item.ItemStack
 
 object AprijuiceItemColorProvider : ItemColor {
+
+    private val colorMap = mapOf(
+        "spicy" to ChatFormatting.RED.color,
+        "dry" to ChatFormatting.BLUE.color,
+        "sweet" to ChatFormatting.LIGHT_PURPLE.color,
+        "bitter" to ChatFormatting.GREEN.color,
+        "sour" to ChatFormatting.YELLOW.color
+    )
+
     override fun getColor(stack: ItemStack, layer: Int): Int {
         if (layer == 0) return -1
 
         val cookingComponent = stack.get(CobblemonItemComponents.COOKING_COMPONENT) ?: return -1
-        val dominantFlavor = cookingComponent.getDominantFlavor()
+        val dominantFlavors = cookingComponent.getDominantFlavors()
+        val colors =
+            dominantFlavors.mapNotNull { colorMap[it] }
+            .map { FastColor.ARGB32.opaque(it) }
 
-        val color = when (dominantFlavor) {
-            "spicy" -> ChatFormatting.RED.color
-            "dry" -> ChatFormatting.BLUE.color
-            "sweet" -> ChatFormatting.LIGHT_PURPLE.color
-            "bitter" -> ChatFormatting.GREEN.color
-            "sour" -> ChatFormatting.YELLOW.color
-            else -> -1
+        if (colors.isEmpty()) return -1
+
+        val (alphaSum, redSum, greenSum, blueSum) = colors.fold(IntArray(4)) { acc, color ->
+            acc[0] += FastColor.ARGB32.alpha(color)
+            acc[1] += FastColor.ARGB32.red(color)
+            acc[2] += FastColor.ARGB32.green(color)
+            acc[3] += FastColor.ARGB32.blue(color)
+            acc
         }
 
-        return color?.let { FastColor.ARGB32.opaque(it) } ?: -1
+        return FastColor.ARGB32.color(
+            alphaSum / colors.size,
+            redSum / colors.size,
+            greenSum / colors.size,
+            blueSum / colors.size
+        )
     }
 }

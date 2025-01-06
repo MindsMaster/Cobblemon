@@ -60,23 +60,15 @@ class CookingComponent(
         return listOf(bait1, bait2, bait3, seasoning1, seasoning2, seasoning3).hashCode()
     }
 
-    fun getDominantFlavor(): String? {
-        val flavors = mutableMapOf<String, Int>()
-        for (seasoning in listOf(seasoning1, seasoning2, seasoning3)) {
-            for (flavor in seasoning.flavors) {
-                flavors[flavor.key] = flavor.value + flavors.getOrDefault(flavor.key, 0)
-            }
-        }
+    fun getDominantFlavors(): List<String> {
+        val flavors = listOf(seasoning1, seasoning2, seasoning3)
+            .flatMap { it.flavors.entries }
+            .groupingBy { it.key }
+            .fold(0) { acc, entry -> acc + entry.value }
 
-        var dominantFlavor: String? = null
-        var dominantFlavorValue: Int? = null
-        for (flavor in flavors) {
-            if (dominantFlavorValue == null || flavor.value > dominantFlavorValue) {
-                dominantFlavor = flavor.key
-                dominantFlavorValue = flavor.value
-            }
-        }
+        val maxFlavorValue = flavors.values.maxOrNull()
 
-        return dominantFlavor
+        return flavors.filter { it.value == maxFlavorValue }
+            .map { it.key }
     }
 }
