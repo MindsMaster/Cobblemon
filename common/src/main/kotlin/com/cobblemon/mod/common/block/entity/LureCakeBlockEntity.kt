@@ -40,7 +40,7 @@ class LureCakeBlockEntity(
         println("Initializing LureCakeBlockEntity from ItemStack: $itemStack at $blockPos")
         cookingComponent = itemStack.get(CobblemonItemComponents.COOKING_COMPONENT)
         println("CookingComponent set to: $cookingComponent")
-        markUpdated() // Sync the data with the client
+        markUpdated()
     }
 
     init {
@@ -147,11 +147,11 @@ class LureCakeBlockEntity(
     fun spawnPokemon(
             world: Level,
             pos: BlockPos
-    ): Pair<PokemonEntity?, PokemonEntity?> {
+    ): PokemonEntity? {
         println("Attempting to spawn Pokémon at $pos in world: ${world.dimension().location()}")
         if (world !is ServerLevel) {
             println("World is not a ServerLevel, aborting spawn.")
-            return null to null
+            return null
         }
 
         val spawnPos = pos.offset(world.random.nextInt(-SPAWN_RADIUS.toInt(), SPAWN_RADIUS.toInt()), 0, world.random.nextInt(-SPAWN_RADIUS.toInt(), SPAWN_RADIUS.toInt()))
@@ -171,20 +171,23 @@ class LureCakeBlockEntity(
         )
         println("Spawn cause created: $spawnCause")
 
-        val result = spawner.run(spawnCause, world, spawnPos)
-        println("Spawner result: $result")
+        val result = spawner.run(spawnCause, level as ServerLevel, spawnPos)
 
         var spawnedPokemon: PokemonEntity? = null
-        if (result is EntitySpawnResult) {
-            result.entities.forEach { entity ->
-                if (entity is PokemonEntity) {
-                    spawnedPokemon = entity
-                    println("Spawned Pokémon: ${entity.pokemon}")
-                }
+        val resultingSpawn = result?.get()
+
+        if (resultingSpawn is EntitySpawnResult) {
+            for (entity in resultingSpawn.entities) {
+                // we can query the spawned pokemon here
+                spawnedPokemon = (entity as PokemonEntity)
+
+                // CRAB IDEA: todo maybe some grass particles? as if they appeared from the grass or forest?
+                return spawnedPokemon
             }
         }
 
-        return spawnedPokemon to null
+
+        return null
     }
 
 

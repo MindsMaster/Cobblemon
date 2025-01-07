@@ -51,7 +51,7 @@ import kotlin.collections.flatten
 class LureCakeBlock(settings: BlockBehaviour.Properties): BaseEntityBlock(settings) {
 
     companion object {
-        val AGE: IntegerProperty = BlockStateProperties.AGE_5
+        val AGE: IntegerProperty = IntegerProperty.create("age", 0, 5)
 
         //val CODEC = simpleCodec(::LureCakeBlock)
         val CODEC: Codec<LureCakeBlockEntity> = RecordCodecBuilder.create { instance ->
@@ -178,8 +178,6 @@ class LureCakeBlock(settings: BlockBehaviour.Properties): BaseEntityBlock(settin
         }
     }
 
-
-
     override fun getCloneItemStack(level: LevelReader, pos: BlockPos, state: BlockState): ItemStack {
         val blockEntity = level.getBlockEntity(pos) as? LureCakeBlockEntity ?: return ItemStack.EMPTY
         return blockEntity.toItemStack()
@@ -217,7 +215,7 @@ class LureCakeBlock(settings: BlockBehaviour.Properties): BaseEntityBlock(settin
         val spawnPos = pos.offset(randomXOffset, 0, randomZOffset)
 
         println("Attempting to spawn Pokémon near $pos at $spawnPos")
-        val (spawnedPokemon, _) = blockEntity.spawnPokemon(world, spawnPos)
+        val spawnedPokemon = blockEntity.spawnPokemon(world, spawnPos)
         if (spawnedPokemon != null) {
             println("Pokémon spawned successfully at $spawnPos")
 
