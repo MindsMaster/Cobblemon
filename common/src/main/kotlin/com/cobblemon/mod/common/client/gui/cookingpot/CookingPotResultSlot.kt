@@ -1,11 +1,17 @@
 package com.cobblemon.mod.common.client.gui.cookingpot
 
 import com.cobblemon.mod.common.CobblemonItemComponents
+import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.cooking.Seasoning
 import com.cobblemon.mod.common.api.cooking.Seasonings
 import com.cobblemon.mod.common.api.fishing.FishingBait
 import com.cobblemon.mod.common.api.fishing.FishingBaits
 import com.cobblemon.mod.common.item.components.CookingComponent
+import com.cobblemon.mod.common.util.playSoundServer
+import com.cobblemon.mod.common.util.toBlockPos
+import com.cobblemon.mod.common.util.toVec3d
+import net.minecraft.client.Minecraft
+import net.minecraft.client.resources.sounds.SimpleSoundInstance
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.ResultContainer
 import net.minecraft.world.inventory.Slot
@@ -30,6 +36,8 @@ class CookingPotResultSlot(
 
             menu.consumeCraftingIngredients() // Decrement ingredients
             menu.broadcastChanges() // Notify the client
+
+            Minecraft.getInstance().soundManager.play(SimpleSoundInstance.forUI(CobblemonSounds.CAMPFIRE_POT_CRAFT, 1.0f, 1.0f))
         } else {
             println("Player menu is not CookingPotMenu!")
         }

@@ -423,5 +423,20 @@ object CobblemonSounds : PlatformRegistry<Registry<SoundEvent>, ResourceKey<Regi
         DISPLAY_CASE_STEP
     )
 
+    @JvmField
+    val CAMPFIRE_POT_PLACE = this.create("block.campfire_pot.place")
+    @JvmField
+    val CAMPFIRE_POT_RETRIEVE = this.create("block.campfire_pot.retrieve")
+    @JvmField
+    val CAMPFIRE_POT_OPEN = this.create("block.campfire_pot.open")
+    @JvmField
+    val CAMPFIRE_POT_CLOSE = this.create("block.campfire_pot.close")
+    @JvmField
+    val CAMPFIRE_POT_USE = this.create("block.campfire_pot.use")
+    @JvmField
+    val CAMPFIRE_POT_COOK = this.create("block.campfire_pot.cook")
+    @JvmField
+    val CAMPFIRE_POT_CRAFT = this.create("block.campfire_pot.craft")
+
     private fun create(name: String): SoundEvent = this.create(name, SoundEvent.createVariableRangeEvent(cobblemonResource(name)))
 }

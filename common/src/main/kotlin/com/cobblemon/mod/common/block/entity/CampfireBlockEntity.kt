@@ -10,11 +10,12 @@ package com.cobblemon.mod.common.block.entity
 
 import com.cobblemon.mod.common.CobblemonBlockEntities
 import com.cobblemon.mod.common.CobblemonRecipeTypes
+import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.block.PotComponent
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotMenu
-import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotRecipe
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotRecipeBase
-import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotShapelessRecipe
+import com.cobblemon.mod.common.client.sound.BlockEntitySoundTracker
+import com.cobblemon.mod.common.client.sound.instances.CancellableSoundInstance
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
@@ -26,7 +27,6 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket
-import net.minecraft.resources.RegistryOps
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.ContainerHelper
 import net.minecraft.world.WorldlyContainer
@@ -34,7 +34,6 @@ import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.StackedContents
 import net.minecraft.world.inventory.*
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.Items
 import net.minecraft.world.item.crafting.CraftingInput
 import net.minecraft.world.item.crafting.RecipeHolder
 import net.minecraft.world.item.crafting.RecipeManager
@@ -43,9 +42,27 @@ import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity
 import net.minecraft.world.level.block.state.BlockState
 
-class CampfireBlockEntity : BaseContainerBlockEntity, WorldlyContainer, RecipeCraftingHolder, StackedContentsCompatible, CraftingContainer {
+class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlockEntity(
+    CobblemonBlockEntities.CAMPFIRE,
+    pos,
+    state
+), WorldlyContainer, RecipeCraftingHolder, StackedContentsCompatible, CraftingContainer {
 
     companion object {
+        const val COOKING_PROGRESS_INDEX = 0
+        const val COOKING_PROGRESS_TOTAL_TIME = 1
+
+        fun clientTick(level: Level, pos: BlockPos, state: BlockState, campfireBlockEntity: CampfireBlockEntity) {
+            if (level.isClientSide) {
+                val isSoundActive = BlockEntitySoundTracker.isActive(pos, campfireBlockEntity.runningSound.location)
+                if (!campfireBlockEntity.isEmpty && !isSoundActive) {
+                    BlockEntitySoundTracker.play(pos, CancellableSoundInstance(campfireBlockEntity.runningSound, pos, true, 0.8f, 1.0f))
+                } else if (campfireBlockEntity.isEmpty && isSoundActive) {
+                    BlockEntitySoundTracker.stop(pos, campfireBlockEntity.runningSound.location)
+                }
+            }
+        }
+
         fun serverTick(level: Level, pos: BlockPos, state: BlockState, campfireBlockEntity: CampfireBlockEntity) {
             if (!level.isClientSide) {
                 var itemStack = ItemStack.EMPTY
@@ -70,49 +87,45 @@ class CampfireBlockEntity : BaseContainerBlockEntity, WorldlyContainer, RecipeCr
                         campfireBlockEntity.items[0] = ItemStack.EMPTY
                     }
                 }
+
+                campfireBlockEntity.cookingProgress++
+                if (campfireBlockEntity.cookingProgress == campfireBlockEntity.cookingTotalTime) {
+                    campfireBlockEntity.cookingProgress = 0
+                }
             }
         }
     }
 
-
-
-
+    private val runningSound = CobblemonSounds.CAMPFIRE_POT_COOK
     private var cookingProgress : Int = 0
-    private var cookingTotalTime : Int = 0
-    private var dataAccess : ContainerData
-    private var items : NonNullList<ItemStack?>
-    private val recipesUsed: Object2IntOpenHashMap<ResourceLocation>
-    private val quickCheck: RecipeManager.CachedCheck<CraftingInput, *>
+    private var cookingTotalTime : Int = 200
+    private var items : NonNullList<ItemStack?> = NonNullList.withSize(14, ItemStack.EMPTY)
+    private val recipesUsed: Object2IntOpenHashMap<ResourceLocation> = Object2IntOpenHashMap()
+    private val quickCheck: RecipeManager.CachedCheck<CraftingInput, *> = RecipeManager.createCheck(CobblemonRecipeTypes.COOKING_POT_COOKING)
     private var potComponent: PotComponent? = null
 
-    constructor(pos: BlockPos, state: BlockState) : super(CobblemonBlockEntities.CAMPFIRE, pos, state) {
-        this.items = NonNullList.withSize(14, ItemStack.EMPTY)
-        this.recipesUsed = Object2IntOpenHashMap()
-        this.quickCheck = RecipeManager.createCheck(CobblemonRecipeTypes.COOKING_POT_COOKING)
-
-        this.dataAccess = object : ContainerData {
-            override fun get(index: Int): Int {
-                return when (index) {
-                    0 -> this@CampfireBlockEntity.cookingProgress
-                    1 -> this@CampfireBlockEntity.cookingTotalTime
-                    else -> 0
-                }
+    private var dataAccess : ContainerData = object : ContainerData {
+        override fun get(index: Int): Int {
+            return when (index) {
+                COOKING_PROGRESS_INDEX -> this@CampfireBlockEntity.cookingProgress
+                COOKING_PROGRESS_TOTAL_TIME -> this@CampfireBlockEntity.cookingTotalTime
+                else -> 0
             }
+        }
 
-            override fun set(index: Int, value: Int) {
-                when (index) {
-                    0 -> this@CampfireBlockEntity.cookingProgress = value
-                    1 -> this@CampfireBlockEntity.cookingTotalTime = value
-                }
+        override fun set(index: Int, value: Int) {
+            when (index) {
+                COOKING_PROGRESS_INDEX -> this@CampfireBlockEntity.cookingProgress = value
+                COOKING_PROGRESS_TOTAL_TIME -> this@CampfireBlockEntity.cookingTotalTime = value
             }
+        }
 
-            override fun getCount(): Int {
-                return 2
-            }
+        override fun getCount(): Int {
+            return 2
         }
     }
 
-    override fun getDefaultName(): Component? {
+    override fun getDefaultName(): Component {
         return Component.translatable("container.cooking_pot")
     }
 
@@ -124,7 +137,7 @@ class CampfireBlockEntity : BaseContainerBlockEntity, WorldlyContainer, RecipeCr
         return 3
     }
 
-    override fun getItems(): NonNullList<ItemStack?>? {
+    override fun getItems(): NonNullList<ItemStack?> {
         onItemUpdate(level!!)
         return this.items
     }
@@ -138,7 +151,7 @@ class CampfireBlockEntity : BaseContainerBlockEntity, WorldlyContainer, RecipeCr
     override fun createMenu(
         containerId: Int,
         inventory: Inventory
-    ): AbstractContainerMenu? {
+    ): AbstractContainerMenu {
         return CookingPotMenu(containerId, inventory, this, this.dataAccess)
     }
 
@@ -146,7 +159,7 @@ class CampfireBlockEntity : BaseContainerBlockEntity, WorldlyContainer, RecipeCr
         return this.items.size
     }
 
-    override fun getSlotsForFace(side: Direction): IntArray? {
+    override fun getSlotsForFace(side: Direction): IntArray {
         return intArrayOf(0, 1, 2)
     }
 
@@ -178,7 +191,7 @@ class CampfireBlockEntity : BaseContainerBlockEntity, WorldlyContainer, RecipeCr
     }
 
     override fun fillStackedContents(contents: StackedContents) {
-        for(itemStack in this.items) {
+        for (itemStack in this.items) {
             contents.accountSimpleStack(itemStack);
         }
     }
@@ -228,7 +241,6 @@ class CampfireBlockEntity : BaseContainerBlockEntity, WorldlyContainer, RecipeCr
         return saveWithoutMetadata(registryLookup)
     }
 
-
     private fun onItemUpdate(level: Level) {
         val oldState = level.getBlockState(blockPos)
         level.sendBlockUpdated(blockPos, oldState, level.getBlockState(blockPos), Block.UPDATE_ALL)
@@ -237,4 +249,11 @@ class CampfireBlockEntity : BaseContainerBlockEntity, WorldlyContainer, RecipeCr
         level.sendBlockUpdated(blockPos, oldState, level.getBlockState(blockPos), Block.UPDATE_ALL)
     }
 
+    override fun setRemoved() {
+        super.setRemoved()
+
+        if (level?.isClientSide == true) {
+            BlockEntitySoundTracker.stop(blockPos, runningSound.location)
+        }
+    }
 }

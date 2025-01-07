@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.mixin;
 
 import com.cobblemon.mod.common.CobblemonBlocks;
+import com.cobblemon.mod.common.CobblemonSounds;
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity;
 import com.cobblemon.mod.common.item.PotItem;
 import net.minecraft.core.BlockPos;
@@ -59,7 +60,7 @@ public abstract class CampfireBlockMixin {
 
                 if (campfireEntity.getPotItem() == null || campfireEntity.getPotItem().isEmpty()) {
                     campfireEntity.setPotItem(itemStack.split(1));
-                    world.playSound(null, blockPos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 0.7F, 1.0F);
+                    world.playSound(null, blockPos, CobblemonSounds.CAMPFIRE_POT_PLACE, SoundSource.BLOCKS, 0.7F, 1.0F);
                     cir.setReturnValue(ItemInteractionResult.SUCCESS);
                     return;
                 }

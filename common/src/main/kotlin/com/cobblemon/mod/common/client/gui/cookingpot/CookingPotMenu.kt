@@ -43,24 +43,22 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
         val PLAYER_HOTBAR_SLOTS = 40..48
     }
 
-    private val containerId: Int
     private val player: Player
     private val level: Level
     private val playerInventory: Inventory
     private val container: CraftingContainer
     private val resultContainer: ResultContainer
-    private val containerData: ContainerData
+    val containerData: ContainerData
     private val recipeType: RecipeType<CookingPotRecipe> = CobblemonRecipeTypes.COOKING_POT_COOKING
     private val quickCheck = RecipeManager.createCheck(CobblemonRecipeTypes.COOKING_POT_COOKING)
 
     constructor(containerId: Int, playerInventory: Inventory) :
             super(CobblemonMenuType.COOKING_POT, containerId) {
-        this.containerId = containerId
         this.playerInventory = playerInventory
         this.container = CookingPotContainer(this, 3, 3)
         this.resultContainer = ResultContainer()
         this.resultContainer.setItem(0, container.getItem(RESULT_SLOT))
-        this.containerData = SimpleContainerData(4)
+        this.containerData = SimpleContainerData(2)
         this.player = playerInventory.player
         this.level = playerInventory.player.level()
         initializeSlots(playerInventory)
@@ -68,7 +66,6 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
 
     constructor(containerId: Int, playerInventory: Inventory, container: CraftingContainer, containerData: ContainerData) :
             super(CobblemonMenuType.COOKING_POT, containerId) {
-        this.containerId = containerId
         this.playerInventory = playerInventory
         this.container = container
         this.containerData = containerData

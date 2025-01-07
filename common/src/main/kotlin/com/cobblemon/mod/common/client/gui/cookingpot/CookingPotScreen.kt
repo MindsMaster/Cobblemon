@@ -8,19 +8,22 @@
 
 package com.cobblemon.mod.common.client.gui.cookingpot
 
+import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.gui.blitk
 import com.cobblemon.mod.common.util.cobblemonResource
+import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.ImageButton
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent
 import net.minecraft.client.gui.screens.recipebook.RecipeUpdateListener
+import net.minecraft.client.resources.sounds.SimpleSoundInstance
 import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Inventory
-import net.minecraft.world.inventory.ClickType
 import net.minecraft.world.inventory.RecipeBookMenu
-import net.minecraft.world.inventory.Slot
 import net.minecraft.world.item.crafting.CraftingInput
+import kotlin.math.ceil
 
 class CookingPotScreen(
     menu: CookingPotMenu,
@@ -36,6 +39,7 @@ class CookingPotScreen(
         private const val backgroundHeight = 198
         private const val backgroundWidth = 176
         private val BACKGROUND = cobblemonResource("textures/gui/cookingpot/cooking_pot.png")
+        private val BURN_PROGRESS_SPRITE = ResourceLocation.withDefaultNamespace("textures/gui/sprites/container/furnace/lit_progress.png")
     }
 
     private val recipeBookComponent: RecipeBookComponent = RecipeBookComponent()
@@ -73,7 +77,6 @@ class CookingPotScreen(
         this.inventoryLabelY = this.imageHeight - 94
     }
 
-
     override fun renderBg(
         context: GuiGraphics,
         partialTick: Float,
@@ -86,6 +89,9 @@ class CookingPotScreen(
             x = leftPos, y = (height - backgroundHeight) / 2,
             width = backgroundWidth, height = backgroundHeight
         )
+
+        val burnProgress = ceil(menu.getBurnProgress() * 13.0).toInt()
+        context.blitSprite(BURN_PROGRESS_SPRITE, 14, 14, 0, 14, leftPos + 141, topPos + 86, 14, burnProgress);
     }
 
     override fun render(
@@ -126,5 +132,10 @@ class CookingPotScreen(
                 super.mouseClicked(mouseX, mouseY, button)
             }
         }
+    }
+
+    override fun onClose() {
+        Minecraft.getInstance().soundManager.play(SimpleSoundInstance.forUI(CobblemonSounds.CAMPFIRE_POT_CLOSE, 1.0f))
+        super.onClose()
     }
 }
