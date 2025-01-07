@@ -12,7 +12,6 @@ import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.item.components.CookingComponent
 import com.cobblemon.mod.common.util.cobblemonResource
 import net.minecraft.core.BlockPos
-import net.minecraft.core.Holder
 import net.minecraft.core.HolderLookup
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.NbtOps
@@ -25,9 +24,7 @@ import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityTicker
-import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
-import java.util.stream.Stream
 
 class LureCakeBlockEntity(
         pos: BlockPos,
@@ -160,7 +157,8 @@ class LureCakeBlockEntity(
                 spawner = spawner,
                 bucket = chosenBucket,
                 entity = null, // todo Crab Note: Do we want to use the lure cake as the entity being sent in?
-                baitStack = this.toItemStack() // todo Crab note: Maybe we can use baitStack as a spawnCondition so we can see what kind of bait is being used (cake or poke_bait)
+                baitStack = this.toItemStack(), // todo Crab note: Maybe we can use baitStack as a spawnCondition so we can see what kind of bait is being used (cake or poke_bait)
+                baitEffect = this.getBaitFromLureCake()
         )
 
         //

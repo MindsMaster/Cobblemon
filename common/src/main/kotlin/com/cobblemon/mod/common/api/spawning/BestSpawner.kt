@@ -31,6 +31,7 @@ import com.cobblemon.mod.common.api.spawning.detail.SpawnAction
 import com.cobblemon.mod.common.api.spawning.detail.SpawnDetail
 import com.cobblemon.mod.common.api.spawning.fishing.FishingSpawner
 import com.cobblemon.mod.common.api.spawning.bait.BaitSpawner
+import com.cobblemon.mod.common.api.spawning.context.BaitSpawningContext
 import com.cobblemon.mod.common.api.spawning.preset.BasicSpawnDetailPreset
 import com.cobblemon.mod.common.api.spawning.preset.BestSpawnerConfig
 import com.cobblemon.mod.common.api.spawning.preset.PokemonSpawnDetailPreset
@@ -108,6 +109,7 @@ object BestSpawner {
         SpawningContext.register(name = "submerged", clazz = SubmergedSpawningContext::class.java, defaultCondition = SubmergedSpawningCondition.NAME)
         SpawningContext.register(name = "surface", clazz = SurfaceSpawningContext::class.java, defaultCondition = SurfaceSpawningCondition.NAME)
         SpawningContext.register(name = "fishing", clazz = FishingSpawningContext::class.java, defaultCondition = FishingSpawningCondition.NAME)
+        SpawningContext.register(name = "bait", clazz = BaitSpawningContext::class.java, defaultCondition = BaitSpawningCondition.NAME)
         // todo do we want a bait context? Or just use Surface?
 
         LOGGER.info("Loaded ${SpawningContext.contexts.size} spawning context types.")

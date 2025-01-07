@@ -10,6 +10,7 @@ package com.cobblemon.mod.common.api.spawning.condition
 
 import com.cobblemon.mod.common.api.conditional.RegistryLikeCondition
 import com.cobblemon.mod.common.api.spawning.context.BaitSpawningContext
+import com.cobblemon.mod.common.api.spawning.context.GroundedSpawningContext
 import com.cobblemon.mod.common.util.itemRegistry
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.Item

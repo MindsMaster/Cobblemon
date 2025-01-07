@@ -10,6 +10,7 @@ package com.cobblemon.mod.common.api.fishing
 
 import com.cobblemon.mod.common.api.events.CobblemonEvents
 import com.cobblemon.mod.common.api.events.fishing.BaitEffectFunctionRegistryEvent
+import com.cobblemon.mod.common.api.spawning.bait.BaitSpawnCause
 import com.cobblemon.mod.common.api.spawning.fishing.FishingSpawnCause
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.cobblemonResource

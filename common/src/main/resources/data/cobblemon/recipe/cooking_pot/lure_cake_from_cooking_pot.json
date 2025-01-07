@@ -1,0 +1,12 @@
+{
+    "type": "cobblemon:cooking_pot_shapeless",
+    "category": "baits",
+    "ingredients": [
+        {
+            "item": "cobblemon:sweet_sap"
+        }
+    ],
+    "result": {
+        "id": "cobblemon:lure_cake"
+    }
+}

@@ -10,7 +10,6 @@ package com.cobblemon.mod.common.api.spawning.bait
 
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.Cobblemon.LOGGER
-import com.cobblemon.mod.common.CobblemonItemComponents
 import com.cobblemon.mod.common.api.events.CobblemonEvents
 import com.cobblemon.mod.common.api.events.fishing.BaitSpawnPokemonEvent
 import com.cobblemon.mod.common.api.fishing.FishingBait
@@ -25,18 +24,12 @@ import com.cobblemon.mod.common.api.spawning.detail.PokemonSpawnDetail
 import com.cobblemon.mod.common.api.spawning.detail.SpawnDetail
 import com.cobblemon.mod.common.api.spawning.spawner.Spawner
 import com.cobblemon.mod.common.api.types.ElementalTypes
-import com.cobblemon.mod.common.block.LureCakeBlock
-import com.cobblemon.mod.common.block.entity.LureCakeBlockEntity
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
-import com.cobblemon.mod.common.item.PokeBaitItem
-import com.cobblemon.mod.common.item.components.CookingComponent
 import com.cobblemon.mod.common.pokemon.Gender
 import com.cobblemon.mod.common.pokemon.abilities.HiddenAbility
 import com.cobblemon.mod.common.util.cobblemonResource
-import net.minecraft.nbt.NbtOps
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.block.entity.BlockEntity
 import kotlin.collections.any
 import kotlin.collections.contains
 import kotlin.collections.filter
@@ -61,7 +54,8 @@ class BaitSpawnCause(
     spawner: Spawner,
     bucket: SpawnBucket,
     entity: Entity?,
-    val baitStack: ItemStack
+    val baitStack: ItemStack,
+    val baitEffect: FishingBait?
 ) : SpawnCause(spawner, bucket, entity) {
     companion object {
         const val BAIT_ASPECT = "lured"
@@ -149,28 +143,7 @@ class BaitSpawnCause(
         }
     }
 
-    val bait: FishingBait? = when {
-        baitStack.item is PokeBaitItem -> {
-            PokeBaitItem.getBaitOnPokeBait(baitStack)
-        }
-        baitStack.get(CobblemonItemComponents.COOKING_COMPONENT)?.let { component ->
-            FishingBait(
-                    item = cobblemonResource("lure_cake"),
-                    effects = listOf(
-                            component.bait1.effects,
-                            component.bait2.effects,
-                            component.bait3.effects
-                    ).flatten()
-            )
-        } != null -> {
-            null // Fallback in case of a failure
-        }
-        else -> null // todo ISSUE is that this is getting hit due to when clause
-    }
-
-
-
-
+    val bait: FishingBait? = baitEffect
 
     override fun affectSpawn(entity: Entity) {
         super.affectSpawn(entity)
