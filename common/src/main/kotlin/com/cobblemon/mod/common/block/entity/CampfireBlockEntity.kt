@@ -10,9 +10,12 @@ package com.cobblemon.mod.common.block.entity
 
 import com.cobblemon.mod.common.CobblemonBlockEntities
 import com.cobblemon.mod.common.CobblemonRecipeTypes
+import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.block.PotComponent
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotMenu
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotRecipeBase
+import com.cobblemon.mod.common.client.sound.BlockEntitySoundTracker
+import com.cobblemon.mod.common.client.sound.instances.CancellableSoundInstance
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
@@ -36,7 +39,6 @@ import net.minecraft.world.item.crafting.RecipeHolder
 import net.minecraft.world.item.crafting.RecipeManager
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity
 import net.minecraft.world.level.block.state.BlockState
 
@@ -49,6 +51,17 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
     companion object {
         const val COOKING_PROGRESS_INDEX = 0
         const val COOKING_PROGRESS_TOTAL_TIME = 1
+
+        fun clientTick(level: Level, pos: BlockPos, state: BlockState, campfireBlockEntity: CampfireBlockEntity) {
+            if (level.isClientSide) {
+                val isSoundActive = BlockEntitySoundTracker.isActive(pos, campfireBlockEntity.runningSound.location)
+                if (!campfireBlockEntity.isEmpty && !isSoundActive) {
+                    BlockEntitySoundTracker.play(pos, CancellableSoundInstance(campfireBlockEntity.runningSound, pos, true, 0.8f, 1.0f))
+                } else if (campfireBlockEntity.isEmpty && isSoundActive) {
+                    BlockEntitySoundTracker.stop(pos, campfireBlockEntity.runningSound.location)
+                }
+            }
+        }
 
         fun serverTick(level: Level, pos: BlockPos, state: BlockState, campfireBlockEntity: CampfireBlockEntity) {
             if (!level.isClientSide) {
@@ -83,6 +96,7 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
         }
     }
 
+    private val runningSound = CobblemonSounds.CAMPFIRE_POT_COOK
     private var cookingProgress : Int = 0
     private var cookingTotalTime : Int = 200
     private var items : NonNullList<ItemStack?> = NonNullList.withSize(14, ItemStack.EMPTY)
@@ -233,5 +247,13 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
         level.updateNeighbourForOutputSignal(blockPos, level.getBlockState(blockPos).block)
         setChanged()
         level.sendBlockUpdated(blockPos, oldState, level.getBlockState(blockPos), Block.UPDATE_ALL)
+    }
+
+    override fun setRemoved() {
+        super.setRemoved()
+
+        if (level?.isClientSide == true) {
+            BlockEntitySoundTracker.stop(blockPos, runningSound.location)
+        }
     }
 }

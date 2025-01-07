@@ -8,13 +8,16 @@
 
 package com.cobblemon.mod.common.client.gui.cookingpot
 
+import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.gui.blitk
 import com.cobblemon.mod.common.util.cobblemonResource
+import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.ImageButton
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent
 import net.minecraft.client.gui.screens.recipebook.RecipeUpdateListener
+import net.minecraft.client.resources.sounds.SimpleSoundInstance
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Inventory
@@ -129,5 +132,10 @@ class CookingPotScreen(
                 super.mouseClicked(mouseX, mouseY, button)
             }
         }
+    }
+
+    override fun onClose() {
+        Minecraft.getInstance().soundManager.play(SimpleSoundInstance.forUI(CobblemonSounds.CAMPFIRE_POT_CLOSE, 1.0f))
+        super.onClose()
     }
 }
