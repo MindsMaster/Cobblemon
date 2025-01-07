@@ -8,18 +8,21 @@
 
 package com.cobblemon.mod.common.client.tooltips
 
-import com.cobblemon.mod.common.api.cooking.Seasonings
+import com.cobblemon.mod.common.CobblemonItemComponents
+import com.cobblemon.mod.common.item.AprijuiceItem
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
 
-object SeasoningTooltipGenerator : TooltipGenerator() {
+object AprijuiceTooltipGenerator : TooltipGenerator() {
     override fun generateCategoryTooltip(stack: ItemStack, lines: MutableList<Component>): MutableList<Component>? {
-        if (!Seasonings.isSeasoning(stack)) return null
+        if (stack.item !is AprijuiceItem) return null
         return mutableListOf(seasoningHeader)
     }
 
     override fun generateAdditionalTooltip(stack: ItemStack, lines: MutableList<Component>): MutableList<Component>? {
-        val flavors: Map<String, Int>? = Seasonings.getFromItemStack(stack)?.flavors
+        if (stack.item !is AprijuiceItem) return null
+
+        val flavors: Map<String, Int>? = stack.get(CobblemonItemComponents.COOKING_COMPONENT)?.getFlavorsSum()
         flavors?.let {
             return generateAdditionalFlavorTooltip(flavors)
         }
