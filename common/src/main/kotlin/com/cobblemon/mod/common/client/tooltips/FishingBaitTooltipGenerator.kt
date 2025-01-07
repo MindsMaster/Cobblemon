@@ -40,7 +40,7 @@ object FishingBaitTooltipGenerator : TooltipGenerator() {
 
         // Determine the FishingBait or combined effects from poke_bait
         val baitEffects = when {
-            stack.item.asItem()?.toString() == "cobblemon:poke_bait" -> {
+            (stack.item.asItem()?.toString() == "cobblemon:poke_bait" || stack.item.asItem()?.toString() == "cobblemon:lure_cake") -> {
                 val cookingComponent = stack.get(CobblemonItemComponents.COOKING_COMPONENT) ?: return null
                 listOf(cookingComponent.bait1, cookingComponent.bait2, cookingComponent.bait3)
                     .flatMap { it.effects }
