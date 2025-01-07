@@ -124,7 +124,7 @@ class CampfireBlock(settings: Properties) : BaseEntityBlock(settings) {
     fun openContainer(level: Level, pos: BlockPos, player: Player) {
         var blockEntity = level.getBlockEntity(pos)
         if (blockEntity is CampfireBlockEntity) {
-            player.openMenu(blockEntity as MenuProvider)
+            player.openMenu(blockEntity as CampfireBlockEntity)
         }
     }
 
