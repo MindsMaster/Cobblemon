@@ -8,6 +8,7 @@
 
 package com.cobblemon.mod.common.block
 
+import com.cobblemon.mod.common.CobblemonBlockEntities
 import com.cobblemon.mod.common.CobblemonItemComponents
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.events.CobblemonEvents
@@ -18,6 +19,9 @@ import com.cobblemon.mod.common.api.fishing.FishingBaits
 import com.cobblemon.mod.common.block.entity.LureCakeBlockEntity
 import com.cobblemon.mod.common.item.RodBaitComponent
 import com.cobblemon.mod.common.item.components.CookingComponent
+import com.mojang.serialization.Codec
+import com.mojang.serialization.MapCodec
+import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.minecraft.core.BlockPos
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.ResourceLocation
@@ -30,18 +34,35 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.BlockGetter
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.LevelReader
+import net.minecraft.world.level.block.BaseEntityBlock
 import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityTicker
+import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockBehaviour
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import net.minecraft.world.level.block.state.properties.IntegerProperty
+import java.util.*
 import kotlin.collections.flatten
 
-class LureCakeBlock(settings: BlockBehaviour.Properties): Block(settings) {
+class LureCakeBlock(settings: BlockBehaviour.Properties): BaseEntityBlock(settings) {
 
     companion object {
         val AGE: IntegerProperty = BlockStateProperties.AGE_5
+
+        val CODEC: Codec<LureCakeBlockEntity> = RecordCodecBuilder.create { instance ->
+            instance.group(
+                    BlockPos.CODEC.fieldOf("pos").forGetter { it.blockPos },
+                    BlockState.CODEC.fieldOf("state").forGetter { it.blockState },
+                    CookingComponent.CODEC.optionalFieldOf("cookingComponent").forGetter { Optional.ofNullable(it.cookingComponent) }
+            ).apply(instance) { pos, state, cookingComponentOpt ->
+                LureCakeBlockEntity(pos, state).apply {
+                    cookingComponent = cookingComponentOpt.orElse(null)
+                }
+            }
+        }
 
         fun getBaitOnLureCake(stack: ItemStack): FishingBait? {
             return getCookingComponentOnRod(stack) ?: stack.components.get(CobblemonItemComponents.BAIT)?.bait
@@ -150,6 +171,10 @@ class LureCakeBlock(settings: BlockBehaviour.Properties): Block(settings) {
         return blockEntity.toItemStack()
     }
 
+    override fun codec(): MapCodec<out BaseEntityBlock> {
+        TODO("Not yet implemented")
+    }
+
     override fun randomTick(state: BlockState, world: ServerLevel, pos: BlockPos, random: RandomSource) {
         // Check if the block is at max age
         if (state.getValue(AGE) < 5) {
@@ -166,6 +191,14 @@ class LureCakeBlock(settings: BlockBehaviour.Properties): Block(settings) {
     override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
         // Register the AGE property
         builder.add(AGE)
+    }
+
+    override fun newBlockEntity(pos: BlockPos, state: BlockState): BlockEntity {
+        return LureCakeBlockEntity(pos, state)
+    }
+
+    override fun <T : BlockEntity?> getTicker(level: Level, blockState: BlockState, blockEntityType: BlockEntityType<T>): BlockEntityTicker<T>? {
+        return createTickerHelper(blockEntityType, CobblemonBlockEntities.LURE_CAKE, LureCakeBlockEntity.TICKER)
     }
 
     /*// Fishing Rod: Bundle edition

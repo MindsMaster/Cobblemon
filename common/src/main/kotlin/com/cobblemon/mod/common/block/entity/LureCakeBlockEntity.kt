@@ -1,8 +1,14 @@
 package com.cobblemon.mod.common.block.entity
 
+import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.CobblemonBlockEntities
 import com.cobblemon.mod.common.CobblemonItemComponents
 import com.cobblemon.mod.common.api.fishing.FishingBait
+import com.cobblemon.mod.common.api.spawning.BestSpawner
+import com.cobblemon.mod.common.api.spawning.SpawnBucket
+import com.cobblemon.mod.common.api.spawning.bait.BaitSpawnCause
+import com.cobblemon.mod.common.api.spawning.detail.EntitySpawnResult
+import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.item.components.CookingComponent
 import com.cobblemon.mod.common.util.cobblemonResource
 import net.minecraft.core.BlockPos
@@ -13,8 +19,12 @@ import net.minecraft.nbt.NbtOps
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityTicker
 import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
 import java.util.stream.Stream
@@ -25,7 +35,6 @@ class LureCakeBlockEntity(
 ) : BlockEntity(CobblemonBlockEntities.LURE_CAKE, pos, state) {
 
     var cookingComponent: CookingComponent? = null
-        private set
 
     /**
      * Initializes the `CookingComponent` data from the given `ItemStack` when placed.
@@ -116,5 +125,105 @@ class LureCakeBlockEntity(
     private fun markUpdated() {
         setChanged()
         level?.sendBlockUpdated(worldPosition, blockState, blockState, 3)
+    }
+
+    /**
+     * Spawns a Pokémon of the given species around the specified position.
+     * @param world The world in which to spawn the Pokémon.
+     * @param pos The position around which to spawn the Pokémon.
+     * @param species The species of the Pokémon to spawn.
+     * @param isMale Whether the Pokémon should be male or female.
+     * @return The spawned Pokémon entity, or null if spawning failed.
+     */
+    fun spawnPokemon(
+            world: Level,
+            pos: BlockPos//,
+            //species: PokemonSpecies
+    ): Pair<PokemonEntity?,PokemonEntity?> {
+        if (world !is ServerLevel) return null to null
+
+        // Generate a random offset within the radius
+        val randomOffset = {
+            world.random.nextDouble() * SPAWN_RADIUS * 2 - SPAWN_RADIUS
+        }
+        val spawnPos = pos.offset(randomOffset().toInt(), 0, randomOffset().toInt())
+
+        // todo Use Spawn files
+        // todo CHANGE THIS! We probably want a brand new spawner similar to the fishing spawner
+        val spawner = BestSpawner.baitSpawner
+
+        val buckets = Cobblemon.bestSpawner.config.buckets
+
+        val chosenBucket = chooseSpawnBucket(buckets)
+        // todo WARNING! baitStack is null
+        val spawnCause = BaitSpawnCause(
+                spawner = spawner,
+                bucket = chosenBucket,
+                entity = null, // todo Crab Note: Do we want to use the lure cake as the entity being sent in?
+                baitStack = this.toItemStack() // todo Crab note: Maybe we can use baitStack as a spawnCondition so we can see what kind of bait is being used (cake or poke_bait)
+        )
+
+        //
+        val result = spawner.run(spawnCause, level as ServerLevel, spawnPos)
+
+        var spawnedPokemon: PokemonEntity? = null
+        var partnerPokemon: PokemonEntity? = null
+        val resultingSpawn = result?.get()
+
+        if (resultingSpawn is EntitySpawnResult) {
+            for (entity in resultingSpawn.entities) {
+                // we can query the spawned pokemon here
+                spawnedPokemon = (entity as PokemonEntity)
+
+                // CRAB IDEA: todo maybe some grass particles? as if they appeared from the grass or forest?
+            }
+        }
+
+        return spawnedPokemon to partnerPokemon
+    }
+    fun chooseSpawnBucket(buckets: List<SpawnBucket>): SpawnBucket {
+        val baseIncreases = listOf(2.5F, 1.0F, 0.6F)  // Base increases for the first three buckets beyond the first
+        val adjustedWeights = buckets.mapIndexed { index, bucket ->
+            if (index == 0) {
+                // Placeholder, will be recalculated
+                0.0F
+            } else {
+                val increase = if (index < baseIncreases.size) baseIncreases[index] else baseIncreases.last() + (index - baseIncreases.size + 1) * 0.15F
+                bucket.weight + increase
+            }
+        }.toMutableList()
+
+        // Recalculate the first bucket's weight to ensure the total is 100%
+        val totalAdjustedWeight = adjustedWeights.sum() - adjustedWeights[0]  // Corrected to ensure the list contains Floats
+        adjustedWeights[0] = 100.0F - totalAdjustedWeight + buckets[0].weight
+
+        // Random selection based on adjusted weights
+        val weightSum = adjustedWeights.sum()
+        val chosenSum = kotlin.random.Random.nextDouble(weightSum.toDouble()).toFloat()  // Ensure usage of Random from kotlin.random package
+        var sum = 0.0F
+        adjustedWeights.forEachIndexed { index, weight ->
+            sum += weight
+            if (sum >= chosenSum) {
+                return buckets[index]
+            }
+        }
+
+        return buckets.first()  // Fallback
+    }
+
+
+    companion object {
+        private const val RANDOM_SPAWN_CHANCE = 10 // 1 in 100 chance per random tick
+        private const val SPAWN_RADIUS = 5.0 // Radius around the nest to spawn Pokémon
+
+        val TICKER = BlockEntityTicker<LureCakeBlockEntity> { world, pos, state, blockEntity ->
+            if (world.random.nextInt(RANDOM_SPAWN_CHANCE) == 0) {
+                // spawn the lured pokemon
+                blockEntity.spawnPokemon(world, pos)
+
+                // todo age Cake block to make it seem eaten more
+                world.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS)
+            }
+        }
     }
 }

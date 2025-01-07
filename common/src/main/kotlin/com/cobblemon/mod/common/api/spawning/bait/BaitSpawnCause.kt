@@ -36,6 +36,7 @@ import com.cobblemon.mod.common.util.cobblemonResource
 import net.minecraft.nbt.NbtOps
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.block.entity.BlockEntity
 import kotlin.collections.any
 import kotlin.collections.contains
 import kotlin.collections.filter
@@ -164,7 +165,7 @@ class BaitSpawnCause(
         } != null -> {
             null // Fallback in case of a failure
         }
-        else -> null
+        else -> null // todo ISSUE is that this is getting hit due to when clause
     }
 
 
