@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.client.render.color
 
 import com.cobblemon.mod.common.CobblemonItemComponents
+import com.cobblemon.mod.common.client.pot.CookingQuality
 import net.minecraft.ChatFormatting
 import net.minecraft.client.color.item.ItemColor
 import net.minecraft.util.FastColor
@@ -16,8 +17,8 @@ import net.minecraft.world.item.ItemStack
 
 object AprijuiceItemColorProvider : ItemColor {
 
-    private val LEAF_INDEX = 1
-    private val JUICE_INDEX = 2
+    private const val LEAF_INDEX = 1
+    private const val JUICE_INDEX = 2
 
     private val colorMap = mapOf(
         "spicy" to ChatFormatting.RED.color,
@@ -33,11 +34,11 @@ object AprijuiceItemColorProvider : ItemColor {
         val cookingComponent = stack.get(CobblemonItemComponents.COOKING_COMPONENT) ?: return -1
 
         if (layer == LEAF_INDEX) {
-            val quality = cookingComponent.getQualityAverage()
-            val color = when {
-                quality < 10 -> ChatFormatting.RED.color
-                quality < 20 -> ChatFormatting.YELLOW.color
-                else -> ChatFormatting.GREEN.color
+            val quality = cookingComponent.getCookingQuality()
+            val color = when (quality) {
+                CookingQuality.LOW -> ChatFormatting.RED.color
+                CookingQuality.MEDIUM -> ChatFormatting.YELLOW.color
+                CookingQuality.HIGH -> ChatFormatting.GREEN.color
             }
 
             color?.let { return FastColor.ARGB32.opaque(color) }

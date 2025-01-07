@@ -4,11 +4,13 @@ import com.cobblemon.mod.common.api.cooking.Seasoning
 import com.cobblemon.mod.common.api.fishing.FishingBait
 import com.cobblemon.mod.common.api.fishing.FishingBaits
 import com.cobblemon.mod.common.api.cooking.Seasonings
+import com.cobblemon.mod.common.client.pot.CookingQuality
 import net.minecraft.network.codec.ByteBufCodecs
 import net.minecraft.network.codec.StreamCodec
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import io.netty.buffer.ByteBuf
+import net.minecraft.ChatFormatting
 import net.minecraft.resources.ResourceLocation
 
 class CookingComponent(
@@ -60,7 +62,16 @@ class CookingComponent(
         return listOf(bait1, bait2, bait3, seasoning1, seasoning2, seasoning3).hashCode()
     }
 
-    fun getQualityAverage() = getSeasonings().map { it.quality }.average()
+    fun getCookingQuality(): CookingQuality {
+        val qualityAverage = getQualityAverage()
+        return when {
+            qualityAverage < 10 -> CookingQuality.LOW
+            qualityAverage < 20 -> CookingQuality.MEDIUM
+            else -> CookingQuality.HIGH
+        }
+    }
+
+    private fun getQualityAverage() = getSeasonings().map { it.quality }.average()
 
     fun getDominantFlavors(): List<String> {
         val flavors = getFlavorsSum()
