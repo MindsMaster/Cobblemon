@@ -19,17 +19,29 @@ import com.cobblemon.mod.common.api.fishing.FishingBaits
 import com.cobblemon.mod.common.item.components.CookingComponent
 import net.minecraft.recipebook.ServerPlaceRecipe
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.Container
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.player.StackedContents
 import net.minecraft.world.inventory.*
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
-import net.minecraft.world.item.crafting.*
+import net.minecraft.world.item.crafting.CraftingInput
+import net.minecraft.world.item.crafting.RecipeHolder
+import net.minecraft.world.item.crafting.RecipeManager
+import net.minecraft.world.item.crafting.RecipeType
 import net.minecraft.world.level.Level
 import java.util.*
 
 class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, ContainerListener {
+
+    companion object {
+        const val RESULT_SLOT = 0;
+        val CRAFTING_GRID_SLOTS = 1..9
+        val SEASONING_SLOTS = 10..12
+        val PLAYER_INVENTORY_SLOTS = 13..39
+        val PLAYER_HOTBAR_SLOTS = 40..48
+    }
 
     private val containerId: Int
     private val player: Player
@@ -40,9 +52,6 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
     private val containerData: ContainerData
     private val recipeType: RecipeType<CookingPotRecipe> = CobblemonRecipeTypes.COOKING_POT_COOKING
     private val quickCheck = RecipeManager.createCheck(CobblemonRecipeTypes.COOKING_POT_COOKING)
-
-
-    val RESULT_SLOT = 0;
 
     constructor(containerId: Int, playerInventory: Inventory) :
             super(CobblemonMenuType.COOKING_POT, containerId) {
@@ -76,26 +85,21 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
         val craftingOutputOffsetX = 16
         val craftingOutputOffsetY = 10
 
-        //println("Initialized player inventory for player:")
-        println(playerInventory.player.name.string)
-
+        // Result slot
         addSlot(CookingPotResultSlot(playerInventory.player, resultContainer, RESULT_SLOT, 124 + craftingOutputOffsetX, 51 + craftingOutputOffsetY))
-        //println("Initialized result slot at index 0")
 
         // Crafting Grid Slots (Indices 1–9)
         for (i in 0..2) {
             for (j in 0..2) {
                 val slotIndex = j + i * 3 + 1 // Indices start at 1
                 addSlot(Slot(this.container, slotIndex, 44 + j * 18, 43 + i * 18))
-                //println("Initialized crafting slot Grid[$i, $j] -> container index $slotIndex")
             }
         }
 
-        // Extra Slots (Indices 10–12)
+        // Seasoning Slots (Indices 10–12)
         for (j in 0..2) {
             val slotIndex = 10 + j
-            addSlot(Slot(this.container, slotIndex, 44 + j * 18, 17)) // Adjust Y-coordinate as needed
-            //println("Initialized additional slot $slotIndex at (${44 + j * 18}, 9)")
+            addSlot(SeasoningSlot(this.container, slotIndex, 44 + j * 18, 17))
         }
 
         // Player Inventory Slots (Indices 13–39)
@@ -104,18 +108,15 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
                 val slotIndex = 13 + j + i * 9
                 val x = 8 + j * 18
                 val y = 116 + i * 18
-                addSlot(Slot(playerInventory, slotIndex - 13 + 9, x, y)) // Adjust to map to player's inventory indices
-                //println("Initialized player inventory slot $slotIndex at ($x, $y)")
+                addSlot(Slot(playerInventory, slotIndex - 13 + 9, x, y))
             }
         }
 
         // Hotbar Slots (Indices 40–48)
         for (i in 0..8) {
-            val slotIndex = 40 + i
             val x = 8 + i * 18
             val y = 174
-            addSlot(Slot(playerInventory, i, x, y)) // Direct mapping to hotbar indices
-            //println("Initialized hotbar slot $slotIndex at ($x, $y)")
+            addSlot(Slot(playerInventory, i, x, y))
         }
 
         updateResultSlot()
@@ -329,7 +330,49 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
         player: Player,
         index: Int
     ): ItemStack {
-        return ItemStack.EMPTY
+        var itemStack = ItemStack.EMPTY
+        val slot = slots[index]
+
+        if (slot.hasItem()) {
+            val slotItemStack = slot.item
+            itemStack = slotItemStack.copy()
+
+            if (index == RESULT_SLOT) {
+                if (!this.moveItemStackTo(slotItemStack, PLAYER_INVENTORY_SLOTS.first, PLAYER_HOTBAR_SLOTS.last + 1, false)) {
+                    return ItemStack.EMPTY
+                }
+
+                slot.onQuickCraft(slotItemStack, itemStack);
+            } else if (index in PLAYER_INVENTORY_SLOTS || index in PLAYER_HOTBAR_SLOTS) {
+                if (Seasonings.isSeasoning(slotItemStack)) {
+                    if (!this.moveItemStackTo(slotItemStack, SEASONING_SLOTS.first, SEASONING_SLOTS.last + 1, false) &&
+                        !this.moveItemStackTo(slotItemStack, CRAFTING_GRID_SLOTS.first, CRAFTING_GRID_SLOTS.last + 1, false)
+                    ) {
+                        return ItemStack.EMPTY
+                    }
+                } else if (!this.moveItemStackTo(slotItemStack, CRAFTING_GRID_SLOTS.first, CRAFTING_GRID_SLOTS.last + 1, false)) {
+                    return ItemStack.EMPTY
+                }
+            } else if (index in CRAFTING_GRID_SLOTS || index in SEASONING_SLOTS) {
+                if (!this.moveItemStackTo(slotItemStack, PLAYER_INVENTORY_SLOTS.first, PLAYER_HOTBAR_SLOTS.last + 1, false)) {
+                    return ItemStack.EMPTY
+                }
+            }
+
+            if (slotItemStack.isEmpty) {
+                slot.setByPlayer(ItemStack.EMPTY)
+            } else {
+                slot.setChanged()
+            }
+
+            if (slotItemStack.count == itemStack.count) {
+                return ItemStack.EMPTY
+            }
+
+            slot.onTake(player, slotItemStack)
+        }
+
+        return itemStack
     }
 
     override fun stillValid(player: Player): Boolean {
@@ -396,5 +439,9 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
         dataSlotIndex: Int,
         value: Int
     ) {
+    }
+
+    private class SeasoningSlot(container: Container, slot: Int, x: Int, y: Int) : Slot(container, slot, x, y) {
+        override fun mayPlace(stack: ItemStack): Boolean = Seasonings.isSeasoning(stack) && super.mayPlace(stack)
     }
 }
