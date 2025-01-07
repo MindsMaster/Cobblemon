@@ -36,6 +36,7 @@ import net.minecraft.world.level.Level
 import net.minecraft.world.level.LevelReader
 import net.minecraft.world.level.block.BaseEntityBlock
 import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.RenderShape
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityTicker
 import net.minecraft.world.level.block.entity.BlockEntityType
@@ -52,6 +53,7 @@ class LureCakeBlock(settings: BlockBehaviour.Properties): BaseEntityBlock(settin
     companion object {
         val AGE: IntegerProperty = BlockStateProperties.AGE_5
 
+        //val CODEC = simpleCodec(::LureCakeBlock)
         val CODEC: Codec<LureCakeBlockEntity> = RecordCodecBuilder.create { instance ->
             instance.group(
                     BlockPos.CODEC.fieldOf("pos").forGetter { it.blockPos },
@@ -154,34 +156,86 @@ class LureCakeBlock(settings: BlockBehaviour.Properties): BaseEntityBlock(settin
         registerDefaultState(this.stateDefinition.any().setValue(AGE, 0))
     }
 
+    override fun codec(): MapCodec<LureCakeBlock> {
+        return simpleCodec(::LureCakeBlock)
+    }
+
     override fun setPlacedBy(
-            world: Level,
+            level: Level,
             pos: BlockPos,
             state: BlockState,
             placer: LivingEntity?,
             stack: ItemStack
     ) {
-        super.setPlacedBy(world, pos, state, placer, stack)
-        val blockEntity = world.getBlockEntity(pos) as? LureCakeBlockEntity ?: return
-        blockEntity.initializeFromItemStack(stack)
+        super.setPlacedBy(level, pos, state, placer, stack)
+
+        val blockEntity = level.getBlockEntity(pos) as? LureCakeBlockEntity
+        if (blockEntity != null) {
+            println("Transferring CookingComponent data from ItemStack to BlockEntity at $pos")
+            blockEntity.initializeFromItemStack(stack)
+        } else {
+            println("No BlockEntity found at $pos for LureCakeBlock")
+        }
     }
+
+
 
     override fun getCloneItemStack(level: LevelReader, pos: BlockPos, state: BlockState): ItemStack {
         val blockEntity = level.getBlockEntity(pos) as? LureCakeBlockEntity ?: return ItemStack.EMPTY
         return blockEntity.toItemStack()
     }
-
+/*
     override fun codec(): MapCodec<out BaseEntityBlock> {
-        TODO("Not yet implemented")
-    }
+        return CODEC
+    }*/
+
+    /*override fun codec(): MapCodec<LureCakeBlock> {
+        return CODEC
+    }*/
 
     override fun randomTick(state: BlockState, world: ServerLevel, pos: BlockPos, random: RandomSource) {
-        // Check if the block is at max age
-        if (state.getValue(AGE) < 5) {
-            // Increment the age and update the block state
-            world.setBlock(pos, state.setValue(AGE, state.getValue(AGE) + 1), 2)
+        println("randomTick triggered for LureCakeBlock at $pos")
+
+        // Check if block has a BlockEntity
+        val blockEntity = world.getBlockEntity(pos) as? LureCakeBlockEntity
+        if (blockEntity == null) {
+            println("No LureCakeBlockEntity found at $pos")
+            return
+        }
+
+        // Check if the block is fully aged
+        val currentAge = state.getValue(AGE)
+        if (currentAge >= 5) {
+            println("Block at $pos is fully aged. Breaking block.")
+            world.destroyBlock(pos, true) // Break the block and drop its items
+            return
+        }
+
+        // Attempt to spawn Pokémon in a 5-block radius
+        val randomXOffset = random.nextInt(-5, 6)
+        val randomZOffset = random.nextInt(-5, 6)
+        val spawnPos = pos.offset(randomXOffset, 0, randomZOffset)
+
+        println("Attempting to spawn Pokémon near $pos at $spawnPos")
+        val (spawnedPokemon, _) = blockEntity.spawnPokemon(world, spawnPos)
+        if (spawnedPokemon != null) {
+            println("Pokémon spawned successfully at $spawnPos")
+
+            // Increment the age of the block
+            val newAge = currentAge + 1
+            if (newAge >= 5) {
+                println("Block at $pos has reached max age. Breaking block.")
+                world.destroyBlock(pos, true) // Break the block and drop its items
+            } else {
+                world.setBlock(pos, state.setValue(AGE, newAge), Block.UPDATE_ALL)
+                println("Block at $pos aged to $newAge")
+            }
+        } else {
+            println("No Pokémon spawned at $spawnPos")
         }
     }
+
+
 
     override fun isRandomlyTicking(state: BlockState): Boolean {
         // Enable random ticking for this block
@@ -194,181 +248,11 @@ class LureCakeBlock(settings: BlockBehaviour.Properties): BaseEntityBlock(settin
     }
 
     override fun newBlockEntity(pos: BlockPos, state: BlockState): BlockEntity {
+        println("Creating new LureCakeBlockEntity at $pos")
         return LureCakeBlockEntity(pos, state)
     }
 
-    override fun <T : BlockEntity?> getTicker(level: Level, blockState: BlockState, blockEntityType: BlockEntityType<T>): BlockEntityTicker<T>? {
-        return createTickerHelper(blockEntityType, CobblemonBlockEntities.LURE_CAKE, LureCakeBlockEntity.TICKER)
+    override fun getRenderShape(state: BlockState): RenderShape {
+        return RenderShape.MODEL
     }
-
-    /*// Fishing Rod: Bundle edition
-    override fun overrideOtherStackedOnMe(
-        itemStack: ItemStack,
-        itemStack2: ItemStack,
-        slot: Slot,
-        clickAction: ClickAction,
-        player: Player,
-        slotAccess: SlotAccess
-    ): Boolean {
-        if (clickAction != ClickAction.SECONDARY || !slot.allowModification(player))
-            return false
-
-        val baitStack = getBaitStackOnRod(itemStack)
-
-        CobblemonEvents.BAIT_SET_PRE.postThen(BaitSetEvent(itemStack, itemStack2), { event ->
-            return event.isCanceled
-        }, {
-
-            // If not holding an item on cursor
-            if (itemStack2.isEmpty) {
-                // Retrieve bait onto cursor
-                if (baitStack != ItemStack.EMPTY) {
-                    playDetachSound(player)
-                    setBait(itemStack, ItemStack.EMPTY)
-                    slotAccess.set(baitStack.copy())
-                    return true
-                }
-            }
-            // If holding item on cursor
-            else {
-
-                // If item on cursor is a valid bait
-                if (FishingBaits.getFromBaitItemStack(itemStack2) != null) {
-
-                    // Add as much as possible
-                    if (baitStack != ItemStack.EMPTY) {
-                        if (baitStack.item == itemStack2.item) {
-
-                            playAttachSound(player)
-                            // Calculate how much bait to add
-                            val diff = (baitStack.maxStackSize - baitStack.count).coerceIn(0, itemStack2.count)
-                            itemStack2.shrink(diff)
-                            baitStack.grow(diff)
-                            setBait(itemStack, baitStack)
-                            return true
-                        }
-
-                        // If Item on rod is different from cursor item, swap them
-                        playAttachSound(player)
-                        setBait(itemStack, itemStack2.copy())
-                        slotAccess.set(baitStack.copy())
-                        return true
-                    }
-
-                    // If no bait currently on rod, add all
-                    playAttachSound(player)
-                    setBait(itemStack, itemStack2.copy())
-                    itemStack2.shrink(itemStack2.count)
-                    return true
-                }
-            }
-        })
-        return false
-    }
-
-    override fun use(world: Level, user: Player, hand: InteractionHand): InteractionResultHolder<ItemStack> {
-
-        val itemStack = user.getItemInHand(hand)
-        val offHandItem = user.getItemInHand(InteractionHand.OFF_HAND)
-        val offHandBait = FishingBaits.getFromBaitItemStack(offHandItem)
-
-        var baitOnRod = getBaitOnRod(itemStack)
-
-        // Check if offhand item is valid bait and the rod is not in use, if so then apply bait from offhand
-        if (!world.isClientSide && user.fishing == null && offHandBait != null) {
-            CobblemonEvents.BAIT_SET_PRE.postThen(BaitSetEvent(itemStack, offHandItem), { event ->
-                return InteractionResultHolder.fail(itemStack)
-            }, {
-                playAttachSound(user)
-
-                // if there is bait on the rod already then drop it on the ground before applying offhand bait
-                val baitStack = baitOnRod?.toItemStack(world.itemRegistry)
-
-                if (baitStack != null && offHandItem.item != baitStack.item) {
-                    if (!baitStack.isEmpty) {
-                        baitStack.count = getBaitStackOnRod(itemStack).count
-                        user.drop(baitStack, true) // Drop the full stack
-                    }
-
-                    // apply single bait item from offhand
-                    val singleBait = offHandItem.copy()
-                    singleBait.count = 1
-                    setBait(itemStack, singleBait)
-                    offHandItem.shrink(1)
-                }
-            })
-        }
-
-        var i: Int
-        if (user.fishing != null) { // if the bobber is out yet
-            if (!world.isClientSide) {
-                CobblemonEvents.POKEROD_REEL.postThen(
-                    PokerodReelEvent(itemStack),
-                    { event -> return InteractionResultHolder.fail(itemStack) },
-                    { event ->
-                        i = user.fishing!!.retrieve(itemStack)
-                        itemStack.hurtAndBreak(i, user, hand.toEquipmentSlot())
-                        world.playSoundServer(
-                            Vec3(
-                                user.x,
-                                user.y,
-                                user.z
-                            ),
-                            CobblemonSounds.FISHING_ROD_REEL_IN,
-                            SoundSource.PLAYERS,
-                            1.0f,
-                            1.0f / (world.getRandom().nextFloat() * 0.4f + 0.8f)
-                        )
-                    }
-                )
-            }
-
-
-            world.playSound(null as Player?, user.x, user.y, user.z, CobblemonSounds.FISHING_ROD_REEL_IN, SoundSource.PLAYERS, 1.0f, 1.0f)
-            user.gameEvent(GameEvent.ITEM_INTERACT_FINISH)
-        } else { // if the bobber is not out yet
-
-            if (!world.isClientSide) {
-                val lureLevel = world.enchantmentRegistry.getHolder(Enchantments.LURE).map { EnchantmentHelper.getItemEnchantmentLevel(it, itemStack) }.orElse(0)
-                val luckLevel = world.enchantmentRegistry.getHolder(Enchantments.LUCK_OF_THE_SEA).map { EnchantmentHelper.getItemEnchantmentLevel(it, itemStack) }.orElse(0)
-
-                val bobberEntity = PokeRodFishingBobberEntity(
-                    user,
-                    pokeRodId,
-                    getBaitOnRod(itemStack)?.toItemStack(world.itemRegistry) ?: ItemStack.EMPTY,
-                    world,
-                    luckLevel,
-                    lureLevel,
-                    itemStack
-                )
-                CobblemonEvents.POKEROD_CAST_PRE.postThen(
-                    PokerodCastEvent.Pre(itemStack, bobberEntity, getBaitStackOnRod(itemStack)),
-                    { event -> return InteractionResultHolder.fail(itemStack) },
-                    { event ->
-                        world.addFreshEntity(bobberEntity)
-                        var baitId = getBaitOnRod(itemStack)?.item ?: cobblemonResource("empty_bait")
-                        CobblemonCriteria.CAST_POKE_ROD.trigger(user as ServerPlayer, CastPokeRodContext(baitId))
-
-                        CobblemonEvents.POKEROD_CAST_POST.post(
-                            PokerodCastEvent.Post(itemStack, bobberEntity, getBaitStackOnRod(itemStack))
-                        )
-                    }
-                )
-            }
-
-            user.awardStat(Stats.ITEM_USED.get(this))
-            user.gameEvent(GameEvent.ITEM_INTERACT_START)
-        }
-        return InteractionResultHolder.sidedSuccess(itemStack, world.isClientSide)
-    }*/
-
-    private fun playAttachSound(entity: Entity) {
-        entity.playSound(CobblemonSounds.FISHING_BAIT_ATTACH, 1F, 1F)
-    }
-
-    private fun playDetachSound(entity: Entity) {
-        entity.playSound(CobblemonSounds.FISHING_BAIT_DETACH, 1F, 1F)
-    }
-
-
 }

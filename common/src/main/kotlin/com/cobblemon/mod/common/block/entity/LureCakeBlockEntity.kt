@@ -37,9 +37,16 @@ class LureCakeBlockEntity(
      * Initializes the `CookingComponent` data from the given `ItemStack` when placed.
      */
     fun initializeFromItemStack(itemStack: ItemStack) {
+        println("Initializing LureCakeBlockEntity from ItemStack: $itemStack at $blockPos")
         cookingComponent = itemStack.get(CobblemonItemComponents.COOKING_COMPONENT)
-        markUpdated()
+        println("CookingComponent set to: $cookingComponent")
+        markUpdated() // Sync the data with the client
     }
+
+    init {
+        println("LureCakeBlockEntity created at $pos with state: $state")
+    }
+
 
     /**
      * Converts the block entity back into an `ItemStack` with the `CookingComponent` when broken.
@@ -74,7 +81,9 @@ class LureCakeBlockEntity(
 
     override fun saveAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
         super.saveAdditional(tag, registries)
+        println("Saving additional data for LureCakeBlockEntity at $blockPos")
         cookingComponent?.let { component ->
+            println("Saving CookingComponent: $component")
             CobblemonItemComponents.COOKING_COMPONENT.codec()
                     ?.encodeStart(NbtOps.INSTANCE, component)
                     ?.result()
@@ -86,12 +95,14 @@ class LureCakeBlockEntity(
 
     override fun loadAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
         super.loadAdditional(tag, registries)
+        println("Loading additional data for LureCakeBlockEntity at $blockPos")
         if (tag.contains("CookingComponent")) {
             CobblemonItemComponents.COOKING_COMPONENT.codec()
                     ?.parse(NbtOps.INSTANCE, tag.getCompound("CookingComponent"))
                     ?.result()
                     ?.ifPresent { component ->
                         cookingComponent = component
+                        println("Loaded CookingComponent: $cookingComponent")
                     }
         }
     }
@@ -120,6 +131,7 @@ class LureCakeBlockEntity(
      * Mark the block entity as updated, forcing a save and client update.
      */
     private fun markUpdated() {
+        println("Marking LureCakeBlockEntity as updated at $blockPos")
         setChanged()
         level?.sendBlockUpdated(worldPosition, blockState, blockState, 3)
     }
@@ -134,51 +146,48 @@ class LureCakeBlockEntity(
      */
     fun spawnPokemon(
             world: Level,
-            pos: BlockPos//,
-            //species: PokemonSpecies
-    ): Pair<PokemonEntity?,PokemonEntity?> {
-        if (world !is ServerLevel) return null to null
-
-        // Generate a random offset within the radius
-        val randomOffset = {
-            world.random.nextDouble() * SPAWN_RADIUS * 2 - SPAWN_RADIUS
+            pos: BlockPos
+    ): Pair<PokemonEntity?, PokemonEntity?> {
+        println("Attempting to spawn Pokémon at $pos in world: ${world.dimension().location()}")
+        if (world !is ServerLevel) {
+            println("World is not a ServerLevel, aborting spawn.")
+            return null to null
         }
-        val spawnPos = pos.offset(randomOffset().toInt(), 0, randomOffset().toInt())
 
-        // todo Use Spawn files
-        // todo CHANGE THIS! We probably want a brand new spawner similar to the fishing spawner
+        val spawnPos = pos.offset(world.random.nextInt(-SPAWN_RADIUS.toInt(), SPAWN_RADIUS.toInt()), 0, world.random.nextInt(-SPAWN_RADIUS.toInt(), SPAWN_RADIUS.toInt()))
+        println("Spawn position determined as $spawnPos")
+
         val spawner = BestSpawner.baitSpawner
-
         val buckets = Cobblemon.bestSpawner.config.buckets
-
         val chosenBucket = chooseSpawnBucket(buckets)
-        // todo WARNING! baitStack is null
+        println("Chosen spawn bucket: $chosenBucket")
+
         val spawnCause = BaitSpawnCause(
                 spawner = spawner,
                 bucket = chosenBucket,
-                entity = null, // todo Crab Note: Do we want to use the lure cake as the entity being sent in?
-                baitStack = this.toItemStack(), // todo Crab note: Maybe we can use baitStack as a spawnCondition so we can see what kind of bait is being used (cake or poke_bait)
+                entity = null,
+                baitStack = this.toItemStack(),
                 baitEffect = this.getBaitFromLureCake()
         )
+        println("Spawn cause created: $spawnCause")
 
-        //
-        val result = spawner.run(spawnCause, level as ServerLevel, spawnPos)
+        val result = spawner.run(spawnCause, world, spawnPos)
+        println("Spawner result: $result")
 
         var spawnedPokemon: PokemonEntity? = null
-        var partnerPokemon: PokemonEntity? = null
-        val resultingSpawn = result?.get()
-
-        if (resultingSpawn is EntitySpawnResult) {
-            for (entity in resultingSpawn.entities) {
-                // we can query the spawned pokemon here
-                spawnedPokemon = (entity as PokemonEntity)
-
-                // CRAB IDEA: todo maybe some grass particles? as if they appeared from the grass or forest?
+        if (result is EntitySpawnResult) {
+            result.entities.forEach { entity ->
+                if (entity is PokemonEntity) {
+                    spawnedPokemon = entity
+                    println("Spawned Pokémon: ${entity.pokemon}")
+                }
             }
         }
 
-        return spawnedPokemon to partnerPokemon
+        return spawnedPokemon to null
     }
+
+
     fun chooseSpawnBucket(buckets: List<SpawnBucket>): SpawnBucket {
         val baseIncreases = listOf(2.5F, 1.0F, 0.6F)  // Base increases for the first three buckets beyond the first
         val adjustedWeights = buckets.mapIndexed { index, bucket ->
@@ -210,18 +219,18 @@ class LureCakeBlockEntity(
     }
 
 
+
     companion object {
-        private const val RANDOM_SPAWN_CHANCE = 10 // 1 in 100 chance per random tick
-        private const val SPAWN_RADIUS = 5.0 // Radius around the nest to spawn Pokémon
+        private const val RANDOM_SPAWN_CHANCE = 100
+        private const val SPAWN_RADIUS = 5.0
 
-        val TICKER = BlockEntityTicker<LureCakeBlockEntity> { world, pos, state, blockEntity ->
+        /*val TICKER = BlockEntityTicker<LureCakeBlockEntity> { world, pos, state, blockEntity ->
+            println("Ticker running for LureCakeBlockEntity at $pos in world: ${world.dimension().location()}")
             if (world.random.nextInt(RANDOM_SPAWN_CHANCE) == 0) {
-                // spawn the lured pokemon
+                println("Triggering Pokémon spawn")
                 blockEntity.spawnPokemon(world, pos)
-
-                // todo age Cake block to make it seem eaten more
                 world.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS)
             }
-        }
+        }*/
     }
 }
