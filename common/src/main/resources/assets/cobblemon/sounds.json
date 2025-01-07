@@ -614,6 +614,32 @@
       "cobblemon:block/gilded_chest/gilded_chest_step_4"
     ]
   },
+  "block.campfire_pot.place": {
+    "sounds": [ { "name": "cobblemon:block/campfire_pot/campfire_pot_place", "volume": 0.8 } ]
+  },
+  "block.campfire_pot.retrieve": {
+    "sounds": [ { "name": "cobblemon:block/campfire_pot/campfire_pot_retrieve", "volume": 0.8 } ]
+  },
+  "block.campfire_pot.open": {
+    "sounds": [ { "name": "cobblemon:block/campfire_pot/campfire_pot_open", "volume": 0.8 } ]
+  },
+  "block.campfire_pot.close": {
+    "sounds": [ { "name": "cobblemon:block/campfire_pot/campfire_pot_close", "volume": 0.8 } ]
+  },
+  "block.campfire_pot.use": {
+    "sounds": [ { "name": "cobblemon:block/campfire_pot/campfire_pot_use", "volume": 0.8 } ]
+  },
+  "block.campfire_pot.cook": {
+    "sounds": [ { "name": "cobblemon:block/campfire_pot/campfire_pot_cook", "volume": 0.8 } ]
+  },
+  "block.campfire_pot.craft": {
+    "sounds": [
+      { "name": "cobblemon:block/campfire_pot/campfire_pot_craft_1", "volume": 0.8 },
+      { "name": "cobblemon:block/campfire_pot/campfire_pot_craft_2", "volume": 0.8 },
+      { "name": "cobblemon:block/campfire_pot/campfire_pot_craft_3", "volume": 0.8 },
+      { "name": "cobblemon:block/campfire_pot/campfire_pot_craft_4", "volume": 0.8 }
+    ]
+  },
   "move.bite.target": {
     "sounds": [ { "name": "cobblemon:move/bite/bite_target", "volume": 0.8 } ]
   },
