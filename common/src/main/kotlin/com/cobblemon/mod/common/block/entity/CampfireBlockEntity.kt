@@ -199,6 +199,8 @@ class CampfireBlockEntity : BaseContainerBlockEntity, WorldlyContainer, RecipeCr
 
     override fun saveAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
         super.saveAdditional(tag, registries)
+
+        ContainerHelper.saveAllItems(tag, this.items, registries)
         potComponent?.let { component ->
             PotComponent.CODEC.encodeStart(NbtOps.INSTANCE, component)
                 .result()
@@ -208,6 +210,8 @@ class CampfireBlockEntity : BaseContainerBlockEntity, WorldlyContainer, RecipeCr
 
     override fun loadAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
         super.loadAdditional(tag, registries)
+
+        ContainerHelper.loadAllItems(tag, this.items, registries)
         if (tag.contains("PotComponent")) {
             val component = PotComponent.CODEC.parse(NbtOps.INSTANCE, tag.getCompound("PotComponent"))
                 .result()
