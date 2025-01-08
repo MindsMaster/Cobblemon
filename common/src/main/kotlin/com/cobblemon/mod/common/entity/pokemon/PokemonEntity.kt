@@ -215,7 +215,7 @@ open class PokemonEntity(
             // We need to update this value every time the Pokémon changes, other eye height related things will be dynamic.
             this.refreshDimensions()
             if (!level().isClientSide) {
-                brain = makeBrain(brainDynamic ?: makeEmptyBrainDynamic())
+                remakeBrain()
             }
         }
 
@@ -320,7 +320,7 @@ open class PokemonEntity(
         delegate.changePokemon(pokemon)
         addPosableFunctions(struct)
         moveControl = PokemonMoveControl(this)
-        makeBrain(dynamic = brainDynamic ?: makeEmptyBrainDynamic())
+        remakeBrain()
         refreshDimensions()
     }
 
@@ -328,7 +328,7 @@ open class PokemonEntity(
         behaviours.clear()
         behaviours.addAll(brainPresets)
         behavioursAreCustom = true
-        makeBrain(dynamic = brainDynamic ?: makeEmptyBrainDynamic())
+        remakeBrain()
     }
 
     override fun defineSynchedData(builder: SynchedEntityData.Builder) {
@@ -783,6 +783,10 @@ open class PokemonEntity(
             PokemonBrain.makeBrain(this, target, brain)
         }
         return brain
+    }
+
+    override fun remakeBrain() {
+        brain = makeBrain(brainDynamic ?: makeEmptyBrainDynamic())
     }
 
     // cast is safe, mojang do the same thing.

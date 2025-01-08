@@ -36,6 +36,7 @@ interface MoLangScriptingEntity {
     var data: VariableStruct
 
     fun getExtraVariables(): List<MoLangConfigVariable> = emptyList()
+    fun remakeBrain()
 
     fun registerVariables(brainVariables: Collection<MoLangConfigVariable>) {
         registeredVariables.clear()

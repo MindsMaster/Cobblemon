@@ -100,7 +100,7 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
             if (valueChanged) {
                 customName = value.names.randomOrNull() ?: "NPC".text()
                 if (!level().isClientSide) {
-                    brain = makeBrain(brainDynamic ?: makeEmptyBrainDynamic())
+                    remakeBrain()
                 }
             }
 
@@ -190,7 +190,7 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
         refreshDimensions()
         navigation.setCanFloat(true)
         if (!world.isClientSide) {
-            brain = makeBrain(brainDynamic ?: makeEmptyBrainDynamic())
+            remakeBrain()
         }
     }
 
@@ -266,6 +266,10 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
         )
     ) as Packet<ClientGamePacketListener>
 
+    override fun remakeBrain() {
+        makeBrain(this.brainDynamic ?: makeEmptyBrainDynamic())
+    }
+
     override fun makeBrain(dynamic: Dynamic<*>): Brain<out NPCEntity> {
         this.brainDynamic = dynamic
         val brain = brainProvider().makeBrain(dynamic)
@@ -280,7 +284,7 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
         behaviours.clear()
         behaviours.addAll(brainPresets)
         behavioursAreCustom = true
-        makeBrain(dynamic = brainDynamic ?: makeEmptyBrainDynamic())
+        remakeBrain()
     }
 
     override fun doHurtTarget(target: Entity): Boolean {
@@ -483,7 +487,7 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
     fun initialize(level: Int) {
         variationAspects.clear()
         entityData.set(LEVEL, level)
-        makeBrain(dynamic = brainDynamic ?: makeEmptyBrainDynamic())
+        remakeBrain()
         npc.variations.values.forEach { this.variationAspects.addAll(it.provideAspects(this)) }
         if (party == null || npc.party != null) {
             party = npc.party?.takeIf { it.isStatic }?.provide(this, level)

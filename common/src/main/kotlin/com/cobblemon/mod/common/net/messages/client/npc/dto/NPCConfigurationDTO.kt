@@ -109,5 +109,6 @@ class NPCConfigurationDTO : Encodable, Decodable {
             val variable = entity.registeredVariables.find { it.variableName == key } ?: return@forEach
             entity.config.setDirectly(key, variable.type.toMoValue(value))
         }
+        entity.remakeBrain()
     }
 }

@@ -21,7 +21,7 @@ import net.minecraft.world.entity.ai.behavior.BehaviorControl
 
 class StayAfloatTaskConfig : SingleTaskConfig {
     val condition = booleanVariable(SharedEntityVariables.MOVEMENT_CATEGORY, "can_float", true).asExpressible()
-    val chance = numberVariable(SharedEntityVariables.MOVEMENT_CATEGORY, "float_chance", 0.01F).asExpressible()
+    val chance = numberVariable(SharedEntityVariables.MOVEMENT_CATEGORY, "float_chance", 0.8F).asExpressible()
 
     override val variables: List<MoLangConfigVariable>
         get() = listOf(
