@@ -11,6 +11,8 @@ package com.cobblemon.mod.common.client.gui.cookingpot
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.gui.blitk
 import com.cobblemon.mod.common.util.cobblemonResource
+import net.fabricmc.api.EnvType
+import net.fabricmc.api.Environment
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.ImageButton
@@ -25,6 +27,7 @@ import net.minecraft.world.inventory.RecipeBookMenu
 import net.minecraft.world.item.crafting.CraftingInput
 import kotlin.math.ceil
 
+@Environment(EnvType.CLIENT)
 class CookingPotScreen(
     menu: CookingPotMenu,
     playerInventory: Inventory,
@@ -90,8 +93,17 @@ class CookingPotScreen(
             width = backgroundWidth, height = backgroundHeight
         )
 
-        val burnProgress = ceil(menu.getBurnProgress() * 13.0).toInt()
-        context.blitSprite(BURN_PROGRESS_SPRITE, 14, 14, 0, 14, leftPos + 141, topPos + 86, 14, burnProgress);
+        val burnProgress = ceil(menu.getBurnProgress() * 14.0).toInt()
+        blitk(
+            matrixStack = context.pose(),
+            texture = BURN_PROGRESS_SPRITE,
+            x = leftPos + 141, // Adjusted X position as needed
+            y = topPos + 86 + 14 - burnProgress, // Correct Y position based on burn progress
+            width = 14, // Fixed width
+            height = burnProgress, // Positive height for proper rendering
+            vOffset = 14 - burnProgress, // Correct texture vertical offset
+            textureHeight = 14 // Total height of the texture
+        )
     }
 
     override fun render(

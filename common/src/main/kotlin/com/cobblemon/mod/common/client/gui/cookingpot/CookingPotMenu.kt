@@ -59,6 +59,7 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
         this.resultContainer = ResultContainer()
         this.resultContainer.setItem(0, container.getItem(RESULT_SLOT))
         this.containerData = SimpleContainerData(2)
+        this.addDataSlots(containerData)
         this.player = playerInventory.player
         this.level = playerInventory.player.level()
         initializeSlots(playerInventory)
@@ -69,6 +70,7 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
         this.playerInventory = playerInventory
         this.container = container
         this.containerData = containerData
+        this.addDataSlots(containerData)
         this.resultContainer = ResultContainer()
         this.resultContainer.setItem(0, container.getItem(RESULT_SLOT))
         this.player = playerInventory.player
@@ -257,15 +259,15 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
     }
 
 
-    fun canCook(): Boolean {
-        val optionalRecipe = this.level.recipeManager.getRecipeFor(
-            recipeType,
-            container.asCraftInput(),
-            this.level
-        )
-
-        return optionalRecipe.isPresent
-    }
+//    fun canCook(): Boolean {
+//        val optionalRecipe = this.level.recipeManager.getRecipeFor(
+//            recipeType,
+//            container.asCraftInput(),
+//            this.level
+//        )
+//
+//        return optionalRecipe.isPresent
+//    }
 
     override fun removed(player: Player) {
         super.removed(player)
@@ -309,7 +311,7 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
         val i = this.containerData.get(0)
         val j = this.containerData.get(1)
         return if (j != 0 && i != 0) {
-            Math.clamp((i / j).toFloat(), 0.0F, 1.0F)
+            Math.clamp((i.toFloat() / j.toFloat()), 0.0F, 1.0F)
         } else {
             0.0F;
         }
@@ -429,13 +431,12 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
         }
     }*/
 
-
-
     override fun dataChanged(
         containerMenu: AbstractContainerMenu,
         dataSlotIndex: Int,
         value: Int
     ) {
+
     }
 
     private class SeasoningSlot(container: Container, slot: Int, x: Int, y: Int) : Slot(container, slot, x, y) {
