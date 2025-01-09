@@ -13,13 +13,13 @@ import com.cobblemon.mod.common.util.toVec3d
 import net.minecraft.client.Minecraft
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.inventory.CraftingContainer
 import net.minecraft.world.inventory.ResultContainer
 import net.minecraft.world.inventory.Slot
 import net.minecraft.world.item.ItemStack
 
 class CookingPotResultSlot(
-    private val player: Player,
-    private val container: ResultContainer,
+    container: CraftingContainer,
     index: Int,
     x: Int,
     y: Int
@@ -29,12 +29,12 @@ class CookingPotResultSlot(
         val menu = player.containerMenu
 
         if (menu is CookingPotMenu) {
-            val cookingComponent = menu.createCookingComponentFromSlots()
+            // val cookingComponent = menu.createCookingComponentFromSlots()
 
             // Attach the CookingComponent to the result stack
-            stack.set(CobblemonItemComponents.COOKING_COMPONENT, cookingComponent)
+            // stack.set(CobblemonItemComponents.COOKING_COMPONENT, cookingComponent)
 
-            menu.consumeCraftingIngredients() // Decrement ingredients
+            // menu.consumeCraftingIngredients() // Decrement ingredients
             menu.broadcastChanges() // Notify the client
 
             Minecraft.getInstance().soundManager.play(SimpleSoundInstance.forUI(CobblemonSounds.CAMPFIRE_POT_CRAFT, 1.0f, 1.0f))

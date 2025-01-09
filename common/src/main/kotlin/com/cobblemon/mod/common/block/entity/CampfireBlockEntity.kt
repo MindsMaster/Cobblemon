@@ -9,13 +9,19 @@
 package com.cobblemon.mod.common.block.entity
 
 import com.cobblemon.mod.common.CobblemonBlockEntities
+import com.cobblemon.mod.common.CobblemonItemComponents
 import com.cobblemon.mod.common.CobblemonRecipeTypes
 import com.cobblemon.mod.common.CobblemonSounds
+import com.cobblemon.mod.common.api.cooking.Seasoning
+import com.cobblemon.mod.common.api.cooking.Seasonings
+import com.cobblemon.mod.common.api.fishing.FishingBait
+import com.cobblemon.mod.common.api.fishing.FishingBaits
 import com.cobblemon.mod.common.block.PotComponent
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotMenu
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotRecipeBase
 import com.cobblemon.mod.common.client.sound.BlockEntitySoundTracker
 import com.cobblemon.mod.common.client.sound.instances.CancellableSoundInstance
+import com.cobblemon.mod.common.item.components.CookingComponent
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
@@ -34,13 +40,16 @@ import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.StackedContents
 import net.minecraft.world.inventory.*
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
 import net.minecraft.world.item.crafting.CraftingInput
 import net.minecraft.world.item.crafting.RecipeHolder
 import net.minecraft.world.item.crafting.RecipeManager
+import net.minecraft.world.item.crafting.RecipeType
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity
 import net.minecraft.world.level.block.state.BlockState
+import java.util.*
 
 class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlockEntity(
     CobblemonBlockEntities.CAMPFIRE,
@@ -49,6 +58,12 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
 ), WorldlyContainer, RecipeCraftingHolder, StackedContentsCompatible, CraftingContainer {
 
     companion object {
+        const val RESULT_SLOT = 0;
+        val CRAFTING_GRID_SLOTS = 1..9
+        val SEASONING_SLOTS = 10..12
+        val PLAYER_INVENTORY_SLOTS = 13..39
+        val PLAYER_HOTBAR_SLOTS = 40..48
+
         const val COOKING_PROGRESS_INDEX = 0
         const val COOKING_PROGRESS_TOTAL_TIME = 1
 
@@ -64,33 +79,55 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
         }
 
         fun serverTick(level: Level, pos: BlockPos, state: BlockState, campfireBlockEntity: CampfireBlockEntity) {
-            if (!level.isClientSide) {
-                var itemStack = ItemStack.EMPTY
-                val craftingInput = CraftingInput.of(3, 3, campfireBlockEntity.items.subList(1, 10))
+            if (level.isClientSide) return
 
-                // Check for matching recipe in either type
-                val optionalRecipe = level.recipeManager.getRecipeFor(CobblemonRecipeTypes.COOKING_POT_COOKING, craftingInput, level)
-                        .map { it as RecipeHolder<CookingPotRecipeBase> } // Cast to common base type
-                        .or {
-                            level.recipeManager.getRecipeFor(CobblemonRecipeTypes.COOKING_POT_SHAPELESS, craftingInput, level)
-                                    .map { it as RecipeHolder<CookingPotRecipeBase> }
-                        }
+            val craftingInput = CraftingInput.of(3, 3, campfireBlockEntity.items.subList(1, 10))
 
-                optionalRecipe.ifPresent { cookingPotRecipe ->
-                    val recipeHolder = cookingPotRecipe
-                    val resultItem = recipeHolder.value().assemble(craftingInput, level.registryAccess())
+            fun <T : CookingPotRecipeBase> fetchRecipe(
+                recipeType: RecipeType<T>
+            ): Optional<RecipeHolder<CookingPotRecipeBase>> {
+                val optional = level.recipeManager.getRecipeFor(recipeType, craftingInput, level)
+                @Suppress("UNCHECKED_CAST")
+                return optional.map { it as RecipeHolder<CookingPotRecipeBase> }
+            }
 
-                    if (!resultItem.isEmpty) {
-                        campfireBlockEntity.recipeUsed = recipeHolder
-                        campfireBlockEntity.items[0] = resultItem.copy()
+            // Check for both COOKING_POT_COOKING and COOKING_POT_SHAPELESS recipes
+            val optionalRecipe = fetchRecipe(CobblemonRecipeTypes.COOKING_POT_COOKING)
+                .or { fetchRecipe(CobblemonRecipeTypes.COOKING_POT_SHAPELESS) }
+
+            if (!optionalRecipe.isPresent) {
+                campfireBlockEntity.cookingProgress = 0
+                return
+            }
+
+            val cookingPotRecipe = optionalRecipe.get()
+            val recipe = cookingPotRecipe.value()
+            val cookedItem = recipe.assemble(craftingInput, level.registryAccess())
+            cookedItem.set(CobblemonItemComponents.COOKING_COMPONENT, campfireBlockEntity.createCookingComponentFromSlots())
+
+            val resultSlotItem = campfireBlockEntity.getItem(0)
+
+            if (!resultSlotItem.isEmpty && !ItemStack.isSameItemSameComponents(resultSlotItem, cookedItem)) {
+                campfireBlockEntity.cookingProgress = 0
+                return
+            }
+
+            campfireBlockEntity.cookingProgress++
+            if (campfireBlockEntity.cookingProgress == campfireBlockEntity.cookingTotalTime) {
+                campfireBlockEntity.cookingProgress = 0
+
+                if (!cookedItem.isEmpty) {
+                    campfireBlockEntity.recipeUsed = cookingPotRecipe
+
+                    if (resultSlotItem.isEmpty) {
+                        campfireBlockEntity.setItem(0, cookedItem)
                     } else {
-                        campfireBlockEntity.items[0] = ItemStack.EMPTY
+                        resultSlotItem.grow(cookedItem.count)
                     }
-                }
 
-                campfireBlockEntity.cookingProgress++
-                if (campfireBlockEntity.cookingProgress == campfireBlockEntity.cookingTotalTime) {
-                    campfireBlockEntity.cookingProgress = 0
+                    campfireBlockEntity.consumeCraftingIngredients()
+
+                    setChanged(level, pos, state);
                 }
             }
         }
@@ -123,6 +160,78 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
         override fun getCount(): Int {
             return 2
         }
+    }
+
+    fun consumeCraftingIngredients() {
+        for (i in 1..13) {
+            val itemInSlot = getItem(i)
+            if (!itemInSlot.isEmpty) {
+                when (itemInSlot.item) {
+                    Items.LAVA_BUCKET, Items.WATER_BUCKET, Items.MILK_BUCKET -> {
+                        // Replace with empty bucket
+                        setItem(i, ItemStack(Items.BUCKET))
+                    }
+                    Items.HONEY_BOTTLE -> {
+                        // Replace with empty glass bottle
+                        setItem(i, ItemStack(Items.GLASS_BOTTLE))
+                    }
+                    else -> {
+                        // Decrease the stack size by 1
+                        itemInSlot.shrink(1)
+                        if (itemInSlot.count <= 0) {
+                            setItem(i, ItemStack.EMPTY) // Clear the slot if empty
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fun createCookingComponentFromSlots(): CookingComponent {
+        // Variables to store bait and seasoning
+        var bait1 = FishingBait.BLANK_BAIT
+        var bait2 = FishingBait.BLANK_BAIT
+        var bait3 = FishingBait.BLANK_BAIT
+        var seasoning1 = Seasoning.BLANK_SEASONING
+        var seasoning2 = Seasoning.BLANK_SEASONING
+        var seasoning3 = Seasoning.BLANK_SEASONING
+
+        // Iterate through slots 10-12
+        for ((index, slot) in (10..12).withIndex()) {
+            val itemInSlot = getItem(slot)
+
+            if (!itemInSlot.isEmpty) {
+                // Check if item is a bait
+                val bait = FishingBaits.getFromBaitItemStack(itemInSlot)
+                if (bait != null) {
+                    when (index) {
+                        0 -> bait1 = bait
+                        1 -> bait2 = bait
+                        2 -> bait3 = bait
+                    }
+                }
+
+                // Check if item is a seasoning
+                val seasoning = Seasonings.getFromItemStack(itemInSlot)
+                if (seasoning != null) {
+                    when (index) {
+                        0 -> seasoning1 = seasoning
+                        1 -> seasoning2 = seasoning
+                        2 -> seasoning3 = seasoning
+                    }
+                }
+            }
+        }
+
+        // Create CookingComponent and attach to result item
+        return CookingComponent(
+            bait1 = bait1,
+            bait2 = bait2,
+            bait3 = bait3,
+            seasoning1 = seasoning1,
+            seasoning2 = seasoning2,
+            seasoning3 = seasoning3
+        )
     }
 
     override fun getDefaultName(): Component {
