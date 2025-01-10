@@ -22,6 +22,8 @@ import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotRecipeBase
 import com.cobblemon.mod.common.client.sound.BlockEntitySoundTracker
 import com.cobblemon.mod.common.client.sound.instances.CancellableSoundInstance
 import com.cobblemon.mod.common.item.components.CookingComponent
+import com.cobblemon.mod.common.util.playSoundServer
+import com.cobblemon.mod.common.util.toVec3d
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
@@ -78,10 +80,12 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
 
         fun clientTick(level: Level, pos: BlockPos, state: BlockState, campfireBlockEntity: CampfireBlockEntity) {
             if (level.isClientSide) {
+                val isLit = campfireBlockEntity.dataAccess.get(COOKING_PROGRESS_INDEX) > 0
                 val isSoundActive = BlockEntitySoundTracker.isActive(pos, campfireBlockEntity.runningSound.location)
-                if (!campfireBlockEntity.isEmpty && !isSoundActive) {
+
+                if (isLit && !isSoundActive) {
                     BlockEntitySoundTracker.play(pos, CancellableSoundInstance(campfireBlockEntity.runningSound, pos, true, 0.8f, 1.0f))
-                } else if (campfireBlockEntity.isEmpty && isSoundActive) {
+                } else if (!isLit && isSoundActive) {
                     BlockEntitySoundTracker.stop(pos, campfireBlockEntity.runningSound.location)
                 }
             }
@@ -142,6 +146,11 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
                     }
 
                     campfireBlockEntity.consumeCraftingIngredients()
+
+                    level.playSoundServer(
+                        position = pos.bottomCenter,
+                        sound = CobblemonSounds.CAMPFIRE_POT_CRAFT,
+                    )
 
                     setChanged(level, pos, state);
                 }

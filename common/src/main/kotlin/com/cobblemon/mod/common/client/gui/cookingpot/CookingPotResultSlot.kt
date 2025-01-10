@@ -35,7 +35,7 @@ class CookingPotResultSlot(
             // menu.consumeCraftingIngredients() // Decrement ingredients
             menu.broadcastChanges() // Notify the client
 
-            Minecraft.getInstance().soundManager.play(SimpleSoundInstance.forUI(CobblemonSounds.CAMPFIRE_POT_CRAFT, 1.0f, 1.0f))
+            Minecraft.getInstance().soundManager.play(SimpleSoundInstance.forUI(CobblemonSounds.CAMPFIRE_POT_USE, 1.0f, 1.0f))
         } else {
             println("Player menu is not CookingPotMenu!")
         }

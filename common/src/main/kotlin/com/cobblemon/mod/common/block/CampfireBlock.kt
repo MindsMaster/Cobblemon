@@ -97,7 +97,7 @@ class CampfireBlock(settings: Properties) : BaseEntityBlock(settings) {
                     val heldItem = player.getItemInHand(InteractionHand.MAIN_HAND)
                     blockEntity.setPotItem(heldItem.split(1))
                     level.playSoundServer(
-                        position = pos.toVec3d(),
+                        position = pos.bottomCenter,
                         sound = CobblemonSounds.CAMPFIRE_POT_PLACE,
                     )
                     return InteractionResult.SUCCESS
@@ -119,7 +119,7 @@ class CampfireBlock(settings: Properties) : BaseEntityBlock(settings) {
             player.setItemInHand(InteractionHand.MAIN_HAND, potItem)
             blockEntity.setPotItem(ItemStack.EMPTY)
             level.playSoundServer(
-                position = blockPos.toVec3d(),
+                position = blockPos.bottomCenter,
                 sound = CobblemonSounds.CAMPFIRE_POT_RETRIEVE,
             )
         }
@@ -130,7 +130,7 @@ class CampfireBlock(settings: Properties) : BaseEntityBlock(settings) {
         if (blockEntity is CampfireBlockEntity) {
             player.openMenu(blockEntity as CampfireBlockEntity)
             level.playSoundServer(
-                position = pos.toVec3d(),
+                position = pos.bottomCenter,
                 sound = CobblemonSounds.CAMPFIRE_POT_OPEN,
             )
         }
