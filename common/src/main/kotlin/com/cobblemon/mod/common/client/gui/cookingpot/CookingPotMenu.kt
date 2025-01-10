@@ -11,19 +11,14 @@ package com.cobblemon.mod.common.client.gui.cookingpot
 
 import com.cobblemon.mod.common.CobblemonMenuType
 import com.cobblemon.mod.common.CobblemonRecipeTypes
-import com.cobblemon.mod.common.api.cooking.Seasoning
 import com.cobblemon.mod.common.api.cooking.Seasonings
-import com.cobblemon.mod.common.api.fishing.FishingBait
-import com.cobblemon.mod.common.api.fishing.FishingBaits
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.CRAFTING_GRID_SLOTS
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.PLAYER_HOTBAR_SLOTS
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.PLAYER_INVENTORY_SLOTS
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.RESULT_SLOT
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.SEASONING_SLOTS
-import com.cobblemon.mod.common.item.components.CookingComponent
 import net.minecraft.recipebook.ServerPlaceRecipe
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.Container
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.player.StackedContents
@@ -45,27 +40,23 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
     private val recipeType: RecipeType<CookingPotRecipe> = CobblemonRecipeTypes.COOKING_POT_COOKING
     private val quickCheck = RecipeManager.createCheck(CobblemonRecipeTypes.COOKING_POT_COOKING)
 
-    constructor(containerId: Int, playerInventory: Inventory) :
-            super(CobblemonMenuType.COOKING_POT, containerId) {
+    constructor(containerId: Int, playerInventory: Inventory) : super(CobblemonMenuType.COOKING_POT, containerId) {
         this.playerInventory = playerInventory
         this.container = CookingPotContainer(this, 3, 3)
         this.resultContainer = ResultContainer()
-//        this.resultContainer.setItem(0, container.getItem(RESULT_SLOT))
-        this.containerData = SimpleContainerData(2)
+        this.containerData = SimpleContainerData(3)
         this.addDataSlots(containerData)
         this.player = playerInventory.player
         this.level = playerInventory.player.level()
         initializeSlots(playerInventory)
     }
 
-    constructor(containerId: Int, playerInventory: Inventory, container: CraftingContainer, containerData: ContainerData) :
-            super(CobblemonMenuType.COOKING_POT, containerId) {
+    constructor(containerId: Int, playerInventory: Inventory, container: CraftingContainer, containerData: ContainerData) : super(CobblemonMenuType.COOKING_POT, containerId) {
         this.playerInventory = playerInventory
         this.container = container
         this.containerData = containerData
         this.addDataSlots(containerData)
         this.resultContainer = ResultContainer()
-//        this.resultContainer.setItem(0, container.getItem(RESULT_SLOT))
         this.player = playerInventory.player
         this.level = playerInventory.player.level()
         container.startOpen(playerInventory.player)
@@ -110,15 +101,10 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
             val y = 174
             addSlot(Slot(playerInventory, i, x, y))
         }
-
-        updateResultSlot()
     }
 
     override fun broadcastChanges() {
         super.broadcastChanges()
-        /*slots.forEachIndexed { index, slot ->
-            println("Slot $index contains: ${slot.item}")
-        }*/
     }
 
     override fun handlePlacement(placeAll: Boolean, recipe: RecipeHolder<*>, player: ServerPlayer) {
@@ -139,56 +125,8 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
         }
     }
 
-    private fun updateResultSlot() {
-//        val craftingInput = CraftingInput.of(3, 3, container.items.subList(1, 10))
-//
-//        fun <T : CookingPotRecipeBase> fetchRecipe(
-//                recipeType: RecipeType<T>
-//        ): Optional<RecipeHolder<CookingPotRecipeBase>> {
-//            val optional = level.recipeManager.getRecipeFor(recipeType, craftingInput, level)
-//            @Suppress("UNCHECKED_CAST")
-//            return optional.map { it as RecipeHolder<CookingPotRecipeBase> }
-//        }
-//
-//        // Check for both COOKING_POT_COOKING and COOKING_POT_SHAPELESS recipes
-//        val optionalRecipe = fetchRecipe(CobblemonRecipeTypes.COOKING_POT_COOKING)
-//                .or { fetchRecipe(CobblemonRecipeTypes.COOKING_POT_SHAPELESS) }
-//
-//        if (optionalRecipe.isPresent) {
-//            val recipe = optionalRecipe.get().value()
-//            val result = recipe.assemble(craftingInput, level.registryAccess())
-//
-//            if (!result.isEmpty) {
-//                // Makes dynamic rendering and tooltips work
-//                result.set(CobblemonItemComponents.COOKING_COMPONENT, createCookingComponentFromSlots())
-//
-//                resultContainer.setItem(0, result)
-//                container.setItem(0, result) // Update result in the container
-//            } else {
-//                resultContainer.setItem(0, ItemStack.EMPTY)
-//                container.setItem(0, ItemStack.EMPTY)
-//            }
-//        } else {
-//            resultContainer.setItem(0, ItemStack.EMPTY)
-//            container.setItem(0, ItemStack.EMPTY) // Clear result slot
-//        }
-//
-//        broadcastChanges() // Notify client of the updates
-    }
-
-//    fun canCook(): Boolean {
-//        val optionalRecipe = this.level.recipeManager.getRecipeFor(
-//            recipeType,
-//            container.asCraftInput(),
-//            this.level
-//        )
-//
-//        return optionalRecipe.isPresent
-//    }
-
     override fun removed(player: Player) {
         super.removed(player)
-
     }
 
     override fun fillCraftSlotsStackedContents(itemHelper: StackedContents) {
@@ -296,67 +234,13 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
     }
 
     override fun slotChanged(containerToSend: AbstractContainerMenu, dataSlotIndex: Int, stack: ItemStack) {
-        /*if (dataSlotIndex == RESULT_SLOT && !stack.isEmpty) {
-            // Clear crafting slots after result is taken
-            for (i in 1..9) { // Assuming crafting slots are indices 1 to 9
-                val craftingItem = container.getItem(i)
-                if (!craftingItem.isEmpty) {
-                    craftingItem.shrink(1) // Decrease count by 1
-                    if (craftingItem.count <= 0) {
-                        container.setItem(i, ItemStack.EMPTY) // Clear slot if empty
-                    }
-                }
-            }
-            container.setChanged() // Notify container of changes
-        }*/
-        if (dataSlotIndex in 1..13) { // Check if a crafting grid slot changed
-            updateResultSlot()
-//            this.resultContainer.setItem(0, container.items[RESULT_SLOT])
-        }
+        broadcastChanges()
     }
-
-
-
-
-    /*override fun slotChanged(
-        containerToSend: AbstractContainerMenu,
-        dataSlotIndex: Int,
-        stack: ItemStack
-    ) {
-        println("Slot changed - Index: $dataSlotIndex, Item: ${stack.item}, Count: ${stack.count}")
-
-        if (dataSlotIndex in 1..9) { // Crafting grid slots
-            val optionalRecipe = this.level.recipeManager.getRecipeFor(
-                recipeType,
-                container.asCraftInput(),
-                this.level
-            )
-
-            if (optionalRecipe.isPresent) {
-                val recipe = optionalRecipe.get()
-                if (recipe is CookingPotRecipe) { // Ensure proper type
-                    val result = recipe.assemble(this.container.asCraftInput(), this.level.registryAccess())
-                    this.resultContainer.setItem(0, result ?: ItemStack.EMPTY)
-                    println("Updated result slot with recipe output: ${result?.item}")
-                } else {
-                    println("Error: Recipe is not of type CookingPotRecipe.")
-                }
-            } else {
-                this.resultContainer.setItem(0, ItemStack.EMPTY)
-                println("Cleared result slot (no matching recipe).")
-            }
-        }
-    }*/
 
     override fun dataChanged(
         containerMenu: AbstractContainerMenu,
         dataSlotIndex: Int,
         value: Int
     ) {
-
-    }
-
-    private class SeasoningSlot(container: Container, slot: Int, x: Int, y: Int) : Slot(container, slot, x, y) {
-        override fun mayPlace(stack: ItemStack): Boolean = Seasonings.isSeasoning(stack) && super.mayPlace(stack)
     }
 }

@@ -64,8 +64,11 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
         val PLAYER_INVENTORY_SLOTS = 13..39
         val PLAYER_HOTBAR_SLOTS = 40..48
 
+        const val COOKING_PROGRESS_PER_TICK = 2
+
         const val COOKING_PROGRESS_INDEX = 0
-        const val COOKING_PROGRESS_TOTAL_TIME = 1
+        const val COOKING_PROGRESS_TOTAL_TIME_INDEX = 1
+        const val IS_LID_OPEN_INDEX = 2
 
         fun clientTick(level: Level, pos: BlockPos, state: BlockState, campfireBlockEntity: CampfireBlockEntity) {
             if (level.isClientSide) {
@@ -80,6 +83,11 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
 
         fun serverTick(level: Level, pos: BlockPos, state: BlockState, campfireBlockEntity: CampfireBlockEntity) {
             if (level.isClientSide) return
+
+            if (campfireBlockEntity.isLidOpen) {
+                campfireBlockEntity.cookingProgress = 0
+                return
+            }
 
             val craftingInput = CraftingInput.of(3, 3, campfireBlockEntity.items.subList(1, 10))
 
@@ -112,7 +120,7 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
                 return
             }
 
-            campfireBlockEntity.cookingProgress++
+            campfireBlockEntity.cookingProgress += COOKING_PROGRESS_PER_TICK
             if (campfireBlockEntity.cookingProgress == campfireBlockEntity.cookingTotalTime) {
                 campfireBlockEntity.cookingProgress = 0
 
@@ -136,6 +144,7 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
     private val runningSound = CobblemonSounds.CAMPFIRE_POT_COOK
     private var cookingProgress : Int = 0
     private var cookingTotalTime : Int = 200
+    private var isLidOpen : Boolean = true
     private var items : NonNullList<ItemStack?> = NonNullList.withSize(14, ItemStack.EMPTY)
     private val recipesUsed: Object2IntOpenHashMap<ResourceLocation> = Object2IntOpenHashMap()
     private val quickCheck: RecipeManager.CachedCheck<CraftingInput, *> = RecipeManager.createCheck(CobblemonRecipeTypes.COOKING_POT_COOKING)
@@ -145,7 +154,8 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
         override fun get(index: Int): Int {
             return when (index) {
                 COOKING_PROGRESS_INDEX -> this@CampfireBlockEntity.cookingProgress
-                COOKING_PROGRESS_TOTAL_TIME -> this@CampfireBlockEntity.cookingTotalTime
+                COOKING_PROGRESS_TOTAL_TIME_INDEX -> this@CampfireBlockEntity.cookingTotalTime
+                IS_LID_OPEN_INDEX -> if (this@CampfireBlockEntity.isLidOpen) 1 else 0
                 else -> 0
             }
         }
@@ -153,12 +163,13 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
         override fun set(index: Int, value: Int) {
             when (index) {
                 COOKING_PROGRESS_INDEX -> this@CampfireBlockEntity.cookingProgress = value
-                COOKING_PROGRESS_TOTAL_TIME -> this@CampfireBlockEntity.cookingTotalTime = value
+                COOKING_PROGRESS_TOTAL_TIME_INDEX -> this@CampfireBlockEntity.cookingTotalTime = value
+                IS_LID_OPEN_INDEX -> this@CampfireBlockEntity.isLidOpen = value == 1
             }
         }
 
         override fun getCount(): Int {
-            return 2
+            return 3
         }
     }
 
@@ -322,6 +333,9 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
     override fun saveAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
         super.saveAdditional(tag, registries)
 
+        tag.putInt("CookingProgress", this.cookingProgress)
+        tag.putBoolean("IsLidOpen", this.isLidOpen)
+
         ContainerHelper.saveAllItems(tag, this.items, registries)
         potComponent?.let { component ->
             PotComponent.CODEC.encodeStart(NbtOps.INSTANCE, component)
@@ -332,6 +346,9 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
 
     override fun loadAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
         super.loadAdditional(tag, registries)
+
+        this.cookingProgress = tag.getInt("CookingProgress")
+        this.isLidOpen = tag.getBoolean("IsLidOpen")
 
         ContainerHelper.loadAllItems(tag, this.items, registries)
         if (tag.contains("PotComponent")) {

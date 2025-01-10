@@ -16,6 +16,7 @@ import com.cobblemon.mod.common.client.net.battle.*
 import com.cobblemon.mod.common.client.net.callback.move.OpenMoveCallbackHandler
 import com.cobblemon.mod.common.client.net.callback.party.OpenPartyCallbackHandler
 import com.cobblemon.mod.common.client.net.callback.partymove.OpenPartyMoveCallbackHandler
+import com.cobblemon.mod.common.client.net.cooking.ToggleCookingPotLidHandler
 import com.cobblemon.mod.common.client.net.data.DataRegistrySyncPacketHandler
 import com.cobblemon.mod.common.client.net.data.UnlockReloadPacketHandler
 import com.cobblemon.mod.common.client.net.dialogue.DialogueClosedHandler
@@ -56,6 +57,7 @@ import com.cobblemon.mod.common.net.messages.client.callback.OpenMoveCallbackPac
 import com.cobblemon.mod.common.net.messages.client.callback.OpenPartyCallbackPacket
 import com.cobblemon.mod.common.net.messages.client.callback.OpenPartyMoveCallbackPacket
 import com.cobblemon.mod.common.net.messages.client.cooking.SeasoningRegistrySyncPacket
+import com.cobblemon.mod.common.net.messages.client.cooking.ToggleCookingPotLidPacket
 import com.cobblemon.mod.common.net.messages.client.data.*
 import com.cobblemon.mod.common.net.messages.client.dialogue.DialogueClosedPacket
 import com.cobblemon.mod.common.net.messages.client.dialogue.DialogueOpenedPacket
@@ -345,6 +347,7 @@ object CobblemonNetwork {
 
         // Pokédex scanning
         list.add(PacketRegisterInfo(ServerConfirmedRegisterPacket.ID, ServerConfirmedRegisterPacket::decode, ServerConfirmedRegisterHandler))
+
         return list
     }
 
@@ -431,6 +434,9 @@ object CobblemonNetwork {
 
         // NPC packets
         list.add(PacketRegisterInfo(SaveNPCPacket.ID, SaveNPCPacket::decode, SaveNPCHandler))
+
+        // Cooking
+        list.add(PacketRegisterInfo(ToggleCookingPotLidPacket.ID, ToggleCookingPotLidPacket::decode, ToggleCookingPotLidHandler))
 
         return list
     }

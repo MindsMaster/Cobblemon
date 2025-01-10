@@ -8,13 +8,17 @@
 
 package com.cobblemon.mod.common.client.gui.cookingpot
 
+import com.cobblemon.mod.common.CobblemonNetwork.sendToServer
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.gui.blitk
+import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.IS_LID_OPEN_INDEX
+import com.cobblemon.mod.common.net.messages.client.cooking.ToggleCookingPotLidPacket
 import com.cobblemon.mod.common.util.cobblemonResource
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.components.ImageButton
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent
@@ -39,18 +43,23 @@ class CookingPotScreen(
 ), RecipeUpdateListener {
 
     companion object {
-        private const val backgroundHeight = 198
-        private const val backgroundWidth = 176
         private val BACKGROUND = cobblemonResource("textures/gui/cookingpot/cooking_pot.png")
         private val BURN_PROGRESS_SPRITE = ResourceLocation.withDefaultNamespace("textures/gui/sprites/container/furnace/lit_progress.png")
+
+        private const val BACKGROUND_HEIGHT = 198
+        private const val BACKGROUND_WIDTH = 176
+        private const val TOGGLE_LID_BUTTON_WIDTH = 58
+        private const val TOGGLE_LID_BUTTON_HEIGHT = 16
     }
 
     private val recipeBookComponent: RecipeBookComponent = RecipeBookComponent()
     private var widthTooNarrow : Boolean = false
 
+    private lateinit var toggleLidButton: Button
+
     init {
-        this.imageWidth = backgroundWidth
-        this.imageHeight = backgroundHeight
+        this.imageWidth = BACKGROUND_WIDTH
+        this.imageHeight = BACKGROUND_HEIGHT
     }
 
     override fun containerTick() {
@@ -78,6 +87,17 @@ class CookingPotScreen(
         this.titleLabelY = 6
         this.inventoryLabelX = 8
         this.inventoryLabelY = this.imageHeight - 94
+
+        if (::toggleLidButton.isInitialized) removeWidget(toggleLidButton)
+        toggleLidButton = Button.builder(Component.literal(getToggleLidButtonText())) {
+            val isLidOpen = menu.containerData.get(IS_LID_OPEN_INDEX) == 1
+            toggleLidButton.message = Component.literal(getToggleLidButtonText())
+            sendToServer(ToggleCookingPotLidPacket(!isLidOpen))
+        }
+        .size(TOGGLE_LID_BUTTON_WIDTH, TOGGLE_LID_BUTTON_HEIGHT)
+        .build()
+
+        addRenderableWidget(toggleLidButton)
     }
 
     override fun renderBg(
@@ -89,8 +109,8 @@ class CookingPotScreen(
         blitk(
             matrixStack = context.pose(),
             texture = BACKGROUND,
-            x = leftPos, y = (height - backgroundHeight) / 2,
-            width = backgroundWidth, height = backgroundHeight
+            x = leftPos, y = (height - BACKGROUND_HEIGHT) / 2,
+            width = BACKGROUND_WIDTH, height = BACKGROUND_HEIGHT
         )
 
         val burnProgress = ceil(menu.getBurnProgress() * 14.0).toInt()
@@ -112,6 +132,12 @@ class CookingPotScreen(
         mouseY: Int,
         partialTicks: Float
     ) {
+        toggleLidButton.message = Component.literal(getToggleLidButtonText())
+        toggleLidButton.setPosition(
+            leftPos + BACKGROUND_WIDTH - TOGGLE_LID_BUTTON_WIDTH,
+            topPos - TOGGLE_LID_BUTTON_HEIGHT
+        )
+
         if (this.recipeBookComponent.isVisible && this.widthTooNarrow) {
             this.renderBackground(context, mouseX, mouseY, partialTicks)
             this.recipeBookComponent.render(context, mouseX, mouseY, partialTicks)
@@ -149,5 +175,10 @@ class CookingPotScreen(
     override fun onClose() {
         Minecraft.getInstance().soundManager.play(SimpleSoundInstance.forUI(CobblemonSounds.CAMPFIRE_POT_CLOSE, 1.0f))
         super.onClose()
+    }
+
+    fun getToggleLidButtonText(): String {
+        val isLidOpen = menu.containerData.get(IS_LID_OPEN_INDEX) == 1
+        return if (isLidOpen) "Close Lid" else "Open Lid"
     }
 }
