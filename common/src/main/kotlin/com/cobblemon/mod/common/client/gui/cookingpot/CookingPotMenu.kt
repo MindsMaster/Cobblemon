@@ -15,6 +15,7 @@ import com.cobblemon.mod.common.api.cooking.Seasonings
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.CRAFTING_GRID_SLOTS
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.PLAYER_HOTBAR_SLOTS
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.PLAYER_INVENTORY_SLOTS
+import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.PREVIEW_ITEM_SLOT
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.RESULT_SLOT
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.SEASONING_SLOTS
 import net.minecraft.recipebook.ServerPlaceRecipe
@@ -68,8 +69,11 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
         val craftingOutputOffsetX = 16
         val craftingOutputOffsetY = 10
 
+        val resultSlotX = 124 + craftingOutputOffsetX
+        val resultSlotY = 51 + craftingOutputOffsetY
+
         // Result slot
-        addSlot(CookingPotResultSlot(this.container, RESULT_SLOT, 124 + craftingOutputOffsetX, 51 + craftingOutputOffsetY))
+        addSlot(CookingPotResultSlot(this.container, RESULT_SLOT, resultSlotX, resultSlotY))
 
         // Crafting Grid Slots (Indices 1–9)
         for (i in 0..2) {
@@ -85,13 +89,16 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
             addSlot(SeasoningSlot(this.container, slotIndex, 44 + j * 18, 17))
         }
 
+        // Preview slot
+        addSlot(CookingPotPreviewSlot(this.container, PREVIEW_ITEM_SLOT, resultSlotX, resultSlotY))
+
         // Player Inventory Slots (Indices 13–39)
         for (i in 0..2) {
             for (j in 0..8) {
-                val slotIndex = 13 + j + i * 9
+                val slotIndex = 14 + j + i * 9
                 val x = 8 + j * 18
                 val y = 116 + i * 18
-                addSlot(Slot(playerInventory, slotIndex - 13 + 9, x, y))
+                addSlot(Slot(playerInventory, slotIndex - 14 + 9, x, y))
             }
         }
 

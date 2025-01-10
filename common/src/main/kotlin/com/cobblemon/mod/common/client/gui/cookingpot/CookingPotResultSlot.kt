@@ -43,7 +43,6 @@ class CookingPotResultSlot(
         super.onTake(player, stack)
     }
 
-    override fun mayPlace(stack: ItemStack): Boolean {
-        return false
-    }
+    override fun mayPlace(stack: ItemStack): Boolean = false
+    override fun isActive(): Boolean = hasItem()
 }

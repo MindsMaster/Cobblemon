@@ -1,13 +1,13 @@
 package com.cobblemon.mod.common.client.gui.cookingpot
 
+import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.ITEMS_SIZE
 import net.minecraft.core.NonNullList
 import net.minecraft.world.ContainerHelper
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.player.StackedContents
-import net.minecraft.world.inventory.CraftingContainer
 import net.minecraft.world.inventory.TransientCraftingContainer
 import net.minecraft.world.item.ItemStack
-import java.util.List;
+import java.util.List
 
 class CookingPotContainer : TransientCraftingContainer {
 
@@ -17,7 +17,7 @@ class CookingPotContainer : TransientCraftingContainer {
 
     constructor(menu : CookingPotMenu, width: Int, height: Int) : super(menu, width, height) {
         this.menu = menu
-        this.items = NonNullList.withSize(14, ItemStack.EMPTY)
+        this.items = NonNullList.withSize(ITEMS_SIZE, ItemStack.EMPTY)
     }
 
     override fun getContainerSize(): Int {
@@ -41,8 +41,6 @@ class CookingPotContainer : TransientCraftingContainer {
         this.items[slot] = stack
         this.menu?.slotsChanged(this)
     }
-
-
 
     override fun removeItemNoUpdate(slot: Int): ItemStack {
         return ContainerHelper.takeItem(this.items, slot)

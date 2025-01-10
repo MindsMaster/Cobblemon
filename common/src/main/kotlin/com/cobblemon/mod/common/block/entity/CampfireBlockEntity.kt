@@ -58,11 +58,14 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
 ), WorldlyContainer, RecipeCraftingHolder, StackedContentsCompatible, CraftingContainer {
 
     companion object {
-        const val RESULT_SLOT = 0;
+        const val RESULT_SLOT = 0
         val CRAFTING_GRID_SLOTS = 1..9
         val SEASONING_SLOTS = 10..12
-        val PLAYER_INVENTORY_SLOTS = 13..39
-        val PLAYER_HOTBAR_SLOTS = 40..48
+        const val PREVIEW_ITEM_SLOT = 13
+        const val ITEMS_SIZE = 14
+
+        val PLAYER_INVENTORY_SLOTS = 14..40
+        val PLAYER_HOTBAR_SLOTS = 41..49
 
         const val COOKING_PROGRESS_PER_TICK = 2
 
@@ -84,11 +87,6 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
         fun serverTick(level: Level, pos: BlockPos, state: BlockState, campfireBlockEntity: CampfireBlockEntity) {
             if (level.isClientSide) return
 
-            if (campfireBlockEntity.isLidOpen) {
-                campfireBlockEntity.cookingProgress = 0
-                return
-            }
-
             val craftingInput = CraftingInput.of(3, 3, campfireBlockEntity.items.subList(1, 10))
 
             fun <T : CookingPotRecipeBase> fetchRecipe(
@@ -105,15 +103,22 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
 
             if (!optionalRecipe.isPresent) {
                 campfireBlockEntity.cookingProgress = 0
+                campfireBlockEntity.setItem(PREVIEW_ITEM_SLOT, ItemStack.EMPTY)
                 return
             }
 
             val cookingPotRecipe = optionalRecipe.get()
             val recipe = cookingPotRecipe.value()
             val cookedItem = recipe.assemble(craftingInput, level.registryAccess())
-            cookedItem.set(CobblemonItemComponents.COOKING_COMPONENT, campfireBlockEntity.createCookingComponentFromSlots())
-
             val resultSlotItem = campfireBlockEntity.getItem(0)
+
+            cookedItem.set(CobblemonItemComponents.COOKING_COMPONENT, campfireBlockEntity.createCookingComponentFromSlots())
+            campfireBlockEntity.setItem(PREVIEW_ITEM_SLOT, cookedItem)
+
+            if (campfireBlockEntity.isLidOpen) {
+                campfireBlockEntity.cookingProgress = 0
+                return
+            }
 
             if (!resultSlotItem.isEmpty && !ItemStack.isSameItemSameComponents(resultSlotItem, cookedItem)) {
                 campfireBlockEntity.cookingProgress = 0
@@ -145,7 +150,7 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
     private var cookingProgress : Int = 0
     private var cookingTotalTime : Int = 200
     private var isLidOpen : Boolean = true
-    private var items : NonNullList<ItemStack?> = NonNullList.withSize(14, ItemStack.EMPTY)
+    private var items : NonNullList<ItemStack?> = NonNullList.withSize(ITEMS_SIZE, ItemStack.EMPTY)
     private val recipesUsed: Object2IntOpenHashMap<ResourceLocation> = Object2IntOpenHashMap()
     private val quickCheck: RecipeManager.CachedCheck<CraftingInput, *> = RecipeManager.createCheck(CobblemonRecipeTypes.COOKING_POT_COOKING)
     private var potComponent: PotComponent? = null
@@ -174,7 +179,7 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
     }
 
     fun consumeCraftingIngredients() {
-        for (i in 1..13) {
+        for (i in CRAFTING_GRID_SLOTS.first..SEASONING_SLOTS.last) {
             val itemInSlot = getItem(i)
             if (!itemInSlot.isEmpty) {
                 when (itemInSlot.item) {

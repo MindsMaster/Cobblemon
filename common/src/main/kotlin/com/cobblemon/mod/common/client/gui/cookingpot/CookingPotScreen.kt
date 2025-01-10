@@ -12,8 +12,10 @@ import com.cobblemon.mod.common.CobblemonNetwork.sendToServer
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.gui.blitk
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.IS_LID_OPEN_INDEX
+import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.PREVIEW_ITEM_SLOT
 import com.cobblemon.mod.common.net.messages.client.cooking.ToggleCookingPotLidPacket
 import com.cobblemon.mod.common.util.cobblemonResource
+import com.mojang.blaze3d.systems.RenderSystem
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.minecraft.client.Minecraft
@@ -28,6 +30,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.inventory.RecipeBookMenu
+import net.minecraft.world.inventory.Slot
 import net.minecraft.world.item.crafting.CraftingInput
 import kotlin.math.ceil
 
@@ -149,6 +152,22 @@ class CookingPotScreen(
 
         this.renderTooltip(context, mouseX, mouseY)
         this.recipeBookComponent.renderTooltip(context, this.leftPos, this.topPos, mouseX, mouseY)
+    }
+
+    override fun renderSlot(guiGraphics: GuiGraphics, slot: Slot) {
+        if (slot.index != PREVIEW_ITEM_SLOT) {
+            super.renderSlot(guiGraphics, slot)
+            return
+        }
+
+        RenderSystem.enableBlend()
+        RenderSystem.setShaderColor(1f, 1f, 1f, 0.5f)
+
+        guiGraphics.renderFakeItem(slot.item, slot.x, slot.y);
+        guiGraphics.renderItemDecorations(minecraft!!.font, slot.item, slot.x, slot.y)
+
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f)
+        RenderSystem.disableBlend()
     }
 
     override fun recipesUpdated() {
