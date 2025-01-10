@@ -67,6 +67,9 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
         val PLAYER_INVENTORY_SLOTS = 14..40
         val PLAYER_HOTBAR_SLOTS = 41..49
 
+        const val CRAFTING_GRID_WIDTH = 3
+        const val PLAYER_INVENTORY_WIDTH = 9
+
         const val COOKING_PROGRESS_PER_TICK = 2
 
         const val COOKING_PROGRESS_INDEX = 0
@@ -213,7 +216,7 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
         var seasoning3 = Seasoning.BLANK_SEASONING
 
         // Iterate through slots 10-12
-        for ((index, slot) in (10..12).withIndex()) {
+        for ((index, slot) in SEASONING_SLOTS.withIndex()) {
             val itemInSlot = getItem(slot)
 
             if (!itemInSlot.isEmpty) {
@@ -255,11 +258,11 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
     }
 
     override fun getWidth(): Int {
-        return 3
+        return CRAFTING_GRID_WIDTH
     }
 
     override fun getHeight(): Int {
-        return 3
+        return CRAFTING_GRID_WIDTH
     }
 
     override fun getItems(): NonNullList<ItemStack?> {

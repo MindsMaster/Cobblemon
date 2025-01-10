@@ -13,8 +13,11 @@ import com.cobblemon.mod.common.CobblemonMenuType
 import com.cobblemon.mod.common.CobblemonRecipeTypes
 import com.cobblemon.mod.common.api.cooking.Seasonings
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.CRAFTING_GRID_SLOTS
+import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.CRAFTING_GRID_WIDTH
+import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.ITEMS_SIZE
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.PLAYER_HOTBAR_SLOTS
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.PLAYER_INVENTORY_SLOTS
+import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.PLAYER_INVENTORY_WIDTH
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.PREVIEW_ITEM_SLOT
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.RESULT_SLOT
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.SEASONING_SLOTS
@@ -43,7 +46,7 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
 
     constructor(containerId: Int, playerInventory: Inventory) : super(CobblemonMenuType.COOKING_POT, containerId) {
         this.playerInventory = playerInventory
-        this.container = CookingPotContainer(this, 3, 3)
+        this.container = CookingPotContainer(this, CRAFTING_GRID_WIDTH, CRAFTING_GRID_WIDTH)
         this.resultContainer = ResultContainer()
         this.containerData = SimpleContainerData(3)
         this.addDataSlots(containerData)
@@ -68,45 +71,31 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
     private fun initializeSlots(playerInventory: Inventory) {
         val craftingOutputOffsetX = 16
         val craftingOutputOffsetY = 10
-
         val resultSlotX = 124 + craftingOutputOffsetX
         val resultSlotY = 51 + craftingOutputOffsetY
 
-        // Result slot
         addSlot(CookingPotResultSlot(this.container, RESULT_SLOT, resultSlotX, resultSlotY))
 
-        // Crafting Grid Slots (Indices 1–9)
-        for (i in 0..2) {
-            for (j in 0..2) {
-                val slotIndex = j + i * 3 + 1 // Indices start at 1
-                addSlot(Slot(this.container, slotIndex, 44 + j * 18, 43 + i * 18))
-            }
+        for ((index, slotIndex) in CRAFTING_GRID_SLOTS.withIndex()) {
+            val i = index / CRAFTING_GRID_WIDTH
+            val j = index % CRAFTING_GRID_WIDTH
+            addSlot(Slot(this.container, slotIndex, 44 + j * 18, 43 + i * 18))
         }
 
-        // Seasoning Slots (Indices 10–12)
-        for (j in 0..2) {
-            val slotIndex = 10 + j
-            addSlot(SeasoningSlot(this.container, slotIndex, 44 + j * 18, 17))
+        for ((index, slotIndex) in SEASONING_SLOTS.withIndex()) {
+            addSlot(SeasoningSlot(this.container, slotIndex, 44 + index * 18, 17))
         }
 
-        // Preview slot
         addSlot(CookingPotPreviewSlot(this.container, PREVIEW_ITEM_SLOT, resultSlotX, resultSlotY))
 
-        // Player Inventory Slots (Indices 13–39)
-        for (i in 0..2) {
-            for (j in 0..8) {
-                val slotIndex = 14 + j + i * 9
-                val x = 8 + j * 18
-                val y = 116 + i * 18
-                addSlot(Slot(playerInventory, slotIndex - 14 + 9, x, y))
-            }
+        for ((index, _) in PLAYER_INVENTORY_SLOTS.withIndex()) {
+            val i = index / PLAYER_INVENTORY_WIDTH
+            val j = index % PLAYER_INVENTORY_WIDTH
+            addSlot(Slot(playerInventory, index + 9, 8 + j * 18, 116 + i * 18))
         }
 
-        // Hotbar Slots (Indices 40–48)
-        for (i in 0..8) {
-            val x = 8 + i * 18
-            val y = 174
-            addSlot(Slot(playerInventory, i, x, y))
+        for ((index, _) in PLAYER_HOTBAR_SLOTS.withIndex()) {
+            addSlot(Slot(playerInventory, index, 8 + index * 18, 174))
         }
     }
 
@@ -158,15 +147,15 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
     }
 
     override fun getGridWidth(): Int {
-        return 3
+        return CRAFTING_GRID_WIDTH
     }
 
     override fun getGridHeight(): Int {
-        return 3
+        return CRAFTING_GRID_WIDTH
     }
 
     override fun getSize(): Int {
-        return 13
+        return ITEMS_SIZE
     }
 
     fun getBurnProgress(): Float {

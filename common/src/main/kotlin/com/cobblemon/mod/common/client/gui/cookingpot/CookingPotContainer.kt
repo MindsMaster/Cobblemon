@@ -1,6 +1,8 @@
 package com.cobblemon.mod.common.client.gui.cookingpot
 
+import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.CRAFTING_GRID_WIDTH
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.ITEMS_SIZE
+import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.RESULT_SLOT
 import net.minecraft.core.NonNullList
 import net.minecraft.world.ContainerHelper
 import net.minecraft.world.entity.player.Player
@@ -61,27 +63,17 @@ class CookingPotContainer : TransientCraftingContainer {
     }
 
     override fun clearContent() {
-        this.items[0] = ItemStack.EMPTY
-        this.items[1] = ItemStack.EMPTY
-        this.items[2] = ItemStack.EMPTY
-        this.items[3] = ItemStack.EMPTY
-        this.items[4] = ItemStack.EMPTY
-        this.items[5] = ItemStack.EMPTY
-        this.items[6] = ItemStack.EMPTY
-        this.items[7] = ItemStack.EMPTY
-        this.items[8] = ItemStack.EMPTY
-        this.items[9] = ItemStack.EMPTY
-        this.items[11] = ItemStack.EMPTY
-        this.items[12] = ItemStack.EMPTY
-        this.items[13] = ItemStack.EMPTY
+        for (index in 0 until this.items.size) {
+            this.items[index] = ItemStack.EMPTY
+        }
     }
 
     override fun getHeight(): Int {
-        return 3
+        return CRAFTING_GRID_WIDTH
     }
 
     override fun getWidth(): Int {
-        return 3
+        return CRAFTING_GRID_WIDTH
     }
 
     override fun getItems(): kotlin.collections.List<ItemStack?>? {

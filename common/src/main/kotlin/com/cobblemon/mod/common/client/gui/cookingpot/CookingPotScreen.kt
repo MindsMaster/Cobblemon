@@ -120,12 +120,12 @@ class CookingPotScreen(
         blitk(
             matrixStack = context.pose(),
             texture = BURN_PROGRESS_SPRITE,
-            x = leftPos + 141, // Adjusted X position as needed
-            y = topPos + 86 + 14 - burnProgress, // Correct Y position based on burn progress
-            width = 14, // Fixed width
-            height = burnProgress, // Positive height for proper rendering
-            vOffset = 14 - burnProgress, // Correct texture vertical offset
-            textureHeight = 14 // Total height of the texture
+            x = leftPos + 141,
+            y = topPos + 86 + 14 - burnProgress,
+            width = 14,
+            height = burnProgress,
+            vOffset = 14 - burnProgress,
+            textureHeight = 14
         )
     }
 
