@@ -11,14 +11,15 @@ package com.cobblemon.mod.common.block
 import com.cobblemon.mod.common.CobblemonBlockEntities
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity
+import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.PREVIEW_ITEM_SLOT
 import com.cobblemon.mod.common.block.entity.DisplayCaseBlockEntity
 import com.cobblemon.mod.common.item.PokeBallItem
 import com.cobblemon.mod.common.item.PotItem
 import com.cobblemon.mod.common.util.playSoundServer
-import com.cobblemon.mod.common.util.toVec3d
 import com.mojang.serialization.MapCodec
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
+import net.minecraft.world.Containers
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.entity.player.Player
@@ -27,6 +28,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.context.BlockPlaceContext
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.LevelAccessor
+import net.minecraft.world.level.LevelReader
 import net.minecraft.world.level.block.BaseEntityBlock
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
@@ -114,15 +116,26 @@ class CampfireBlock(settings: Properties) : BaseEntityBlock(settings) {
         blockPos: BlockPos,
         player: Player
     ) {
-        if (player.getItemInHand(InteractionHand.MAIN_HAND).isEmpty) {
-            val potItem = blockEntity.getPotItem()
-            player.setItemInHand(InteractionHand.MAIN_HAND, potItem)
-            blockEntity.setPotItem(ItemStack.EMPTY)
-            level.playSoundServer(
-                position = blockPos.bottomCenter,
-                sound = CobblemonSounds.CAMPFIRE_POT_RETRIEVE,
-            )
+        if (!player.getItemInHand(InteractionHand.MAIN_HAND).isEmpty) {
+            return
         }
+
+        val potItem = blockEntity.getPotItem()
+        player.setItemInHand(InteractionHand.MAIN_HAND, potItem)
+        blockEntity.setPotItem(ItemStack.EMPTY)
+        level.playSoundServer(
+            position = blockPos.bottomCenter,
+            sound = CobblemonSounds.CAMPFIRE_POT_RETRIEVE,
+        )
+
+        blockEntity.setItem(PREVIEW_ITEM_SLOT, ItemStack.EMPTY)
+        Containers.dropContents(level, blockPos, blockEntity)
+
+        val facing = blockState.getValue(FACING);
+        blockEntity.setRemoved()
+
+        val newBlockState = Blocks.CAMPFIRE.defaultBlockState().setValue(FACING, facing)
+        level.setBlockAndUpdate(blockPos, newBlockState)
     }
 
     fun openContainer(level: Level, pos: BlockPos, player: Player) {
@@ -203,4 +216,20 @@ class CampfireBlock(settings: Properties) : BaseEntityBlock(settings) {
     ): BlockEntity? {
         return CampfireBlockEntity(pos, state)
     }
+
+    override fun onRemove(
+        state: BlockState,
+        level: Level,
+        pos: BlockPos,
+        newState: BlockState,
+        movedByPiston: Boolean
+    ) {
+        val campfireBlockEntity = level.getBlockEntity(pos) as CampfireBlockEntity
+        campfireBlockEntity.setItem(PREVIEW_ITEM_SLOT, ItemStack.EMPTY)
+        Containers.dropContentsOnDestroy(state, newState, level, pos)
+
+        super.onRemove(state, level, pos, newState, movedByPiston)
+    }
+
+    override fun getCloneItemStack(level: LevelReader, pos: BlockPos, state: BlockState): ItemStack? = ItemStack(Blocks.CAMPFIRE)
 }
