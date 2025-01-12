@@ -51,6 +51,7 @@
     "StructureProcessorListMixin",
     "TargetingConditionsMixin",
     "accessor.AccessorEntity",
+    "accessor.BiomeAccessor",
     "accessor.BoatEntityAccessor",
     "accessor.EntryListWidgetAccessor",
     "accessor.StatusEffectInstanceAccessor",
