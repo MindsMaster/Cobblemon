@@ -13,6 +13,7 @@ import com.cobblemon.mod.common.CobblemonEntities
 import com.cobblemon.mod.common.CobblemonItems
 import com.cobblemon.mod.common.CobblemonNetwork.sendPacket
 import com.cobblemon.mod.common.CobblemonSounds
+import com.cobblemon.mod.common.Rollable
 import com.cobblemon.mod.common.api.drop.DropTable
 import com.cobblemon.mod.common.api.entity.Despawner
 import com.cobblemon.mod.common.api.entity.PokemonSender
@@ -22,8 +23,6 @@ import com.cobblemon.mod.common.api.events.entity.PokemonEntitySaveEvent
 import com.cobblemon.mod.common.api.events.entity.PokemonEntitySaveToWorldEvent
 import com.cobblemon.mod.common.api.events.pokemon.ShoulderMountEvent
 import com.cobblemon.mod.common.api.interaction.PokemonEntityInteraction
-import com.cobblemon.mod.common.api.molang.MoLangFunctions
-import com.cobblemon.mod.common.api.molang.MoLangFunctions.addFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addEntityFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addPokemonEntityFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addPokemonFunctions
@@ -88,10 +87,9 @@ import com.cobblemon.mod.common.pokemon.properties.UncatchableProperty
 import com.cobblemon.mod.common.util.*
 import com.cobblemon.mod.common.world.gamerules.CobblemonGameRules
 import com.mojang.serialization.Codec
-import java.util.EnumSet
-import java.util.Optional
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.CompletableFuture
+import kotlin.math.PI
 import net.minecraft.core.BlockPos
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
@@ -117,7 +115,6 @@ import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
 import net.minecraft.tags.FluidTags
 import net.minecraft.util.Mth
-import net.minecraft.util.Mth.clamp
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.damagesource.DamageSource
@@ -152,12 +149,6 @@ import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import org.joml.Matrix3f
-import org.joml.Matrix4f
-import org.joml.Vector3f
-import org.joml.Vector4f
-import java.util.*
-import java.util.concurrent.CompletableFuture
-import kotlin.math.PI
 
 @Suppress("unused")
 open class PokemonEntity(
@@ -541,10 +532,6 @@ open class PokemonEntity(
         }
 
         return super.isInvulnerableTo(damageSource)
-    }
-
-    override fun canRide(vehicle: Entity): Boolean {
-        return platform == PlatformType.NONE && super.canRide(vehicle)
     }
 
     /**
@@ -1599,20 +1586,7 @@ open class PokemonEntity(
     private fun createSidedPokemon(): Pokemon = Pokemon().apply { isClient = this@PokemonEntity.level().isClientSide }
 
     override fun canRide(entity: Entity): Boolean {
-        if (passengers.size >= seats.size) {
-            return false
-        } else if (passengers.isEmpty() && entity != owner) {
-            return false
-        } else {
-            return true // Event or something here
-        }
-//
-//        if (this.pokemon.riding.canRide && super.canStartRiding(entity)) {
-//            val seats = this.riding.seats
-//            return seats.any { it.acceptsRider(entity) }
-//        }
-//
-//        return false
+        return platform == PlatformType.NONE && super.canRide(entity)
     }
 
     override fun canAddPassenger(passenger: Entity): Boolean {

@@ -96,29 +96,7 @@ public class MouseHandlerMixin {
             )
     )
     public boolean cobblemon$modifyRotation(LocalPlayer player, double cursorDeltaX, double cursorDeltaY, @Local(argsOnly = true) double d) {
-        // I know this technically doesn't need to be a WrapWithCondition, but it'll make things easier later for riding.
         PokedexUsageContext usageContext = CobblemonClient.INSTANCE.getPokedexUsageContext();
-        if (usageContext.getScanningGuiOpen()) {
-            this.smoothTurnY.reset();
-            this.smoothTurnX.reset();
-            var defaultSensitivity = this.minecraft.options.sensitivity().get() * 0.6000000238418579 + 0.20000000298023224;
-            var spyglassSensitivity = Math.pow(defaultSensitivity, 3);
-            var lookSensitivity = spyglassSensitivity * 8.0;
-            var sensitivity = Mth.lerp(usageContext.getFovMultiplier(), spyglassSensitivity, lookSensitivity);
-            player.turn(this.accumulatedDX * sensitivity, (this.accumulatedDY * sensitivity));
-            return false;
-        }
-        return true;
-    }
-
-    @WrapWithCondition(
-            method = "turnPlayer",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/player/LocalPlayer;turn(DD)V"
-            )
-    )
-    public boolean cobblemon$modifyRotation(LocalPlayer player, double cursorDeltaX, double cursorDeltaY, @Local(argsOnly = true) double d) {
         if (usageContext.getScanningGuiOpen()) {
             this.smoothTurnY.reset();
             this.smoothTurnX.reset();
