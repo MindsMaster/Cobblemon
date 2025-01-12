@@ -14,6 +14,9 @@ import com.cobblemon.mod.common.advancement.criterion.PokemonInteractContext
 import com.cobblemon.mod.common.api.battles.model.PokemonBattle
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor
 import com.cobblemon.mod.common.api.callback.PartySelectCallbacks
+import com.cobblemon.mod.common.api.events.CobblemonEvents
+import com.cobblemon.mod.common.api.events.pokemon.healing.PokemonHealedEvent
+import com.cobblemon.mod.common.api.item.HealingSource
 import com.cobblemon.mod.common.api.text.red
 import com.cobblemon.mod.common.battles.BagItemActionResponse
 import com.cobblemon.mod.common.battles.BattleRegistry
@@ -21,10 +24,7 @@ import com.cobblemon.mod.common.battles.pokemon.BattlePokemon
 import com.cobblemon.mod.common.item.CobblemonItem
 import com.cobblemon.mod.common.item.battle.BagItem
 import com.cobblemon.mod.common.pokemon.Pokemon
-import com.cobblemon.mod.common.util.battleLang
-import com.cobblemon.mod.common.util.isHeld
-import com.cobblemon.mod.common.util.isInBattle
-import com.cobblemon.mod.common.util.party
+import com.cobblemon.mod.common.util.*
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
@@ -42,7 +42,7 @@ import kotlin.math.ceil
  * @author Hiroku
  * @since July 7th, 2023
  */
-class ReviveItem(val max: Boolean): CobblemonItem(Properties()) {
+class ReviveItem(val max: Boolean): CobblemonItem(Properties()), HealingSource {
     val bagItem = object : BagItem {
         override val itemName = "item.cobblemon.${ if (max) "max_revive" else "revive" }"
         override val returnItem = Items.AIR
@@ -73,10 +73,11 @@ class ReviveItem(val max: Boolean): CobblemonItem(Properties()) {
                         if (actor.canFitForcedAction() && bp.health <= 0 && battle.turn == turn && stack.isHeld(player)) {
                             player.playSound(CobblemonSounds.ITEM_USE, 1F, 1F)
                             actor.forceChoose(BagItemActionResponse(bagItem = bagItem, target = bp, data = bp.uuid.toString()))
+                            val stackName = BuiltInRegistries.ITEM.getKey(stack.item)
                             if (!player.isCreative) {
                                 stack.shrink(1)
                             }
-                            CobblemonCriteria.POKEMON_INTERACT.trigger(player, PokemonInteractContext(bp.effectedPokemon.species.resourceIdentifier, BuiltInRegistries.ITEM.getKey(stack.item)))
+                            CobblemonCriteria.POKEMON_INTERACT.trigger(player, PokemonInteractContext(bp.effectedPokemon.species.resourceIdentifier, stackName))
                         }
                     }
                 }
@@ -88,11 +89,16 @@ class ReviveItem(val max: Boolean): CobblemonItem(Properties()) {
                     canSelect = Pokemon::isFainted
                 ) { pk ->
                     if (pk.isFainted() && !player.isInBattle() && stack.isHeld(player)) {
-                        pk.currentHealth = if (max) pk.maxHealth else ceil(pk.maxHealth / 2F).toInt()
+                        var amount = if (max) pk.maxHealth else ceil(pk.maxHealth / 2F).toInt()
+                        CobblemonEvents.POKEMON_HEALED.postThen(PokemonHealedEvent(pk, amount, this), { cancelledEvent -> return@createFromPokemon }) { event ->
+                            amount = event.amount
+                        }
+                        pk.currentHealth = amount
+                        val stackName = BuiltInRegistries.ITEM.getKey(stack.item)
                         if (!player.isCreative) {
                             stack.shrink(1)
                         }
-                        CobblemonCriteria.POKEMON_INTERACT.trigger(player, PokemonInteractContext(pk.species.resourceIdentifier, BuiltInRegistries.ITEM.getKey(stack.item)))
+                        CobblemonCriteria.POKEMON_INTERACT.trigger(player, PokemonInteractContext(pk.species.resourceIdentifier, stackName))
                     }
                 }
             }

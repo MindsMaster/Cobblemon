@@ -17,7 +17,7 @@ import net.minecraft.world.entity.ai.behavior.declarative.Trigger
 import net.minecraft.world.entity.ai.memory.MemoryModuleType
 
 /**
- * When NPC battling memory is added, this task swaps the NPC's activity over to npc_battling
+ * When NPC battling memory is added, this task swaps the NPC's activity over to battling
  *
  * @author Hiroku
  * @since February 24th, 2024
@@ -31,7 +31,7 @@ object SwitchToBattleTask {
             ).apply(it) { walkTarget, _ ->
                 Trigger { _, entity, _ ->
                     walkTarget.erase()
-                    entity.brain.setActiveActivityIfPossible(CobblemonActivities.NPC_BATTLING)
+                    entity.brain.setActiveActivityIfPossible(CobblemonActivities.BATTLING)
                     true
                 }
             }

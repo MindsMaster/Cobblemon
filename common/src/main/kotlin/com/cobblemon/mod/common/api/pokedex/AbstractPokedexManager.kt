@@ -8,13 +8,13 @@
 
 package com.cobblemon.mod.common.api.pokedex
 
-import com.bedrockk.molang.runtime.struct.QueryStruct
+import com.cobblemon.mod.common.api.molang.MoLangFunctions.addPokedexFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addStandardFunctions
+import com.cobblemon.mod.common.api.molang.ObjectValue
 import com.cobblemon.mod.common.api.pokedex.entry.PokedexEntry
 import com.cobblemon.mod.common.api.pokedex.entry.PokedexForm
+import com.cobblemon.mod.common.pokedex.scanner.PokedexEntityData
 import com.cobblemon.mod.common.pokemon.Gender
-import com.cobblemon.mod.common.pokemon.Pokemon
-import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
 import net.minecraft.resources.ResourceLocation
 
 abstract class AbstractPokedexManager {
@@ -23,14 +23,24 @@ abstract class AbstractPokedexManager {
     private val globalCalculatedValues = mutableMapOf<GlobalPokedexValueCalculator<*>, Any>()
 
     @Transient
-    val struct = QueryStruct(hashMapOf()).addStandardFunctions()
-        .addFunction("get_species_record") { params ->
-            val speciesId = params.getString(0).asIdentifierDefaultingNamespace()
-            speciesRecords[speciesId]?.struct ?: QueryStruct(hashMapOf())
-        }
+    val struct = ObjectValue<AbstractPokedexManager>(this)
+        .addStandardFunctions()
+        .addPokedexFunctions(this)
 
     fun deleteSpeciesRecord(speciesId: ResourceLocation) {
         speciesRecords.remove(speciesId)
+        markDirty()
+    }
+
+    fun deleteFormRecord(speciesId: ResourceLocation, formName: String) {
+        val speciesRecord = speciesRecords[speciesId] ?: return
+        speciesRecord.deleteFormRecord(formName)
+
+        if (speciesRecord.isFormRecordsEmpty) {
+            deleteSpeciesRecord(speciesId)
+            return
+        }
+
         markDirty()
     }
 
@@ -42,13 +52,12 @@ abstract class AbstractPokedexManager {
         return speciesRecords.getOrPut(speciesId) {
             val record = SpeciesDexRecord()
             record.initialize(this, speciesId)
-            onSpeciesRecordUpdated(record)
             record
         }
     }
 
-    fun getHighestKnowledgeForSpecies(pokemon: Pokemon): PokedexEntryProgress {
-        val speciesRecord = getSpeciesRecord(pokemon.species.resourceIdentifier)
+    fun getHighestKnowledgeForSpecies(pokemonId: ResourceLocation): PokedexEntryProgress {
+        val speciesRecord = getSpeciesRecord(pokemonId)
         return speciesRecord?.getKnowledge() ?: PokedexEntryProgress.NONE
     }
 
@@ -86,16 +95,16 @@ abstract class AbstractPokedexManager {
         }
     }
 
-    fun getNewInformation(pokemon: Pokemon): PokedexLearnedInformation {
-        val speciesRecord = getSpeciesRecord(pokemon.species.resourceIdentifier)
+    fun getNewInformation(pokedexEntityData: PokedexEntityData): PokedexLearnedInformation {
+        val speciesRecord = getSpeciesRecord(pokedexEntityData.species.resourceIdentifier)
         if (speciesRecord == null || speciesRecord.getKnowledge() == PokedexEntryProgress.NONE) {
             return PokedexLearnedInformation.SPECIES
         }
-        val formRecord = speciesRecord.getFormRecord(pokemon.form.name)
+        val formRecord = speciesRecord.getFormRecord(pokedexEntityData.form.name)
         if (formRecord == null || formRecord.knowledge == PokedexEntryProgress.NONE) {
             return PokedexLearnedInformation.FORM
         }
-        if (pokemon.aspects.none(speciesRecord::hasAspect) || pokemon.gender !in formRecord.getGenders() || !formRecord.hasSeenShinyState(pokemon.shiny)) {
+        if (pokedexEntityData.aspects.any{ !speciesRecord.hasAspect(it) } || pokedexEntityData.gender !in formRecord.getGenders() || !formRecord.hasSeenShinyState(pokedexEntityData.shiny)) {
             return PokedexLearnedInformation.VARIATION
         }
         return PokedexLearnedInformation.NONE
@@ -152,26 +161,5 @@ abstract class AbstractPokedexManager {
 
     open fun markDirty() {
         // Save stuff
-    }
-
-    companion object {
-        const val NUM_CAUGHT_KEY = "cobblemon.pokedex.entries.caught"
-        const val NUM_SEEN_KEY = "cobblemon.pokedex.entries.seen"
-
-        fun getKeyForSpeciesBase(speciesId: ResourceLocation): String {
-            return "cobblemon.pokedex.${speciesId.path}"
-        }
-
-        fun getKnowledgeKeyForSpecies(speciesId: ResourceLocation): String {
-            return "${getKeyForSpeciesBase(speciesId)}.knowledge"
-        }
-
-        fun getKnowledgeKeyForForm(speciesId: ResourceLocation, formName: String): String {
-            return "${getKnowledgeKeyForSpecies(speciesId)}.${formName.lowercase()}"
-        }
-
-        fun getCaptureMethodKeyForSpecies(speciesId: ResourceLocation): String {
-            return "${getKeyForSpeciesBase(speciesId)}.capturemethod"
-        }
     }
 }

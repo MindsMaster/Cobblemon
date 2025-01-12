@@ -11,9 +11,9 @@ package com.cobblemon.mod.neoforge
 import com.cobblemon.mod.common.*
 import com.cobblemon.mod.common.advancement.CobblemonCriteria
 import com.cobblemon.mod.common.advancement.predicate.CobblemonEntitySubPredicates
-import com.cobblemon.mod.common.api.data.JsonDataRegistry
 import com.cobblemon.mod.common.api.net.serializers.IdentifierDataSerializer
 import com.cobblemon.mod.common.api.net.serializers.NPCPlayerTextureSerializer
+import com.cobblemon.mod.common.api.net.serializers.PlatformTypeDataSerializer
 import com.cobblemon.mod.common.api.net.serializers.PoseTypeDataSerializer
 import com.cobblemon.mod.common.api.net.serializers.StringSetDataSerializer
 import com.cobblemon.mod.common.api.net.serializers.UUIDSetDataSerializer
@@ -24,7 +24,6 @@ import com.cobblemon.mod.common.particle.CobblemonParticles
 import com.cobblemon.mod.common.sherds.CobblemonSherds
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.common.util.didSleep
-import com.cobblemon.mod.common.util.endsWith
 import com.cobblemon.mod.common.world.CobblemonStructures
 import com.cobblemon.mod.common.world.feature.CobblemonFeatures
 import com.cobblemon.mod.common.world.placementmodifier.CobblemonPlacementModifierTypes
@@ -38,47 +37,48 @@ import com.cobblemon.mod.neoforge.net.CobblemonNeoForgeNetworkManager
 import com.cobblemon.mod.neoforge.permission.ForgePermissionValidator
 import com.cobblemon.mod.neoforge.worldgen.CobblemonBiomeModifiers
 import com.mojang.brigadier.arguments.ArgumentType
-import java.io.File
+import java.util.Optional
 import java.util.UUID
-import java.util.concurrent.ExecutionException
 import kotlin.reflect.KClass
 import net.minecraft.commands.synchronization.ArgumentTypeInfo
 import net.minecraft.commands.synchronization.ArgumentTypeInfos
 import net.minecraft.core.registries.Registries
-import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.packs.PackLocationInfo
-import net.minecraft.server.packs.PackResources
 import net.minecraft.server.packs.PackSelectionConfig
 import net.minecraft.server.packs.PackType
 import net.minecraft.server.packs.PathPackResources
+import net.minecraft.server.packs.repository.BuiltInPackSource
+import net.minecraft.server.packs.repository.KnownPack
 import net.minecraft.server.packs.repository.Pack
+import net.minecraft.server.packs.repository.Pack.Position
 import net.minecraft.server.packs.repository.PackSource
 import net.minecraft.server.packs.resources.PreparableReloadListener
-import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.tags.TagKey
 import net.minecraft.world.item.CreativeModeTab
+import net.minecraft.world.item.CreativeModeTab.TabVisibility
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.GameRules
 import net.minecraft.world.level.ItemLike
 import net.minecraft.world.level.biome.Biome
-import net.minecraft.world.level.block.ComposterBlock
 import net.minecraft.world.level.levelgen.GenerationStep
 import net.minecraft.world.level.levelgen.placement.PlacedFeature
 import net.neoforged.api.distmarker.Dist
+import net.neoforged.bus.api.EventPriority
 import net.neoforged.fml.InterModComms
 import net.neoforged.fml.ModList
 import net.neoforged.fml.common.Mod
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent
-import net.neoforged.fml.event.lifecycle.FMLDedicatedServerSetupEvent
 import net.neoforged.fml.loading.FMLEnvironment
 import net.neoforged.neoforge.common.ItemAbilities
 import net.neoforged.neoforge.common.NeoForge
 import net.neoforged.neoforge.common.NeoForgeMod
 import net.neoforged.neoforge.event.AddPackFindersEvent
 import net.neoforged.neoforge.event.AddReloadListenerEvent
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent
 import net.neoforged.neoforge.event.LootTableLoadEvent
 import net.neoforged.neoforge.event.OnDatapackSyncEvent
 import net.neoforged.neoforge.event.RegisterCommandsEvent
@@ -104,7 +104,6 @@ class CobblemonNeoForge : CobblemonImplementation {
     private val commandArgumentTypes = DeferredRegister.create(Registries.COMMAND_ARGUMENT_TYPE, Cobblemon.MODID)
     private val reloadableResources = arrayListOf<PreparableReloadListener>()
     private val queuedWork = arrayListOf<() -> Unit>()
-    private val queuedBuiltinResourcePacks = arrayListOf<Triple<ResourceLocation, Component, ResourcePackActivationBehaviour>>()
 
     override val networkManager = CobblemonNeoForgeNetworkManager
 
@@ -112,22 +111,22 @@ class CobblemonNeoForge : CobblemonImplementation {
         with(MOD_BUS) {
             this@CobblemonNeoForge.commandArgumentTypes.register(this)
             addListener(this@CobblemonNeoForge::initialize)
-            addListener(this@CobblemonNeoForge::serverInit)
             Cobblemon.preInitialize(this@CobblemonNeoForge)
             addListener(CobblemonBiomeModifiers::register)
             addListener(this@CobblemonNeoForge::on)
-            addListener(this@CobblemonNeoForge::onAddPackFindersEvent)
             addListener(networkManager::registerMessages)
+            addListener(EventPriority.HIGH, ::onBuildContents)
+            addListener(::onAddPackFindersEvent)
         }
         with(NeoForge.EVENT_BUS) {
-            addListener(this@CobblemonNeoForge::onDataPackSync)
-            addListener(this@CobblemonNeoForge::onLogin)
-            addListener(this@CobblemonNeoForge::onLogout)
-            addListener(this@CobblemonNeoForge::wakeUp)
-            addListener(this@CobblemonNeoForge::handleBlockStripping)
-            addListener(this@CobblemonNeoForge::registerCommands)
-            addListener(this@CobblemonNeoForge::onReload)
-            addListener(this@CobblemonNeoForge::addCobblemonStructures)
+            addListener(::onDataPackSync)
+            addListener(::onLogin)
+            addListener(::onLogout)
+            addListener(::wakeUp)
+            addListener(::handleBlockStripping)
+            addListener(::registerCommands)
+            addListener(::onReload)
+            addListener(::addCobblemonStructures)
             addListener(::onVillagerTradesRegistry)
             addListener(::onWanderingTraderRegistry)
             addListener(::onLootTableLoad)
@@ -149,10 +148,6 @@ class CobblemonNeoForge : CobblemonImplementation {
         playerEntity.didSleep()
     }
 
-    @Suppress("UNUSED_PARAMETER")
-    fun serverInit(event: FMLDedicatedServerSetupEvent) {
-    }
-
     fun initialize(event: FMLCommonSetupEvent) {
         Cobblemon.LOGGER.info("Initializing...")
         event.enqueueWork {
@@ -160,6 +155,34 @@ class CobblemonNeoForge : CobblemonImplementation {
             this.attemptModCompat()
         }
         Cobblemon.initialize()
+    }
+
+    // This event gets fired before init, so we need to put resource packs in EARLY
+    fun onAddPackFindersEvent(event: AddPackFindersEvent) {
+        val modFile = ModList.get().getModContainerById(Cobblemon.MODID).get().modInfo
+        Cobblemon.builtinPacks
+            .filter { it.neededMods.all(Cobblemon.implementation::isModInstalled) }
+            .filter { it.packType == event.packType }
+            .forEach {
+                val subPath = if (it.packType == PackType.CLIENT_RESOURCES) "resourcepacks" else "datapacks"
+                var packLocation = cobblemonResource("$subPath/${it.id}")
+                var resourcePath = modFile.owningFile.file.findResource(packLocation.path)
+
+                var version = modFile.version
+
+                var pack = Pack.readMetaAndCreate(PackLocationInfo("mod/$packLocation", it.displayName, PackSource.BUILT_IN, Optional.of(KnownPack("neoforge", "mod/$packLocation", version.toString()))),
+                    BuiltInPackSource.fromName { PathPackResources(it, resourcePath) },
+                    it.packType,
+                    PackSelectionConfig(it.activationBehaviour == ResourcePackActivationBehaviour.ALWAYS_ENABLED, Position.TOP, false)
+                )
+
+                if (pack == null) {
+                    Cobblemon.LOGGER.error("Failed to register built-in pack ${it.id}. If you are in dev you can ignore this")
+                    return@forEach
+                }
+
+                event.addRepositorySource { it.accept(pack) }
+            }
     }
 
     fun on(event: RegisterEvent) {
@@ -241,6 +264,7 @@ class CobblemonNeoForge : CobblemonImplementation {
                 helper.register(Vec3DataSerializer.ID, Vec3DataSerializer)
                 helper.register(StringSetDataSerializer.ID, StringSetDataSerializer)
                 helper.register(PoseTypeDataSerializer.ID, PoseTypeDataSerializer)
+                helper.register(PlatformTypeDataSerializer.ID, PlatformTypeDataSerializer)
                 helper.register(IdentifierDataSerializer.ID, IdentifierDataSerializer)
                 helper.register(UUIDSetDataSerializer.ID, UUIDSetDataSerializer)
                 helper.register(NPCPlayerTextureSerializer.ID, NPCPlayerTextureSerializer)
@@ -395,81 +419,10 @@ class CobblemonNeoForge : CobblemonImplementation {
 
     override fun server(): MinecraftServer? = ServerLifecycleHooks.getCurrentServer()
 
-    override fun <T> reloadJsonRegistry(registry: JsonDataRegistry<T>, manager: ResourceManager): HashMap<ResourceLocation, T> {
-        val data = hashMapOf<ResourceLocation, T>()
-
-        manager.listResources(registry.resourcePath) { path -> path.endsWith(JsonDataRegistry.JSON_EXTENSION) }.forEach { (identifier, resource) ->
-            if (identifier.namespace == "pixelmon") {
-                return@forEach
-            }
-
-            resource.open().use { stream ->
-                stream.bufferedReader().use { reader ->
-                    val resolvedIdentifier = ResourceLocation.fromNamespaceAndPath(identifier.namespace, File(identifier.path).nameWithoutExtension)
-                    try {
-                        data[resolvedIdentifier] = registry.gson.fromJson(reader, registry.typeToken.type)
-                    } catch (exception: Exception) {
-                        throw ExecutionException("Error loading JSON for data: $identifier", exception)
-                    }
-                }
-            }
-        }
-        return data
-    }
-
     override fun registerCompostable(item: ItemLike, chance: Float) {
-        this.queuedWork += {
-            ComposterBlock.COMPOSTABLES.put(item, chance)
-        }
-    }
-
-    override fun registerBuiltinResourcePack(id: ResourceLocation, title: Component, activationBehaviour: ResourcePackActivationBehaviour) {
-        this.queuedBuiltinResourcePacks += Triple(id, title, activationBehaviour)
-    }
-
-    //TODO: I dont really know wtf is happening here, someone needs to check
-    //This event gets fired before init, so we need to put resource packs in EARLY
-    fun onAddPackFindersEvent(event: AddPackFindersEvent) {
-        if (event.packType != PackType.CLIENT_RESOURCES) {
-            return
-        }
-
-        if (this.isModInstalled("adorn")) {
-            //AdornCompatibility.register()
-            registerBuiltinResourcePack(cobblemonResource("adorncompatibility"), Component.literal("Adorn Compatibility"), ResourcePackActivationBehaviour.ALWAYS_ENABLED)
-        }
-
-        val modFile = ModList.get().getModFileById(Cobblemon.MODID).file
-        this.queuedBuiltinResourcePacks.forEach { (id, title, activationBehaviour) ->
-            // Fabric expects resourcepacks as the root so we do too here
-            val path = modFile.findResource("resourcepacks/${id.path}")
-            //val factory = PackFactory { name -> PathPackResources(name, true, path) }
-
-            //TODO(Deltric)
-            val factory = object : Pack.ResourcesSupplier {
-                override fun openPrimary(info: PackLocationInfo): PackResources {
-                    // Implement the logic here
-                    return PathPackResources(info, path)
-                }
-
-                override fun openFull(info: PackLocationInfo, metadata: Pack.Metadata): PackResources {
-                    return PathPackResources(info, path)
-                }
-            }
-
-            val profile = Pack.readMetaAndCreate(
-                PackLocationInfo(
-                    id.toString(),
-                    title,
-                    PackSource.BUILT_IN,
-                    null
-                ),
-                factory,
-                PackType.CLIENT_RESOURCES,
-                PackSelectionConfig(true, Pack.Position.TOP, true)
-            )
-            event.addRepositorySource { consumer -> consumer.accept(profile) }
-        }
+        // NeoForge uses data-driven files to determine compostable, vanilla code is ignored
+        // eventually we probaly want to datagen the output file maybe?
+        // check neoforged/resources/data/neoforge/data_maps/item/compostables.json for all considered entries
     }
 
     private fun onVillagerTradesRegistry(e: VillagerTradesEvent) {
@@ -493,6 +446,11 @@ class CobblemonNeoForge : CobblemonImplementation {
         CobblemonNeoForgeBrewingRegistry.register(e)
     }
 
+    private fun onBuildContents(e: BuildCreativeModeTabContentsEvent) {
+        val forgeInject = ForgeItemGroupInject(e)
+        CobblemonItemGroups.inject(e.tabKey, forgeInject)
+    }
+
     private fun attemptModCompat() {
         // CarryOn has a tag key for this but for some reason Forge version just doesn't work instead we do this :)
         // See https://github.com/Tschipp/CarryOn/wiki/IMC-support-for-Modders
@@ -502,4 +460,27 @@ class CobblemonNeoForge : CobblemonImplementation {
         }
     }
 
+    private class ForgeItemGroupInject(private val entries: BuildCreativeModeTabContentsEvent) : CobblemonItemGroups.Injector {
+
+        override fun putFirst(item: ItemLike) {
+            this.entries.insertFirst(ItemStack(item), TabVisibility.PARENT_AND_SEARCH_TABS)
+        }
+
+        override fun putBefore(item: ItemLike, target: ItemLike) {
+            this.entries.insertBefore(
+                ItemStack(target),
+                ItemStack(item), TabVisibility.PARENT_AND_SEARCH_TABS
+            )
+        }
+
+        override fun putAfter(item: ItemLike, target: ItemLike) {
+            this.entries.insertAfter(
+                ItemStack(target),
+                ItemStack(item), TabVisibility.PARENT_AND_SEARCH_TABS)
+        }
+
+        override fun putLast(item: ItemLike) {
+            this.entries.accept(ItemStack(item), TabVisibility.PARENT_AND_SEARCH_TABS)
+        }
+    }
 }

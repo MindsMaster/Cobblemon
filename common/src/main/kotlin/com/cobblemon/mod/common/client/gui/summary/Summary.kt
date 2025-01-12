@@ -22,6 +22,7 @@ import com.cobblemon.mod.common.api.text.bold
 import com.cobblemon.mod.common.api.text.text
 import com.cobblemon.mod.common.client.CobblemonClient
 import com.cobblemon.mod.common.client.CobblemonResources
+import com.cobblemon.mod.common.client.gui.CobblemonRenderable
 import com.cobblemon.mod.common.client.gui.ExitButton
 import com.cobblemon.mod.common.client.gui.TypeIcon
 import com.cobblemon.mod.common.client.gui.summary.widgets.EvolutionSelectScreen
@@ -63,7 +64,7 @@ import net.minecraft.sounds.SoundEvent
  * @param selection The index the [party] will have as the base [selectedPokemon].
  */
 class Summary private constructor(party: Collection<Pokemon?>, private val editable: Boolean, private val selection: Int): Screen(
-    Component.translatable("cobblemon.ui.summary.title")), Schedulable {
+    Component.translatable("cobblemon.ui.summary.title")), Schedulable, CobblemonRenderable {
 
     companion object {
         const val BASE_WIDTH = 331
@@ -88,6 +89,9 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
         private val typeSpacerDoubleResource = cobblemonResource("textures/gui/summary/type_spacer_double.png")
         private val sideSpacerResource = cobblemonResource("textures/gui/summary/summary_side_spacer.png")
         private val evolveButtonResource = cobblemonResource("textures/gui/summary/summary_evolve_button.png")
+        private val tabIconInfo = cobblemonResource("textures/gui/summary/summary_tab_icon_info.png")
+        private val tabIconMoves = cobblemonResource("textures/gui/summary/summary_tab_icon_moves.png")
+        private val tabIconStats = cobblemonResource("textures/gui/summary/summary_tab_icon_stats.png")
         val iconShinyResource = cobblemonResource("textures/gui/summary/icon_shiny.png")
 
         /**
@@ -167,7 +171,7 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
         // Init Tabs
         summaryTabs.clear()
         summaryTabs.add(
-            SummaryTab(pX = x + 78, pY = y - 1, label = lang("ui.info")) {
+            SummaryTab(pX = x + 78, pY = y - 1, icon = tabIconInfo) {
                 if (mainScreenIndex != INFO) {
                     displayMainScreen(INFO)
                     playSound(CobblemonSounds.GUI_CLICK)
@@ -176,7 +180,7 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
         )
 
         summaryTabs.add(
-            SummaryTab(pX = x + 119, pY = y - 1, label = lang("ui.moves")) {
+            SummaryTab(pX = x + 119, pY = y - 1, icon = tabIconMoves) {
                 if (mainScreenIndex != MOVES) {
                     displayMainScreen(MOVES)
                     playSound(CobblemonSounds.GUI_CLICK)
@@ -185,7 +189,7 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
         )
 
         summaryTabs.add(
-            SummaryTab(pX = x + 160, pY = y - 1, label = lang("ui.stats")) {
+            SummaryTab(pX = x + 160, pY = y - 1, icon = tabIconStats) {
                 if (mainScreenIndex != STATS) {
                     displayMainScreen(STATS)
                     playSound(CobblemonSounds.GUI_CLICK)
@@ -200,7 +204,11 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
         addRenderableWidget(
             ExitButton(pX = x + 302, pY = y + 145) {
                 playSound(CobblemonSounds.GUI_CLICK)
-                Minecraft.getInstance().setScreen(null)
+                if (sideScreenIndex != PARTY) {
+                    displaySideScreen(PARTY)
+                } else {
+                    Minecraft.getInstance().setScreen(null)
+                }
             }
         )
 
@@ -314,26 +322,26 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
         when (screen) {
             INFO -> {
                 mainScreen = InfoWidget(
-                        pX = x + 77,
-                        pY = y + 12,
-                        pokemon = this.selectedPokemon
+                    pX = x + 77,
+                    pY = y + 12,
+                    pokemon = this.selectedPokemon
                 )
             }
 
             MOVES -> {
                 mainScreen = MovesWidget(
-                        pX = x + 77,
-                        pY = y + 12,
-                        summary = this
+                    pX = x + 77,
+                    pY = y + 12,
+                    summary = this
                 )
             }
 
             STATS -> {
                 mainScreen = StatWidget(
-                        pX = x + 77,
-                        pY = y + 12,
-                        pokemon = this.selectedPokemon,
-                        tabIndex = subIndex
+                    pX = x + 77,
+                    pY = y + 12,
+                    pokemon = this.selectedPokemon,
+                    tabIndex = subIndex
                 )
             }
         }
@@ -365,19 +373,16 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
                 val movesWidget = mainScreen
                 if (movesWidget is MovesWidget) {
                     sideScreen = MoveSwapScreen(
-                            x + 216,
-                            y + 24,
-                            movesWidget = movesWidget,
-                            replacedMove = move
+                        x + 216,
+                        y + 23,
+                        movesWidget = movesWidget,
+                        replacedMove = move
                     ).also { switchPane ->
                         val pokemon = selectedPokemon
-                        var moveSlotList = (pokemon.allAccessibleMoves
-                                .filter { template -> pokemon.moveSet.none { it.template == template } }
-                                .map { template ->
-                                    val benched = pokemon.benchedMoves.find { it.moveTemplate == template }
-                                    MoveSwapScreen.MoveSlot(switchPane, template, benched?.ppRaisedStages
-                                            ?: 0, pokemon)
-                                })
+                        var moveSlotList = pokemon.relearnableMoves.map { template ->
+                            val benched = pokemon.benchedMoves.find { it.moveTemplate == template }
+                            MoveSwapScreen.MoveSlot(switchPane, template, benched?.ppRaisedStages ?: 0, pokemon)
+                        }
                         if (pokemon.moveSet.getMoves().size > 1 && move != null) {
                             // Adds the "Forget" slot
                             moveSlotList += MoveSwapScreen.MoveSlot(switchPane, null, 0, pokemon)
@@ -390,7 +395,7 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
             EVOLVE -> {
                 sideScreen = EvolutionSelectScreen(
                         x + 216,
-                        y + 22,
+                        y + 23,
                         pokemon = selectedPokemon
                 )
             }
@@ -595,6 +600,7 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
 
     override fun mouseDragged(mouseX: Double, mouseY: Double, button: Int, deltaX: Double, deltaY: Double): Boolean {
         if (sideScreenIndex == MOVE_SWAP || sideScreenIndex == EVOLVE) sideScreen.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)
+        if (mainScreenIndex == MOVES) mainScreen.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)
         return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)
     }
 

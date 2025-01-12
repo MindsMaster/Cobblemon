@@ -10,21 +10,24 @@ package com.cobblemon.mod.common.util.codec.internal
 
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.api.types.tera.TeraType
+import com.cobblemon.mod.common.net.messages.client.pokemon.update.evolution.AddEvolutionPacket.Companion.convertToDisplay
 import com.cobblemon.mod.common.pokeball.PokeBall
 import com.cobblemon.mod.common.pokemon.*
 import com.cobblemon.mod.common.pokemon.activestate.ShoulderedState
 import com.cobblemon.mod.common.pokemon.evolution.CobblemonEvolutionProxy
 import com.cobblemon.mod.common.pokemon.evolution.controller.ClientEvolutionController
+import com.cobblemon.mod.common.pokemon.evolution.controller.ServerEvolutionController
 import com.cobblemon.mod.common.pokemon.status.PersistentStatusContainer
 import com.cobblemon.mod.common.util.DataKeys
 import com.cobblemon.mod.common.util.codec.CodecUtils
+import com.cobblemon.mod.common.util.server
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
+import java.util.*
 import net.minecraft.core.UUIDUtil
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.item.ItemStack
-import java.util.*
 
 internal data class ClientPokemonP2(
     val state: Optional<ShoulderedState>,
@@ -95,7 +98,10 @@ internal data class ClientPokemonP2(
             pokemon.caughtBall,
             pokemon.faintedTimer,
             pokemon.healTimer,
-            Optional.ofNullable((pokemon.evolutionProxy.current() as? ClientEvolutionController)?.asIntermediate()),
+            Optional.ofNullable((pokemon.evolutionProxy.current() as? ServerEvolutionController)?.let {
+                //TOOD figure out a closer registry access (might have to break some method signatures for this (1.7?)
+                ClientEvolutionController.Intermediate(it.map { it.convertToDisplay(pokemon, registryAccess = server()?.registryAccess() ?: throw IllegalStateException("No registry access available")) }.toSet())
+            }),
             pokemon.shiny,
             pokemon.nature,
             Optional.ofNullable(pokemon.mintedNature),

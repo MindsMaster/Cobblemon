@@ -13,21 +13,17 @@ import com.cobblemon.mod.common.advancement.CobblemonCriteria
 import com.cobblemon.mod.common.advancement.criterion.*
 import com.cobblemon.mod.common.api.Priority
 import com.cobblemon.mod.common.api.battles.model.actor.ActorType
-import com.cobblemon.mod.common.api.events.CobblemonEvents.BATTLE_STARTED_POST
 import com.cobblemon.mod.common.api.events.CobblemonEvents.BATTLE_VICTORY
 import com.cobblemon.mod.common.api.events.CobblemonEvents.EVOLUTION_COMPLETE
 import com.cobblemon.mod.common.api.events.CobblemonEvents.LEVEL_UP_EVENT
 import com.cobblemon.mod.common.api.events.CobblemonEvents.POKEMON_CAPTURED
 import com.cobblemon.mod.common.api.events.CobblemonEvents.TRADE_COMPLETED
 import com.cobblemon.mod.common.api.events.battles.BattleVictoryEvent
-import com.cobblemon.mod.common.api.events.pokemon.LevelUpEvent
-import com.cobblemon.mod.common.api.events.pokemon.PokemonCapturedEvent
-import com.cobblemon.mod.common.api.events.pokemon.TradeCompletedEvent
+import com.cobblemon.mod.common.api.events.pokemon.*
 import com.cobblemon.mod.common.api.events.pokemon.evolution.EvolutionCompleteEvent
 import com.cobblemon.mod.common.block.TumblestoneBlock
 import com.cobblemon.mod.common.item.TumblestoneItem
 import com.cobblemon.mod.common.platform.events.ServerPlayerEvent
-import com.cobblemon.mod.common.api.storage.player.PlayerInstancedDataStoreType
 import com.cobblemon.mod.common.api.storage.player.PlayerInstancedDataStoreTypes
 import com.cobblemon.mod.common.platform.events.PlatformEvents
 import com.cobblemon.mod.common.util.effectiveName
@@ -62,13 +58,23 @@ object AdvancementHandler : EventHandler {
         Cobblemon.playerDataManager.saveSingle(playerData, PlayerInstancedDataStoreTypes.GENERAL)
     }
 
-//    fun onHatch(event: HatchEggEvent) {
-//        val playerData = Cobblemon.playerData.get(event.player)
-//        val advancementData = playerData.advancementData
-//        advancementData.updateTotalEggsHatched()
-//        Cobblemon.playerData.saveSingle(playerData)
-//        CobblemonCriteria.EGG_HATCH.trigger(event.player, advancementData.totalEggsHatched)
-//    }
+    fun onEggCollect(event: CollectEggEvent) {
+        if (!event.isCanceled) {
+            val playerData = Cobblemon.playerDataManager.getGenericData(event.player)
+            val advancementData = playerData.advancementData
+            advancementData.updateTotalEggsCollected()
+            Cobblemon.playerDataManager.saveSingle(playerData, PlayerInstancedDataStoreTypes.GENERAL)
+            CobblemonCriteria.EGG_COLLECT.trigger(event.player, CountableContext(advancementData.totalEggsCollected))
+        }
+    }
+
+    fun onHatch(event: HatchEggEvent.Post) {
+        val playerData = Cobblemon.playerDataManager.getGenericData(event.player)
+        val advancementData = playerData.advancementData
+        advancementData.updateTotalEggsHatched()
+        Cobblemon.playerDataManager.saveSingle(playerData, PlayerInstancedDataStoreTypes.GENERAL)
+        CobblemonCriteria.EGG_HATCH.trigger(event.player, CountableContext(advancementData.totalEggsHatched))
+    }
 
     fun onEvolve(event: EvolutionCompleteEvent) {
         val player = event.pokemon.getOwnerPlayer()

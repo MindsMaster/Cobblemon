@@ -19,6 +19,7 @@ import com.cobblemon.mod.common.client.render.models.blockbench.*
 import com.cobblemon.mod.common.client.render.models.blockbench.bedrock.animation.BedrockAnimationRepository
 import com.cobblemon.mod.common.client.render.models.blockbench.pose.Bone
 import com.cobblemon.mod.common.client.render.models.blockbench.pose.Pose
+import com.cobblemon.mod.common.client.render.models.blockbench.repository.VaryingModelRepository.MixinCompatibilityExclusionStrategy
 import com.cobblemon.mod.common.client.util.exists
 import com.cobblemon.mod.common.util.adapters.ExpressionAdapter
 import com.cobblemon.mod.common.util.adapters.ExpressionLikeAdapter
@@ -26,6 +27,8 @@ import com.cobblemon.mod.common.util.adapters.Vec3dAdapter
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.common.util.endsWith
 import com.cobblemon.mod.common.util.fromJson
+import com.google.gson.ExclusionStrategy
+import com.google.gson.FieldAttributes
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
@@ -36,6 +39,7 @@ import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.world.phys.Vec3
 import java.io.File
 import java.nio.charset.StandardCharsets
+import java.util.Optional
 import java.util.function.BiFunction
 import java.util.function.Function
 
@@ -71,6 +75,7 @@ abstract class VaryingModelRepository<T : PosableModel> {
             .registerTypeAdapter(Vec3::class.java, Vec3dAdapter)
             .registerTypeAdapter(Expression::class.java, ExpressionAdapter)
             .registerTypeAdapter(ExpressionLike::class.java, ExpressionLikeAdapter)
+            .addDeserializationExclusionStrategy(MixinCompatibilityExclusionStrategy)
             .also { configureGson(it) }
             .create()
     }
@@ -96,16 +101,42 @@ abstract class VaryingModelRepository<T : PosableModel> {
         return JsonModelAdapter { poserClass.getConstructor(Bone::class.java).newInstance(it) }
     }
 
+    //Some mods will inject extra properties into the model part, which we use GSON for (through the Bone interface)
+    //If through a 3rd party mixin fields get injected that cant be deserialized by default (e.g. optional), we crash
+    //this strategy aims to skip the known 3rd party libraries that do this to avoid crashing
+    object MixinCompatibilityExclusionStrategy : ExclusionStrategy {
+        private var known3rdPartyMixins = listOf("embeddium")
+
+        private var knownUnusedClasses = listOf(Optional::class.java)
+
+        override fun shouldSkipField(field: FieldAttributes?): Boolean {
+            if (known3rdPartyMixins.any { field?.name?.contains(it) == true }) {
+                Cobblemon.LOGGER.debug("Skipping non-vanilla field encountered during model deserialization ${field?.name}")
+                return true
+            }
+            return false
+        }
+
+        override fun shouldSkipClass(p0: Class<*>?): Boolean {
+            if (p0 in knownUnusedClasses) {
+                Cobblemon.LOGGER.debug("Skipping non-vanilla class encountered during model deserialization: ${p0?.name}")
+                return true
+            }
+            return false
+        }
+    }
+
     open fun configureGson(gsonBuilder: GsonBuilder) {
         adapter = createAdapter()
         gsonBuilder.setupGsonForJsonPosableModels(adapter) { json -> conditionParser(json) }
     }
 
-    open fun loadJsonPoser(json: String): (Bone) -> T {
+    open fun loadJsonPoser(fileName: String, json: String): (Bone) -> T {
         // Faster to deserialize during asset load rather than rerunning this every time a poser is constructed.
         val jsonObject = gson.fromJson(json, JsonObject::class.java)
         return {
-            adapter.modelPart = it
+            var boneName = jsonObject.getAsJsonPrimitive("rootBone")
+            adapter.modelPart = if (boneName != null && it.children[boneName.asString] != null) it.children[boneName.asString] else it.children[fileName] ?: it.children.entries.filter { LocatorAccess.PREFIX !in it.key }.first().value
             gson.fromJson(jsonObject, poserClass).also {
                 it.poses.forEach { (poseName, pose) -> pose.poseName = poseName }
             }
@@ -129,7 +160,7 @@ abstract class VaryingModelRepository<T : PosableModel> {
                     resource.open().use { stream ->
                         val json = String(stream.readAllBytes(), StandardCharsets.UTF_8)
                         val resolvedIdentifier = ResourceLocation.fromNamespaceAndPath(identifier.namespace, File(identifier.path).nameWithoutExtension)
-                        posers[resolvedIdentifier] = loadJsonPoser(json)
+                        posers[resolvedIdentifier] = loadJsonPoser(resolvedIdentifier.path, json)
                     }
                 }
         }

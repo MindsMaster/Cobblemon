@@ -9,7 +9,11 @@
 package com.cobblemon.mod.common.pokemon
 
 import com.cobblemon.mod.common.Cobblemon
+import com.cobblemon.mod.common.api.Priority
+import com.cobblemon.mod.common.api.abilities.Abilities
 import com.cobblemon.mod.common.api.abilities.AbilityPool
+import com.cobblemon.mod.common.api.abilities.CommonAbility
+import com.cobblemon.mod.common.api.abilities.PotentialAbility
 import com.cobblemon.mod.common.api.data.ShowdownIdentifiable
 import com.cobblemon.mod.common.api.drop.DropTable
 import com.cobblemon.mod.common.api.moves.MoveTemplate
@@ -30,6 +34,7 @@ import com.cobblemon.mod.common.api.types.ElementalTypes
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.net.IntSize
+import com.cobblemon.mod.common.pokemon.abilities.HiddenAbility
 import com.cobblemon.mod.common.pokemon.ai.FormPokemonBehaviour
 import com.cobblemon.mod.common.pokemon.lighthing.LightingData
 import com.cobblemon.mod.common.util.*
@@ -44,7 +49,7 @@ class FormData(
     @SerializedName("baseStats")
     internal var _baseStats: MutableMap<Stat, Int>? = null,
     @SerializedName("maleRatio")
-    private val _maleRatio: Float? = null,
+    private var _maleRatio: Float? = null,
     @SerializedName("baseScale")
     private var _baseScale: Float? = null,
     @SerializedName("hitbox")
@@ -72,9 +77,9 @@ class FormData(
     @SerializedName("evolutions")
     private val _evolutions: MutableSet<Evolution>? = null,
     @SerializedName("abilities")
-    private val _abilities: AbilityPool? = null,
+    private var _abilities: AbilityPool? = null,
     @SerializedName("drops")
-    private val _drops: DropTable? = null,
+    private var _drops: DropTable? = null,
     @SerializedName("pokedex")
     private var _pokedex: MutableList<String>? = null,
     @SerializedName("preEvolution")
@@ -208,13 +213,21 @@ class FormData(
             return this._lightingData
         }
 
-    fun hitboxWithEyeHeight(entity: PokemonEntity): EntityDimensions {
-        return hitbox.withEyeHeight(eyeHeight(entity))
-    }
+    val possibleGenders: Set<Gender>
+        get() {
+            return if (maleRatio == -1F) {
+                setOf(Gender.GENDERLESS)
+            } else if (maleRatio == 0F) {
+                setOf(Gender.FEMALE)
+            } else if (maleRatio == 1F) {
+                setOf(Gender.MALE)
+            } else {
+                setOf(Gender.FEMALE, Gender.MALE)
+            }
+        }
 
     fun eyeHeight(entity: PokemonEntity): Float {
-        val multiplier = this.resolveEyeHeight(entity) ?: return this.species.eyeHeight(entity)
-        return entity.bbHeight * multiplier
+        return this.resolveEyeHeight(entity) ?: return this.species.eyeHeight(entity)
     }
 
     private fun resolveEyeHeight(entity: PokemonEntity): Float? = when {
@@ -265,7 +278,8 @@ class FormData(
         buffer.writeNullable(this._experienceGroup) { pb, value -> pb.writeString(value.name) }
         buffer.writeNullable(this._height) { pb, height -> pb.writeFloat(height) }
         buffer.writeNullable(this._weight) { pb, weight -> pb.writeFloat(weight) }
-        buffer.writeNullable(this._baseScale) { buf, fl -> buf.writeFloat(fl)}
+        buffer.writeNullable(this._maleRatio) { pb, ratio -> pb.writeFloat(ratio) }
+        buffer.writeNullable(this._baseScale) { buf, fl -> buf.writeFloat(fl) }
         buffer.writeNullable(this._hitbox) { pb, hitbox ->
             pb.writeFloat(hitbox.width)
             pb.writeFloat(hitbox.height)
@@ -276,6 +290,13 @@ class FormData(
         buffer.writeNullable(this.lightingData) { pb, data ->
             pb.writeInt(data.lightLevel)
             pb.writeEnumConstant(data.liquidGlowMode)
+        }
+        buffer.writeNullable(_drops) { _, value -> value.encode(buffer) }
+        buffer.writeNullable(_abilities) { _, abilities ->
+            buffer.writeCollection<PotentialAbility>(abilities.toList()) { pb, ability ->
+                pb.writeBoolean(ability is CommonAbility)
+                pb.writeString(ability.template.name)
+            }
         }
         buffer.writeNullable(_riding) { pb, riding -> riding.encode(buffer) }
     }
@@ -294,11 +315,26 @@ class FormData(
         this._experienceGroup = buffer.readNullable { pb -> ExperienceGroups.findByName(pb.readString()) }
         this._height = buffer.readNullable { pb -> pb.readFloat() }
         this._weight = buffer.readNullable { pb -> pb.readFloat() }
+        this._maleRatio = buffer.readNullable { pb -> pb.readFloat() }
         this._baseScale = buffer.readNullable { pb -> pb.readFloat() }
         this._hitbox = buffer.readNullable { pb -> pb.readEntityDimensions() }
         this._moves = buffer.readNullable { _ -> Learnset().apply { decode(buffer) }}
         this._pokedex = buffer.readNullable { pb -> pb.readList { it.readString() } }?.toMutableList()
         this._lightingData = buffer.readNullable { pb -> LightingData(pb.readInt(), pb.readEnumConstant(LightingData.LiquidGlowMode::class.java)) }
+        this._drops = buffer.readNullable { _ -> DropTable().apply { decode(buffer) }}
+        this._abilities = buffer.readNullable { pb ->
+            AbilityPool().apply {
+                pb.readList { _ ->
+                    val isCommon = pb.readBoolean()
+                    val template = pb.readString()
+                    if (isCommon) {
+                        CommonAbility(Abilities.getOrException(template))
+                    } else {
+                        HiddenAbility(Abilities.getOrException(template))
+                    }
+                }.forEach { add(Priority.NORMAL, it) }
+            }
+        }
         this._riding = buffer.readNullable { pb -> RidingProperties.decode(buffer) }
     }
 

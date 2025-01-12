@@ -13,6 +13,8 @@ import com.cobblemon.mod.common.api.battles.interpreter.BattleMessage
 import com.cobblemon.mod.common.api.battles.model.PokemonBattle
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor
 import com.cobblemon.mod.common.api.battles.model.actor.EntityBackedBattleActor
+import com.cobblemon.mod.common.api.events.CobblemonEvents
+import com.cobblemon.mod.common.api.events.pokemon.PokemonSeenEvent
 import com.cobblemon.mod.common.api.scheduling.afterOnServer
 import com.cobblemon.mod.common.battles.ActiveBattlePokemon
 import com.cobblemon.mod.common.battles.ShowdownInterpreter
@@ -25,6 +27,8 @@ import com.cobblemon.mod.common.net.serverhandling.storage.SendOutPokemonHandler
 import com.cobblemon.mod.common.net.serverhandling.storage.SendOutPokemonHandler.SEND_OUT_STAGGER_BASE_DURATION
 import com.cobblemon.mod.common.net.serverhandling.storage.SendOutPokemonHandler.SEND_OUT_STAGGER_RANDOM_MAX_DURATION
 import com.cobblemon.mod.common.util.battleLang
+import com.cobblemon.mod.common.util.getPlayer
+import com.cobblemon.mod.common.util.party
 import com.cobblemon.mod.common.util.swap
 import java.util.concurrent.CompletableFuture
 import kotlin.random.Random
@@ -88,6 +92,28 @@ class SwitchInstruction(val instructionSet: InstructionSet, val battleActor: Bat
                     }
                 }
                 GO
+            }
+
+            val futureSwitches = instructionSet.getSubsequentInstructions(this).filterIsInstance<SwitchInstruction>()
+            if (futureSwitches.isEmpty()) {
+                if (battle.format.adjustLevel > 0) {
+                    // means battle is using clone teams, recall the "real" pokemon before the sendouts occur
+                    var waitOnRecall = false
+                    battle.actors.forEach { it ->
+                        val playerUUIDS = it.getPlayerUUIDs()
+                        playerUUIDS.forEach { uuid ->
+                            uuid.getPlayer()?.party()?.forEach { pokemon ->
+                                if (pokemon.entity != null) {
+                                    waitOnRecall = true
+                                    pokemon.entity!!.recallWithAnimation()
+                                }
+                            }
+                        }
+                    }
+                    if (waitOnRecall) {
+                        battle.dispatchWaitingToFront(SEND_OUT_DURATION) {  }
+                    }
+                }
             }
         }
         else {
@@ -189,7 +215,12 @@ class SwitchInstruction(val instructionSet: InstructionSet, val battleActor: Bat
                 battleLang("switch.other.nickname", actor.getName(), nickname, publicPokemon.species.translatedName)
             } ?: battleLang("switch.other", actor.getName(), publicPokemon.getDisplayName())
             actor.sendMessage(battleLang("switch.self", publicPokemon.getDisplayName()))
-            battle.actors.filter { it != actor }.forEach { it.sendMessage(publicLang) }
+            battle.actors.filter { it != actor }.forEach {
+                it.sendMessage(publicLang)
+            }
+            battle.playerUUIDs.forEach { uuid ->
+                CobblemonEvents.POKEMON_SEEN.post(PokemonSeenEvent(uuid, publicPokemon))
+            }
         }
     }
 

@@ -8,20 +8,20 @@
 
 package com.cobblemon.mod.common.pokedex.scanner
 
-import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
+import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.pokedex.scanner.PokedexUsageContext.Companion.BLOCK_LENGTH_PER_ZOOM_STAGE
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.level.ClipContext
 import net.minecraft.world.phys.AABB
+import net.minecraft.world.phys.HitResult
 
 //Handles the actual raycasting to figure out what pokemon we are looking at
 object PokemonScanner {
-    val RAY_LENGTH = 10.0
-
     //This basically draws a box around the casting entity, finds all entities in the box, then finds the one that a ray emanating from the player hits first
     fun detectEntity(castingEntity: Entity, zoomLevel: Int): Entity? {
         val eyePos = castingEntity.getEyePosition(1.0F)
         val lookVec = castingEntity.getViewVector(1.0F)
-        val maxDistance = RAY_LENGTH + zoomLevel
+        val maxDistance = Cobblemon.config.maxPokedexScanningDetectionRange + zoomLevel
         val boundingBoxSize = 12.0 + zoomLevel
         var closestEntity: Entity? = null
         var closestDistance = maxDistance
@@ -33,7 +33,7 @@ object PokemonScanner {
         )
 
         // Get all entities within the boundingBox
-        val entities = castingEntity.level().getEntitiesOfClass(Entity::class.java, boundingBox) { it != castingEntity }
+        val entities = castingEntity.level().getEntitiesOfClass(Entity::class.java, boundingBox) { it !== castingEntity }
 
         for (entity in entities) {
             val entityBox: AABB = entity.boundingBox
@@ -72,17 +72,32 @@ object PokemonScanner {
                     closestEntity = entity
                     closestDistance = distanceToEntity
                 }
+                if (closestEntity != null) {
+                    // Check if the view path collides with a solid block along the path
+                    val pathCollidesWithBlock = castingEntity.level().clip(
+                        ClipContext(
+                            eyePos,
+                            intersection.get(),
+                            ClipContext.Block.COLLIDER,
+                            ClipContext.Fluid.NONE,
+                            castingEntity
+                        )).type == HitResult.Type.BLOCK
+                    if (pathCollidesWithBlock) {
+                        // Targeted entity is obscured by a solid block
+                        closestEntity = null
+                    }
+                }
             }
         }
         return closestEntity
     }
 
-    fun findPokemon(castingEntity: Entity, zoomLevel: Int): PokemonEntity? {
+    fun findScannableEntity(castingEntity: Entity, zoomLevel: Int): ScannableEntity? {
         val targetedEntity = detectEntity(castingEntity, zoomLevel * BLOCK_LENGTH_PER_ZOOM_STAGE)
-        return targetedEntity as? PokemonEntity
+        return targetedEntity as? ScannableEntity
     }
 
     fun isEntityInRange(castingEntity: Entity, targetEntity: Entity, zoomLevel: Int): Boolean {
-        return targetEntity.position().distanceTo(castingEntity.position()) <= RAY_LENGTH + (zoomLevel * BLOCK_LENGTH_PER_ZOOM_STAGE)
+        return targetEntity.position().distanceTo(castingEntity.position()) <= Cobblemon.config.maxPokedexScanningDetectionRange + (zoomLevel * BLOCK_LENGTH_PER_ZOOM_STAGE)
     }
 }
