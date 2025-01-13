@@ -12,22 +12,22 @@ import com.cobblemon.mod.common.block.entity.CampfireBlockEntity
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.IS_LID_OPEN_INDEX
 import com.cobblemon.mod.common.client.CobblemonBakingOverrides
 import com.cobblemon.mod.common.client.pot.PotTypes
-import com.cobblemon.mod.common.client.render.models.blockbench.pose.Pose
-import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.vertex.Tesselator
 import com.mojang.blaze3d.vertex.VertexConsumer
-import com.mojang.blaze3d.vertex.VertexFormat
+import com.mojang.math.Axis
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.inventory.InventoryMenu
 import net.minecraft.world.item.ItemDisplayContext
+import org.joml.Vector3f
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
 
 class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : BlockEntityRenderer<CampfireBlockEntity> {
 
@@ -44,7 +44,11 @@ class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
 
         renderPot(blockEntity, tickDelta, poseStack, multiBufferSource, light, overlay)
         renderWater(blockEntity, tickDelta, poseStack, multiBufferSource, light, overlay)
-        renderSeasonings(blockEntity, tickDelta, poseStack, multiBufferSource, light, overlay)
+
+        val isLidOpen = blockEntity.dataAccess.get(IS_LID_OPEN_INDEX) == 1
+        if (isLidOpen) {
+            renderSeasonings(blockEntity, tickDelta, poseStack, multiBufferSource, light, overlay)
+        }
     }
 
     private fun renderPot(
@@ -105,10 +109,32 @@ class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
         light: Int,
         overlay: Int
     ) {
-        poseStack.pushPose()
-
         val seasonings = blockEntity.getSeasonings()
-        seasonings.forEach { seasoning ->
+
+        val rotationSpeed = 1f // Adjust this value to control the speed of rotation
+        val rotationAngle = ((Minecraft.getInstance().level?.gameTime ?: 0) * rotationSpeed) % 360
+
+        seasonings.forEachIndexed { index, seasoning ->
+            poseStack.pushPose()
+
+            poseStack.scale(0.5f, 0.5f, 0.5f)
+
+            val angleOffset = index * (360f / seasonings.size) // Spread them around the circle
+            val angleInRadians = Math.toRadians((rotationAngle + angleOffset).toDouble())
+
+            val xOffset = cos(angleInRadians.toDouble()).toFloat() * 0.5f
+            val zOffset = sin(angleInRadians.toDouble()).toFloat() * 0.5f
+
+            poseStack.translate(1f + xOffset, 1.8f, 1f + zOffset)
+
+            val lookAtDirection = Vector3f(1f + xOffset - 1f, 1.8f - 1.8f, 1f + zOffset - 1f)
+            poseStack.mulPose(Axis.YP.rotationDegrees((-Math.toDegrees(
+                atan2(
+                    lookAtDirection.z().toDouble(),
+                    lookAtDirection.x().toDouble()
+                )
+            )).toFloat() + 90))
+
             Minecraft.getInstance().itemRenderer.renderStatic(
                 seasoning,
                 ItemDisplayContext.GROUND,
@@ -119,9 +145,9 @@ class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
                 blockEntity.level,
                 0
             )
-        }
 
-        poseStack.popPose()
+            poseStack.popPose()
+        }
     }
 
     private fun drawQuad(
