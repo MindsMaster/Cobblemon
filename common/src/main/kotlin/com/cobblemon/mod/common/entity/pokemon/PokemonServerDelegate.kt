@@ -195,7 +195,7 @@ class PokemonServerDelegate : PokemonSideDelegate {
     }
 
     fun updatePoseType() {
-        if (!entity.enablePoseTypeRecalculation) {
+        if (!entity.enablePoseTypeRecalculation || entity.passengers.isNotEmpty()) {
             return
         }
 

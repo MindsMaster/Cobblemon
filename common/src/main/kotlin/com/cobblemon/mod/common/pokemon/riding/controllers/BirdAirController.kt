@@ -33,6 +33,8 @@ class BirdAirController : RideController {
         .with(PoseOption(PoseType.FLY) { it.deltaMovement.horizontalDistance() > 0.1 })
     override val condition: (PokemonEntity) -> Boolean = { true }
 
+    var jumpVector = listOf("0".asExpression(), "0.3".asExpression(), "0".asExpression())
+        private set
     var gravity: Expression = "0".asExpression()
         private set
     var horizontalAcceleration: Expression = "0.1".asExpression()
@@ -57,6 +59,16 @@ class BirdAirController : RideController {
             g *= 0.25f
         }
 
+        var jumpVector = Vec3.ZERO
+        if (entity.jumpInputStrength > 0) {
+            val runtime = getRuntime(entity)
+            runtime.environment.query.addFunction("jump_strength") { DoubleValue(entity.jumpInputStrength.toDouble()) }
+            val jumpForces = this.jumpVector.map { runtime.resolveFloat(it) }
+            jumpVector = Vec3(jumpForces[0].toDouble(), jumpForces[1].toDouble(), jumpForces[2].toDouble())
+            entity.jumpInputStrength = 0
+            entity.addDeltaMovement(jumpVector)
+        }
+
         val velocity = Vec3(f.toDouble(), 0.0, g.toDouble())
 
         return velocity
@@ -74,7 +86,7 @@ class BirdAirController : RideController {
         driver: Player,
         jumpStrength: Int
     ): Vec3 {
-        return Vec3(0.0, 1.0, 0.0).multiply(0.0, jumpStrength.toDouble() / 5, 0.0)
+        return Vec3.ZERO
     }
 
     override fun gravity(entity: PokemonEntity, regularGravity: Double): Double? {

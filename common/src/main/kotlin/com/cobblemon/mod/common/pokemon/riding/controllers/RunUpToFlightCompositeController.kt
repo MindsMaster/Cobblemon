@@ -13,6 +13,7 @@ import com.cobblemon.mod.common.api.riding.controller.RideController
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
 import com.cobblemon.mod.common.entity.PoseType
+import com.cobblemon.mod.common.entity.pokemon.PokemonBehaviourFlag
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.pokemon.riding.states.CompositeState
 import com.cobblemon.mod.common.util.adapters.riding.RideControllerAdapter
@@ -52,8 +53,10 @@ class RunUpToFlightCompositeController : RideController {
         val state = getState(entity, ::CompositeState)
         return state.activeController ?: let {
             val controller = if (entity.getCurrentPoseType() in PoseType.FLYING_POSES) {
+                entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, true)
                 flightController
             } else {
+                entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, false)
                 landController
             }
             state.activeController = controller
@@ -69,6 +72,7 @@ class RunUpToFlightCompositeController : RideController {
         val state = getState(entity, ::CompositeState)
         if (state.activeController == flightController && entity.onGround() && state.timeTransitioned + 20 < entity.level().gameTime) {
             getState(entity, ::CompositeState).activeController = landController
+            entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, false)
         }
 
         return getActiveController(entity).speed(entity, driver)
@@ -97,6 +101,7 @@ class RunUpToFlightCompositeController : RideController {
         if (controller == landController && jumpStrength >= getRuntime(entity).resolveInt(minimumJump)) {
             getState(entity, ::CompositeState).let {
                 it.activeController = flightController
+                entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, true)
                 it.timeTransitioned = entity.level().gameTime
             }
         }

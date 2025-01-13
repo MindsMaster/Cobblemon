@@ -1593,6 +1593,11 @@ open class PokemonEntity(
         return passengers.size < seats.size
     }
 
+    fun getIsJumping() = jumping
+    fun setIsJumping(value: Boolean) {
+        jumping = value
+    }
+
     override fun tickRidden(driver: Player, movementInput: Vec3) {
         super.tickRidden(driver, movementInput)
         this.riding.tick(this, driver, movementInput)
@@ -1623,11 +1628,11 @@ open class PokemonEntity(
             }
         }
 
-        val lookAngle: Vec3 = driver.getLookAngle()
+//        val lookAngle: Vec3 = driver.getLookAngle()
 //        if (!driver.isNearGround() || lookAngle.y >= 0.3) {
-            setBehaviourFlag(PokemonBehaviourFlag.FLYING, true)
-            entityData.set(POSE_TYPE, PoseType.HOVER)
-
+//            setBehaviourFlag(PokemonBehaviourFlag.FLYING, true)
+//            entityData.set(POSE_TYPE, PoseType.HOVER)
+//
 //            val deltaMovement = this.deltaMovement
 //            this.setDeltaMovement(
 //                lookAngle.x * 0.1 + (lookAngle.x * 1.5 - deltaMovement.x) * 1,
@@ -1710,7 +1715,7 @@ open class PokemonEntity(
         return this.riding.speed(this, controller)
     }
 
-    private var jumpInputStrength: Int = 0 // move this
+    var jumpInputStrength: Int = 0 // move this
     override fun onPlayerJump(strength: Int) {
         // See if this controls the hot bar element
         var strength = strength
