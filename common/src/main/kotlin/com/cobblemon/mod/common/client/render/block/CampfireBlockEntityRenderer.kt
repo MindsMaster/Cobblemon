@@ -111,21 +111,25 @@ class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
     ) {
         val seasonings = blockEntity.getSeasonings()
 
-        val rotationSpeed = 1f // Adjust this value to control the speed of rotation
-        val rotationAngle = ((Minecraft.getInstance().level?.gameTime ?: 0) * rotationSpeed) % 360
+        val gameTime = Minecraft.getInstance().level?.gameTime ?: 0
+
+        val rotationSpeed = 1f
+        val rotationAngle = (gameTime * rotationSpeed) % 360
+        val jumpAmplitude = 0.1f
+        val jumpSpeed = 0.1f
 
         seasonings.forEachIndexed { index, seasoning ->
             poseStack.pushPose()
 
             poseStack.scale(0.5f, 0.5f, 0.5f)
 
-            val angleOffset = index * (360f / seasonings.size) // Spread them around the circle
+            val angleOffset = index * (360f / seasonings.size)
             val angleInRadians = Math.toRadians((rotationAngle + angleOffset).toDouble())
 
             val xOffset = cos(angleInRadians.toDouble()).toFloat() * 0.5f
             val zOffset = sin(angleInRadians.toDouble()).toFloat() * 0.5f
-
-            poseStack.translate(1f + xOffset, 1.8f, 1f + zOffset)
+            val jumpOffset = sin(gameTime * jumpSpeed + index * 2) * jumpAmplitude
+            poseStack.translate(1f + xOffset, 1.7f + jumpOffset, 1f + zOffset)
 
             val lookAtDirection = Vector3f(1f + xOffset - 1f, 1.8f - 1.8f, 1f + zOffset - 1f)
             poseStack.mulPose(Axis.YP.rotationDegrees((-Math.toDegrees(
