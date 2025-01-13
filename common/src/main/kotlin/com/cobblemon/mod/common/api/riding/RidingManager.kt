@@ -92,4 +92,9 @@ data class RidingManager(val entity: PokemonEntity) {
         val controller = getController(entity) ?: return null
         return controller.gravity(entity, regularGravity)
     }
+
+    //FIXME: Make this not just be false for all controllers lol
+    fun dismountOnShift(): Boolean {
+        return false
+    }
 }

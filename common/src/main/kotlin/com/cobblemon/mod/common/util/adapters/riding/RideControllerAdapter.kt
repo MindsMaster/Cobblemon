@@ -12,6 +12,7 @@ import com.cobblemon.mod.common.api.riding.controller.RideController
 import com.cobblemon.mod.common.pokemon.riding.controllers.BirdAirController
 import com.cobblemon.mod.common.pokemon.riding.controllers.GenericLandController
 import com.cobblemon.mod.common.pokemon.riding.controllers.GenericLiquidController
+import com.cobblemon.mod.common.pokemon.riding.controllers.HelicopterAirController
 import com.cobblemon.mod.common.pokemon.riding.controllers.RunUpToFlightCompositeController
 import com.cobblemon.mod.common.pokemon.riding.controllers.SwimDashController
 import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
@@ -33,7 +34,8 @@ object RideControllerAdapter : JsonDeserializer<RideController> {
         GenericLiquidController.KEY to GenericLiquidController::class.java,
         SwimDashController.KEY to SwimDashController::class.java,
         RunUpToFlightCompositeController.KEY to RunUpToFlightCompositeController::class.java,
-        BirdAirController.KEY to BirdAirController::class.java
+        BirdAirController.KEY to BirdAirController::class.java,
+        HelicopterAirController.KEY to HelicopterAirController::class.java
     )
 
     override fun deserialize(element: JsonElement, type: Type, context: JsonDeserializationContext): RideController {

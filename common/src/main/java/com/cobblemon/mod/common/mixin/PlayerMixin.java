@@ -14,6 +14,7 @@ import com.cobblemon.mod.common.Rollable;
 import com.cobblemon.mod.common.api.events.CobblemonEvents;
 import com.cobblemon.mod.common.api.events.item.LeftoversCreatedEvent;
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies;
+import com.cobblemon.mod.common.api.riding.Rideable;
 import com.cobblemon.mod.common.api.storage.party.PartyStore;
 import com.cobblemon.mod.common.api.tags.CobblemonItemTags;
 import com.cobblemon.mod.common.pokedex.scanner.PokedexEntityData;
@@ -27,6 +28,8 @@ import com.cobblemon.mod.common.util.CompoundTagExtensionsKt;
 import com.cobblemon.mod.common.util.CompoundTagUtilities;
 import com.cobblemon.mod.common.util.DataKeys;
 import com.cobblemon.mod.common.world.gamerules.CobblemonGameRules;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -295,6 +298,17 @@ public abstract class PlayerMixin extends LivingEntity implements Rollable, Scan
     @Override
     public void clearRotation() {
         this.orientation = null;
+    }
+
+    @WrapOperation(
+            method = "rideTick()V",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;wantsToStopRiding()Z")
+    )
+    public boolean delegateDismountToController(Player instance, Operation<Boolean> original) {
+        if (this.getVehicle() instanceof Rideable vehicle) {
+            return vehicle.getRiding().dismountOnShift() && original.call(instance);
+        }
+        return original.call(instance);
     }
 
 }
