@@ -42,9 +42,11 @@ public abstract class CameraMixin {
     @Unique private float rollAngleStart = 0;
     @Unique Minecraft minecraft = Minecraft.getInstance();
 
+    @Unique boolean disableRollableCameraDebug = false;
+
     @Inject(method = "setRotation", at = @At("HEAD"), cancellable = true)
     public void open_camera$setRotation(float f, float g, CallbackInfo ci) {
-        if (!(this.entity instanceof Rollable rollable)) return;
+        if (!(this.entity instanceof Rollable rollable) || disableRollableCameraDebug) return;
         if (!rollable.shouldRoll() && rollable.getOrientation() != null) {
             if(this.returnTimer < 1) {
                 //Rotation is taken from entity since we no longer handle mouse ourselves

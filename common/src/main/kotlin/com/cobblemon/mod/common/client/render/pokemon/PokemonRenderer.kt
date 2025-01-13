@@ -79,6 +79,7 @@ class PokemonRenderer(
 
         private const val SPACE = " "
 
+        private const val DISABLE_ROLLING_DEBUG = false
     }
 
     val ballContext = RenderContext().also {
@@ -178,10 +179,14 @@ class PokemonRenderer(
         val yaw = Mth.rotLerp(partialTicks, entity.yBodyRotO, entity.yBodyRot)
 
         poseMatrix.translate(offset.x, offset.y, offset.z)
+
         val matrix = poseMatrix.last().pose()
-        matrix.rotate(180f.toRadians() - (rollable.yaw).toRadians(), rollable.upVector, matrix)
-        matrix.rotate((-rollable.pitch).toRadians(), rollable.leftVector, matrix)
-        matrix.rotate((-rollable.roll).toRadians(), rollable.forwardVector, matrix)
+        if(!DISABLE_ROLLING_DEBUG){
+            matrix.rotate(180f.toRadians() - (rollable.yaw).toRadians(), rollable.upVector, matrix)
+            matrix.rotate((-rollable.pitch).toRadians(), rollable.leftVector, matrix)
+            matrix.rotate((-rollable.roll).toRadians(), rollable.forwardVector, matrix)
+        }
+
         poseMatrix.translate(-offset.z, -offset.y - 0.5f, -offset.z - 1.0f)
         poseMatrix.mulPose(Axis.YP.rotationDegrees(-(180.0f - yaw)))
 
