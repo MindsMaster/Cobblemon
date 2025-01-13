@@ -375,7 +375,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     @JvmField
     val INCENSE_SWEET = blockItem("incense_sweet", CobblemonBlocks.INCENSE_SWEET)
     @JvmField
-    val CAMPFIRE = blockItem("campfire", CobblemonBlocks.CAMPFIRE)
+    val CAMPFIRE = blockItem("campfire_pot", CobblemonBlocks.CAMPFIRE)
 
 
     // Evolution items

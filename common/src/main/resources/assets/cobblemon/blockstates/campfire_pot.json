@@ -1,33 +1,33 @@
 {
   "variants": {
     "facing=east,lit=false": {
-      "model": "minecraft:block/campfire_off",
+      "model": "builtin/entity",
       "y": 270
     },
     "facing=east,lit=true": {
-      "model": "minecraft:block/campfire",
+      "model": "builtin/entity",
       "y": 270
     },
     "facing=north,lit=false": {
-      "model": "minecraft:block/campfire_off",
+      "model": "builtin/entity",
       "y": 180
     },
     "facing=north,lit=true": {
-      "model": "minecraft:block/campfire",
+      "model": "builtin/entity",
       "y": 180
     },
     "facing=south,lit=false": {
-      "model": "minecraft:block/campfire_off"
+      "model": "builtin/entity"
     },
     "facing=south,lit=true": {
-      "model": "minecraft:block/campfire"
+      "model": "builtin/entity"
     },
     "facing=west,lit=false": {
-      "model": "minecraft:block/campfire_off",
+      "model": "builtin/entity",
       "y": 90
     },
     "facing=west,lit=true": {
-      "model": "minecraft:block/campfire",
+      "model": "builtin/entity",
       "y": 90
     }
   }

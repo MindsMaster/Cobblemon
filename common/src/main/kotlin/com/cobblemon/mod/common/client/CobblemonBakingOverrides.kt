@@ -164,6 +164,67 @@ object CobblemonBakingOverrides {
         cobblemonModel("pot_yellow_model", "inventory")
     )
 
+    val TINYFIRE = registerOverride(
+        cobblemonResource("block/tinyfire"),
+        cobblemonModel("tinyfire", "none")
+    )
+    val CAMPFIRE_POT_BLACK_GLOWING = registerOverride(
+        cobblemonResource("block/campfire_pot_black_glowing"),
+        cobblemonModel("campfire_pot_black_glowing", "none")
+    )
+    val CAMPFIRE_POT_BLUE_GLOWING = registerOverride(
+        cobblemonResource("block/campfire_pot_blue_glowing"),
+        cobblemonModel("campfire_pot_blue_glowing", "none")
+    )
+    val CAMPFIRE_POT_GREEN_GLOWING = registerOverride(
+        cobblemonResource("block/campfire_pot_green_glowing"),
+        cobblemonModel("campfire_pot_green_glowing", "none")
+    )
+    val CAMPFIRE_POT_PINK_GLOWING = registerOverride(
+        cobblemonResource("block/campfire_pot_pink_glowing"),
+        cobblemonModel("campfire_pot_pink_glowing", "none")
+    )
+    val CAMPFIRE_POT_RED_GLOWING = registerOverride(
+        cobblemonResource("block/campfire_pot_red_glowing"),
+        cobblemonModel("campfire_pot_red_glowing", "none")
+    )
+    val CAMPFIRE_POT_WHITE_GLOWING = registerOverride(
+        cobblemonResource("block/campfire_pot_white_glowing"),
+        cobblemonModel("campfire_pot_white_glowing", "none")
+    )
+    val CAMPFIRE_POT_YELLOW_GLOWING = registerOverride(
+        cobblemonResource("block/campfire_pot_yellow_glowing"),
+        cobblemonModel("campfire_pot_yellow_glowing", "none")
+    )
+    val CAMPFIRE_POT_BLACK_GLOWING_OPEN = registerOverride(
+        cobblemonResource("block/campfire_pot_black_glowing_open"),
+        cobblemonModel("campfire_pot_black_glowing_open", "none")
+    )
+    val CAMPFIRE_POT_BLUE_GLOWING_OPEN = registerOverride(
+        cobblemonResource("block/campfire_pot_blue_glowing_open"),
+        cobblemonModel("campfire_pot_blue_glowing_open", "none")
+    )
+    val CAMPFIRE_POT_GREEN_GLOWING_OPEN = registerOverride(
+        cobblemonResource("block/campfire_pot_green_glowing_open"),
+        cobblemonModel("campfire_pot_green_glowing_open", "none")
+    )
+    val CAMPFIRE_POT_PINK_GLOWING_OPEN = registerOverride(
+        cobblemonResource("block/campfire_pot_pink_glowing_open"),
+        cobblemonModel("campfire_pot_pink_glowing_open", "none")
+    )
+    val CAMPFIRE_POT_RED_GLOWING_OPEN = registerOverride(
+        cobblemonResource("block/campfire_pot_red_glowing_open"),
+        cobblemonModel("campfire_pot_red_glowing_open", "none")
+    )
+    val CAMPFIRE_POT_WHITE_GLOWING_OPEN = registerOverride(
+        cobblemonResource("block/campfire_pot_white_glowing_open"),
+        cobblemonModel("campfire_pot_white_glowing_open", "none")
+    )
+    val CAMPFIRE_POT_YELLOW_GLOWING_OPEN = registerOverride(
+        cobblemonResource("block/campfire_pot_yellow_glowing_open"),
+        cobblemonModel("campfire_pot_yellow_glowing_open", "none")
+    )
+
     fun getPokedexOverride(type: PokedexType): BakingOverride {
         return when (type) {
             PokedexType.BLACK -> POKEDEX_BLACK
@@ -185,6 +246,30 @@ object CobblemonBakingOverrides {
             PotTypes.WHITE -> POT_WHITE
             PotTypes.YELLOW -> POT_YELLOW
             PotTypes.RED -> POT_RED
+        }
+    }
+
+    fun getCampfirePotOverride(type: PotTypes, isLidOpen: Boolean): BakingOverride {
+        return if (isLidOpen) {
+            when (type) {
+                PotTypes.BLACK -> CAMPFIRE_POT_BLACK_GLOWING_OPEN
+                PotTypes.BLUE -> CAMPFIRE_POT_BLUE_GLOWING_OPEN
+                PotTypes.GREEN -> CAMPFIRE_POT_GREEN_GLOWING_OPEN
+                PotTypes.PINK -> CAMPFIRE_POT_PINK_GLOWING_OPEN
+                PotTypes.RED -> CAMPFIRE_POT_RED_GLOWING_OPEN
+                PotTypes.WHITE -> CAMPFIRE_POT_WHITE_GLOWING_OPEN
+                PotTypes.YELLOW -> CAMPFIRE_POT_YELLOW_GLOWING_OPEN
+            }
+        } else {
+            when (type) {
+                PotTypes.BLACK -> CAMPFIRE_POT_BLACK_GLOWING
+                PotTypes.BLUE -> CAMPFIRE_POT_BLUE_GLOWING
+                PotTypes.GREEN -> CAMPFIRE_POT_GREEN_GLOWING
+                PotTypes.PINK -> CAMPFIRE_POT_PINK_GLOWING
+                PotTypes.RED -> CAMPFIRE_POT_RED_GLOWING
+                PotTypes.WHITE -> CAMPFIRE_POT_WHITE_GLOWING
+                PotTypes.YELLOW -> CAMPFIRE_POT_YELLOW_GLOWING
+            }
         }
     }
 
