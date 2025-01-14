@@ -8,6 +8,7 @@
 
 package com.cobblemon.mod.common.client.render.block
 
+import com.cobblemon.mod.common.api.cooking.getColorMixFromSeasonings
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.IS_LID_OPEN_INDEX
 import com.cobblemon.mod.common.client.CobblemonBakingOverrides
@@ -96,7 +97,9 @@ class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
         val stillTexture = ResourceLocation("minecraft", "block/water_still")
         val sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(stillTexture)
         val height = 0.5f
-        drawQuad(vertexConsumer, poseStack, 0.125f, height, 0.125f, 0.875f, height, 0.875f, sprite.u0, sprite.v0, sprite.u1, sprite.v1, light, 0xFF3F76E4.toInt());
+        val mixColor = getColorMixFromSeasonings(blockEntity.getSeasonings())
+        val waterColor = if (mixColor != -1) mixColor else 0xFF3F76E4.toInt()
+        drawQuad(vertexConsumer, poseStack, 0.125f, height, 0.125f, 0.875f, height, 0.875f, sprite.u0, sprite.v0, sprite.u1, sprite.v1, light, waterColor)
 
         poseStack.popPose()
     }
