@@ -17,11 +17,13 @@ import com.cobblemon.mod.common.api.cooking.Seasonings
 import com.cobblemon.mod.common.api.fishing.FishingBait
 import com.cobblemon.mod.common.api.fishing.FishingBaits
 import com.cobblemon.mod.common.block.PotComponent
+import net.minecraft.world.phys.Vec3
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotMenu
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotRecipeBase
 import com.cobblemon.mod.common.client.sound.BlockEntitySoundTracker
 import com.cobblemon.mod.common.client.sound.instances.CancellableSoundInstance
 import com.cobblemon.mod.common.item.components.CookingComponent
+import com.cobblemon.mod.common.net.messages.client.effect.SpawnSnowstormParticlePacket
 import com.cobblemon.mod.common.util.playSoundServer
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import net.minecraft.core.BlockPos
@@ -50,6 +52,7 @@ import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity
 import net.minecraft.world.level.block.state.BlockState
+import org.joml.Vector3d
 import java.util.*
 
 class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlockEntity(
@@ -86,6 +89,21 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
                     BlockEntitySoundTracker.play(pos, CancellableSoundInstance(campfireBlockEntity.runningSound, pos, true, 0.8f, 1.0f))
                 } else if (!isLit && isSoundActive) {
                     BlockEntitySoundTracker.stop(pos, campfireBlockEntity.runningSound.location)
+                }
+
+                // Generate particles if the lid is open
+                if (campfireBlockEntity.isLidOpen) {
+                    val position = Vec3(pos.x + 0.5, pos.y + 0.771, pos.z + 0.5) // Center of the block
+                    campfireBlockEntity.particleEntityHandler(
+                        position = position,
+                        level = level,
+                        particle = ResourceLocation("cobblemon", "stew_bubblepop")
+                    )
+                    campfireBlockEntity.particleEntityHandler(
+                        position = position,
+                        level = level,
+                        particle = ResourceLocation("cobblemon", "stew_bubbles")
+                    )
                 }
             }
         }
@@ -187,6 +205,18 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
         override fun getCount(): Int {
             return 3
         }
+    }
+
+    // Particle Stuff
+    fun particleEntityHandler(position: Vec3, level: Level, particle: ResourceLocation) {
+        val spawnSnowstormParticlePacket = SpawnSnowstormParticlePacket(particle, position)
+        spawnSnowstormParticlePacket.sendToPlayersAround(
+            position.x,
+            position.y,
+            position.z,
+            64.0,  // Radius
+            level.dimension()
+        )
     }
 
     fun consumeCraftingIngredients() {
