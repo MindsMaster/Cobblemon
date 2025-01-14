@@ -91,19 +91,25 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
                     BlockEntitySoundTracker.stop(pos, campfireBlockEntity.runningSound.location)
                 }
 
-                // Generate particles if the lid is open
-                if (campfireBlockEntity.isLidOpen) {
-                    val position = Vec3(pos.x + 0.5, pos.y + 0.771, pos.z + 0.5) // Center of the block
-                    campfireBlockEntity.particleEntityHandler(
-                        position = position,
-                        level = level,
-                        particle = ResourceLocation("cobblemon", "stew_bubblepop")
-                    )
-                    campfireBlockEntity.particleEntityHandler(
-                        position = position,
-                        level = level,
-                        particle = ResourceLocation("cobblemon", "stew_bubbles")
-                    )
+                // Cooldown for particle spawning
+                if (campfireBlockEntity.particleCooldown > 0) {
+                    campfireBlockEntity.particleCooldown--
+                } else {
+                    // Generate particles if the lid is open
+                    if (campfireBlockEntity.isLidOpen) { // .775
+                        val position = Vec3(pos.x + 0.5, pos.y + 0.8, pos.z + 0.5) // Center of the block
+                        campfireBlockEntity.particleEntityHandler(
+                            position = position,
+                            level = level,
+                            particle = ResourceLocation("cobblemon", "stew_bubblepop")
+                        )
+                        campfireBlockEntity.particleEntityHandler(
+                            position = position,
+                            level = level,
+                            particle = ResourceLocation("cobblemon", "stew_bubbles")
+                        )
+                    }
+                    campfireBlockEntity.particleCooldown = 20 // Reset cooldown (20 ticks = 1 second at 20 TPS)
                 }
             }
         }
@@ -183,6 +189,7 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
     private val recipesUsed: Object2IntOpenHashMap<ResourceLocation> = Object2IntOpenHashMap()
     private val quickCheck: RecipeManager.CachedCheck<CraftingInput, *> = RecipeManager.createCheck(CobblemonRecipeTypes.COOKING_POT_COOKING)
     private var potComponent: PotComponent? = null
+    private var particleCooldown: Int = 0 // Timer for controlling particle spawn frequency
 
     var dataAccess : ContainerData = object : ContainerData {
         override fun get(index: Int): Int {

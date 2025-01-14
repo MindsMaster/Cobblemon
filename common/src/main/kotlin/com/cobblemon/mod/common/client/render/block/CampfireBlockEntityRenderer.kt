@@ -186,12 +186,4 @@ class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
             .setLight(packedLight)
             .setNormal(0f, 1f, 0f)
     }
-
-    /*particleEntityHandler(this, ResourceLocation.fromNamespaceAndPath("cobblemon", "bob_splash"))
-
-    // Particle Stuff
-    private fun particleEntityHandler(entity: Entity, particle: ResourceLocation) {
-        val spawnSnowstormParticlePacket = SpawnSnowstormParticlePacket(particle, entity.position())
-        spawnSnowstormParticlePacket.sendToPlayersAround(entity.x, entity.y, entity.z, 64.0, entity.level().dimension())
-    }*/
 }
