@@ -34,6 +34,17 @@ fun getColorMixFromSeasonings(seasonings: List<ItemStack>): Int {
     return getColorMixFromCookingComponent(dominantFlavors)
 }
 
+fun getTransparentColorMixFromSeasonings(seasonings: List<ItemStack>): Int {
+    val baseColor = getColorMixFromSeasonings(seasonings) // This gets the original color
+    if (baseColor == -1) {
+        return -1 // Return default no-color state
+    }
+
+    // Apply 50% transparency by ensuring the alpha channel is 0x80
+    return (baseColor and 0x00FFFFFF) or (0x80 shl 24)
+}
+
+
 fun getColorMixFromCookingComponent(cookingComponent: CookingComponent): Int {
     val dominantFlavors = cookingComponent.getDominantFlavors()
     return getColorMixFromCookingComponent(dominantFlavors)
