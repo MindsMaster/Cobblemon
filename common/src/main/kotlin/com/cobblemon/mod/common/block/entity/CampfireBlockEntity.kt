@@ -97,7 +97,7 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
                 } else {
                     // Generate particles if the lid is open
                     if (campfireBlockEntity.isLidOpen) { // .775
-                        val position = Vec3(pos.x + 0.5, pos.y + 0.8, pos.z + 0.5) // Center of the block
+                        val position = Vec3(pos.x + 0.5, pos.y + 0.75, pos.z + 0.5) // Center of the block
                         campfireBlockEntity.particleEntityHandler(
                             position = position,
                             level = level,

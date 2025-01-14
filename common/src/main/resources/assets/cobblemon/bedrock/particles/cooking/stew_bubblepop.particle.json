@@ -35,8 +35,7 @@
 						"size_UV": [16, 16],
 						"step_UV": [0, 16],
 						"frames_per_second": 12,
-						"max_frame": 5,
-						"stretch_to_lifetime": true
+						"max_frame": 5
 					}
 				}
 			}
