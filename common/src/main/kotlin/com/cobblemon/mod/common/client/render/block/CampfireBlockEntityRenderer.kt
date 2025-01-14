@@ -14,6 +14,7 @@ import com.cobblemon.mod.common.block.entity.CampfireBlockEntity
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.IS_LID_OPEN_INDEX
 import com.cobblemon.mod.common.client.CobblemonBakingOverrides
 import com.cobblemon.mod.common.client.pot.PotTypes
+import com.cobblemon.mod.common.item.PotItem
 import com.cobblemon.mod.common.net.messages.client.effect.SpawnSnowstormParticlePacket
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
@@ -43,10 +44,10 @@ class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
         light: Int,
         overlay: Int
     ) {
-        val potItem = blockEntity.getPotItem()
-        if (potItem?.isEmpty == true) return
+        val potItem = blockEntity.getPotItem()?.item as PotItem?
+        if (potItem == null) return
 
-        renderPot(blockEntity, tickDelta, poseStack, multiBufferSource, light, overlay)
+        renderPot(potItem, blockEntity, tickDelta, poseStack, multiBufferSource, light, overlay)
         renderWater(blockEntity, tickDelta, poseStack, multiBufferSource, light, overlay)
 
         val isLidOpen = blockEntity.dataAccess.get(IS_LID_OPEN_INDEX) == 1
@@ -56,6 +57,7 @@ class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
     }
 
     private fun renderPot(
+        potItem: PotItem,
         blockEntity: CampfireBlockEntity,
         tickDelta: Float,
         poseStack: PoseStack,
@@ -66,7 +68,7 @@ class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
         poseStack.pushPose()
 
         val isLidOpen = blockEntity.dataAccess.get(IS_LID_OPEN_INDEX) == 1
-        val model = CobblemonBakingOverrides.getCampfirePotOverride(PotTypes.RED, isLidOpen).getModel()
+        val model = CobblemonBakingOverrides.getCampfirePotOverride(potItem.type, isLidOpen).getModel()
         val buffer = multiBufferSource.getBuffer(RenderType.cutout())
 
         Minecraft.getInstance().blockRenderer.modelRenderer.renderModel(

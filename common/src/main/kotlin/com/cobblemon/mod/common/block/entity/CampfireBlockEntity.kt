@@ -409,7 +409,7 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
         // otherwise they would never clear and seasonings would always render wrongly
         clearContent()
         ContainerHelper.loadAllItems(tag, this.items, registries)
-        
+
         if (tag.contains("PotComponent")) {
             val component = PotComponent.CODEC.parse(NbtOps.INSTANCE, tag.getCompound("PotComponent"))
                 .result()
