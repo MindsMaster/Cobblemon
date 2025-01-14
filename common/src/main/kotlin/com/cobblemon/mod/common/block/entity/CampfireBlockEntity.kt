@@ -313,14 +313,14 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
     }
 
     override fun getItems(): NonNullList<ItemStack?> {
-        onItemUpdate(level!!)
+        level?.let { onItemUpdate(it) }
         return this.items
     }
 
     override fun setItems(items: NonNullList<ItemStack?>) {
         this.items.clear()
         this.items.addAll(items)
-        onItemUpdate(level!!) // Notify the system about updates
+        level?.let { onItemUpdate(it) }
     }
 
     override fun createMenu(
@@ -407,6 +407,7 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
 
         // Minecraft doesn't save empty item stacks to the items tag, so we have to manually clear them
         // otherwise they would never clear and seasonings would always render wrongly
+
         clearContent()
         ContainerHelper.loadAllItems(tag, this.items, registries)
 
