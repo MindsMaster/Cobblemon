@@ -40,6 +40,6 @@ interface BrainConfig {
 
 //    fun encode(buffer: RegistryFriendlyByteBuf)
 //    fun decode(buffer: RegistryFriendlyByteBuf)
-    val variables: List<MoLangConfigVariable>
+    fun getVariables(entity: LivingEntity): List<MoLangConfigVariable>
     fun configure(entity: LivingEntity, brainConfigurationContext: BrainConfigurationContext)
 }

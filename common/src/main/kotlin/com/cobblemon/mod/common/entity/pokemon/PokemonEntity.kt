@@ -768,7 +768,9 @@ open class PokemonEntity(
         ) as Packet<ClientGamePacketListener>
 
     override fun getPathfindingMalus(nodeType: PathType): Float {
-        return if (nodeType == PathType.OPEN) 2F else super.getPathfindingMalus(nodeType)
+        /* This used to be 2 and I'm sure I had a good reason but it breaks wandering */
+        /* LandRandomPos#movePosUpOutOfSolid tries to fix blocks by moving to where the malus is zero. */
+        return if (nodeType == PathType.OPEN) 0F  else super.getPathfindingMalus(nodeType)
     }
 
     override fun getNavigation() = navigation as PokemonNavigation

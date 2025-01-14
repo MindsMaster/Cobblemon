@@ -104,7 +104,7 @@ interface TaskConfig {
     fun resolveNumberVariable(name: String) = runtime.resolveDouble(getVariableExpression(name))
 
     /** The variables that this task config uses. These are used to declare variables on the entity cleanly. */
-    val variables: List<MoLangConfigVariable>
+    fun getVariables(entity: LivingEntity): List<MoLangConfigVariable>
     /** Given the entity in construction, returns a list of tasks. */
     fun createTasks(entity: LivingEntity, brainConfigurationContext: BrainConfigurationContext): List<BehaviorControl<in LivingEntity>>
 }

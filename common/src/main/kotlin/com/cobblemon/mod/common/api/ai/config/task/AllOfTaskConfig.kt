@@ -24,7 +24,7 @@ class AllOfTaskConfig : TaskConfig {
     val condition: ExpressionOrEntityVariable = Either.left("true".asExpression())
     val tasks: List<TaskConfig> = emptyList()
 
-    override val variables = tasks.flatMap { it.variables } + listOf(condition).asVariables()
+    override fun getVariables(entity: LivingEntity) = tasks.flatMap { it.getVariables(entity) } + listOf(condition).asVariables()
     override fun createTasks(
         entity: LivingEntity,
         brainConfigurationContext: BrainConfigurationContext

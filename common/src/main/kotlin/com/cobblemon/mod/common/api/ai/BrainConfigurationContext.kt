@@ -29,7 +29,7 @@ class BrainConfigurationContext {
         val brain = entity.brain
 
         if (entity is MoLangScriptingEntity) {
-            entity.registerVariables(brainConfigs.flatMap { it.variables })
+            entity.registerVariables(brainConfigs.flatMap { it.getVariables(entity) })
             entity.initializeScripting()
         }
 

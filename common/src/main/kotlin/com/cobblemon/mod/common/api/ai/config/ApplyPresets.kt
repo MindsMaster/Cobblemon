@@ -24,8 +24,7 @@ import net.minecraft.world.entity.LivingEntity
 class ApplyPresets : BrainConfig {
     val condition = "true".asExpressionLike()
     val presets = mutableListOf<ResourceLocation>()
-    override val variables: List<MoLangConfigVariable>
-        get() = presets.flatMap { CobblemonBrainConfigs.presets[it]?.configurations?.flatMap { it.variables } ?: emptyList() }
+    override fun getVariables(entity: LivingEntity) = presets.flatMap { CobblemonBrainConfigs.presets[it]?.configurations?.flatMap { it.getVariables(entity) } ?: emptyList() }
 
     override fun configure(entity: LivingEntity, brainConfigurationContext: BrainConfigurationContext) {
         val runtime = MoLangRuntime().setup()

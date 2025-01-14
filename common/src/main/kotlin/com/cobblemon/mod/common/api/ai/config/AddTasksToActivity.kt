@@ -27,8 +27,7 @@ class AddTasksToActivity : BrainConfig {
     val activity = Activity.IDLE
     val condition: ExpressionOrEntityVariable = Either.left("true".asExpression())
     val tasksByPriority = mutableMapOf<Int, List<TaskConfig>>()
-    override val variables: List<MoLangConfigVariable>
-        get() = tasksByPriority.values.flatten().flatMap { it.variables } + listOf(condition).asVariables()
+    override fun getVariables(entity: LivingEntity) = tasksByPriority.values.flatten().flatMap { it.getVariables(entity) } + listOf(condition).asVariables()
 
 
     override fun configure(entity: LivingEntity, brainConfigurationContext: BrainConfigurationContext) {
