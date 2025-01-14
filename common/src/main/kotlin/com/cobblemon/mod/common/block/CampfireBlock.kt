@@ -19,6 +19,8 @@ import com.cobblemon.mod.common.util.playSoundServer
 import com.mojang.serialization.MapCodec
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
+import net.minecraft.core.particles.ParticleTypes
+import net.minecraft.util.RandomSource
 import net.minecraft.world.Containers
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
@@ -44,6 +46,8 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty
 import net.minecraft.world.level.pathfinder.PathComputationType
 import net.minecraft.world.phys.BlockHitResult
 import org.jetbrains.annotations.Nullable
+import kotlin.math.cos
+import kotlin.math.sin
 
 @Suppress("OVERRIDE_DEPRECATION")
 class CampfireBlock(settings: Properties) : BaseEntityBlock(settings) {
@@ -229,6 +233,45 @@ class CampfireBlock(settings: Properties) : BaseEntityBlock(settings) {
         Containers.dropContentsOnDestroy(state, newState, level, pos)
 
         super.onRemove(state, level, pos, newState, movedByPiston)
+    }
+
+    override fun animateTick(
+        state: BlockState,
+        level: Level,
+        pos: BlockPos,
+        random: RandomSource
+    ) {
+        renderBubbles(level, pos, random)
+    }
+
+    private fun renderBubbles(level: Level, pos: BlockPos, random: RandomSource) {
+        val gameTime = level.gameTime
+
+        val bubbleStartHeight = 1f
+        val bubbleEndHeight = 3.0f
+        val bubbleDensity = 1
+        val bubbleRadius = 0.1
+        val bubbleRadiusVariation = 0.2
+        val bubbleSpeed = 0.0
+
+        for (i in 0 until bubbleDensity) {
+            val angle = Math.toRadians((gameTime * random.nextDouble() * 360.0) % 360)
+            val radius = bubbleRadius + random.nextDouble() * bubbleRadiusVariation
+
+            val particleX = pos.x + 0.5 + radius * cos(angle)
+            val particleZ = pos.z + 0.5 + radius * sin(angle)
+            val particleY = pos.y + bubbleStartHeight + random.nextDouble() * (bubbleEndHeight - bubbleStartHeight)
+
+            level.addParticle(
+                ParticleTypes.BUBBLE,
+                particleX,
+                particleY,
+                particleZ,
+                0.0,
+                bubbleSpeed, // Vertical movement speed
+                0.0
+            )
+        }
     }
 
     override fun getCloneItemStack(level: LevelReader, pos: BlockPos, state: BlockState): ItemStack? = ItemStack(Blocks.CAMPFIRE)
