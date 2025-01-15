@@ -239,7 +239,12 @@ class ParticleStorm(
             remove()
         }
 
-        if (stopped || !sourceVisible()) {
+        if (!sourceVisible()) {
+            this.setInvisible()
+            return
+        }
+
+        if (stopped) {
             return
         }
 
@@ -316,5 +321,9 @@ class ParticleStorm(
     //Gets distance between emitter pos and destination pos in emitter space
     fun distanceTo(destinationPos: Vec3): Vec3 {
         return emitterSpaceMatrix.transformWorldToParticle(Vec3(x, y, z)).subtract(emitterSpaceMatrix.transformWorldToParticle(destinationPos))
+    }
+
+    fun setInvisible() {
+        particles.forEach { particle -> particle.invisible = true }
     }
 }

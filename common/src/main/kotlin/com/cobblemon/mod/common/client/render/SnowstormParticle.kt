@@ -130,6 +130,10 @@ class SnowstormParticle(
     }
 
     override fun render(vertexConsumer: VertexConsumer, camera: Camera, tickDelta: Float) {
+        if (invisible) {
+            return
+        }
+
         if (Cobblemon.implementation.modAPI != ModAPI.FORGE) {
            if (!Minecraft.getInstance().levelRenderer.cullingFrustum.isVisible(boundingBox)) {
                return

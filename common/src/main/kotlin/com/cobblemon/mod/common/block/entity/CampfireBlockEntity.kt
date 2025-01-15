@@ -17,15 +17,18 @@ import com.cobblemon.mod.common.api.cooking.Seasonings
 import com.cobblemon.mod.common.api.fishing.FishingBait
 import com.cobblemon.mod.common.api.fishing.FishingBaits
 import com.cobblemon.mod.common.block.PotComponent
-import net.minecraft.world.phys.Vec3
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotMenu
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotRecipeBase
+import com.cobblemon.mod.common.client.particle.BedrockParticleOptionsRepository
+import com.cobblemon.mod.common.client.particle.ParticleStorm
+import com.cobblemon.mod.common.client.render.MatrixWrapper
 import com.cobblemon.mod.common.client.sound.BlockEntitySoundTracker
 import com.cobblemon.mod.common.client.sound.instances.CancellableSoundInstance
 import com.cobblemon.mod.common.item.components.CookingComponent
-import com.cobblemon.mod.common.net.messages.client.effect.SpawnSnowstormParticlePacket
 import com.cobblemon.mod.common.util.playSoundServer
+import com.mojang.blaze3d.vertex.PoseStack
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
+import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.core.HolderLookup
@@ -52,7 +55,7 @@ import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity
 import net.minecraft.world.level.block.state.BlockState
-import org.joml.Vector3d
+import net.minecraft.world.phys.Vec3
 import java.util.*
 
 class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlockEntity(
@@ -81,36 +84,32 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
         const val IS_LID_OPEN_INDEX = 2
 
         fun clientTick(level: Level, pos: BlockPos, state: BlockState, campfireBlockEntity: CampfireBlockEntity) {
-            if (level.isClientSide) {
-                val isLit = campfireBlockEntity.dataAccess.get(COOKING_PROGRESS_INDEX) > 0
-                val isSoundActive = BlockEntitySoundTracker.isActive(pos, campfireBlockEntity.runningSound.location)
+            if (!level.isClientSide) return
 
-                if (isLit && !isSoundActive) {
-                    BlockEntitySoundTracker.play(pos, CancellableSoundInstance(campfireBlockEntity.runningSound, pos, true, 0.8f, 1.0f))
-                } else if (!isLit && isSoundActive) {
-                    BlockEntitySoundTracker.stop(pos, campfireBlockEntity.runningSound.location)
+            val isLit = campfireBlockEntity.dataAccess.get(COOKING_PROGRESS_INDEX) > 0
+            val isSoundActive = BlockEntitySoundTracker.isActive(pos, campfireBlockEntity.runningSound.location)
+
+            if (isLit && !isSoundActive) {
+                BlockEntitySoundTracker.play(pos, CancellableSoundInstance(campfireBlockEntity.runningSound, pos, true, 0.8f, 1.0f))
+            } else if (!isLit && isSoundActive) {
+                BlockEntitySoundTracker.stop(pos, campfireBlockEntity.runningSound.location)
+            }
+
+            // Cooldown for particle spawning
+            if (campfireBlockEntity.particleCooldown > 0) {
+                campfireBlockEntity.particleCooldown--
+            } else {
+                if (campfireBlockEntity.isLidOpen) { // .775
+                    val position = Vec3(pos.x + 0.5, pos.y + 0.75, pos.z + 0.5)
+
+                    campfireBlockEntity.particleEntityHandler(
+                        position = position,
+                        level = level,
+                        particle = ResourceLocation("cobblemon", "stew_bubbles")
+                    )
                 }
 
-                // Cooldown for particle spawning
-                if (campfireBlockEntity.particleCooldown > 0) {
-                    campfireBlockEntity.particleCooldown--
-                } else {
-                    // Generate particles if the lid is open
-                    if (campfireBlockEntity.isLidOpen) { // .775
-                        val position = Vec3(pos.x + 0.5, pos.y + 0.75, pos.z + 0.5) // Center of the block
-                        campfireBlockEntity.particleEntityHandler(
-                            position = position,
-                            level = level,
-                            particle = ResourceLocation("cobblemon", "stew_bubblepop")
-                        )
-                        campfireBlockEntity.particleEntityHandler(
-                            position = position,
-                            level = level,
-                            particle = ResourceLocation("cobblemon", "stew_bubbles")
-                        )
-                    }
-                    campfireBlockEntity.particleCooldown = 20 // Reset cooldown (20 ticks = 1 second at 20 TPS)
-                }
+                campfireBlockEntity.particleCooldown = 20
             }
         }
 
@@ -189,7 +188,7 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
     private val recipesUsed: Object2IntOpenHashMap<ResourceLocation> = Object2IntOpenHashMap()
     private val quickCheck: RecipeManager.CachedCheck<CraftingInput, *> = RecipeManager.createCheck(CobblemonRecipeTypes.COOKING_POT_COOKING)
     private var potComponent: PotComponent? = null
-    private var particleCooldown: Int = 0 // Timer for controlling particle spawn frequency
+    private var particleCooldown: Int = 0
 
     var dataAccess : ContainerData = object : ContainerData {
         override fun get(index: Int): Int {
@@ -214,16 +213,23 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
         }
     }
 
-    // Particle Stuff
-    fun particleEntityHandler(position: Vec3, level: Level, particle: ResourceLocation) {
-        val spawnSnowstormParticlePacket = SpawnSnowstormParticlePacket(particle, position)
-        spawnSnowstormParticlePacket.sendToPlayersAround(
-            position.x,
-            position.y,
-            position.z,
-            64.0,  // Radius
-            level.dimension()
-        )
+    fun particleEntityHandler(position: Vec3, level: Level, particle: ResourceLocation): ParticleStorm {
+        val wrapper = MatrixWrapper()
+        val matrix = PoseStack()
+        wrapper.updateMatrix(matrix.last().pose())
+        wrapper.updatePosition(position)
+        val effect = BedrockParticleOptionsRepository.getEffect(particle) ?: throw IllegalStateException("Particle with resource location $particle not found")
+
+        val particleStorm = ParticleStorm(
+            effect,
+            wrapper,
+            wrapper,
+            level as ClientLevel,
+            sourceAlive = { this.isLidOpen },
+            sourceVisible = { this.isLidOpen },
+        ).also { it.spawn() }
+
+        return particleStorm
     }
 
     fun consumeCraftingIngredients() {
