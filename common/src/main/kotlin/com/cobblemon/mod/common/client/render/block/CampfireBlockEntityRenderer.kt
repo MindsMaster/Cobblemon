@@ -114,25 +114,30 @@ class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
     ) {
         poseStack.pushPose()
 
-        // new custom Render Type to let us see the damn bubbles >:(
+        // todo disabled for now for testing more
+        /*// new custom Render Type to let us see the damn bubbles >:(
         val renderType = RenderType.create(
-                "custom_translucent_water",
-                DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP,
-                VertexFormat.Mode.QUADS,
-                256,
-                false,
-                true,
-                RenderType.CompositeState.builder()
-                        .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
-                        .setShaderState(RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_SHADER) // Use a valid shader
-                        .setWriteMaskState(RenderStateShard.COLOR_WRITE)
-                        .setDepthTestState(RenderStateShard.NO_DEPTH_TEST)
-                        .createCompositeState(false)
+            "custom_translucent_water",
+            DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP,
+            VertexFormat.Mode.QUADS,
+            256,
+            false, // No depth mask writes
+            true,  // Enable sorting for transparency
+            RenderType.CompositeState.builder()
+                .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY) // Proper blending for transparency
+                .setShaderState(RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_SHADER) // Use a translucent shader
+                .setWriteMaskState(RenderStateShard.COLOR_DEPTH_WRITE) // Allow color and depth writes
+                .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST) // Standard depth testing
+                .setCullState(RenderStateShard.NO_CULL) // Render both sides of the quad
+                .setOutputState(RenderStateShard.MAIN_TARGET) // Render to the main target
+                .createCompositeState(true) // Enable sorting
         )
 
-        val vertexConsumer = multiBufferSource.getBuffer(renderType)
+        val vertexConsumer = multiBufferSource.getBuffer(renderType)*/
 
-        poseStack.translate(0.0, 0.5, 0.0) // todo set y back to .4 (maybe make the quad smaller overall so it fits just inside the pot opening)
+        val vertexConsumer = multiBufferSource.getBuffer(RenderType.translucent())
+
+        poseStack.translate(0.0, 0.4, 0.0)
         poseStack.scale(1.0f, 1.0f, 1.0f)
 
         val stillTexture = ResourceLocation("minecraft", "block/water_still")
