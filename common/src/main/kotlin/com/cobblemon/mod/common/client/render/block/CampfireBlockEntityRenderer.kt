@@ -15,11 +15,14 @@ import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.IS_LI
 import com.cobblemon.mod.common.client.CobblemonBakingOverrides
 import com.cobblemon.mod.common.client.pot.PotTypes
 import com.cobblemon.mod.common.net.messages.client.effect.SpawnSnowstormParticlePacket
+import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
+import com.mojang.blaze3d.vertex.VertexFormat
 import com.mojang.math.Axis
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.RenderStateShard
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
@@ -92,9 +95,25 @@ class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
     ) {
         poseStack.pushPose()
 
-        val vertexConsumer = multiBufferSource.getBuffer(RenderType.translucent())
+        // new custom Render Type to let us see the damn bubbles >:(
+        val renderType = RenderType.create(
+                "custom_translucent_water",
+                DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP,
+                VertexFormat.Mode.QUADS,
+                256,
+                false,
+                true,
+                RenderType.CompositeState.builder()
+                        .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
+                        .setShaderState(RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_SHADER) // Use a valid shader
+                        .setWriteMaskState(RenderStateShard.COLOR_WRITE)
+                        .setDepthTestState(RenderStateShard.NO_DEPTH_TEST)
+                        .createCompositeState(false)
+        )
 
-        poseStack.translate(0.0, 0.4, 0.0)
+        val vertexConsumer = multiBufferSource.getBuffer(renderType)
+
+        poseStack.translate(0.0, 0.5, 0.0) // todo set y back to .4 (maybe make the quad smaller overall so it fits just inside the pot opening)
         poseStack.scale(1.0f, 1.0f, 1.0f)
 
         val stillTexture = ResourceLocation("minecraft", "block/water_still")
