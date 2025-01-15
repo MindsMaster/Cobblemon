@@ -36,6 +36,7 @@ import net.minecraft.world.phys.Vec3
 import kotlin.random.Random
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.level.Level
+import org.joml.Vector4f
 
 /**
  * An instance of a bedrock particle effect.
@@ -57,6 +58,7 @@ class ParticleStorm(
     val sourceVisible: () -> Boolean = { true },
     val targetPos: (() -> Vec3)? = null,
     val onDespawn: () -> Unit = {},
+    val getParticleColor: () -> Vector4f? = { null },
     val runtime: MoLangRuntime = MoLangRuntime(),
     val entity: Entity? = null,
 ): NoRenderParticle(world, emitterSpaceMatrix.getOrigin().x, emitterSpaceMatrix.getOrigin().y, emitterSpaceMatrix.getOrigin().z) {

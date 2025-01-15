@@ -14,6 +14,7 @@ import com.cobblemon.mod.common.CobblemonRecipeTypes
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.cooking.Seasoning
 import com.cobblemon.mod.common.api.cooking.Seasonings
+import com.cobblemon.mod.common.api.cooking.getTransparentColorMixFromSeasonings
 import com.cobblemon.mod.common.api.fishing.FishingBait
 import com.cobblemon.mod.common.api.fishing.FishingBaits
 import com.cobblemon.mod.common.block.PotComponent
@@ -40,6 +41,7 @@ import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.util.FastColor
 import net.minecraft.world.ContainerHelper
 import net.minecraft.world.WorldlyContainer
 import net.minecraft.world.entity.player.Inventory
@@ -56,6 +58,7 @@ import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.Vec3
+import org.joml.Vector4f
 import java.util.*
 
 class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlockEntity(
@@ -83,6 +86,8 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
         const val COOKING_PROGRESS_TOTAL_TIME_INDEX = 1
         const val IS_LID_OPEN_INDEX = 2
 
+        const val TRANSPARENT_WATER_COLOR = 0x803F76E4.toInt() //0xFF3F76E4 for fully opaque water
+
         fun clientTick(level: Level, pos: BlockPos, state: BlockState, campfireBlockEntity: CampfireBlockEntity) {
             if (!level.isClientSide) return
 
@@ -95,7 +100,10 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
                 BlockEntitySoundTracker.stop(pos, campfireBlockEntity.runningSound.location)
             }
 
-            // Cooldown for particle spawning
+            if (campfireBlockEntity.isLidOpen) {
+                campfireBlockEntity.waterColor = getTransparentColorMixFromSeasonings(campfireBlockEntity.getSeasonings()) ?: TRANSPARENT_WATER_COLOR
+            }
+
             if (campfireBlockEntity.particleCooldown > 0) {
                 campfireBlockEntity.particleCooldown--
             } else {
@@ -189,6 +197,7 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
     private val quickCheck: RecipeManager.CachedCheck<CraftingInput, *> = RecipeManager.createCheck(CobblemonRecipeTypes.COOKING_POT_COOKING)
     private var potComponent: PotComponent? = null
     private var particleCooldown: Int = 0
+    var waterColor: Int = TRANSPARENT_WATER_COLOR
 
     var dataAccess : ContainerData = object : ContainerData {
         override fun get(index: Int): Int {
@@ -227,7 +236,17 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
             level as ClientLevel,
             sourceAlive = { this.isLidOpen },
             sourceVisible = { this.isLidOpen },
-        ).also { it.spawn() }
+            getParticleColor = {
+                val red = FastColor.ARGB32.red(waterColor) / 255f
+                val green = FastColor.ARGB32.green(waterColor) / 255f
+                val blue = FastColor.ARGB32.blue(waterColor) / 255f
+                val alpha = FastColor.ARGB32.alpha(waterColor) / 255f
+
+                Vector4f(red, green, blue, alpha)
+            }
+        ).also {
+            it.spawn()
+        }
 
         return particleStorm
     }

@@ -203,7 +203,7 @@ class SnowstormParticle(
         }
 
         val uvs = storm.effect.particle.uvMode.get(runtime, age / 20.0, lifetime / 20.0, uvDetails)
-        val colour = storm.effect.particle.tinting.getTint(runtime)
+        val colour = storm.getParticleColor() ?: storm.effect.particle.tinting.getTint(runtime)
 
         val spriteURange = sprite.u1 - sprite.u0
         val spriteVRange = sprite.v1 - sprite.v0

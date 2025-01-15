@@ -8,25 +8,20 @@
 
 package com.cobblemon.mod.common.client.render.block
 
-import com.cobblemon.mod.common.api.cooking.getTransparentColorMixFromSeasonings
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.IS_LID_OPEN_INDEX
 import com.cobblemon.mod.common.client.CobblemonBakingOverrides
-import com.cobblemon.mod.common.client.pot.PotTypes
-import com.cobblemon.mod.common.net.messages.client.effect.SpawnSnowstormParticlePacket
-import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.cobblemon.mod.common.item.PotItem
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
-import com.mojang.blaze3d.vertex.VertexFormat
 import com.mojang.math.Axis
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderStateShard
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
+import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.inventory.InventoryMenu
@@ -40,13 +35,11 @@ import kotlin.math.sin
 class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : BlockEntityRenderer<CampfireBlockEntity> {
 
     companion object {
-        const val TRANSPARENT_WATER_COLOR = 0x803F76E4 //0xFF3F76E4 for fully opaque water
-
-        val WATER_START = 0.125f
-        val WATER_END = 0.875f
-        val WATER_HEIGHT = 0.5f
+        const val WATER_START = 0.125f
+        const val WATER_END = 0.875f
+        const val WATER_HEIGHT = 0.5f
         val WATER_STILL_TEXTURE = ResourceLocation("minecraft", "block/water_still")
-        val WATER_STILL_SPRITE = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(WATER_STILL_TEXTURE)
+        val WATER_STILL_SPRITE: TextureAtlasSprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(WATER_STILL_TEXTURE)
 
         const val CIRCLE_RADIUS = 0.5f
         const val ROTATION_SPEED = 1f
@@ -155,14 +148,11 @@ class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
         poseStack.translate(0.0, 0.4, 0.0)
         poseStack.scale(1.0f, 1.0f, 1.0f)
 
-        val mixColor = getTransparentColorMixFromSeasonings(blockEntity.getSeasonings())
-        val waterColor = if (mixColor != -1) mixColor else TRANSPARENT_WATER_COLOR.toInt()
-
         drawQuad(
             vertexConsumer, poseStack,
             WATER_START, WATER_HEIGHT, WATER_START, WATER_END, WATER_HEIGHT, WATER_END,
             WATER_STILL_SPRITE.u0, WATER_STILL_SPRITE.v0, WATER_STILL_SPRITE.u1, WATER_STILL_SPRITE.v1,
-            light, waterColor
+            light, blockEntity.waterColor
         )
 
         poseStack.popPose()
