@@ -304,7 +304,10 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
         )
     }
 
-    fun getSeasonings(): List<ItemStack> = items.subList(SEASONING_SLOTS.first, SEASONING_SLOTS.last + 1).filterNotNull()
+    fun getSeasonings(): List<ItemStack> =
+        items.subList(SEASONING_SLOTS.first, SEASONING_SLOTS.last + 1)
+            .filterNotNull()
+            .filter { !it.isEmpty }
 
     override fun getDefaultName(): Component {
         return Component.translatable("container.cooking_pot")

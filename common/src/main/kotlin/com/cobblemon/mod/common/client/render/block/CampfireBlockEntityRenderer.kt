@@ -39,6 +39,21 @@ import kotlin.math.sin
 
 class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : BlockEntityRenderer<CampfireBlockEntity> {
 
+    companion object {
+        const val TRANSPARENT_WATER_COLOR = 0x803F76E4 //0xFF3F76E4 for fully opaque water
+
+        val WATER_START = 0.125f
+        val WATER_END = 0.875f
+        val WATER_HEIGHT = 0.5f
+        val WATER_STILL_TEXTURE = ResourceLocation("minecraft", "block/water_still")
+        val WATER_STILL_SPRITE = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(WATER_STILL_TEXTURE)
+
+        const val CIRCLE_RADIUS = 0.5f
+        const val ROTATION_SPEED = 1f
+        const val JUMP_AMPLITUDE = 0.1f
+        const val JUMP_SPEED = 0.1f
+    }
+
     override fun render(
         blockEntity: CampfireBlockEntity,
         tickDelta: Float,
@@ -140,12 +155,15 @@ class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
         poseStack.translate(0.0, 0.4, 0.0)
         poseStack.scale(1.0f, 1.0f, 1.0f)
 
-        val stillTexture = ResourceLocation("minecraft", "block/water_still")
-        val sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(stillTexture)
-        val height = 0.5f
         val mixColor = getTransparentColorMixFromSeasonings(blockEntity.getSeasonings())
-        val waterColor = if (mixColor != -1) mixColor else 0x803F76E4.toInt() //0xFF3F76E4 for fully opaque water
-        drawQuad(vertexConsumer, poseStack, 0.125f, height, 0.125f, 0.875f, height, 0.875f, sprite.u0, sprite.v0, sprite.u1, sprite.v1, light, waterColor)
+        val waterColor = if (mixColor != -1) mixColor else TRANSPARENT_WATER_COLOR.toInt()
+
+        drawQuad(
+            vertexConsumer, poseStack,
+            WATER_START, WATER_HEIGHT, WATER_START, WATER_END, WATER_HEIGHT, WATER_END,
+            WATER_STILL_SPRITE.u0, WATER_STILL_SPRITE.v0, WATER_STILL_SPRITE.u1, WATER_STILL_SPRITE.v1,
+            light, waterColor
+        )
 
         poseStack.popPose()
     }
@@ -160,12 +178,8 @@ class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
     ) {
         val seasonings = blockEntity.getSeasonings()
 
-        val gameTime = Minecraft.getInstance().level?.gameTime ?: 0
-
-        val rotationSpeed = 1f
-        val rotationAngle = (gameTime * rotationSpeed) % 360
-        val jumpAmplitude = 0.1f
-        val jumpSpeed = 0.1f
+        val gameTime = (blockEntity.level?.gameTime ?: 0) + tickDelta
+        val rotationAngle = (gameTime * ROTATION_SPEED) % 360
 
         seasonings.forEachIndexed { index, seasoning ->
             poseStack.pushPose()
@@ -175,9 +189,9 @@ class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
             val angleOffset = index * (360f / seasonings.size)
             val angleInRadians = Math.toRadians((rotationAngle + angleOffset).toDouble())
 
-            val xOffset = cos(angleInRadians.toDouble()).toFloat() * 0.5f
-            val zOffset = sin(angleInRadians.toDouble()).toFloat() * 0.5f
-            val jumpOffset = sin(gameTime * jumpSpeed + index * 2) * jumpAmplitude
+            val xOffset = cos(angleInRadians.toDouble()).toFloat() * CIRCLE_RADIUS
+            val zOffset = sin(angleInRadians.toDouble()).toFloat() * CIRCLE_RADIUS
+            val jumpOffset = sin(gameTime * JUMP_SPEED + index * 2) * JUMP_AMPLITUDE
             poseStack.translate(1f + xOffset, 1.7f + jumpOffset, 1f + zOffset)
 
             val lookAtDirection = Vector3f(1f + xOffset - 1f, 1.8f - 1.8f, 1f + zOffset - 1f)
