@@ -1361,7 +1361,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     }
 
     private fun potItem(type: PotTypes): PotItem {
-        val item = create("pot_${type.name.lowercase()}", PotItem(type))
+        val item = create("campfire_pot_${type.name.lowercase()}", PotItem(type))
         pots.add(item)
         return item
     }

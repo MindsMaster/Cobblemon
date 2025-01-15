@@ -136,32 +136,32 @@ object CobblemonBakingOverrides {
     )
 
     val POT_BLACK = registerOverride(
-        cobblemonResource("item/pot_black_model"),
-        cobblemonModel("pot_black_model", "inventory")
+        cobblemonResource("item/campfire_pot_black_model"),
+        cobblemonModel("campfire_pot_black_model", "inventory")
     )
     val POT_BLUE = registerOverride(
-        cobblemonResource("item/pot_blue_model"),
-        cobblemonModel("pot_blue_model", "inventory")
+        cobblemonResource("item/campfire_pot_blue_model"),
+        cobblemonModel("campfire_pot_blue_model", "inventory")
     )
     val POT_GREEN = registerOverride(
-        cobblemonResource("item/pot_green_model"),
-        cobblemonModel("pot_green_model", "inventory")
+        cobblemonResource("item/campfire_pot_green_model"),
+        cobblemonModel("campfire_pot_green_model", "inventory")
     )
     val POT_PINK = registerOverride(
-        cobblemonResource("item/pot_pink_model"),
-        cobblemonModel("pot_pink_model", "inventory")
+        cobblemonResource("item/campfire_pot_pink_model"),
+        cobblemonModel("campfire_pot_pink_model", "inventory")
     )
     val POT_RED = registerOverride(
-        cobblemonResource("item/pot_red_model"),
-        cobblemonModel("pot_red_model", "inventory")
+        cobblemonResource("item/campfire_pot_red_model"),
+        cobblemonModel("campfire_pot_red_model", "inventory")
     )
     val POT_WHITE = registerOverride(
-        cobblemonResource("item/pot_white_model"),
-        cobblemonModel("pot_white_model", "inventory")
+        cobblemonResource("item/campfire_pot_white_model"),
+        cobblemonModel("campfire_pot_white_model", "inventory")
     )
     val POT_YELLOW = registerOverride(
-        cobblemonResource("item/pot_yellow_model"),
-        cobblemonModel("pot_yellow_model", "inventory")
+        cobblemonResource("item/campfire_pot_yellow_model"),
+        cobblemonModel("campfire_pot_yellow_model", "inventory")
     )
 
     val TINYFIRE = registerOverride(

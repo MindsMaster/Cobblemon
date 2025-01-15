@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "cobblemon:item/pots/pot_red"
+    "layer0": "cobblemon:item/pots/campfire_pot_pink"
   }
 }

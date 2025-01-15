@@ -67,12 +67,6 @@ public abstract class ItemRendererMixin {
                     render(stack, renderMode, leftHanded, matrices, multiBufferSource, light, overlay, replacementModel);
                 }
             }
-        } else if (!shouldBe2d && stack.getItem() instanceof PotItem) {
-            BakedModel replacementModel = CobblemonBakingOverrides.INSTANCE.getPotOverride(((PotItem) stack.getItem()).getType()).getModel();
-            if (!cobblemon$isSameModel(model, replacementModel)) {
-                ci.cancel();
-                render(stack, renderMode, leftHanded, matrices, multiBufferSource, light, overlay, replacementModel);
-            }
         }
     }
 
