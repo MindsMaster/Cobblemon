@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.client.render.block
 
 import com.cobblemon.mod.common.api.cooking.getColor
+import com.cobblemon.mod.common.block.LureCakeBlock.Companion.AGE
 import com.cobblemon.mod.common.block.entity.LureCakeBlockEntity
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
@@ -42,6 +43,9 @@ class LureCakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
         val SIDE_LAYER_TOP: TextureAtlasSprite = loadTexture("block/poke_snack_side_layer2")
         val SIDE_LAYER_MIDDLE: TextureAtlasSprite = loadTexture("block/poke_snack_side_layer3")
         val BOTTOM_LAYER: TextureAtlasSprite = loadTexture("block/poke_snack_bottom_layer1")
+        val FIRST_INNER_LAYER: TextureAtlasSprite = loadTexture("block/poke_snack_inner_layer1")
+        val SECOND_INNER_LAYER: TextureAtlasSprite = loadTexture("block/poke_snack_inner_layer2")
+        val THIRD_INNER_LAYER: TextureAtlasSprite = loadTexture("block/poke_snack_inner_layer3")
 
         fun loadTexture(textureName: String): TextureAtlasSprite {
             return Minecraft.getInstance().getTextureAtlas(BLOCK_ATLAS).apply(ResourceLocation("cobblemon", textureName))
@@ -61,6 +65,13 @@ class LureCakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
             return
         }
 
+        val bites = blockState.getValue(AGE).toFloat()
+        val maxBites = 7f
+        val cakeIsFull = bites == 0f
+        val percentageToRender = if (cakeIsFull) 1.0f else PIXEL_SHIFT.toFloat() + (PIXEL_SHIFT.toFloat() * 2f * (maxBites - bites).toFloat())
+        val clippedWidth = (ATLAS_END - ATLAS_START) * percentageToRender
+        val uClipped = TOP_LAYER.u0 + (TOP_LAYER.u1 - TOP_LAYER.u0) * percentageToRender
+
         val vertexConsumer = multiBufferSource.getBuffer(RenderType.cutout())
         val cookingComponent = blockEntity.cookingComponent
         val primaryColor = cookingComponent?.seasoning1?.color?.let { getColor(it) } ?: WHITE_OPAQUE_COLOR
@@ -68,32 +79,31 @@ class LureCakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
         val tertiaryColor = cookingComponent?.seasoning3?.color?.let { getColor(it) } ?: WHITE_OPAQUE_COLOR
 
         poseStack.pushPose()
-
         drawQuad(
             vertexConsumer, poseStack,
-            ATLAS_START, TOP_LAYER_HEIGHT, ATLAS_START, ATLAS_END, TOP_LAYER_HEIGHT, ATLAS_END,
-            TOP_LAYER.u0, TOP_LAYER.v0, TOP_LAYER.u1, TOP_LAYER.v1,
+            ATLAS_START, TOP_LAYER_HEIGHT, ATLAS_START, clippedWidth, TOP_LAYER_HEIGHT, ATLAS_END,
+            TOP_LAYER.u0, TOP_LAYER.v0, uClipped, TOP_LAYER.v1,
             light, secondaryColor
         )
 
         drawQuad(
             vertexConsumer, poseStack,
-            ATLAS_START, TOP_LAYER_HEIGHT, ATLAS_START, ATLAS_END, TOP_LAYER_HEIGHT, ATLAS_END,
-            CHERRY_LAYER.u0, CHERRY_LAYER.v0, CHERRY_LAYER.u1, CHERRY_LAYER.v1,
+            ATLAS_START, TOP_LAYER_HEIGHT, ATLAS_START, clippedWidth, TOP_LAYER_HEIGHT, ATLAS_END,
+            CHERRY_LAYER.u0, CHERRY_LAYER.v0, uClipped, CHERRY_LAYER.v1,
             light, primaryColor
         )
         poseStack.popPose()
 
         val translations = arrayOf(
-            Vector3d(0.0, 1.0, 0.5 - PIXEL_SHIFT),
             Vector3d(-1.0, 1.0, 0.5 - PIXEL_SHIFT),
+            Vector3d(0.0, 1.0, 0.5 - PIXEL_SHIFT),
             Vector3d(0.0, 1.0, -0.5 - PIXEL_SHIFT),
             Vector3d(-1.0, 1.0, -0.5 - PIXEL_SHIFT),
         )
 
         val rotationsY = arrayOf(
-            Axis.YP.rotationDegrees(0f),
             Axis.YP.rotationDegrees(90f),
+            Axis.YP.rotationDegrees(0f),
             Axis.YP.rotationDegrees(-90f),
             Axis.YP.rotationDegrees(-180f)
         )
@@ -104,24 +114,87 @@ class LureCakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
             poseStack.translate(translations[i].x, translations[i].y, translations[i].z)
             poseStack.mulPose(Axis.XP.rotationDegrees(90f))
 
-            drawQuad(
-                vertexConsumer, poseStack,
-                ATLAS_START, HEIGHT, ATLAS_START, ATLAS_END, HEIGHT, ATLAS_END,
-                SIDE_LAYER_BOTTOM.u0, SIDE_LAYER_BOTTOM.v0, SIDE_LAYER_BOTTOM.u1, SIDE_LAYER_BOTTOM.v1,
-                light, tertiaryColor
-            )
-            drawQuad(
-                vertexConsumer, poseStack,
-                ATLAS_START, HEIGHT, ATLAS_START, ATLAS_END, HEIGHT, ATLAS_END,
-                SIDE_LAYER_TOP.u0, SIDE_LAYER_TOP.v0, SIDE_LAYER_TOP.u1, SIDE_LAYER_TOP.v1,
-                light, secondaryColor
-            )
-            drawQuad(
-                vertexConsumer, poseStack,
-                ATLAS_START, HEIGHT, ATLAS_START, ATLAS_END, HEIGHT, ATLAS_END,
-                SIDE_LAYER_MIDDLE.u0, SIDE_LAYER_MIDDLE.v0, SIDE_LAYER_MIDDLE.u1, SIDE_LAYER_MIDDLE.v1,
-                light, primaryColor
-            )
+            if (i == 0 && !cakeIsFull) {
+                poseStack.translate(0.0, -bites * PIXEL_SHIFT * 2, 0.0)
+                drawQuad(
+                    vertexConsumer, poseStack,
+                    ATLAS_START, HEIGHT, ATLAS_START, ATLAS_END, HEIGHT, ATLAS_END,
+                    FIRST_INNER_LAYER.u0, FIRST_INNER_LAYER.v0, FIRST_INNER_LAYER.u1, FIRST_INNER_LAYER.v1,
+                    light, tertiaryColor
+                )
+                drawQuad(
+                    vertexConsumer, poseStack,
+                    ATLAS_START, HEIGHT, ATLAS_START, ATLAS_END, HEIGHT, ATLAS_END,
+                    SECOND_INNER_LAYER.u0, SECOND_INNER_LAYER.v0, SECOND_INNER_LAYER.u1, SECOND_INNER_LAYER.v1,
+                    light, secondaryColor
+                )
+                drawQuad(
+                    vertexConsumer, poseStack,
+                    ATLAS_START, HEIGHT, ATLAS_START, ATLAS_END, HEIGHT, ATLAS_END,
+                    THIRD_INNER_LAYER.u0, THIRD_INNER_LAYER.v0, THIRD_INNER_LAYER.u1, THIRD_INNER_LAYER.v1,
+                    light, primaryColor
+                )
+            } else if (i == 0 || i == 1) {
+                drawQuad(
+                    vertexConsumer, poseStack,
+                    ATLAS_START, HEIGHT, ATLAS_START, clippedWidth, HEIGHT, ATLAS_END,
+                    SIDE_LAYER_BOTTOM.u0, SIDE_LAYER_BOTTOM.v0, uClipped, SIDE_LAYER_BOTTOM.v1,
+                    light, tertiaryColor
+                )
+                drawQuad(
+                    vertexConsumer, poseStack,
+                    ATLAS_START, HEIGHT, ATLAS_START, clippedWidth, HEIGHT, ATLAS_END,
+                    SIDE_LAYER_TOP.u0, SIDE_LAYER_TOP.v0, uClipped, SIDE_LAYER_TOP.v1,
+                    light, secondaryColor
+                )
+                drawQuad(
+                    vertexConsumer, poseStack,
+                    ATLAS_START, HEIGHT, ATLAS_START, clippedWidth, HEIGHT, ATLAS_END,
+                    SIDE_LAYER_MIDDLE.u0, SIDE_LAYER_MIDDLE.v0, uClipped, SIDE_LAYER_MIDDLE.v1,
+                    light, primaryColor
+                )
+            } else if (i == 2) {
+                drawQuad(
+                    vertexConsumer, poseStack,
+                    ATLAS_START, HEIGHT, ATLAS_START, ATLAS_END, HEIGHT, ATLAS_END,
+                    SIDE_LAYER_BOTTOM.u0, SIDE_LAYER_BOTTOM.v0, SIDE_LAYER_BOTTOM.u1, SIDE_LAYER_BOTTOM.v1,
+                    light, tertiaryColor
+                )
+                drawQuad(
+                    vertexConsumer, poseStack,
+                    ATLAS_START, HEIGHT, ATLAS_START, ATLAS_END, HEIGHT, ATLAS_END,
+                    SIDE_LAYER_TOP.u0, SIDE_LAYER_TOP.v0, SIDE_LAYER_TOP.u1, SIDE_LAYER_TOP.v1,
+                    light, secondaryColor
+                )
+                drawQuad(
+                    vertexConsumer, poseStack,
+                    ATLAS_START, HEIGHT, ATLAS_START, ATLAS_END, HEIGHT, ATLAS_END,
+                    SIDE_LAYER_TOP.u0, SIDE_LAYER_MIDDLE.v0, SIDE_LAYER_MIDDLE.u1, SIDE_LAYER_MIDDLE.v1,
+                    light, primaryColor
+                )
+            } else if (i == 3) {
+                val clippedStartX = ATLAS_START + (ATLAS_END - ATLAS_START) * (1 - percentageToRender)
+                val clippedUStart = SIDE_LAYER_BOTTOM.u0 + (SIDE_LAYER_BOTTOM.u1 - SIDE_LAYER_BOTTOM.u0) * (1 - percentageToRender)
+
+                drawQuad(
+                    vertexConsumer, poseStack,
+                    clippedStartX, HEIGHT, ATLAS_START, ATLAS_END, HEIGHT, ATLAS_END,
+                    clippedUStart, SIDE_LAYER_BOTTOM.v0, SIDE_LAYER_BOTTOM.u1, SIDE_LAYER_BOTTOM.v1,
+                    light, tertiaryColor
+                )
+                drawQuad(
+                    vertexConsumer, poseStack,
+                    clippedStartX, HEIGHT, ATLAS_START, ATLAS_END, HEIGHT, ATLAS_END,
+                    clippedUStart, SIDE_LAYER_TOP.v0, SIDE_LAYER_TOP.u1, SIDE_LAYER_TOP.v1,
+                    light, secondaryColor
+                )
+                drawQuad(
+                    vertexConsumer, poseStack,
+                    clippedStartX, HEIGHT, ATLAS_START, ATLAS_END, HEIGHT, ATLAS_END,
+                    clippedUStart, SIDE_LAYER_MIDDLE.v0, SIDE_LAYER_MIDDLE.u1, SIDE_LAYER_MIDDLE.v1,
+                    light, primaryColor
+                )
+            }
 
             poseStack.popPose()
         }
@@ -132,8 +205,8 @@ class LureCakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
         poseStack.translate(-0.5, 0.0, -0.5)
         drawQuad(
             vertexConsumer, poseStack,
-            ATLAS_START, BOTTOM_LAYER_HEIGHT, ATLAS_START, ATLAS_END, BOTTOM_LAYER_HEIGHT, ATLAS_END,
-            BOTTOM_LAYER.u0, BOTTOM_LAYER.v0, BOTTOM_LAYER.u1, BOTTOM_LAYER.v1,
+            ATLAS_START, BOTTOM_LAYER_HEIGHT, ATLAS_START, clippedWidth, BOTTOM_LAYER_HEIGHT, ATLAS_END,
+            BOTTOM_LAYER.u0, BOTTOM_LAYER.v0, uClipped, BOTTOM_LAYER.v1,
             light, tertiaryColor
         )
         poseStack.popPose()
