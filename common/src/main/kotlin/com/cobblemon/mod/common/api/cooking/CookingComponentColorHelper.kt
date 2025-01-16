@@ -70,3 +70,21 @@ fun getColorMixFromCookingComponent(dominantFlavors: List<String>): Int? {
         blueSum / colors.size
     )
 }
+
+fun getColor(color: String): Int? {
+    return when (color.lowercase()) {
+        "red" -> FastColor.ARGB32.color(255, 255, 0, 0)
+        "orange" -> FastColor.ARGB32.color(255, 255, 165, 0)
+        "yellow" -> FastColor.ARGB32.color(255, 255, 255, 0)
+        "lime" -> FastColor.ARGB32.color(255, 0, 255, 0)
+        "green" -> FastColor.ARGB32.color(255, 0, 128, 0)
+        "cyan" -> FastColor.ARGB32.color(255, 0, 255, 255)
+        "light blue" -> FastColor.ARGB32.color(255, 173, 216, 230)
+        "blue" -> FastColor.ARGB32.color(255, 0, 0, 255)
+        "purple" -> FastColor.ARGB32.color(255, 128, 0, 128)
+        "magenta" -> FastColor.ARGB32.color(255, 255, 0, 255)
+        "pink" -> FastColor.ARGB32.color(255, 255, 192, 203)
+        "white" -> FastColor.ARGB32.color(255, 255, 255, 255)
+        else -> null
+    }
+}

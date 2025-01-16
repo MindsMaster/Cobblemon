@@ -8,63 +8,162 @@
 
 package com.cobblemon.mod.common.client.render.block
 
+import com.cobblemon.mod.common.api.cooking.getColor
 import com.cobblemon.mod.common.block.entity.LureCakeBlockEntity
-import com.cobblemon.mod.common.util.cobblemonResource
 import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.blaze3d.vertex.VertexConsumer
+import com.mojang.math.Axis
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
-import net.minecraft.client.renderer.block.model.ItemTransforms
-import net.minecraft.world.item.BlockItem
-import net.minecraft.world.level.block.Blocks
+import net.minecraft.client.renderer.texture.TextureAtlasSprite
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.inventory.InventoryMenu.BLOCK_ATLAS
 import net.minecraft.world.level.block.state.BlockState
+import org.joml.Vector3d
 
 class LureCakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : BlockEntityRenderer<LureCakeBlockEntity> {
 
-    override fun render(
-            blockEntity: LureCakeBlockEntity,
-            tickDelta: Float,
-            poseStack: PoseStack,
-            multiBufferSource: MultiBufferSource,
-            light: Int,
-            overlay: Int
-    ) {
-        // Ensure the renderer runs only on the client
-        val isClientSide = blockEntity.level?.isClientSide ?: false
-        if (!isClientSide) return
+    companion object {
+        const val PIXEL_SHIFT = 1.0 / 16.0
+        const val WHITE_OPAQUE_COLOR = 0xFFFFFFFF.toInt()
 
-        // Retrieve the block state of the Lure Cake
+        const val ATLAS_START = 0.0f
+        const val ATLAS_END = 1.0f
+        const val HEIGHT = 0.5f
+        const val TOP_LAYER_HEIGHT = 0.5625f
+        const val BOTTOM_LAYER_HEIGHT = 0.0f
+
+        val TOP_LAYER: TextureAtlasSprite = loadTexture("block/poke_snack_top_layer2")
+        val CHERRY_LAYER: TextureAtlasSprite = loadTexture("block/poke_snack_top_layer3")
+        val SIDE_LAYER_BOTTOM: TextureAtlasSprite = loadTexture("block/poke_snack_side_layer1")
+        val SIDE_LAYER_TOP: TextureAtlasSprite = loadTexture("block/poke_snack_side_layer2")
+        val SIDE_LAYER_MIDDLE: TextureAtlasSprite = loadTexture("block/poke_snack_side_layer3")
+        val BOTTOM_LAYER: TextureAtlasSprite = loadTexture("block/poke_snack_bottom_layer1")
+
+        fun loadTexture(textureName: String): TextureAtlasSprite {
+            return Minecraft.getInstance().getTextureAtlas(BLOCK_ATLAS).apply(ResourceLocation("cobblemon", textureName))
+        }
+    }
+
+    override fun render(
+        blockEntity: LureCakeBlockEntity,
+        tickDelta: Float,
+        poseStack: PoseStack,
+        multiBufferSource: MultiBufferSource,
+        light: Int,
+        overlay: Int
+    ) {
         val blockState: BlockState = blockEntity.blockState
         if (blockState.isAir) {
-            // Log an error or warning to ensure this isn't the problem
             return
         }
 
-        /*val baseTexture = cobblemonResource("textures/lure_cake/lure_cake_base.png")
-        val crustTexture = cobblemonResource("textures/lure_cake/lure_cake_crust_overlay.png")
-        val fillingTexture = cobblemonResource("textures/lure_cake/lure_cake_filling_overlay.png")
-        val frostingTexture = cobblemonResource("textures/lure_cake/lure_cake_frosting_overlay.png")*/
+        val vertexConsumer = multiBufferSource.getBuffer(RenderType.cutout())
+        val cookingComponent = blockEntity.cookingComponent
+        val primaryColor = cookingComponent?.seasoning1?.color?.let { getColor(it) } ?: WHITE_OPAQUE_COLOR
+        val secondaryColor = cookingComponent?.seasoning2?.color?.let { getColor(it) } ?: WHITE_OPAQUE_COLOR
+        val tertiaryColor = cookingComponent?.seasoning3?.color?.let { getColor(it) } ?: WHITE_OPAQUE_COLOR
 
-
-        // Push the current transformation matrix
         poseStack.pushPose()
-        //println("Rendering block state: $blockState")
 
-
-        // Apply necessary transformations (if needed)
-        // For example, positioning or scaling adjustments
-
-        // Render the block using the default rendering pipeline
-        Minecraft.getInstance().blockRenderer.renderSingleBlock(
-                blockState,
-                poseStack,
-                multiBufferSource,
-                light,
-                overlay
+        drawQuad(
+            vertexConsumer, poseStack,
+            ATLAS_START, TOP_LAYER_HEIGHT, ATLAS_START, ATLAS_END, TOP_LAYER_HEIGHT, ATLAS_END,
+            TOP_LAYER.u0, TOP_LAYER.v0, TOP_LAYER.u1, TOP_LAYER.v1,
+            light, secondaryColor
         )
 
-        // Pop the transformation matrix to restore the original state
+        drawQuad(
+            vertexConsumer, poseStack,
+            ATLAS_START, TOP_LAYER_HEIGHT, ATLAS_START, ATLAS_END, TOP_LAYER_HEIGHT, ATLAS_END,
+            CHERRY_LAYER.u0, CHERRY_LAYER.v0, CHERRY_LAYER.u1, CHERRY_LAYER.v1,
+            light, primaryColor
+        )
         poseStack.popPose()
+
+        val translations = arrayOf(
+            Vector3d(0.0, 1.0, 0.5 - PIXEL_SHIFT),
+            Vector3d(-1.0, 1.0, 0.5 - PIXEL_SHIFT),
+            Vector3d(0.0, 1.0, -0.5 - PIXEL_SHIFT),
+            Vector3d(-1.0, 1.0, -0.5 - PIXEL_SHIFT),
+        )
+
+        val rotationsY = arrayOf(
+            Axis.YP.rotationDegrees(0f),
+            Axis.YP.rotationDegrees(90f),
+            Axis.YP.rotationDegrees(-90f),
+            Axis.YP.rotationDegrees(-180f)
+        )
+
+        for (i in translations.indices) {
+            poseStack.pushPose()
+            poseStack.mulPose(rotationsY[i])
+            poseStack.translate(translations[i].x, translations[i].y, translations[i].z)
+            poseStack.mulPose(Axis.XP.rotationDegrees(90f))
+
+            drawQuad(
+                vertexConsumer, poseStack,
+                ATLAS_START, HEIGHT, ATLAS_START, ATLAS_END, HEIGHT, ATLAS_END,
+                SIDE_LAYER_BOTTOM.u0, SIDE_LAYER_BOTTOM.v0, SIDE_LAYER_BOTTOM.u1, SIDE_LAYER_BOTTOM.v1,
+                light, tertiaryColor
+            )
+            drawQuad(
+                vertexConsumer, poseStack,
+                ATLAS_START, HEIGHT, ATLAS_START, ATLAS_END, HEIGHT, ATLAS_END,
+                SIDE_LAYER_TOP.u0, SIDE_LAYER_TOP.v0, SIDE_LAYER_TOP.u1, SIDE_LAYER_TOP.v1,
+                light, secondaryColor
+            )
+            drawQuad(
+                vertexConsumer, poseStack,
+                ATLAS_START, HEIGHT, ATLAS_START, ATLAS_END, HEIGHT, ATLAS_END,
+                SIDE_LAYER_MIDDLE.u0, SIDE_LAYER_MIDDLE.v0, SIDE_LAYER_MIDDLE.u1, SIDE_LAYER_MIDDLE.v1,
+                light, primaryColor
+            )
+
+            poseStack.popPose()
+        }
+
+        poseStack.pushPose()
+        poseStack.translate(0.5, 0.0, 0.5)
+        poseStack.mulPose(Axis.XP.rotationDegrees(180f))
+        poseStack.translate(-0.5, 0.0, -0.5)
+        drawQuad(
+            vertexConsumer, poseStack,
+            ATLAS_START, BOTTOM_LAYER_HEIGHT, ATLAS_START, ATLAS_END, BOTTOM_LAYER_HEIGHT, ATLAS_END,
+            BOTTOM_LAYER.u0, BOTTOM_LAYER.v0, BOTTOM_LAYER.u1, BOTTOM_LAYER.v1,
+            light, tertiaryColor
+        )
+        poseStack.popPose()
+    }
+
+    private fun drawQuad(
+        builder: VertexConsumer,
+        poseStack: PoseStack,
+        x0: Float, y0: Float, z0: Float,
+        x1: Float, y1: Float, z1: Float,
+        u0: Float, v0: Float, u1: Float, v1: Float,
+        packedLight: Int, color: Int,
+    ) {
+        drawVertex(builder, poseStack, x0, y0, z0, u0, v0, packedLight, color)
+        drawVertex(builder, poseStack, x0, y1, z1, u0, v1, packedLight, color)
+        drawVertex(builder, poseStack, x1, y1, z1, u1, v1, packedLight, color)
+        drawVertex(builder, poseStack, x1, y0, z0, u1, v0, packedLight, color)
+    }
+
+    private fun drawVertex(
+        builder: VertexConsumer,
+        poseStack: PoseStack,
+        x: Float, y: Float, z: Float,
+        u: Float, v: Float,
+        packedLight: Int, color: Int
+    ) {
+        builder.addVertex(poseStack.last().pose(), x, y, z)
+            .setColor(color)
+            .setUv(u, v)
+            .setLight(packedLight)
+            .setNormal(0f, 1f, 0f)
     }
 }

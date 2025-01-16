@@ -38,8 +38,7 @@ class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
         const val WATER_START = 0.125f
         const val WATER_END = 0.875f
         const val WATER_HEIGHT = 0.5f
-        val WATER_STILL_TEXTURE = ResourceLocation("minecraft", "block/water_still")
-        val WATER_STILL_SPRITE: TextureAtlasSprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(WATER_STILL_TEXTURE)
+        val WATER_STILL_SPRITE: TextureAtlasSprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(ResourceLocation("minecraft", "block/water_still"))
 
         const val CIRCLE_RADIUS = 0.5f
         const val ROTATION_SPEED = 1f
