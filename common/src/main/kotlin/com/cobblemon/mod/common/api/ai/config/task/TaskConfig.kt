@@ -11,16 +11,17 @@ package com.cobblemon.mod.common.api.ai.config.task
 import com.bedrockk.molang.runtime.MoLangRuntime
 import com.cobblemon.mod.common.api.ai.BrainConfigurationContext
 import com.cobblemon.mod.common.api.ai.ExpressionOrEntityVariable
+import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMostSpecificMoLangValue
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.setup
 import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
 import com.cobblemon.mod.common.util.asExpression
 import com.cobblemon.mod.common.util.lang
-import com.cobblemon.mod.common.util.resolve
 import com.cobblemon.mod.common.util.resolveBoolean
 import com.cobblemon.mod.common.util.resolveDouble
 import com.cobblemon.mod.common.util.resolveFloat
 import com.cobblemon.mod.common.util.resolveInt
 import com.cobblemon.mod.common.util.resolveString
+import com.cobblemon.mod.common.util.withQueryValue
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.ai.behavior.BehaviorControl
 
@@ -70,6 +71,9 @@ interface TaskConfig {
             "flee_nearest_hostile" to FleeNearestHostileTaskConfig::class.java,
             "run_script" to RunScript::class.java,
             "look_in_direction" to LookInDirectionTaskConfig::class.java,
+            "wake_up" to WakeUpTaskConfig::class.java,
+            "go_to_sleep" to GoToSleepTaskConfig::class.java,
+            "find_resting_place" to FindRestingPlaceTaskConfig::class.java,
         )
 
         val runtime = MoLangRuntime().setup()
@@ -77,6 +81,11 @@ interface TaskConfig {
 
     val runtime: MoLangRuntime
         get() = Companion.runtime
+
+    fun checkCondition(entity: LivingEntity, expressionOrEntityVariable: ExpressionOrEntityVariable): Boolean {
+        runtime.withQueryValue("entity", entity.asMostSpecificMoLangValue())
+        return expressionOrEntityVariable.resolveBoolean()
+    }
 
     fun ExpressionOrEntityVariable.asExpression() = map({ it }, { "q.entity.config.${it.variableName}".asExpression() })
     fun ExpressionOrEntityVariable.resolveString() = runtime.resolveString(asExpression())

@@ -10,11 +10,13 @@ package com.cobblemon.mod.common.api.ai
 
 import com.cobblemon.mod.common.api.ai.config.BrainConfig
 import com.cobblemon.mod.common.entity.MoLangScriptingEntity
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.schedule.Activity
 import net.minecraft.world.entity.schedule.Schedule
 
 class BrainConfigurationContext {
+    var appliedBrainPresets: MutableSet<ResourceLocation> = mutableSetOf()
 
     var defaultActivity = Activity.IDLE
     var coreActivities = setOf(Activity.CORE)

@@ -29,7 +29,7 @@ class WanderTaskConfig : SingleTaskConfig {
     }
 
     val condition = booleanVariable(WANDER, "wanders", true).asExpressible()
-    val wanderChance = numberVariable(WANDER, "wander_chance", 1/(20 * 8F)).asExpressible()
+    val wanderChance = numberVariable(WANDER, "wander_chance", 1/(20 * 6F)).asExpressible()
     val horizontalRange = numberVariable(WANDER, "horizontal_wander_range", 10).asExpressible()
     val verticalRange = numberVariable(WANDER, "vertical_wander_range", 5).asExpressible()
 
