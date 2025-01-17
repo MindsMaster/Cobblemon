@@ -9,7 +9,7 @@
 package com.cobblemon.mod.common.client.render.block
 
 import com.cobblemon.mod.common.api.cooking.getColor
-import com.cobblemon.mod.common.block.LureCakeBlock.Companion.AGE
+import com.cobblemon.mod.common.block.LureCakeBlock.Companion.BITES
 import com.cobblemon.mod.common.block.entity.LureCakeBlockEntity
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
@@ -65,7 +65,7 @@ class LureCakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
             return
         }
 
-        val bites = blockState.getValue(AGE).toFloat()
+        val bites = blockState.getValue(BITES).toFloat()
         val maxBites = 7f
         val cakeIsFull = bites == 0f
         val percentageToRender = if (cakeIsFull) 1.0f else PIXEL_SHIFT.toFloat() + (PIXEL_SHIFT.toFloat() * 2f * (maxBites - bites).toFloat())
@@ -77,6 +77,11 @@ class LureCakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
         val primaryColor = cookingComponent?.seasoning1?.color?.let { getColor(it) } ?: WHITE_OPAQUE_COLOR
         val secondaryColor = cookingComponent?.seasoning2?.color?.let { getColor(it) } ?: WHITE_OPAQUE_COLOR
         val tertiaryColor = cookingComponent?.seasoning3?.color?.let { getColor(it) } ?: WHITE_OPAQUE_COLOR
+
+        poseStack.pushPose()
+        poseStack.translate(0.5, 0.5, 0.5)
+        poseStack.mulPose(Axis.YP.rotationDegrees(180f))
+        poseStack.translate(-0.5, -0.5, -0.5)
 
         poseStack.pushPose()
         drawQuad(
@@ -209,6 +214,8 @@ class LureCakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
             BOTTOM_LAYER.u0, BOTTOM_LAYER.v0, uClipped, BOTTOM_LAYER.v1,
             light, tertiaryColor
         )
+        poseStack.popPose()
+
         poseStack.popPose()
     }
 
