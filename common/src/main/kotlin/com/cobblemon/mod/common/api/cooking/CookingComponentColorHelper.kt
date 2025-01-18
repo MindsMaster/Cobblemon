@@ -22,7 +22,7 @@ private val colorMap = mapOf(
     "sour" to ChatFormatting.YELLOW.color
 )
 
-fun getColorMixFromSeasonings(seasonings: List<ItemStack>): Int {
+fun getColorMixFromSeasonings(seasonings: List<ItemStack>): Int? {
     val flavors = seasonings
         .flatMap { Seasonings.getFromItemStack(it)?.flavors?.entries ?: emptyList() }
         .groupingBy { it.key }
@@ -34,28 +34,26 @@ fun getColorMixFromSeasonings(seasonings: List<ItemStack>): Int {
     return getColorMixFromCookingComponent(dominantFlavors)
 }
 
-fun getTransparentColorMixFromSeasonings(seasonings: List<ItemStack>): Int {
+fun getTransparentColorMixFromSeasonings(seasonings: List<ItemStack>): Int? {
     val baseColor = getColorMixFromSeasonings(seasonings) // This gets the original color
-    if (baseColor == -1) {
-        return -1 // Return default no-color state
-    }
+    if (baseColor == null) return null
 
     // Apply 50% transparency by ensuring the alpha channel is 0x80
     return (baseColor and 0x00FFFFFF) or (0x80 shl 24)
 }
 
 
-fun getColorMixFromCookingComponent(cookingComponent: CookingComponent): Int {
+fun getColorMixFromCookingComponent(cookingComponent: CookingComponent): Int? {
     val dominantFlavors = cookingComponent.getDominantFlavors()
     return getColorMixFromCookingComponent(dominantFlavors)
 }
 
-fun getColorMixFromCookingComponent(dominantFlavors: List<String>): Int {
+fun getColorMixFromCookingComponent(dominantFlavors: List<String>): Int? {
     val colors =
         dominantFlavors.mapNotNull { colorMap[it] }
             .map { FastColor.ARGB32.opaque(it) }
 
-    if (colors.isEmpty()) return -1
+    if (colors.isEmpty()) return null
 
     val (alphaSum, redSum, greenSum, blueSum) = colors.fold(IntArray(4)) { acc, color ->
         acc[0] += FastColor.ARGB32.alpha(color)
@@ -71,4 +69,22 @@ fun getColorMixFromCookingComponent(dominantFlavors: List<String>): Int {
         greenSum / colors.size,
         blueSum / colors.size
     )
+}
+
+fun getColor(color: String): Int? {
+    return when (color.lowercase()) {
+        "red" -> FastColor.ARGB32.color(255, 255, 0, 0)
+        "orange" -> FastColor.ARGB32.color(255, 255, 165, 0)
+        "yellow" -> FastColor.ARGB32.color(255, 255, 255, 0)
+        "lime" -> FastColor.ARGB32.color(255, 0, 255, 0)
+        "green" -> FastColor.ARGB32.color(255, 0, 128, 0)
+        "cyan" -> FastColor.ARGB32.color(255, 0, 255, 255)
+        "light blue" -> FastColor.ARGB32.color(255, 173, 216, 230)
+        "blue" -> FastColor.ARGB32.color(255, 0, 0, 255)
+        "purple" -> FastColor.ARGB32.color(255, 128, 0, 128)
+        "magenta" -> FastColor.ARGB32.color(255, 255, 0, 255)
+        "pink" -> FastColor.ARGB32.color(255, 255, 192, 203)
+        "white" -> FastColor.ARGB32.color(255, 255, 255, 255)
+        else -> null
+    }
 }

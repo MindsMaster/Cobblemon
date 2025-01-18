@@ -1,11 +1,11 @@
 {
   "variants": {
-    "age=0": { "model": "cobblemon:block/lure_cake_full" },
-    "age=1": { "model": "cobblemon:block/lure_cake_bite1" },
-    "age=2": { "model": "cobblemon:block/lure_cake_bite2" },
-    "age=3": { "model": "cobblemon:block/lure_cake_bite3" },
-    "age=4": { "model": "cobblemon:block/lure_cake_bite4" },
-    "age=5": { "model": "cobblemon:block/lure_cake_bite5" },
-    "age=6": { "model": "cobblemon:block/lure_cake_bite6" }
+    "age=0": { "model": "minecraft:builtin/entity" },
+    "age=1": { "model": "minecraft:builtin/entity" },
+    "age=2": { "model": "minecraft:builtin/entity" },
+    "age=3": { "model": "minecraft:builtin/entity" },
+    "age=4": { "model": "minecraft:builtin/entity" },
+    "age=5": { "model": "minecraft:builtin/entity" },
+    "age=6": { "model": "minecraft:builtin/entity" }
   }
 }

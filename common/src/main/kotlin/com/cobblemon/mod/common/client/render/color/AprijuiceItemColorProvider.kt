@@ -38,11 +38,10 @@ object AprijuiceItemColorProvider : ItemColor {
         }
 
         if (layer == JUICE_INDEX) {
-            return getColorMixFromCookingComponent(cookingComponent)
+            val colorMix = getColorMixFromCookingComponent(cookingComponent)
+            if (colorMix != null) return colorMix
         }
 
         return -1
     }
-
-
 }

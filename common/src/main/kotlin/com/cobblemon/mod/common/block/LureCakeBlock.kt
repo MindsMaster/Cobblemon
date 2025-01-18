@@ -8,9 +8,7 @@
 
 package com.cobblemon.mod.common.block
 
-import com.cobblemon.mod.common.CobblemonBlockEntities
 import com.cobblemon.mod.common.CobblemonItemComponents
-import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.events.CobblemonEvents
 import com.cobblemon.mod.common.api.events.fishing.BaitConsumedEvent
 import com.cobblemon.mod.common.api.events.fishing.BaitSetEvent
@@ -24,12 +22,10 @@ import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.minecraft.core.BlockPos
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.util.RandomSource
-import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
-import net.minecraft.world.item.Item.Properties
+import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.BlockGetter
 import net.minecraft.world.level.Level
@@ -38,20 +34,17 @@ import net.minecraft.world.level.block.BaseEntityBlock
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.RenderShape
 import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.world.level.block.entity.BlockEntityTicker
-import net.minecraft.world.level.block.entity.BlockEntityType
-import net.minecraft.world.level.block.state.BlockBehaviour
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
-import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import net.minecraft.world.level.block.state.properties.IntegerProperty
+import net.minecraft.world.phys.shapes.CollisionContext
+import net.minecraft.world.phys.shapes.VoxelShape
 import java.util.*
-import kotlin.collections.flatten
 
-class LureCakeBlock(settings: BlockBehaviour.Properties): BaseEntityBlock(settings) {
+class LureCakeBlock(settings: Properties): BaseEntityBlock(settings) {
 
     companion object {
-        val AGE: IntegerProperty = IntegerProperty.create("age", 0, 5)
+        val BITES: IntegerProperty = IntegerProperty.create("age", 0, 5)
 
         //val CODEC = simpleCodec(::LureCakeBlock)
         val CODEC: Codec<LureCakeBlockEntity> = RecordCodecBuilder.create { instance ->
@@ -94,7 +87,6 @@ class LureCakeBlock(settings: BlockBehaviour.Properties): BaseEntityBlock(settin
             )
         }
 
-
         fun setBait(stack: ItemStack, bait: ItemStack) {
             CobblemonEvents.BAIT_SET.postThen(BaitSetEvent(stack, bait), { event -> }, {
                 if (bait.isEmpty) {
@@ -117,7 +109,6 @@ class LureCakeBlock(settings: BlockBehaviour.Properties): BaseEntityBlock(settin
                 }
             })
         }
-
 
         fun consumeBait(stack: ItemStack) {
             CobblemonEvents.BAIT_CONSUMED.postThen(BaitConsumedEvent(stack), { event -> }, {
@@ -144,16 +135,24 @@ class LureCakeBlock(settings: BlockBehaviour.Properties): BaseEntityBlock(settin
             })
         }
 
-
-
         fun getBaitEffects(stack: ItemStack): List<FishingBait.Effect> {
             return getBaitOnLureCake(stack)?.effects ?: return emptyList()
         }
+
+        val SHAPE_BY_BITE = arrayOf(
+            box(1.0, 0.0, 1.0, 15.0, 9.0, 15.0),
+            box(3.0, 0.0, 1.0, 15.0, 9.0, 15.0),
+            box(5.0, 0.0, 1.0, 15.0, 9.0, 15.0),
+            box(7.0, 0.0, 1.0, 15.0, 9.0, 15.0),
+            box(9.0, 0.0, 1.0, 15.0, 9.0, 15.0),
+            box(11.0, 0.0, 1.0, 15.0, 9.0, 15.0),
+            box(13.0, 0.0, 1.0, 15.0, 9.0, 15.0)
+        )
     }
 
     init {
         // Default state with age set to 0
-        registerDefaultState(this.stateDefinition.any().setValue(AGE, 0))
+        registerDefaultState(this.stateDefinition.any().setValue(BITES, 0))
     }
 
     override fun codec(): MapCodec<LureCakeBlock> {
@@ -202,7 +201,7 @@ class LureCakeBlock(settings: BlockBehaviour.Properties): BaseEntityBlock(settin
         }
 
         // Check if the block is fully aged
-        val currentAge = state.getValue(AGE)
+        val currentAge = state.getValue(BITES)
         if (currentAge >= 5) {
             println("Block at $pos is fully aged. Breaking block.")
             world.destroyBlock(pos, true) // Break the block and drop its items
@@ -225,15 +224,13 @@ class LureCakeBlock(settings: BlockBehaviour.Properties): BaseEntityBlock(settin
                 println("Block at $pos has reached max age. Breaking block.")
                 world.destroyBlock(pos, true) // Break the block and drop its items
             } else {
-                world.setBlock(pos, state.setValue(AGE, newAge), Block.UPDATE_ALL)
+                world.setBlock(pos, state.setValue(BITES, newAge), Block.UPDATE_ALL)
                 println("Block at $pos aged to $newAge")
             }
         } else {
             println("No Pokémon spawned at $spawnPos")
         }
     }
-
-
 
     override fun isRandomlyTicking(state: BlockState): Boolean {
         // Enable random ticking for this block
@@ -242,7 +239,7 @@ class LureCakeBlock(settings: BlockBehaviour.Properties): BaseEntityBlock(settin
 
     override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
         // Register the AGE property
-        builder.add(AGE)
+        builder.add(BITES)
     }
 
     override fun newBlockEntity(pos: BlockPos, state: BlockState): BlockEntity {
@@ -252,5 +249,14 @@ class LureCakeBlock(settings: BlockBehaviour.Properties): BaseEntityBlock(settin
 
     override fun getRenderShape(state: BlockState): RenderShape {
         return RenderShape.MODEL
+    }
+
+    override fun getShape(
+        state: BlockState,
+        level: BlockGetter,
+        pos: BlockPos,
+        context: CollisionContext
+    ): VoxelShape? {
+        return SHAPE_BY_BITE[state.getValue(BITES)]
     }
 }

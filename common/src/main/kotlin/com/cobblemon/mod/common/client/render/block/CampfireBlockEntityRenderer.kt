@@ -8,25 +8,20 @@
 
 package com.cobblemon.mod.common.client.render.block
 
-import com.cobblemon.mod.common.api.cooking.getTransparentColorMixFromSeasonings
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.IS_LID_OPEN_INDEX
 import com.cobblemon.mod.common.client.CobblemonBakingOverrides
-import com.cobblemon.mod.common.client.pot.PotTypes
-import com.cobblemon.mod.common.net.messages.client.effect.SpawnSnowstormParticlePacket
-import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.cobblemon.mod.common.item.PotItem
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
-import com.mojang.blaze3d.vertex.VertexFormat
 import com.mojang.math.Axis
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderStateShard
 import net.minecraft.client.renderer.RenderType
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
+import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.inventory.InventoryMenu
@@ -38,6 +33,18 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : BlockEntityRenderer<CampfireBlockEntity> {
+
+    companion object {
+        const val WATER_START = 0.125f
+        const val WATER_END = 0.875f
+        const val WATER_HEIGHT = 0.5f
+        val WATER_STILL_SPRITE: TextureAtlasSprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(ResourceLocation("minecraft", "block/water_still"))
+
+        const val CIRCLE_RADIUS = 0.5f
+        const val ROTATION_SPEED = 1f
+        const val JUMP_AMPLITUDE = 0.1f
+        const val JUMP_SPEED = 0.1f
+    }
 
     override fun render(
         blockEntity: CampfireBlockEntity,
@@ -114,33 +121,38 @@ class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
     ) {
         poseStack.pushPose()
 
-        // new custom Render Type to let us see the damn bubbles >:(
+        // todo disabled for now for testing more
+        /*// new custom Render Type to let us see the damn bubbles >:(
         val renderType = RenderType.create(
-                "custom_translucent_water",
-                DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP,
-                VertexFormat.Mode.QUADS,
-                256,
-                false,
-                true,
-                RenderType.CompositeState.builder()
-                        .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
-                        .setShaderState(RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_SHADER) // Use a valid shader
-                        .setWriteMaskState(RenderStateShard.COLOR_WRITE)
-                        .setDepthTestState(RenderStateShard.NO_DEPTH_TEST)
-                        .createCompositeState(false)
+            "custom_translucent_water",
+            DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP,
+            VertexFormat.Mode.QUADS,
+            256,
+            false, // No depth mask writes
+            true,  // Enable sorting for transparency
+            RenderType.CompositeState.builder()
+                .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY) // Proper blending for transparency
+                .setShaderState(RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_SHADER) // Use a translucent shader
+                .setWriteMaskState(RenderStateShard.COLOR_DEPTH_WRITE) // Allow color and depth writes
+                .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST) // Standard depth testing
+                .setCullState(RenderStateShard.NO_CULL) // Render both sides of the quad
+                .setOutputState(RenderStateShard.MAIN_TARGET) // Render to the main target
+                .createCompositeState(true) // Enable sorting
         )
 
-        val vertexConsumer = multiBufferSource.getBuffer(renderType)
+        val vertexConsumer = multiBufferSource.getBuffer(renderType)*/
 
-        poseStack.translate(0.0, 0.5, 0.0) // todo set y back to .4 (maybe make the quad smaller overall so it fits just inside the pot opening)
+        val vertexConsumer = multiBufferSource.getBuffer(RenderType.translucent())
+
+        poseStack.translate(0.0, 0.4, 0.0)
         poseStack.scale(1.0f, 1.0f, 1.0f)
 
-        val stillTexture = ResourceLocation("minecraft", "block/water_still")
-        val sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(stillTexture)
-        val height = 0.5f
-        val mixColor = getTransparentColorMixFromSeasonings(blockEntity.getSeasonings())
-        val waterColor = if (mixColor != -1) mixColor else 0x803F76E4.toInt() //0xFF3F76E4 for fully opaque water
-        drawQuad(vertexConsumer, poseStack, 0.125f, height, 0.125f, 0.875f, height, 0.875f, sprite.u0, sprite.v0, sprite.u1, sprite.v1, light, waterColor)
+        drawQuad(
+            vertexConsumer, poseStack,
+            WATER_START, WATER_HEIGHT, WATER_START, WATER_END, WATER_HEIGHT, WATER_END,
+            WATER_STILL_SPRITE.u0, WATER_STILL_SPRITE.v0, WATER_STILL_SPRITE.u1, WATER_STILL_SPRITE.v1,
+            light, blockEntity.waterColor
+        )
 
         poseStack.popPose()
     }
@@ -155,12 +167,8 @@ class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
     ) {
         val seasonings = blockEntity.getSeasonings()
 
-        val gameTime = Minecraft.getInstance().level?.gameTime ?: 0
-
-        val rotationSpeed = 1f
-        val rotationAngle = (gameTime * rotationSpeed) % 360
-        val jumpAmplitude = 0.1f
-        val jumpSpeed = 0.1f
+        val gameTime = (blockEntity.level?.gameTime ?: 0) + tickDelta
+        val rotationAngle = (gameTime * ROTATION_SPEED) % 360
 
         seasonings.forEachIndexed { index, seasoning ->
             poseStack.pushPose()
@@ -170,9 +178,9 @@ class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
             val angleOffset = index * (360f / seasonings.size)
             val angleInRadians = Math.toRadians((rotationAngle + angleOffset).toDouble())
 
-            val xOffset = cos(angleInRadians.toDouble()).toFloat() * 0.5f
-            val zOffset = sin(angleInRadians.toDouble()).toFloat() * 0.5f
-            val jumpOffset = sin(gameTime * jumpSpeed + index * 2) * jumpAmplitude
+            val xOffset = cos(angleInRadians.toDouble()).toFloat() * CIRCLE_RADIUS
+            val zOffset = sin(angleInRadians.toDouble()).toFloat() * CIRCLE_RADIUS
+            val jumpOffset = sin(gameTime * JUMP_SPEED + index * 2) * JUMP_AMPLITUDE
             poseStack.translate(1f + xOffset, 1.7f + jumpOffset, 1f + zOffset)
 
             val lookAtDirection = Vector3f(1f + xOffset - 1f, 1.8f - 1.8f, 1f + zOffset - 1f)
