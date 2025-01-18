@@ -1,12 +1,25 @@
 {
   "implemented": true,
-  "name": "Jangmo-o",
   "nationalPokedexNumber": 782,
+  "name": "Jangmo-o",
   "primaryType": "dragon",
+  "maleRatio": 0.5,
+  "height": 6,
+  "weight": 297,
+  "pokedex": [
+    "cobblemon.species.jangmoo.desc"
+  ],
+  "labels": [
+    "gen7"
+  ],
+  "aspects": [],
   "abilities": [
     "bulletproof",
     "soundproof",
     "h:overcoat"
+  ],
+  "eggGroups": [
+    "dragon"
   ],
   "baseStats": {
     "hp": 45,
@@ -16,132 +29,6 @@
     "special_defence": 45,
     "speed": 45
   },
-  "catchRate": 45,
-  "maleRatio": 0.5,
-  "shoulderMountable": false,
-  "baseExperienceYield": 60,
-  "experienceGroup": "slow",
-  "eggCycles": 40,
-  "eggGroups": [
-    "dragon"
-  ],
-  "moves": [
-    "1:leer",
-    "1:tackle",
-    "4:protect",
-    "8:dragontail",
-    "9:bide",
-    "12:scaryface",
-    "16:headbutt",
-    "20:workup",
-    "24:screech",
-    "28:irondefense",
-    "32:dragonclaw",
-    "36:nobleroar",
-    "40:dragondance",
-    "44:outrage",
-    "egg:counter",
-    "egg:dragonbreath",
-    "egg:focuspunch",
-    "egg:reversal",
-    "tm:aerialace",
-    "tm:attract",
-    "tm:bodyslam",
-    "tm:breakingswipe",
-    "tm:brickbreak",
-    "tm:bulkup",
-    "tm:bulldoze",
-    "tm:confide",
-    "tm:doubleteam",
-    "tm:dracometeor",
-    "tm:dragoncheer",
-    "tm:dragonclaw",
-    "tm:dragondance",
-    "tm:dragonpulse",
-    "tm:dragontail",
-    "tm:earthquake",
-    "tm:echoedvoice",
-    "tm:endure",
-    "tm:facade",
-    "tm:falseswipe",
-    "tm:fling",
-    "tm:focusblast",
-    "tm:focuspunch",
-    "tm:frustration",
-    "tm:hiddenpower",
-    "tm:irondefense",
-    "tm:ironhead",
-    "tm:irontail",
-    "tm:lowkick",
-    "tm:outrage",
-    "tm:payback",
-    "tm:protect",
-    "tm:rest",
-    "tm:return",
-    "tm:reversal",
-    "tm:roar",
-    "tm:rockslide",
-    "tm:rocktomb",
-    "tm:round",
-    "tm:safeguard",
-    "tm:sandstorm",
-    "tm:scaleshot",
-    "tm:scaryface",
-    "tm:screech",
-    "tm:shadowclaw",
-    "tm:sleeptalk",
-    "tm:snore",
-    "tm:substitute",
-    "tm:swagger",
-    "tm:swordsdance",
-    "tm:takedown",
-    "tm:taunt",
-    "tm:terablast",
-    "tm:toxic",
-    "tm:uproar",
-    "tm:workup",
-    "tm:xscissor",
-    "tutor:aquatail",
-    "tutor:dracometeor",
-    "tutor:dragonpulse",
-    "tutor:dualchop",
-    "tutor:irondefense",
-    "tutor:ironhead",
-    "tutor:irontail",
-    "tutor:lowkick",
-    "tutor:outrage",
-    "tutor:scaleshot",
-    "tutor:snore",
-    "tutor:uproar"
-  ],
-  "labels": [
-    "gen7"
-  ],
-  "pokedex": [
-    "cobblemon.species.jangmoo.desc"
-  ],
-  "evolutions": [
-    {
-      "id": "jangmoo_hakamoo",
-      "variant": "level_up",
-      "result": "hakamoo",
-      "consumeHeldItem": false,
-      "learnableMoves": [],
-      "requirements": [
-        {
-          "variant": "level",
-          "minLevel": 35
-        }
-      ]
-    }
-  ],
-  "baseScale": 0.75,
-  "hitbox": {
-    "width": 0.75,
-    "height": 1.2,
-    "fixed": false
-  },
-  "baseFriendship": 50,
   "evYield": {
     "hp": 0,
     "attack": 0,
@@ -150,10 +37,18 @@
     "special_defence": 0,
     "speed": 0
   },
-  "height": 6,
-  "weight": 297,
-  "aspects": [],
-  "cannotDynamax": false,
+  "baseExperienceYield": 60,
+  "experienceGroup": "slow",
+  "catchRate": 45,
+  "eggCycles": 40,
+  "baseFriendship": 50,
+  "baseScale": 0.75,
+  "hitbox": {
+    "width": 0.75,
+    "height": 1.2,
+    "fixed": false
+  },
+  "behaviour": {},
   "drops": {
     "amount": 4,
     "entries": [
@@ -174,5 +69,94 @@
         "percentage": 2.5
       }
     ]
-  }
+  },
+  "moves": [
+    "1:tackle",
+    "1:leer",
+    "1:bide",
+    "4:protect",
+    "8:dragontail",
+    "12:scaryface",
+    "16:headbutt",
+    "20:workup",
+    "24:screech",
+    "28:irondefense",
+    "32:dragonclaw",
+    "36:nobleroar",
+    "40:dragondance",
+    "44:outrage",
+    "egg:counter",
+    "egg:dragonbreath",
+    "egg:focuspunch",
+    "tm:aquatail",
+    "tm:bide",
+    "tm:bodyslam",
+    "tm:breakingswipe",
+    "tm:brickbreak",
+    "tm:bulkup",
+    "tm:bulldoze",
+    "tm:counter",
+    "tm:dracometeor",
+    "tm:dragonbreath",
+    "tm:dragoncheer",
+    "tm:dragonclaw",
+    "tm:dragondance",
+    "tm:dragonpulse",
+    "tm:dragontail",
+    "tm:dualchop",
+    "tm:earthquake",
+    "tm:echoedvoice",
+    "tm:endure",
+    "tm:facade",
+    "tm:falseswipe",
+    "tm:focusblast",
+    "tm:focuspunch",
+    "tm:headbutt",
+    "tm:irondefense",
+    "tm:ironhead",
+    "tm:irontail",
+    "tm:leer",
+    "tm:lowkick",
+    "tm:nobleroar",
+    "tm:outrage",
+    "tm:payback",
+    "tm:protect",
+    "tm:rest",
+    "tm:reversal",
+    "tm:roar",
+    "tm:rockslide",
+    "tm:rocktomb",
+    "tm:safeguard",
+    "tm:sandstorm",
+    "tm:scaleshot",
+    "tm:scaryface",
+    "tm:screech",
+    "tm:shadowclaw",
+    "tm:sleeptalk",
+    "tm:substitute",
+    "tm:swordsdance",
+    "tm:tackle",
+    "tm:takedown",
+    "tm:taunt",
+    "tm:terablast",
+    "tm:workup",
+    "tm:xscissor"
+  ],
+  "evolutions": [
+    {
+      "id": "jangmoo_hakamoo",
+      "variant": "level_up",
+      "result": "hakamoo",
+      "consumeHeldItem": false,
+      "learnableMoves": [
+        "skyuppercut"
+      ],
+      "requirements": [
+        {
+          "variant": "level",
+          "minLevel": 35
+        }
+      ]
+    }
+  ]
 }

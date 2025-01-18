@@ -40,7 +40,7 @@ class NPCClass {
     var aspects: MutableSet<String> = mutableSetOf() // These only make sense when applied via presets
     var baseScale: Float = 1F
     var hitbox = EntityDimensions.scalable(0.6F, 1.8F).withEyeHeight(1.62F)
-    var modelScale: Float = 0.94F
+    var modelScale: Float = 0.9375F
     var battleConfiguration = NPCBattleConfiguration()
     var interaction: NPCInteractConfiguration? = null
     var canDespawn = true
