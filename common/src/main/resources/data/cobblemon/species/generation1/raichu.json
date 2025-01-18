@@ -268,23 +268,6 @@
           "light": "0-4"
         }
       },
-      "drops": {
-        "amount": 3,
-        "entries": [
-          {
-            "item": "cobblemon:light_ball",
-            "percentage": 10
-          },
-          {
-            "item": "cobblemon:thunder_stone",
-            "percentage": 10
-          },
-          {
-            "item": "cobblemon:oran_berry",
-            "percentage": 10
-          }
-        ]
-      },
       "moves": [
         "1:psychic",
         "1:thundershock",

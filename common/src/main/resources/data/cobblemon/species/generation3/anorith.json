@@ -69,11 +69,11 @@
     }
   },
   "drops": {
-    "amount": 2,
+    "amount": 1,
     "entries": [
       {
-        "item": "minecraft:turtle_scute",
-        "quantityRange": "0-2"
+        "item": "cobblemon:quick_claw",
+        "percentage": 5
       }
     ]
   },

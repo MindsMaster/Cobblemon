@@ -57,7 +57,7 @@
     }
   },
   "drops": {
-    "amount": 3,
+    "amount": 4,
     "entries": [
       {
         "item": "minecraft:rotten_flesh",
@@ -65,6 +65,10 @@
       },
       {
         "item": "cobblemon:shuca_berry",
+        "percentage": 5
+      },
+      {
+        "item": "cobblemon:smoke_ball",
         "percentage": 5
       }
     ]

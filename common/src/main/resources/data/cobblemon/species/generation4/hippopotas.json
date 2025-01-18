@@ -55,8 +55,12 @@
     }
   },
   "drops": {
-    "amount": 2,
+    "amount": 3,
     "entries": [
+      {
+        "item": "minecraft:sand",
+        "quantityRange": "0-1"
+      },
       {
         "item": "cobblemon:soft_sand",
         "percentage": 2.5

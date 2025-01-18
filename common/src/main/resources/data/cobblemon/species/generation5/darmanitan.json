@@ -641,7 +641,20 @@
         "tm:zenheadbutt"
       ],
       "evolutions": [],
-      "battleOnly": true
+      "battleOnly": true,
+      "drops": {
+        "amount": 2,
+        "entries": [
+          {
+            "item": "cobblemon:ice_stone",
+            "percentage": 5
+          },
+          {
+            "item": "cobblemon:occa_berry",
+            "percentage": 5
+          }
+        ]
+      }
     }
   ]
 }

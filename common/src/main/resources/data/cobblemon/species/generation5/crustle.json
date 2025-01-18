@@ -52,8 +52,12 @@
   },
   "behaviour": {},
   "drops": {
-    "amount": 1,
+    "amount": 3,
     "entries": [
+      {
+        "item": "minecraft:terracotta",
+        "quantityRange": "0-2"
+      },
       {
         "item": "cobblemon:hard_stone",
         "percentage": 5

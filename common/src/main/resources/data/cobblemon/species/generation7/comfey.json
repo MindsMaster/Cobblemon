@@ -62,8 +62,12 @@
     }
   },
   "drops": {
-    "amount": 1,
+    "amount": 2,
     "entries": [
+      {
+        "item": "cobblemon:misty_seed",
+        "percentage": 5
+      },
       {
         "item": "cobblemon:kebia_berry",
         "percentage": 5

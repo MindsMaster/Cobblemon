@@ -63,8 +63,12 @@
     }
   },
   "drops": {
-    "amount": 2,
+    "amount": 3,
     "entries": [
+      {
+        "item": "minecraft:ink_sac",
+        "quantityRange": "0-1"
+      },
       {
         "item": "minecraft:prismarine_shard",
         "quantityRange": "0-1"

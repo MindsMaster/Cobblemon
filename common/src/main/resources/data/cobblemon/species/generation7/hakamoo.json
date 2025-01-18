@@ -51,18 +51,14 @@
   },
   "behaviour": {},
   "drops": {
-    "amount": 5,
+    "amount": 4,
     "entries": [
       {
-        "item": "minecraft:turtle_scute",
+        "item": "cobblemon:dragon_scale",
         "quantityRange": "0-2"
       },
       {
         "item": "cobblemon:razor_claw",
-        "percentage": 5
-      },
-      {
-        "item": "cobblemon:dragon_scale",
         "percentage": 5
       },
       {

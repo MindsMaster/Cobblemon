@@ -43,8 +43,12 @@
   "baseFriendship": 50,
   "behaviour": {},
   "drops": {
-    "amount": 2,
+    "amount": 3,
     "entries": [
+      {
+        "item": "minecraft:dead_bush",
+        "quantityRange": "0-1"
+      },
       {
         "item": "minecraft:stick",
         "quantityRange": "0-1"

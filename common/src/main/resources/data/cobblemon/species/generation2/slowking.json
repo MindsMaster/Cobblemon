@@ -296,8 +296,12 @@
         }
       },
       "drops": {
-        "amount": 1,
+        "amount": 4,
         "entries": [
+          {
+            "item": "cobblemon:galarica_nuts",
+            "quantityRange": "0-3"
+          },
           {
             "item": "cobblemon:chesto_berry",
             "percentage": 10

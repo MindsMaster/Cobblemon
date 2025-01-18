@@ -27,6 +27,7 @@
 - Berries will drop if broken at age 0
 - Improved Fortune drops on Mint Seeds
 - New Slowpoke shiny texture.
+- Updated drops for many Pokémon.
 
 ### Pokémon Added
 

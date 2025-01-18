@@ -66,11 +66,11 @@
     }
   },
   "drops": {
-    "amount": 3,
+    "amount": 2,
     "entries": [
       {
-        "item": "minecraft:turtle_scute",
-        "quantityRange": "0-2"
+        "item": "cobblemon:razor_claw",
+        "percentage": 5
       },
       {
         "item": "minecraft:bone_meal",

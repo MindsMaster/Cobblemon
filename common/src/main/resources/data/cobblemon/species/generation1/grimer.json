@@ -254,23 +254,6 @@
           }
         }
       },
-      "drops": {
-        "amount": 3,
-        "entries": [
-          {
-            "item": "minecraft:slime_ball",
-            "quantityRange": "0-1"
-          },
-          {
-            "item": "cobblemon:black_sludge",
-            "percentage": 2.5
-          },
-          {
-            "item": "cobblemon:toxic_orb",
-            "percentage": 2.5
-          }
-        ]
-      },
       "moves": [
         "1:pound",
         "1:poisongas",

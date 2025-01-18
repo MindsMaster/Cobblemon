@@ -67,7 +67,7 @@
     "amount": 4,
     "entries": [
       {
-        "item": "minecraft:quartz",
+        "item": "minecraft:calcite",
         "quantityRange": "0-3"
       },
       {

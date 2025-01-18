@@ -285,7 +285,16 @@
         "tm:willowisp"
       ],
       "evolutions": [],
-      "battleOnly": false
+      "battleOnly": false,
+      "drops": {
+        "amount": 5,
+        "entries": [
+          {
+            "item": "minecraft:phantom_membrane",
+            "quantityRange": "3-5"
+          }
+        ]
+      }
     }
   ]
 }

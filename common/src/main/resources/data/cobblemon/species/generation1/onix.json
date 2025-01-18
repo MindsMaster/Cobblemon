@@ -68,7 +68,7 @@
     "amount": 5,
     "entries": [
       {
-        "item": "minecraft:flint",
+        "item": "minecraft:stone",
         "quantityRange": "1-3"
       },
       {

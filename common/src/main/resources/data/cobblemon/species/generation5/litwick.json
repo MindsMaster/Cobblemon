@@ -61,7 +61,8 @@
     "amount": 3,
     "entries": [
       {
-        "item": "minecraft:candle"
+        "item": "minecraft:candle",
+        "quantityRange": "0-1"
       },
       {
         "item": "cobblemon:dusk_stone",

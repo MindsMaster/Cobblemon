@@ -131,5 +131,14 @@
     "tm:wideguard",
     "tm:wonderroom"
   ],
-  "evolutions": []
+  "evolutions": [],
+  "drops": {
+    "amount": 2,
+    "entries": [
+      {
+        "item": "minecraft:stone",
+        "quantityRange": "2"
+      }
+    ]
+  }
 }

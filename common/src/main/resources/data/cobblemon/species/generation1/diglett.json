@@ -340,7 +340,28 @@
           ]
         }
       ],
-      "battleOnly": false
+      "battleOnly": false,
+      "drops": {
+        "amount": 4,
+        "entries": [
+          {
+            "item": "minecraft:coarse_dirt",
+            "quantityRange": "0-1"
+          },
+          {
+            "item": "minecraft:potato",
+            "percentage": 2.5
+          },
+          {
+            "item": "cobblemon:big_root",
+            "percentage": 2.5
+          },
+          {
+            "item": "cobblemon:soft_sand",
+            "percentage": 2.5
+          }
+        ]
+      }
     }
   ]
 }

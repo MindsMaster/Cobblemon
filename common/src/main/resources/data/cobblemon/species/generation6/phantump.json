@@ -58,8 +58,12 @@
     }
   },
   "drops": {
-    "amount": 2,
+    "amount": 3,
     "entries": [
+      {
+        "item": "minecraft:jack_o_lantern",
+        "quantityRange": "0-1"
+      },
       {
         "item": "cobblemon:spell_tag",
         "percentage": 2.5
