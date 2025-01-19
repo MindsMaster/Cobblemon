@@ -8,7 +8,8 @@
       "presets": [
         "cobblemon:core",
         "cobblemon:looks_around",
-        "cobblemon:wanders"
+        "cobblemon:wanders",
+        "cobblemon:pokemon_battles"
       ]
     }
   ]
