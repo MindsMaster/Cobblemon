@@ -149,6 +149,9 @@ import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import org.joml.Matrix3f
+import org.joml.Matrix4f
+import org.joml.Vector3f
+import org.joml.Vector3fc
 
 @Suppress("unused")
 open class PokemonEntity(
@@ -183,7 +186,7 @@ open class PokemonEntity(
         const val BATTLE_LOCK = "battle"
         const val EVOLUTION_LOCK = "evolving"
 
-        fun createAttributes(): AttributeSupplier.Builder = LivingEntity.createLivingAttributes()
+        fun createAttributes(): AttributeSupplier.Builder = createLivingAttributes()
             .add(Attributes.FOLLOW_RANGE)
             .add(Attributes.ATTACK_KNOCKBACK)
     }
@@ -1674,9 +1677,14 @@ open class PokemonEntity(
         if (this.hasPassenger(passenger) && passenger is Rollable) {
             val index = passengers.indexOf(passenger).takeIf { it >= 0 && it < seats.size } ?: return
             val seat = seats[index]
-            val offset = seat.getOffset(getCurrentPoseType())
-            val orientation = (passengers.first() as? Rollable)?.orientation ?: Matrix3f()
-            val rotatedOffset = orientation.transform(offset.toVector3f())
+            val seatOffset = seat.getOffset(getCurrentPoseType()).toVector3f()
+            val center = Vector3f(0f, this.bbHeight/2, 0f)
+
+            val seatToCenter = center.sub(seatOffset, Vector3f())
+            val orientation = (passengers.first() as Rollable).orientation ?: Matrix3f()
+
+            val rotatedOffset = orientation.transform(seatToCenter, Vector3f()).add(center).sub(Vector3f(0f, passenger.bbHeight/2, 0f))
+
             positionUpdater.accept(passenger, this.x + rotatedOffset.x, this.y + rotatedOffset.y, this.z + rotatedOffset.z)
             if (passenger is LivingEntity) {
                 passenger.yRot = this.yRot
