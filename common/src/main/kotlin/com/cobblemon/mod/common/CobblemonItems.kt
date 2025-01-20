@@ -333,6 +333,8 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
 
     @JvmField
     val LURE_CAKE = blockItem("lure_cake", CobblemonBlocks.LURE_CAKE)
+    @JvmField
+    val POKE_CAKE = blockItem("poke_cake", CobblemonBlocks.POKE_CAKE)
 
     val aprijuices = mutableListOf<AprijuiceItem>()
     @JvmField
@@ -510,8 +512,6 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     val TWICE_SPICED_BEETROOT = noSettingsItem("twice_spiced_beetroot") // todo make a TwiceSpiceBeetrootItem class for breeding purposes
 
     // todo THE MOCHIS (are they all with their own item classes? Or bundled into one itemclass like some of the berries?
-
-    //todo PokeCake the player cake that is not a lure
 
     // todo potato mochi
 

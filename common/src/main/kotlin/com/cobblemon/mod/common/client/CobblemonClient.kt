@@ -267,6 +267,7 @@ object CobblemonClient {
             CobblemonBlocks.SACCHARINE_WALL_HANGING_SIGN,
             CobblemonBlocks.SACCHARINE_SAPLING,
             CobblemonBlocks.LURE_CAKE,
+            CobblemonBlocks.POKE_CAKE,
             CobblemonBlocks.LECTERN,
             CobblemonBlocks.CAMPFIRE
         )
@@ -304,6 +305,7 @@ object CobblemonClient {
         this.implementation.registerBlockEntityRenderer(CobblemonBlockEntities.LECTERN, ::LecternBlockEntityRenderer)
         this.implementation.registerBlockEntityRenderer(CobblemonBlockEntities.CAMPFIRE, ::CampfireBlockEntityRenderer)
         this.implementation.registerBlockEntityRenderer(CobblemonBlockEntities.LURE_CAKE, ::LureCakeBlockEntityRenderer)
+        this.implementation.registerBlockEntityRenderer(CobblemonBlockEntities.POKE_CAKE, ::PokeCakeBlockEntityRenderer)
     }
 
     private fun registerEntityRenderers() {

@@ -10,8 +10,8 @@ package com.cobblemon.mod.common
 
 import com.cobblemon.mod.common.api.apricorn.Apricorn
 import com.cobblemon.mod.common.block.*
-import com.cobblemon.mod.common.block.LecternBlock
 import com.cobblemon.mod.common.block.CampfireBlock
+import com.cobblemon.mod.common.block.LecternBlock
 import com.cobblemon.mod.common.block.MintBlock.MintType
 import com.cobblemon.mod.common.block.chest.GildedChestBlock
 import com.cobblemon.mod.common.block.sign.CobblemonHangingSignBlock
@@ -232,6 +232,8 @@ object CobblemonBlocks : PlatformRegistry<Registry<Block>, ResourceKey<Registry<
 
     @JvmField
     val LURE_CAKE = this.create("lure_cake", LureCakeBlock(BlockBehaviour.Properties.of().randomTicks().sound(SoundType.SPONGE).mapColor(MapColor.COLOR_LIGHT_GRAY).noOcclusion()))
+    @JvmField
+    val POKE_CAKE = this.create("poke_cake", PokeCakeBlock(BlockBehaviour.Properties.of().randomTicks().sound(SoundType.SPONGE).mapColor(MapColor.COLOR_LIGHT_GRAY).noOcclusion()))
 
     @JvmField
     val TUMBLESTONE_CLUSTER = tumblestoneBlock("tumblestone_cluster", GrowableStoneBlock.STAGE_3, 7, 3, null)
