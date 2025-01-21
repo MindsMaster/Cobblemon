@@ -506,27 +506,82 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     @JvmField
     val CHOICE_DUMPLING = noSettingsItem("choice_dumpling") // todo make a ChoiceDumpingItem class for breeding purposes
     @JvmField
-    val SwapSnack = noSettingsItem("swap_snack") // todo make a SwapSnackItem class for breeding purposes
+    val SWAP_SNACK = noSettingsItem("swap_snack") // todo make a SwapSnackItem class for breeding purposes
     @JvmField
     val TWICE_SPICED_BEETROOT = noSettingsItem("twice_spiced_beetroot") // todo make a TwiceSpiceBeetrootItem class for breeding purposes
 
-    // todo potato mochi
-
-    // todo fried rice
-
-    // todo candied apples
+    @JvmField
+    val POTATO_MOCHI = create("potato_mochi", object : Item(Properties().stacksTo(16)
+        .food(FoodProperties.Builder()
+            .nutrition(10)
+            .saturationModifier(1.2F)
+            .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F)
+            .alwaysEdible()
+            .build())) {
+        override fun finishUsingItem(stack: ItemStack, world: Level, user: LivingEntity): ItemStack {
+            user.removeAllEffects()
+            return super.finishUsingItem(stack, world, user)
+        }
+    })
+    @JvmField
+    val FRIED_RICE = create("fried_rice", object : Item(Properties().stacksTo(16)
+        .food(FoodProperties.Builder()
+            .nutrition(10)
+            .saturationModifier(1.2F)
+            .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F)
+            .alwaysEdible()
+            .build())) {
+        override fun finishUsingItem(stack: ItemStack, world: Level, user: LivingEntity): ItemStack {
+            user.removeAllEffects()
+            return super.finishUsingItem(stack, world, user)
+        }
+    })
+    @JvmField
+    val CANDIED_APPLE = create("candied_apple", object : Item(Properties().stacksTo(16)
+        .food(FoodProperties.Builder()
+            .nutrition(10)
+            .saturationModifier(1.2F)
+            .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F)
+            .alwaysEdible()
+            .build())) {
+        override fun finishUsingItem(stack: ItemStack, world: Level, user: LivingEntity): ItemStack {
+            user.removeAllEffects()
+            return super.finishUsingItem(stack, world, user)
+        }
+    })
+    @JvmField
+    val CANDIED_BERRY = create("candied_berry", object : Item(Properties().stacksTo(16)
+        .food(FoodProperties.Builder()
+            .nutrition(10)
+            .saturationModifier(1.2F)
+            .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F)
+            .alwaysEdible()
+            .build())) {
+        override fun finishUsingItem(stack: ItemStack, world: Level, user: LivingEntity): ItemStack {
+            user.removeAllEffects()
+            return super.finishUsingItem(stack, world, user)
+        }
+    })
+    @JvmField
+    val JELLY_DOUGHNUT = create("jelly_doughnut", object : Item(Properties().stacksTo(16)
+        .food(FoodProperties.Builder()
+            .nutrition(10)
+            .saturationModifier(1.2F)
+            .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F)
+            .alwaysEdible()
+            .build())) {
+        override fun finishUsingItem(stack: ItemStack, world: Level, user: LivingEntity): ItemStack {
+            user.removeAllEffects()
+            return super.finishUsingItem(stack, world, user)
+        }
+    })
 
     // todo etc?
-
-    // todo candied berries (food that gives stick back)
-
-    // todo jelly donut
 
     //@JvmField
     //val SCATTER_BANG = this.create("scatter_bang", ScatterBangItem(Item.Settings()))
     //@JvmField
     //val STICKY_GLOB = this.create("sticky_glob", StickyGlobItem(Item.Settings()))
-
 
     @JvmField
     val RESTORATION_TANK = blockItem("restoration_tank", CobblemonBlocks.RESTORATION_TANK)

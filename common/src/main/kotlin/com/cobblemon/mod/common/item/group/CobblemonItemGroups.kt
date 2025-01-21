@@ -686,6 +686,9 @@ object CobblemonItemGroups {
         injector.putAfter(CobblemonItems.BRAISED_VIVICHOKE, CobblemonItems.ROASTED_LEEK)
         injector.putAfter(CobblemonItems.LEEK_AND_POTATO_STEW, Items.RABBIT_STEW)
         injector.putAfter(CobblemonItems.VIVICHOKE_DIP, CobblemonItems.LEEK_AND_POTATO_STEW)
+        injector.putLast(CobblemonItems.POTATO_MOCHI)
+        injector.putLast(CobblemonItems.FRIED_RICE)
+        injector.putLast(CobblemonItems.CANDIED_APPLE)
     }
 
     private fun toolsAndUtilitiesInjections(injector: Injector) {
