@@ -432,6 +432,15 @@ object CobblemonItemGroups {
         entries.accept(CobblemonItems.CALCIUM)
         entries.accept(CobblemonItems.ZINC)
         entries.accept(CobblemonItems.CARBOS)
+
+        entries.accept(CobblemonItems.HEALTH_MOCHI)
+        entries.accept(CobblemonItems.MUSCLE_MOCHI)
+        entries.accept(CobblemonItems.RESIST_MOCHI)
+        entries.accept(CobblemonItems.GENIUS_MOCHI)
+        entries.accept(CobblemonItems.CLEVER_MOCHI)
+        entries.accept(CobblemonItems.SWIFT_MOCHI)
+        entries.accept(CobblemonItems.FRESH_START_MOCHI)
+
         entries.accept(CobblemonItems.PP_UP)
         entries.accept(CobblemonItems.PP_MAX)
         entries.accept(CobblemonItems.EXPERIENCE_CANDY_XS)

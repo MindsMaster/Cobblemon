@@ -110,6 +110,8 @@ object CobblemonSounds : PlatformRegistry<Registry<SoundEvent>, ResourceKey<Regi
     val MEDICINE_SPRAY_USE = this.create("item.medicine.spray.use")
     @JvmField
     val MEDICINE_FEATHER_USE = this.create("item.medicine.feather.use")
+    @JvmField
+    val MOCHI_USE = this.create("item.medicine.feather.use")
 
     @JvmField
     val MULCH_PLACE = this.create("block.mulch.place")

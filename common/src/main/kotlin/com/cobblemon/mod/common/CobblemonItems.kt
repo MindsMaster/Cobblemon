@@ -37,7 +37,6 @@ import com.cobblemon.mod.common.pokeball.PokeBall
 import com.cobblemon.mod.common.pokemon.helditem.CobblemonHeldItemManager
 import com.cobblemon.mod.common.util.cobblemonResource
 import net.minecraft.core.Registry
-import net.minecraft.core.component.DataComponents
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.Component
@@ -511,8 +510,6 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     @JvmField
     val TWICE_SPICED_BEETROOT = noSettingsItem("twice_spiced_beetroot") // todo make a TwiceSpiceBeetrootItem class for breeding purposes
 
-    // todo THE MOCHIS (are they all with their own item classes? Or bundled into one itemclass like some of the berries?
-
     // todo potato mochi
 
     // todo fried rice
@@ -695,6 +692,20 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     val PROTEIN = create("protein", VitaminItem(Stats.ATTACK))
     @JvmField
     val ZINC = create("zinc", VitaminItem(Stats.SPECIAL_DEFENCE))
+    @JvmField
+    val HEALTH_MOCHI = create("health_mochi", MochiItem(Stats.HP))
+    @JvmField
+    val MUSCLE_MOCHI = create("muscle_mochi", MochiItem(Stats.ATTACK))
+    @JvmField
+    val RESIST_MOCHI = create("resist_mochi", MochiItem(Stats.DEFENCE))
+    @JvmField
+    val GENIUS_MOCHI = create("genius_mochi", MochiItem(Stats.SPECIAL_ATTACK))
+    @JvmField
+    val CLEVER_MOCHI = create("clever_mochi", MochiItem(Stats.SPECIAL_DEFENCE))
+    @JvmField
+    val SWIFT_MOCHI = create("swift_mochi", MochiItem(Stats.SPEED))
+    @JvmField
+    val FRESH_START_MOCHI = create("fresh_start_mochi", FreshStartMochiItem())
     @JvmField
     val GENIUS_FEATHER = create("genius_feather", FeatherItem(Stats.SPECIAL_ATTACK))
     @JvmField
