@@ -85,6 +85,7 @@ import com.cobblemon.mod.common.pokemon.evolution.variants.ItemInteractionEvolut
 import com.cobblemon.mod.common.pokemon.feature.StashHandler
 import com.cobblemon.mod.common.pokemon.properties.UncatchableProperty
 import com.cobblemon.mod.common.util.*
+import com.cobblemon.mod.common.util.math.geometry.toRadians
 import com.cobblemon.mod.common.world.gamerules.CobblemonGameRules
 import com.mojang.serialization.Codec
 import java.util.*
@@ -1674,14 +1675,15 @@ open class PokemonEntity(
     }
 
     override fun positionRider(passenger: Entity, positionUpdater: MoveFunction) {
-        if (this.hasPassenger(passenger) && passenger is Rollable) {
+        if (this.hasPassenger(passenger)) {
             val index = passengers.indexOf(passenger).takeIf { it >= 0 && it < seats.size } ?: return
             val seat = seats[index]
             val seatOffset = seat.getOffset(getCurrentPoseType()).toVector3f()
             val center = Vector3f(0f, this.bbHeight/2, 0f)
 
             val seatToCenter = center.sub(seatOffset, Vector3f())
-            val orientation = (passengers.first() as Rollable).orientation ?: Matrix3f()
+
+            val orientation = (passengers.first() as Rollable).orientation ?: Matrix3f().rotate(-(180f + passenger.yRot).toRadians(), Vector3f(0f, 1f, 0f))
 
             val rotatedOffset = orientation.transform(seatToCenter, Vector3f()).add(center).sub(Vector3f(0f, passenger.bbHeight/2, 0f))
 
