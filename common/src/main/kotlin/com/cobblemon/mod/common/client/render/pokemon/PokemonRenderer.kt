@@ -167,19 +167,21 @@ class PokemonRenderer(
         val driver = entity.firstPassenger ?: return
         val rollable = driver as? Rollable ?: return
 
-        val camera = Minecraft.getInstance().gameRenderer.mainCamera
-        val isThirdPerson = camera.isDetached
+        //val camera = Minecraft.getInstance().gameRenderer.mainCamera
+        //val isThirdPerson = camera.isDetached
 
-        val vehicleOrigin = entity.position()
-        val driverOrigin = if (isThirdPerson) driver.position() else driver.eyePosition
+        //val vehicleOrigin = entity.position()
+        //val driverOrigin = if (isThirdPerson) driver.position() else driver.eyePosition
 
-        val offset = driverOrigin.subtract(vehicleOrigin)
+        //val offset = driverOrigin.subtract(vehicleOrigin)
 
         poseMatrix.pushPose()
-        val yaw = Mth.rotLerp(partialTicks, entity.yBodyRotO, entity.yBodyRot)
 
-        val matrix = poseMatrix.last().pose()
-        if(!DISABLE_ROLLING_DEBUG){
+        if(!DISABLE_ROLLING_DEBUG && rollable.shouldRoll()){
+            val yaw = Mth.rotLerp(partialTicks, entity.yBodyRotO, entity.yBodyRot)
+
+            val matrix = poseMatrix.last().pose()
+
             val center = Vector3f(0f, entity.bbHeight/2, 0f)
 
             val transformationMatrix = Matrix4f()
@@ -191,9 +193,9 @@ class PokemonRenderer(
 
             transformationMatrix.translate(center.negate(Vector3f()))
             matrix.mul(transformationMatrix)
-        }
 
-        poseMatrix.mulPose(Axis.YP.rotationDegrees(-(180.0f - yaw)))
+            poseMatrix.mulPose(Axis.YP.rotationDegrees(-(180.0f - yaw)))
+        }
 
         super.render(entity, 0f, partialTicks, poseMatrix, buffer, packedLight)
         poseMatrix.popPose()
