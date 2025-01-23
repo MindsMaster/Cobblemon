@@ -12,33 +12,41 @@ import com.cobblemon.mod.common.api.ai.BrainConfigurationContext
 import com.cobblemon.mod.common.api.ai.ExpressionOrEntityVariable
 import com.cobblemon.mod.common.api.ai.WrapperLivingEntityTask
 import com.cobblemon.mod.common.api.ai.asVariables
-import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMostSpecificMoLangValue
-import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
+import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
+import com.cobblemon.mod.common.entity.pokemon.ai.tasks.MoveToOwnerTask
 import com.cobblemon.mod.common.util.asExpression
-import com.cobblemon.mod.common.util.withQueryValue
 import com.mojang.datafixers.util.Either
 import net.minecraft.world.entity.LivingEntity
-import net.minecraft.world.entity.Mob
 import net.minecraft.world.entity.ai.behavior.BehaviorControl
-import net.minecraft.world.entity.ai.behavior.LookAtTargetSink
 
-class LookAtTargetTaskConfig : SingleTaskConfig {
+class MoveToOwnerTaskConfig : SingleTaskConfig {
     val condition: ExpressionOrEntityVariable = Either.left("true".asExpression())
-    val minDurationTicks: ExpressionOrEntityVariable = Either.left("80".asExpression())
-    val maxDurationTicks: ExpressionOrEntityVariable = Either.left("160".asExpression())
+    var completionRange: ExpressionOrEntityVariable = Either.left("4.0".asExpression())
+    var speedMultiplier: ExpressionOrEntityVariable = Either.left("0.4".asExpression())
+    var teleportDistance: ExpressionOrEntityVariable = Either.left("24.0".asExpression())
+    var maxDistance: ExpressionOrEntityVariable = Either.left("14.0".asExpression())
 
     override fun getVariables(entity: LivingEntity) = listOf(
         condition,
-        minDurationTicks,
-        maxDurationTicks
+        completionRange,
+        speedMultiplier,
+        teleportDistance,
+        maxDistance
     ).asVariables()
 
     override fun createTask(
         entity: LivingEntity,
         brainConfigurationContext: BrainConfigurationContext
     ): BehaviorControl<in LivingEntity>? {
-        runtime.withQueryValue("entity", entity.asMostSpecificMoLangValue())
-        if (!condition.resolveBoolean()) return null
-        return WrapperLivingEntityTask(LookAtTargetSink(minDurationTicks.resolveInt(), maxDurationTicks.resolveInt()), Mob::class.java)
+        return WrapperLivingEntityTask(
+            MoveToOwnerTask.create(
+                condition = condition.asExpression(),
+                completionRange = completionRange.asExpression(),
+                speedMultiplier = speedMultiplier.asExpression(),
+                teleportDistance = teleportDistance.asExpression(),
+                maxDistance = maxDistance.asExpression()
+            ),
+            PokemonEntity::class.java
+        )
     }
 }

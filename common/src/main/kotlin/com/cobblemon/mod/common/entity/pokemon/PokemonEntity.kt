@@ -185,7 +185,7 @@ open class PokemonEntity(
         const val EVOLUTION_LOCK = "evolving"
 
         fun createAttributes(): AttributeSupplier.Builder = createLivingAttributes()
-            .add(Attributes.FOLLOW_RANGE, 6.0)
+            .add(Attributes.FOLLOW_RANGE, 32.0)
             .add(Attributes.ATTACK_KNOCKBACK)
             .add(Attributes.ATTACK_DAMAGE)
     }
