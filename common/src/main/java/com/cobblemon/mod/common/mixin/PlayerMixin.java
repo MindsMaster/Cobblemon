@@ -17,11 +17,11 @@ import com.cobblemon.mod.common.api.pokemon.PokemonSpecies;
 import com.cobblemon.mod.common.api.riding.Rideable;
 import com.cobblemon.mod.common.api.storage.party.PartyStore;
 import com.cobblemon.mod.common.api.tags.CobblemonItemTags;
+import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokedex.scanner.PokedexEntityData;
 import com.cobblemon.mod.common.pokedex.scanner.ScannableEntity;
 import com.cobblemon.mod.common.pokemon.FormData;
 import com.cobblemon.mod.common.pokemon.Gender;
-import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.cobblemon.mod.common.pokemon.Species;
 import com.cobblemon.mod.common.util.CompoundTagExtensionsKt;
@@ -32,7 +32,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -62,8 +61,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Mixin(Player.class)
 public abstract class PlayerMixin extends LivingEntity implements Rollable, ScannableEntity {
@@ -287,12 +286,12 @@ public abstract class PlayerMixin extends LivingEntity implements Rollable, Scan
         LocalPlayer player = Minecraft.getInstance().player;
         if (!this.equals(player)) return false;
         if (player.isHolding(Items.DIAMOND)) return true;
-        if (player.getVehicle() == null) return false;
-        if (!(player.getVehicle() instanceof PokemonEntity pokemon)) return false;
-        if (player.onGround()) return false;
-        BlockPos blockBelow = pokemon.blockPosition().below();
-        if (pokemon.level().getBlockState(blockBelow).isSolid()) return false;
-        return true;
+
+        var playerVehicle = player.getVehicle();
+        if (playerVehicle == null) return false;
+        if (!(playerVehicle instanceof PokemonEntity pokemonEntity)) return false;
+
+        return pokemonEntity.getRiding().shouldRoll(pokemonEntity);
     }
 
     @Override

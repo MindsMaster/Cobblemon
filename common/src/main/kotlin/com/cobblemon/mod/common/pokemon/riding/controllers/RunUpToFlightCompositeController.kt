@@ -112,6 +112,8 @@ class RunUpToFlightCompositeController : RideController {
         return getActiveController(entity).gravity(entity, regularGravity)
     }
 
+    override fun shouldRoll(entity: PokemonEntity): Boolean = getActiveController(entity).shouldRoll(entity)
+
     override fun encode(buffer: RegistryFriendlyByteBuf) {
         super.encode(buffer)
         buffer.writeString(minimumSpeed.getString())

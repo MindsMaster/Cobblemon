@@ -83,6 +83,8 @@ interface RideController : Encodable, Decodable {
 
     fun gravity(entity: PokemonEntity, regularGravity: Double) : Double? = null
 
+    fun shouldRoll(entity: PokemonEntity): Boolean = false
+
     fun getRuntime(entity: PokemonEntity) = entity.riding.runtime
 
     fun <T : RidingState> getState(entity: PokemonEntity, constructor: (PokemonEntity) -> T): T {

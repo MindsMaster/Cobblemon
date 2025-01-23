@@ -12,12 +12,12 @@ import com.bedrockk.molang.runtime.MoLangRuntime
 import com.bedrockk.molang.runtime.value.DoubleValue
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.setup
 import com.cobblemon.mod.common.api.riding.controller.RideController
-import net.minecraft.world.entity.player.Player
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.withQueryValue
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 
@@ -91,6 +91,11 @@ data class RidingManager(val entity: PokemonEntity) {
     fun gravity(entity: PokemonEntity, regularGravity: Double): Double? {
         val controller = getController(entity) ?: return null
         return controller.gravity(entity, regularGravity)
+    }
+
+    fun shouldRoll(entity: PokemonEntity): Boolean {
+        val controller = getController(entity) ?: return false
+        return controller.shouldRoll(entity)
     }
 
     //FIXME: Make this not just be false for all controllers lol

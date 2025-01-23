@@ -96,6 +96,8 @@ class BirdAirController : RideController {
             .toDouble()
     }
 
+    override fun shouldRoll(entity: PokemonEntity) = true
+
     override fun encode(buffer: RegistryFriendlyByteBuf) {
         super.encode(buffer)
         buffer.writeString(gravity.toString())
