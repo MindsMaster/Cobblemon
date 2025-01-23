@@ -44,6 +44,30 @@
   "baseExperienceYield": 179,
   "experienceGroup": "medium_slow",
   "eggCycles": 20,
+  "riding": {
+    "controller": {
+      "key": "cobblemon:composite/run_up_to_flight",
+      "minimumSpeed": "0.2",
+      "minimumJump": "80",
+      "landController": {
+        "key": "cobblemon:land/generic",
+        "speed": "Math.clamp(q.entity.velocity.horizontal_magnitude + 0.33, 0, 1)",
+        "jumpVector": [0, "0.3*q.jump_strength/50", 0]
+      },
+      "flightController": {
+        "key": "cobblemon:air/glider"
+      }
+    },
+    "seats": [
+      {
+        "offset": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        }
+      }
+    ]
+  },
   "eggGroups": [
     "bug"
   ],

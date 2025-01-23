@@ -9,18 +9,13 @@
 package com.cobblemon.mod.common.util.adapters.riding
 
 import com.cobblemon.mod.common.api.riding.controller.RideController
-import com.cobblemon.mod.common.pokemon.riding.controllers.BirdAirController
-import com.cobblemon.mod.common.pokemon.riding.controllers.GenericLandController
-import com.cobblemon.mod.common.pokemon.riding.controllers.GenericLiquidController
-import com.cobblemon.mod.common.pokemon.riding.controllers.HelicopterAirController
-import com.cobblemon.mod.common.pokemon.riding.controllers.RunUpToFlightCompositeController
-import com.cobblemon.mod.common.pokemon.riding.controllers.SwimDashController
+import com.cobblemon.mod.common.pokemon.riding.controllers.*
 import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
-import java.lang.reflect.Type
 import net.minecraft.resources.ResourceLocation
+import java.lang.reflect.Type
 
 /**
  * Adapter for deserializing [RideController] types.
@@ -35,7 +30,8 @@ object RideControllerAdapter : JsonDeserializer<RideController> {
         SwimDashController.KEY to SwimDashController::class.java,
         RunUpToFlightCompositeController.KEY to RunUpToFlightCompositeController::class.java,
         BirdAirController.KEY to BirdAirController::class.java,
-        HelicopterAirController.KEY to HelicopterAirController::class.java
+        HelicopterAirController.KEY to HelicopterAirController::class.java,
+        GliderAirController.KEY to GliderAirController::class.java,
     )
 
     override fun deserialize(element: JsonElement, type: Type, context: JsonDeserializationContext): RideController {
