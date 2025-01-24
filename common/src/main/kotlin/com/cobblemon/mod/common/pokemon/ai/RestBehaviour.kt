@@ -23,7 +23,6 @@ import net.minecraft.world.level.biome.Biome
 class RestBehaviour {
     val canSleep = false
     val times = TimeRange.timeRanges["night"]!!
-    val sleepChance = 1 / 600F
     val blocks = mutableListOf<RegistryLikeCondition<Block>>()
     val biomes = mutableListOf<RegistryLikeCondition<Biome>>()
     val light = IntRange(0, 15)

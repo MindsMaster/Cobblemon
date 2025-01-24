@@ -8,9 +8,9 @@
 
 package com.cobblemon.mod.common.util
 
+import com.cobblemon.mod.common.api.ai.PathfindingMedium
 import com.google.common.collect.ImmutableMap
 import com.mojang.serialization.Dynamic
-import com.mojang.serialization.DynamicOps
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.nbt.NbtOps
@@ -18,7 +18,9 @@ import net.minecraft.nbt.Tag
 import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.PathfinderMob
 import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.pathfinder.PathType.WALKABLE
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.phys.shapes.BooleanOp
@@ -218,6 +220,15 @@ fun Entity.isStandingOnSand(): Boolean {
         }
     }
     return false
+}
+
+fun PathfinderMob.getPathfindingMedium(): PathfindingMedium {
+    return when {
+        this.isUnderWater -> PathfindingMedium.WATER
+        this.isInLava -> PathfindingMedium.LAVA
+        navigation.nodeEvaluator.getPathType(this, blockPosition()) == WALKABLE -> PathfindingMedium.LAND
+        else -> PathfindingMedium.AIR
+    }
 }
 
 fun Entity.isStandingOnRedSand(): Boolean {
