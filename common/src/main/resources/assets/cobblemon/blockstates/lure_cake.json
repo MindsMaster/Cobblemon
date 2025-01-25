@@ -1,11 +1,7 @@
 {
   "variants": {
-    "age=0": { "model": "minecraft:builtin/entity" },
-    "age=1": { "model": "minecraft:builtin/entity" },
-    "age=2": { "model": "minecraft:builtin/entity" },
-    "age=3": { "model": "minecraft:builtin/entity" },
-    "age=4": { "model": "minecraft:builtin/entity" },
-    "age=5": { "model": "minecraft:builtin/entity" },
-    "age=6": { "model": "minecraft:builtin/entity" }
+    "": {
+      "model": "minecraft:builtin/entity"
+    }
   }
 }
