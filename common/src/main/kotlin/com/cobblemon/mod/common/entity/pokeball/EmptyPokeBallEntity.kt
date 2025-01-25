@@ -418,7 +418,7 @@ class EmptyPokeBallEntity : ThrowableItemProjectile, PosableEntity, WaterDragMod
                 matrix.translate(x, y, z)
                 wrapper.updateMatrix(matrix.last().pose())
                 val world = Minecraft.getInstance().level ?: return@let
-                ParticleStorm(effect, wrapper, world).spawn()
+                ParticleStorm(effect, wrapper, wrapper, world).spawn()
             }
         }
     }
@@ -458,7 +458,6 @@ class EmptyPokeBallEntity : ThrowableItemProjectile, PosableEntity, WaterDragMod
         after(seconds = 2.2F) {
             // Time to begin falling
             pokemonEntity.phasingTargetId = -1
-            pokemonEntity.beamMode = 0
             pokemonEntity.isInvisible = true
             captureState = CaptureState.FALL
             after(seconds = 1.5F) {

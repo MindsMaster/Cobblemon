@@ -19,6 +19,7 @@ import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.PathfinderMob
+import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.pathfinder.PathType.WALKABLE
 import net.minecraft.world.phys.AABB
@@ -190,36 +191,13 @@ fun Entity.setPositionSafely(pos: Vec3): Boolean {
     }
 }
 
-fun Entity.isStandingOnSandOrRedSand(): Boolean {
-    val sandDepth = 2 // Define the depth you want to check
-    for (a in 1..sandDepth) {
-        val sandBlockState = this.level().getBlockState(blockPosition().below(a))
-        val sandBlock = sandBlockState.block
-        if (sandBlock == Blocks.SAND && !sandBlockState.isAir && sandBlockState.isCollisionShapeFullBlock(this.level(), blockPosition().below(a))) {
-            return true
-        }
-        if (sandBlock == Blocks.RED_SAND && !sandBlockState.isAir && sandBlockState.isCollisionShapeFullBlock(this.level(), blockPosition().below(a))) {
-            return true
-        }
-    }
-    return false
-}
-
 fun Entity.isDusk(): Boolean {
     val time = level().dayTime % 24000
     return time in 12000..13000
 }
 
 fun Entity.isStandingOnSand(): Boolean {
-    val sandDepth = 2 // Define the depth you want to check
-    for (a in 1..sandDepth) {
-        val sandBlockState = this.level().getBlockState(blockPosition().below(a))
-        val sandBlock = sandBlockState.block
-        if (sandBlock == Blocks.SAND && !sandBlockState.isAir && sandBlockState.isCollisionShapeFullBlock(this.level(), blockPosition().below(a))) {
-            return true
-        }
-    }
-    return false
+    return isStandingOn(setOf(Blocks.SAND))
 }
 
 fun PathfinderMob.getPathfindingMedium(): PathfindingMedium {
@@ -232,14 +210,22 @@ fun PathfinderMob.getPathfindingMedium(): PathfindingMedium {
 }
 
 fun Entity.isStandingOnRedSand(): Boolean {
-    val redSandDepth = 2 // Define the depth you want to check
-    for (i in 1..redSandDepth) {
-        val redSandBlockState = this.level().getBlockState(blockPosition().below(i))
-        val redSandBlock = redSandBlockState.block
-        if (redSandBlock == Blocks.RED_SAND && !redSandBlockState.isAir && redSandBlockState.isCollisionShapeFullBlock(this.level(), blockPosition().below(i))) {
-            return true
-        }
+    return isStandingOn(setOf(Blocks.RED_SAND))
+}
+
+fun Entity.isStandingOnSandOrRedSand(): Boolean {
+    return isStandingOn(setOf(Blocks.SAND, Blocks.RED_SAND))
+}
+
+fun Entity.isStandingOn(blocks: Set<Block>, depth: Int = 2): Boolean {
+    for (currentDepth in 1..depth) {
+        val bellowBlockPos = blockPosition().below(currentDepth)
+        val blockState = level().getBlockState(bellowBlockPos)
+
+        if (blockState.isAir || !blockState.isCollisionShapeFullBlock(level(), bellowBlockPos)) continue
+        if (blocks.contains(blockState.block)) return true
     }
+
     return false
 }
 

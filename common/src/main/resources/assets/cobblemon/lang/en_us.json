@@ -75,6 +75,7 @@
   "item.cobblemon.yellow_apricorn": "Yellow Apricorn",
   "item.cobblemon.vivichoke_seeds": "Vivichoke Seeds",
   "item.cobblemon.vivichoke": "Vivichoke",
+  "item.cobblemon.galarica_nuts": "Galarica Nuts",
 
   "item.cobblemon.apricorn_boat": "Apricorn Boat",
   "item.cobblemon.apricorn_chest_boat": "Apricorn Boat with Chest",
@@ -305,7 +306,7 @@
   "item.cobblemon.auspicious_armor": "Auspicious Armor",
   "item.cobblemon.auspicious_armor.tooltip": "Evolves Charcadet into Armarouge",
   "item.cobblemon.malicious_armor": "Malicious Armor",
-  "item.cobblemon.malicious_armor.tooltip": "Evolves Charcadet into Armarouge",
+  "item.cobblemon.malicious_armor.tooltip": "Evolves Charcadet into Ceruledge",
   "item.cobblemon.binding_band": "Binding Band",
   "item.cobblemon.binding_band.tooltip": "Increases damage dealt by the binding status",
   "item.cobblemon.black_belt": "Black Belt",
@@ -346,7 +347,7 @@
   "item.cobblemon.everstone": "Everstone",
   "item.cobblemon.everstone.tooltip": "Prevents the holder from evolving",
   "item.cobblemon.eviolite": "Eviolite",
-  "item.cobblemon.eviolite.tooltip": "Boosts the holder's Defense and Sp. Atk if it is not fully evolved",
+  "item.cobblemon.eviolite.tooltip": "Boosts the holder's Defense and Sp. Defense if it is not fully evolved",
   "item.cobblemon.exp_share": "Exp. Share",
   "item.cobblemon.exp_share.tooltip": "Allows the holder to receive a share of experience from battles without participating",
   "item.cobblemon.expert_belt": "Expert Belt",
@@ -427,6 +428,8 @@
   "item.cobblemon.shed_shell.tooltip": "Allows the holder to switch out in any situation",
   "item.cobblemon.shell_bell": "Shell Bell",
   "item.cobblemon.shell_bell.tooltip": "Heals the holder for a fraction of damage dealt every turn",
+  "item.cobblemon.shell_helmet": "Shell Helmet",
+  "item.cobblemon.shell_helmet.tooltip": "Evolves Karrablast into Escavalier",
   "item.cobblemon.silk_scarf": "Silk Scarf",
   "item.cobblemon.silk_scarf.tooltip": "Boosts the power of the holder's Normal-type moves",
   "item.cobblemon.silver_powder": "Silver Powder",
@@ -724,7 +727,7 @@
   "item.cobblemon.relic_coin": "Relic Coin",
   "block.cobblemon.relic_coin_pouch": "Relic Coin Pouch",
   "block.cobblemon.relic_coin_sack": "Relic Coin Sack",
-  
+
   "item.cobblemon.automaton_armor_trim_smithing_template": "Smithing Template",
   "trim_pattern.cobblemon.automaton": "Automaton Armor Trim",
 
@@ -888,6 +891,8 @@
   "block.cobblemon.dawn_stone_block": "Dawn Stone Block",
   "block.cobblemon.dusk_stone_block": "Dusk Stone Block",
 
+  "cobblemon.fishing.no_bite": "Not even a nibble.",
+
   "cobblemon.fishing_bait_effect_header": "Fishing Bait Effects:",
   "cobblemon.fishing_bait_effects.nature.tooltip": "%1$s%% - Attract %2$s Nature",
   "cobblemon.fishing_bait_effects.iv.tooltip": "%1$s%% - %2$s IV +%3$s",
@@ -897,11 +902,12 @@
   "cobblemon.fishing_bait_effects.level_raise.tooltip": "%1$s%% - Boost Level +%3$s",
   "cobblemon.fishing_bait_effects.typing.tooltip": "%1$s%% - %3$s× Chance for %2$s Types",
   "cobblemon.fishing_bait_effects.egg_group.tooltip": "%1$s%% - %3$s× Chance for %2$s Egg Group",
-  "cobblemon.fishing_bait_effects.shiny_reroll.tooltip": "%1$s× - %3$s× Shiny Chance",
+  "cobblemon.fishing_bait_effects.shiny_reroll.tooltip": "%1$s%% - %3$s× Shiny Chance",
   "cobblemon.fishing_bait_effects.ha_chance.tooltip": "%1$s%% - Attract Hidden Ability",
   "cobblemon.fishing_bait_effects.pokemon_chance.tooltip": "%1$s%% - Reel in a Pokémon",
   "cobblemon.fishing_bait_effects.friendship.tooltip": "%1$s%% - Boost Friendship +%3$s",
   "cobblemon.fishing_bait_effects.inert.tooltip": "No known effect",
+
   "cobblemon.egg_group.monster": "Monster",
   "cobblemon.egg_group.water_1": "Water 1",
   "cobblemon.egg_group.bug": "Bug",
@@ -931,6 +937,7 @@
   "cobblemon.command.clearparty.cleared": "Cleared %1$s's party.",
   "cobblemon.command.clearpc.cleared": "Cleared %1$s's PC.",
   "cobblemon.command.dialogue.invalid-dialogue": "Invalid dialogue identifier",
+  "cobblemon.command.pc.invalid-box": "Box number %1$s exceeds max boxes of %2$s.",
 
   "cobblemon.ui.generic.yes": "Yes",
   "cobblemon.ui.generic.no": "No",
@@ -1300,6 +1307,8 @@
   "cobblemon.challenge.canceled.receiver": "%1$s canceled their challenge...",
   "cobblemon.challenge.error.insufficient_pokemon.other": "%1$s doesn't have any Pokémon to battle with!",
   "cobblemon.challenge.error.insufficient_pokemon.self": "You don't have any Pokémon to battle with!",
+  "cobblemon.challenge.error.duplicate": "You already have a pending battle request sent to %1$s.",
+  "cobblemon.challenge.error.pending": "%1$s already has a pending battle request for you.",
   "cobblemon.challenge.rule.level": "Level %1$s All",
   "cobblemon.challenge.rule.anything_goes": "Anything Goes",
 
@@ -1518,6 +1527,7 @@
   "cobblemon.command.pokebox.last_pokemon": "Did not send that Player's last Pokémon to the PC.",
   "cobblemon.command.pokemonrestart": "Cleared %1$s's party and PC.",
   "cobblemon.command.freezepokemon.non_pokemon": "You are not looking at a Pokémon.",
+  "cobblemon.command.npcedit.non_npc": "You are not looking at a NPC.",
 
   "advancements.cobblemon.root": "The World of Cobblemon!",
   "advancements.cobblemon.root.description": "Choose a starter Pokémon and set out on a new adventure",
@@ -2304,7 +2314,6 @@
   "tag.item.cobblemon.apricorns": "Apricorns",
   "tag.item.cobblemon.azalea_tree": "Azalea Trees",
   "tag.item.cobblemon.berries": "Berries",
-  "tag.item.cobblemon.cobblemon_seeds": "Seeds",
   "tag.item.cobblemon.evolution_items": "Evolution Items",
   "tag.item.cobblemon.evolution_stones": "Evolution Stones",
   "tag.item.cobblemon.experience_candies": "Experience Candies",
@@ -2392,6 +2401,7 @@
   "tag.item.cobblemon.evolution_stone_blocks": "Evolution Stone Blocks",
   "tag.item.cobblemon.pokedex": "Pokédexes",
   "tag.item.cobblemon.pokedex_screen": "Pokédex Screens",
+  "tag.item.cobblemon.gilded_chests": "Gilded Chests",
 
   "npc.sacchi.name": "Professor Sacchi",
 
@@ -4408,6 +4418,15 @@
   "entity.cobblemon.poke_bobber": "Poké Bobber",
   "entity.cobblemon.boat": "Boat",
   "entity.cobblemon.chest_boat": "Boat with Chest",
+
+  "painting.cobblemon.premonition.title": "Premonition",
+  "painting.cobblemon.premonition.author": "PKMNCC",
+  "painting.cobblemon.slumber.title": "Slumber",
+  "painting.cobblemon.slumber.author": "PKMNCC",
+  "painting.cobblemon.altar.title": "Altar",
+  "painting.cobblemon.altar.author": "PKMNCC",
+  "painting.cobblemon.nomad.title": "Nomad",
+  "painting.cobblemon.nomad.author": "PKMNCC",
 
   "cobblemon.species.bulbasaur.name": "Bulbasaur",
   "cobblemon.species.bulbasaur.desc": "While rare and elusive in the wild, Bulbasaur’s calm and easygoing nature makes it a popular choice for beginning trainers. The bud on its back is still developing, so this Pokémon must expend large amounts of energy to fuel its growth. As a result, it is often seen rummaging through composters in search of precious fertilizer.",

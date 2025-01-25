@@ -548,6 +548,17 @@ object MoLangFunctions {
                     .map { it.asMostSpecificMoLangValue() }
                     .asArrayValue()
             }
+            map.put("is_standing_on_blocks") { params ->
+                val depth = params.getDouble(0).toInt()
+                val blocks: MutableSet<Block> = mutableSetOf()
+                for (blockIndex in 1..<params.params.size) {
+                    val blockString = params.getString(blockIndex)
+                    val block = BuiltInRegistries.BLOCK.get(blockString.asIdentifierDefaultingNamespace("minecraft"))
+                    blocks.add(block)
+                }
+
+                return@put if (entity.isStandingOn(blocks, depth)) DoubleValue.ONE else DoubleValue.ZERO
+            }
             if (entity is PosableEntity) {
                 map.put("play_animation") { params ->
                     val animation = params.getString(0)
@@ -637,7 +648,8 @@ object MoLangFunctions {
                     val context = ActionEffectContext(
                         actionEffect = actionEffect,
                         providers = mutableListOf(NPCProvider(npc)),
-                        runtime = runtime
+                        runtime = runtime,
+                        level = npc.level()
                     )
                     npc.actionEffect = context
                     npc.brain.setMemory(CobblemonMemories.ACTIVE_ACTION_EFFECT, context)
@@ -741,6 +753,11 @@ object MoLangFunctions {
             map.put("form") { StringValue(pokemon.form.name) }
             map.put("weight") { DoubleValue(pokemon.species.weight.toDouble()) }
             map.put("matches") { params -> DoubleValue(params.getString(0).toProperties().matches(pokemon)) }
+            map.put("apply") { params ->
+                params.getString(0).toProperties().apply(pokemon)
+                DoubleValue.ONE
+            }
+            map.put("owner") { pokemon.getOwnerPlayer()?.asMoLangValue() ?: DoubleValue.ZERO }
             map
         }
     )

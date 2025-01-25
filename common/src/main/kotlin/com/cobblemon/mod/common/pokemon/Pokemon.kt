@@ -314,7 +314,6 @@ open class Pokemon : ShowdownIdentifiable {
      */
     var friendship = this.form.baseFriendship
         private set(value) {
-            // Don't check on client, that way we don't need to actually sync the config value it doesn't affect anything
             if (!this.isPossibleFriendship(value)) {
                 return
             }
@@ -981,10 +980,20 @@ open class Pokemon : ShowdownIdentifiable {
         return CODEC.decode(ops, data).ifSuccess { this.copyFrom(it.first) }
     }
 
-    fun clone(newUUID: Boolean = true): Pokemon {
+    /**
+     * Clones the provided pokemon into a completely new instance.
+     *
+     * @param registryAccess Registry Access used for serialization context. WILL BECOME REQUIRED IN 1.7, currently falls back to server registry access
+     * @param newUUID Whether or not the pokemon should receive a new UUID or not, which will completely untie it from the original
+     *
+     * @return The cloned pokemon
+     */
+    fun clone(newUUID: Boolean = true, registryAccess: RegistryAccess? = null): Pokemon {
         // NBT is faster, ops type doesn't really matter
-        val encoded = CODEC.encodeStart(NbtOps.INSTANCE, this).orThrow
-        val result = CODEC.decode(NbtOps.INSTANCE, encoded).orThrow.first
+        var ops = (registryAccess ?: server()?.registryAccess() ?: throw IllegalStateException("No registry access for cloning available"))
+            .createSerializationContext(NbtOps.INSTANCE)
+        val encoded = CODEC.encodeStart(ops, this).orThrow
+        val result = CODEC.decode(ops, encoded).orThrow.first
         result.isClient = this.isClient
         if (newUUID) {
             result.uuid = UUID.randomUUID()
@@ -1205,7 +1214,12 @@ open class Pokemon : ShowdownIdentifiable {
          * aspect providers, and we want the server side to entirely manage them anyway.
          */
         if (!isClient) {
+            val oldAspects = aspects
             aspects = AspectProvider.providers.flatMap { it.provide(this) }.toSet() + forcedAspects
+
+            if (oldAspects != aspects && !isWild()) {
+                CobblemonEvents.POKEMON_ASPECTS_CHANGED.post(PokemonAspectsChangedEvent(getOwnerUUID(), this))
+            }
         } else {
             aspects = forcedAspects
         }
@@ -1623,7 +1637,7 @@ open class Pokemon : ShowdownIdentifiable {
     private val _state = registerObservable(SimpleObservable<PokemonState>()) { PokemonStateUpdatePacket({ this }, it) }
     private val _status = registerObservable(SimpleObservable<PersistentStatus?>()) { StatusUpdatePacket({ this }, it) }
     private val _caughtBall = registerObservable(SimpleObservable<PokeBall>()) { CaughtBallUpdatePacket({ this }, it) }
-    private val _benchedMoves = registerObservable(benchedMoves.observable) { BenchedMovesUpdatePacket({ this }, it) }
+    private val _benchedMoves = registerObservable(benchedMoves.observable) { BenchedMovesUpdatePacket({ this }, BenchedMoves().also {copy -> copy.copyFrom(it)}) }
     private val _ivs = registerObservable(ivs.observable) { IVsUpdatePacket({ this }, it as IVs) }
     private val _evs = registerObservable(evs.observable) { EVsUpdatePacket({ this }, it as EVs) }
     private val _aspects = registerObservable(SimpleObservable<Set<String>>()) { AspectsUpdatePacket({ this }, it) }

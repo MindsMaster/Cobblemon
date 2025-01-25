@@ -33,8 +33,9 @@ import com.cobblemon.mod.common.item.interactive.PokerodItem
 import com.cobblemon.mod.common.net.messages.client.effect.SpawnSnowstormParticlePacket
 import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
 import com.cobblemon.mod.common.util.cobblemonResource
+import com.cobblemon.mod.common.util.lang
 import com.cobblemon.mod.common.util.toBlockPos
-import kotlin.math.sqrt
+import com.cobblemon.mod.common.util.weightedSelection
 import net.minecraft.advancements.CriteriaTriggers
 import net.minecraft.client.resources.sounds.EntityBoundSoundInstance
 import net.minecraft.core.BlockPos
@@ -71,6 +72,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams
 import net.minecraft.world.phys.EntityHitResult
 import net.minecraft.world.phys.Vec3
+import kotlin.math.sqrt
 
 
 class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity>, world: Level) : FishingHook(type, world) {
@@ -182,33 +184,16 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
     }
 
     fun chooseAdjustedSpawnBucket(buckets: List<SpawnBucket>, luckOfTheSeaLevel: Int): SpawnBucket {
-        val baseIncreases = listOf(2.5F, 0.5F, 0.2F)  // Base increases for the first three buckets beyond the first
+        val baseValues = listOf(94.3F, 5.0F, 0.5F, 0.2F)
+        val adjustments = listOf(-3.75F, 2.5F, 0.9F, 0.35F)
+
         val adjustedWeights = buckets.mapIndexed { index, bucket ->
-            if (index == 0) {
-                // Placeholder, will be recalculated
-                0.0F
-            } else {
-                val increase = if (index < baseIncreases.size) baseIncreases[index] else baseIncreases.last() + (index - baseIncreases.size + 1) * 0.15F
-                bucket.weight + increase * luckOfTheSeaLevel
-            }
-        }.toMutableList()
+            val base = baseValues[index]
+            val adjustment = adjustments[index]
+            bucket to (base + adjustment * luckOfTheSeaLevel)
+        }.toMap()
 
-        // Recalculate the first bucket's weight to ensure the total is 100%
-        val totalAdjustedWeight = adjustedWeights.sum() - adjustedWeights[0]  // Corrected to ensure the list contains Floats
-        adjustedWeights[0] = 100.0F - totalAdjustedWeight + buckets[0].weight
-
-        // Random selection based on adjusted weights
-        val weightSum = adjustedWeights.sum()
-        val chosenSum = kotlin.random.Random.nextDouble(weightSum.toDouble()).toFloat()  // Ensure usage of Random from kotlin.random package
-        var sum = 0.0F
-        adjustedWeights.forEachIndexed { index, weight ->
-            sum += weight
-            if (sum >= chosenSum) {
-                return buckets[index]
-            }
-        }
-
-        return buckets.first()  // Fallback
+        return buckets.weightedSelection { adjustedWeights[it]!! }!!
     }
 
     fun isOpenOrWaterAround(pos: BlockPos): Boolean {
@@ -334,7 +319,7 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
 
                     val buckets = Cobblemon.bestSpawner.config.buckets
 
-                    // choose a spawn bucket according to weights no matter how many there are
+                    // choose a spawn bucket according to weights and luck of the sea
                     chosenBucket = chooseAdjustedSpawnBucket(buckets, luckOfTheSeaLevel)
                     CobblemonEvents.BOBBER_BUCKET_CHOSEN.post(BobberBucketChosenEvent(chosenBucket, buckets, luckOfTheSeaLevel)) { event ->
                         chosenBucket = event.chosenBucket
@@ -618,11 +603,11 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
                             return 0
                         },
                         { event ->
-                            // decrememnt the bait count on the rod itself when reeling in a pokemon
-                            PokerodItem.consumeBait(rodStack!!)
-
                             // spawn the pokemon from the chosen bucket at the bobber's location
-                            spawnPokemonFromFishing(bobberOwner, chosenBucket, rodStack!!)
+                            if (spawnPokemonFromFishing(bobberOwner, chosenBucket, rodStack!!)) {
+                                // decrememnt the bait count on the rod itself when reeling in a pokemon
+                                PokerodItem.consumeBait(rodStack!!)
+                            }
 
                             val serverWorld = level() as ServerLevel
 
@@ -676,7 +661,7 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
         entity.deltaMovement = tossVelocity
     }
 
-    fun spawnPokemonFromFishing(player: Player, chosenBucket: SpawnBucket, rodItemStack: ItemStack) {
+    fun spawnPokemonFromFishing(player: Player, chosenBucket: SpawnBucket, rodItemStack: ItemStack): Boolean {
         var hookedEntityID: Int? = null
 
         val spawner = BestSpawner.fishingSpawner
@@ -696,16 +681,16 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
             influences = listOf(PlayerLevelRangeInfluence(player as ServerPlayer, TYPICAL_VARIATION))
         )
 
-        if (result == null) {
         // This has a chance to fail, if the position has no suitability for a fishing context
-        //  it could also just be a miss which
-        //   means two attempts to spawn in the same location can have differing results (which is expected for
-        //   randomness).
-            player.sendSystemMessage("Not even a nibble".red())
+        // it could also just be a miss which means two attempts to spawn in the same location
+        // can have differing results (which is expected for randomness).
+        if (result == null || result.isCompletedExceptionally) {
+            player.sendSystemMessage(lang("fishing.no_bite").red())
+            return false
         }
 
         var spawnedPokemon: PokemonEntity? = null
-        val resultingSpawn = result?.get()
+        val resultingSpawn = result.get()
 
         if (resultingSpawn is EntitySpawnResult) {
             for (entity in resultingSpawn.entities) {
@@ -756,6 +741,8 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
             }
             spawnedPokemon?.forceBattle(player as ServerPlayer)
         }
+
+        return true
     }
 
     fun checkBaitSuccessRate(successChance: Double): Boolean {

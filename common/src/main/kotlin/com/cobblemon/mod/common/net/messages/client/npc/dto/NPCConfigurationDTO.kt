@@ -105,6 +105,7 @@ class NPCConfigurationDTO : Encodable, Decodable {
         }
         entity.appliedAspects.clear()
         entity.appliedAspects.addAll(aspects)
+        entity.updateAspects()
         variables.forEach { (key, value) ->
             val variable = entity.registeredVariables.find { it.variableName == key } ?: return@forEach
             entity.config.setDirectly(key, variable.type.toMoValue(value))

@@ -11,13 +11,19 @@ package com.cobblemon.mod.common.client.net.effect
 import com.cobblemon.mod.common.api.net.ClientNetworkPacketHandler
 import com.cobblemon.mod.common.client.particle.BedrockParticleOptionsRepository
 import com.cobblemon.mod.common.client.particle.ParticleStorm
+import com.cobblemon.mod.common.client.render.MatrixWrapper
 import com.cobblemon.mod.common.net.messages.client.effect.SpawnSnowstormParticlePacket
 import net.minecraft.client.Minecraft
+import com.mojang.blaze3d.vertex.PoseStack
 
 object SpawnSnowstormParticleHandler : ClientNetworkPacketHandler<SpawnSnowstormParticlePacket> {
     override fun handle(packet: SpawnSnowstormParticlePacket, client: Minecraft) {
+        val wrapper = MatrixWrapper()
+        val matrix = PoseStack()
+        wrapper.updateMatrix(matrix.last().pose())
+        wrapper.updatePosition(packet.position)
         val world = Minecraft.getInstance().level ?: return
         val effect = BedrockParticleOptionsRepository.getEffect(packet.effectId) ?: return
-        ParticleStorm.createAtPosition(world, effect, packet.position).spawn()
+        ParticleStorm(effect, wrapper, wrapper, world).spawn()
     }
 }

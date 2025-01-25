@@ -473,8 +473,8 @@ open class PokemonEntity(
 
         if (ticksLived <= 20) {
             clearRestriction()
-//            val spawnDirection = entityData.get(SPAWN_DIRECTION).takeIf { it.isFinite() } ?: 0F
-//            yBodyRot = (spawnDirection * 1000F).toInt() / 1000F
+            val spawnDirection = entityData.get(SPAWN_DIRECTION).takeIf { it.isFinite() } ?: 0F
+            yBodyRot = (spawnDirection * 1000F).toInt() / 1000F
         }
 
         if (this.tethering != null && !this.tethering!!.box.contains(this.x, this.y, this.z)) {
@@ -557,6 +557,10 @@ open class PokemonEntity(
         }
 
         return super.isInvulnerableTo(damageSource)
+    }
+
+    override fun canRide(vehicle: Entity): Boolean {
+        return platform == PlatformType.NONE && super.canRide(vehicle)
     }
 
     /**
@@ -913,7 +917,7 @@ open class PokemonEntity(
                 itemStack.hurtAndBreak(1, player, EquipmentSlot.MAINHAND)
                 return InteractionResult.SUCCESS
             } else if (itemStack.`is`(Items.BUCKET)) {
-                if (pokemon.getFeature<FlagSpeciesFeature>(DataKeys.CAN_BE_MILKED) != null) {
+                if (pokemon.aspects.any { it.contains(DataKeys.CAN_BE_MILKED) }) {
                     player.playSound(SoundEvents.GOAT_MILK, 1.0f, 1.0f)
                     val milkBucket = ItemUtils.createFilledResult(itemStack, player, Items.MILK_BUCKET.defaultInstance)
                     player.setItemInHand(hand, milkBucket)
@@ -1462,13 +1466,17 @@ open class PokemonEntity(
         if (beamMode != 3) super.pushEntities()
     }
 
-    /*
-    private fun updateEyeHeight() {
-        @Suppress("CAST_NEVER_SUCCEEDS")
-        (this as com.cobblemon.mod.common.mixin.accessor.AccessorEntity).standingEyeHeight(this.getActiveEyeHeight(EntityPose.STANDING, this.type.dimensions))
+    override fun isPushable(): Boolean {
+        return beamMode != 3 && super.isPushable()
     }
 
-     */
+    /*
+        private fun updateEyeHeight() {
+            @Suppress("CAST_NEVER_SUCCEEDS")
+            (this as com.cobblemon.mod.common.mixin.accessor.AccessorEntity).standingEyeHeight(this.getActiveEyeHeight(EntityPose.STANDING, this.type.dimensions))
+        }
+
+    */
 
     fun isFlying() = this.getBehaviourFlag(PokemonBehaviourFlag.FLYING)
 
@@ -1671,17 +1679,15 @@ open class PokemonEntity(
     private fun sidedCodec(): Codec<Pokemon> = if (this.level().isClientSide) Pokemon.CLIENT_CODEC else Pokemon.CODEC
 
     override fun resolvePokemonScan(): PokedexEntityData? {
-        return PokemonSpecies.getByIdentifier(this.exposedSpecies.resourceIdentifier)?.let { species ->
-            PokedexEntityData(
-                species = species,
-                form = this.form,
-                gender = this.pokemon.gender,
-                aspects = this.aspects,
-                shiny = this.pokemon.shiny,
-                level = this.labelLevel(),
-                ownerUUID = this.ownerUUID
-            )
-        }
+        return PokedexEntityData(
+            pokemon = pokemon,
+            disguise = this.effects.mockEffect?.let {
+                PokedexEntityData.DisguiseData(
+                    species = it.exposedSpecies ?: pokemon.species,
+                    form = it.exposedForm ?: pokemon.form,
+                )
+            }
+        )
     }
 
     override fun resolveEntityScan(): LivingEntity {

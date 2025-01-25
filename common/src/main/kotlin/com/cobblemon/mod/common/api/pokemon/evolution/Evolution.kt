@@ -13,6 +13,7 @@ import com.cobblemon.mod.common.CobblemonItems
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.advancement.CobblemonCriteria
 import com.cobblemon.mod.common.advancement.criterion.EvolvePokemonContext
+import com.cobblemon.mod.common.api.drop.DropTable
 import com.cobblemon.mod.common.api.events.CobblemonEvents
 import com.cobblemon.mod.common.api.events.pokemon.PokemonGainedEvent
 import com.cobblemon.mod.common.api.events.pokemon.evolution.EvolutionCompleteEvent
@@ -32,9 +33,8 @@ import com.cobblemon.mod.common.pokemon.evolution.variants.LevelUpEvolution
 import com.cobblemon.mod.common.pokemon.evolution.variants.TradeEvolution
 import com.cobblemon.mod.common.util.lang
 import com.cobblemon.mod.common.util.party
-import net.minecraft.client.Minecraft
-import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.network.protocol.game.ClientboundSoundPacket
+import com.cobblemon.mod.common.world.gamerules.CobblemonGameRules
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
@@ -81,6 +81,11 @@ interface Evolution : EvolutionLike {
     val learnableMoves: MutableSet<MoveTemplate>
 
     /**
+     * The items that will drop once the evolution finishes.
+     */
+    val drops: DropTable
+
+    /**
      * Checks if the given [Pokemon] passes all the conditions and is ready to evolve.
      *
      * @param pokemon The [Pokemon] being queried.
@@ -100,9 +105,6 @@ interface Evolution : EvolutionLike {
      * @param pokemon The [Pokemon] being evolved.
      */
     fun evolve(pokemon: Pokemon): Boolean {
-        if (this.consumeHeldItem) {
-            pokemon.swapHeldItem(ItemStack.EMPTY)
-        }
         if (this.optional) {
             // All the networking is handled under the hood, see EvolutionController.
             return pokemon.evolutionProxy.server().add(this)
@@ -130,7 +132,7 @@ interface Evolution : EvolutionLike {
         owner.party().getFirstAvailablePosition() ?: return false
 
         // Add shed Pokemon to player's party
-        val shedPokemon = pokemon.clone()
+        val shedPokemon = pokemon.clone(registryAccess = owner.registryAccess())
         shedPokemon.removeHeldItem()
         innerShedder.apply(shedPokemon)
         shedPokemon.caughtBall = ((pokeballStack?.item ?: CobblemonItems.POKE_BALL) as PokeBallItem).pokeBall
@@ -190,19 +192,49 @@ interface Evolution : EvolutionLike {
     }
 
     fun evolutionMethod(pokemon: Pokemon) {
+        // This ensures the Pokémon doesn't lose moves during evolution
+        // (e.g., Oshawott evolving at level 17 knowing Razor Shell, while Dewott only learns it at level 18).
+        val previousSpeciesLearnableMoves = pokemon.relearnableMoves
+
         this.result.apply(pokemon)
-        this.learnableMoves.forEach { move ->
-            if (pokemon.moveSet.hasSpace()) {
-                pokemon.moveSet.add(move.create())
-            } else {
-                pokemon.benchedMoves.add(BenchedMove(move, 0))
+
+        val movesToLearn = previousSpeciesLearnableMoves + this.learnableMoves
+        movesToLearn.forEach { move ->
+            val couldAddMove =
+                if (pokemon.moveSet.hasSpace()) {
+                    pokemon.moveSet.add(move.create())
+                } else {
+                    pokemon.benchedMoves.add(BenchedMove(move, 0))
+                }
+
+            val previousSpeciesKnewMove = previousSpeciesLearnableMoves.any { move.name == it.name }
+
+            if (couldAddMove && !previousSpeciesKnewMove) {
+                pokemon.getOwnerPlayer()?.sendSystemMessage(lang("experience.learned_move", pokemon.getDisplayName(), move.displayName))
             }
-            pokemon.getOwnerPlayer()?.sendSystemMessage(lang("experience.learned_move", pokemon.getDisplayName(), move.displayName))
         }
+
         // we want to instantly tick for example you might only evolve your Bulbasaur at level 34 so Venusaur should be immediately available
         pokemon.evolutions.filterIsInstance<PassiveEvolution>().forEach { evolution -> evolution.attemptEvolution(pokemon) }
         pokemon.lockedEvolutions.filterIsInstance<PassiveEvolution>().forEach { evolution -> evolution.attemptEvolution(pokemon) }
+
         this.shed(pokemon)
+
+        if (this.consumeHeldItem) {
+            pokemon.swapHeldItem(ItemStack.EMPTY)
+        }
+
+        val ownerPlayer = pokemon.getOwnerPlayer()
+        if (ownerPlayer != null && ownerPlayer.level().gameRules.getBoolean(CobblemonGameRules.DO_POKEMON_LOOT)) {
+            drops.drop(
+                pokemon.entity,
+                ownerPlayer.level() as ServerLevel,
+                pokemon.entity?.position() ?: ownerPlayer.position(),
+                ownerPlayer,
+                pokemon = pokemon
+            )
+        }
+
         CobblemonEvents.EVOLUTION_COMPLETE.post(EvolutionCompleteEvent(pokemon, this))
         CobblemonEvents.POKEMON_GAINED.post(PokemonGainedEvent(pokemon.getOwnerUUID()!!, pokemon))
     }
