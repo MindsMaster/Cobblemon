@@ -11,11 +11,13 @@ package com.cobblemon.mod.common.block
 import com.cobblemon.mod.common.block.entity.CakeBlockEntity
 import net.minecraft.core.BlockPos
 import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.BlockGetter
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.LevelReader
 import net.minecraft.world.level.block.BaseEntityBlock
+import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.shapes.CollisionContext
 import net.minecraft.world.phys.shapes.VoxelShape
@@ -58,6 +60,33 @@ abstract class CakeBlock(settings: Properties): BaseEntityBlock(settings) {
         context: CollisionContext
     ): VoxelShape? {
         return SHAPE_BY_BITE[getBites(level, pos)]
+    }
+
+    override fun spawnDestroyParticles(
+        level: Level,
+        player: Player,
+        pos: BlockPos,
+        state: BlockState
+    ) {
+        val blockEntity = level.getBlockEntity(pos) as? CakeBlockEntity
+        val color = blockEntity?.cookingComponent?.seasoning3?.color
+        val woolBlock = when (color?.lowercase()) {
+            "red" -> Blocks.RED_WOOL
+            "orange" -> Blocks.ORANGE_WOOL
+            "yellow" -> Blocks.YELLOW_WOOL
+            "lime" -> Blocks.LIME_WOOL
+            "green" -> Blocks.GREEN_WOOL
+            "cyan" -> Blocks.CYAN_WOOL
+            "light blue" -> Blocks.LIGHT_BLUE_WOOL
+            "blue" -> Blocks.BLUE_WOOL
+            "purple" -> Blocks.PURPLE_WOOL
+            "magenta" -> Blocks.MAGENTA_WOOL
+            "pink" -> Blocks.PINK_WOOL
+            "white" -> Blocks.WHITE_WOOL
+            else -> Blocks.WHITE_WOOL
+        }
+
+        level.levelEvent(player, 2001, pos, getId(woolBlock.defaultBlockState()))
     }
 
     fun getBites(level: BlockGetter, pos: BlockPos): Int = (level.getBlockEntity(pos) as? CakeBlockEntity)?.bites ?: 0
