@@ -47,11 +47,11 @@
     "entries": [
       {
         "item": "cobblemon:rocky_helmet",
-        "percentage": 5
+        "percentage": 5.0
       },
       {
         "item": "cobblemon:cheri_berry",
-        "percentage": 5
+        "percentage": 5.0
       }
     ]
   },

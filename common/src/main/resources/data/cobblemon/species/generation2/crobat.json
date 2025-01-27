@@ -67,15 +67,15 @@
     "entries": [
       {
         "item": "minecraft:phantom_membrane",
-        "percentage": 10
+        "percentage": 10.0
       },
       {
         "item": "cobblemon:razor_fang",
-        "percentage": 10
+        "percentage": 10.0
       },
       {
         "item": "cobblemon:persim_berry",
-        "percentage": 10
+        "percentage": 10.0
       }
     ]
   },

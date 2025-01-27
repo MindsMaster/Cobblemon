@@ -56,11 +56,11 @@
       },
       {
         "item": "cobblemon:twisted_spoon",
-        "percentage": 10
+        "percentage": 10.0
       },
       {
         "item": "cobblemon:persim_berry",
-        "percentage": 10
+        "percentage": 10.0
       }
     ]
   },

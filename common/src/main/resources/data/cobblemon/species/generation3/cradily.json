@@ -71,7 +71,7 @@
     "entries": [
       {
         "item": "cobblemon:big_root",
-        "percentage": 10
+        "percentage": 10.0
       }
     ]
   },

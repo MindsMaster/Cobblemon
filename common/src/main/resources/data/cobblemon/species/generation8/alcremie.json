@@ -71,7 +71,7 @@
       },
       {
         "item": "minecraft:cake",
-        "percentage": 5
+        "percentage": 5.0
       }
     ]
   },

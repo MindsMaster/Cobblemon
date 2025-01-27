@@ -63,15 +63,15 @@
     "entries": [
       {
         "item": "minecraft:phantom_membrane",
-        "percentage": 10
+        "percentage": 10.0
       },
       {
         "item": "cobblemon:reaper_cloth",
-        "percentage": 10
+        "percentage": 10.0
       },
       {
         "item": "cobblemon:kasib_berry",
-        "percentage": 10
+        "percentage": 10.0
       }
     ]
   },

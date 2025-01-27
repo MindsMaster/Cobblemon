@@ -78,7 +78,7 @@
       },
       {
         "item": "cobblemon:mystic_water",
-        "percentage": 25
+        "percentage": 25.0
       }
     ]
   },

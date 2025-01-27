@@ -54,15 +54,15 @@
     "entries": [
       {
         "item": "cobblemon:kings_rock",
-        "percentage": 5
+        "percentage": 5.0
       },
       {
         "item": "cobblemon:coba_berry",
-        "percentage": 5
+        "percentage": 5.0
       },
       {
         "item": "cobblemon:expert_belt",
-        "percentage": 5
+        "percentage": 5.0
       }
     ]
   },

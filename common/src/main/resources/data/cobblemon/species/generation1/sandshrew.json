@@ -66,8 +66,12 @@
     }
   },
   "drops": {
-    "amount": 2,
+    "amount": 3,
     "entries": [
+      {
+        "item": "minecraft:armadillo_scute",
+        "quantityRange": "0-1"
+      },
       {
         "item": "cobblemon:quick_claw",
         "percentage": 2.5

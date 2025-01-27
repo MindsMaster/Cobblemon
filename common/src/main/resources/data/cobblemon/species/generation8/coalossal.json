@@ -65,11 +65,11 @@
       },
       {
         "item": "cobblemon:black_augurite",
-        "percentage": 10
+        "percentage": 10.0
       },
       {
         "item": "cobblemon:passho_berry",
-        "percentage": 10
+        "percentage": 10.0
       }
     ]
   },

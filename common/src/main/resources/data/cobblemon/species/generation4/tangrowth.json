@@ -57,7 +57,7 @@
       },
       {
         "item": "cobblemon:big_root",
-        "percentage": 5
+        "percentage": 5.0
       }
     ]
   },

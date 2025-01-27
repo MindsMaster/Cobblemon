@@ -65,11 +65,11 @@
       },
       {
         "item": "cobblemon:hard_stone",
-        "percentage": 10
+        "percentage": 10.0
       },
       {
         "item": "cobblemon:chople_berry",
-        "percentage": 10
+        "percentage": 10.0
       }
     ]
   },

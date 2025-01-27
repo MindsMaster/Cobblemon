@@ -64,11 +64,11 @@
       },
       {
         "item": "cobblemon:never_melt_ice",
-        "percentage": 10
+        "percentage": 10.0
       },
       {
         "item": "cobblemon:aspear_berry",
-        "percentage": 10
+        "percentage": 10.0
       }
     ]
   },

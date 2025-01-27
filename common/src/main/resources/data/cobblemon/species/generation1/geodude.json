@@ -69,7 +69,7 @@
     "amount": 4,
     "entries": [
       {
-        "item": "minecraft:flint",
+        "item": "minecraft:gravel",
         "quantityRange": "0-1"
       },
       {

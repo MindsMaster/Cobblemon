@@ -72,15 +72,15 @@
       },
       {
         "item": "cobblemon:hard_stone",
-        "percentage": 10
+        "percentage": 10.0
       },
       {
         "item": "cobblemon:everstone",
-        "percentage": 10
+        "percentage": 10.0
       },
       {
         "item": "cobblemon:black_augurite",
-        "percentage": 10
+        "percentage": 10.0
       }
     ]
   },

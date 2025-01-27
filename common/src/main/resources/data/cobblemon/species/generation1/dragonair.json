@@ -74,15 +74,15 @@
       },
       {
         "item": "cobblemon:dragon_fang",
-        "percentage": 5
+        "percentage": 5.0
       },
       {
         "item": "cobblemon:dragon_scale",
-        "percentage": 5
+        "percentage": 5.0
       },
       {
         "item": "cobblemon:yache_berry",
-        "percentage": 5
+        "percentage": 5.0
       }
     ]
   },

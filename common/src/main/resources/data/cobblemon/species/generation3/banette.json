@@ -48,11 +48,15 @@
     "fixed": false
   },
   "drops": {
-    "amount": 1,
+    "amount": 2,
     "entries": [
       {
+        "item": "minecraft:phantom_membrane",
+        "percentage": 5.0
+      },
+      {
         "item": "cobblemon:spell_tag",
-        "percentage": 5
+        "percentage": 5.0
       }
     ]
   },

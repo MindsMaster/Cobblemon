@@ -71,11 +71,11 @@
     "entries": [
       {
         "item": "cobblemon:bright_powder",
-        "percentage": 5
+        "percentage": 5.0
       },
       {
         "item": "cobblemon:cheri_berry",
-        "percentage": 5
+        "percentage": 5.0
       }
     ]
   },

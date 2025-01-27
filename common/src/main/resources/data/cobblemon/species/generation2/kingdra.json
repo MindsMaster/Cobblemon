@@ -76,7 +76,7 @@
       },
       {
         "item": "cobblemon:dragon_scale",
-        "percentage": 10
+        "percentage": 10.0
       }
     ]
   },

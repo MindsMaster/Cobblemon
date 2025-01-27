@@ -65,15 +65,15 @@
     "entries": [
       {
         "item": "cobblemon:sharp_beak",
-        "percentage": 5
+        "percentage": 5.0
       },
       {
         "item": "cobblemon:metal_coat",
-        "percentage": 5
+        "percentage": 5.0
       },
       {
         "item": "cobblemon:pinap_berry",
-        "percentage": 5
+        "percentage": 5.0
       }
     ]
   },

@@ -57,7 +57,7 @@
       },
       {
         "item": "cobblemon:miracle_seed",
-        "percentage": 25
+        "percentage": 25.0
       }
     ]
   },

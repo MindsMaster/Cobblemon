@@ -71,7 +71,7 @@
     "entries": [
       {
         "item": "cobblemon:upgrade",
-        "percentage": 25
+        "percentage": 25.0
       }
     ]
   },

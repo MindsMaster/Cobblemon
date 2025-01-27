@@ -64,11 +64,11 @@
     "amount": 2,
     "entries": [
       {
-        "item": "minecraft:lily_of_the_valley"
+        "item": "minecraft:poppy"
       },
       {
         "item": "cobblemon:kebia_berry",
-        "percentage": 5
+        "percentage": 5.0
       }
     ]
   },
@@ -328,7 +328,7 @@
           },
           {
             "item": "cobblemon:kebia_berry",
-            "percentage": 5
+            "percentage": 5.0
           }
         ]
       },

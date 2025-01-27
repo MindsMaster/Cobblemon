@@ -67,11 +67,11 @@
     "entries": [
       {
         "item": "cobblemon:mystic_water",
-        "percentage": 25
+        "percentage": 25.0
       },
       {
-        "item": "minecraft:nautilus_shell",
-        "percentage": 25
+        "item": "cobblemon:shell_bell",
+        "percentage": 25.0
       }
     ]
   },
@@ -243,19 +243,6 @@
         "speed": 0
       },
       "baseScale": 0.75,
-      "drops": {
-        "amount": 2,
-        "entries": [
-          {
-            "item": "cobblemon:mystic_water",
-            "percentage": 25
-          },
-          {
-            "item": "cobblemon:shell_bell",
-            "percentage": 25
-          }
-        ]
-      },
       "moves": [
         "1:megahorn",
         "1:ceaselessedge",

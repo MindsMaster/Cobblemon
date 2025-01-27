@@ -69,7 +69,7 @@
       },
       {
         "item": "cobblemon:chesto_berry",
-        "percentage": 10
+        "percentage": 10.0
       }
     ]
   },

@@ -63,14 +63,15 @@
     }
   },
   "drops": {
-    "amount": 2,
+    "amount": 4,
     "entries": [
       {
-        "item": "minecraft:wheat_seeds"
+        "item": "minecraft:melon_seeds",
+        "quantityRange": "0-3"
       },
       {
-        "item": "cobblemon:coba_berry",
-        "percentage": 2.5
+        "item": "cobblemon:miracle_seed",
+        "percentage": 25.0
       }
     ]
   },

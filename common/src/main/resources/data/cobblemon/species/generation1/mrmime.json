@@ -58,11 +58,11 @@
     "entries": [
       {
         "item": "cobblemon:light_clay",
-        "percentage": 5
+        "percentage": 5.0
       },
       {
         "item": "cobblemon:babiri_berry",
-        "percentage": 5
+        "percentage": 5.0
       }
     ]
   },
@@ -278,7 +278,7 @@
         "entries": [
           {
             "item": "cobblemon:aspear_berry",
-            "percentage": 5
+            "percentage": 5.0
           }
         ]
       },

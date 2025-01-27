@@ -45,6 +45,11 @@
   "catchRate": 60,
   "eggCycles": 25,
   "baseFriendship": 50,
+  "hitbox": {
+    "width": 1.1,
+    "height": 1.7,
+    "fixed": false
+  },
   "behaviour": {
     "resting": {
       "canSleep": true,
@@ -81,7 +86,7 @@
       },
       {
         "item": "cobblemon:aspear_berry",
-        "percentage": 5
+        "percentage": 5.0
       }
     ]
   },
@@ -179,6 +184,11 @@
       "aspects": [
         "noice_face"
       ],
+      "hitbox": {
+        "width": 0.65,
+        "height": 1.35,
+        "fixed": false
+      },
       "baseStats": {
         "hp": 75,
         "attack": 80,
@@ -205,7 +215,7 @@
           },
           {
             "item": "cobblemon:aspear_berry",
-            "percentage": 5
+            "percentage": 5.0
           }
         ]
       }

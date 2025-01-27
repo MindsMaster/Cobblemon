@@ -72,7 +72,7 @@
     "entries": [
       {
         "item": "cobblemon:quick_claw",
-        "percentage": 10
+        "percentage": 10.0
       }
     ]
   },

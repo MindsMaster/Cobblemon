@@ -76,15 +76,15 @@
       },
       {
         "item": "cobblemon:magnet",
-        "percentage": 10
+        "percentage": 10.0
       },
       {
         "item": "cobblemon:metal_coat",
-        "percentage": 10
+        "percentage": 10.0
       },
       {
         "item": "cobblemon:shuca_berry",
-        "percentage": 10
+        "percentage": 10.0
       }
     ]
   },

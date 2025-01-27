@@ -65,11 +65,11 @@
       },
       {
         "item": "minecraft:iron_sword",
-        "percentage": 5
+        "percentage": 5.0
       },
       {
         "item": "cobblemon:dusk_stone",
-        "percentage": 5
+        "percentage": 5.0
       }
     ]
   },

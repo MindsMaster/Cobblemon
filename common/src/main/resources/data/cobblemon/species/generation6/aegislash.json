@@ -59,7 +59,7 @@
     }
   },
   "drops": {
-    "amount": 5,
+    "amount": 6,
     "entries": [
       {
         "item": "minecraft:iron_nugget",
@@ -67,11 +67,15 @@
       },
       {
         "item": "minecraft:iron_sword",
-        "percentage": 25
+        "percentage": 10.0
       },
       {
         "item": "cobblemon:dusk_stone",
-        "percentage": 10
+        "percentage": 10.0
+      },
+      {
+        "item": "cobblemon:ability_shield",
+        "percentage": 10.0
       }
     ]
   },

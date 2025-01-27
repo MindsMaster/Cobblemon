@@ -57,15 +57,15 @@
       },
       {
         "item": "cobblemon:mental_herb",
-        "percentage": 10
+        "percentage": 10.0
       },
       {
         "item": "cobblemon:revival_herb",
-        "percentage": 10
+        "percentage": 10.0
       },
       {
         "item": "cobblemon:coba_berry",
-        "percentage": 10
+        "percentage": 10.0
       }
     ]
   },

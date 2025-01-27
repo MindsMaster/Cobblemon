@@ -67,7 +67,7 @@
       },
       {
         "item": "cobblemon:charcoal_stick",
-        "percentage": 25
+        "percentage": 25.0
       }
     ]
   },

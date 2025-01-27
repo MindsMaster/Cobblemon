@@ -73,11 +73,11 @@
       },
       {
         "item": "cobblemon:mental_herb",
-        "percentage": 10
+        "percentage": 10.0
       },
       {
         "item": "cobblemon:kebia_berry",
-        "percentage": 10
+        "percentage": 10.0
       }
     ]
   },

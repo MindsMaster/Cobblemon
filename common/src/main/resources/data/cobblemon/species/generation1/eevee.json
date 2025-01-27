@@ -54,11 +54,11 @@
     "entries": [
       {
         "item": "cobblemon:silk_scarf",
-        "percentage": 5
+        "percentage": 5.0
       },
       {
         "item": "cobblemon:eviolite",
-        "percentage": 5
+        "percentage": 5.0
       }
     ]
   },

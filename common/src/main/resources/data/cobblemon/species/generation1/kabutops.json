@@ -73,11 +73,11 @@
     "entries": [
       {
         "item": "cobblemon:razor_claw",
-        "percentage": 10
+        "percentage": 10.0
       },
       {
         "item": "minecraft:bone_meal",
-        "percentage": 10
+        "percentage": 10.0
       }
     ]
   },

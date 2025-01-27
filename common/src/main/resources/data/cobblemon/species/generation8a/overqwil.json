@@ -80,7 +80,7 @@
       },
       {
         "item": "cobblemon:poison_barb",
-        "percentage": 5
+        "percentage": 5.0
       }
     ]
   },

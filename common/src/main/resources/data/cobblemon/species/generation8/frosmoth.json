@@ -56,11 +56,11 @@
       },
       {
         "item": "cobblemon:silver_powder",
-        "percentage": 5
+        "percentage": 5.0
       },
       {
         "item": "cobblemon:charti_berry",
-        "percentage": 5
+        "percentage": 5.0
       }
     ]
   },

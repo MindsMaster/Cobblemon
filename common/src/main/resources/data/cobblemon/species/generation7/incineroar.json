@@ -65,11 +65,11 @@
     "entries": [
       {
         "item": "cobblemon:charcoal_stick",
-        "percentage": 25
+        "percentage": 25.0
       },
       {
         "item": "cobblemon:expert_belt",
-        "percentage": 25
+        "percentage": 25.0
       }
     ]
   },

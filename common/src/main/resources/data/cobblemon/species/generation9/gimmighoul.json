@@ -69,7 +69,7 @@
     }
   },
   "drops": {
-    "amount": 24,
+    "amount": 48,
     "entries": [
       {
         "item": "cobblemon:relic_coin",

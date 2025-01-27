@@ -178,16 +178,16 @@
         "speed": 128
       },
       "baseExperienceYield": 350,
-      "drops": {
-        "amount": 1,
-        "entries": [
-          {
-            "item": "cobblemon:ability_shield"
-          }
-        ]
-      },
       "evolutions": [],
       "battleOnly": true
     }
-  ]
+  ],
+  "drops": {
+    "amount": 1,
+    "entries": [
+      {
+        "item": "cobblemon:ability_shield"
+      }
+    ]
+  }
 }

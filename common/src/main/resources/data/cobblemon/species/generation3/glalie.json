@@ -57,15 +57,15 @@
       },
       {
         "item": "cobblemon:dawn_stone",
-        "percentage": 5
+        "percentage": 5.0
       },
       {
         "item": "cobblemon:never_melt_ice",
-        "percentage": 5
+        "percentage": 5.0
       },
       {
         "item": "cobblemon:babiri_berry",
-        "percentage": 5
+        "percentage": 5.0
       }
     ]
   },

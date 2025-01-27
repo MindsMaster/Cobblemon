@@ -63,11 +63,11 @@
     "entries": [
       {
         "item": "cobblemon:spell_tag",
-        "percentage": 5
+        "percentage": 5.0
       },
       {
         "item": "cobblemon:payapa_berry",
-        "percentage": 5
+        "percentage": 5.0
       }
     ]
   },

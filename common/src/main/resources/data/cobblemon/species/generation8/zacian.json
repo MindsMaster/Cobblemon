@@ -174,16 +174,16 @@
         "speed": 148
       },
       "baseExperienceYield": 350,
-      "drops": {
-        "amount": 1,
-        "entries": [
-          {
-            "item": "minecraft:diamond_sword"
-          }
-        ]
-      },
       "evolutions": [],
       "battleOnly": true
     }
-  ]
+  ],
+  "drops": {
+    "amount": 1,
+    "entries": [
+      {
+        "item": "minecraft:diamond_sword"
+      }
+    ]
+  }
 }

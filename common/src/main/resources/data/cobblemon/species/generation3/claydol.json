@@ -69,11 +69,11 @@
       },
       {
         "item": "cobblemon:light_clay",
-        "percentage": 5
+        "percentage": 5.0
       },
       {
         "item": "cobblemon:colbur_berry",
-        "percentage": 5
+        "percentage": 5.0
       }
     ]
   },

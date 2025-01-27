@@ -67,11 +67,11 @@
       },
       {
         "item": "minecraft:rabbit_foot",
-        "percentage": 10
+        "percentage": 10.0
       },
       {
         "item": "cobblemon:charcoal_stick",
-        "percentage": 10
+        "percentage": 10.0
       }
     ]
   },

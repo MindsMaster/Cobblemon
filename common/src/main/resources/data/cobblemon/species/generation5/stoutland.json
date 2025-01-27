@@ -61,7 +61,7 @@
       },
       {
         "item": "cobblemon:chilan_berry",
-        "percentage": 10
+        "percentage": 10.0
       }
     ]
   },

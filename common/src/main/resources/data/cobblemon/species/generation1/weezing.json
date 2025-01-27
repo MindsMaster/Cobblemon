@@ -60,11 +60,15 @@
     }
   },
   "drops": {
-    "amount": 1,
+    "amount": 2,
     "entries": [
       {
         "item": "cobblemon:black_sludge",
-        "percentage": 5
+        "percentage": 5.0
+      },
+      {
+        "item": "cobblemon:smoke_ball",
+        "percentage": 5.0
       }
     ]
   },
@@ -192,15 +196,15 @@
         "entries": [
           {
             "item": "cobblemon:black_sludge",
-            "percentage": 5
+            "percentage": 5.0
           },
           {
             "item": "cobblemon:payapa_berry",
-            "percentage": 5
+            "percentage": 5.0
           },
           {
             "item": "cobblemon:smoke_ball",
-            "percentage": 5
+            "percentage": 5.0
           }
         ]
       },

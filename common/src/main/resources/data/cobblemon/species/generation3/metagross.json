@@ -68,11 +68,15 @@
     }
   },
   "drops": {
-    "amount": 1,
+    "amount": 4,
     "entries": [
       {
+        "item": "minecraft:ender_pearl",
+        "quantityRange": "0-3"
+      },
+      {
         "item": "cobblemon:metal_coat",
-        "percentage": 10
+        "percentage": 10.0
       }
     ]
   },

@@ -68,11 +68,11 @@
     "entries": [
       {
         "item": "cobblemon:kings_rock",
-        "percentage": 10
+        "percentage": 10.0
       },
       {
         "item": "cobblemon:chesto_berry",
-        "percentage": 10
+        "percentage": 10.0
       }
     ]
   },

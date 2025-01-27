@@ -62,15 +62,15 @@
       },
       {
         "item": "cobblemon:charcoal_stick",
-        "percentage": 5
+        "percentage": 5.0
       },
       {
         "item": "cobblemon:smoke_ball",
-        "percentage": 5
+        "percentage": 5.0
       },
       {
         "item": "cobblemon:charti_berry",
-        "percentage": 5
+        "percentage": 5.0
       }
     ]
   },

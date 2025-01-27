@@ -51,8 +51,12 @@
     "fixed": false
   },
   "drops": {
-    "amount": 2,
+    "amount": 3,
     "entries": [
+      {
+        "item": "cobblemon:light_ball",
+        "percentage": 2.5
+      },
       {
         "item": "cobblemon:thunder_stone",
         "percentage": 2.5

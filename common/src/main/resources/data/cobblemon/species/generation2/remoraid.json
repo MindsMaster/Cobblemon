@@ -70,7 +70,7 @@
       },
       {
         "item": "minecraft:bone_meal",
-        "percentage": 5
+        "percentage": 5.0
       },
       {
         "item": "cobblemon:aspear_berry",

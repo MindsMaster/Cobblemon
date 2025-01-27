@@ -200,6 +200,40 @@
           "move": "topsyturvy"
         }
       ]
+    },
+    {
+      "id": "inkay_malamar_dinnerbone",
+      "variant": "level_up",
+      "result": "malamar",
+      "consumeHeldItem": false,
+      "learnableMoves": [],
+      "requirements": [
+        {
+          "variant": "level",
+          "minLevel": 30
+        },
+        {
+          "variant": "properties",
+          "target": "nickname=Dinnerbone"
+        }
+      ]
+    },
+    {
+      "id": "inkay_malamar_grumm",
+      "variant": "level_up",
+      "result": "malamar",
+      "consumeHeldItem": false,
+      "learnableMoves": [],
+      "requirements": [
+        {
+          "variant": "level",
+          "minLevel": 30
+        },
+        {
+          "variant": "properties",
+          "target": "nickname=Grumm"
+        }
+      ]
     }
   ]
 }

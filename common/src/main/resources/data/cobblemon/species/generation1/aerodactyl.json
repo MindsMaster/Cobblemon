@@ -73,7 +73,7 @@
       },
       {
         "item": "cobblemon:rocky_helmet",
-        "percentage": 10
+        "percentage": 10.0
       }
     ]
   },

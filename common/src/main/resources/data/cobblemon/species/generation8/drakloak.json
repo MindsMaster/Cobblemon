@@ -71,11 +71,11 @@
     "entries": [
       {
         "item": "minecraft:phantom_membrane",
-        "percentage": 5
+        "percentage": 5.0
       },
       {
         "item": "cobblemon:haban_berry",
-        "percentage": 5
+        "percentage": 5.0
       }
     ]
   },

@@ -70,11 +70,11 @@
     "entries": [
       {
         "item": "cobblemon:mystic_water",
-        "percentage": 5
+        "percentage": 5.0
       },
       {
         "item": "cobblemon:shell_bell",
-        "percentage": 5
+        "percentage": 5.0
       }
     ]
   },

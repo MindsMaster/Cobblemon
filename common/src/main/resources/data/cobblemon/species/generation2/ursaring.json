@@ -57,15 +57,15 @@
       },
       {
         "item": "minecraft:honey_bottle",
-        "percentage": 5
+        "percentage": 5.0
       },
       {
         "item": "cobblemon:peat_block",
-        "percentage": 5
+        "percentage": 5.0
       },
       {
         "item": "cobblemon:oran_berry",
-        "percentage": 5
+        "percentage": 5.0
       }
     ]
   },

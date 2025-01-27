@@ -65,7 +65,7 @@
     "entries": [
       {
         "item": "cobblemon:never_melt_ice",
-        "percentage": 5
+        "percentage": 5.0
       }
     ]
   },
