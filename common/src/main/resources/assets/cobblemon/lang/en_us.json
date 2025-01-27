@@ -1091,7 +1091,7 @@
   "cobblemon.ui.pokedex.info.form.squawkabilly-color-green": "Green",
   "cobblemon.ui.pokedex.info.form.squawkabilly-color-yellow": "Yellow",
   "cobblemon.ui.pokedex.info.form.maushold-family-four": "Family",
-  "cobblemon.ui.pokedex.info.form.no_ice": "No Ice",
+  "cobblemon.ui.pokedex.info.form.noice-face": "Noice",
 
   "cobblemon.ui.pokedex.info.form.color-light_gray": "Light Gray",
   "cobblemon.ui.pokedex.info.form.color-gray": "Gray",
@@ -6201,7 +6201,7 @@
   "cobblemon.species.stonjourner.desc": "Once a year, on a specific date and at a specific time, they gather out of nowhere and form up in a circle.",
   "cobblemon.species.eiscue.name": "Eiscue",
   "cobblemon.species.eiscue.desc": "Eiscue live in coastal, frozen seas, making their nests on glaciers and sliding playfully along the ice. The single hair on their heads radiate an intense cold, freezing the seawater around them into a protective block of ice. Although this helmet is heavy, it is very buoyant, allowing Eiscue to travel long distances by simply floating on the current.",
-  "cobblemon.species.eiscue-noice.desc": "When subject to a particularly forceful blow, the ice blocks that cover an Eiscue's head shatters completely, leaving their small heads exposed. Although they usually tend to avoid this shattering, there are cases where they are seen causing it intentionally. Because they are much quicker without their block, they oftentimes shatter it before diving for their prey.",
+  "cobblemon.species.eiscue-noiceface.desc": "When subject to a particularly forceful blow, the ice blocks that cover an Eiscue's head shatters completely, leaving their small heads exposed. Although they usually tend to avoid this shattering, there are cases where they are seen causing it intentionally. Because they are much quicker without their block, they oftentimes shatter it before diving for their prey.",
   "cobblemon.species.indeedee.name": "Indeedee",
   "cobblemon.species.indeedee.desc": "Through its horns, it can pick up on the emotions of creatures around it. Positive emotions are the source of its strength.",
   "cobblemon.species.morpeko.name": "Morpeko",

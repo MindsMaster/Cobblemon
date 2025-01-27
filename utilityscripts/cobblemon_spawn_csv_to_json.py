@@ -414,6 +414,10 @@ def transform_pokemon_to_json(pokemon_rows, invalid_biome_tags, drops_df):
                             multiplier_condition["timeRange"] = "dawn"
                         case "Beehive":
                             multiplier_condition["neededNearbyBlocks"] = ["#minecraft:beehives"]
+                        case "Water":
+                            multiplier_condition["neededNearbyBlocks"] = ["#minecraft:water"]
+                        case "Lava":
+                            multiplier_condition["neededNearbyBlocks"] = ["#minecraft:lava"]
                         case "Full Moon":
                             multiplier_condition["moonPhase"] = 0
                         case "New Moon":

@@ -34,8 +34,8 @@
             }
         },
         {
-            "id": "tauros-paldean-2",
-            "pokemon": "tauros paldean",
+            "id": "tauros-combat-2",
+            "pokemon": "tauros paldean bull_breed=combat",
             "presets": [
                 "natural"
             ],
@@ -43,7 +43,7 @@
             "context": "grounded",
             "bucket": "common",
             "level": "24-49",
-            "weight": 2.0,
+            "weight": 1.8,
             "weightMultiplier": {
                 "multiplier": 0.25,
                 "condition": {
@@ -59,8 +59,8 @@
             }
         },
         {
-            "id": "tauros-paldean-3",
-            "pokemon": "tauros paldean",
+            "id": "tauros-blaze-3",
+            "pokemon": "tauros paldean bull_breed=blaze",
             "presets": [
                 "natural"
             ],
@@ -68,13 +68,23 @@
             "context": "grounded",
             "bucket": "common",
             "level": "24-49",
-            "weight": 2.0,
-            "weightMultiplier": {
-                "multiplier": 0.25,
-                "condition": {
-                    "timeRange": "night"
+            "weight": 0.1,
+            "weightMultipliers": [
+                {
+                    "multiplier": 0.25,
+                    "condition": {
+                        "timeRange": "night"
+                    }
+                },
+                {
+                    "multiplier": 5.0,
+                    "condition": {
+                        "neededNearbyBlocks": [
+                            "#minecraft:lava"
+                        ]
+                    }
                 }
-            },
+            ],
             "condition": {
                 "minSkyLight": 8,
                 "maxSkyLight": 15,
@@ -84,8 +94,8 @@
             }
         },
         {
-            "id": "tauros-paldean-4",
-            "pokemon": "tauros paldean",
+            "id": "tauros-aqua-4",
+            "pokemon": "tauros paldean bull_breed=aqua",
             "presets": [
                 "natural"
             ],
@@ -93,13 +103,23 @@
             "context": "grounded",
             "bucket": "common",
             "level": "24-49",
-            "weight": 2.0,
-            "weightMultiplier": {
-                "multiplier": 0.25,
-                "condition": {
-                    "timeRange": "night"
+            "weight": 0.1,
+            "weightMultipliers": [
+                {
+                    "multiplier": 0.25,
+                    "condition": {
+                        "timeRange": "night"
+                    }
+                },
+                {
+                    "multiplier": 5.0,
+                    "condition": {
+                        "neededNearbyBlocks": [
+                            "#minecraft:water"
+                        ]
+                    }
                 }
-            },
+            ],
             "condition": {
                 "minSkyLight": 8,
                 "maxSkyLight": 15,
