@@ -11,6 +11,7 @@ package com.cobblemon.mod.common.client.render.layer
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.client.render.models.blockbench.FloatingState
 import com.cobblemon.mod.common.client.render.models.blockbench.PosableModel
+import com.cobblemon.mod.common.client.render.models.blockbench.repository.PokemonModelRepository
 import com.cobblemon.mod.common.client.render.models.blockbench.repository.RenderContext
 import com.cobblemon.mod.common.client.render.models.blockbench.repository.VaryingModelRepository
 import com.cobblemon.mod.common.entity.PoseType
@@ -22,6 +23,7 @@ import com.cobblemon.mod.common.util.isPokemonEntity
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
 import java.util.UUID
+import net.minecraft.client.Minecraft
 import net.minecraft.client.model.PlayerModel
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
@@ -58,8 +60,11 @@ class PokemonOnShoulderRenderer<T : Player>(renderLayerParent: RenderLayerParent
         netHeadYaw: Float,
         headPitch: Float
     ) {
-        this.render(matrixStack, buffer, packedLight, livingEntity, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, true)
-        this.render(matrixStack, buffer, packedLight, livingEntity, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, false)
+        // It's unclear why Minecraft's providing a partial ticks based on 60FPS regardless of the real FPS.
+        // Whatever - the delta manager works correctly.
+        val realPartialTicks = Minecraft.getInstance().timer.realtimeDeltaTicks
+        this.render(matrixStack, buffer, packedLight, livingEntity, limbSwing, limbSwingAmount, realPartialTicks, ageInTicks, netHeadYaw, headPitch, true)
+        this.render(matrixStack, buffer, packedLight, livingEntity, limbSwing, limbSwingAmount, realPartialTicks, ageInTicks, netHeadYaw, headPitch, false)
     }
 
     fun configureState(state: FloatingState, model: PosableModel, leftShoulder: Boolean): FloatingState {
@@ -103,8 +108,8 @@ class PokemonOnShoulderRenderer<T : Player>(renderLayerParent: RenderLayerParent
 
             var state = FloatingState()
             state.currentAspects = shoulderData.aspects
-
             val model = VaryingModelRepository.getPoser(shoulderData.species.resourceIdentifier, state)
+            model.context = context
             context.put(RenderContext.SPECIES, shoulderData.species.resourceIdentifier)
             context.put(RenderContext.ASPECTS, shoulderData.aspects)
             val scale = shoulderData.form.baseScale * shoulderData.scaleModifier

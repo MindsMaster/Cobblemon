@@ -8,6 +8,7 @@
 
 package com.cobblemon.mod.common.client.gui.summary.widgets.screens.moves
 
+import com.cobblemon.mod.common.client.gui.CobblemonRenderable
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.ObjectSelectionList
@@ -21,14 +22,11 @@ class MoveDescriptionScrollList(
 ) : ObjectSelectionList<MoveDescriptionEntry>(
     Minecraft.getInstance(),
     60, // width
-    28, // height
+    30, // height
     0, // top
     slotHeight
-) {
-    companion object {
-        const val WIDTH = 108
-        const val HEIGHT = 111
-    }
+), CobblemonRenderable {
+    private var scrolling = false
 
     init {
         this.y = this.listY
@@ -44,7 +42,7 @@ class MoveDescriptionScrollList(
         isHovered = pMouseX >= x && pMouseY >= y && pMouseX < x + width && pMouseY < y + height
         context.enableScissor(
             x,
-            y - 1,
+            y,
             x + width,
             y + height
         )
@@ -52,7 +50,33 @@ class MoveDescriptionScrollList(
         context.disableScissor()
     }
 
-    override fun renderListBackground(guiGraphics: GuiGraphics) {
+    override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
+        updateScrollingState(mouseX, mouseY)
+        if (scrolling) isDragging = true
+
+        return isDragging
+    }
+
+    override fun mouseDragged(mouseX: Double, mouseY: Double, button: Int, deltaX: Double, deltaY: Double): Boolean {
+        if (scrolling) {
+            if (mouseY < y) {
+                scrollAmount = 0.0
+            } else if (mouseY > bottom) {
+                scrollAmount = maxScroll.toDouble()
+            } else {
+                scrollAmount += deltaY
+            }
+        }
+        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)
+    }
+
+    override fun renderListBackground(guiGraphics: GuiGraphics) {}
+
+    private fun updateScrollingState(mouseX: Double, mouseY: Double) {
+        scrolling = mouseX >= getScrollbarPosition().toDouble()
+                && mouseX < (getScrollbarPosition() + 3).toDouble()
+                && mouseY >= y
+                && mouseY < bottom
     }
 
     fun setMoveDescription(moveDescription: MutableComponent) {

@@ -13,7 +13,7 @@
             "context": "grounded",
             "bucket": "ultra-rare",
             "level": "45-60",
-            "weight": 0.1,
+            "weight": 0.4,
             "condition": {
                 "biomes": [
                     "#cobblemon:is_dripstone",
@@ -31,21 +31,59 @@
             "context": "grounded",
             "bucket": "rare",
             "level": "45-60",
-            "weight": 0.1,
+            "weight": 0.25,
             "condition": {
                 "biomes": [
-                    "#minecraft:is_end"
+                    "#cobblemon:is_end"
                 ]
             }
         },
         {
             "id": "metagross-3",
             "pokemon": "metagross",
+            "presets": [
+                "natural"
+            ],
             "type": "pokemon",
             "context": "grounded",
             "bucket": "rare",
             "level": "45-60",
-            "weight": 0.1,
+            "weight": 0.25,
+            "condition": {
+                "minSkyLight": 0,
+                "maxSkyLight": 7,
+                "biomes": [
+                    "#aether:is_aether"
+                ]
+            }
+        },
+        {
+            "id": "metagross-4",
+            "pokemon": "metagross",
+            "type": "pokemon",
+            "context": "grounded",
+            "bucket": "uncommon",
+            "level": "45-60",
+            "weight": 0.032,
+            "condition": {
+                "minSkyLight": 0,
+                "maxSkyLight": 7,
+                "biomes": [
+                    "#aether:is_aether"
+                ],
+                "structures": [
+                    "#aether:dungeons"
+                ]
+            }
+        },
+        {
+            "id": "metagross-5",
+            "pokemon": "metagross",
+            "type": "pokemon",
+            "context": "grounded",
+            "bucket": "rare",
+            "level": "45-60",
+            "weight": 0.25,
             "condition": {
                 "biomes": [
                     "the_bumblezone:howling_constructs"

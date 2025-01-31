@@ -11,23 +11,24 @@ package com.cobblemon.mod.common.command
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.CobblemonNetwork.sendPacket
 import com.cobblemon.mod.common.api.permission.CobblemonPermissions
+import com.cobblemon.mod.common.api.pokedex.CaughtCount
+import com.cobblemon.mod.common.api.pokedex.CaughtPercent
+import com.cobblemon.mod.common.api.pokedex.Dexes
 import com.cobblemon.mod.common.api.pokedex.PokedexEntryProgress
+import com.cobblemon.mod.common.api.pokedex.SeenCount
+import com.cobblemon.mod.common.api.pokedex.SeenPercent
 import com.cobblemon.mod.common.api.pokedex.def.PokedexDef
-import com.cobblemon.mod.common.api.pokemon.PokemonSpecies.species
-import com.cobblemon.mod.common.api.storage.player.PlayerInstancedDataStoreType
 import com.cobblemon.mod.common.api.storage.player.PlayerInstancedDataStoreTypes
-import com.cobblemon.mod.common.api.text.text
 import com.cobblemon.mod.common.command.argument.DexArgumentType
 import com.cobblemon.mod.common.command.argument.FormArgumentType
 import com.cobblemon.mod.common.command.argument.SpeciesArgumentType
 import com.cobblemon.mod.common.net.messages.client.SetClientPlayerDataPacket
 import com.cobblemon.mod.common.pokemon.FormData
 import com.cobblemon.mod.common.pokemon.Species
+import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.common.util.permission
-import com.cobblemon.mod.common.util.player
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.CommandDispatcher
-import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
@@ -44,8 +45,7 @@ object PokedexCommand {
         val commandArgumentBuilder = Commands.literal(NAME)
         val grantCommandBuilder = Commands.literal(GRANT_NAME).then(
             Commands.argument("player", EntityArgument.player())
-                .then(Commands.literal("all")
-                    .then(
+                .then(Commands.literal("all").then(
                         Commands.argument("dex", DexArgumentType.dex()).executes(::executeGrantAll)
                     )
                 )
@@ -68,9 +68,14 @@ object PokedexCommand {
             ))
         )
         commandArgumentBuilder
+            .permission(CobblemonPermissions.POKEDEX)
             .then(grantCommandBuilder)
             .then(revokeCommandBuilder)
-            .permission(CobblemonPermissions.POKEDEX)
+            .then(Commands.literal("printcalculations")
+                .then(Commands.argument("player", EntityArgument.player())
+                    .executes(::printValuesGlobal)
+                    .then(Commands.argument("dex", DexArgumentType.dex())
+                        .executes(::printValues))))
 
 
         dispatcher.register(commandArgumentBuilder)
@@ -82,9 +87,19 @@ object PokedexCommand {
         val form = context.getArgument("form", FormData::class.java)
         players.forEach {
             val dex = Cobblemon.playerDataManager.getPokedexData(it)
+            val completeEntry = Dexes.dexEntryMap[cobblemonResource("national")]!!.getEntries().first { it.speciesId == species.resourceIdentifier }
+            val entry = dex.getOrCreateSpeciesRecord(species.resourceIdentifier)
 
-            //dex.grantedWithCommand(species, form)
-            it.sendPacket(SetClientPlayerDataPacket(PlayerInstancedDataStoreTypes.POKEDEX, dex.toClientData()))
+            completeEntry.forms
+                .filter { it.displayForm == form.name }
+                .forEach { form ->
+                    form.unlockForms.forEach { unlockForm ->
+                        val formRecord = entry.getOrCreateFormRecord(unlockForm)
+                        formRecord.setKnowledgeProgress(PokedexEntryProgress.CAUGHT)
+                        formRecord.addAllShinyStatesAndGenders()
+                    }
+                }
+            entry.addAspects(completeEntry.variations.flatMap { it.aspects }.toSet())
         }
         val selectorStr = if (players.size == 1) players.first().name.string else "${players.size} players"
         context.source.sendSystemMessage(
@@ -99,15 +114,18 @@ object PokedexCommand {
         val form = context.getArgument("form", FormData::class.java)
         players.forEach {
             val dex = Cobblemon.playerDataManager.getPokedexData(it)
-            //dex.removedWithCommand(species, form)
+            dex.deleteFormRecord(species.resourceIdentifier, form.name.lowercase())
+            dex.clearCalculatedValues()
             it.sendPacket(SetClientPlayerDataPacket(PlayerInstancedDataStoreTypes.POKEDEX, dex.toClientData()))
         }
+        Cobblemon.playerDataManager.saveAllOfOneType(PlayerInstancedDataStoreTypes.POKEDEX)
         val selectorStr = if (players.size == 1) players.first().name.string else "${players.size} players"
         context.source.sendSystemMessage(
             Component.literal("Removed ${species.name}-${form.formOnlyShowdownId()} from $selectorStr")
         )
         return Command.SINGLE_SUCCESS
     }
+
     private fun executeGrantAll(context: CommandContext<CommandSourceStack>): Int {
         val players = context.getArgument("player", EntitySelector::class.java).findPlayers(context.source)
         val dexDef = context.getArgument("dex", PokedexDef::class.java)
@@ -124,7 +142,6 @@ object PokedexCommand {
                 }
                 speciesRecord.addAspects(dexEntry.variations.flatMap { it.aspects }.toSet())
             }
-            player.sendPacket(SetClientPlayerDataPacket(PlayerInstancedDataStoreTypes.POKEDEX, dex.toClientData()))
         }
         val selectorStr = if (players.size == 1) players.first().name.string else "${players.size} players"
         context.source.sendSystemMessage(
@@ -135,16 +152,45 @@ object PokedexCommand {
 
     private fun executeRemoveAll(context: CommandContext<CommandSourceStack>): Int {
         val players = context.getArgument("player", EntitySelector::class.java).findPlayers(context.source)
+        val dexDef = context.getArgument("dex", PokedexDef::class.java)
         players.forEach {
             val dex = Cobblemon.playerDataManager.getPokedexData(it)
-            //FIXME
-            //dex.removedByCommand(null, null)
+            dexDef.getEntries().forEach {
+                dex.deleteSpeciesRecord(it.speciesId)
+            }
+            dex.clearCalculatedValues()
             it.sendPacket(SetClientPlayerDataPacket(PlayerInstancedDataStoreTypes.POKEDEX, dex.toClientData()))
         }
+        Cobblemon.playerDataManager.saveAllOfOneType(PlayerInstancedDataStoreTypes.POKEDEX)
         val selectorStr = if (players.size == 1) players.first().name.string else "${players.size} players"
         context.source.sendSystemMessage(
             Component.literal("Cleared dex of $selectorStr")
         )
         return Command.SINGLE_SUCCESS
+    }
+
+    private fun printValuesGlobal(context: CommandContext<CommandSourceStack>): Int {
+        val player = context.getArgument("player", EntitySelector::class.java).findSinglePlayer(context.source)
+        val dex = Cobblemon.playerDataManager.getPokedexData(player)
+        var calculators = listOf(SeenCount, CaughtCount, SeenPercent, CaughtPercent)
+        calculators.forEach {
+            var value = dex.getGlobalCalculatedValue(it)
+            context.source.sendSystemMessage(Component.literal("${it.javaClass.simpleName} result: $value"))
+        }
+
+        return 1
+    }
+
+    private fun printValues(context: CommandContext<CommandSourceStack>): Int {
+        val player = context.getArgument("player", EntitySelector::class.java).findSinglePlayer(context.source)
+        val dex = Cobblemon.playerDataManager.getPokedexData(player)
+        val dexDef = context.getArgument("dex", PokedexDef::class.java)
+        var calculators = listOf(SeenCount, CaughtCount, SeenPercent, CaughtPercent)
+        calculators.forEach {
+            var value = dex.getDexCalculatedValue(dexDef.id, it)
+            context.source.sendSystemMessage(Component.literal("${it.javaClass.simpleName} result: $value"))
+        }
+
+        return 1
     }
 }

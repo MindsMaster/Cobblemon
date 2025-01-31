@@ -17,8 +17,16 @@
   "favoriteMulches": [
     "sandy"
   ],
-  "growthFactors": [],
-  "randomizedGrowthPoints": true,
+  "growthFactors": [
+    {
+      "variant": "cobblemon:preferred_biome",
+      "bonusYield": {
+        "min": 0,
+        "max": 1
+      }
+    }
+  ],
+  "randomizedGrowthPoints": false,
   "spawnConditions": [
     {
       "variant": "cobblemon:preferred_biome",

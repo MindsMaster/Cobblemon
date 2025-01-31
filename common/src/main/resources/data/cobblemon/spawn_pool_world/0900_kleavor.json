@@ -14,7 +14,7 @@
             "context": "grounded",
             "bucket": "rare",
             "level": "45-50",
-            "weight": 0.2,
+            "weight": 0.25,
             "condition": {
                 "minSkyLight": 8,
                 "maxSkyLight": 15,
@@ -28,6 +28,26 @@
                 "biomes": [
                     "#cobblemon:is_freezing",
                     "#cobblemon:is_spooky"
+                ]
+            }
+        },
+        {
+            "id": "kleavor-2",
+            "pokemon": "kleavor",
+            "presets": [
+                "natural"
+            ],
+            "type": "pokemon",
+            "context": "grounded",
+            "bucket": "rare",
+            "level": "45-50",
+            "weight": 0.25,
+            "condition": {
+                "minSkyLight": 8,
+                "maxSkyLight": 15,
+                "biomes": [
+                    "aether:skyroot_forest",
+                    "aether:skyroot_woodland"
                 ]
             }
         }

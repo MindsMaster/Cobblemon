@@ -11,64 +11,62 @@ package com.cobblemon.mod.neoforge.client
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.CobblemonClientImplementation
 import com.cobblemon.mod.common.api.pokeball.PokeBalls
-import com.cobblemon.mod.common.client.render.atlas.CobblemonAtlases
 import com.cobblemon.mod.common.client.CobblemonClient
 import com.cobblemon.mod.common.client.CobblemonClient.pokedexUsageContext
 import com.cobblemon.mod.common.client.CobblemonClient.reloadCodedAssets
 import com.cobblemon.mod.common.client.keybind.CobblemonKeyBinds
+import com.cobblemon.mod.common.client.pokedex.PokedexType
+import com.cobblemon.mod.common.client.render.atlas.CobblemonAtlases
 import com.cobblemon.mod.common.client.render.item.CobblemonModelPredicateRegistry
-import com.cobblemon.mod.common.compat.LambDynamicLightsCompat
 import com.cobblemon.mod.common.client.render.shader.CobblemonShaders
+import com.cobblemon.mod.common.compat.LambDynamicLightsCompat
 import com.cobblemon.mod.common.item.PokedexItem
-import com.cobblemon.mod.common.item.group.CobblemonItemGroups
 import com.cobblemon.mod.common.particle.CobblemonParticles
 import com.cobblemon.mod.common.particle.SnowstormParticleType
 import com.cobblemon.mod.common.util.cobblemonResource
+import com.cobblemon.mod.common.util.isUsingPokedex
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.entity.BlockEntity
-import net.minecraft.world.level.block.entity.BlockEntityType
+import java.util.concurrent.CompletableFuture
+import java.util.function.Supplier
 import net.minecraft.client.Minecraft
 import net.minecraft.client.color.block.BlockColor
 import net.minecraft.client.color.item.ItemColor
+import net.minecraft.client.model.geom.ModelLayerLocation
 import net.minecraft.client.model.geom.builders.LayerDefinition
+import net.minecraft.client.particle.ParticleProvider
+import net.minecraft.client.particle.SpriteSet
+import net.minecraft.client.renderer.ItemBlockRenderTypes
 import net.minecraft.client.renderer.RenderType
+import net.minecraft.client.renderer.ShaderInstance
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.entity.EntityRenderers
-import net.minecraft.client.model.geom.ModelLayerLocation
 import net.minecraft.client.resources.model.ModelResourceLocation
-import net.minecraft.world.entity.Entity
-import net.minecraft.world.item.Item
-import net.minecraft.world.level.ItemLike
-import net.minecraft.world.item.ItemStack
 import net.minecraft.core.particles.ParticleOptions
 import net.minecraft.core.particles.ParticleType
 import net.minecraft.server.packs.resources.PreparableReloadListener
 import net.minecraft.server.packs.resources.ReloadableResourceManager
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.EntityType
+import net.minecraft.world.item.Item
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent
 import net.neoforged.neoforge.client.ClientHooks
+import net.neoforged.neoforge.client.event.ClientTickEvent
 import net.neoforged.neoforge.client.event.ModelEvent
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent
 import net.neoforged.neoforge.client.event.RegisterShadersEvent
+import net.neoforged.neoforge.client.event.RenderGuiEvent
 import net.neoforged.neoforge.client.event.RenderGuiLayerEvent
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers
 import net.neoforged.neoforge.common.NeoForge
-import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent
 import thedarkcolour.kotlinforforge.neoforge.forge.MOD_BUS
-import java.util.concurrent.CompletableFuture
-import java.util.function.Supplier
-import net.minecraft.client.particle.ParticleProvider
-import net.minecraft.client.particle.SpriteSet
-import net.minecraft.client.renderer.ItemBlockRenderTypes
-import net.minecraft.client.renderer.ShaderInstance
-import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderers
-import net.minecraft.world.entity.EntityType
-import net.minecraft.world.item.CreativeModeTab.TabVisibility
-import net.neoforged.neoforge.client.event.RenderGuiEvent
-import net.neoforged.neoforge.common.NeoForge.EVENT_BUS
 
 object CobblemonNeoForgeClient : CobblemonClientImplementation {
 
@@ -77,13 +75,15 @@ object CobblemonNeoForgeClient : CobblemonClientImplementation {
             addListener(::onClientSetup)
             addListener(::onKeyMappingRegister)
             addListener(::onRegisterParticleProviders)
-            addListener(::register3dPokeballModels)
-            addListener(::onBuildContents)
+            addListener(::register3dModels)
             addListener(::onRegisterReloadListener)
             addListener(::onShaderRegistration)
         }
-        NeoForge.EVENT_BUS.addListener(this::onRenderGuiOverlayEvent)
-        NeoForge.EVENT_BUS.addListener(this::afterRenderGuiOverlayEvent)
+        with(NeoForge.EVENT_BUS) {
+            addListener(::onRenderGuiOverlayEvent)
+            addListener(::afterRenderGuiOverlayEvent)
+            addListener(::afterEndClientTickEvent)
+        }
     }
 
     private fun onClientSetup(event: FMLClientSetupEvent) {
@@ -160,14 +160,16 @@ object CobblemonNeoForgeClient : CobblemonClientImplementation {
         EntityRenderers.register(type, factory)
     }
 
-    private fun register3dPokeballModels(event: ModelEvent.RegisterAdditional) {
-        PokeBalls.all().forEach { pokeball ->
-            event.register(
-                ModelResourceLocation(
-                    pokeball.model3d,
-                    "standalone"
-                )
-            )
+    private fun register3dModels(event: ModelEvent.RegisterAdditional) {
+        PokeBalls.all().forEach { pokeBall ->
+            event.register(ModelResourceLocation(pokeBall.model3d, "standalone"))
+        }
+        PokedexType.entries.toList().forEach { pokedex ->
+            event.register(ModelResourceLocation(pokedex.getItemModelPath(), "standalone"))
+            event.register(ModelResourceLocation(pokedex.getItemModelPath("scanning"), "standalone"))
+            event.register(ModelResourceLocation(pokedex.getItemModelPath("flat"), "standalone"))
+            event.register(ModelResourceLocation(pokedex.getItemModelPath("flat_off"), "standalone"))
+            event.register(ModelResourceLocation(pokedex.getItemModelPath("off"), "standalone"))
         }
     }
 
@@ -197,9 +199,28 @@ object CobblemonNeoForgeClient : CobblemonClientImplementation {
         val client = Minecraft.getInstance()
         val player = client.player
         if (player != null) {
+            if (player.isUsingPokedex() || pokedexUsageContext.transitionIntervals > 0) {
+                if (!player.isUsingItem) pokedexUsageContext.resetState(false)
+                pokedexUsageContext.renderUpdate(event.guiGraphics, event.partialTick)
+            } else {
+                pokedexUsageContext.resetState()
+            }
+        }
+    }
+
+    private fun afterEndClientTickEvent(event: ClientTickEvent.Post) {
+        val client = Minecraft.getInstance()
+        val player = client.player
+        if (player != null) {
             val itemStack = player.mainHandItem
-            if (itemStack.item is PokedexItem) {
-                pokedexUsageContext.tryRenderOverlay(event.guiGraphics, event.partialTick)
+            val offhandStack = player.offhandItem
+            if (((itemStack.item is PokedexItem && player.usedItemHand == InteractionHand.MAIN_HAND) ||
+                        (offhandStack.item is PokedexItem && player.usedItemHand == InteractionHand.OFF_HAND)) &&
+                player.isUsingItem &&
+                pokedexUsageContext.scanningGuiOpen
+            ) {
+                val keyAttack = client.options.keyAttack
+                pokedexUsageContext.attackKeyHeld(keyAttack.isDown)
             }
         }
     }
@@ -208,41 +229,12 @@ object CobblemonNeoForgeClient : CobblemonClientImplementation {
         (Minecraft.getInstance().resourceManager as ReloadableResourceManager).registerReloadListener(reloader)
     }
 
-    private fun onBuildContents(e: BuildCreativeModeTabContentsEvent) {
-        val forgeInject = ForgeItemGroupInject(e)
-        CobblemonItemGroups.inject(e.tabKey, forgeInject)
-    }
-
     private fun attemptModCompat() {
         // They have no Maven nor are they published on Modrinth :(
         // Good thing is they are a copy pasta adapted to Forge :D
-        if (Cobblemon.implementation.isModInstalled("dynamiclightsreforged")) {
+        if (Cobblemon.implementation.isModInstalled("dynamiclightsreforged") || Cobblemon.implementation.isModInstalled("sodiumdynamiclights")) {
             LambDynamicLightsCompat.hookCompat()
-            Cobblemon.LOGGER.info("Dynamic Lights Reforged compatibility enabled")
-        }
-    }
-
-    private class ForgeItemGroupInject(private val entries: BuildCreativeModeTabContentsEvent) : CobblemonItemGroups.Injector {
-
-        override fun putFirst(item: ItemLike) {
-            this.entries.insertFirst(ItemStack(item), TabVisibility.PARENT_AND_SEARCH_TABS)
-        }
-
-        override fun putBefore(item: ItemLike, target: ItemLike) {
-            this.entries.insertBefore(
-                ItemStack(target),
-                ItemStack(item), TabVisibility.PARENT_AND_SEARCH_TABS
-            )
-        }
-
-        override fun putAfter(item: ItemLike, target: ItemLike) {
-            this.entries.insertAfter(
-                ItemStack(target),
-                ItemStack(item), TabVisibility.PARENT_AND_SEARCH_TABS)
-        }
-
-        override fun putLast(item: ItemLike) {
-            this.entries.accept(ItemStack(item), TabVisibility.PARENT_AND_SEARCH_TABS)
+            Cobblemon.LOGGER.info("Dynamic Lights compatibility enabled")
         }
     }
 }

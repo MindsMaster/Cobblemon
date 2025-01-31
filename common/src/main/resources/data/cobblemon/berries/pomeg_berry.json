@@ -17,7 +17,15 @@
   "favoriteMulches": [
     "peat"
   ],
-  "growthFactors": [],
+  "growthFactors": [
+    {
+      "variant": "cobblemon:preferred_biome",
+      "bonusYield": {
+        "min": 0,
+        "max": 1
+      }
+    }
+  ],
   "randomizedGrowthPoints": true,
   "spawnConditions": [],
   "growthPoints": [
@@ -71,7 +79,7 @@
     },
     {
       "position": {
-        "x": -2.5,
+        "x": 6.6,
         "y": 12.5,
         "z": 8.0
       },

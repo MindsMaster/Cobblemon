@@ -11,14 +11,17 @@ package com.cobblemon.mod.common.entity.pokemon
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.entity.PokemonSender
 import com.cobblemon.mod.common.api.entity.PokemonSideDelegate
+import com.cobblemon.mod.common.api.pokeball.PokeBalls
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties
 import com.cobblemon.mod.common.api.pokemon.stats.Stats
 import com.cobblemon.mod.common.api.pokemon.status.Statuses
 import com.cobblemon.mod.common.battles.BattleRegistry
+import com.cobblemon.mod.common.entity.PlatformType
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.pokemon.Pokemon
 import com.cobblemon.mod.common.pokemon.activestate.ActivePokemonState
 import com.cobblemon.mod.common.pokemon.activestate.SentOutState
+import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
 import com.cobblemon.mod.common.util.getIsSubmerged
 import com.cobblemon.mod.common.util.playSoundServer
 import com.cobblemon.mod.common.util.update
@@ -31,6 +34,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.entity.ai.attributes.Attributes
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.pathfinder.PathType
 
 /** Handles purely server logic for a Pokémon */
@@ -102,15 +106,18 @@ class PokemonServerDelegate : PokemonSideDelegate {
         val trackedSpecies = mock?.species ?: entity.pokemon.species.resourceIdentifier.toString()
         val trackedNickname =  mock?.nickname ?: entity.pokemon.nickname ?: Component.empty()
         val trackedAspects = mock?.aspects ?: entity.pokemon.aspects
+        val trackedBall = mock?.pokeball ?: entity.pokemon.caughtBall.name.toString()
 
+        entity.ownerUUID = entity.pokemon.getOwnerUUID()
         entity.entityData.set(PokemonEntity.SPECIES, trackedSpecies)
         if (entity.entityData.get(PokemonEntity.NICKNAME) != trackedNickname) {
             entity.entityData.set(PokemonEntity.NICKNAME, trackedNickname)
         }
         entity.entityData.set(PokemonEntity.ASPECTS, trackedAspects)
         entity.entityData.set(PokemonEntity.LABEL_LEVEL, entity.pokemon.level)
-        entity.entityData.set(PokemonEntity.MOVING, entity.deltaMovement.multiply(1.0, if (entity.onGround()) 0.0 else 1.0, 1.0).length() > 0.005F)
+        entity.entityData.set(PokemonEntity.MOVING, entity.platform == PlatformType.NONE && entity.deltaMovement.multiply(1.0, if (entity.onGround()) 0.0 else 1.0, 1.0).length() > 0.005F)
         entity.entityData.set(PokemonEntity.FRIENDSHIP, entity.pokemon.friendship)
+        entity.entityData.set(PokemonEntity.CAUGHT_BALL, trackedBall)
 
         updatePoseType()
     }
@@ -249,9 +256,11 @@ class PokemonServerDelegate : PokemonSideDelegate {
         }
 
         if (entity.deathTime == 60) {
-            if (entity.ownerUUID == null) {
+            if (entity.ownerUUID == null && entity.owner == null) {
                 entity.level().broadcastEntityEvent(entity, 60.toByte()) // Sends smoke effect
                 if(entity.level().gameRules.getBoolean(CobblemonGameRules.DO_POKEMON_LOOT)) {
+                    val heldItem = (entity as PokemonEntity?)?.pokemon?.heldItemNoCopy() ?: ItemStack.EMPTY
+                    if (!heldItem.isEmpty) entity.spawnAtLocation(heldItem.item)
                     (entity.drops ?: entity.pokemon.form.drops).drop(entity, entity.level() as ServerLevel, entity.position(), entity.killer)
                 }
             }

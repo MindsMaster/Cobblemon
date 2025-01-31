@@ -12,9 +12,9 @@
             ],
             "type": "pokemon",
             "context": "grounded",
-            "bucket": "common",
+            "bucket": "uncommon",
             "level": "21-53",
-            "weight": 5.0,
+            "weight": 4.0,
             "condition": {
                 "biomes": [
                     "#minecraft:is_nether"
@@ -52,10 +52,29 @@
             "context": "grounded",
             "bucket": "uncommon",
             "level": "21-53",
-            "weight": 1.0,
+            "weight": 0.8,
             "condition": {
                 "biomes": [
                     "#cobblemon:is_overworld"
+                ]
+            }
+        },
+        {
+            "id": "ceruledge-3",
+            "pokemon": "ceruledge",
+            "type": "pokemon",
+            "context": "grounded",
+            "bucket": "uncommon",
+            "level": "21-53",
+            "weight": 0.4,
+            "condition": {
+                "minSkyLight": 0,
+                "maxSkyLight": 7,
+                "biomes": [
+                    "#aether:is_aether"
+                ],
+                "structures": [
+                    "#aether:dungeons"
                 ]
             }
         }

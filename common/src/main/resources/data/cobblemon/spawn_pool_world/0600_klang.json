@@ -21,8 +21,8 @@
                     "#cobblemon:is_overworld"
                 ],
                 "neededNearbyBlocks": [
-                    "#c:redstone_ores",
-                    "minecraft:rail"
+                    "#minecraft:redstone_ores",
+                    "#c:redstone_ores"
                 ]
             },
             "anticondition": {
@@ -35,13 +35,31 @@
             "id": "klang-2",
             "pokemon": "klang",
             "presets": [
+                "natural",
                 "redstone"
             ],
             "type": "pokemon",
             "context": "grounded",
             "bucket": "common",
             "level": "38-44",
-            "weight": 0.9,
+            "weight": 0.18,
+            "condition": {
+                "biomes": [
+                    "#cobblemon:is_overworld"
+                ]
+            }
+        },
+        {
+            "id": "klang-3",
+            "pokemon": "klang",
+            "presets": [
+                "natural"
+            ],
+            "type": "pokemon",
+            "context": "grounded",
+            "bucket": "common",
+            "level": "38-44",
+            "weight": 0.18,
             "condition": {
                 "biomes": [
                     "#cobblemon:is_overworld"

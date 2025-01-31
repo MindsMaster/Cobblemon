@@ -43,6 +43,7 @@ import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.phys.Vec3
+import org.joml.Matrix4f
 import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
@@ -182,15 +183,18 @@ abstract class PosableState : Schedulable {
 
                 val entity = getEntity() ?: return@addFunction Unit
                 val world = entity.level() as ClientLevel
-                val matrixWrapper = locatorStates[locator] ?: locatorStates["root"]!!
 
+                val rootMatrix = locatorStates["root"]!!
+                val locatorMatrix = locatorStates[locator] ?: locatorStates["root"]!!
+                val particleMatrix = effect.emitter.space.initializeEmitterMatrix(rootMatrix, locatorMatrix)
                 val particleRuntime = MoLangRuntime().setup().setupClient()
                 particleRuntime.environment.query.addFunction("entity") { runtime.environment.query }
 
                     val storm = ParticleStorm(
                         effect = effect,
                         entity = entity,
-                        matrixWrapper = matrixWrapper,
+                        emitterSpaceMatrix = particleMatrix,
+                        locatorSpaceMatrix = locatorMatrix,
                         world = world,
                         runtime = particleRuntime,
                         sourceVelocity = { entity.deltaMovement },
@@ -231,6 +235,10 @@ abstract class PosableState : Schedulable {
             this.primaryAnimation = null
             primaryAnimation.afterAction.accept(Unit)
         }
+    }
+
+    fun getMatchingLocators(locator: String): List<String> {
+        return locatorStates.keys.filter { it.matches("${locator}[0-9]*".toRegex()) }
     }
 
     /** Decides how an update to partial ticks should be applied to the state. See [FloatingState] for how it could happen. */
@@ -344,7 +352,7 @@ abstract class PosableState : Schedulable {
     fun addPrimaryAnimation(primaryAnimation: PrimaryAnimation) {
         this.primaryAnimation = primaryAnimation
         primaryAnimation.start(this)
-        this.activeAnimations.clear()
+        this.activeAnimations.removeIf { !it.enduresPrimaryAnimations }
         this.quirks.clear()
         this.poseIntensity = 1F
     }

@@ -11,6 +11,7 @@ package com.cobblemon.mod.common.client.gui.summary.widgets.screens.moves
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.gui.blitk
 import com.cobblemon.mod.common.api.moves.MoveTemplate
+import com.cobblemon.mod.common.client.gui.CobblemonRenderable
 import com.cobblemon.mod.common.util.cobblemonResource
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.Button
@@ -28,7 +29,7 @@ class SwapMoveButton(
     var move: MoveTemplate?,
     var movesWidget: MovesWidget,
     onPress: OnPress
-): Button((pX + OFFSET_X).toInt(), (pY + OFFSET_Y).toInt(), (WIDTH * SCALE).toInt(), (HEIGHT * SCALE).toInt(), Component.empty(), onPress, DEFAULT_NARRATION) {
+): Button((pX + OFFSET_X).toInt(), (pY + OFFSET_Y).toInt(), (WIDTH * SCALE).toInt(), (HEIGHT * SCALE).toInt(), Component.empty(), onPress, DEFAULT_NARRATION), CobblemonRenderable {
 
     override fun mouseDragged(d: Double, e: Double, i: Int, f: Double, g: Double): Boolean {
         return false
@@ -49,7 +50,7 @@ class SwapMoveButton(
         val selected = if (swapScreen is MoveSwapScreen) swapScreen.replacedMove?.template == move else false
         blitk(
             matrixStack = context.pose(),
-            texture = if(move == null) addMoveButtonResource else switchMoveButtonResource,
+            texture = if (move == null) addMoveButtonResource else switchMoveButtonResource,
             x = (pX + OFFSET_X) / SCALE,
             y = (pY + OFFSET_Y) / SCALE,
             width = WIDTH,

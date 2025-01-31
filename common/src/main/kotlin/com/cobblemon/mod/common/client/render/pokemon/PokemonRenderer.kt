@@ -21,20 +21,22 @@ import com.cobblemon.mod.common.client.keybind.keybinds.PartySendBinding
 import com.cobblemon.mod.common.client.render.models.blockbench.PosableModel
 import com.cobblemon.mod.common.client.render.models.blockbench.PosableState
 import com.cobblemon.mod.common.client.render.models.blockbench.pokemon.PosablePokemonEntityModel
+import com.cobblemon.mod.common.client.render.models.blockbench.repository.MiscModelRepository
+import com.cobblemon.mod.common.client.render.models.blockbench.repository.PokeBallModelRepository
+import com.cobblemon.mod.common.client.render.models.blockbench.repository.PokemonModelRepository
 import com.cobblemon.mod.common.client.render.models.blockbench.repository.RenderContext
 import com.cobblemon.mod.common.client.render.models.blockbench.repository.VaryingModelRepository
 import com.cobblemon.mod.common.client.render.pokeball.PokeBallPosableState
 import com.cobblemon.mod.common.client.render.renderBeaconBeam
 import com.cobblemon.mod.common.client.settings.ServerSettings
+import com.cobblemon.mod.common.entity.PlatformType
 import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.entity.npc.NPCEntity
 import com.cobblemon.mod.common.entity.pokeball.EmptyPokeBallEntity
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity.Companion.SPAWN_DIRECTION
 import com.cobblemon.mod.common.pokeball.PokeBall
-import com.cobblemon.mod.common.util.effectiveName
-import com.cobblemon.mod.common.util.isLookingAt
-import com.cobblemon.mod.common.util.lang
+import com.cobblemon.mod.common.util.*
 import com.cobblemon.mod.common.util.math.DoubleRange
 import com.cobblemon.mod.common.util.math.geometry.toRadians
 import com.cobblemon.mod.common.util.math.remap
@@ -50,6 +52,7 @@ import net.minecraft.client.renderer.entity.ItemRenderer
 import net.minecraft.client.renderer.entity.MobRenderer
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.MutableComponent
 import net.minecraft.network.chat.Style
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.Mth
@@ -74,6 +77,11 @@ class PokemonRenderer(
             .withUnderlined(false)
             .withStrikethrough(false)
             .withObfuscated(false)
+
+        private const val HIDDEN_NAME = "???"
+
+        private const val SPACE = " "
+
     }
 
     val ballContext = RenderContext().also {
@@ -119,13 +127,20 @@ class PokemonRenderer(
                 clientDelegate
             )
         }
+        if(entity.platform != PlatformType.NONE) {
+            drawPlatform(
+                poseMatrix,
+                entity,
+                (entity.delegate as PokemonClientDelegate).entityScaleModifier,
+                buffer,
+                packedLight,
+            )
+            // keeps the pokemon's root on the raft
+            poseMatrix.translate(0.0, 0.25 * (entity.delegate as PokemonClientDelegate).entityScaleModifier, 0.0)
+        }
 
         modelNow.setLayerContext(buffer, clientDelegate, VaryingModelRepository.getLayers(entity.pokemon.species.resourceIdentifier, clientDelegate))
 
-        if (entity.ticksLived < 10) {
-            entity.yBodyRot = entity.entityData.get(SPAWN_DIRECTION)
-            entity.yBodyRotO = entity.yBodyRot
-        }
 
         super.render(entity, entityYaw, partialTicks, poseMatrix, buffer, packedLight)
 
@@ -347,23 +362,15 @@ class PokemonRenderer(
             matrices.scale((0.025 * sizeScale).toFloat(), (-0.025 * sizeScale).toFloat(), (1 * sizeScale).toFloat())
             val matrix4f = matrices.last().pose()
             val opacity = (Minecraft.getInstance().options.getBackgroundOpacity(0.25F) * 255.0F).toInt() shl 24
-            var label = if (ServerSettings.displayEntityNameLabel &&
-                !Cobblemon.config.diplayNameForUnknownPokemon &&
-                CobblemonClient.clientPokedexData.getKnowledgeForSpecies(entity.pokemon.species.resourceIdentifier) == PokedexEntryProgress.NONE) {
-                Component.literal("???")
-            } else if (ServerSettings.displayEntityNameLabel) {
-                entity.name.copy()
-            } else {
-                Component.empty()
-            }
-            if(ServerSettings.displayEntityNameLabel && ServerSettings.displayEntityLevelLabel && entity.labelLevel() > 0) {
-                label.append(Component.literal(" "))
-            }
+            val label = this.resolveBaseLabel(entity)
             if (ServerSettings.displayEntityLevelLabel && entity.labelLevel() > 0) {
+                if (ServerSettings.displayEntityNameLabel) {
+                    label.append(SPACE)
+                }
                 // This a Style.EMPTY with a lot of effects set to false and color set to white, renderer inherits these from nick otherwise
                 val levelLabel = lang("label.lv", entity.labelLevel())
                     .setStyle(LEVEL_LABEL_STYLE)
-                label = label.append(levelLabel)
+                label.append(levelLabel)
             }
             var h = (-this.font.width(label) / 2).toFloat()
             val y = 0F
@@ -379,6 +386,14 @@ class PokemonRenderer(
                 this.font.drawInBatch(battlePrompt, h, y + 10, -1, false, matrix4f, vertexConsumers, DisplayMode.NORMAL, 0, packedLight)
             }
             matrices.popPose()
+        }
+    }
+
+    private fun resolveBaseLabel(entity: PokemonEntity): MutableComponent {
+        return when {
+            !ServerSettings.displayEntityNameLabel -> Component.empty()
+            Cobblemon.config.displayNameForUnknownPokemon || CobblemonClient.clientPokedexData.getKnowledgeForSpecies(entity.pokemon.species.resourceIdentifier) != PokedexEntryProgress.NONE -> entity.name.copy()
+            else -> Component.literal(HIDDEN_NAME)
         }
     }
 
@@ -422,6 +437,25 @@ class PokemonRenderer(
         model.blue = 1f
         model.red = 1f
         model.resetLayerContext()
+        matrixStack.popPose()
+    }
+
+    private fun drawPlatform(
+            matrixStack: PoseStack,
+            entity: PokemonEntity,
+            scale: Float = 1F,
+            buff: MultiBufferSource,
+            packedLight: Int,
+            ) {
+        val (modelResource, textureResource) = PlatformType.getModelWithTexture(entity.platform)
+        val model = MiscModelRepository.modelOf(modelResource) ?: return
+        matrixStack.pushPose()
+        matrixStack.mulPose(Axis.ZP.rotationDegrees(180f))
+        matrixStack.rotateAround(Axis.YP.rotationDegrees(entity.entityData.get(SPAWN_DIRECTION)), 0.0f, 0f, 0.0f)
+        matrixStack.scale(scale, scale, scale)
+        val buffer = ItemRenderer.getFoilBufferDirect(buff, RenderType.entityCutout(textureResource), false, false)
+        model.render(matrixStack, buffer, packedLight, OverlayTexture.NO_OVERLAY, -0x1)
+
         matrixStack.popPose()
     }
 }

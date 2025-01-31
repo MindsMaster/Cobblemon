@@ -10,13 +10,11 @@ package com.cobblemon.mod.common.api.pokedex
 
 import com.cobblemon.mod.common.CobblemonNetwork.sendPacket
 import com.cobblemon.mod.common.api.storage.player.InstancedPlayerData
-import com.cobblemon.mod.common.api.storage.player.PlayerInstancedDataStoreType
 import com.cobblemon.mod.common.api.storage.player.PlayerInstancedDataStoreTypes
 import com.cobblemon.mod.common.api.storage.player.client.ClientPokedexManager
 import com.cobblemon.mod.common.net.messages.client.SetClientPlayerDataPacket
-import com.cobblemon.mod.common.pokemon.FormData
+import com.cobblemon.mod.common.pokedex.scanner.PokedexEntityData
 import com.cobblemon.mod.common.pokemon.Pokemon
-import com.cobblemon.mod.common.pokemon.Species
 import com.cobblemon.mod.common.util.getPlayer
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.PrimitiveCodec
@@ -32,13 +30,19 @@ class PokedexManager(
     fun encounter(pokemon: Pokemon) {
         val speciesId = pokemon.species.resourceIdentifier
         val formName = pokemon.form.name
-        getOrCreateSpeciesRecord(speciesId).getOrCreateFormRecord(formName).encountered(pokemon)
+        getOrCreateSpeciesRecord(speciesId).getOrCreateFormRecord(formName).encountered(PokedexEntityData(pokemon = pokemon, disguise = null))
+    }
+
+    fun encounter(pokedexEntityData: PokedexEntityData) {
+        val speciesId = pokedexEntityData.getApparentSpecies().resourceIdentifier
+        val formName = pokedexEntityData.getApparentForm().name
+        getOrCreateSpeciesRecord(speciesId).getOrCreateFormRecord(formName).encountered(pokedexEntityData)
     }
 
     fun catch(pokemon: Pokemon) {
         val speciesId = pokemon.species.resourceIdentifier
         val formName = pokemon.form.name
-        getOrCreateSpeciesRecord(speciesId).getOrCreateFormRecord(formName).caught(pokemon)
+        getOrCreateSpeciesRecord(speciesId).getOrCreateFormRecord(formName).caught(PokedexEntityData(pokemon = pokemon, disguise = null))
     }
 
     override fun markDirty() {
@@ -49,10 +53,11 @@ class PokedexManager(
     }
 
     override fun onSpeciesRecordUpdated(speciesDexRecord: SpeciesDexRecord) {
+        super.onSpeciesRecordUpdated(speciesDexRecord)
         uuid.getPlayer()?.sendPacket(
             SetClientPlayerDataPacket(
                 type = PlayerInstancedDataStoreTypes.POKEDEX,
-                playerData = ClientPokedexManager(mutableMapOf(speciesDexRecord.id to speciesDexRecord)),
+                playerData = ClientPokedexManager(mutableMapOf(speciesDexRecord.id to speciesDexRecord.clone())),
                 isIncremental = true
             )
         )
@@ -70,5 +75,9 @@ class PokedexManager(
         }
     }
 
-    override fun toClientData() = ClientPokedexManager(speciesRecords)
+    override fun toClientData(): ClientPokedexManager {
+        val copied = mutableMapOf<ResourceLocation, SpeciesDexRecord>()
+        speciesRecords.forEach { (key, value) -> copied[key] = value.clone() }
+        return ClientPokedexManager(copied)
+    }
 }

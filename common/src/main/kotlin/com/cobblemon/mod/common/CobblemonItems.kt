@@ -19,7 +19,7 @@ import com.cobblemon.mod.common.api.text.gray
 import com.cobblemon.mod.common.block.BerryBlock
 import com.cobblemon.mod.common.block.MintBlock
 import com.cobblemon.mod.common.block.MintBlock.MintType
-import com.cobblemon.mod.common.client.pokedex.PokedexTypes
+import com.cobblemon.mod.common.client.pokedex.PokedexType
 import com.cobblemon.mod.common.entity.boat.CobblemonBoatType
 import com.cobblemon.mod.common.item.*
 import com.cobblemon.mod.common.item.armor.CobblemonArmorTrims
@@ -53,6 +53,9 @@ import net.minecraft.world.level.block.Block
 object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<Item>>, Item>() {
     override val registry: Registry<Item> = BuiltInRegistries.ITEM
     override val resourceKey: ResourceKey<Registry<Item>> = Registries.ITEM
+
+    @JvmField
+    val NPC_EDITOR = create("npc_editor", CobblemonItem(Item.Properties().stacksTo(1)))
 
     @JvmField
     val pokeBalls = mutableListOf<PokeBallItem>()
@@ -153,20 +156,21 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     @JvmField
     val ANCIENT_ORIGIN_BALL = pokeBallItem(PokeBalls.ANCIENT_ORIGIN_BALL)
 
+    val pokedexes = mutableListOf<PokedexItem>()
     @JvmField
-    val POKEDEX_BLACK = create("pokedex_black", PokedexItem(PokedexTypes.BLACK))
+    val POKEDEX_RED = pokedexItem(PokedexType.RED)
     @JvmField
-    val POKEDEX_BLUE = create("pokedex_blue", PokedexItem(PokedexTypes.BLUE))
+    val POKEDEX_YELLOW = pokedexItem(PokedexType.YELLOW)
     @JvmField
-    val POKEDEX_GREEN = create("pokedex_green", PokedexItem(PokedexTypes.GREEN))
+    val POKEDEX_GREEN = pokedexItem(PokedexType.GREEN)
     @JvmField
-    val POKEDEX_PINK = create("pokedex_pink", PokedexItem(PokedexTypes.PINK))
+    val POKEDEX_BLUE = pokedexItem(PokedexType.BLUE)
     @JvmField
-    val POKEDEX_RED = create("pokedex_red", PokedexItem(PokedexTypes.RED))
+    val POKEDEX_PINK = pokedexItem(PokedexType.PINK)
     @JvmField
-    val POKEDEX_WHITE = create("pokedex_white", PokedexItem(PokedexTypes.WHITE))
+    val POKEDEX_BLACK = pokedexItem(PokedexType.BLACK)
     @JvmField
-    val POKEDEX_YELLOW = create("pokedex_yellow", PokedexItem(PokedexTypes.YELLOW))
+    val POKEDEX_WHITE = pokedexItem(PokedexType.WHITE)
 
     @JvmField
     val VIVICHOKE = compostableItem("vivichoke")
@@ -313,6 +317,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     @JvmField val RAZOR_FANG = noSettingsItem("razor_fang")
     @JvmField val AUSPICIOUS_ARMOR = heldItem("auspicious_armor")
     @JvmField val MALICIOUS_ARMOR = heldItem("malicious_armor")
+    @JvmField val SHELL_HELMET = heldItem("shell_helmet")
 
     private val berries = mutableMapOf<ResourceLocation, BerryItem>()
     // Plants
@@ -388,6 +393,9 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
 
     @JvmField val BERRY_JUICE = this.create("berry_juice", BerryJuiceItem())
 
+    @JvmField
+    val GALARICA_NUTS = create("galarica_nuts", GalaricaNutItem())
+
     // Medicine
     @JvmField
     val RARE_CANDY = candyItem("rare_candy") { _, pokemon -> pokemon.getExperienceToNextLevel() }
@@ -438,6 +446,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
             .saturationModifier(1.2F)
             .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F)
             .alwaysEdible()
+            .usingConvertsTo(Items.BOWL)
             .build())) {
         override fun finishUsingItem(stack: ItemStack, world: Level, user: LivingEntity): ItemStack {
             user.removeAllEffects()
@@ -473,7 +482,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     @JvmField
     val HEAL_POWDER = create("heal_powder", HealPowderItem())
     @JvmField
-    val LEEK_AND_POTATO_STEW = create("leek_and_potato_stew", Item(Item.Properties().food(FoodProperties.Builder().nutrition(8).saturationModifier(0.6f).build()).stacksTo(1)))
+    val LEEK_AND_POTATO_STEW = create("leek_and_potato_stew", Item(Item.Properties().food(FoodProperties.Builder().nutrition(8).saturationModifier(0.6f).usingConvertsTo(Items.BOWL).build()).stacksTo(1)))
     @JvmField
     val REVIVE = create("revive", ReviveItem(max = false))
     @JvmField
@@ -1241,9 +1250,15 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     private fun candyItem(name: String, calculator: CandyItem.Calculator): CandyItem  = this.create(name, CandyItem(calculator))
 
     private fun pokerodItem(pokeRodId: ResourceLocation): PokerodItem {
-        val settings = Item.Properties().stacksTo(1).durability(Items.FISHING_ROD.components().get(DataComponents.MAX_DAMAGE)!!)
+        val settings = Item.Properties().stacksTo(1).durability(256)
         val item = create(pokeRodId.path, PokerodItem(pokeRodId, settings))
         pokeRods.add(item)
+        return item
+    }
+
+    private fun pokedexItem(type: PokedexType): PokedexItem {
+        val item = create("pokedex_${type.name.lowercase()}", PokedexItem(type))
+        pokedexes.add(item)
         return item
     }
 
