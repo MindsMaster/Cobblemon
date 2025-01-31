@@ -4,6 +4,7 @@
 ### Fixes
 - Fixed Particles sometimes facing the wrong direction (looking at you, Swords Dance)
 - Fixed PCs always opening at box 2 instead of box 1.
+- Fixed Instantly breaking and replacing a fossil analyzer with any block entity crashing the game in a complete multi-structure
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
