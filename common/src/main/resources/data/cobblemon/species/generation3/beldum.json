@@ -89,7 +89,8 @@
     "tutor:irondefense",
     "tutor:ironhead",
     "tutor:steelbeam",
-    "tutor:zenheadbutt"
+    "tutor:zenheadbutt",
+    "special:holdback"
   ],
   "evolutions": [
     {

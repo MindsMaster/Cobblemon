@@ -46,6 +46,9 @@ fun interface LearnsetQuery {
 
         val EVOLUTION = LearnsetQuery { move, learnset -> learnset.evolutionMoves.contains(move) }
 
+        val LEGACY_MOVES = LearnsetQuery { move, learnset -> learnset.legacyMoves.contains(move) }
+
+        val SPECIAL_MOVES = LearnsetQuery { move, learnset -> learnset.specialMoves.contains(move) }
     }
 
 }

@@ -135,7 +135,6 @@
     "tutor:hyperbeam",
     "tutor:hypervoice",
     "tutor:playrough",
-    "tutor:psychic",
     "tutor:rest",
     "tutor:risingvoltage",
     "tutor:sleeptalk",
@@ -144,7 +143,10 @@
     "tutor:thunderbolt",
     "tutor:thunderfang",
     "tutor:uproar",
-    "tutor:wildcharge"
+    "tutor:wildcharge",
+    "legacy:attract",
+    "legacy:round",
+    "legacy:snore"
   ],
   "preEvolution": "yamper",
   "evolutions": []
