@@ -42,6 +42,10 @@ class GenericLandController : RideController {
         private set
     var speed = "1.0".asExpression()
         private set
+    var driveFactor = "1.0".asExpression()
+        private set
+    var strafeFactor = "0.2".asExpression()
+        private set
 
     @Transient
     override val key: ResourceLocation = KEY
@@ -75,8 +79,10 @@ class GenericLandController : RideController {
     }
 
     override fun velocity(entity: PokemonEntity, driver: Player, input: Vec3): Vec3 {
-        val f = driver.xxa * 0.2f
-        var g = driver.zza
+        val driveFactor = getRuntime(entity).resolveFloat(this.driveFactor)
+        val strafeFactor = getRuntime(entity).resolveFloat(this.strafeFactor)
+        val f = driver.xxa * strafeFactor
+        var g = driver.zza * driveFactor
         if (g <= 0.0f) {
             g *= 0.25f
         }

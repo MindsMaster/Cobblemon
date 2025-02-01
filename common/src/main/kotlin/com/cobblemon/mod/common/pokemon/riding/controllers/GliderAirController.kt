@@ -39,9 +39,7 @@ class GliderAirController : RideController {
         private set
     var speed: Expression = "1.0".asExpression()
         private set
-    var canJump: Expression = "true".asExpression()
-        private set
-    var jumpVector = listOf("0".asExpression(), "0.3".asExpression(), "0".asExpression())
+    var canStrafe: Expression = "false".asExpression()
         private set
 
     override fun speed(entity: PokemonEntity, driver: Player): Float {
@@ -53,7 +51,7 @@ class GliderAirController : RideController {
     }
 
     override fun velocity(entity: PokemonEntity, driver: Player, input: Vec3): Vec3 {
-        val xVector = driver.xxa.toDouble()
+        val xVector = if (getRuntime(entity).resolveBoolean(canStrafe)) driver.xxa.toDouble() else 0.0
         val yVector = -getRuntime(entity).resolveDouble(glideSpeed)
         val zVector = driver.zza.toDouble()
 
@@ -65,34 +63,19 @@ class GliderAirController : RideController {
     }
 
     override fun canJump(entity: PokemonEntity, driver: Player): Boolean {
-        return getRuntime(entity).resolveBoolean(canJump)
+        return false
     }
 
-    override fun jumpForce(entity: PokemonEntity, driver: Player, jumpStrength: Int): Vec3 {
-        val runtime = getRuntime(entity)
-        val jumpVector = jumpVector.map { runtime.resolveDouble(it) }
-        return Vec3(jumpVector[0], jumpVector[1], jumpVector[2])
-    }
-
+    override fun jumpForce(entity: PokemonEntity, driver: Player, jumpStrength: Int) = Vec3.ZERO
     override fun encode(buffer: RegistryFriendlyByteBuf) {
         super.encode(buffer)
         buffer.writeString(glideSpeed.toString())
         buffer.writeString(speed.toString())
-        buffer.writeString(canJump.toString())
-        buffer.writeString(jumpVector[0].getString())
-        buffer.writeString(jumpVector[1].getString())
-        buffer.writeString(jumpVector[2].getString())
     }
 
     override fun decode(buffer: RegistryFriendlyByteBuf) {
         glideSpeed = buffer.readString().asExpression()
         speed = buffer.readString().asExpression()
-        canJump = buffer.readString().asExpression()
-        jumpVector = listOf(
-            buffer.readString().asExpression(),
-            buffer.readString().asExpression(),
-            buffer.readString().asExpression()
-        )
     }
 
     companion object {

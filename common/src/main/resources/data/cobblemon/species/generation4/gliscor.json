@@ -46,16 +46,21 @@
   "baseScale": 0.9,
   "riding": {
     "controller": {
-      "key": "cobblemon:composite/run_up_to_flight",
-      "minimumSpeed": "0.2",
-      "minimumJump": "80",
+      "key": "cobblemon:composite/fall_to_flight",
+      "minimumForwardSpeed": "0.0",
+      "minimumFallSpeed": "0.55",
       "landController": {
         "key": "cobblemon:land/generic",
-        "speed": "Math.clamp(q.entity.velocity.horizontal_magnitude + 0.33, 0, 1)",
-        "jumpVector": [0, "0.3*q.jump_strength/50", 0]
+        "speed": "0.15",
+        "jumpVector": [0, "0.3*q.jump_strength/50", 0],
+        "driveFactor": 1.0,
+        "strafeFactor": 0.2
       },
       "flightController": {
-        "key": "cobblemon:air/glider"
+        "key": "cobblemon:air/glider",
+        "canStrafe": false,
+        "speed": 0.75
+
       }
     },
     "seats": [
