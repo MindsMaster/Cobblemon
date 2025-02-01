@@ -177,7 +177,7 @@
       "id": "exeggcute_exeggutor",
       "variant": "item_interact",
       "result": "exeggutor",
-      "consumeHeldItem": true,
+      "consumeHeldItem": false,
       "learnableMoves": [
         "stomp"
       ],
@@ -187,7 +187,7 @@
       "id": "exeggcute_exeggutoralola",
       "variant": "item_interact",
       "result": "exeggutor alolan",
-      "consumeHeldItem": true,
+      "consumeHeldItem": false,
       "learnableMoves": [
         "dragonhammer"
       ],
@@ -225,7 +225,7 @@
           "id": "exeggcute_exeggutor",
           "variant": "item_interact",
           "result": "exeggutor",
-          "consumeHeldItem": true,
+          "consumeHeldItem": false,
           "learnableMoves": [
             "stomp"
           ],
@@ -241,7 +241,7 @@
           "id": "exeggcute_exeggutoralola",
           "variant": "item_interact",
           "result": "exeggutor alolan",
-          "consumeHeldItem": true,
+          "consumeHeldItem": false,
           "learnableMoves": [
             "dragonhammer"
           ],

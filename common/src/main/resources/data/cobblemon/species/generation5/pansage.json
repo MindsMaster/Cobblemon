@@ -176,7 +176,7 @@
       "id": "pansage_simisage",
       "variant": "item_interact",
       "result": "simisage",
-      "consumeHeldItem": true,
+      "consumeHeldItem": false,
       "learnableMoves": [],
       "requirements": [],
       "requiredContext": "cobblemon:leaf_stone"

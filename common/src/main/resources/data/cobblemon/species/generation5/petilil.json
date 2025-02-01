@@ -163,7 +163,7 @@
       "id": "petilil_lilliganthisui",
       "variant": "item_interact",
       "result": "lilligant hisuian",
-      "consumeHeldItem": true,
+      "consumeHeldItem": false,
       "learnableMoves": [
         "victorydance"
       ],
@@ -179,7 +179,7 @@
       "id": "petilil_lilligant",
       "variant": "item_interact",
       "result": "lilligant",
-      "consumeHeldItem": true,
+      "consumeHeldItem": false,
       "learnableMoves": [
         "petaldance"
       ],
@@ -210,7 +210,7 @@
           "id": "petilil_lilligant",
           "variant": "item_interact",
           "result": "lilligant",
-          "consumeHeldItem": true,
+          "consumeHeldItem": false,
           "learnableMoves": [
             "petaldance"
           ],
@@ -226,7 +226,7 @@
           "id": "petilil_lilliganthisui",
           "variant": "item_interact",
           "result": "lilligant hisuian",
-          "consumeHeldItem": true,
+          "consumeHeldItem": false,
           "learnableMoves": [
             "victorydance"
           ],
