@@ -160,22 +160,6 @@
   ],
   "evolutions": [
     {
-      "id": "petilil_lilligant",
-      "variant": "item_interact",
-      "result": "lilligant",
-      "consumeHeldItem": true,
-      "learnableMoves": [
-        "petaldance"
-      ],
-      "requirements": [
-        {
-          "variant": "biome",
-          "biomeAnticondition": "#cobblemon:evolution/regional/petilil_hisuibiome"
-        }
-      ],
-      "requiredContext": "cobblemon:sun_stone"
-    },
-    {
       "id": "petilil_lilliganthisui",
       "variant": "item_interact",
       "result": "lilligant hisuian",
@@ -187,11 +171,17 @@
         {
           "variant": "biome",
           "biomeCondition": "#cobblemon:evolution/regional/petilil_hisuibiome"
-        },
-        {
-          "variant": "biome",
-          "biomeAnticondition": "#cobblemon:evolution/regional/petilil_unovabiome"
         }
+      ],
+      "requiredContext": "cobblemon:sun_stone"
+    },
+    {
+      "id": "petilil_lilligant",
+      "variant": "item_interact",
+      "result": "lilligant",
+      "consumeHeldItem": true,
+      "learnableMoves": [
+        "petaldance"
       ],
       "requiredContext": "cobblemon:sun_stone"
     }
@@ -227,10 +217,6 @@
           "requirements": [
             {
               "variant": "biome",
-              "biomeAnticondition": "#cobblemon:evolution/regional/petilil_hisuibiome"
-            },
-            {
-              "variant": "biome",
               "biomeCondition": "#cobblemon:evolution/regional/petilil_unovabiome"
             }
           ],
@@ -243,12 +229,6 @@
           "consumeHeldItem": true,
           "learnableMoves": [
             "victorydance"
-          ],
-          "requirements": [
-            {
-              "variant": "biome",
-              "biomeAnticondition": "#cobblemon:evolution/regional/petilil_unovabiome"
-            }
           ],
           "requiredContext": "cobblemon:sun_stone"
         }
