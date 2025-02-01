@@ -8,6 +8,7 @@
     "CameraMixin",
     "EntityRenderDispatcherMixin",
     "GameRendererMixin",
+    "HumanoidModelMixin",
     "ItemInHandRendererMixin",
     "ItemPropertiesMixin",
     "ItemRendererMixin",
@@ -24,8 +25,8 @@
     "accessor.KeyBindingAccessor",
     "client.AbstractClientPlayerMixin",
     "client.EntryListWidgetMixin",
-    "invoker.ClientPlayNetworkHandlerInvoker",
     "client.LocalPlayerMixin",
+    "invoker.ClientPlayNetworkHandlerInvoker",
     "renderer.LivingEntityRendererMixin",
     "renderer.PlayerEntityRendererMixin",
     "riding.JetMixin"

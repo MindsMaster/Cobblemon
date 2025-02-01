@@ -60,9 +60,19 @@
       {
         "offset": {
           "x": 0.0,
-          "y": 0.9,
+          "y": 0.4,
           "z": 0.0
-        }
+        },
+        "poseAnimations": [
+          {
+            "animations": [
+              {
+                "fileName": "trainer_generic",
+                "animationName": "animation.trainer_generic.idle"
+              }
+            ]
+          }
+        ]
       },
       {
         "offset": {

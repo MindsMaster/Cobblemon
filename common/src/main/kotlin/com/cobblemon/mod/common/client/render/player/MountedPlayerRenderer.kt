@@ -8,11 +8,15 @@
 
 package com.cobblemon.mod.common.client.render.player
 
+import com.bedrockk.molang.runtime.value.DoubleValue
 import com.cobblemon.mod.common.client.entity.PokemonClientDelegate
+import com.cobblemon.mod.common.client.render.models.blockbench.bedrock.animation.BedrockAnimationRepository
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.math.geometry.toRadians
+import com.cobblemon.mod.common.util.withPlayerValue
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.Minecraft
+import net.minecraft.client.model.geom.ModelPart
 import net.minecraft.client.player.AbstractClientPlayer
 import net.minecraft.world.phys.Vec3
 import org.joml.Matrix4f
@@ -56,5 +60,49 @@ object MountedPlayerRenderer {
         if (isEntityFlying) offsetMatrix.rotateY(yaw)
         offsetMatrix.translate(offsetOrigin.toVector3f())
         return offsetMatrix.getTranslation(Vector3f())
+    }
+
+    fun animate(
+        pokemonEntity: PokemonEntity,
+        player: AbstractClientPlayer,
+        relevantPartsByName: Map<String, ModelPart>,
+        headYaw: Float,
+        headPitch: Float,
+        ageInTicks: Float,
+        limbSwing: Float,
+        limbSwingAmount: Float
+    ) {
+        val seatIndex = pokemonEntity.passengers.indexOf(player).takeIf { it != -1 && it < pokemonEntity.seats.size } ?: return
+        val seat = pokemonEntity.seats[seatIndex]
+        val animations = seat.poseAnimations.firstOrNull { it.poseTypes.isEmpty() || it.poseTypes.contains(pokemonEntity.getCurrentPoseType()) }?.animations
+            ?: return
+        val state = pokemonEntity.delegate as PokemonClientDelegate
+
+        relevantPartsByName.values.forEach {
+            it.xRot = 0F
+            it.yRot = 0F
+            it.zRot = 0F
+        }
+
+        state.runtime.environment.setSimpleVariable("age_in_ticks", DoubleValue(ageInTicks.toDouble()))
+        state.runtime.environment.setSimpleVariable("limb_swing", DoubleValue(limbSwing.toDouble()))
+        state.runtime.environment.setSimpleVariable("limb_swing_amount", DoubleValue(limbSwingAmount.toDouble()))
+
+        // TODO add the q.player reference, requires a cached thing or something on the client idk
+
+        for (animation in animations) {
+            val bedrockAnimation = BedrockAnimationRepository.getAnimationOrNull(animation.fileName, animation.animationName) ?: continue
+            bedrockAnimation.run(
+                context = null,
+                relevantPartsByName = relevantPartsByName,
+                rootPart = null,
+                state = state,
+                animationSeconds = state.animationSeconds,
+                limbSwing = limbSwing,
+                limbSwingAmount = limbSwingAmount,
+                ageInTicks = ageInTicks,
+                intensity = 1F
+            )
+        }
     }
 }
