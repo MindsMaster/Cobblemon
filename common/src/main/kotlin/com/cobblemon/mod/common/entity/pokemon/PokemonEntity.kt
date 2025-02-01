@@ -31,7 +31,6 @@ import com.cobblemon.mod.common.api.molang.ObjectValue
 import com.cobblemon.mod.common.api.net.serializers.PlatformTypeDataSerializer
 import com.cobblemon.mod.common.api.net.serializers.PoseTypeDataSerializer
 import com.cobblemon.mod.common.api.net.serializers.StringSetDataSerializer
-import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.api.pokemon.feature.ChoiceSpeciesFeatureProvider
 import com.cobblemon.mod.common.api.pokemon.feature.FlagSpeciesFeature
 import com.cobblemon.mod.common.api.pokemon.feature.SpeciesFeatures
@@ -150,9 +149,7 @@ import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import org.joml.Matrix3f
-import org.joml.Matrix4f
 import org.joml.Vector3f
-import org.joml.Vector3fc
 
 @Suppress("unused")
 open class PokemonEntity(
@@ -1605,7 +1602,6 @@ open class PokemonEntity(
     override fun tickRidden(driver: Player, movementInput: Vec3) {
         super.tickRidden(driver, movementInput)
         this.riding.tick(this, driver, movementInput)
-
         val rotation = this.getControlledRotation(driver)
         setRot(rotation.y, rotation.x)
         this.yHeadRot = this.yRot
@@ -1674,6 +1670,10 @@ open class PokemonEntity(
         return this.riding.controlledRotation(this, controller as Player)
     }
 
+    override fun onPassengerTurned(entityToUpdate: Entity) {
+        return this.riding.clampPassengerRotation(this, entityToUpdate as? LivingEntity ?: return)
+    }
+
     override fun positionRider(passenger: Entity, positionUpdater: MoveFunction) {
         if (this.hasPassenger(passenger)) {
             val index = passengers.indexOf(passenger).takeIf { it >= 0 && it < seats.size } ?: return
@@ -1689,7 +1689,8 @@ open class PokemonEntity(
 
             positionUpdater.accept(passenger, this.x + rotatedOffset.x, this.y + rotatedOffset.y, this.z + rotatedOffset.z)
             if (passenger is LivingEntity) {
-                passenger.yRot = this.yRot
+                this.riding.updatePassengerRotation(this, passenger)
+                this.riding.clampPassengerRotation(this, passenger)
             }
         }
     }

@@ -22,32 +22,37 @@ import com.cobblemon.mod.common.util.readString
 import com.cobblemon.mod.common.util.resolveBoolean
 import com.cobblemon.mod.common.util.resolveFloat
 import com.cobblemon.mod.common.util.writeString
+import kotlin.math.absoluteValue
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.util.Mth
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.phys.shapes.Shapes
 
-class GenericLandController : RideController {
+class VehicleLandController : RideController {
     companion object {
-        val KEY: ResourceLocation = cobblemonResource("land/generic")
+        val KEY: ResourceLocation = cobblemonResource("land/vehicle")
     }
-
-//    private var previousVelocity = Vec3d.ZERO
 
     var canJump = "true".asExpression()
         private set
     var jumpVector = listOf("0".asExpression(), "0.3".asExpression(), "0".asExpression())
         private set
-    var speed = "1.0".asExpression()
+    var speed = "0.3".asExpression()
         private set
     var driveFactor = "1.0".asExpression()
         private set
     var reverseDriveFactor = "0.25".asExpression()
         private set
-    var strafeFactor = "0.2".asExpression()
+
+    var minimumSpeedToTurn = "0.1".asExpression()
+        private set
+    var rotationSpeed = "45/20".asExpression()
+        private set
+    var lookYawLimit = "101".asExpression()
         private set
 
     @Transient
@@ -78,22 +83,38 @@ class GenericLandController : RideController {
     }
 
     override fun rotation(entity: PokemonEntity, driver: LivingEntity): Vec2 {
-        return Vec2(driver.xRot * 0.5f, driver.yRot)
+        val rotationDegrees = driver.xxa * getRuntime(entity).resolveFloat(this.rotationSpeed)
+        return Vec2(driver.xRot, entity.yRot - rotationDegrees)
     }
 
     override fun velocity(entity: PokemonEntity, driver: Player, input: Vec3): Vec3 {
         val runtime = getRuntime(entity)
         val driveFactor = runtime.resolveFloat(this.driveFactor)
-        val strafeFactor = runtime.resolveFloat(this.strafeFactor)
-        val f = driver.xxa * strafeFactor
         var g = driver.zza * driveFactor
         if (g <= 0.0f) {
             g *= runtime.resolveFloat(this.reverseDriveFactor)
         }
-
-        val velocity = Vec3(f.toDouble(), 0.0, g.toDouble())
+        if (driver.xxa != 0F && g.absoluteValue < runtime.resolveFloat(this.minimumSpeedToTurn)) {
+            driver.xxa = 0F
+        }
+        val velocity = Vec3(0.0 /* Maybe do drifting here later */, 0.0, g.toDouble())
 
         return velocity
+    }
+
+    override fun updatePassengerRotation(entity: PokemonEntity, driver: LivingEntity) {
+        driver.yRot += (entity.riding.deltaRotation.y)
+        driver.setYHeadRot(driver.yHeadRot + (entity.riding.deltaRotation.y))
+    }
+
+    override fun clampPassengerRotation(entity: PokemonEntity, driver: LivingEntity) {
+        val f = Mth.wrapDegrees(driver.yRot - entity.yRot)
+        val runtime = getRuntime(entity)
+        val lookYawLimit = runtime.resolveFloat(this.lookYawLimit)
+        val g = Mth.clamp(f, -lookYawLimit, lookYawLimit)
+        driver.yRotO += g - f
+        driver.yRot = driver.yRot + g - f
+        driver.setYHeadRot(driver.yRot)
     }
 
     override fun canJump(entity: PokemonEntity, driver: Player) = getRuntime(entity).resolveBoolean(canJump)
@@ -114,7 +135,9 @@ class GenericLandController : RideController {
         buffer.writeString(this.jumpVector[2].getString())
         buffer.writeString(this.driveFactor.getString())
         buffer.writeString(this.reverseDriveFactor.getString())
-        buffer.writeString(this.strafeFactor.getString())
+        buffer.writeString(this.minimumSpeedToTurn.getString())
+        buffer.writeString(this.rotationSpeed.getString())
+        buffer.writeString(this.lookYawLimit.getString())
     }
 
     override fun decode(buffer: RegistryFriendlyByteBuf) {
@@ -127,6 +150,9 @@ class GenericLandController : RideController {
         )
         this.driveFactor = buffer.readString().asExpression()
         this.reverseDriveFactor = buffer.readString().asExpression()
-        this.strafeFactor = buffer.readString().asExpression()
+        this.minimumSpeedToTurn = buffer.readString().asExpression()
+        this.rotationSpeed = buffer.readString().asExpression()
+        this.lookYawLimit = buffer.readString().asExpression()
     }
+
 }

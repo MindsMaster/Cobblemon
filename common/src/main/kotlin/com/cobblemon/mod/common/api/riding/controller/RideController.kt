@@ -71,6 +71,12 @@ interface RideController : Encodable, Decodable {
      */
     fun rotation(entity: PokemonEntity, driver: LivingEntity) : Vec2
 
+    fun clampPassengerRotation(entity: PokemonEntity, driver: LivingEntity) {}
+
+    fun updatePassengerRotation(entity: PokemonEntity, driver: LivingEntity) {
+//        driver.yRot = entity.yRot
+    }
+
     /**
      * Manipulates the movement input as necessary by the controller. This is primarily used to apply limits
      * to the types of movements. For instance, we can apply limits to any sort of sideways movement input, so that

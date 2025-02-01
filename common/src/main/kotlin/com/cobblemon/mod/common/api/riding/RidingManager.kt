@@ -14,9 +14,8 @@ import com.cobblemon.mod.common.api.molang.MoLangFunctions.setup
 import com.cobblemon.mod.common.api.riding.controller.RideController
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.withQueryValue
-import net.minecraft.ChatFormatting
-import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
@@ -24,6 +23,7 @@ import net.minecraft.world.phys.Vec3
 data class RidingManager(val entity: PokemonEntity) {
     var lastSpeed = 0F
     var states: MutableMap<ResourceLocation, RidingState> = mutableMapOf()
+    var deltaRotation = Vec2.ZERO
 
     val runtime: MoLangRuntime by lazy {
         MoLangRuntime()
@@ -59,7 +59,7 @@ data class RidingManager(val entity: PokemonEntity) {
         val pose = controller.pose(entity)
         entity.entityData.set(PokemonEntity.POSE_TYPE, pose)
 
-        driver.displayClientMessage(Component.literal("Speed: ").withStyle { it.withColor(ChatFormatting.GREEN) }.append(Component.literal("$lastSpeed b/t")), true)
+//        driver.displayClientMessage(Component.literal("Speed: ").withStyle { it.withColor(ChatFormatting.GREEN) }.append(Component.literal("$lastSpeed b/t")), true)
     }
 
     fun speed(entity: PokemonEntity, driver: Player): Float {
@@ -69,8 +69,21 @@ data class RidingManager(val entity: PokemonEntity) {
     }
 
     fun controlledRotation(entity: PokemonEntity, driver: Player): Vec2 {
-        val controller = getController(entity) ?: return Vec2.ZERO
-        return controller.rotation(entity, driver)
+        val controller = getController(entity) ?: return entity.rotationVector
+        val previousRotation = entity.rotationVector
+        val rotation = controller.rotation(entity, driver)
+        this.deltaRotation = Vec2(rotation.x - previousRotation.x, rotation.y - previousRotation.y)
+        return rotation
+    }
+
+    fun clampPassengerRotation(entity: PokemonEntity, driver: LivingEntity) {
+        val controller = getController(entity) ?: return
+        return controller.clampPassengerRotation(entity, driver)
+    }
+
+    fun updatePassengerRotation(entity: PokemonEntity, driver: LivingEntity) {
+        val controller = getController(entity) ?: return
+        return controller.updatePassengerRotation(entity, driver)
     }
 
     fun velocity(entity: PokemonEntity, driver: Player, input: Vec3): Vec3 {
