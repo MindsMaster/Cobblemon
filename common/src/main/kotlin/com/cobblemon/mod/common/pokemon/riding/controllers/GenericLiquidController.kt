@@ -8,13 +8,20 @@
 
 package com.cobblemon.mod.common.pokemon.riding.controllers
 
+import com.bedrockk.molang.runtime.value.DoubleValue
 import com.cobblemon.mod.common.api.riding.controller.RideController
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
+import com.cobblemon.mod.common.util.asExpression
 import com.cobblemon.mod.common.util.blockPositionsAsListRounded
 import com.cobblemon.mod.common.util.cobblemonResource
+import com.cobblemon.mod.common.util.getString
+import com.cobblemon.mod.common.util.readString
+import com.cobblemon.mod.common.util.resolveBoolean
+import com.cobblemon.mod.common.util.resolveFloat
+import com.cobblemon.mod.common.util.writeString
 import kotlin.math.max
 import kotlin.math.min
 import net.minecraft.network.RegistryFriendlyByteBuf
@@ -30,9 +37,17 @@ class GenericLiquidController : RideController {
         val KEY: ResourceLocation = cobblemonResource("swim/generic")
     }
 
-    var speed = 1F
+    var canJump = "true".asExpression()
         private set
-    var acceleration = 1F
+    var jumpVector = listOf("0".asExpression(), "0.3".asExpression(), "0".asExpression())
+        private set
+    var speed = "1.0".asExpression()
+        private set
+    var driveFactor = "1.0".asExpression()
+        private set
+    var reverseDriveFactor = "0.25".asExpression()
+        private set
+    var strafeFactor = "0.2".asExpression()
         private set
 
     override val key: ResourceLocation = KEY
@@ -50,11 +65,7 @@ class GenericLiquidController : RideController {
     }
 
     override fun speed(entity: PokemonEntity, driver: Player): Float {
-        return min(max(this.speed + this.acceleration(), 0.0F), 1.0F)
-    }
-
-    private fun acceleration(): Float {
-        return (1 / ((300 * this.speed) + (18.5F - (this.acceleration * 5.3F)))) * (0.9F * ((this.acceleration + 1) / 2))
+        return getRuntime(entity).resolveFloat(speed)
     }
 
     override fun rotation(entity: PokemonEntity, driver: LivingEntity): Vec2 {
@@ -62,31 +73,51 @@ class GenericLiquidController : RideController {
     }
 
     override fun velocity(entity: PokemonEntity, driver: Player, input: Vec3): Vec3 {
-        val f = driver.xxa * 0.1f
-        var g = driver.zza * 0.3f
+        val runtime = getRuntime(entity)
+        val driveFactor = runtime.resolveFloat(this.driveFactor)
+        val strafeFactor = runtime.resolveFloat(this.strafeFactor)
+        val f = driver.xxa * strafeFactor
+        var g = driver.zza * driveFactor
         if (g <= 0.0f) {
-            g *= 0.12f
+            g *= runtime.resolveFloat(this.reverseDriveFactor)
         }
 
-        return Vec3(f.toDouble(), 0.0, g.toDouble())
+        val velocity = Vec3(f.toDouble(), 0.0, g.toDouble())
+
+        return velocity
     }
 
-    override fun canJump(entity: PokemonEntity, driver: Player): Boolean {
-        TODO("Not yet implemented")
-    }
+    override fun canJump(entity: PokemonEntity, driver: Player) = getRuntime(entity).resolveBoolean(canJump)
 
     override fun jumpForce(entity: PokemonEntity, driver: Player, jumpStrength: Int): Vec3 {
-        TODO("Not yet implemented")
+        val runtime = getRuntime(entity)
+        runtime.environment.query.addFunction("jump_strength") { DoubleValue(jumpStrength.toDouble()) }
+        val jumpVector = jumpVector.map { runtime.resolveFloat(it) }
+        return Vec3(jumpVector[0].toDouble(), jumpVector[1].toDouble(), jumpVector[2].toDouble())
     }
 
     override fun encode(buffer: RegistryFriendlyByteBuf) {
         super.encode(buffer)
-        buffer.writeFloat(this.speed)
-        buffer.writeFloat(this.acceleration)
+        buffer.writeString(this.speed.getString())
+        buffer.writeString(this.canJump.getString())
+        buffer.writeString(this.jumpVector[0].getString())
+        buffer.writeString(this.jumpVector[1].getString())
+        buffer.writeString(this.jumpVector[2].getString())
+        buffer.writeString(this.driveFactor.getString())
+        buffer.writeString(this.reverseDriveFactor.getString())
+        buffer.writeString(this.strafeFactor.getString())
     }
 
     override fun decode(buffer: RegistryFriendlyByteBuf) {
-        this.speed = buffer.readFloat()
-        this.acceleration = buffer.readFloat()
+        this.speed = buffer.readString().asExpression()
+        this.canJump = buffer.readString().asExpression()
+        this.jumpVector = listOf(
+            buffer.readString().asExpression(),
+            buffer.readString().asExpression(),
+            buffer.readString().asExpression()
+        )
+        this.driveFactor = buffer.readString().asExpression()
+        this.reverseDriveFactor = buffer.readString().asExpression()
+        this.strafeFactor = buffer.readString().asExpression()
     }
 }
