@@ -184,8 +184,7 @@ class TexturedModel {
                 val modelTransform : PartPose
                 when {
                     bone.parent == null -> {
-                        // The root part always has a 24 Y offset. One of life's great mysteries.
-                        modelTransform = PartPose.offset(0F, /*if (isForLivingEntityRenderer) 24F else */0F, 0F)
+                        modelTransform = PartPose.offset(0F, 0F, 0F)
                     }
                     boneRotation != null -> {
                         modelTransform = PartPose.offsetAndRotation(
