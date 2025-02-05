@@ -756,13 +756,13 @@
 
   "cobblemon.fossilmachine.protected": "This fossil belongs to %s!",
 
-  "itemGroup.cobblemon.blocks": "Blocks",
-  "itemGroup.cobblemon.utility_item": "Utility Items",
-  "itemGroup.cobblemon.agriculture": "Agriculture",
-  "itemGroup.cobblemon.consumables": "Consumables",
-  "itemGroup.cobblemon.held_item": "Held Items",
-  "itemGroup.cobblemon.evolution_item": "Evolution Items",
-  "itemGroup.cobblemon.archaeology": "Archaeology",
+  "itemGroup.cobblemon.blocks": "Cobblemon: Blocks",
+  "itemGroup.cobblemon.utility_item": "Cobblemon: Utility Items",
+  "itemGroup.cobblemon.agriculture": "Cobblemon: Agriculture",
+  "itemGroup.cobblemon.consumables": "Cobblemon: Consumables",
+  "itemGroup.cobblemon.held_item": "Cobblemon: Held Items",
+  "itemGroup.cobblemon.evolution_item": "Cobblemon: Evolution Items",
+  "itemGroup.cobblemon.archaeology": "Cobblemon: Archaeology",
 
   "block.cobblemon.black_apricorn": "Black Apricorn",
   "block.cobblemon.blue_apricorn": "Blue Apricorn",
