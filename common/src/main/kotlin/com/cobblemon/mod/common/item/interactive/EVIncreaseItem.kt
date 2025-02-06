@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.item.interactive
 
 import com.cobblemon.mod.common.api.item.PokemonSelectingItem
+import com.cobblemon.mod.common.api.pokemon.stats.ItemEvSource
 import com.cobblemon.mod.common.api.pokemon.stats.Stat
 import com.cobblemon.mod.common.item.CobblemonItem
 import com.cobblemon.mod.common.pokemon.EVs
@@ -34,7 +35,7 @@ abstract class EVIncreaseItem(
         stack: ItemStack,
         pokemon: Pokemon
     ): InteractionResultHolder<ItemStack> {
-        val evsGained = pokemon.evs.add(stat, evIncreaseAmount)
+        val evsGained = pokemon.evs.add(stat, evIncreaseAmount, ItemEvSource(player, stack, pokemon))
         return if (evsGained > 0) {
             pokemon.entity?.playSound(sound, 1F, 1F)
             if (!player.isCreative) {
