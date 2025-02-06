@@ -159,6 +159,11 @@ object CobblemonEvents {
     val EXPERIENCE_CANDY_USE_POST = EventObservable<ExperienceCandyUseEvent.Post>()
 
     @JvmField
+    val EV_GAINED_EVENT_PRE = CancelableObservable<EvGainedEvent.Pre>()
+    @JvmField
+    val EV_GAINED_EVENT_POST = EventObservable<EvGainedEvent.Post>()
+
+    @JvmField
     val POKEMON_RELEASED_EVENT_PRE = CancelableObservable<ReleasePokemonEvent.Pre>()
     @JvmField
     val POKEMON_RELEASED_EVENT_POST = EventObservable<ReleasePokemonEvent.Post>()

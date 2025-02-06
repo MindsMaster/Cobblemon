@@ -225,6 +225,7 @@ object DataKeys {
     const val NPC_HITBOX_WIDTH = "Width"
     const val NPC_HITBOX_HEIGHT = "Height"
     const val NPC_HITBOX_FIXED = "Fixed"
+    const val NPC_HIDE_NAME_TAG = "HideNPCNameTag"
 
     // PokemonProperties
     const val ELEMENTAL_TYPE = "ElementalType"

@@ -35,6 +35,7 @@ import com.cobblemon.mod.common.client.net.pasture.PokemonPasturedHandler
 import com.cobblemon.mod.common.client.net.pasture.PokemonUnpasturedHandler
 import com.cobblemon.mod.common.client.net.pokedex.ServerConfirmedRegisterHandler
 import com.cobblemon.mod.common.client.net.pokemon.update.PokemonUpdatePacketHandler
+import com.cobblemon.mod.common.client.net.settings.OpenCobblemonConfigEditorHandler
 import com.cobblemon.mod.common.client.net.settings.ServerSettingsPacketHandler
 import com.cobblemon.mod.common.client.net.sound.UnvalidatedPlaySoundS2CPacketHandler
 import com.cobblemon.mod.common.client.net.spawn.SpawnExtraDataEntityHandler
@@ -78,6 +79,7 @@ import com.cobblemon.mod.common.net.messages.client.pokemon.update.*
 import com.cobblemon.mod.common.net.messages.client.pokemon.update.evolution.AddEvolutionPacket
 import com.cobblemon.mod.common.net.messages.client.pokemon.update.evolution.ClearEvolutionsPacket
 import com.cobblemon.mod.common.net.messages.client.pokemon.update.evolution.RemoveEvolutionPacket
+import com.cobblemon.mod.common.net.messages.client.settings.OpenCobblemonConfigScreenPacket
 import com.cobblemon.mod.common.net.messages.client.settings.ServerSettingsPacket
 import com.cobblemon.mod.common.net.messages.client.sound.UnvalidatedPlaySoundS2CPacket
 import com.cobblemon.mod.common.net.messages.client.spawn.SpawnGenericBedrockPacket
@@ -274,6 +276,7 @@ object CobblemonNetwork {
 
         // Settings packets
         list.add(PacketRegisterInfo(ServerSettingsPacket.ID, ServerSettingsPacket::decode, ServerSettingsPacketHandler))
+        list.add(PacketRegisterInfo(OpenCobblemonConfigScreenPacket.ID, OpenCobblemonConfigScreenPacket::decode, OpenCobblemonConfigEditorHandler))
 
         // Data registries
         list.add(PacketRegisterInfo(AbilityRegistrySyncPacket.ID, AbilityRegistrySyncPacket::decode, DataRegistrySyncPacketHandler()))

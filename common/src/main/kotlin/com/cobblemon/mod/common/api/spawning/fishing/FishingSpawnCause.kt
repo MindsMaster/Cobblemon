@@ -19,7 +19,6 @@ import com.cobblemon.mod.common.api.fishing.FishingBait
 import com.cobblemon.mod.common.api.pokemon.Natures
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.api.pokemon.egg.EggGroup
-import com.cobblemon.mod.common.api.pokemon.stats.Stat
 import com.cobblemon.mod.common.api.pokemon.stats.Stats
 import com.cobblemon.mod.common.api.spawning.SpawnBucket
 import com.cobblemon.mod.common.api.spawning.SpawnCause
@@ -28,7 +27,6 @@ import com.cobblemon.mod.common.api.spawning.detail.PokemonSpawnDetail
 import com.cobblemon.mod.common.api.spawning.detail.SpawnDetail
 import com.cobblemon.mod.common.api.spawning.spawner.Spawner
 import com.cobblemon.mod.common.api.types.ElementalTypes
-import com.cobblemon.mod.common.api.types.tera.TeraTypes
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.item.interactive.PokerodItem
 import com.cobblemon.mod.common.item.interactive.PokerodItem.Companion.getCookingComponentOnRod
@@ -132,8 +130,8 @@ class FishingSpawnCause(
         }
 
         fun alterFriendshipAttempt(pokemonEntity: PokemonEntity, effect: FishingBait.Effect) {
-            if (pokemonEntity.pokemon.friendship + effect.value > 255)
-                pokemonEntity.pokemon.setFriendship(255)
+            if (pokemonEntity.pokemon.friendship + effect.value > Cobblemon.config.maxPokemonFriendship)
+                pokemonEntity.pokemon.setFriendship(Cobblemon.config.maxPokemonFriendship)
             else
                 pokemonEntity.pokemon.setFriendship(pokemonEntity.pokemon.friendship + effect.value.toInt())
         }
