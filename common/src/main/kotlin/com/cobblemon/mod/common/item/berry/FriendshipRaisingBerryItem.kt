@@ -49,7 +49,7 @@ class FriendshipRaisingBerryItem(block: BerryBlock, val stat: Stat) : BerryItem(
         val decreasedEVs = pokemon.evs.add(stat, -evLowerAmount, ItemEvSource(player, stack, pokemon)) != 0
 
         return if (increasedFriendship || decreasedEVs) {
-            player.playSound(CobblemonSounds.BERRY_EAT, 1F, 1F)
+            pokemon.entity?.playSound(CobblemonSounds.BERRY_EAT, 1F, 1F)
             if (!player.isCreative) {
                 stack.shrink(1)
             }
