@@ -5,3 +5,6 @@
 
 ### Developer
 - Removed all VaryingModelRepository subclasses into the parent class. 
+
+### Addons
+- Added `transformedParts` to the root of poser JSONs so it now exists in both poses and the model overall. 
