@@ -10,6 +10,7 @@ package com.cobblemon.mod.common.pokemon.riding.controllers
 
 import com.bedrockk.molang.Expression
 import com.bedrockk.molang.runtime.value.DoubleValue
+import com.cobblemon.mod.common.Rollable
 import com.cobblemon.mod.common.api.riding.controller.RideController
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
@@ -19,6 +20,7 @@ import com.cobblemon.mod.common.util.asExpression
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.common.util.readString
 import com.cobblemon.mod.common.util.resolveFloat
+import com.cobblemon.mod.common.util.toVec3d
 import com.cobblemon.mod.common.util.withQueryValue
 import com.cobblemon.mod.common.util.writeString
 import net.minecraft.network.RegistryFriendlyByteBuf
@@ -65,6 +67,7 @@ class BirdAirController : RideController {
             runtime.environment.query.addFunction("jump_strength") { DoubleValue(entity.jumpInputStrength.toDouble()) }
             val jumpForces = this.jumpVector.map { runtime.resolveFloat(it) }
             jumpVector = Vec3(jumpForces[0].toDouble(), jumpForces[1].toDouble(), jumpForces[2].toDouble())
+            jumpVector = jumpVector.toVector3f().mul((driver as Rollable).orientation).toVec3d()
             entity.jumpInputStrength = 0
             entity.addDeltaMovement(jumpVector)
         }
