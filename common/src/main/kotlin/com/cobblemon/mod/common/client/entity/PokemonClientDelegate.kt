@@ -13,8 +13,8 @@ import com.bedrockk.molang.runtime.value.DoubleValue
 import com.bedrockk.molang.runtime.value.StringValue
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.CobblemonSounds
+import com.cobblemon.mod.common.Rollable
 import com.cobblemon.mod.common.api.entity.PokemonSideDelegate
-import com.cobblemon.mod.common.api.molang.MoLangFunctions.addEntityFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addFunctions
 import com.cobblemon.mod.common.api.pokeball.PokeBalls
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
@@ -42,8 +42,11 @@ import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.Vec3
+import org.joml.Matrix3f
+import org.joml.Vector3f
 
 class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
     companion object {
@@ -420,6 +423,43 @@ class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
         if(secondsSinceLastShinyParticle > SHINY_PARTICLE_COOLDOWN) {
             playShinyEffect("cobblemon:ambient_shiny_sparkle")
             lastShinyParticle = System.currentTimeMillis()
+        }
+    }
+
+    override fun positionRider(
+        passenger: Entity,
+        positionUpdater: Entity.MoveFunction
+    ) {
+        if (currentEntity.hasPassenger(passenger)) {
+            val seatIndex = currentEntity.getPassengers().indexOf(passenger)
+            val seat = currentEntity.seats.get(seatIndex)
+            val locator = this.locatorStates.get(seat.locator)
+            if (locator != null) {
+                val locatorTranslation = locator.getOrigin().toVector3f()
+
+                val locatorOffset = Vector3f(locatorTranslation).sub(currentEntity.position().toVector3f())
+                val center = Vector3f(0f, currentEntity.bbHeight/2, 0f)
+                val locatorToCenter = locatorOffset.sub(center, Vector3f())
+
+                val rotationMatrix = Matrix3f()
+                if (passenger is Rollable){
+                    rotationMatrix.rotate(
+                        Math.toRadians(-passenger.getPitch().toDouble()).toFloat(),
+                        passenger.getLeftVector()
+                    )
+                    rotationMatrix.rotate(
+                        Math.toRadians(-passenger.getRoll().toDouble()).toFloat(),
+                        passenger.getForwardVector(),
+                    )
+                }
+                val rotatedOffset = rotationMatrix.transform(locatorToCenter, Vector3f()).add(center).sub(Vector3f(0f, passenger.bbHeight/2, 0f))
+
+                positionUpdater.accept(passenger, currentEntity.x + rotatedOffset.x, currentEntity.y + rotatedOffset.y, currentEntity.z + rotatedOffset.z)
+                if (passenger is LivingEntity) {
+                    currentEntity.riding.updatePassengerRotation(currentEntity, passenger)
+                    currentEntity.riding.clampPassengerRotation(currentEntity, passenger)
+                }
+            }
         }
     }
 
