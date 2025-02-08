@@ -10,10 +10,7 @@ package com.cobblemon.mod.common.client.render.pokemon
 
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.api.pokedex.PokedexEntryProgress
-import com.cobblemon.mod.common.api.tags.CobblemonItemTags.WEARABLE_EYE_ITEMS
-import com.cobblemon.mod.common.api.tags.CobblemonItemTags.WEARABLE_HAT_ITEMS
 import com.cobblemon.mod.common.client.CobblemonClient
-import com.cobblemon.mod.common.client.CobblemonClient.storage
 import com.cobblemon.mod.common.client.battle.ClientBallDisplay
 import com.cobblemon.mod.common.client.entity.NPCClientDelegate
 import com.cobblemon.mod.common.client.entity.PokemonClientDelegate
@@ -21,7 +18,6 @@ import com.cobblemon.mod.common.client.entity.PokemonClientDelegate.Companion.BE
 import com.cobblemon.mod.common.client.entity.PokemonClientDelegate.Companion.BEAM_SHRINK_TIME
 import com.cobblemon.mod.common.client.keybind.boundKey
 import com.cobblemon.mod.common.client.keybind.keybinds.PartySendBinding
-import com.cobblemon.mod.common.client.render.MatrixWrapper
 import com.cobblemon.mod.common.client.render.models.blockbench.PosableModel
 import com.cobblemon.mod.common.client.render.models.blockbench.PosableState
 import com.cobblemon.mod.common.client.render.models.blockbench.pokemon.PosablePokemonEntityModel
@@ -38,7 +34,6 @@ import com.cobblemon.mod.common.entity.pokeball.EmptyPokeBallEntity
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity.Companion.SPAWN_DIRECTION
 import com.cobblemon.mod.common.pokeball.PokeBall
-import com.cobblemon.mod.common.pokemon.Pokemon
 import com.cobblemon.mod.common.util.*
 import com.cobblemon.mod.common.util.math.DoubleRange
 import com.cobblemon.mod.common.util.math.geometry.toRadians
@@ -59,8 +54,6 @@ import net.minecraft.network.chat.Style
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.Entity
-import net.minecraft.world.item.ItemDisplayContext
-import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.Vec3
 import org.joml.Math
 import org.joml.Quaternionf
@@ -157,101 +150,14 @@ class PokemonRenderer(
         }
 //        Minecraft.getInstance().bufferBuilders.entityVertexConsumers.draw()
 
-
-
         //Render Held Item
-        var shownItem = entity.shownItem
-
-        shownItem = getRenderableItem(entity)
-
-        if (!shownItem.isEmpty) {
-            var scale = 1.0f //scale value can be overridden by modifier
-            var transformationMode = ItemDisplayContext.GROUND // display mode can be overridden by modifier
-            val locators: Map<String, MatrixWrapper> = clientDelegate.locatorStates
-
-            poseMatrix.pushPose()
-
-            when {
-            (locators.containsKey("held_item_eyes") && shownItem.`is`(WEARABLE_EYE_ITEMS)) -> {
-                poseMatrix.mulPose(locators["held_item_eyes"]!!.matrix)
-                transformationMode = ItemDisplayContext.HEAD
-                //applyModifiers("held_item_eyes", locators)
-                poseMatrix.translate(0f, 0f, .28f * scale)
-                poseMatrix.scale(0.7f * scale, 0.7f * scale, 0.7f * scale)
-            }
-            (locators.containsKey("held_item_head") && shownItem.`is`(WEARABLE_HAT_ITEMS)) -> {
-                poseMatrix.mulPose(locators["held_item_head"]!!.matrix)
-                transformationMode = ItemDisplayContext.HEAD
-                //applyModifiers("held_item_head", locators)
-                poseMatrix.translate(0f, -0.26f * scale, 0f)
-                poseMatrix.scale(.68f * scale, .68f * scale, .68f * scale)
-            }
-            (locators.containsKey("held_item")) -> {
-                poseMatrix.mulPose(locators["held_item"]!!.matrix)
-                transformationMode = ItemDisplayContext.THIRD_PERSON_RIGHT_HAND
-                //applyModifiers("held_item", locators)
-                poseMatrix.scale(scale, scale, scale)
-                poseMatrix.mulPose((Axis.XP.rotationDegrees(-90f)))
-                poseMatrix.mulPose(Axis.YP.rotationDegrees(-90f))
-            }
-            (locators.containsKey("held_item_fixed")) -> {
-                poseMatrix.mulPose(locators["held_item_fixed"]!!.matrix)
-                //applyModifiers("held_item_fixed", locators)
-                poseMatrix.scale(scale, scale, scale)
-            }
-            else -> { // Don't render any item
-                poseMatrix.popPose()
-                return
-            }
-            }
-
-            heldItemRender.renderItem(
-                entity,
-                shownItem,
-                transformationMode,
-                false,
-                poseMatrix,
-                buffer,
-                packedLight
-            )
-            poseMatrix.popPose()
-        }
-    }
-
-    private val heldItemRender = ItemInHandRenderer(Minecraft.getInstance(), entityRenderDispatcher, Minecraft.getInstance().itemRenderer)
-
-    /**
-     * @param [pokemonEntity] The pokemon to get the held item from.
-     * @return Returns the held item for this pokemon.
-     */
-    private fun getRenderableItem(pokemonEntity: PokemonEntity): ItemStack {
-        //Hidden Check
-        if(pokemonEntity.pokemon.isItemHidden) return ItemStack.EMPTY
-        //Server Search
-        if(!pokemonEntity.shownItem.isEmpty) return pokemonEntity.shownItem
-        //Client Search
-        //TODO there must be a better way to do this bit, too many search loops
-        if (pokemonEntity.ownerUUID?.equals(Minecraft.getInstance().player?.uuid) == true) {
-            //See if the pokemon that is being rendered is part of client users party
-            for (p in storage.myParty) {
-                return comparePokemonEntity(p, pokemonEntity) ?: continue
-            }
-            //If not then check PCs **this is for pokemon roaming around from the pasture block**
-            for (pc in storage.pcStores.values) for (box in pc.boxes) for (p in box.slots) {
-                return comparePokemonEntity(p, pokemonEntity) ?: continue
-            }
-        }
-        //Default
-        return ItemStack.EMPTY
-    }
-
-    //This is used to compare the uuid of the pokemon being rendered to the pokemon in your party/pc
-    private fun comparePokemonEntity(p: Pokemon?, pokemonEntity: PokemonEntity ) : ItemStack? {
-        if (p?.entity?.uuid?.equals(pokemonEntity.uuid) == true ) {
-            if (p.isItemHidden) return ItemStack.EMPTY
-            return p.heldItem()
-        }
-        return null
+        HeldItemRenderer().render(
+            entity,
+            poseMatrix,
+            buffer,
+            packedLight,
+            clientDelegate
+        )
     }
 
     fun renderTransition(
