@@ -20,7 +20,7 @@ import net.minecraft.world.phys.Vec3
  * Seat Properties are responsible for the base information that would then be used to construct a Seat on an entity.
  */
 data class Seat(
-    val locator: String = "seat1",
+    val locator: String = "seat_1",
     val offset: Vec3 = Vec3.ZERO,
     val poseOffsets: MutableList<SeatPoseOffset> = mutableListOf(),
     val poseAnimations: MutableList<SeatPoseAnimations> = mutableListOf()
