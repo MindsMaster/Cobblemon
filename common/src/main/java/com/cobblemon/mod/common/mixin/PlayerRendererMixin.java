@@ -10,6 +10,8 @@ package com.cobblemon.mod.common.mixin;
 
 import com.cobblemon.mod.common.Rollable;
 import com.cobblemon.mod.common.client.render.ClientPlayerIcon;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -25,8 +27,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class PlayerRendererMixin {
     private static boolean disableRollableRenderDebug = false;
 
-    @Inject(method = "render", at = @At(value = "HEAD"))
-    public void renderPlayer$head(AbstractClientPlayer player, float f, float g, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, CallbackInfo ci) {
+    @WrapMethod(method = "render")
+    public void applyRotation(AbstractClientPlayer player, float f, float g, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, Operation<Integer> original) {
         if(player instanceof Rollable && !disableRollableRenderDebug) {
             Rollable rollable = (Rollable) player;
             if(rollable.shouldRoll()){
@@ -43,10 +45,9 @@ public class PlayerRendererMixin {
                 poseStack.mulPose(transformationMatrix);
             }
         }
-    }
 
-        @Inject(method = "render", at = @At(value = "TAIL"))
-    public void renderPlayer$tail(AbstractClientPlayer player, float f, float g, PoseStack poseStack, MultiBufferSource multiBufferSource, int i, CallbackInfo ci) {
+        original.call(player, f, g, poseStack, multiBufferSource, i);
+
         ClientPlayerIcon.Companion.onRenderPlayer(player);
         if(player instanceof Rollable && !disableRollableRenderDebug && ((Rollable) player).shouldRoll()){
             poseStack.popPose();
