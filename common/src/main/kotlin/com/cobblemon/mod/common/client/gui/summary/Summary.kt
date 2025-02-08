@@ -89,6 +89,8 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
         private val typeSpacerDoubleResource = cobblemonResource("textures/gui/summary/type_spacer_double.png")
         private val sideSpacerResource = cobblemonResource("textures/gui/summary/summary_side_spacer.png")
         private val evolveButtonResource = cobblemonResource("textures/gui/summary/summary_evolve_button.png")
+        private val itemVisibleResource = cobblemonResource("textures/gui/summary/item_visible.png")
+        private val itemHiddenResource = cobblemonResource("textures/gui/summary/item_hidden.png")
         private val tabIconInfo = cobblemonResource("textures/gui/summary/summary_tab_icon_info.png")
         private val tabIconMoves = cobblemonResource("textures/gui/summary/summary_tab_icon_moves.png")
         private val tabIconStats = cobblemonResource("textures/gui/summary/summary_tab_icon_stats.png")
@@ -167,6 +169,32 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
                 clickRequirement = { selectedPokemon.evolutionProxy.client().isNotEmpty() && CobblemonClient.battle == null }
             )
         )
+
+        //Item Visibility Button
+        val hideHeldItemBtn = SummaryButton(
+            buttonX = x + 22f,
+            buttonY = y + 101f,
+            buttonWidth = 13,
+            buttonHeight = 9,
+            clickAction = {
+                selectedPokemon.isItemHidden=!selectedPokemon.isItemHidden
+            },
+            resource = itemVisibleResource,
+            renderRequirement = { !selectedPokemon.heldItem().isEmpty && !selectedPokemon.isItemHidden },
+            clickRequirement = { !selectedPokemon.heldItem().isEmpty },
+        )
+        val showHeldItemBtn = SummaryButton(
+            buttonX = x + 22f,
+            buttonY = y + 101f,
+            buttonWidth = 13,
+            buttonHeight = 9,
+            clickAction = { },
+            resource = itemHiddenResource,
+            renderRequirement = { !selectedPokemon.heldItem().isEmpty && selectedPokemon.isItemHidden },
+            clickRequirement = { false },
+        )
+        addRenderableWidget(showHeldItemBtn)
+        addRenderableWidget(hideHeldItemBtn)
 
         // Init Tabs
         summaryTabs.clear()

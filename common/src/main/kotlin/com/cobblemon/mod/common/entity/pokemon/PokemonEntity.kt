@@ -174,6 +174,7 @@ open class PokemonEntity(
         @JvmStatic val FREEZE_FRAME = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.FLOAT)
         @JvmStatic val CAUGHT_BALL = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.STRING)
         @JvmStatic val EVOLUTION_STARTED = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BOOLEAN)
+        @JvmStatic var SHOWN_HELD_ITEM = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.ITEM_STACK)
 
         const val BATTLE_LOCK = "battle"
         const val EVOLUTION_LOCK = "evolving"
@@ -228,6 +229,10 @@ open class PokemonEntity(
         get() = entityData.get(BATTLE_ID).isPresent
     val friendship: Int
         get() = entityData.get(FRIENDSHIP)
+
+    var shownItem: ItemStack
+        get() = entityData.get(SHOWN_HELD_ITEM)
+        set(value) = entityData.set(SHOWN_HELD_ITEM, value)
 
     var drops: DropTable? = null
 
@@ -326,6 +331,7 @@ open class PokemonEntity(
         builder.define(FREEZE_FRAME, -1F)
         builder.define(CAUGHT_BALL, "")
         builder.define(EVOLUTION_STARTED, false)
+        builder.define(SHOWN_HELD_ITEM, ItemStack.EMPTY)
     }
 
     override fun onSyncedDataUpdated(data: EntityDataAccessor<*>) {
