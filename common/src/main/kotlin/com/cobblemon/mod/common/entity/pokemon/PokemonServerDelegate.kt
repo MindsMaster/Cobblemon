@@ -271,28 +271,4 @@ class PokemonServerDelegate : PokemonSideDelegate {
             entity.remove(Entity.RemovalReason.KILLED)
         }
     }
-
-    override fun positionRider(
-        passenger: Entity,
-        positionUpdater: Entity.MoveFunction
-    ) {
-        if (entity.hasPassenger(passenger)) {
-            val index = entity.passengers.indexOf(passenger).takeIf { it >= 0 && it < entity.seats.size } ?: return
-            val seat = entity.seats[index]
-            val seatOffset = seat.getOffset(entity.getCurrentPoseType()).toVector3f()
-            val center = Vector3f(0f, entity.bbHeight/2, 0f)
-
-            val seatToCenter = center.sub(seatOffset, Vector3f())
-
-            val orientation = (entity.passengers.first() as Rollable).orientation ?: Matrix3f().rotate(-(180f + passenger.yRot).toRadians(), Vector3f(0f, 1f, 0f))
-
-            val rotatedOffset = orientation.transform(seatToCenter, Vector3f()).add(center).sub(Vector3f(0f, passenger.bbHeight/2, 0f))
-
-            positionUpdater.accept(passenger, entity.x + rotatedOffset.x, entity.y + rotatedOffset.y, entity.z + rotatedOffset.z)
-            if (passenger is LivingEntity) {
-                entity.riding.updatePassengerRotation(entity, passenger)
-                entity.riding.clampPassengerRotation(entity, passenger)
-            }
-        }
-    }
 }

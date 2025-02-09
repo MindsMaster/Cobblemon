@@ -187,14 +187,21 @@ class PokemonRenderer(
             val transformationMatrix = Matrix4f()
             transformationMatrix.translate(center)
 
-            transformationMatrix.rotate(180f.toRadians() - (rollable.yaw).toRadians(), rollable.upVector, transformationMatrix)
-            transformationMatrix.rotate((-rollable.pitch).toRadians(), rollable.leftVector, transformationMatrix)
-            transformationMatrix.rotate((-rollable.roll).toRadians(), rollable.forwardVector, transformationMatrix)
-
+            //transformationMatrix.rotate(180f.toRadians() - (rollable.getYaw()).toRadians(), rollable.getUpVector(), transformationMatrix);
+            transformationMatrix.rotate(
+                rollable.pitch.toRadians(),
+                rollable.getLeftVector(),
+                transformationMatrix
+            )
+            transformationMatrix.rotate(
+                rollable.roll.toRadians(),
+                rollable.getForwardVector(),
+                transformationMatrix
+            )
             transformationMatrix.translate(center.negate(Vector3f()))
             matrix.mul(transformationMatrix)
 
-            poseMatrix.mulPose(Axis.YP.rotationDegrees(-(180.0f - yaw)))
+            //poseMatrix.mulPose(Axis.YP.rotationDegrees(-(180.0f - yaw)))
         }
 
         super.render(entity, 0f, partialTicks, poseMatrix, buffer, packedLight)

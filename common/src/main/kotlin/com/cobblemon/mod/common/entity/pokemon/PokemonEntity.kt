@@ -13,6 +13,7 @@ import com.cobblemon.mod.common.CobblemonEntities
 import com.cobblemon.mod.common.CobblemonItems
 import com.cobblemon.mod.common.CobblemonNetwork.sendPacket
 import com.cobblemon.mod.common.CobblemonSounds
+import com.cobblemon.mod.common.Rollable
 import com.cobblemon.mod.common.api.drop.DropTable
 import com.cobblemon.mod.common.api.entity.Despawner
 import com.cobblemon.mod.common.api.entity.PokemonSender
@@ -83,6 +84,7 @@ import com.cobblemon.mod.common.pokemon.evolution.variants.ItemInteractionEvolut
 import com.cobblemon.mod.common.pokemon.feature.StashHandler
 import com.cobblemon.mod.common.pokemon.properties.UncatchableProperty
 import com.cobblemon.mod.common.util.*
+import com.cobblemon.mod.common.util.math.geometry.toRadians
 import com.cobblemon.mod.common.world.gamerules.CobblemonGameRules
 import com.mojang.serialization.Codec
 import java.util.*
@@ -146,6 +148,8 @@ import net.minecraft.world.level.pathfinder.PathType
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
+import org.joml.Matrix3f
+import org.joml.Vector3f
 
 @Suppress("unused")
 open class PokemonEntity(
@@ -1671,7 +1675,22 @@ open class PokemonEntity(
     }
 
     override fun positionRider(passenger: Entity, positionUpdater: MoveFunction) {
-        delegate.positionRider(passenger, positionUpdater)
+        if (this.hasPassenger(passenger)) {
+            val index = this.passengers.indexOf(passenger).takeIf { it >= 0 && it < this.seats.size } ?: return
+            val seat = this.seats[index]
+            val seatOffset = seat.getOffset(this.getCurrentPoseType()).toVector3f()
+            val center = Vector3f(0f, this.bbHeight/2, 0f)
+
+            val seatToCenter = center.sub(seatOffset, Vector3f())
+            val orientation = (this.passengers.first() as Rollable).orientation ?: Matrix3f().rotate(passenger.yRot.toRadians(), Vector3f(0f, 1f, 0f))
+            val rotatedOffset = orientation.transform(seatToCenter, Vector3f()).add(center).sub(Vector3f(0f, passenger.bbHeight/2, 0f))
+
+            positionUpdater.accept(passenger, this.x + rotatedOffset.x, this.y + rotatedOffset.y, this.z + rotatedOffset.z)
+            if (passenger is LivingEntity) {
+                this.riding.updatePassengerRotation(this, passenger)
+                this.riding.clampPassengerRotation(this, passenger)
+            }
+        }
     }
 
     override fun getControllingPassenger(): LivingEntity? {

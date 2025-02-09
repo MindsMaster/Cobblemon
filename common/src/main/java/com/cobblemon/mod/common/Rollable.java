@@ -16,16 +16,17 @@ import java.util.function.Function;
 
 public interface Rollable {
 
-    Vector3f FORWARDS = new Vector3f(0, 0, 1);
-    Vector3f LEFT = new Vector3f(1, 0, 0);
-    Vector3f UP = new Vector3f(0, 1, 0);
+    // From Minecraft's Camera
+    Vector3f FORWARDS = new Vector3f(0.0F, 0.0F, -1.0F);
+    Vector3f UP = new Vector3f(0.0F, 1.0F, 0.0F);
+    Vector3f LEFT = new Vector3f(-1.0F, 0.0F, 0.0F);
 
     @Nullable Matrix3f getOrientation();
 
     Rollable updateOrientation(Function<Matrix3f, Matrix3f> update);
 
     /**
-     * @return The forward vector (0, 0, 1) after the rotation matrix is applied.
+     * @return The forward vector (0, 0, -1) after the rotation matrix is applied.
      */
     default Vector3f getForwardVector() {
         if (getOrientation() == null) return new Vector3f(FORWARDS);
@@ -33,7 +34,7 @@ public interface Rollable {
     }
 
     /**
-     * @return The left vector (1, 0, 0) after the rotation matrix is applied.
+     * @return The left vector (-1, 0, 0) after the rotation matrix is applied.
      */
     default Vector3f getLeftVector() {
         if (getOrientation() == null) return new Vector3f(LEFT);
@@ -90,31 +91,29 @@ public interface Rollable {
         return rotateYaw(yaw).rotatePitch(pitch).rotateRoll(roll);
     }
 
-
     /**
-    * @return The yaw angle in degrees as a float.
-    * Value is between [-90, 90] with 0 being straight forward, 90 being straight down, and -90 being straight up
-     */
-    default float getYaw() {
-        return (float) (180F - Math.toDegrees(FORWARDS.angleSigned(getForwardVector(), UP)));
-    }
-
-    /**
-     * Get the pitch angle in degrees as a float.
+     * @return The pitch angle in degrees as a float.
      * Value is between [-180, 180] with 0 being South, 90 being West, 180/-180 being North, and -90 being East
      */
-    default float getPitch() {
-        return (float) Math.toDegrees(Math.asin(getForwardVector().y));
+    default float getYaw() {
+        return (float) (-Math.toDegrees(FORWARDS.angleSigned(getForwardVector(), UP)) + 180);
     }
 
     /**
-     * Get the roll angle in degrees as a float.
+     * @return The yaw angle in degrees as a float.
+     * Value is between [-90, 90] with 0 being straight forward, 90 being straight down, and -90 being straight up
+     */
+    default float getPitch() {
+        return (float) -Math.toDegrees(Math.asin(getForwardVector().y));
+    }
+
+    /**
+     * @return The roll angle in degrees as a float.
      * Value is between [-180, 180] with 0 being no roll (normal), 90 being 90 degrees CW, 180/-180 being 180 degrees CW/CCW, and -90 being 90 degrees CCW
      */
     default float getRoll() {
-        var upVector = getUpVector();
-        var forwardVector = getForwardVector();
-        return (float) Math.toDegrees(upVector.angleSigned(UP, forwardVector));
+        //Cobblemon.LOGGER.info("{}", (float) Math.toDegrees(getUpVector().angleSigned(UP, getForwardVector())));
+        return (float) -Math.toDegrees(getUpVector().angleSigned(UP, getForwardVector()));
     }
 
     boolean shouldRoll();

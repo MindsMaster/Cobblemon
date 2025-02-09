@@ -426,43 +426,6 @@ class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
         }
     }
 
-    override fun positionRider(
-        passenger: Entity,
-        positionUpdater: Entity.MoveFunction
-    ) {
-        if (currentEntity.hasPassenger(passenger)) {
-            val seatIndex = currentEntity.getPassengers().indexOf(passenger)
-            val seat = currentEntity.seats.get(seatIndex)
-            val locator = this.locatorStates.get(seat.locator)
-            if (locator != null) {
-                val locatorTranslation = locator.getOrigin().toVector3f()
-
-                val locatorOffset = Vector3f(locatorTranslation).sub(currentEntity.position().toVector3f())
-                val center = Vector3f(0f, currentEntity.bbHeight/2, 0f)
-                val locatorToCenter = locatorOffset.sub(center, Vector3f())
-
-                val rotationMatrix = Matrix3f()
-                if (passenger is Rollable){
-                    rotationMatrix.rotate(
-                        Math.toRadians(-passenger.getPitch().toDouble()).toFloat(),
-                        passenger.getLeftVector()
-                    )
-                    rotationMatrix.rotate(
-                        Math.toRadians(-passenger.getRoll().toDouble()).toFloat(),
-                        passenger.getForwardVector(),
-                    )
-                }
-                val rotatedOffset = rotationMatrix.transform(locatorToCenter, Vector3f()).add(center).sub(Vector3f(0f, passenger.bbHeight/2, 0f))
-
-                positionUpdater.accept(passenger, currentEntity.x + rotatedOffset.x, currentEntity.y + rotatedOffset.y, currentEntity.z + rotatedOffset.z)
-                if (passenger is LivingEntity) {
-                    currentEntity.riding.updatePassengerRotation(currentEntity, passenger)
-                    currentEntity.riding.clampPassengerRotation(currentEntity, passenger)
-                }
-            }
-        }
-    }
-
     fun cry() {
         val model = currentModel ?: return
         if (cryAnimation != null && (cryAnimation in activeAnimations || cryAnimation == primaryAnimation)) {
