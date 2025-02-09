@@ -14,6 +14,7 @@
 - Fixed not being able to do complex item requirements aside from just NBT with evolution conditions, requirements and fossil items.
 - Fixed the usage `hiddenability` in `pokegive` or other spawn commands resulting in a forced hidden ability
 - Fixed the consumption of friendship berries (or EV berries) not making any noise
+- Fixed Instantly breaking and replacing a fossil analyzer with any block entity crashing the game in a complete multi-structure
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
