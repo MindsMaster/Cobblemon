@@ -6,12 +6,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package com.cobblemon.mod.common.net.messages.client.fossil
+package com.cobblemon.mod.common.net.messages.client.data
 
 import com.cobblemon.mod.common.api.fossil.Fossil
 import com.cobblemon.mod.common.api.fossil.Fossils
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties
-import com.cobblemon.mod.common.net.messages.client.data.DataRegistrySyncPacket
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.common.util.readIdentifier
 import com.cobblemon.mod.common.util.readString

@@ -6,11 +6,10 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package com.cobblemon.mod.common.net.messages.client.fishing
+package com.cobblemon.mod.common.net.messages.client.data
 
 import com.cobblemon.mod.common.api.fishing.FishingBait
 import com.cobblemon.mod.common.api.fishing.FishingBaits
-import com.cobblemon.mod.common.net.messages.client.data.DataRegistrySyncPacket
 import com.cobblemon.mod.common.util.cobblemonResource
 import net.minecraft.network.RegistryFriendlyByteBuf
 
