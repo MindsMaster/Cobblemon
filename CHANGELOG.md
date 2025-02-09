@@ -12,6 +12,7 @@
 - Fixed Particles sometimes facing the wrong direction (looking at you, Swords Dance)
 - Fixed PCs always opening at box 2 instead of box 1.
 - Fixed not being able to do complex item requirements aside from just NBT with evolution conditions, requirements and fossil items.
+- Fixed players getting disconnected when sidemods update a Pokémon's teratype
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
@@ -21,6 +22,7 @@
 - Deprecated `EVs#add(Stat, Int)`, you will not be able to compile against this code please migrate to the `EVs#add(Stat, Int, EvSource)` you most likely want to use `SidemodEvSource` but please check other implementations or make your own.
 - Removed the NbtItemPredicate class, all the mod usages now use the vanilla item predicate solution, this causes breaking changes on Fossil, HeldItemRequirement & ItemInteractionEvolution
 
+- 
 ### Additions
 - Added `/cobblemonconfig reload` command to reload `main.json` configuration. **Note:** Some settings require a server restart to take effect; use this command cautiously.
 

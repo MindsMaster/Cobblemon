@@ -1339,6 +1339,7 @@
   "cobblemon.team.accept.receiver": "You accepted %1$s's invite to team up.",
   "cobblemon.team.decline.sender": "%1$s declined the invite to team up!",
   "cobblemon.team.decline.receiver": "You declined %1$s's invite to team up.",
+  "cobblemon.team.join.other": "%1$s joined the team!",
   "cobblemon.team.left.other": "%1$s left the team!",
   "cobblemon.team.left.self": "You left the team.",
   "cobblemon.team.disband": "The team was disbanded.",
