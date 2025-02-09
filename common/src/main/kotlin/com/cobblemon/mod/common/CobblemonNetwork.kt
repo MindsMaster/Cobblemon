@@ -45,12 +45,7 @@ import com.cobblemon.mod.common.client.net.storage.party.InitializePartyHandler
 import com.cobblemon.mod.common.client.net.storage.party.MoveClientPartyPokemonHandler
 import com.cobblemon.mod.common.client.net.storage.party.SetPartyPokemonHandler
 import com.cobblemon.mod.common.client.net.storage.party.SetPartyReferenceHandler
-import com.cobblemon.mod.common.client.net.storage.pc.ClosePCHandler
-import com.cobblemon.mod.common.client.net.storage.pc.InitializePCHandler
-import com.cobblemon.mod.common.client.net.storage.pc.MoveClientPCPokemonHandler
-import com.cobblemon.mod.common.client.net.storage.pc.OpenPCHandler
-import com.cobblemon.mod.common.client.net.storage.pc.SetPCBoxPokemonHandler
-import com.cobblemon.mod.common.client.net.storage.pc.SetPCPokemonHandler
+import com.cobblemon.mod.common.client.net.storage.pc.*
 import com.cobblemon.mod.common.client.net.toast.ToastPacketHandler
 import com.cobblemon.mod.common.client.net.trade.*
 import com.cobblemon.mod.common.net.PacketRegisterInfo
@@ -96,6 +91,9 @@ import com.cobblemon.mod.common.net.messages.client.storage.party.MoveClientPart
 import com.cobblemon.mod.common.net.messages.client.storage.party.SetPartyPokemonPacket
 import com.cobblemon.mod.common.net.messages.client.storage.party.SetPartyReferencePacket
 import com.cobblemon.mod.common.net.messages.client.storage.pc.*
+import com.cobblemon.mod.common.net.messages.client.storage.pc.wallpaper.ChangePCBoxWallpaperPacket
+import com.cobblemon.mod.common.net.messages.client.storage.pc.wallpaper.RequestPCBoxWallpapersPacket
+import com.cobblemon.mod.common.net.messages.client.storage.pc.wallpaper.SetPCBoxWallpapersPacket
 import com.cobblemon.mod.common.net.messages.client.toast.ToastPacket
 import com.cobblemon.mod.common.net.messages.client.trade.*
 import com.cobblemon.mod.common.net.messages.client.ui.InteractPokemonUIPacket
@@ -129,7 +127,11 @@ import com.cobblemon.mod.common.net.messages.server.storage.party.SwapPartyPokem
 import com.cobblemon.mod.common.net.messages.server.storage.pc.MovePCPokemonPacket
 import com.cobblemon.mod.common.net.messages.server.storage.pc.MovePCPokemonToPartyPacket
 import com.cobblemon.mod.common.net.messages.server.storage.pc.MovePartyPokemonToPCPacket
+import com.cobblemon.mod.common.net.messages.server.storage.pc.PCBoxWallpapersPacket
 import com.cobblemon.mod.common.net.messages.server.storage.pc.ReleasePCPokemonPacket
+import com.cobblemon.mod.common.net.messages.server.storage.pc.RequestChangePCBoxWallpaperPacket
+import com.cobblemon.mod.common.net.messages.server.storage.pc.RequestRenamePCBoxPacket
+import com.cobblemon.mod.common.net.messages.server.storage.pc.SortPCBoxPacket
 import com.cobblemon.mod.common.net.messages.server.storage.pc.SwapPCPokemonPacket
 import com.cobblemon.mod.common.net.messages.server.storage.pc.UnlinkPlayerFromPCPacket
 import com.cobblemon.mod.common.net.messages.server.trade.*
@@ -162,12 +164,7 @@ import com.cobblemon.mod.common.net.serverhandling.storage.SwapPCPartyPokemonHan
 import com.cobblemon.mod.common.net.serverhandling.storage.party.MovePartyPokemonHandler
 import com.cobblemon.mod.common.net.serverhandling.storage.party.ReleasePCPokemonHandler
 import com.cobblemon.mod.common.net.serverhandling.storage.party.SwapPartyPokemonHandler
-import com.cobblemon.mod.common.net.serverhandling.storage.pc.MovePCPokemonHandler
-import com.cobblemon.mod.common.net.serverhandling.storage.pc.MovePCPokemonToPartyHandler
-import com.cobblemon.mod.common.net.serverhandling.storage.pc.MovePartyPokemonToPCHandler
-import com.cobblemon.mod.common.net.serverhandling.storage.pc.ReleasePartyPokemonHandler
-import com.cobblemon.mod.common.net.serverhandling.storage.pc.SwapPCPokemonHandler
-import com.cobblemon.mod.common.net.serverhandling.storage.pc.UnlinkPlayerFromPCHandler
+import com.cobblemon.mod.common.net.serverhandling.storage.pc.*
 import com.cobblemon.mod.common.net.serverhandling.trade.*
 import com.cobblemon.mod.common.util.server
 import net.minecraft.server.level.ServerPlayer
@@ -237,12 +234,17 @@ object CobblemonNetwork {
         list.add(PacketRegisterInfo(SetPartyReferencePacket.ID, SetPartyReferencePacket::decode, SetPartyReferenceHandler))
         list.add(PacketRegisterInfo(InitializePCPacket.ID, InitializePCPacket::decode, InitializePCHandler))
         list.add(PacketRegisterInfo(MoveClientPCPokemonPacket.ID, MoveClientPCPokemonPacket::decode, MoveClientPCPokemonHandler))
-        list.add(PacketRegisterInfo(SetPCBoxPokemonPacket.ID, SetPCBoxPokemonPacket::decode, SetPCBoxPokemonHandler))
+        list.add(PacketRegisterInfo(SetPCBoxPacket.ID, SetPCBoxPacket::decode, SetPCBoxHandler))
         list.add(PacketRegisterInfo(SetPCPokemonPacket.ID, SetPCPokemonPacket::decode, SetPCPokemonHandler))
         list.add(PacketRegisterInfo(OpenPCPacket.ID, OpenPCPacket::decode, OpenPCHandler))
         list.add(PacketRegisterInfo(ClosePCPacket.ID, ClosePCPacket::decode, ClosePCHandler))
         list.add(PacketRegisterInfo(SwapClientPokemonPacket.ID, SwapClientPokemonPacket::decode, SwapClientPokemonHandler))
         list.add(PacketRegisterInfo(RemoveClientPokemonPacket.ID, RemoveClientPokemonPacket::decode, RemoveClientPokemonHandler))
+
+        list.add(PacketRegisterInfo(RenamePCBoxPacket.ID, RenamePCBoxPacket::decode, RenamePCBoxHandler))
+        list.add(PacketRegisterInfo(RequestPCBoxWallpapersPacket.ID, RequestPCBoxWallpapersPacket::decode, RequestPCBoxWallpapersHandler))
+        list.add(PacketRegisterInfo(SetPCBoxWallpapersPacket.ID, SetPCBoxWallpapersPacket::decode, SetPCBoxWallpapersHandler))
+        list.add(PacketRegisterInfo(ChangePCBoxWallpaperPacket.ID, ChangePCBoxWallpaperPacket::decode, ChangePCBoxWallpaperHandler))
 
         // UI Packets
         list.add(PacketRegisterInfo(SummaryUIPacket.ID, SummaryUIPacket::decode, SummaryUIPacketHandler))
@@ -390,6 +392,10 @@ object CobblemonNetwork {
         list.add(PacketRegisterInfo(ReleasePCPokemonPacket.ID, ReleasePCPokemonPacket::decode, ReleasePCPokemonHandler))
         list.add(PacketRegisterInfo(UnlinkPlayerFromPCPacket.ID, UnlinkPlayerFromPCPacket::decode, UnlinkPlayerFromPCHandler))
 
+        list.add(PacketRegisterInfo(RequestRenamePCBoxPacket.Companion.ID, RequestRenamePCBoxPacket.Companion::decode, RequestRenamePCBoxHandler))
+        list.add(PacketRegisterInfo(PCBoxWallpapersPacket.ID, PCBoxWallpapersPacket::decode, PCBoxWallpapersHandler))
+        list.add(PacketRegisterInfo(RequestChangePCBoxWallpaperPacket.ID, RequestChangePCBoxWallpaperPacket::decode, RequestChangePCBoxWallpaperHandler))
+
         // Starter packets
         list.add(PacketRegisterInfo(SelectStarterPacket.ID, SelectStarterPacket::decode, SelectStarterPacketHandler))
         list.add(PacketRegisterInfo(RequestStarterScreenPacket.ID, RequestStarterScreenPacket::decode, RequestStarterScreenHandler))
@@ -401,6 +407,8 @@ object CobblemonNetwork {
         list.add(PacketRegisterInfo(MovePartyPokemonPacket.ID, MovePartyPokemonPacket::decode, MovePartyPokemonHandler))
 
         list.add(PacketRegisterInfo(SwapPCPartyPokemonPacket.ID, SwapPCPartyPokemonPacket::decode, SwapPCPartyPokemonHandler))
+
+        list.add(PacketRegisterInfo(SortPCBoxPacket.ID, SortPCBoxPacket::decode, SortPCBoxHandler))
 
         // Battle packets
         list.add(PacketRegisterInfo(BattleSelectActionsPacket.ID, BattleSelectActionsPacket::decode, BattleSelectActionsHandler))
