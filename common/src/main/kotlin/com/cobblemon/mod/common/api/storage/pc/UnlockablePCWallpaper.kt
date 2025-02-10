@@ -8,6 +8,9 @@
 
 package com.cobblemon.mod.common.api.storage.pc
 
+import com.bedrockk.molang.runtime.value.DoubleValue
+import com.bedrockk.molang.runtime.value.StringValue
+import com.cobblemon.mod.common.api.molang.ObjectValue
 import com.cobblemon.mod.common.util.cobblemonResource
 import net.minecraft.resources.ResourceLocation
 
@@ -26,4 +29,11 @@ class UnlockablePCWallpaper {
     var texture: ResourceLocation = cobblemonResource("dummy.png")
     // I feel like there's more that could be added to this. Things like whether it displays when still locked, and if so what kind of hint to provide.
     // That requires client side changes which means it requires The Expert which is why I'm not committing to it right this second.
+
+    @Transient
+    val struct = ObjectValue(this).also {
+        it.addFunction("texture") { StringValue(texture.toString()) }
+        it.addFunction("id") { StringValue(id.toString()) }
+        it.addFunction("enabled") { DoubleValue(enabled) }
+    }
 }

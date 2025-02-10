@@ -39,6 +39,7 @@
     "NbtUtilsMixin",
     "PiglinBarterMixin",
     "PiglinEntityMixin",
+    "PlayerAdvancementsMixin",
     "PlayerMixin",
     "PointedDripstoneBlockMixin",
     "ShearsDispenserBehaviorMixin",

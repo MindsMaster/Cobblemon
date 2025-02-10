@@ -36,12 +36,18 @@ object FlowHandler {
         CobblemonEvents.LEVEL_UP_EVENT.subscribe { CobblemonFlows.run(cobblemonResource("level_up"), it.context) }
         CobblemonEvents.POKEMON_FAINTED.subscribe { CobblemonFlows.run(cobblemonResource("pokemon_fainted"), it.context) }
         CobblemonEvents.POKEMON_GAINED.subscribe { CobblemonFlows.run(cobblemonResource("pokemon_gained"), it.context) }
+        CobblemonEvents.WALLPAPER_UNLOCKED_EVENT.subscribe { CobblemonFlows.run(cobblemonResource("wallpaper_unlocked"), it.context) }
 
-        PlatformEvents.SERVER_PLAYER_LOGIN.subscribe(priority = Priority.LOW) { CobblemonFlows.run(cobblemonResource("player_login"), it.context) }
-        PlatformEvents.SERVER_PLAYER_LOGOUT.subscribe(priority = Priority.HIGH) { CobblemonFlows.run(cobblemonResource("player_logout"), it.context) }
+        PlatformEvents.SERVER_PLAYER_LOGIN.subscribe(priority = Priority.LOW) { CobblemonFlows.run(cobblemonResource("player_logged_in"), it.context) }
+        PlatformEvents.SERVER_PLAYER_LOGOUT.subscribe(priority = Priority.HIGH) { CobblemonFlows.run(cobblemonResource("player_logged_out"), it.context) }
 
         PlatformEvents.SERVER_PLAYER_TICK_PRE.subscribe { CobblemonFlows.run(cobblemonResource("player_tick_pre"), it.context) }
         PlatformEvents.SERVER_PLAYER_TICK_POST.subscribe { CobblemonFlows.run(cobblemonResource("player_tick_post"), it.context) }
+
+        PlatformEvents.SERVER_PLAYER_ADVANCEMENT_EARNED.subscribe { CobblemonFlows.run(cobblemonResource("advancement_earned"), it.context) }
+        PlatformEvents.RIGHT_CLICK_BLOCK.subscribe { CobblemonFlows.run(cobblemonResource("right_clicked_block"), it.context) }
+        PlatformEvents.RIGHT_CLICK_ENTITY.subscribe { CobblemonFlows.run(cobblemonResource("right_clicked_entity"), it.context) }
+        PlatformEvents.PLAYER_DEATH.subscribe { CobblemonFlows.run(cobblemonResource("player_died"), it.context) }
     }
 }
 

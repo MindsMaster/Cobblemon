@@ -12,6 +12,8 @@ import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.CobblemonNetwork.sendPacket
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.CobblemonUnlockableWallpapers
+import com.cobblemon.mod.common.api.events.CobblemonEvents
+import com.cobblemon.mod.common.api.events.storage.WallpaperUnlockedEvent
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMoLangValue
 import com.cobblemon.mod.common.api.reactive.SimpleObservable
 import com.cobblemon.mod.common.api.storage.BottomlessStore
@@ -291,19 +293,29 @@ open class PCStore(
 
     fun unlockWallpaper(wallpaper: ResourceLocation, playSound: Boolean = true): Boolean {
         val unlockableWallpaper = CobblemonUnlockableWallpapers.unlockableWallpapers[wallpaper]
+        var succeeded = false
         if (unlockableWallpaper != null && unlockableWallpaper.enabled) {
-            if (unlockedWallpapers.add(wallpaper)) {
-                pcChangeObservable.emit(Unit)
-                getObservingPlayers().forEach { player ->
-                    player.sendPacket(UnlockPCBoxWallpaperPacket(unlockableWallpaper.texture))
-                    if (playSound) {
-                        player.playNotifySound(CobblemonSounds.PC_WALLPAPER_UNLOCK, SoundSource.MASTER, 1F, 1F)
+            val event = WallpaperUnlockedEvent(pc = this, wallpaper = unlockableWallpaper, playSound = playSound)
+            CobblemonEvents.WALLPAPER_UNLOCKED_EVENT.postThen(
+                event = event,
+                ifSucceeded = {
+                    if (unlockedWallpapers.add(wallpaper)) {
+                        pcChangeObservable.emit(Unit)
+                        getObservingPlayers().forEach { player ->
+                            player.sendPacket(UnlockPCBoxWallpaperPacket(unlockableWallpaper.texture))
+                            if (event.playSound) {
+                                player.playNotifySound(CobblemonSounds.PC_WALLPAPER_UNLOCK, SoundSource.MASTER, 1F, 1F)
+                            }
+                        }
+                        succeeded = true
                     }
+                },
+                ifCanceled = {
+                    succeeded = false
                 }
-                return true
-            }
+            )
         }
 
-        return false
+        return succeeded
     }
 }
