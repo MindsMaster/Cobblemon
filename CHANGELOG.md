@@ -16,6 +16,7 @@
 - Fixed the consumption of friendship berries (or EV berries) not making any noise
 - Fixed Instantly breaking and replacing a fossil analyzer with any block entity crashing the game in a complete multi-structure
 - Fixed players getting disconnected when sidemods update a Pokémon's teratype
+- Fixed fling not using Item Names for minecraft held items that substitute Pokémon items
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
