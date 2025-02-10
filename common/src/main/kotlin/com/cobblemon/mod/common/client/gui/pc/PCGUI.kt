@@ -23,6 +23,7 @@ import com.cobblemon.mod.common.client.gui.summary.widgets.common.reformatNature
 import com.cobblemon.mod.common.client.render.drawScaledText
 import com.cobblemon.mod.common.client.storage.ClientPC
 import com.cobblemon.mod.common.client.storage.ClientParty
+import com.cobblemon.mod.common.net.messages.server.storage.pc.MarkPCBoxWallpapersSeenPacket
 import com.cobblemon.mod.common.net.messages.server.storage.pc.SortPCBoxPacket
 import com.cobblemon.mod.common.net.messages.server.storage.pc.UnlinkPlayerFromPCPacket
 import com.cobblemon.mod.common.pokemon.Gender
@@ -39,12 +40,14 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance
 import net.minecraft.network.chat.Component
 import net.minecraft.sounds.SoundEvent
 import kotlin.isInitialized
+import net.minecraft.resources.ResourceLocation
 
 class PCGUI(
     val pc: ClientPC,
     val party: ClientParty,
     val configuration: PCGUIConfiguration,
-    val openOnBox: Int = 0
+    val openOnBox: Int = 0,
+    val unseenWallpapers: Set<ResourceLocation> = emptySet()
 ) : Screen(Component.translatable("cobblemon.ui.pc.title")), CobblemonRenderable {
 
     companion object {
@@ -158,6 +161,7 @@ class PCGUI(
                 onPress = {
                     configuration.showParty = wallpaperWidget.visible
                     wallpaperWidget.visible = !wallpaperWidget.visible
+                    MarkPCBoxWallpapersSeenPacket(unseenWallpapers).sendToServer()
                 },
                 pcGui = this
             )

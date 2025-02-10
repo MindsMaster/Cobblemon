@@ -14,15 +14,15 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.packs.resources.ResourceManager
 
 object PCBoxWallpaperRepository {
-    lateinit var wallpapers: List<ResourceLocation>
+    lateinit var wallpapers: MutableSet<ResourceLocation>
     var defaultWallpaper = cobblemonResource("textures/gui/pc/pc_screen_overlay.png")
 
     fun findWallpapers(resourceManager: ResourceManager): List<ResourceLocation> {
         val wallpapers = mutableListOf<ResourceLocation>(defaultWallpaper)
-        resourceManager.listResources("textures/gui/pc/wallpaper") { path -> path?.endsWith(".png") == true }.keys.forEach { key ->
+        resourceManager.listResources("textures/gui/pc/wallpaper") { path -> path.endsWith(".png") }.keys.forEach { key ->
             wallpapers.add(key)
         }
-        this.wallpapers = wallpapers
+        this.wallpapers = wallpapers.toMutableSet()
         return wallpapers
     }
 }

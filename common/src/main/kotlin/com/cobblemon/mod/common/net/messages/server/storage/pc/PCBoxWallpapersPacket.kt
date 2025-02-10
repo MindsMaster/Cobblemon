@@ -19,7 +19,7 @@ import com.cobblemon.mod.common.util.writeString
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.resources.ResourceLocation
 
-open class PCBoxWallpapersPacket internal constructor(val wallpapers: List<ResourceLocation>) : NetworkPacket<PCBoxWallpapersPacket>, UnsplittablePacket {
+open class PCBoxWallpapersPacket internal constructor(val wallpapers: Set<ResourceLocation>) : NetworkPacket<PCBoxWallpapersPacket>, UnsplittablePacket {
     override val id = ID
 
     override fun encode(buffer: RegistryFriendlyByteBuf) {
@@ -37,7 +37,7 @@ open class PCBoxWallpapersPacket internal constructor(val wallpapers: List<Resou
             repeat(size) {
                 wallpapers.add(ResourceLocation.parse(buffer.readString()))
             }
-            return PCBoxWallpapersPacket(wallpapers)
+            return PCBoxWallpapersPacket(wallpapers.toSet())
         }
     }
 }

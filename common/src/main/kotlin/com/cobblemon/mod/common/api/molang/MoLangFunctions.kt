@@ -21,6 +21,7 @@ import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.CobblemonActivities
 import com.cobblemon.mod.common.CobblemonBlockEntities
 import com.cobblemon.mod.common.CobblemonMemories
+import com.cobblemon.mod.common.CobblemonUnlockableWallpapers
 import com.cobblemon.mod.common.api.battles.model.PokemonBattle
 import com.cobblemon.mod.common.api.battles.model.actor.ActorType
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor
@@ -842,6 +843,21 @@ object MoLangFunctions {
                 return@put DoubleValue.ONE
             }
             map.put("get_box_count") { _ -> DoubleValue(pc.boxes.size.toDouble()) }
+            map.put("has_unlocked_wallpaper") { params ->
+                val wallpaper = params.getString(0).asIdentifierDefaultingNamespace()
+                return@put DoubleValue(pc.unlockedWallpapers.contains(wallpaper))
+            }
+            map.put("get_unlocked_wallpapers") { pc.unlockedWallpapers.asArrayValue { StringValue(it.toString()) } }
+            map.put("unlock_wallpaper") {
+                val wallpaper = it.getString(0).asIdentifierDefaultingNamespace()
+                val playSound = it.getBooleanOrNull(1) != false
+                val unlockableWallpaper = CobblemonUnlockableWallpapers.unlockableWallpapers[wallpaper] ?: return@put DoubleValue.ZERO
+                if (unlockableWallpaper.enabled) {
+                    return@put DoubleValue(pc.unlockWallpaper(wallpaper, playSound))
+                } else {
+                    return@put DoubleValue.ONE
+                }
+            }
             return@mutableListOf map
         }
     )
@@ -1008,12 +1024,21 @@ object MoLangFunctions {
     fun MinecraftServer.asMoLangValue() = ObjectValue(this).addStandardFunctions().addFunctions(serverFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())
     fun Holder<DimensionType>.asDimensionTypeMoLangValue() = asMoLangValue(Registries.DIMENSION_TYPE).addFunctions(dimensionTypeFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())
     fun Player.asMoLangValue(): ObjectValue<Player> {
+        if (this is ServerPlayer && uuid in Cobblemon.serverPlayerStructs) {
+            return Cobblemon.serverPlayerStructs[uuid]!!
+        }
+
         val value = ObjectValue(
             obj = this,
             stringify = { it.effectiveName().string }
         )
         value.addFunctions(entityFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())
         value.addFunctions(playerFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())
+
+        if (this is ServerPlayer) {
+            Cobblemon.serverPlayerStructs[uuid] = value
+        }
+
         return value
     }
 

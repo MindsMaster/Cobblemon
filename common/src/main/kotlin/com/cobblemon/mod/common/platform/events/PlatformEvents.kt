@@ -29,6 +29,11 @@ object PlatformEvents {
     val SERVER_STOPPED = EventObservable<ServerEvent.Stopped>()
 
     @JvmField
+    val SERVER_PLAYER_TICK_PRE = EventObservable<ServerPlayerTickEvent.Pre>()
+    @JvmField
+    val SERVER_PLAYER_TICK_POST = EventObservable<ServerPlayerTickEvent.Post>()
+
+    @JvmField
     val SERVER_TICK_PRE = EventObservable<ServerTickEvent.Pre>()
     @JvmField
     val SERVER_TICK_POST = EventObservable<ServerTickEvent.Post>()

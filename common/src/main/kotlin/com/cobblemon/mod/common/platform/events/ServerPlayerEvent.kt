@@ -8,7 +8,9 @@
 
 package com.cobblemon.mod.common.platform.events
 
+import com.bedrockk.molang.runtime.value.MoValue
 import com.cobblemon.mod.common.api.events.Cancelable
+import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMoLangValue
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.server.level.ServerPlayer
@@ -29,6 +31,9 @@ interface ServerPlayerEvent {
      * The [ServerPlayer] triggering the platform specific events.
      */
     val player: ServerPlayer
+
+    val context: MutableMap<String, MoValue>
+        get() = mutableMapOf("player" to player.asMoLangValue())
 
     /**
      * Fired when the [player] logs in.

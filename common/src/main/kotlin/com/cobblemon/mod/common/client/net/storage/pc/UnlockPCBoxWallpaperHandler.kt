@@ -10,11 +10,11 @@ package com.cobblemon.mod.common.client.net.storage.pc
 
 import com.cobblemon.mod.common.api.net.ClientNetworkPacketHandler
 import com.cobblemon.mod.common.client.render.gui.PCBoxWallpaperRepository
-import com.cobblemon.mod.common.net.messages.client.storage.pc.wallpaper.SetPCBoxWallpapersPacket
+import com.cobblemon.mod.common.net.messages.client.storage.pc.wallpaper.UnlockPCBoxWallpaperPacket
 import net.minecraft.client.Minecraft
 
-object SetPCBoxWallpapersHandler : ClientNetworkPacketHandler<SetPCBoxWallpapersPacket> {
-    override fun handle(packet: SetPCBoxWallpapersPacket, client: Minecraft) {
-        PCBoxWallpaperRepository.wallpapers = packet.wallpapers.toMutableSet()
+object UnlockPCBoxWallpaperHandler : ClientNetworkPacketHandler<UnlockPCBoxWallpaperPacket> {
+    override fun handle(packet: UnlockPCBoxWallpaperPacket, client: Minecraft) {
+        PCBoxWallpaperRepository.wallpapers.add(packet.texture)
     }
 }

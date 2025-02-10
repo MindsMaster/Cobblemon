@@ -10,6 +10,9 @@ package com.cobblemon.mod.common.api.permission
 
 object CobblemonPermissions {
 
+    // TODO mark all of this shit as @JvmStatic so Java interop isn't so trash.
+    // Only do it in a title update though.
+
     private const val COMMAND_PREFIX = "command."
     private val permissions = arrayListOf<Permission>()
 
@@ -37,6 +40,7 @@ object CobblemonPermissions {
     val OPEN_STARTER_SCREEN = this.create("${COMMAND_PREFIX}openstarterscreen", PermissionLevel.CHEAT_COMMANDS_AND_COMMAND_BLOCKS)
     val BEDROCK_PARTICLE = this.create("${COMMAND_PREFIX}bedrockparticle", PermissionLevel.CHEAT_COMMANDS_AND_COMMAND_BLOCKS)
     val OPEN_DIALOGUE = this.create("${COMMAND_PREFIX}opendialogue", PermissionLevel.CHEAT_COMMANDS_AND_COMMAND_BLOCKS)
+    val UNLOCK_PC_BOX_WALLPAPER = this.create("${COMMAND_PREFIX}unlockpcboxwallpaper", PermissionLevel.CHEAT_COMMANDS_AND_COMMAND_BLOCKS)
 
     private const val POKEMON_EDIT_BASE = "${COMMAND_PREFIX}pokemonedit"
     val POKEMON_EDIT_SELF = this.create("$POKEMON_EDIT_BASE.self", PermissionLevel.CHEAT_COMMANDS_AND_COMMAND_BLOCKS)
