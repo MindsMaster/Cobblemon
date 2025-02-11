@@ -19,6 +19,7 @@
 - Fixed players getting disconnected when sidemods update a Pokémon's teratype
 - Fixed fling not using Item Names for minecraft held items that substitute Pokémon items
 - Fixed evolutions sometimes preventing players from logging in to servers
+- Fixed rendering of shoulder-mounted Pokémon desyncing between clients
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
