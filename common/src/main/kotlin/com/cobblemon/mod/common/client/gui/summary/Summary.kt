@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.client.gui.summary
 
 import com.cobblemon.mod.common.Cobblemon
+import com.cobblemon.mod.common.CobblemonNetwork.sendToServer
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.gui.blitk
 import com.cobblemon.mod.common.api.moves.Move
@@ -36,6 +37,7 @@ import com.cobblemon.mod.common.client.gui.summary.widgets.screens.moves.MovesWi
 import com.cobblemon.mod.common.client.gui.summary.widgets.screens.stats.StatWidget
 import com.cobblemon.mod.common.client.render.drawScaledText
 import com.cobblemon.mod.common.client.render.models.blockbench.repository.VaryingModelRepository
+import com.cobblemon.mod.common.net.messages.server.pokemon.update.SetItemHiddenPacket
 import com.cobblemon.mod.common.net.messages.server.storage.party.MovePartyPokemonPacket
 import com.cobblemon.mod.common.net.messages.server.storage.party.SwapPartyPokemonPacket
 import com.cobblemon.mod.common.pokemon.Gender
@@ -178,6 +180,13 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
             buttonHeight = 9,
             clickAction = {
                 selectedPokemon.isItemHidden=!selectedPokemon.isItemHidden
+                // Send item visibility update to server
+                sendToServer(
+                    SetItemHiddenPacket(
+                        selectedPokemon.uuid,
+                        selectedPokemon.isItemHidden
+                    )
+                )
             },
             resource = itemVisibleResource,
             renderRequirement = { !selectedPokemon.heldItem().isEmpty && !selectedPokemon.isItemHidden },
