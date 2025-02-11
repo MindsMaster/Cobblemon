@@ -87,24 +87,18 @@ class PokemonOnShoulderRenderer<T : Player>(renderLayerParent: RenderLayerParent
     ) {
         val compoundTag = if (pLeftShoulder) livingEntity.shoulderEntityLeft else livingEntity.shoulderEntityRight
         if (compoundTag.isPokemonEntity()) {
-            matrixStack.pushPose()
+            livingEntity.level().profiler.push("shoulder_render_".plus(if(pLeftShoulder) "left" else "right"))
             val uuid = this.extractUuid(compoundTag)
             val cache = playerCache.getOrPut(livingEntity.uuid) { ShoulderCache() }
-            var shoulderData: ShoulderData? = null
-            if (pLeftShoulder && cache.lastKnownLeft?.uuid != uuid) {
-                shoulderData = this.extractData(compoundTag, uuid)
-                cache.lastKnownLeft = shoulderData
-            }
-            else if (!pLeftShoulder && cache.lastKnownRight?.uuid != uuid) {
-                shoulderData = this.extractData(compoundTag, uuid)
-                cache.lastKnownRight = shoulderData
-            }
+            val shoulderData = this.extractData(compoundTag, uuid)
+            if (pLeftShoulder) cache.lastKnownLeft = shoulderData else cache.lastKnownRight = shoulderData
 
             if (shoulderData == null){
-                // Could be null
-                shoulderData = (if (pLeftShoulder) cache.lastKnownLeft else cache.lastKnownRight) ?: return
+                // Nothing to do
+                return
             }
 
+            matrixStack.pushPose()
             var state = FloatingState()
             state.currentAspects = shoulderData.aspects
             val model = VaryingModelRepository.getPoser(shoulderData.species.resourceIdentifier, state)
@@ -162,6 +156,11 @@ class PokemonOnShoulderRenderer<T : Player>(renderLayerParent: RenderLayerParent
             }
             model.setDefault()
             matrixStack.popPose()
+            livingEntity.level().profiler.pop()
+        }
+        else {
+            val entry = playerCache.getOrPut(livingEntity.uuid) { ShoulderCache() }
+            if (pLeftShoulder) entry.lastKnownLeft = null else entry.lastKnownRight = null
         }
     }
 
@@ -215,17 +214,6 @@ class PokemonOnShoulderRenderer<T : Player>(renderLayerParent: RenderLayerParent
         fun shoulderDataOf(player: Player): Pair<ShoulderData?, ShoulderData?> {
             val cache = playerCache[player.uuid] ?: return Pair(null, null)
             return Pair(cache.lastKnownLeft, cache.lastKnownRight)
-        }
-
-        /**
-         * Clears the cache for the respective player.
-         * This is required to be done whenever a Pokémon changes in any way (form, evolution, etc.)
-         *
-         * @param player The player whose cache to clear
-         */
-        @JvmStatic
-        fun clearCache(player: Player) {
-            playerCache.remove(player.uuid)
         }
 
     }
