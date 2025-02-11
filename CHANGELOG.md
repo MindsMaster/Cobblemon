@@ -5,6 +5,7 @@
 - Added an in-game configuration screen, allowing all settings from `main.json` to be edited directly in-game.
 - Added `/cobblemonconfig reload` command to reload `main.json` configuration. **Note:** Some settings require a server restart to take effect; use this command cautiously.
 - Added `blacklisted_items_to_hold` and `whitelisted_items_to_hold` tags to allow for controlling which items players can give to their Pokémon. If the whitelist is empty, it will consider all item as allowed (unless they are in the blacklist).
+- Pokémon now follow the mouse cursor on the Summary screen, with an option to disable this in the settings.
 
 ### Changes
 - Renamed `chargeGainedPerTick` config to `secondsToChargeHealingMachine`.
