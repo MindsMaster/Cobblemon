@@ -8,7 +8,7 @@
 
 package com.cobblemon.mod.common.client.render.pokemon
 
-import com.cobblemon.mod.common.api.tags.CobblemonItemTags.WEARABLE_EYE_ITEMS
+import com.cobblemon.mod.common.api.tags.CobblemonItemTags.WEARABLE_GLASSES_ITEMS
 import com.cobblemon.mod.common.api.tags.CobblemonItemTags.WEARABLE_HAT_ITEMS
 import com.cobblemon.mod.common.client.CobblemonClient.storage
 import com.cobblemon.mod.common.client.entity.PokemonClientDelegate
@@ -33,12 +33,10 @@ class HeldItemRenderer(
          * @return Returns the held item for this pokemon.
          */
         fun getRenderableItem(pokemonEntity: PokemonEntity): ItemStack {
-            //Hidden Check
-            if(pokemonEntity.pokemon.isItemHidden) return ItemStack.EMPTY
             //Server Search
             if(!pokemonEntity.shownItem.isEmpty) return pokemonEntity.shownItem
             //Client Search
-            //TODO there must be a better way to do this bit, too many search loops
+            //TODO depending on we decide how hidden items will work, this might not be needed
             if (pokemonEntity.ownerUUID?.equals(Minecraft.getInstance().player?.uuid) == true) {
                 //See if the pokemon that is being rendered is part of client users party
                 for (p in storage.myParty) {
@@ -81,7 +79,7 @@ class HeldItemRenderer(
         val locators: Map<String, MatrixWrapper> = delegate.locatorStates
 
         when {
-            (locators.containsKey("item_glasses") && shownItem.`is`(WEARABLE_EYE_ITEMS)) -> {
+            (locators.containsKey("item_glasses") && shownItem.`is`(WEARABLE_GLASSES_ITEMS)) -> {
                 poseStack.mulPose(locators["item_glasses"]!!.matrix)
                 transformationMode = ItemDisplayContext.HEAD
                 applyModifiers("item_glasses", locators)
