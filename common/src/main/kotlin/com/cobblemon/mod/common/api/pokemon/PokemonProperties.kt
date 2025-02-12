@@ -36,7 +36,7 @@ import com.cobblemon.mod.common.pokemon.RenderablePokemon
 import com.cobblemon.mod.common.pokemon.status.PersistentStatus
 import com.cobblemon.mod.common.util.DataKeys
 import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
-import com.cobblemon.mod.common.util.isInt
+import com.cobblemon.mod.common.util.isDouble
 import com.cobblemon.mod.common.util.isUuid
 import com.cobblemon.mod.common.util.server
 import com.cobblemon.mod.common.util.simplify
@@ -59,7 +59,6 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 
@@ -187,10 +186,10 @@ open class PokemonProperties {
         private fun parseIntProperty(keyPairs: MutableList<Pair<String, String?>>, labels: Iterable<String>): Int? {
             val matchingKeyPair = getMatchedKeyPair(keyPairs, labels) ?: return null
             val value = matchingKeyPair.second
-            return if (value == null || !value.isInt()) {
+            return if (value == null || !value.isDouble()) {
                 null
             } else {
-                value.toInt()
+                value.toDouble().toInt()
             }
         }
 
@@ -469,6 +468,10 @@ open class PokemonProperties {
         return this.commonMatches(pokemonEntity.pokemon) && this.customProperties.none { !it.matches(pokemonEntity) }
     }
 
+    fun matches(properties: PokemonProperties): Boolean {
+        return properties.asString() == this.asString()
+    }
+
     private fun commonMatches(pokemon: Pokemon): Boolean {
         level?.takeIf { it != pokemon.level }?.let { return false }
         shiny?.takeIf { it != pokemon.shiny }?.let { return false }
@@ -657,8 +660,8 @@ open class PokemonProperties {
         nature = if (tag.contains(DataKeys.POKEMON_NATURE)) tag.getString(DataKeys.POKEMON_NATURE) else null
         ability = if (tag.contains(DataKeys.POKEMON_ABILITY)) tag.getString(DataKeys.POKEMON_ABILITY) else null
         status = if (tag.contains(DataKeys.POKEMON_STATUS_NAME)) tag.getString(DataKeys.POKEMON_STATUS_NAME) else null
-        ivs = if (tag.contains(DataKeys.POKEMON_IVS)) ivs?.loadFromNBT(tag.getCompound(DataKeys.POKEMON_IVS)) as IVs? else null
-        evs = if (tag.contains(DataKeys.POKEMON_EVS)) evs?.loadFromNBT(tag.getCompound(DataKeys.POKEMON_EVS)) as EVs? else null
+        ivs = if (tag.contains(DataKeys.POKEMON_IVS)) IVs().loadFromNBT(tag.getCompound(DataKeys.POKEMON_IVS)) as IVs else null
+        evs = if (tag.contains(DataKeys.POKEMON_EVS)) EVs().loadFromNBT(tag.getCompound(DataKeys.POKEMON_EVS)) as EVs else null
         type = if (tag.contains(DataKeys.ELEMENTAL_TYPE)) tag.getString(DataKeys.ELEMENTAL_TYPE) else null
         teraType = if (tag.contains(DataKeys.POKEMON_TERA_TYPE)) tag.getString(DataKeys.POKEMON_TERA_TYPE) else null
         dmaxLevel = if (tag.contains(DataKeys.POKEMON_DMAX_LEVEL)) tag.getInt(DataKeys.POKEMON_DMAX_LEVEL) else null
@@ -722,8 +725,8 @@ open class PokemonProperties {
         nature = json.get(DataKeys.POKEMON_NATURE)?.asString
         ability = json.get(DataKeys.POKEMON_ABILITY)?.asString
         status = json.get(DataKeys.POKEMON_STATUS_NAME)?.asString
-        ivs?.loadFromJSON(json.getAsJsonObject(DataKeys.POKEMON_IVS))
-        evs?.loadFromJSON(json.getAsJsonObject(DataKeys.POKEMON_EVS))
+        ivs = json.getAsJsonObject(DataKeys.POKEMON_IVS)?.let { IVs().loadFromJSON(it) } as IVs
+        evs = json.getAsJsonObject(DataKeys.POKEMON_EVS)?.let { EVs().loadFromJSON(it) } as EVs
         type = json.get(DataKeys.ELEMENTAL_TYPE)?.asString
         teraType = json.get(DataKeys.POKEMON_TERA_TYPE)?.asString
         dmaxLevel = json.get(DataKeys.POKEMON_DMAX_LEVEL)?.asInt
@@ -790,7 +793,7 @@ open class PokemonProperties {
     }
 
     fun copy(): PokemonProperties {
-        return PokemonProperties().loadFromJSON(saveToJSON())
+        return PokemonProperties().loadFromJSON(this.saveToJSON())
     }
 
     // If the config value is at least 1, then do 1/x and use that as the property chance
@@ -806,7 +809,7 @@ open class PokemonProperties {
     private fun createAbility(id: String, form: FormData): Ability? {
         val ability = Abilities.get(id) ?: return null
         val potentialAbility = form.abilities.firstOrNull { potential -> potential.template == ability } ?: return ability.create(true)
-        return potentialAbility.template.create(false)
+        return potentialAbility.template.create(false, potentialAbility.priority)
     }
 
 }

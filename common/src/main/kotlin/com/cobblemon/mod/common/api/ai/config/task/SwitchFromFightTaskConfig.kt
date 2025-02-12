@@ -13,10 +13,8 @@ import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder
 import net.minecraft.world.entity.ai.behavior.declarative.Trigger
 import net.minecraft.world.entity.ai.memory.MemoryModuleType
-import net.minecraft.world.entity.schedule.Activity
 
 class SwitchFromFightTaskConfig : SingleTaskConfig {
-    val activity = Activity.IDLE
     override fun createTask(
         entity: LivingEntity,
         brainConfigurationContext: BrainConfigurationContext
@@ -24,8 +22,8 @@ class SwitchFromFightTaskConfig : SingleTaskConfig {
         it.group(
             it.absent(MemoryModuleType.ATTACK_TARGET)
         ).apply(it) { _ ->
-            Trigger { world, entity, _ ->
-                entity.brain.setActiveActivityIfPossible(activity)
+            Trigger { level, entity, _ ->
+                entity.brain.updateActivityFromSchedule(level.dayTime, level.gameTime)
                 return@Trigger true
             }
         }

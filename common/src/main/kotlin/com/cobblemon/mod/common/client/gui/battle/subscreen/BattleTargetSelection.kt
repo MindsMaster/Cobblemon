@@ -22,6 +22,7 @@ import com.cobblemon.mod.common.client.battle.ActiveClientBattlePokemon
 import com.cobblemon.mod.common.client.battle.SingleActionRequest
 import com.cobblemon.mod.common.client.gui.battle.BattleGUI
 import com.cobblemon.mod.common.client.gui.battle.BattleOverlay
+import com.cobblemon.mod.common.client.gui.battle.subscreen.BattleSwitchPokemonSelection.Companion
 import com.cobblemon.mod.common.client.gui.drawProfilePokemon
 import com.cobblemon.mod.common.client.render.drawScaledText
 import com.cobblemon.mod.common.client.render.models.blockbench.FloatingState
@@ -47,8 +48,8 @@ class BattleTargetSelection(
     battleGUI = battleGUI,
     request = request,
     x = 0,
-    y = if (Minecraft.getInstance().window.guiScaledHeight > 630) Minecraft.getInstance().window.guiScaledHeight / 2 - 148 / 2
-        else Minecraft.getInstance().window.guiScaledHeight - 226,
+    y = if (Minecraft.getInstance().window.guiScaledHeight > 304) (Minecraft.getInstance().window.guiScaledHeight / 2) - (BattleSwitchPokemonSelection.BACKGROUND_HEIGHT / 2)
+        else Minecraft.getInstance().window.guiScaledHeight - (BattleSwitchPokemonSelection.BACKGROUND_HEIGHT + 78),
     width = 100,
     height = 100,
     battleLang("ui.select_move")
@@ -88,7 +89,7 @@ class BattleTargetSelection(
         val isAlly = target.isAllied(request.activePokemon)
         val teamSize = request.activePokemon.getSidePokemon().count()
         val fieldPos = if(isAlly) index % teamSize else teamSize - 1 - (index % teamSize)
-        val verticalAligned = true
+        val verticalAligned = false
         val x: Float
         val y: Float
         val arrowDirection: ArrowDirection
@@ -190,6 +191,8 @@ class BattleTargetSelection(
                 matrices.pushPose()
                 matrices.translate(x + TARGET_WIDTH - (25 / 2.0) - 2, y + 5.0, 0.0)
                 matrices.scale(2.5F, 2.5F, 1F)
+                // Grab aspects for right variant
+                state.currentAspects = battlePokemon.state.currentAspects
                 drawProfilePokemon(
                     species = battlePokemon.species.resourceIdentifier,
                     matrixStack = matrices,

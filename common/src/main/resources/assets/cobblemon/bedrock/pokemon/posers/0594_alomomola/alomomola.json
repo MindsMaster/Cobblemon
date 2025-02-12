@@ -12,35 +12,29 @@
       "quirks": ["q.bedrock_quirk('alomomola', 'blink')"]
     },
     "standing": {
-      "poseTypes": ["STAND", "NONE", "PORTRAIT", "PROFILE"],
-      "isTouchingWater": false,
+      "poseTypes": ["STAND", "NONE"],
       "isBattle": false,
       "animations": ["q.look('head')", "q.bedrock('alomomola', 'ground_idle')"],
       "quirks": ["q.bedrock_quirk('alomomola', 'blink')"]
     },
     "walking": {
       "poseTypes": ["WALK"],
-      "isTouchingWater": false,
       "animations": ["q.look('head')", "q.bedrock('alomomola', 'ground_walk')"],
       "quirks": ["q.bedrock_quirk('alomomola', 'blink')"]
     },
     "float": {
       "poseTypes": ["PORTRAIT", "PROFILE", "FLOAT"],
-      "isUnderWater": true,
       "animations": ["q.look('head')", "q.bedrock('alomomola', 'water_idle')"],
       "quirks": ["q.bedrock_quirk('alomomola', 'blink')"]
     },
     "swim": {
       "poseTypes": ["SWIM"],
-      "isUnderWater": true,
       "animations": ["q.look('head')", "q.bedrock('alomomola', 'water_swim')"],
       "quirks": ["q.bedrock_quirk('alomomola', 'blink')"]
     },
     "sleep": {
       "poseTypes": ["SLEEP"],
-      "isTouchingWater": false,
-      "animations": ["q.bedrock('alomomola', 'sleep')"],
-      "quirks": ["q.bedrock_quirk('alomomola', 'ground_sleep_quirk')"]
+      "animations": ["q.bedrock('alomomola', 'sleep')"]
     }
   }
 }

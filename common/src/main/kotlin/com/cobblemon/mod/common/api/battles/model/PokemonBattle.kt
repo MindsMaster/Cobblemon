@@ -11,7 +11,6 @@ package com.cobblemon.mod.common.api.battles.model
 import com.bedrockk.molang.runtime.MoLangRuntime
 import com.bedrockk.molang.runtime.struct.QueryStruct
 import com.bedrockk.molang.runtime.value.DoubleValue
-import com.bedrockk.molang.runtime.value.MoValue
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.Cobblemon.LOGGER
 import com.cobblemon.mod.common.CobblemonNetwork
@@ -22,9 +21,9 @@ import com.cobblemon.mod.common.api.battles.model.actor.EntityBackedBattleActor
 import com.cobblemon.mod.common.api.battles.model.actor.FleeableBattleActor
 import com.cobblemon.mod.common.api.events.CobblemonEvents
 import com.cobblemon.mod.common.api.events.battles.BattleFledEvent
-import com.cobblemon.mod.common.api.moves.Moves
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMoLangValue
 import com.cobblemon.mod.common.api.net.NetworkPacket
+import com.cobblemon.mod.common.api.pokemon.stats.BattleEvSource
 import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore
 import com.cobblemon.mod.common.api.tags.CobblemonItemTags
 import com.cobblemon.mod.common.api.text.red
@@ -43,6 +42,7 @@ import com.cobblemon.mod.common.battles.dispatch.WaitDispatch
 import com.cobblemon.mod.common.battles.interpreter.ContextManager
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon
 import com.cobblemon.mod.common.battles.runner.ShowdownService
+import com.cobblemon.mod.common.entity.PlatformType
 import com.cobblemon.mod.common.entity.npc.NPCBattleActor
 import com.cobblemon.mod.common.entity.npc.NPCEntity
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
@@ -51,17 +51,16 @@ import com.cobblemon.mod.common.net.messages.client.battle.BattleMessagePacket
 import com.cobblemon.mod.common.pokemon.evolution.progress.DefeatEvolutionProgress
 import com.cobblemon.mod.common.pokemon.evolution.progress.LastBattleCriticalHitsEvolutionProgress
 import com.cobblemon.mod.common.pokemon.evolution.requirements.DefeatRequirement
-import com.cobblemon.mod.common.pokemon.helditem.CobblemonHeldItemManager
 import com.cobblemon.mod.common.util.battleLang
 import com.cobblemon.mod.common.util.getPlayer
-import net.minecraft.network.chat.Component
 import com.cobblemon.mod.common.util.giveOrDropItemStack
 import com.cobblemon.mod.common.util.itemRegistry
-import net.minecraft.resources.ResourceLocation
 import java.io.File
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentLinkedDeque
+import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
 
@@ -96,7 +95,6 @@ open class PokemonBattle(
                     .filterIsInstance<LastBattleCriticalHitsEvolutionProgress>()
                     .forEach { it.reset() }
             }
-            actor.setupStruct()
         }
     }
 
@@ -271,22 +269,31 @@ open class PokemonBattle(
                             else -> continue
                         }
                         val experience = Cobblemon.experienceCalculator.calculate(opponentPokemon, faintedPokemon, multiplier)
-                        if (experience > 0) {
+                        if (experience > 0 && actor.pokemonList.all { it.health <= 0 }) {
                             opponent.awardExperience(opponentPokemon, experience)
                         }
                         Cobblemon.evYieldCalculator.calculate(opponentPokemon, faintedPokemon).forEach { (stat, amount) ->
-                            pokemon.evs.add(stat, amount)
+                            pokemon.evs.add(stat, amount, BattleEvSource(this, opponentPokemon.facedOpponents.toList(), pokemon))
                         }
+
                     }
                 }
             }
-            if(actor.itemsUsed.isNotEmpty() && actor.getPlayerUUIDs().count() > 0) {
+            if (actor.itemsUsed.isNotEmpty() && actor.getPlayerUUIDs().count() > 0) {
                 val player = actor.getPlayerUUIDs().first().getPlayer()
                 player?.level()?.itemRegistry.let { registry ->
                     actor.itemsUsed.mapNotNull { registry?.get(ResourceLocation.tryBySeparator(it.itemName.substringAfter('.'), '.')) }
                             .forEach { player?.giveOrDropItemStack(ItemStack(it))}
                 }
             }
+
+            // Heal NPC's team if enabled
+            if (actor is NPCBattleActor) {
+                if (actor.npc.npc.autoHealParty) {
+                    actor.npc.party?.heal()
+                }
+            }
+
         }
         // Heal Mon if wild
         actors.filter { it.type == ActorType.WILD }
@@ -297,6 +304,11 @@ open class PokemonBattle(
         actors.forEach { actor ->
             actor.pokemonList.forEach { battlePokemon ->
                 battlePokemon.entity?.let { entity -> battlePokemon.postBattleEntityOperation(entity) }
+                if (battlePokemon.effectedPokemon.entity != null
+                        && battlePokemon.effectedPokemon.entity?.beamMode == 0
+                        && battlePokemon.effectedPokemon.entity?.platform != PlatformType.NONE) {
+                    battlePokemon.effectedPokemon.tryRecallWithAnimation()
+                }
             }
         }
         sendUpdate(BattleEndPacket())

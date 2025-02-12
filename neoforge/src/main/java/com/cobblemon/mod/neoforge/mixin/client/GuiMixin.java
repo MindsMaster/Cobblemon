@@ -32,8 +32,10 @@ public class GuiMixin {
         Operation<GuiLayerManager> original
     ) {
         BooleanSupplier newChild = () -> {
-            boolean shouldRender = !CobblemonClient.INSTANCE.getPokedexUsageContext().getScanningGuiOpen() && Minecraft.getInstance().options.getCameraType().isFirstPerson();
-            return child.getAsBoolean() && shouldRender;
+            if (CobblemonClient.INSTANCE.getPokedexUsageContext().getScanningGuiOpen() && Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
+                return false;
+            }
+            return child.getAsBoolean();
         };
         return original.call(instance, guiLayerManager, newChild);
     }

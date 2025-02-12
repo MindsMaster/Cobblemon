@@ -14,10 +14,13 @@ import com.cobblemon.mod.common.api.pokedex.PokedexLearnedInformation
 import com.cobblemon.mod.common.client.CobblemonClient
 import com.cobblemon.mod.common.client.gui.pokedex.PokedexGUI
 import com.cobblemon.mod.common.client.pokedex.PokedexScannerRenderer
-import com.cobblemon.mod.common.client.pokedex.PokedexTypes
+import com.cobblemon.mod.common.client.pokedex.PokedexType
 import com.cobblemon.mod.common.net.messages.client.pokedex.ServerConfirmedRegisterPacket
 import com.cobblemon.mod.common.net.messages.server.pokedex.scanner.FinishScanningPacket
 import com.cobblemon.mod.common.net.messages.server.pokedex.scanner.StartScanningPacket
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.random.Random
 import net.minecraft.client.DeltaTracker
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
@@ -26,9 +29,6 @@ import net.minecraft.client.resources.sounds.SimpleSoundInstance
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.util.Mth.clamp
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.random.Random
 
 class PokedexUsageContext {
     companion object {
@@ -60,7 +60,7 @@ class PokedexUsageContext {
     var innerRingRotation: Float = 0F
     var zoomLevel: Float = 0F
     var newPokemonInfo: PokedexLearnedInformation = PokedexLearnedInformation.NONE
-    var type: PokedexTypes = PokedexTypes.RED
+    var type: PokedexType = PokedexType.RED
     var availableInfoFrames: MutableList<Boolean?> = mutableListOf(null, null, null, null)
     val renderer: PokedexScannerRenderer = PokedexScannerRenderer()
 
@@ -85,7 +85,7 @@ class PokedexUsageContext {
                 if (transitionIntervals == TRANSITION_INTERVALS) playSound(CobblemonSounds.POKEDEX_SCAN_CLOSE)
                 transitionIntervals = max(transitionIntervals - updateInterval, 0F)
                 if (transitionIntervals <= 0) {
-                    if (viewInfoTicks >= VIEW_INFO_BUFFER_TICKS) openPokedexGUI(type, scannableEntityInFocus!!.resolvePokemonScan()?.species?.resourceIdentifier)
+                    if (viewInfoTicks >= VIEW_INFO_BUFFER_TICKS) openPokedexGUI(type, scannableEntityInFocus!!.resolvePokemonScan()?.getApparentSpecies()?.resourceIdentifier)
                     resetState()
                 }
             }
@@ -128,7 +128,7 @@ class PokedexUsageContext {
         }
     }
 
-    fun openPokedexGUI(types: PokedexTypes = PokedexTypes.RED, speciesId: ResourceLocation? = null) {
+    fun openPokedexGUI(types: PokedexType = PokedexType.RED, speciesId: ResourceLocation? = null) {
         PokedexGUI.open(CobblemonClient.clientPokedexData, types, speciesId)
         playSound(CobblemonSounds.POKEDEX_OPEN)
     }
@@ -155,7 +155,7 @@ class PokedexUsageContext {
                 }
 
                 // Check if Pokémon in focus is owned
-                isPokemonInFocusOwned = CobblemonClient.clientPokedexData.getHighestKnowledgeForSpecies(resolvedPokemon.species.resourceIdentifier) == PokedexEntryProgress.CAUGHT
+                isPokemonInFocusOwned = CobblemonClient.clientPokedexData.getHighestKnowledgeForSpecies(resolvedPokemon.getApparentSpecies().resourceIdentifier) == PokedexEntryProgress.CAUGHT
 
                 // Randomize info frames for render
                 if (focusIntervals == 0F) {
@@ -170,7 +170,7 @@ class PokedexUsageContext {
                 // Check if Pokémon in focus is new or has new data
                 newPokemonInfo = CobblemonClient.clientPokedexData.getNewInformation(resolvedPokemon)
                 if (newPokemonInfo == PokedexLearnedInformation.NONE) playSound(CobblemonSounds.POKEDEX_SCAN_DETAIL)
-                else scannedSpecies = resolvedPokemon.species.resourceIdentifier
+                else scannedSpecies = resolvedPokemon.getApparentSpecies().resourceIdentifier
             }
         } else {
             resetFocusedPokemonState()

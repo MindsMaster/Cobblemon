@@ -8,6 +8,7 @@
     "EntityRenderDispatcherMixin",
     "GameRendererMixin",
     "ItemInHandRendererMixin",
+    "ItemPropertiesMixin",
     "ItemRendererMixin",
     "ModelLoaderMixin",
     "ModelPartMixin",

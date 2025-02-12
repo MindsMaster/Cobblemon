@@ -25,6 +25,7 @@ import com.cobblemon.mod.common.client.keybind.keybinds.HidePartyBinding
 import com.cobblemon.mod.common.client.keybind.keybinds.SummaryBinding
 import com.cobblemon.mod.common.client.render.drawScaledText
 import com.cobblemon.mod.common.client.render.getDepletableRedGreen
+import com.cobblemon.mod.common.client.render.models.blockbench.FloatingState
 import com.cobblemon.mod.common.client.render.renderScaledGuiItemIcon
 import com.cobblemon.mod.common.pokemon.Gender
 import com.cobblemon.mod.common.util.cobblemonResource
@@ -97,7 +98,7 @@ class PartyOverlay : Gui(Minecraft.getInstance()) {
             if (!screenExemptions.contains(minecraft.screen?.javaClass as Class<out Screen>))
                 return
         }
-        if (minecraft.debugOverlay.showDebugScreen()) {
+        if (minecraft.options.hideGui || minecraft.debugOverlay.showDebugScreen()) {
             return
         }
         // Hiding if toggled via Keybind

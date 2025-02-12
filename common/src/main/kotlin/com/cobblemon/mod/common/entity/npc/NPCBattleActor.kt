@@ -8,7 +8,6 @@
 
 package com.cobblemon.mod.common.entity.npc
 
-import com.bedrockk.molang.runtime.value.DoubleValue
 import com.cobblemon.mod.common.api.battles.model.actor.AIBattleActor
 import com.cobblemon.mod.common.api.battles.model.actor.ActorType
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor
@@ -30,7 +29,7 @@ class NPCBattleActor(
     val skill: Int
 ) : AIBattleActor(
     gameId = npc.uuid,
-    pokemonList = pokemonList,
+    pokemonList = pokemonList.let { if (npc.npc.randomizePartyOrder) it.shuffled() else it },
     battleAI = StrongBattleAI(skill)
 ), EntityBackedBattleActor<NPCEntity> {
     override val entity = npc
@@ -48,11 +47,6 @@ class NPCBattleActor(
         party.toBattleTeam(healPokemon = npc.npc.autoHealParty),
         skill
     )
-
-    override fun setupStruct() {
-        super.setupStruct()
-        struct.addFunction("skill") { DoubleValue(skill) }
-    }
 
     override fun sendUpdate(packet: NetworkPacket<*>) {
         super.sendUpdate(packet)
@@ -79,17 +73,11 @@ class NPCBattleActor(
     override fun win(otherWinners: List<BattleActor>, losers: List<BattleActor>) {
         super.win(otherWinners, losers)
         npc.playAnimation(NPCEntity.WIN_ANIMATION)
-        if (npc.npc.autoHealParty) {
-            npc.party?.heal()
-        }
     }
 
     override fun lose(winners: List<BattleActor>, otherLosers: List<BattleActor>) {
         super.lose(winners, otherLosers)
         npc.playAnimation(NPCEntity.LOSE_ANIMATION)
-        if (npc.npc.autoHealParty) {
-            npc.party?.heal()
-        }
 //        winners.forEach {
 //            rewards.forEach {
 //                winner give reward :))
