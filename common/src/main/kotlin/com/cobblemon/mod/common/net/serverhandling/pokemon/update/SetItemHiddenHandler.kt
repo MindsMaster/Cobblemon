@@ -23,21 +23,5 @@ object SetItemHiddenHandler : ServerNetworkPacketHandler<SetItemHiddenPacket> {
         val pokemon = pokemonStore[packet.pokemonUUID] ?: return
 
         pokemon.isItemHidden = packet.isItemHidden
-
-        // Send an update that visibility has changed
-        // Used to fix the issue with client side not updating
-//        CobblemonEvents.ITEM_VISIBILITY_CHANGED.postThen(
-//            event = ItemVisibilityChangedEvent(
-//                pokemon,
-//                isItemHidden
-//            ),
-//            ifSucceeded = {
-//                pokemon.isItemHidden = isItemHidden
-//            },
-//            ifCanceled = {
-//                return player.sendPacket(ItemHiddenUpdatePacket({ pokemon }, isItemHidden))
-//                //Use to undo update //return player.sendPacket(ItemHiddenUpdatePacket({ pokemon }, pokemon.isItemHidden))
-//            }
-//        )
     }
 }
