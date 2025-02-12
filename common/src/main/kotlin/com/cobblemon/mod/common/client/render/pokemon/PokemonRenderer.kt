@@ -163,31 +163,19 @@ class PokemonRenderer(
         buffer: MultiBufferSource,
         packedLight: Int
     ) {
-        // TODO: This is all broken at the moment, need to figure out proper way to rotate the model according to camera
         val driver = entity.firstPassenger ?: return
         val rollable = driver as? Rollable ?: return
-
-        //val camera = Minecraft.getInstance().gameRenderer.mainCamera
-        //val isThirdPerson = camera.isDetached
-
-        //val vehicleOrigin = entity.position()
-        //val driverOrigin = if (isThirdPerson) driver.position() else driver.eyePosition
-
-        //val offset = driverOrigin.subtract(vehicleOrigin)
 
         poseMatrix.pushPose()
 
         if(!DISABLE_ROLLING_DEBUG && rollable.shouldRoll()){
-            val yaw = Mth.rotLerp(partialTicks, entity.yBodyRotO, entity.yBodyRot)
-
             val matrix = poseMatrix.last().pose()
-
             val center = Vector3f(0f, entity.bbHeight/2, 0f)
-
             val transformationMatrix = Matrix4f()
+            //Move origin to center of Pokemon
             transformationMatrix.translate(center)
 
-            //transformationMatrix.rotate(180f.toRadians() - (rollable.getYaw()).toRadians(), rollable.getUpVector(), transformationMatrix);
+            //Pokemon already handles yaw so we ignore it here.
             transformationMatrix.rotate(
                 rollable.pitch.toRadians(),
                 rollable.getLeftVector(),
@@ -198,10 +186,10 @@ class PokemonRenderer(
                 rollable.getForwardVector(),
                 transformationMatrix
             )
+
+            //Move origin to base of the entity
             transformationMatrix.translate(center.negate(Vector3f()))
             matrix.mul(transformationMatrix)
-
-            //poseMatrix.mulPose(Axis.YP.rotationDegrees(-(180.0f - yaw)))
         }
 
         super.render(entity, 0f, partialTicks, poseMatrix, buffer, packedLight)
