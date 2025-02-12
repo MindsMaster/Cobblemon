@@ -25,6 +25,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Camera.class)
 public abstract class CameraMixin {
+    @Shadow @Final private static float DEFAULT_CAMERA_DISTANCE;
 
     @Shadow private Entity entity;
     @Shadow @Final private Quaternionf rotation;

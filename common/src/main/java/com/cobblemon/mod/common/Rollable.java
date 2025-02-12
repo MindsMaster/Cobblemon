@@ -8,6 +8,7 @@
 
 package com.cobblemon.mod.common;
 
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
@@ -96,7 +97,7 @@ public interface Rollable {
      * Value is between [-180, 180] with 0 being South, 90 being West, 180/-180 being North, and -90 being East
      */
     default float getYaw() {
-        return (float) (-Math.toDegrees(FORWARDS.angleSigned(getForwardVector(), UP)) + 180);
+        return (float) Mth.wrapDegrees(-Math.toDegrees(FORWARDS.angleSigned(getForwardVector(), UP)) + 180);
     }
 
     /**
@@ -104,7 +105,7 @@ public interface Rollable {
      * Value is between [-90, 90] with 0 being straight forward, 90 being straight down, and -90 being straight up
      */
     default float getPitch() {
-        return (float) -Math.toDegrees(Math.asin(getForwardVector().y));
+        return (float) Mth.wrapDegrees(-Math.toDegrees(Math.asin(getForwardVector().y)));
     }
 
     /**
@@ -113,7 +114,7 @@ public interface Rollable {
      */
     default float getRoll() {
         //Cobblemon.LOGGER.info("{}", (float) Math.toDegrees(getUpVector().angleSigned(UP, getForwardVector())));
-        return (float) -Math.toDegrees(getUpVector().angleSigned(UP, getForwardVector()));
+        return (float) Mth.wrapDegrees(-Math.toDegrees(getUpVector().angleSigned(UP, getForwardVector())));
     }
 
     boolean shouldRoll();

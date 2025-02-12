@@ -8,8 +8,11 @@
 
 package com.cobblemon.mod.common.mixin.renderer;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
 
 /**
  * @author landonjw
@@ -27,4 +30,16 @@ public abstract class LivingEntityRendererMixin {
 //    private boolean dodgeRenderer(LivingEntity instance) {
 //        return false;
 //    }
+
+    /*@WrapOperation(
+        method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;wrapDegrees(F)F")
+    )
+    private float replaceWrapValue(float angle, Operation<Float> original){
+        if(origin){
+            return 0f;
+        } else {
+            return original.call(angle);
+        }
+    }*/
 }

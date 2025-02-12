@@ -676,27 +676,31 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
         var scale = 1F
         // We could improve this to be generalized for other entities. First we'd have to figure out wtf is going on, though.
         if (entity is PokemonEntity) {
-            val yRot = Mth.lerp(state.getPartialTicks(), entity.yBodyRotO, entity.yBodyRot)
+            var yRot = Mth.lerp(state.getPartialTicks(), entity.yBodyRotO, entity.yBodyRot)
+            yRot = Mth.wrapDegrees(yRot)
             matrixStack.mulPose(Axis.YP.rotationDegrees(180 - yRot))
             matrixStack.pushPose()
             matrixStack.scale(-1F, -1F, 1F)
             scale = entity.pokemon.form.baseScale * entity.pokemon.scaleModifier * (entity.delegate as PokemonClientDelegate).entityScaleModifier
             matrixStack.scale(scale, scale, scale)
         } else if (entity is EmptyPokeBallEntity) {
-            val yRot = Mth.lerp(state.getPartialTicks(), entity.yRot, entity.yRotO)
+            var yRot = Mth.lerp(state.getPartialTicks(), entity.yRot, entity.yRotO)
+            yRot = Mth.wrapDegrees(yRot)
             matrixStack.mulPose(Axis.YP.rotationDegrees(yRot))
             matrixStack.pushPose()
             matrixStack.scale(1F, -1F, -1F)
             scale = 0.7F
             matrixStack.scale(scale, scale, scale)
         } else if (entity is GenericBedrockEntity) {
-            val yRot = Mth.lerp(state.getPartialTicks(), entity.yRot, entity.yRotO)
+            var yRot = Mth.lerp(state.getPartialTicks(), entity.yRot, entity.yRotO)
+            yRot = Mth.wrapDegrees(yRot)
             matrixStack.mulPose(Axis.YP.rotationDegrees(yRot))
             matrixStack.pushPose()
             // Not 100% convinced we need the -1 on Y but if we needed it for the Poke Ball then probably?
             matrixStack.scale(1F, -1F, 1F)
         } else if (entity is NPCEntity) {
-            val yRot = Mth.lerp(state.getPartialTicks(), entity.yBodyRotO, entity.yBodyRot)
+            var yRot = Mth.lerp(state.getPartialTicks(), entity.yBodyRotO, entity.yBodyRot)
+            yRot = Mth.wrapDegrees(yRot)
             matrixStack.mulPose(Axis.YP.rotationDegrees(180 - yRot))
             matrixStack.pushPose()
             matrixStack.scale(-1F, -1F, 1F)

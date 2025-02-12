@@ -1682,7 +1682,7 @@ open class PokemonEntity(
             val center = Vector3f(0f, this.bbHeight/2, 0f)
 
             val seatToCenter = center.sub(seatOffset, Vector3f())
-            val orientation = (this.passengers.first() as Rollable).orientation ?: Matrix3f().rotate(passenger.yRot.toRadians(), Vector3f(0f, 1f, 0f))
+            val orientation = (this.passengers.first() as Rollable).orientation ?: Matrix3f().rotate((180f-passenger.yRot).toRadians(), Vector3f(0f, 1f, 0f))
             val rotatedOffset = orientation.transform(seatToCenter, Vector3f()).add(center).sub(Vector3f(0f, passenger.bbHeight/2, 0f))
 
             positionUpdater.accept(passenger, this.x + rotatedOffset.x, this.y + rotatedOffset.y, this.z + rotatedOffset.z)
