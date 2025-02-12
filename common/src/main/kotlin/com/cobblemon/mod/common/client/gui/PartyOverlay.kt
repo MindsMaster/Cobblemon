@@ -8,6 +8,7 @@
 
 package com.cobblemon.mod.common.client.gui
 
+import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.CobblemonItems
 import com.cobblemon.mod.common.api.gui.blitk
 import com.cobblemon.mod.common.api.text.darkGray
@@ -19,19 +20,18 @@ import com.cobblemon.mod.common.client.gui.battle.BattleGUI
 import com.cobblemon.mod.common.client.gui.portrait.FabulousPortraitDrawer
 import com.cobblemon.mod.common.client.gui.portrait.FancyPortraitDrawer
 import com.cobblemon.mod.common.client.gui.portrait.FastPortraitDrawer
+import com.cobblemon.mod.common.client.gui.portrait.PortraitStyle
 import com.cobblemon.mod.common.client.gui.toast.CobblemonToast
 import com.cobblemon.mod.common.client.keybind.boundKey
 import com.cobblemon.mod.common.client.keybind.keybinds.HidePartyBinding
 import com.cobblemon.mod.common.client.keybind.keybinds.SummaryBinding
 import com.cobblemon.mod.common.client.render.drawScaledText
 import com.cobblemon.mod.common.client.render.getDepletableRedGreen
-import com.cobblemon.mod.common.client.render.models.blockbench.FloatingState
 import com.cobblemon.mod.common.client.render.renderScaledGuiItemIcon
 import com.cobblemon.mod.common.pokemon.Gender
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.common.util.lang
 import net.minecraft.client.DeltaTracker
-import net.minecraft.client.GraphicsStatus
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.Gui
 import net.minecraft.client.gui.GuiGraphics
@@ -160,10 +160,10 @@ class PartyOverlay : Gui(Minecraft.getInstance()) {
                     0.0
                 )
 
-                val portraitDrawer = when (Minecraft.getInstance().options.graphicsMode().get()) {
-                    GraphicsStatus.FAST -> fastPortraitDrawer
-                    GraphicsStatus.FANCY -> fancyPortraitDrawer
-                    GraphicsStatus.FABULOUS -> fabulousPortraitDrawer
+                val portraitDrawer = when (Cobblemon.config.partyPortraitAnimations) {
+                    PortraitStyle.FAST -> fastPortraitDrawer
+                    PortraitStyle.FANCY -> fancyPortraitDrawer
+                    PortraitStyle.FABULOUS -> fabulousPortraitDrawer
                 }
 
                 portraitDrawer.draw(pokemon, matrices, partialDeltaTicks, selectedSlot == index, index)

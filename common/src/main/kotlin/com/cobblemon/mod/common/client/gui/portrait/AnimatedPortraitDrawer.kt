@@ -10,7 +10,6 @@ package com.cobblemon.mod.common.client.gui.portrait
 
 import com.cobblemon.mod.common.api.gui.drawPosablePortrait
 import com.cobblemon.mod.common.client.render.models.blockbench.FloatingState
-import com.cobblemon.mod.common.client.render.models.blockbench.repository.PokemonModelRepository
 import com.cobblemon.mod.common.pokemon.Pokemon
 import com.mojang.blaze3d.vertex.PoseStack
 import java.util.UUID
@@ -30,7 +29,6 @@ abstract class AnimatedPortraitDrawer : PortraitDrawer {
             matrixStack = poseStack,
             partialTicks = this.ticksFor(pokemon, isSelected, partialTicks),
             contextScale = pokemon.form.baseScale,
-            repository = PokemonModelRepository,
             state = this.stateFor(pokemon, isSelected, index)
         )
     }
