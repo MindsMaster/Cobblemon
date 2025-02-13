@@ -30,6 +30,17 @@ fun interface LearnsetQuery {
                     || learnset.tmMoves.contains(move)
                     || learnset.formChangeMoves.contains(move)
                     || learnset.evolutionMoves.contains(move)
+                    || learnset.legacyMoves.contains(move)
+                    || learnset.specialMoves.contains(move)
+        }
+
+        val LEGAL = LearnsetQuery { move, learnset ->
+            learnset.levelUpMoves.values.any { it.contains(move) }
+                    || learnset.eggMoves.contains(move)
+                    || learnset.tutorMoves.contains(move)
+                    || learnset.tmMoves.contains(move)
+                    || learnset.formChangeMoves.contains(move)
+                    || learnset.evolutionMoves.contains(move)
         }
 
         fun level(level: Int) = LearnsetQuery { move, learnset -> learnset.getLevelUpMovesUpTo(level).contains(move) }
