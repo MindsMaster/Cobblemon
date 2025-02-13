@@ -25,11 +25,10 @@
     "accessor.KeyBindingAccessor",
     "client.AbstractClientPlayerMixin",
     "client.EntryListWidgetMixin",
-    "client.HumanoidModelMixin",
     "client.LocalPlayerMixin",
+    "client.PlayerModelMixin",
     "invoker.ClientPlayNetworkHandlerInvoker",
     "renderer.LivingEntityRendererMixin",
-    "renderer.PlayerEntityRendererMixin",
     "riding.JetMixin"
   ],
   "mixins": [

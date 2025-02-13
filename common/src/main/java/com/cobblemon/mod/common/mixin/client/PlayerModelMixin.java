@@ -1,24 +1,27 @@
+/*
+ * Copyright (C) 2023 Cobblemon Contributors
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package com.cobblemon.mod.common.mixin.client;
 import com.cobblemon.mod.common.api.riding.Rideable;
 import com.cobblemon.mod.common.api.riding.RidingManager;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(HumanoidModel.class)
-public class HumanoidModelMixin {
-    @Shadow @Final public ModelPart head;
-
-    @Inject(method = "setupAnim(Lnet/minecraft/world/entity/LivingEntity;FFFFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;cos(F)F"))
+@Mixin(PlayerModel.class)
+public class PlayerModelMixin {
+    @Inject(method = "setupAnim(Lnet/minecraft/world/entity/LivingEntity;FFFFF)V", at = @At(value = "HEAD"))
     private void cobblemon$setHeadRotation(LivingEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci){
         if (!(entity instanceof Player)) return;
         Entity vehicle = entity.getVehicle();
@@ -27,7 +30,7 @@ public class HumanoidModelMixin {
         RidingManager ridingManager = ((Rideable) vehicle).getRiding();
         if (ridingManager.shouldRotatePlayerHead((PokemonEntity) vehicle)) return;
 
-        this.head.yRot = 0f;
-        this.head.xRot = 0f;
+        netHeadYaw = 0f;
+        headPitch = 0f;
     }
 }
