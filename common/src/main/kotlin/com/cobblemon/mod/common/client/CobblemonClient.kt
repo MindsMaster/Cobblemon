@@ -8,7 +8,6 @@
 
 package com.cobblemon.mod.common.client
 
-import com.cobblemon.mod.common.*
 import com.cobblemon.mod.common.Cobblemon.LOGGER
 import com.cobblemon.mod.common.CobblemonBlockEntities
 import com.cobblemon.mod.common.CobblemonBlocks
@@ -81,15 +80,6 @@ object CobblemonClient {
     var checkedStarterScreen = false
     var requests = ClientPlayerActionRequests()
     var teamData = ClientPlayerTeamData()
-    var posableModelRepositories = listOf(
-        PokemonModelRepository,
-        PokeBallModelRepository,
-        NPCModelRepository,
-        FossilModelRepository,
-        BlockEntityModelRepository,
-        GenericBedrockEntityModelRepository
-    )
-
     val overlay: PartyOverlay by lazy { PartyOverlay() }
     val battleOverlay: BattleOverlay by lazy { BattleOverlay() }
     val pokedexUsageContext: PokedexUsageContext by lazy { PokedexUsageContext() }
@@ -267,6 +257,7 @@ object CobblemonClient {
             CobblemonBlocks.SACCHARINE_WALL_HANGING_SIGN,
             CobblemonBlocks.SACCHARINE_SAPLING,
             CobblemonBlocks.LURE_CAKE,
+            CobblemonBlocks.POKE_CAKE,
             CobblemonBlocks.LECTERN,
             CobblemonBlocks.CAMPFIRE,
             CobblemonBlocks.BLACK_CAMPFIRE_POT,
@@ -311,7 +302,8 @@ object CobblemonClient {
         this.implementation.registerBlockEntityRenderer(CobblemonBlockEntities.DISPLAY_CASE, ::DisplayCaseRenderer)
         this.implementation.registerBlockEntityRenderer(CobblemonBlockEntities.LECTERN, ::LecternBlockEntityRenderer)
         this.implementation.registerBlockEntityRenderer(CobblemonBlockEntities.CAMPFIRE, ::CampfireBlockEntityRenderer)
-        this.implementation.registerBlockEntityRenderer(CobblemonBlockEntities.LURE_CAKE, ::LureCakeBlockEntityRenderer)
+        this.implementation.registerBlockEntityRenderer(CobblemonBlockEntities.LURE_CAKE, ::CakeBlockEntityRenderer)
+        this.implementation.registerBlockEntityRenderer(CobblemonBlockEntities.POKE_CAKE, ::CakeBlockEntityRenderer)
     }
 
     private fun registerEntityRenderers() {
@@ -345,9 +337,9 @@ object CobblemonClient {
         // Animations come next because models need them.
         BedrockAnimationRepository.loadAnimations(
             resourceManager = resourceManager,
-            directories = posableModelRepositories.flatMap { it.animationDirectories }
+            directories = VaryingModelRepository.animationDirectories
         )
-        posableModelRepositories.forEach { it.reload(resourceManager) }
+        VaryingModelRepository.reload(resourceManager)
 
         BerryModelRepository.reload(resourceManager)
         MiscModelRepository.reload(resourceManager)

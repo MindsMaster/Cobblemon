@@ -8,6 +8,7 @@
 
 package com.cobblemon.mod.common
 
+import com.cobblemon.mod.common.block.entity.PokeCakeBlockEntity
 import com.cobblemon.mod.common.block.entity.BerryBlockEntity
 import com.cobblemon.mod.common.block.entity.HealingMachineBlockEntity
 import com.cobblemon.mod.common.block.entity.PCBlockEntity
@@ -105,8 +106,13 @@ object CobblemonBlockEntities : PlatformRegistry<Registry<BlockEntityType<*>>, R
 
     @JvmField
     val LURE_CAKE: BlockEntityType<LureCakeBlockEntity> = this.create(
-            "lure_cake",
-            BlockEntityType.Builder.of(::LureCakeBlockEntity, CobblemonBlocks.LURE_CAKE).build(null)
+        "lure_cake",
+        BlockEntityType.Builder.of(::LureCakeBlockEntity, CobblemonBlocks.LURE_CAKE).build(null)
+    )
+    @JvmField
+    val POKE_CAKE: BlockEntityType<PokeCakeBlockEntity> = this.create(
+        "poke_cake",
+        BlockEntityType.Builder.of(::PokeCakeBlockEntity, CobblemonBlocks.POKE_CAKE).build(null)
     )
 
 

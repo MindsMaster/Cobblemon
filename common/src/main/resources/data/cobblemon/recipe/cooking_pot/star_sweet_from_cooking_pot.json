@@ -3,7 +3,7 @@
     "category": "misc",
     "ingredients": [
         {
-            "item": "minecraft:yellow_dye"
+            "tag": "c:dyes/yellow"
         },
         {
             "item": "minecraft:honey_bottle"

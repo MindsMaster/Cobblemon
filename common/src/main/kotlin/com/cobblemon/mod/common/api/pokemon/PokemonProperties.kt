@@ -468,6 +468,10 @@ open class PokemonProperties {
         return this.commonMatches(pokemonEntity.pokemon) && this.customProperties.none { !it.matches(pokemonEntity) }
     }
 
+    fun matches(properties: PokemonProperties): Boolean {
+        return properties.asString() == this.asString()
+    }
+
     private fun commonMatches(pokemon: Pokemon): Boolean {
         level?.takeIf { it != pokemon.level }?.let { return false }
         shiny?.takeIf { it != pokemon.shiny }?.let { return false }
@@ -805,7 +809,7 @@ open class PokemonProperties {
     private fun createAbility(id: String, form: FormData): Ability? {
         val ability = Abilities.get(id) ?: return null
         val potentialAbility = form.abilities.firstOrNull { potential -> potential.template == ability } ?: return ability.create(true)
-        return potentialAbility.template.create(false)
+        return potentialAbility.template.create(false, potentialAbility.priority)
     }
 
 }

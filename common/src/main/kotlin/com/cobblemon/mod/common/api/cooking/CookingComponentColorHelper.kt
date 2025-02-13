@@ -9,20 +9,10 @@
 package com.cobblemon.mod.common.api.cooking
 
 import com.cobblemon.mod.common.item.components.CookingComponent
-import net.minecraft.ChatFormatting
 import net.minecraft.util.FastColor
+import net.minecraft.world.item.DyeColor
 import net.minecraft.world.item.ItemStack
-import java.awt.Color
 import kotlin.collections.flatMap
-import kotlin.math.min
-
-private val bcolorMap = mapOf(
-    "spicy" to 0xFD9A6B, //ChatFormatting.RED.color,
-    "dry" to 0x76D5F6, //ChatFormatting.BLUE.color,
-    "sweet" to 0xFFA5DC, //ChatFormatting.LIGHT_PURPLE.color,
-    "bitter" to 0x9BDC7A, //ChatFormatting.GREEN.color,
-    "sour" to 0xF6D076 //ChatFormatting.YELLOW.color
-)
 
 private val colorMap = mapOf(
     "spicy" to 0xFEB37D,
@@ -87,4 +77,22 @@ fun getColorMixFromCookingComponent(dominantFlavors: List<String>, forBubbles: B
         greenSum / colors.size,
         blueSum / colors.size
     )
+}
+
+fun getColor(color: String): Int? {
+    return when (color.lowercase()) {
+        "red" -> DyeColor.RED
+        "orange" -> DyeColor.ORANGE
+        "yellow" -> DyeColor.YELLOW
+        "lime" -> DyeColor.LIME
+        "green" -> DyeColor.GREEN
+        "cyan" -> DyeColor.CYAN
+        "light blue" -> DyeColor.LIGHT_BLUE
+        "blue" -> DyeColor.BLUE
+        "purple" -> DyeColor.PURPLE
+        "magenta" -> DyeColor.MAGENTA
+        "pink" -> DyeColor.PINK
+        "white" -> DyeColor.WHITE
+        else -> null
+    }?.textureDiffuseColor
 }
