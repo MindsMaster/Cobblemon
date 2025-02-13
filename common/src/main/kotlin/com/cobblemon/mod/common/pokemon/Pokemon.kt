@@ -944,7 +944,6 @@ open class Pokemon : ShowdownIdentifiable {
             CobblemonEvents.HELD_ITEM_POST.post(HeldItemEvent.Post(this, this.heldItem(), event.returning.copy(), event.decrement)) {
                 StashHandler.giveHeldItem(it)
             }
-            this.isItemHidden = stack.`is`(CobblemonItemTags.HIDDEN_ITEMS)
             return event.returning
         })
         return stack

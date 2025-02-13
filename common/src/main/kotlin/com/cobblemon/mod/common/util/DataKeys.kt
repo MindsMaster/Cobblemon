@@ -66,6 +66,7 @@ object DataKeys {
     const val POKEMON_FREEZE_FRAME = "FreezeFrame"
     const val POKEMON_RECALCULATE_POSE = "RecalculatePose"
     const val POKEMON_PLATFORM_TYPE = "PlatformType"
+    const val POKEMON_SHOWN_ITEM = "ShownItem"
 
     const val POKEMON_ORIGINAL_TRAINER = "PokemonOriginalTrainer"
     const val POKEMON_ORIGINAL_TRAINER_NAME = "PokemonOriginalTrainerName"
@@ -162,6 +163,7 @@ object DataKeys {
     const val SHOULDER_FORM = "shoulder_form"
     const val SHOULDER_ASPECTS = "shoulder_aspects"
     const val SHOULDER_SCALE_MODIFIER = "shoulder_scale"
+    const val SHOULDER_ITEM = "shoulder_item"
 
     // Multi-Block
     const val MULTIBLOCK_STORAGE = "MultiblockStore"

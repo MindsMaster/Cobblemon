@@ -207,8 +207,8 @@ class PokemonServerDelegate : PokemonSideDelegate {
             // Show Hand Item if Held item is empty
             ?: entity.mainHandItem
         }.copy()
-//        /* Hide items tagged as hidden (currently the item visibility flag is set when giving a pokemon a held item tagged as hidden) */
-//        .let { if (it.`is`(CobblemonItemTags.HIDDEN_ITEMS)) ItemStack.EMPTY else it}
+        /* Hide items tagged as hidden (currently the item visibility flag is set when giving a pokemon a held item tagged as hidden) */
+        .let { if (it.`is`(CobblemonItemTags.HIDDEN_ITEMS)) ItemStack.EMPTY else it}
 
         entity.entityData.set(PokemonEntity.SHOWN_HELD_ITEM, trackedShownItem)
     }
