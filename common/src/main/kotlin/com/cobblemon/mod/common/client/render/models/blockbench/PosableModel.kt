@@ -564,14 +564,16 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
         applyPose(state, pose, 1F)
 
         val primaryAnimation = state.primaryAnimation
+        val shouldRotateHead = if(entity is PokemonEntity) entity.riding.shouldRotatePokemonHead(entity) else true
 
         // Quirks will run if there is no primary animation running and quirks are enabled for this context.
         if (primaryAnimation == null && context.request(RenderContext.DO_QUIRKS) != false) {
             // Remove any quirk animations that don't exist in our current pose
             state.quirks.keys.filterNot(pose.quirks::contains).forEach(state.quirks::remove)
+
             // Tick all the quirks
             pose.quirks.forEach {
-                it.apply(context, this, state, limbSwing, limbSwingAmount, ageInTicks, headYaw, headPitch, 1F)
+                it.apply(context, this, state, limbSwing, limbSwingAmount, ageInTicks, if(shouldRotateHead) headYaw else 0f, if(shouldRotateHead) headPitch else 0f, 1F)
             }
         }
 
@@ -579,6 +581,7 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
             // The pose intensity is the complement of the primary animation's curve. This is used to blend the primary.
             state.poseIntensity = 1 - primaryAnimation.curve((state.animationSeconds - primaryAnimation.started) / primaryAnimation.duration)
             // If the primary animation is done after running we're going to clean things up.
+            //Set headYaw and headPitch to zero if Pokemon shouldn't move head during riding
             if (!primaryAnimation.run(
                     context,
                     this,
@@ -586,8 +589,8 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
                     limbSwing,
                     limbSwingAmount,
                     ageInTicks,
-                    headYaw,
-                    headPitch,
+                    if(shouldRotateHead) headYaw else 0f,
+                    if(shouldRotateHead) headPitch else 0f,
                     1 - state.poseIntensity
                 )
             ) {
@@ -599,11 +602,11 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
 
         // Run active animations and return back any that are done and can be removed.
         val removedActiveAnimations = state.activeAnimations.toList()
-            .filterNot { it.run(context, this, state, limbSwing, limbSwingAmount, ageInTicks, headYaw, headPitch, 1F) }
+            .filterNot { it.run(context, this, state, limbSwing, limbSwingAmount, ageInTicks, if(shouldRotateHead) headYaw else 0f, if(shouldRotateHead) headPitch else 0f, 1F) }
         state.activeAnimations.removeAll(removedActiveAnimations)
         // Applies the pose's animations.
         state.currentPose?.let(poses::get)
-            ?.apply(context, this, state, limbSwing, limbSwingAmount, ageInTicks, headYaw, headPitch)
+            ?.apply(context, this, state, limbSwing, limbSwingAmount, ageInTicks, if(shouldRotateHead) headYaw else 0f, if(shouldRotateHead) headPitch else 0f)
         // Updates the locator positions now that all the animations are in effect. This is the last thing we do!
         updateLocators(entity, state)
     }

@@ -1,7 +1,6 @@
 package com.cobblemon.mod.common.mixin.client;
 import com.cobblemon.mod.common.api.riding.Rideable;
 import com.cobblemon.mod.common.api.riding.RidingManager;
-import com.cobblemon.mod.common.api.riding.controller.RideController;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -15,8 +14,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.Optional;
-
 @Mixin(HumanoidModel.class)
 public class HumanoidModelMixin {
     @Shadow @Final public ModelPart head;
@@ -28,11 +25,9 @@ public class HumanoidModelMixin {
 
         if (!(vehicle instanceof PokemonEntity)) return;
         RidingManager ridingManager = ((Rideable) vehicle).getRiding();
-        Optional<RideController> rideControllerOptional = Optional.ofNullable(ridingManager.getController((PokemonEntity) vehicle));
+        if (ridingManager.shouldRotatePlayerHead((PokemonEntity) vehicle)) return;
 
-        if(rideControllerOptional.isPresent() && !rideControllerOptional.get().shouldRotatePlayerHead()){
-            this.head.yRot = 0f;
-            this.head.xRot = 0f;
-        }
+        this.head.yRot = 0f;
+        this.head.xRot = 0f;
     }
 }

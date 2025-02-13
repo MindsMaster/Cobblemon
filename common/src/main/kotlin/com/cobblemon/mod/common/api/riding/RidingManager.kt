@@ -111,6 +111,16 @@ data class RidingManager(val entity: PokemonEntity) {
         return controller.shouldRoll(entity)
     }
 
+    fun shouldRotatePlayerHead(entity: PokemonEntity): Boolean {
+        val controller = getController(entity) ?: return false
+        return controller.shouldRotatePlayerHead()
+    }
+
+    fun shouldRotatePokemonHead(entity: PokemonEntity): Boolean {
+        val controller = getController(entity) ?: return false
+        return controller.shouldRotatePokemonHead()
+    }
+
     //FIXME: Make this not just be false for all controllers lol
     fun dismountOnShift(): Boolean {
         return false
