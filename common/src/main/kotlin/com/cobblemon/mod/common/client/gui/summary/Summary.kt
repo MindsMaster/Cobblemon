@@ -180,6 +180,7 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
             buttonHeight = 9,
             clickAction = {
                 selectedPokemon.isItemHidden=!selectedPokemon.isItemHidden
+                modelWidget.heldItem = if (selectedPokemon.isItemHidden) null else selectedPokemon.heldItem
                 // Send item visibility update to server
                 sendToServer(
                     SetItemHiddenPacket(
@@ -274,6 +275,7 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
             rotationY = 325F,
             offsetY = -10.0,
             shouldFollowCursor = true,
+            heldItem = if (selectedPokemon.isItemHidden) null else selectedPokemon.heldItem
         )
         addRenderableOnly(this.modelWidget)
     }
@@ -315,6 +317,7 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
 
         if (::modelWidget.isInitialized) {
             modelWidget.pokemon = selectedPokemon.asRenderablePokemon()
+            modelWidget.heldItem = if (selectedPokemon.isItemHidden) null else selectedPokemon.heldItem
         }
 
         if (this::nicknameEntryWidget.isInitialized) {

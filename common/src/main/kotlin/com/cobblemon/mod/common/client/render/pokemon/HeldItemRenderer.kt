@@ -19,8 +19,9 @@ import com.cobblemon.mod.common.pokemon.Pokemon
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.ItemInHandRenderer
+import net.minecraft.client.renderer.LightTexture
 import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.world.item.ItemDisplayContext
 import net.minecraft.world.item.ItemStack
 
@@ -36,7 +37,10 @@ class HeldItemRenderer(
             //Server Search
             if(!pokemonEntity.shownItem.isEmpty) return pokemonEntity.shownItem
             //Client Search
-            //TODO depending on we decide how hidden items will work, this might not be needed
+            /*
+            TODO depending on we decide how hidden items will work, this might not be needed
+            This would allow the owner of a pokemon to always see the held item while other players can not.
+            */
             if (pokemonEntity.ownerUUID?.equals(Minecraft.getInstance().player?.uuid) == true) {
                 //See if the pokemon that is being rendered is part of client users party
                 for (p in storage.myParty) {
@@ -61,34 +65,33 @@ class HeldItemRenderer(
         }
     }
 
-    private val itemRenderer = ItemInHandRenderer(Minecraft.getInstance(), Minecraft.getInstance().entityRenderDispatcher, Minecraft.getInstance().itemRenderer)
-    private var transformationMode = ItemDisplayContext.FIXED
+    private val itemRenderer = Minecraft.getInstance().itemRenderer
+    private var displayContext = ItemDisplayContext.FIXED
     private var scale = 1.0f
 
     fun render(
-        entity: PokemonEntity,
+        entity: PokemonEntity?,
+        item: ItemStack,
+        locators: Map<String, MatrixWrapper>,
         poseStack: PoseStack,
         buffer: MultiBufferSource,
-        seed: Int,
-        delegate: PokemonClientDelegate
+        light: Int,
+        seed: Int
     ) {
-        val shownItem = getRenderableItem(entity)
-        if (shownItem.isEmpty) return
+        if (item.isEmpty) return
 
         poseStack.pushPose()
-        val locators: Map<String, MatrixWrapper> = delegate.locatorStates
-
         when {
-            (locators.containsKey("item_glasses") && shownItem.`is`(WEARABLE_GLASSES_ITEMS)) -> {
+            (locators.containsKey("item_glasses") && item.`is`(WEARABLE_GLASSES_ITEMS)) -> {
                 poseStack.mulPose(locators["item_glasses"]!!.matrix)
-                transformationMode = ItemDisplayContext.HEAD
+                displayContext = ItemDisplayContext.HEAD
                 applyModifiers("item_glasses", locators)
                 poseStack.translate(0f, 0f, .28f * scale)
                 poseStack.scale(0.7f * scale, 0.7f * scale, 0.7f * scale)
             }
-            (locators.containsKey("item_hat") && shownItem.`is`(WEARABLE_HAT_ITEMS)) -> {
+            (locators.containsKey("item_hat") && item.`is`(WEARABLE_HAT_ITEMS)) -> {
                 poseStack.mulPose(locators["item_hat"]!!.matrix)
-                transformationMode = ItemDisplayContext.HEAD
+                displayContext = ItemDisplayContext.HEAD
                 applyModifiers("item_hat", locators)
                 poseStack.translate(0f, -0.26f * scale, 0f)
                 poseStack.scale(.68f * scale, .68f * scale, .68f * scale)
@@ -96,7 +99,7 @@ class HeldItemRenderer(
             (locators.containsKey("item")) -> {
                 poseStack.mulPose(locators["item"]!!.matrix)
                 applyModifiers("item", locators)
-                when(transformationMode) {
+                when(displayContext) {
                     ItemDisplayContext.FIXED -> {
                         poseStack.translate(0f, 0.01666f * scale, 0f)
                         poseStack.scale(.5f * scale, .5f * scale, .5f * scale)
@@ -108,7 +111,9 @@ class HeldItemRenderer(
                         poseStack.mulPose(Axis.XP.rotationDegrees(-90f))
                         poseStack.mulPose(Axis.YP.rotationDegrees(-90f))
                     }
-                    else -> {}
+                    else -> {
+                        poseStack.scale(scale, scale, scale)
+                    }
                 }
             }
             else -> { // Don't render any item
@@ -116,9 +121,31 @@ class HeldItemRenderer(
                 return
             }
         }
-
-        itemRenderer.renderItem(entity, shownItem, transformationMode, false, poseStack, buffer, seed)
+        itemRenderer.renderStatic(entity, item, displayContext, false, poseStack, buffer, null, light, OverlayTexture.NO_OVERLAY, seed)
         poseStack.popPose()
+    }
+
+    fun renderOnGUIModel(
+        item: ItemStack,
+        locators: Map<String, MatrixWrapper>,
+        poseStack: PoseStack,
+        buffer: MultiBufferSource,
+        light: Int = LightTexture.pack(11, 7)
+    ){
+        render(null, item, locators, poseStack, buffer, light, 0)
+    }
+
+    fun renderOnPokemonEntity(
+        entity: PokemonEntity,
+        delegate: PokemonClientDelegate,
+        poseStack: PoseStack,
+        buffer: MultiBufferSource,
+        light: Int
+    ) {
+        val shownItem = getRenderableItem(entity)
+        val locators: Map<String, MatrixWrapper> = delegate.locatorStates
+
+        render(entity, shownItem, locators, poseStack, buffer, light, 0)
     }
 
     private fun applyModifiers(name: String, locators: Map<String, MatrixWrapper>) {
@@ -127,7 +154,7 @@ class HeldItemRenderer(
             if (locator.startsWith("_null_$name[")) {
                 modifiers = NullObjectParser.parseNullObject(locator).modifiers
                 if (modifiers.containsKey("scale")) scale = modifiers["scale"]!!
-                if (modifiers.containsKey("mode")) transformationMode = ItemDisplayContext.entries[((modifiers["mode"]!!).toInt()) % 8]
+                if (modifiers.containsKey("mode")) displayContext = ItemDisplayContext.entries[((modifiers["mode"]!!).toInt()) % 9]
                 return
             }
         }
