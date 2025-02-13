@@ -268,7 +268,15 @@ object CobblemonClient {
             CobblemonBlocks.SACCHARINE_SAPLING,
             CobblemonBlocks.LURE_CAKE,
             CobblemonBlocks.LECTERN,
-            CobblemonBlocks.CAMPFIRE
+            CobblemonBlocks.CAMPFIRE,
+            CobblemonBlocks.BLACK_CAMPFIRE_POT,
+            CobblemonBlocks.BLUE_CAMPFIRE_POT,
+            CobblemonBlocks.GREEN_CAMPFIRE_POT,
+            CobblemonBlocks.PINK_CAMPFIRE_POT,
+            CobblemonBlocks.RED_CAMPFIRE_POT,
+            CobblemonBlocks.WHITE_CAMPFIRE_POT,
+            CobblemonBlocks.YELLOW_CAMPFIRE_POT
+
         )
 
         this.createBoatModelLayers()

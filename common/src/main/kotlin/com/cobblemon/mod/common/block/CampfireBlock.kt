@@ -10,24 +10,29 @@ package com.cobblemon.mod.common.block
 
 import com.cobblemon.mod.common.CobblemonBlockEntities
 import com.cobblemon.mod.common.CobblemonSounds
+import com.cobblemon.mod.common.block.LecternBlock.Companion
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.PREVIEW_ITEM_SLOT
 import com.cobblemon.mod.common.block.entity.DisplayCaseBlockEntity
+import com.cobblemon.mod.common.block.entity.LecternBlockEntity
 import com.cobblemon.mod.common.item.PokeBallItem
-import com.cobblemon.mod.common.item.PotItem
+import com.cobblemon.mod.common.item.CampfirePotItem
 import com.cobblemon.mod.common.util.playSoundServer
 import com.mojang.serialization.MapCodec
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
-import net.minecraft.core.particles.ParticleTypes
+import net.minecraft.sounds.SoundEvents
+import net.minecraft.sounds.SoundSource
 import net.minecraft.util.RandomSource
 import net.minecraft.world.Containers
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
+import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.context.BlockPlaceContext
+import net.minecraft.world.level.BlockGetter
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.LevelAccessor
 import net.minecraft.world.level.LevelReader
@@ -42,19 +47,39 @@ import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.level.block.state.properties.BlockStateProperties
+import net.minecraft.world.level.block.state.properties.BooleanProperty
 import net.minecraft.world.level.block.state.properties.DirectionProperty
 import net.minecraft.world.level.pathfinder.PathComputationType
 import net.minecraft.world.phys.BlockHitResult
+import net.minecraft.world.phys.shapes.CollisionContext
+import net.minecraft.world.phys.shapes.Shapes
+import net.minecraft.world.phys.shapes.VoxelShape
 import org.jetbrains.annotations.Nullable
-import kotlin.math.cos
-import kotlin.math.sin
 
 @Suppress("OVERRIDE_DEPRECATION")
 class CampfireBlock(settings: Properties) : BaseEntityBlock(settings) {
+    companion object {
+        val CODEC = simpleCodec(::CampfireBlock)
+        val ITEM_DIRECTION = DirectionProperty.create("item_facing")
+        val LIT = BlockStateProperties.LIT
+        var SOUL = BooleanProperty.create("soul")
+
+        private val campfireAABB = Shapes.box(0.0, 0.0, 0.0, 1.0, 0.4375, 1.0)
+        private val AABB = Shapes.or(
+            Shapes.box(0.0, 0.0, 0.0, 1.0, 0.4375, 1.0),
+            Shapes.box(0.1875, 0.5, 0.125, 0.875, 0.8125, 0.1875),
+            Shapes.box(0.125, 0.4375, 0.125, 0.875, 0.5, 0.875),
+            Shapes.box(0.8125, 0.5, 0.1875, 0.875, 0.8125, 0.875),
+            Shapes.box(0.125, 0.5, 0.125, 0.1875, 0.8125, 0.8125),
+            Shapes.box(0.125, 0.5, 0.8125, 0.8125, 0.8125, 0.875)
+        )
+    }
+
     init {
         registerDefaultState(stateDefinition.any()
             .setValue(FACING, Direction.NORTH)
             .setValue(LIT, true)
+            .setValue(SOUL, false)
             .setValue(ITEM_DIRECTION, Direction.NORTH))
     }
 
@@ -76,6 +101,10 @@ class CampfireBlock(settings: Properties) : BaseEntityBlock(settings) {
         return null
     }
 
+    override fun getShape(blockState: BlockState, blockGetter: BlockGetter, blockPos: BlockPos, collisionContext: CollisionContext): VoxelShape = campfireAABB
+
+    override fun getCollisionShape(state: BlockState, level: BlockGetter, pos: BlockPos, context: CollisionContext): VoxelShape = AABB
+
     override fun useWithoutItem(
         state: BlockState,
         level: Level,
@@ -86,7 +115,7 @@ class CampfireBlock(settings: Properties) : BaseEntityBlock(settings) {
         val blockEntity = level.getBlockEntity(pos)
         if (blockEntity is CampfireBlockEntity) {
             val potItem = blockEntity.getPotItem()
-            if (!potItem?.isEmpty!! && potItem.item is PotItem) {
+            if (!potItem?.isEmpty!! && potItem.item is CampfirePotItem) {
                 if (!level.isClientSide) {
                     if (player.isCrouching) {
                         // Remove the pot item and give it to the player
@@ -97,7 +126,7 @@ class CampfireBlock(settings: Properties) : BaseEntityBlock(settings) {
                     }
                 }
                 return InteractionResult.SUCCESS
-            } else if (player.getItemInHand(InteractionHand.MAIN_HAND).item is PotItem) {
+            } else if (player.getItemInHand(InteractionHand.MAIN_HAND).item is CampfirePotItem) {
                 // Add the pot item to the block entity
                 if (potItem.isEmpty) {
                     val heldItem = player.getItemInHand(InteractionHand.MAIN_HAND)
@@ -135,10 +164,12 @@ class CampfireBlock(settings: Properties) : BaseEntityBlock(settings) {
         blockEntity.setItem(PREVIEW_ITEM_SLOT, ItemStack.EMPTY)
         Containers.dropContents(level, blockPos, blockEntity)
 
-        val facing = blockState.getValue(FACING);
+        val facing = blockState.getValue(FACING)
+        val isSoul = blockState.getValue(SOUL)
         blockEntity.setRemoved()
 
-        val newBlockState = Blocks.CAMPFIRE.defaultBlockState().setValue(FACING, facing)
+        val newBlockState = if (isSoul) Blocks.SOUL_CAMPFIRE.defaultBlockState().setValue(FACING, facing)
+            else Blocks.CAMPFIRE.defaultBlockState().setValue(FACING, facing)
         level.setBlockAndUpdate(blockPos, newBlockState)
     }
 
@@ -154,9 +185,7 @@ class CampfireBlock(settings: Properties) : BaseEntityBlock(settings) {
     }
 
     override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
-        builder.add(FACING)
-        builder.add(ITEM_DIRECTION)
-        builder.add(LIT)
+        builder.add(FACING, ITEM_DIRECTION, LIT, SOUL)
     }
 
     override fun updateShape(
@@ -190,12 +219,6 @@ class CampfireBlock(settings: Properties) : BaseEntityBlock(settings) {
 
     override fun isPathfindable(state: BlockState, type: PathComputationType): Boolean = false
 
-    companion object {
-        val CODEC = simpleCodec(::CampfireBlock)
-        val ITEM_DIRECTION = DirectionProperty.create("item_facing")
-        val LIT = BlockStateProperties.LIT
-    }
-
     override fun <T : BlockEntity?> getTicker(
         level: Level,
         state: BlockState,
@@ -221,19 +244,45 @@ class CampfireBlock(settings: Properties) : BaseEntityBlock(settings) {
         return CampfireBlockEntity(pos, state)
     }
 
-    override fun onRemove(
-        state: BlockState,
-        level: Level,
-        pos: BlockPos,
-        newState: BlockState,
-        movedByPiston: Boolean
-    ) {
-        val campfireBlockEntity = level.getBlockEntity(pos) as CampfireBlockEntity
-        campfireBlockEntity.setItem(PREVIEW_ITEM_SLOT, ItemStack.EMPTY)
-        Containers.dropContentsOnDestroy(state, newState, level, pos)
-
-        super.onRemove(state, level, pos, newState, movedByPiston)
+    override fun animateTick(state: BlockState, level: Level, pos: BlockPos, random: RandomSource) {
+        if (random.nextInt(10) == 0) {
+            level.playLocalSound(
+                pos.x.toDouble() + 0.5,
+                pos.y.toDouble() + 0.5,
+                pos.z.toDouble() + 0.5,
+                SoundEvents.CAMPFIRE_CRACKLE,
+                SoundSource.BLOCKS,
+                0.5f + random.nextFloat(),
+                random.nextFloat() * 0.7f + 0.6f,
+                false
+            )
+        }
     }
 
-    override fun getCloneItemStack(level: LevelReader, pos: BlockPos, state: BlockState): ItemStack? = ItemStack(Blocks.CAMPFIRE)
+    override fun playerWillDestroy(level: Level, blockPos: BlockPos, blockState: BlockState, player: Player): BlockState {
+        if (!level.isClientSide) {
+            val blockEntity = level.getBlockEntity(blockPos)
+            if (blockEntity is CampfireBlockEntity && !player.isCreative) {
+                Containers.dropContents(level, blockPos, blockEntity)
+                val potItem = blockEntity.getPotItem() ?: ItemStack.EMPTY
+
+                if (!potItem.isEmpty) {
+                    val direction = blockState.getValue(FACING) as Direction
+                    val f = 0.25F * direction.stepX.toFloat()
+                    val g = 0.25F * direction.stepZ.toFloat()
+
+                    val itemEntity = ItemEntity(level, blockPos.x.toDouble() + 0.5 + f.toDouble(), (blockPos.y + 1).toDouble(), blockPos.z.toDouble() + 0.5 + g.toDouble(), potItem)
+                    itemEntity.setDefaultPickUpDelay()
+
+                    level.addFreshEntity(itemEntity)
+                }
+            }
+        }
+
+        return super.playerWillDestroy(level, blockPos, blockState, player)
+    }
+
+    override fun getCloneItemStack(level: LevelReader, pos: BlockPos, state: BlockState): ItemStack {
+        return if (state.getValue(SOUL)) ItemStack(Blocks.SOUL_CAMPFIRE) else ItemStack(Blocks.CAMPFIRE)
+    }
 }

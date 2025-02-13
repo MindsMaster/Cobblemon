@@ -1,6 +1,3 @@
 {
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "cobblemon:item/pots/campfire_pot_pink"
-  }
+  "parent": "cobblemon:block/campfire_pot_pink"
 }

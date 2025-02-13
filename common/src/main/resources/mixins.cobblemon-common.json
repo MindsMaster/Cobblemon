@@ -32,7 +32,6 @@
   ],
   "mixins": [
     "BeeEntityMixin",
-    "CampfireBlockMixin",
     "ChunkStorageMixin",
     "CrashReportMixin",
     "DecoratedPotPatternsMixin",

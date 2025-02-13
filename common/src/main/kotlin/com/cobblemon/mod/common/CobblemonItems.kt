@@ -20,7 +20,6 @@ import com.cobblemon.mod.common.block.BerryBlock
 import com.cobblemon.mod.common.block.MintBlock
 import com.cobblemon.mod.common.block.MintBlock.MintType
 import com.cobblemon.mod.common.client.cooking.AprijuiceTypes
-import com.cobblemon.mod.common.client.pot.PotTypes
 import com.cobblemon.mod.common.client.pokedex.PokedexType
 import com.cobblemon.mod.common.entity.boat.CobblemonBoatType
 import com.cobblemon.mod.common.item.*
@@ -37,7 +36,6 @@ import com.cobblemon.mod.common.pokeball.PokeBall
 import com.cobblemon.mod.common.pokemon.helditem.CobblemonHeldItemManager
 import com.cobblemon.mod.common.util.cobblemonResource
 import net.minecraft.core.Registry
-import net.minecraft.core.component.DataComponents
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.Component
@@ -190,21 +188,21 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     @JvmField
     val APRIJUICE_PINK = aprijuiceItem(AprijuiceTypes.PINK)
 
-    val pots = mutableListOf<PotItem>()
+    val campfire_pots = mutableListOf<CampfirePotItem>()
     @JvmField
-    val POT_BLACK = potItem(PotTypes.BLACK)
+    val CAMPFIRE_POT_BLACK = campfirePotItem(CobblemonBlocks.BLACK_CAMPFIRE_POT, "black")
     @JvmField
-    val POT_BLUE = potItem(PotTypes.BLUE)
+    val CAMPFIRE_POT_BLUE = campfirePotItem(CobblemonBlocks.BLUE_CAMPFIRE_POT, "blue")
     @JvmField
-    val POT_GREEN = potItem(PotTypes.GREEN)
+    val CAMPFIRE_POT_GREEN = campfirePotItem(CobblemonBlocks.GREEN_CAMPFIRE_POT, "green")
     @JvmField
-    val POT_PINK = potItem(PotTypes.PINK)
+    val CAMPFIRE_POT_PINK = campfirePotItem(CobblemonBlocks.PINK_CAMPFIRE_POT, "pink")
     @JvmField
-    val POT_RED = potItem(PotTypes.RED)
+    val CAMPFIRE_POT_RED = campfirePotItem(CobblemonBlocks.RED_CAMPFIRE_POT, "red")
     @JvmField
-    val POT_WHITE = potItem(PotTypes.WHITE)
+    val CAMPFIRE_POT_WHITE = campfirePotItem(CobblemonBlocks.WHITE_CAMPFIRE_POT, "white")
     @JvmField
-    val POT_YELLOW = potItem(PotTypes.YELLOW)
+    val CAMPFIRE_POT_YELLOW = campfirePotItem(CobblemonBlocks.YELLOW_CAMPFIRE_POT, "yellow")
 
     @JvmField
     val Hearty_Grains = compostableItem("hearty_grains", HeartyGrainsItem(CobblemonBlocks.HEARTY_GRAINS))
@@ -375,7 +373,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     @JvmField
     val INCENSE_SWEET = blockItem("incense_sweet", CobblemonBlocks.INCENSE_SWEET)
     @JvmField
-    val CAMPFIRE = blockItem("campfire_pot", CobblemonBlocks.CAMPFIRE)
+    val CAMPFIRE = blockItem("campfire", CobblemonBlocks.CAMPFIRE)
 
 
     // Evolution items
@@ -1360,9 +1358,9 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
         return item
     }
 
-    private fun potItem(type: PotTypes): PotItem {
-        val item = create("campfire_pot_${type.name.lowercase()}", PotItem(type))
-        pots.add(item)
+    private fun campfirePotItem(block: Block, type: String): CampfirePotItem {
+        val item = create("campfire_pot_${type}", CampfirePotItem(block))
+        campfire_pots.add(item)
         return item
     }
 

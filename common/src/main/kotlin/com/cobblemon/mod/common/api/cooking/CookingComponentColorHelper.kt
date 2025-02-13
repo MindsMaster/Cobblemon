@@ -12,17 +12,35 @@ import com.cobblemon.mod.common.item.components.CookingComponent
 import net.minecraft.ChatFormatting
 import net.minecraft.util.FastColor
 import net.minecraft.world.item.ItemStack
+import java.awt.Color
 import kotlin.collections.flatMap
+import kotlin.math.min
 
-private val colorMap = mapOf(
-    "spicy" to ChatFormatting.RED.color,
-    "dry" to ChatFormatting.BLUE.color,
-    "sweet" to ChatFormatting.LIGHT_PURPLE.color,
-    "bitter" to ChatFormatting.GREEN.color,
-    "sour" to ChatFormatting.YELLOW.color
+private val bcolorMap = mapOf(
+    "spicy" to 0xFD9A6B, //ChatFormatting.RED.color,
+    "dry" to 0x76D5F6, //ChatFormatting.BLUE.color,
+    "sweet" to 0xFFA5DC, //ChatFormatting.LIGHT_PURPLE.color,
+    "bitter" to 0x9BDC7A, //ChatFormatting.GREEN.color,
+    "sour" to 0xF6D076 //ChatFormatting.YELLOW.color
 )
 
-fun getColorMixFromSeasonings(seasonings: List<ItemStack>): Int? {
+private val colorMap = mapOf(
+    "spicy" to 0xFEB37D,
+    "dry" to 0x8AE9FC,
+    "sweet" to 0xFFBEED,
+    "bitter" to 0x9EED8F,
+    "sour" to 0xFCF38A
+)
+
+private val bubbleColorMap = mapOf(
+    "spicy" to 0xFFCC92,
+    "dry" to 0xA1F5FE,
+    "sweet" to 0xFFD6F7,
+    "bitter" to 0xB7F7A7,
+    "sour" to 0xFEFAA1
+)
+
+fun getColorMixFromSeasonings(seasonings: List<ItemStack>, forBubbles: Boolean = false): Int? {
     val flavors = seasonings
         .flatMap { Seasonings.getFromItemStack(it)?.flavors?.entries ?: emptyList() }
         .groupingBy { it.key }
@@ -31,7 +49,7 @@ fun getColorMixFromSeasonings(seasonings: List<ItemStack>): Int? {
     val maxFlavorValue = flavors.values.maxOrNull()
     val dominantFlavors = flavors.filter { it.value == maxFlavorValue }.map { it.key }
 
-    return getColorMixFromCookingComponent(dominantFlavors)
+    return getColorMixFromCookingComponent(dominantFlavors, forBubbles)
 }
 
 fun getTransparentColorMixFromSeasonings(seasonings: List<ItemStack>): Int? {
@@ -48,9 +66,9 @@ fun getColorMixFromCookingComponent(cookingComponent: CookingComponent): Int? {
     return getColorMixFromCookingComponent(dominantFlavors)
 }
 
-fun getColorMixFromCookingComponent(dominantFlavors: List<String>): Int? {
+fun getColorMixFromCookingComponent(dominantFlavors: List<String>, forBubbles: Boolean = false): Int? {
     val colors =
-        dominantFlavors.mapNotNull { colorMap[it] }
+        dominantFlavors.mapNotNull { if (forBubbles) bubbleColorMap[it] else colorMap[it] }
             .map { FastColor.ARGB32.opaque(it) }
 
     if (colors.isEmpty()) return null

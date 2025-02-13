@@ -12,9 +12,7 @@ import com.cobblemon.mod.common.CobblemonBlockEntities
 import com.cobblemon.mod.common.CobblemonItemComponents
 import com.cobblemon.mod.common.CobblemonRecipeTypes
 import com.cobblemon.mod.common.CobblemonSounds
-import com.cobblemon.mod.common.api.cooking.Seasoning
-import com.cobblemon.mod.common.api.cooking.Seasonings
-import com.cobblemon.mod.common.api.cooking.getTransparentColorMixFromSeasonings
+import com.cobblemon.mod.common.api.cooking.*
 import com.cobblemon.mod.common.api.fishing.FishingBait
 import com.cobblemon.mod.common.api.fishing.FishingBaits
 import com.cobblemon.mod.common.block.PotComponent
@@ -59,6 +57,7 @@ import net.minecraft.world.level.block.entity.BaseContainerBlockEntity
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.Vec3
 import org.joml.Vector4f
+import java.lang.Float.min
 import java.util.*
 
 class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlockEntity(
@@ -86,7 +85,7 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
         const val COOKING_PROGRESS_TOTAL_TIME_INDEX = 1
         const val IS_LID_OPEN_INDEX = 2
 
-        const val TRANSPARENT_WATER_COLOR = 0x803F76E4.toInt() //0xFF3F76E4 for fully opaque water
+        const val BASE_BROTH_COLOR = 0xFFFFFFFF.toInt() //0x803F76E4.toInt() //0xFF3F76E4 for fully opaque water
 
         fun clientTick(level: Level, pos: BlockPos, state: BlockState, campfireBlockEntity: CampfireBlockEntity) {
             if (!level.isClientSide) return
@@ -100,15 +99,22 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
                 BlockEntitySoundTracker.stop(pos, campfireBlockEntity.runningSound.location)
             }
 
-            if (campfireBlockEntity.isLidOpen) {
-                campfireBlockEntity.waterColor = getTransparentColorMixFromSeasonings(campfireBlockEntity.getSeasonings()) ?: TRANSPARENT_WATER_COLOR
-            }
+            //if (campfireBlockEntity.isLidOpen) {
+                campfireBlockEntity.waterColor =
+                    getColorMixFromSeasonings(campfireBlockEntity.getSeasonings())
+                    //getTransparentColorMixFromSeasonings(campfireBlockEntity.getSeasonings())
+                    ?: BASE_BROTH_COLOR
+
+                campfireBlockEntity.bubbleColor =
+                    getColorMixFromSeasonings(campfireBlockEntity.getSeasonings(), true)
+                        ?: BASE_BROTH_COLOR
+            //}
 
             if (campfireBlockEntity.particleCooldown > 0) {
                 campfireBlockEntity.particleCooldown--
             } else {
-                if (campfireBlockEntity.isLidOpen) { // .775
-                    val position = Vec3(pos.x + 0.5, pos.y + 0.75, pos.z + 0.5)
+                if (isLit) {
+                    val position = Vec3(pos.x + 0.5, pos.y + 0.5375, pos.z + 0.5)
 
                     campfireBlockEntity.particleEntityHandler(
                         position = position,
@@ -197,7 +203,8 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
     private val quickCheck: RecipeManager.CachedCheck<CraftingInput, *> = RecipeManager.createCheck(CobblemonRecipeTypes.COOKING_POT_COOKING)
     private var potComponent: PotComponent? = null
     private var particleCooldown: Int = 0
-    var waterColor: Int = TRANSPARENT_WATER_COLOR
+    var waterColor: Int = BASE_BROTH_COLOR
+    var bubbleColor: Int = 0xFFFFFF
 
     var dataAccess : ContainerData = object : ContainerData {
         override fun get(index: Int): Int {
@@ -234,15 +241,15 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
             wrapper,
             wrapper,
             level as ClientLevel,
-            sourceAlive = { this.isLidOpen },
-            sourceVisible = { this.isLidOpen },
+            sourceAlive = { !getSeasonings().isEmpty() },
+            sourceVisible = { !getSeasonings().isEmpty() },
             getParticleColor = {
-                val red = FastColor.ARGB32.red(waterColor) / 255f
-                val green = FastColor.ARGB32.green(waterColor) / 255f
-                val blue = FastColor.ARGB32.blue(waterColor) / 255f
-                val alpha = FastColor.ARGB32.alpha(waterColor) / 255f
+                val red = FastColor.ARGB32.red(bubbleColor) / 255f
+                val green = FastColor.ARGB32.green(bubbleColor) / 255f
+                val blue = FastColor.ARGB32.blue(bubbleColor) / 255f
+                val alpha = FastColor.ARGB32.alpha(bubbleColor) / 255f
 
-                Vector4f(red, green, blue, alpha)
+                Vector4f(red, green, blue, 1F)
             }
         ).also {
             it.spawn()
@@ -325,6 +332,11 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
 
     fun getSeasonings(): List<ItemStack> =
         items.subList(SEASONING_SLOTS.first, SEASONING_SLOTS.last + 1)
+            .filterNotNull()
+            .filter { !it.isEmpty }
+
+    fun getIngredients(): List<ItemStack> =
+        items.subList(CRAFTING_GRID_SLOTS.first, CRAFTING_GRID_SLOTS.last + 1)
             .filterNotNull()
             .filter { !it.isEmpty }
 
@@ -464,6 +476,7 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
     }
 
     override fun setRemoved() {
+        cookingProgress = 0
         super.setRemoved()
 
         if (level?.isClientSide == true) {

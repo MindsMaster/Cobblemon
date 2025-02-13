@@ -8,10 +8,14 @@
 
 package com.cobblemon.mod.common.client.render.block
 
+import com.cobblemon.mod.common.CobblemonBlocks
+import com.cobblemon.mod.common.CobblemonItems
+import com.cobblemon.mod.common.block.CampfireBlock
+import com.cobblemon.mod.common.block.CampfirePotBlock
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.IS_LID_OPEN_INDEX
 import com.cobblemon.mod.common.client.CobblemonBakingOverrides
-import com.cobblemon.mod.common.item.PotItem
+import com.cobblemon.mod.common.item.CampfirePotItem
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
 import com.mojang.math.Axis
@@ -26,6 +30,7 @@ import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.inventory.InventoryMenu
 import net.minecraft.world.item.ItemDisplayContext
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING
 import org.joml.Vector3f
 import kotlin.math.atan2
@@ -35,15 +40,15 @@ import kotlin.math.sin
 class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : BlockEntityRenderer<CampfireBlockEntity> {
 
     companion object {
-        const val WATER_START = 0.125f
-        const val WATER_END = 0.875f
-        const val WATER_HEIGHT = 0.5f
-        val WATER_STILL_TEXTURE = ResourceLocation("minecraft", "block/water_still")
-        val WATER_STILL_SPRITE: TextureAtlasSprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(WATER_STILL_TEXTURE)
+        const val WATER_START = 0f
+        const val WATER_END = 1f
+        const val WATER_HEIGHT = 0.3f
+        val BROTH_BASIC_SPRITE: TextureAtlasSprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(ResourceLocation("cobblemon", "block/broth_basic"))
+        val BROTH_SPRITE: TextureAtlasSprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(ResourceLocation("cobblemon", "block/broth"))
 
-        const val CIRCLE_RADIUS = 0.5f
-        const val ROTATION_SPEED = 1f
-        const val JUMP_AMPLITUDE = 0.1f
+        const val CIRCLE_RADIUS = 0.4f
+        const val ROTATION_SPEED = 1.5f
+        const val JUMP_AMPLITUDE = 0.025f
         const val JUMP_SPEED = 0.1f
     }
 
@@ -55,8 +60,8 @@ class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
         light: Int,
         overlay: Int
     ) {
-        val potItem = blockEntity.getPotItem()?.item as PotItem?
-        if (potItem == null) return
+        val campfirePotItem = blockEntity.getPotItem()?.item as CampfirePotItem?
+        if (campfirePotItem == null) return
 
         poseStack.pushPose()
 
@@ -73,19 +78,19 @@ class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
         poseStack.mulPose(Axis.YP.rotationDegrees(rotationAngle))
         poseStack.translate(-0.5, -0.5, -0.5)
 
-        renderPot(potItem, blockEntity, tickDelta, poseStack, multiBufferSource, light, overlay)
-        renderWater(blockEntity, tickDelta, poseStack, multiBufferSource, light, overlay)
+        renderPot(campfirePotItem, blockEntity, tickDelta, poseStack, multiBufferSource, light, overlay)
+        if (!blockEntity.getSeasonings().isEmpty() || !blockEntity.getIngredients().isEmpty()) renderWater(blockEntity, tickDelta, poseStack, multiBufferSource, light, overlay)
 
         val isLidOpen = blockEntity.dataAccess.get(IS_LID_OPEN_INDEX) == 1
-        if (isLidOpen) {
+        //if (isLidOpen) {
             renderSeasonings(blockEntity, tickDelta, poseStack, multiBufferSource, light, overlay)
-        }
+        //}
 
         poseStack.popPose()
     }
 
     private fun renderPot(
-        potItem: PotItem,
+        campfirePotItem: CampfirePotItem,
         blockEntity: CampfireBlockEntity,
         tickDelta: Float,
         poseStack: PoseStack,
@@ -93,18 +98,19 @@ class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
         light: Int,
         overlay: Int
     ) {
-        poseStack.pushPose()
-
         val isLidOpen = blockEntity.dataAccess.get(IS_LID_OPEN_INDEX) == 1
-        val model = CobblemonBakingOverrides.getCampfirePotOverride(potItem.type, isLidOpen).getModel()
-        val buffer = multiBufferSource.getBuffer(RenderType.cutout())
 
-        Minecraft.getInstance().blockRenderer.modelRenderer.renderModel(
-            poseStack.last(),
-            buffer,
-            blockEntity.blockState,
-            model,
-            1.0f, 1.0f, 1.0f,
+        val yRot = (blockEntity.blockState.getValue(CampfireBlock.ITEM_DIRECTION).opposite.toYRot() + blockEntity.blockState.getValue(FACING).toYRot()) % 360
+
+        poseStack.pushPose()
+        poseStack.translate(0.0, 0.4375, 0.0)
+
+        Minecraft.getInstance().blockRenderer.renderSingleBlock(
+            campfirePotItem.block.defaultBlockState()
+                .setValue(CampfirePotBlock.OPEN, isLidOpen)
+                .setValue(FACING, Direction.fromYRot(yRot.toDouble())),
+            poseStack,
+            multiBufferSource,
             light,
             overlay
         )
@@ -143,16 +149,20 @@ class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
 
         val vertexConsumer = multiBufferSource.getBuffer(renderType)*/
 
-        val vertexConsumer = multiBufferSource.getBuffer(RenderType.translucent())
+        //val vertexConsumer = multiBufferSource.getBuffer(RenderType.translucent())
+        val vertexConsumer = multiBufferSource.getBuffer(RenderType.cutout())
 
         poseStack.translate(0.0, 0.4, 0.0)
         poseStack.scale(1.0f, 1.0f, 1.0f)
 
+        val brothTextureSprite = if (!blockEntity.getSeasonings().isEmpty()) BROTH_SPRITE else BROTH_BASIC_SPRITE
+
         drawQuad(
             vertexConsumer, poseStack,
             WATER_START, WATER_HEIGHT, WATER_START, WATER_END, WATER_HEIGHT, WATER_END,
-            WATER_STILL_SPRITE.u0, WATER_STILL_SPRITE.v0, WATER_STILL_SPRITE.u1, WATER_STILL_SPRITE.v1,
-            light, blockEntity.waterColor
+            brothTextureSprite.u0, brothTextureSprite.v0, brothTextureSprite.u1, brothTextureSprite.v1,
+            light,
+            blockEntity.waterColor
         )
 
         poseStack.popPose()
@@ -173,8 +183,7 @@ class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
 
         seasonings.forEachIndexed { index, seasoning ->
             poseStack.pushPose()
-
-            poseStack.scale(0.5f, 0.5f, 0.5f)
+            poseStack.scale(0.5F, 0.5F, 0.5F)
 
             val angleOffset = index * (360f / seasonings.size)
             val angleInRadians = Math.toRadians((rotationAngle + angleOffset).toDouble())
@@ -182,8 +191,7 @@ class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
             val xOffset = cos(angleInRadians.toDouble()).toFloat() * CIRCLE_RADIUS
             val zOffset = sin(angleInRadians.toDouble()).toFloat() * CIRCLE_RADIUS
             val jumpOffset = sin(gameTime * JUMP_SPEED + index * 2) * JUMP_AMPLITUDE
-            poseStack.translate(1f + xOffset, 1.7f + jumpOffset, 1f + zOffset)
-
+            poseStack.translate(1f + xOffset, 1.24f + jumpOffset, 1f + zOffset)
             val lookAtDirection = Vector3f(1f + xOffset - 1f, 1.8f - 1.8f, 1f + zOffset - 1f)
             poseStack.mulPose(Axis.YP.rotationDegrees((-Math.toDegrees(
                 atan2(
@@ -191,6 +199,9 @@ class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
                     lookAtDirection.x().toDouble()
                 )
             )).toFloat() + 90))
+
+            poseStack.pushPose()
+            poseStack.mulPose(Axis.XP.rotationDegrees(22.5F))
 
             Minecraft.getInstance().itemRenderer.renderStatic(
                 seasoning,
@@ -203,6 +214,7 @@ class CampfireBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : Bl
                 0
             )
 
+            poseStack.popPose()
             poseStack.popPose()
         }
     }

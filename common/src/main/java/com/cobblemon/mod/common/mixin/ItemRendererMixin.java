@@ -10,10 +10,8 @@ package com.cobblemon.mod.common.mixin;
 
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.ModAPI;
-import com.cobblemon.mod.common.client.CobblemonBakingOverrides;
 import com.cobblemon.mod.common.item.PokeBallItem;
 import com.cobblemon.mod.common.item.PokedexItem;
-import com.cobblemon.mod.common.item.PotItem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.ItemModelShaper;

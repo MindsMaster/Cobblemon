@@ -438,5 +438,14 @@ object CobblemonSounds : PlatformRegistry<Registry<SoundEvent>, ResourceKey<Regi
     @JvmField
     val CAMPFIRE_POT_CRAFT = this.create("block.campfire_pot.craft")
 
+    @JvmField
+    val CAMPFIRE_POT_SOUNDS = SoundType(1f, 1.1f,
+        CAMPFIRE_POT_PLACE, // BREAK
+        CAMPFIRE_POT_PLACE, // STEP
+        CAMPFIRE_POT_PLACE,
+        CAMPFIRE_POT_PLACE, // HIT
+        CAMPFIRE_POT_PLACE // STEP
+    )
+
     private fun create(name: String): SoundEvent = this.create(name, SoundEvent.createVariableRangeEvent(cobblemonResource(name)))
 }
