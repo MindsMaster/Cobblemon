@@ -245,7 +245,7 @@
         },
         {
           "variant": "biome",
-          "biomeCondition": "#cobblemon:evolution/vivillon/high-plains"
+          "biomeCondition": "#cobblemon:evolution/vivillon/high_plains"
         },
         {
           "variant": "structure",
@@ -268,11 +268,11 @@
         },
         {
           "variant": "biome",
-          "biomeCondition": "#cobblemon:evolution/vivillon/icy-snow"
+          "biomeCondition": "#cobblemon:evolution/vivillon/icy_snow"
         },
         {
           "variant": "biome",
-          "biomeAnticondition": "#cobblemon:evolution/vivillon/icy-snow_anti"
+          "biomeAnticondition": "#cobblemon:evolution/vivillon/icy_snow_anti"
         },
         {
           "variant": "structure",
