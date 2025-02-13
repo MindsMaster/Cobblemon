@@ -4860,5 +4860,7 @@
     "cobblemon.move.fling.desc": "O usuário arremessa seu item segurado no alvo para atacar. O poder e efeitos do movimento dependem do item.",
     "cobblemon.move.flipturn.desc": "Depois de fazer esse ataque, o usuário corre para trocar de lugar com outro Pokémon do time.",
     "cobblemon.move.floatyfall.desc": "O usuário flutua no ar e então mergulha em cima do alvo para atacá-lo. Isso também pode fazer o alvo hesitar.",
-    "cobblemon.ability.static": "Estática"
+    "cobblemon.ability.static": "Estática",
+    "advancements.cobblemon.use_bait": "Uma Boa Isca de Frutas",
+    "cobblemon.move.blackholeeclipse": "Eclipse de Buraco Negro"
 }
