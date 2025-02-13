@@ -31,6 +31,7 @@ import net.minecraft.util.Mth
 import net.minecraft.world.entity.EntityDimensions
 import net.minecraft.world.item.ItemStack
 import org.joml.Matrix3f
+import org.joml.Matrix4f
 import java.io.IOException
 import java.util.*
 
@@ -254,3 +255,35 @@ fun ByteBuf.readMatrix3f(): Matrix3f {
         readFloat(), readFloat(), readFloat(),
     )
 }
+
+fun ByteBuf.writeMatrix4f(matrix: Matrix4f) {
+    this.writeFloat(matrix.m00())
+    this.writeFloat(matrix.m01())
+    this.writeFloat(matrix.m02())
+    this.writeFloat(matrix.m03())
+
+    this.writeFloat(matrix.m10())
+    this.writeFloat(matrix.m11())
+    this.writeFloat(matrix.m12())
+    this.writeFloat(matrix.m13())
+
+    this.writeFloat(matrix.m20())
+    this.writeFloat(matrix.m21())
+    this.writeFloat(matrix.m22())
+    this.writeFloat(matrix.m23())
+
+    this.writeFloat(matrix.m30())
+    this.writeFloat(matrix.m31())
+    this.writeFloat(matrix.m32())
+    this.writeFloat(matrix.m33())
+}
+
+fun ByteBuf.readMatrix4f(): Matrix4f {
+    return Matrix4f(
+        readFloat(), readFloat(), readFloat(), readFloat(),
+        readFloat(), readFloat(), readFloat(), readFloat(),
+        readFloat(), readFloat(), readFloat(), readFloat(),
+        readFloat(), readFloat(), readFloat(), readFloat(),
+    )
+}
+

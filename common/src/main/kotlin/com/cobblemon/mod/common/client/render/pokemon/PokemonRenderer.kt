@@ -170,25 +170,17 @@ class PokemonRenderer(
 
         if(!DISABLE_ROLLING_DEBUG && rollable.shouldRoll()){
             val matrix = poseMatrix.last().pose()
+            val yaw = Mth.rotLerp(partialTicks, entity.yBodyRotO, entity.yBodyRot)
             val center = Vector3f(0f, entity.bbHeight/2, 0f)
             val transformationMatrix = Matrix4f()
             //Move origin to center of Pokemon
             transformationMatrix.translate(center)
-
-            //Pokemon already handles yaw so we ignore it here.
-            transformationMatrix.rotate(
-                rollable.pitch.toRadians(),
-                rollable.getLeftVector(),
-                transformationMatrix
-            )
-            transformationMatrix.rotate(
-                rollable.roll.toRadians(),
-                rollable.getForwardVector(),
-                transformationMatrix
-            )
-
+            transformationMatrix.mul(Matrix4f(rollable.orientation))
             //Move origin to base of the entity
             transformationMatrix.translate(center.negate(Vector3f()))
+
+            //Pre-undo yaw rotation
+            transformationMatrix.rotate(Axis.YP.rotationDegrees(yaw+180f))
             matrix.mul(transformationMatrix)
         }
 

@@ -11,6 +11,7 @@ package com.cobblemon.mod.common.client.render.models.blockbench
 import com.bedrockk.molang.runtime.MoLangRuntime
 import com.bedrockk.molang.runtime.struct.QueryStruct
 import com.cobblemon.mod.common.Cobblemon
+import com.cobblemon.mod.common.Rollable
 import com.cobblemon.mod.common.api.molang.ExpressionLike
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.setup
@@ -53,6 +54,8 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.phys.Vec3
+import org.joml.Matrix4f
+import org.joml.Vector3f
 
 /**
  * A model that can be posed and animated using [PoseAnimation]s and [ActiveAnimation]s. This
@@ -679,9 +682,19 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
         var scale = 1F
         // We could improve this to be generalized for other entities. First we'd have to figure out wtf is going on, though.
         if (entity is PokemonEntity) {
-            var yRot = Mth.lerp(state.getPartialTicks(), entity.yBodyRotO, entity.yBodyRot)
-            yRot = Mth.wrapDegrees(yRot)
-            matrixStack.mulPose(Axis.YP.rotationDegrees(180 - yRot))
+            if(entity.passengers.isNotEmpty() && entity.controllingPassenger is Rollable && (entity.controllingPassenger as Rollable).orientation != null){
+                val controllingPassenger = entity.controllingPassenger
+                val transformationMatrix = Matrix4f()
+                val center = Vector3f(0f, entity.bbHeight/2, 0f)
+                transformationMatrix.translate(center)
+                transformationMatrix.mul(Matrix4f((controllingPassenger as Rollable).orientation!!))
+                transformationMatrix.translate(center.negate())
+                matrixStack.mulPose(transformationMatrix)
+            } else {
+                var yRot = Mth.lerp(state.getPartialTicks(), entity.yBodyRotO, entity.yBodyRot)
+                yRot = Mth.wrapDegrees(yRot)
+                matrixStack.mulPose(Axis.YP.rotationDegrees(180 - yRot))
+            }
             matrixStack.pushPose()
             matrixStack.scale(-1F, -1F, 1F)
             scale = entity.pokemon.form.baseScale * entity.pokemon.scaleModifier * (entity.delegate as PokemonClientDelegate).entityScaleModifier

@@ -14,13 +14,12 @@ import com.cobblemon.mod.common.api.riding.Rideable
 import com.cobblemon.mod.common.client.entity.PokemonClientDelegate
 import com.cobblemon.mod.common.client.render.models.blockbench.bedrock.animation.BedrockAnimationRepository
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
-import com.cobblemon.mod.common.util.math.geometry.toRadians
 import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.math.Axis
 import net.minecraft.client.model.geom.ModelPart
 import net.minecraft.client.player.AbstractClientPlayer
 import net.minecraft.util.Mth
 import net.minecraft.world.phys.Vec3
-import org.joml.Matrix3f
 import org.joml.Matrix4f
 import org.joml.Vector3f
 
@@ -48,24 +47,13 @@ object MountedPlayerRenderer {
             val center = Vector3f(0f, entity.bbHeight/2, 0f)
             val locatorOffsetToCenter = locatorOffset.sub(center, Vector3f())
 
-            val rotationMatrix = Matrix3f()
+            val transformationMatrix = Matrix4f()
             if (player is Rollable && player.shouldRoll()){
-                //rotationMatrix.rotate(com.mojang.math.Axis.YP.rotationDegrees(-yBodyRot))
-
-                //Yaw is already built into the locator's so we ignore it her
-                //Rotate matrix by Player's pitch
-                rotationMatrix.rotate(
-                    player.pitch.toRadians(),
-                    player.getLeftVector()
-                )
-                //Rotate matrix by Player's roll
-                rotationMatrix.rotate(
-                    player.roll.toRadians(),
-                    player.getForwardVector(),
-                )
+                //transformationMatrix.rotate(Axis.YP.rotationDegrees(-yBodyRot))
+                //transformationMatrix.mulLocal(player.orientation)
             }
 
-            val rotatedOffset = rotationMatrix.transform(locatorOffsetToCenter, Vector3f()).add(center).sub(Vector3f(0f, player.bbHeight/2, 0f))
+            val rotatedOffset = transformationMatrix.transformPosition(locatorOffsetToCenter, Vector3f()).add(center).sub(Vector3f(0f, player.bbHeight/2, 0f))
             matrix.translate(rotatedOffset)
 
             //Undo seat position
@@ -90,25 +78,11 @@ object MountedPlayerRenderer {
             val transformationMatrix = Matrix4f()
             transformationMatrix.translate(center)
 
-            //Undo Yaw
-            //transformationMatrix.rotate(com.mojang.math.Axis.YP.rotationDegrees(yBodyRot))
-            /*transformationMatrix.rotate(
-                Math.toRadians(-player.yaw.toDouble()).toFloat(),
-                Rollable.UP,
-                transformationMatrix
-            )*/
-            transformationMatrix.rotate(
-                Math.toRadians(player.pitch.toDouble()).toFloat(),
-                player.getLeftVector(),
-                transformationMatrix
-            )
-            transformationMatrix.rotate(
-                Math.toRadians(player.roll.toDouble()).toFloat(),
-                player.getForwardVector(),
-                transformationMatrix
-            )
+            transformationMatrix.mul(Matrix4f(player.orientation))
 
             transformationMatrix.translate(center.negate(Vector3f()))
+            //Pre-Undo Yaw
+            transformationMatrix.rotate(Axis.YP.rotationDegrees(yBodyRot+180f))
             matrix.mul(transformationMatrix)
         }
         matrix.translate(0f, 0.5f, 0f)

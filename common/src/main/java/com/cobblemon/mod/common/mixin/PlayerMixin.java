@@ -281,8 +281,6 @@ public abstract class PlayerMixin extends LivingEntity implements Rollable, Scan
         this.orientation = update.apply(this.orientation);
         setYRot(this.getYaw());
         setXRot(this.getPitch());
-        this.yRotO = this.getYRot();
-        this.xRotO = this.getXRot();
         return this;
     }
 
