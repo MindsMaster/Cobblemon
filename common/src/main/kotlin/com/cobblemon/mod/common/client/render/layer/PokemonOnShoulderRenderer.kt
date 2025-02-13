@@ -123,6 +123,7 @@ class PokemonOnShoulderRenderer<T : Player>(renderLayerParent: RenderLayerParent
             )
 
             matrixStack.scale(scale, scale, scale)
+            matrixStack.translate(0f, 1.5f, 0f)
 
             state = if (pLeftShoulder && shoulderData != lastRenderedLeft) {
                 leftState = configureState(state, model, true)
