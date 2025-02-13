@@ -93,6 +93,9 @@ interface RideController : Encodable, Decodable {
 
     fun getRuntime(entity: PokemonEntity) = entity.riding.runtime
 
+    fun shouldRotatePokemonHead(): Boolean = false
+    fun shouldRotatePlayerHead(): Boolean = false
+
     fun <T : RidingState> getState(entity: PokemonEntity, constructor: (PokemonEntity) -> T): T {
         return entity.riding.getState(key, constructor)
     }

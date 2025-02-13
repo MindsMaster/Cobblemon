@@ -25,6 +25,7 @@
     "accessor.KeyBindingAccessor",
     "client.AbstractClientPlayerMixin",
     "client.EntryListWidgetMixin",
+    "client.HumanoidModelMixin",
     "client.LocalPlayerMixin",
     "invoker.ClientPlayNetworkHandlerInvoker",
     "renderer.LivingEntityRendererMixin",
