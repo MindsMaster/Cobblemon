@@ -6,9 +6,9 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package com.cobblemon.mod.common.client.render.pokemon
+package com.cobblemon.mod.common.client.render.item
 
-import com.cobblemon.mod.common.api.tags.CobblemonItemTags.WEARABLE_GLASSES_ITEMS
+import com.cobblemon.mod.common.api.tags.CobblemonItemTags.WEARABLE_FACE_ITEMS
 import com.cobblemon.mod.common.api.tags.CobblemonItemTags.WEARABLE_HAT_ITEMS
 import com.cobblemon.mod.common.client.CobblemonClient.storage
 import com.cobblemon.mod.common.client.entity.PokemonClientDelegate
@@ -82,10 +82,10 @@ class HeldItemRenderer(
 
         poseStack.pushPose()
         when {
-            (locators.containsKey("item_glasses") && item.`is`(WEARABLE_GLASSES_ITEMS)) -> {
-                poseStack.mulPose(locators["item_glasses"]!!.matrix)
+            (locators.containsKey("item_face") && item.`is`(WEARABLE_FACE_ITEMS)) -> {
+                poseStack.mulPose(locators["item_face"]!!.matrix)
                 displayContext = ItemDisplayContext.HEAD
-                applyModifiers("item_glasses", locators)
+                applyModifiers("item_face", locators)
                 poseStack.translate(0f, 0f, .28f * scale)
                 poseStack.scale(0.7f * scale, 0.7f * scale, 0.7f * scale)
             }
@@ -125,7 +125,7 @@ class HeldItemRenderer(
         poseStack.popPose()
     }
 
-    fun renderOnGUIModel(
+    fun renderOnModel(
         item: ItemStack,
         locators: Map<String, MatrixWrapper>,
         poseStack: PoseStack,
@@ -135,7 +135,7 @@ class HeldItemRenderer(
         render(null, item, locators, poseStack, buffer, light, 0)
     }
 
-    fun renderOnPokemonEntity(
+    fun renderOnEntity(
         entity: PokemonEntity,
         delegate: PokemonClientDelegate,
         poseStack: PoseStack,

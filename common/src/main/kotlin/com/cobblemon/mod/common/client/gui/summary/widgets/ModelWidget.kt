@@ -12,7 +12,7 @@ import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.client.gui.drawProfilePokemon
 import com.cobblemon.mod.common.client.gui.calculateHeadYawAndPitch
 import com.cobblemon.mod.common.client.render.models.blockbench.FloatingState
-import com.cobblemon.mod.common.client.render.pokemon.HeldItemRenderer
+import com.cobblemon.mod.common.client.render.item.HeldItemRenderer
 import com.cobblemon.mod.common.pokemon.RenderablePokemon
 import com.cobblemon.mod.common.util.math.fromEulerXYZDegrees
 import net.minecraft.client.gui.GuiGraphics
@@ -110,7 +110,7 @@ class ModelWidget(
             headPitch = currentYawAndPitch.second,
         )
 
-        HeldItemRenderer().renderOnGUIModel(
+        HeldItemRenderer().renderOnModel(
             heldItem?: ItemStack.EMPTY,
             state.locatorStates,
             matrices,

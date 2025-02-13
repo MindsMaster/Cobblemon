@@ -18,6 +18,7 @@ import com.cobblemon.mod.common.client.entity.PokemonClientDelegate.Companion.BE
 import com.cobblemon.mod.common.client.entity.PokemonClientDelegate.Companion.BEAM_SHRINK_TIME
 import com.cobblemon.mod.common.client.keybind.boundKey
 import com.cobblemon.mod.common.client.keybind.keybinds.PartySendBinding
+import com.cobblemon.mod.common.client.render.item.HeldItemRenderer
 import com.cobblemon.mod.common.client.render.models.blockbench.PosableModel
 import com.cobblemon.mod.common.client.render.models.blockbench.PosableState
 import com.cobblemon.mod.common.client.render.models.blockbench.pokemon.PosablePokemonEntityModel
@@ -151,7 +152,7 @@ class PokemonRenderer(
 //        Minecraft.getInstance().bufferBuilders.entityVertexConsumers.draw()
 
         //Render Held Item
-        HeldItemRenderer().renderOnPokemonEntity(
+        HeldItemRenderer().renderOnEntity(
             entity,
             clientDelegate,
             poseMatrix,
