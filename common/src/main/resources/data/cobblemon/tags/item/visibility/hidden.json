@@ -1,8 +1,0 @@
-{
-  "replace": true,
-  "values": [
-    "#cobblemon:held/is_held_item",
-    "#cobblemon:battle_items",
-    "#cobblemon:berries"
-  ]
-}

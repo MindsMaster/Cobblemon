@@ -190,8 +190,8 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
                 )
             },
             resource = itemVisibleResource,
-            renderRequirement = { !selectedPokemon.heldItem().isEmpty && selectedPokemon.heldItemVisible },
-            clickRequirement = { !selectedPokemon.heldItem().isEmpty },
+            renderRequirement = { selectedPokemon.heldItemVisible },
+            clickRequirement = { true },
         )
         val showHeldItemBtn = SummaryButton(
             buttonX = x + 22f,
@@ -200,7 +200,7 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
             buttonHeight = 9,
             clickAction = { },
             resource = itemHiddenResource,
-            renderRequirement = { !selectedPokemon.heldItem().isEmpty && !selectedPokemon.heldItemVisible },
+            renderRequirement = { !selectedPokemon.heldItemVisible },
             clickRequirement = { false },
         )
         addRenderableWidget(showHeldItemBtn)

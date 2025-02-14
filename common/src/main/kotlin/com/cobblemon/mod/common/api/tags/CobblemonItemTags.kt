@@ -125,9 +125,9 @@ object CobblemonItemTags {
     @JvmField val POWER_WEIGHT = create("held/power_weight")
     @JvmField val TERRAIN_SEEDS = create("held/terrain_seeds")
     //Held Item Visibility Tags
-    @JvmField val WEARABLE_FACE_ITEMS = create("visibility/face")
-    @JvmField val WEARABLE_HAT_ITEMS = create("visibility/hat")
-    @JvmField val HIDDEN_ITEMS = create("visibility/hidden")
+    @JvmField val WEARABLE_FACE_ITEMS = create("held/visibility/face")
+    @JvmField val WEARABLE_HAT_ITEMS = create("held/visibility/hat")
+    @JvmField val HIDDEN_ITEMS = create("held/visibility/hidden")
 
 
     private fun create(path: String) = TagKey.create(Registries.ITEM, cobblemonResource(path))
