@@ -58,7 +58,7 @@ class HeldItemRenderer(
         //This is used to compare the uuid of the pokemon being rendered to the pokemon in your party/pc
         private fun comparePokemonEntity(p: Pokemon?, pokemonEntity: PokemonEntity ) : ItemStack? {
             if (p?.entity?.uuid?.equals(pokemonEntity.uuid) == true ) {
-                if (p.isItemHidden) return ItemStack.EMPTY
+                if (!p.heldItemVisible) return ItemStack.EMPTY
                 return p.heldItem()
             }
             return null

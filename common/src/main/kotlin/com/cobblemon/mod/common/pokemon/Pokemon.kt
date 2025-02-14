@@ -62,7 +62,6 @@ import com.cobblemon.mod.common.api.storage.StoreCoordinates
 import com.cobblemon.mod.common.api.storage.party.NPCPartyStore
 import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore
 import com.cobblemon.mod.common.api.storage.pc.PCStore
-import com.cobblemon.mod.common.api.tags.CobblemonItemTags
 import com.cobblemon.mod.common.api.types.ElementalType
 import com.cobblemon.mod.common.api.types.ElementalTypes
 import com.cobblemon.mod.common.api.types.tera.TeraType
@@ -541,7 +540,10 @@ open class Pokemon : ShowdownIdentifiable {
      */
     internal var heldItem: ItemStack = ItemStack.EMPTY
 
-    var isItemHidden: Boolean = false
+    /**
+     * Whether this Pokémon's held item is visible or not
+     */
+    var heldItemVisible: Boolean = true
 
     init {
         storeCoordinates.subscribe { if (it != null && it.store !is PCStore && this.tetheringId != null) afterOnServer(seconds = 0.05F) { this.tetheringId = null } }

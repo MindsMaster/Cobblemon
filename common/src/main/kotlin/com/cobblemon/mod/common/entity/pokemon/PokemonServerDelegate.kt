@@ -11,7 +11,6 @@ package com.cobblemon.mod.common.entity.pokemon
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.entity.PokemonSender
 import com.cobblemon.mod.common.api.entity.PokemonSideDelegate
-import com.cobblemon.mod.common.api.pokeball.PokeBalls
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties
 import com.cobblemon.mod.common.api.pokemon.stats.Stats
 import com.cobblemon.mod.common.api.pokemon.status.Statuses
@@ -22,7 +21,6 @@ import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.pokemon.Pokemon
 import com.cobblemon.mod.common.pokemon.activestate.ActivePokemonState
 import com.cobblemon.mod.common.pokemon.activestate.SentOutState
-import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
 import com.cobblemon.mod.common.util.getIsSubmerged
 import com.cobblemon.mod.common.util.playSoundServer
 import com.cobblemon.mod.common.util.update
@@ -201,7 +199,7 @@ class PokemonServerDelegate : PokemonSideDelegate {
 
         val trackedShownItem = when {
             // Show Hand Item if Held item is hidden
-            entity.pokemon.isItemHidden -> entity.mainHandItem
+            !entity.pokemon.heldItemVisible -> entity.mainHandItem
             // Show Held Item unless it is empty
             else -> (entity as PokemonEntity?)?.pokemon?.heldItemNoCopy()?.takeUnless { it.isEmpty }
             // Show Hand Item if Held item is empty

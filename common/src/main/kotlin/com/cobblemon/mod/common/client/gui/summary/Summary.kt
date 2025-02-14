@@ -179,18 +179,18 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
             buttonWidth = 13,
             buttonHeight = 9,
             clickAction = {
-                selectedPokemon.isItemHidden=!selectedPokemon.isItemHidden
-                modelWidget.heldItem = if (selectedPokemon.isItemHidden) null else selectedPokemon.heldItem
+                selectedPokemon.heldItemVisible=!selectedPokemon.heldItemVisible
+                modelWidget.heldItem = if (selectedPokemon.heldItemVisible) selectedPokemon.heldItem else null
                 // Send item visibility update to server
                 sendToServer(
                     SetItemHiddenPacket(
                         selectedPokemon.uuid,
-                        selectedPokemon.isItemHidden
+                        selectedPokemon.heldItemVisible
                     )
                 )
             },
             resource = itemVisibleResource,
-            renderRequirement = { !selectedPokemon.heldItem().isEmpty && !selectedPokemon.isItemHidden },
+            renderRequirement = { !selectedPokemon.heldItem().isEmpty && selectedPokemon.heldItemVisible },
             clickRequirement = { !selectedPokemon.heldItem().isEmpty },
         )
         val showHeldItemBtn = SummaryButton(
@@ -200,7 +200,7 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
             buttonHeight = 9,
             clickAction = { },
             resource = itemHiddenResource,
-            renderRequirement = { !selectedPokemon.heldItem().isEmpty && selectedPokemon.isItemHidden },
+            renderRequirement = { !selectedPokemon.heldItem().isEmpty && !selectedPokemon.heldItemVisible },
             clickRequirement = { false },
         )
         addRenderableWidget(showHeldItemBtn)
@@ -275,7 +275,7 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
             rotationY = 325F,
             offsetY = -10.0,
             shouldFollowCursor = true,
-            heldItem = if (selectedPokemon.isItemHidden) null else selectedPokemon.heldItem
+            heldItem = if (selectedPokemon.heldItemVisible) selectedPokemon.heldItem else null
         )
         addRenderableOnly(this.modelWidget)
     }
@@ -317,7 +317,7 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
 
         if (::modelWidget.isInitialized) {
             modelWidget.pokemon = selectedPokemon.asRenderablePokemon()
-            modelWidget.heldItem = if (selectedPokemon.isItemHidden) null else selectedPokemon.heldItem
+            modelWidget.heldItem = if (selectedPokemon.heldItemVisible) selectedPokemon.heldItem else null
         }
 
         if (this::nicknameEntryWidget.isInitialized) {

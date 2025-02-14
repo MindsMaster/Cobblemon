@@ -22,6 +22,6 @@ object SetItemHiddenHandler : ServerNetworkPacketHandler<SetItemHiddenPacket> {
         val pokemonStore: PokemonStore<*> = player.party()
         val pokemon = pokemonStore[packet.pokemonUUID] ?: return
 
-        pokemon.isItemHidden = packet.isItemHidden
+        pokemon.heldItemVisible = packet.heldItemVisible
     }
 }
