@@ -195,8 +195,9 @@ class PokemonOnShoulderRenderer<T : Player>(renderLayerParent: RenderLayerParent
         val form = species.forms.firstOrNull { it.name == formName } ?: species.standardForm
         val aspects = shoulderNbt.getList(DataKeys.SHOULDER_ASPECTS, Tag.TAG_STRING.toInt()).map { it.asString }.toSet()
         val scaleModifier = shoulderNbt.getFloat(DataKeys.SHOULDER_SCALE_MODIFIER)
-        // Todo certain item components seem to break this
-        val shownItem = Minecraft.getInstance().connection?.registryAccess()?.let { ItemStack.parseOptional(it, shoulderNbt.getCompound(DataKeys.SHOULDER_ITEM)) } ?: ItemStack.EMPTY
+        val shownItem = Minecraft.getInstance().level?.registryAccess()
+            ?.let { ItemStack.parseOptional(it, shoulderNbt.getCompound(DataKeys.SHOULDER_ITEM)) }
+            ?: ItemStack.EMPTY
         return ShoulderData(pokemonUUID, species, form, aspects, scaleModifier, shownItem)
     }
 
