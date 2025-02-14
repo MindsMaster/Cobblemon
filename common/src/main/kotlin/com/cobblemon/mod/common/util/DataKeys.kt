@@ -43,6 +43,7 @@ object DataKeys {
     const val POKEMON_NATURE = "Nature"
     const val POKEMON_MINTED_NATURE = "MintedNature"
     const val HELD_ITEM = "HeldItem"
+    const val HELD_ITEM_VISIBLE = "HeldItemVisible"
     const val POKEMON_TERA_TYPE = "TeraType"
     const val POKEMON_DMAX_LEVEL = "DmaxLevel"
     const val POKEMON_GMAX_FACTOR = "GmaxFactor"
@@ -66,7 +67,6 @@ object DataKeys {
     const val POKEMON_FREEZE_FRAME = "FreezeFrame"
     const val POKEMON_RECALCULATE_POSE = "RecalculatePose"
     const val POKEMON_PLATFORM_TYPE = "PlatformType"
-    const val POKEMON_SHOWN_ITEM = "ShownItem"
 
     const val POKEMON_ORIGINAL_TRAINER = "PokemonOriginalTrainer"
     const val POKEMON_ORIGINAL_TRAINER_NAME = "PokemonOriginalTrainerName"
