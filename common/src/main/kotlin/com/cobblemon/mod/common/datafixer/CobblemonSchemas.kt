@@ -82,7 +82,6 @@ object CobblemonSchemas {
         builder.addFixer(ShoulderStateJsonFix(schema1))
         builder.addFixer(NicknameFix(schema1))
         builder.addFixer(RaisedPPStagesFix(schema1))
-        builder.addFixer(HeldItemVisibleFix(schema1))
     }
 
     private class CobblemonDataFixerCodec<R>(private val baseCodec: Codec<R>, private val typeReference: TypeReference) : Codec<R> {

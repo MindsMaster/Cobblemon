@@ -29,7 +29,7 @@ internal data class PokemonP3(
     val originalTrainer: Optional<String>,
     val forcedAspects: Set<String>,
     val features: List<CompoundTag>,
-    val heldItemVisible: Boolean
+    val heldItemVisible: Optional<Boolean>
 ) : Partial<Pokemon> {
 
     override fun into(other: Pokemon): Pokemon {
@@ -54,7 +54,7 @@ internal data class PokemonP3(
             other.features.removeIf { it.name == feature.name }
             other.features.add(feature)
         }
-        other.heldItemVisible = this.heldItemVisible
+        this.heldItemVisible.ifPresent { other.heldItemVisible = it }
         return other
     }
 
@@ -65,7 +65,7 @@ internal data class PokemonP3(
                 Codec.STRING.optionalFieldOf(DataKeys.POKEMON_ORIGINAL_TRAINER).forGetter(PokemonP3::originalTrainer),
                 Codec.list(Codec.STRING).optionalFieldOf(DataKeys.POKEMON_FORCED_ASPECTS, emptyList()).forGetter { it.forcedAspects.toMutableList() },
                 Codec.list(CompoundTag.CODEC).optionalFieldOf(FEATURES, emptyList()).forGetter(PokemonP3::features),
-                Codec.BOOL.fieldOf(DataKeys.HELD_ITEM_VISIBLE).forGetter(PokemonP3::heldItemVisible)
+                Codec.BOOL.optionalFieldOf(DataKeys.HELD_ITEM_VISIBLE).forGetter(PokemonP3::heldItemVisible)
             ).apply(instance) { originalTrainerType, originalTrainer, forcedAspects, features, heldItemVisible -> PokemonP3(originalTrainerType, originalTrainer, forcedAspects.toSet(), features, heldItemVisible) }
         }
 
@@ -78,7 +78,7 @@ internal data class PokemonP3(
                 nbt.putString(FEATURE_ID, feature.name)
                 feature.saveToNBT(nbt)
             },
-            pokemon.heldItemVisible
+            Optional.ofNullable(pokemon.heldItemVisible)
         )
     }
 
