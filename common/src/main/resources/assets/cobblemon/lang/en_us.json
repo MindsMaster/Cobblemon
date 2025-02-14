@@ -724,14 +724,6 @@
   "item.cobblemon.black_tumblestone": "Black Tumblestone",
   "item.cobblemon.sky_tumblestone": "Sky Tumblestone",
 
-  "item.cobblemon.campfire_pot_black": "Black Pot",
-  "item.cobblemon.campfire_pot_blue": "Blue Pot",
-  "item.cobblemon.campfire_pot_green": "Green Pot",
-  "item.cobblemon.campfire_pot_pink": "Pink Pot",
-  "item.cobblemon.campfire_pot_red": "Red Pot",
-  "item.cobblemon.campfire_pot_white": "White Pot",
-  "item.cobblemon.campfire_pot_yellow": "Yellow Pot",
-
   "item.cobblemon.health_mochi": "Health Mochi",
   "item.cobblemon.health_mochi.tooltip": "Raises the Pokémon's HP EVs by 10",
   "item.cobblemon.muscle_mochi": "Muscle Mochi",
@@ -851,6 +843,14 @@
   "block.cobblemon.green_gilded_chest": "Green Gilded Chest",
   "block.cobblemon.white_gilded_chest": "White Gilded Chest",
   "block.cobblemon.display_case": "Display Case",
+  "block.cobblemon.campfire": "Campfire",
+  "block.cobblemon.campfire_pot_black": "Black Campfire Pot",
+  "block.cobblemon.campfire_pot_blue": "Blue Campfire Pot",
+  "block.cobblemon.campfire_pot_green": "Green Campfire Pot",
+  "block.cobblemon.campfire_pot_pink": "Pink Campfire Pot",
+  "block.cobblemon.campfire_pot_red": "Red Campfire Pot",
+  "block.cobblemon.campfire_pot_white": "White Campfire Pot",
+  "block.cobblemon.campfire_pot_yellow": "Yellow Campfire Pot",
 
   "block.cobblemon.small_budding_tumblestone": "Small Tumblestone Bud",
   "block.cobblemon.medium_budding_tumblestone": "Medium Tumblestone Bud",
@@ -979,7 +979,8 @@
   "cobblemon.ui.generic.no": "No",
   "cobblemon.ui.generic.save": "Save",
 
-  "cobblemon.container.cooking_pot": "Cooking Pot",
+  "cobblemon.container.campfire_pot": "Campfire Pot",
+  "cobblemon.container.campfire_pot.recipe_book.toggle_recipes": "Showing Cookable",
 
   "cobblemon.ui.pokenav.title": "PokéNav",
   "cobblemon.ui.pokenav.narrator.backbutton": "Poke Nav button pressed",

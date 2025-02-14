@@ -2,10 +2,10 @@
 	"format_version": "1.10.0",
 	"particle_effect": {
 		"description": {
-			"identifier": "cobblemon:stew_bubbles",
+			"identifier": "cobblemon:broth_bubbles_basic",
 			"basic_render_parameters": {
 				"material": "particles_blend",
-				"texture": "textures/particles/smallbubble_broth"
+				"texture": "textures/particles/smallbubble_broth_basic"
 			}
 		},
 		"curves": {
@@ -19,7 +19,7 @@
 		"events": {
 			"pop": {
 				"particle_effect": {
-					"effect": "cobblemon:stew_bubblepop",
+					"effect": "cobblemon:broth_bubblepop_basic",
 					"type": "particle"
 				}
 			}

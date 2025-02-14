@@ -2,10 +2,10 @@
 	"format_version": "1.10.0",
 	"particle_effect": {
 		"description": {
-			"identifier": "cobblemon:stew_bubblepop",
+			"identifier": "cobblemon:broth_bubblepop_basic",
 			"basic_render_parameters": {
 				"material": "particles_blend",
-				"texture": "textures/particles/bubble_pop_broth"
+				"texture": "textures/particles/bubble_pop_broth_basic"
 			}
 		},
 		"components": {

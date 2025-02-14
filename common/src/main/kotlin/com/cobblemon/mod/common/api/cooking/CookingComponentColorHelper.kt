@@ -23,11 +23,11 @@ private val colorMap = mapOf(
 )
 
 private val bubbleColorMap = mapOf(
-    "spicy" to 0xFFCC92,
-    "dry" to 0xA1F5FE,
-    "sweet" to 0xFFD6F7,
-    "bitter" to 0xB7F7A7,
-    "sour" to 0xFEFAA1
+    "spicy" to 0xFFD9AD,
+    "dry" to 0xBCF8FE,
+    "sweet" to 0xFEE3F9,
+    "bitter" to 0xC8F7BC,
+    "sour" to 0xFDFAB8
 )
 
 fun getColorMixFromSeasonings(seasonings: List<ItemStack>, forBubbles: Boolean = false): Int? {

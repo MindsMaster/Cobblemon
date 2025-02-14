@@ -172,7 +172,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     @JvmField
     val POKEDEX_WHITE = pokedexItem(PokedexType.WHITE)
 
-    val pots = mutableListOf<CampfirePotItem>()
+    val campfire_pots = mutableListOf<CampfirePotItem>()
     @JvmField
     val CAMPFIRE_POT_BLACK = campfirePotItem(CobblemonBlocks.BLACK_CAMPFIRE_POT, "black")
     @JvmField
@@ -597,11 +597,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     @JvmField
     val DISPLAY_CASE = blockItem("display_case", CobblemonBlocks.DISPLAY_CASE)
     @JvmField
-    val LECTERN = blockItem("lectern", CobblemonBlocks.LECTERN)
-    @JvmField
     val INCENSE_SWEET = blockItem("incense_sweet", CobblemonBlocks.INCENSE_SWEET)
-    @JvmField
-    val CAMPFIRE = blockItem("campfire", CobblemonBlocks.CAMPFIRE)
 
 
     // Evolution items

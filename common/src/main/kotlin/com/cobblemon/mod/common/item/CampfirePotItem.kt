@@ -68,7 +68,7 @@ class CampfirePotItem(block: Block): BlockItem(block, Properties()) {
                     if (newBlockEntity.getPotItem() == null || newBlockEntity.getPotItem()!!.isEmpty) {
                         newBlockEntity.setPotItem(ItemStack(this).split(1))
                         if (!player.isCreative) context.itemInHand.consumeAndReturn(1, player)
-                        world.playSound(null, blockPos, CobblemonSounds.CAMPFIRE_POT_PLACE, SoundSource.BLOCKS, 0.7f, 1.0f)
+                        world.playSound(null, blockPos, CobblemonSounds.CAMPFIRE_POT_PLACE_CAMPFIRE, SoundSource.BLOCKS, 0.7F, 1.0F)
                         return InteractionResult.SUCCESS
                     }
                 }

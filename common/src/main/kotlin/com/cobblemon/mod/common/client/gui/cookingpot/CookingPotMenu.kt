@@ -69,21 +69,19 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
     }
 
     private fun initializeSlots(playerInventory: Inventory) {
-        val craftingOutputOffsetX = 16
-        val craftingOutputOffsetY = 10
-        val resultSlotX = 124 + craftingOutputOffsetX
-        val resultSlotY = 51 + craftingOutputOffsetY
+        val resultSlotX = 128
+        val resultSlotY = 55
 
         addSlot(CookingPotResultSlot(this.container, RESULT_SLOT, resultSlotX, resultSlotY))
 
         for ((index, slotIndex) in CRAFTING_GRID_SLOTS.withIndex()) {
             val i = index / CRAFTING_GRID_WIDTH
             val j = index % CRAFTING_GRID_WIDTH
-            addSlot(Slot(this.container, slotIndex, 44 + j * 18, 43 + i * 18))
+            addSlot(Slot(this.container, slotIndex, 33 + j * 18, 18 + i * 18))
         }
 
         for ((index, slotIndex) in SEASONING_SLOTS.withIndex()) {
-            addSlot(SeasoningSlot(this.container, slotIndex, 44 + index * 18, 17))
+            addSlot(SeasoningSlot(this.container, slotIndex, 110 + index * 18, 18))
         }
 
         addSlot(CookingPotPreviewSlot(this.container, PREVIEW_ITEM_SLOT, resultSlotX, resultSlotY))
@@ -91,11 +89,11 @@ class CookingPotMenu : RecipeBookMenu<CraftingInput, CookingPotRecipeBase>, Cont
         for ((index, _) in PLAYER_INVENTORY_SLOTS.withIndex()) {
             val i = index / PLAYER_INVENTORY_WIDTH
             val j = index % PLAYER_INVENTORY_WIDTH
-            addSlot(Slot(playerInventory, index + 9, 8 + j * 18, 116 + i * 18))
+            addSlot(Slot(playerInventory, index + 9, 8 + j * 18, 84 + i * 18))
         }
 
         for ((index, _) in PLAYER_HOTBAR_SLOTS.withIndex()) {
-            addSlot(Slot(playerInventory, index, 8 + index * 18, 174))
+            addSlot(Slot(playerInventory, index, 8 + index * 18, 142))
         }
     }
 

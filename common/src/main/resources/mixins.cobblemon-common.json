@@ -26,6 +26,7 @@
     "VillagerProfessionLayerMixin",
     "accessor.EntryListWidgetAccessor",
     "accessor.KeyBindingAccessor",
+    "accessor.RecipeBookComponentAccessor",
     "client.AbstractClientPlayerMixin",
     "client.EntryListWidgetMixin",
     "invoker.ClientPlayNetworkHandlerInvoker"

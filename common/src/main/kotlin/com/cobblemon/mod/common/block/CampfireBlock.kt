@@ -10,14 +10,13 @@ package com.cobblemon.mod.common.block
 
 import com.cobblemon.mod.common.CobblemonBlockEntities
 import com.cobblemon.mod.common.CobblemonSounds
-import com.cobblemon.mod.common.block.LecternBlock.Companion
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.PREVIEW_ITEM_SLOT
 import com.cobblemon.mod.common.block.entity.DisplayCaseBlockEntity
-import com.cobblemon.mod.common.block.entity.LecternBlockEntity
-import com.cobblemon.mod.common.item.PokeBallItem
 import com.cobblemon.mod.common.item.CampfirePotItem
+import com.cobblemon.mod.common.item.PokeBallItem
 import com.cobblemon.mod.common.util.playSoundServer
+import com.cobblemon.mod.common.util.toVec3d
 import com.mojang.serialization.MapCodec
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
@@ -36,11 +35,8 @@ import net.minecraft.world.level.BlockGetter
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.LevelAccessor
 import net.minecraft.world.level.LevelReader
-import net.minecraft.world.level.block.BaseEntityBlock
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.*
 import net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING
-import net.minecraft.world.level.block.RenderShape
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.entity.BlockEntityTicker
 import net.minecraft.world.level.block.entity.BlockEntityType
@@ -49,15 +45,18 @@ import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import net.minecraft.world.level.block.state.properties.BooleanProperty
 import net.minecraft.world.level.block.state.properties.DirectionProperty
+import net.minecraft.world.level.material.FluidState
+import net.minecraft.world.level.material.Fluids
 import net.minecraft.world.level.pathfinder.PathComputationType
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.shapes.CollisionContext
 import net.minecraft.world.phys.shapes.Shapes
 import net.minecraft.world.phys.shapes.VoxelShape
 import org.jetbrains.annotations.Nullable
+import net.minecraft.world.level.block.CampfireBlock as MCCampfireBlock
 
 @Suppress("OVERRIDE_DEPRECATION")
-class CampfireBlock(settings: Properties) : BaseEntityBlock(settings) {
+class CampfireBlock(settings: Properties) : BaseEntityBlock(settings), SimpleWaterloggedBlock {
     companion object {
         val CODEC = simpleCodec(::CampfireBlock)
         val ITEM_DIRECTION = DirectionProperty.create("item_facing")
@@ -142,24 +141,42 @@ class CampfireBlock(settings: Properties) : BaseEntityBlock(settings) {
         return InteractionResult.PASS
     }
 
-    private fun removePotItem(
-        blockEntity: CampfireBlockEntity,
-        blockState: BlockState,
-        level: Level,
-        blockPos: BlockPos,
-        player: Player
-    ) {
-        if (!player.getItemInHand(InteractionHand.MAIN_HAND).isEmpty) {
-            return
+    override fun placeLiquid(level: LevelAccessor, pos: BlockPos, state: BlockState, fluidState: FluidState): Boolean {
+        val blockEntity = level.getBlockEntity(pos)
+        if (fluidState.type === Fluids.WATER && blockEntity is CampfireBlockEntity) {
+            if (!level.isClientSide) {
+                removePotItem(blockEntity, state, level as Level, pos, null, true)
+                level.playSoundServer(pos.center, SoundEvents.GENERIC_EXTINGUISH_FIRE, SoundSource.BLOCKS, 1.0F, 1.0F)
+            }
+
+            if (level.isClientSide) for (i in 0..19) MCCampfireBlock.makeParticles(level as Level, pos, false, true)
+
+            level.scheduleTick(pos, fluidState.type, fluidState.type.getTickDelay(level))
+            return true
+        } else {
+            return false
         }
+    }
+
+    private fun removePotItem(blockEntity: CampfireBlockEntity, blockState: BlockState, level: Level, blockPos: BlockPos, player: Player? = null, byWater: Boolean = false) {
+        if (!byWater && player != null && !player.getItemInHand(InteractionHand.MAIN_HAND).isEmpty) return
 
         val potItem = blockEntity.getPotItem()
-        player.setItemInHand(InteractionHand.MAIN_HAND, potItem)
+
+        if (!byWater && player != null) {
+            player.setItemInHand(InteractionHand.MAIN_HAND, potItem)
+        } else {
+            val direction = blockState.getValue(FACING) as Direction
+            val f = 0.25F * direction.stepX.toFloat()
+            val g = 0.25F * direction.stepZ.toFloat()
+
+            val itemEntity = ItemEntity(level, blockPos.x.toDouble() + 0.5 + f.toDouble(), (blockPos.y + 1).toDouble(), blockPos.z.toDouble() + 0.5 + g.toDouble(), potItem)
+            itemEntity.setDefaultPickUpDelay()
+            level.addFreshEntity(itemEntity)
+        }
+
         blockEntity.setPotItem(ItemStack.EMPTY)
-        level.playSoundServer(
-            position = blockPos.bottomCenter,
-            sound = CobblemonSounds.CAMPFIRE_POT_RETRIEVE,
-        )
+        level.playSoundServer(blockPos.bottomCenter, CobblemonSounds.CAMPFIRE_POT_RETRIEVE)
 
         blockEntity.setItem(PREVIEW_ITEM_SLOT, ItemStack.EMPTY)
         Containers.dropContents(level, blockPos, blockEntity)
@@ -170,18 +187,13 @@ class CampfireBlock(settings: Properties) : BaseEntityBlock(settings) {
 
         val newBlockState = if (isSoul) Blocks.SOUL_CAMPFIRE.defaultBlockState().setValue(FACING, facing)
             else Blocks.CAMPFIRE.defaultBlockState().setValue(FACING, facing)
-        level.setBlockAndUpdate(blockPos, newBlockState)
+
+        level.setBlockAndUpdate(blockPos, if (byWater) newBlockState.setValue(BlockStateProperties.WATERLOGGED, true).setValue(MCCampfireBlock.LIT, false) else newBlockState)
     }
 
     fun openContainer(level: Level, pos: BlockPos, player: Player) {
-        var blockEntity = level.getBlockEntity(pos)
-        if (blockEntity is CampfireBlockEntity) {
-            player.openMenu(blockEntity as CampfireBlockEntity)
-            level.playSoundServer(
-                position = pos.bottomCenter,
-                sound = CobblemonSounds.CAMPFIRE_POT_OPEN,
-            )
-        }
+        val blockEntity = level.getBlockEntity(pos)
+        if (blockEntity is CampfireBlockEntity) player.openMenu(blockEntity)
     }
 
     override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
@@ -278,6 +290,7 @@ class CampfireBlock(settings: Properties) : BaseEntityBlock(settings) {
                 }
             }
         }
+        level.playSoundServer(position = blockPos.toVec3d(), sound = CobblemonSounds.CAMPFIRE_POT_OPEN, volume = 0.25F)
 
         return super.playerWillDestroy(level, blockPos, blockState, player)
     }
