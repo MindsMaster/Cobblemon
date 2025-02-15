@@ -28,6 +28,7 @@ class HeldItemRenderer() {
     private val itemRenderer = Minecraft.getInstance().itemRenderer
     private var displayContext = ItemDisplayContext.FIXED
     private var scale = 1.0f
+    private var prevItem = ItemStack.EMPTY
 
     fun render(
         entity: PokemonEntity?,
@@ -39,25 +40,26 @@ class HeldItemRenderer() {
         seed: Int
     ) {
         if (item.isEmpty) return
+        val locatorName: String
 
         poseStack.pushPose()
         when {
             (locators.containsKey("item_face") && item.`is`(WEARABLE_FACE_ITEMS)) -> {
+                locatorName="item_face"
                 displayContext = ItemDisplayContext.HEAD
-                applyModifiers("item_face", locators)
                 poseStack.mulPose(locators["item_face"]!!.matrix)
                 poseStack.translate(0f, 0f, .28f * scale)
                 poseStack.scale(0.7f * scale, 0.7f * scale, 0.7f * scale)
             }
             (locators.containsKey("item_hat") && item.`is`(WEARABLE_HAT_ITEMS)) -> {
+                locatorName="item_hat"
                 displayContext = ItemDisplayContext.HEAD
-                applyModifiers("item_hat", locators)
                 poseStack.mulPose(locators["item_hat"]!!.matrix)
                 poseStack.translate(0f, -0.26f * scale, 0f)
                 poseStack.scale(.68f * scale, .68f * scale, .68f * scale)
             }
             (locators.containsKey("item")) -> {
-                applyModifiers("item", locators)
+                locatorName="item"
                 poseStack.mulPose(locators["item"]!!.matrix)
                 when(displayContext) {
                     ItemDisplayContext.FIXED -> {
@@ -81,6 +83,12 @@ class HeldItemRenderer() {
                 return
             }
         }
+        //Modifiers only need to be updated once if the item changes
+        if (!ItemStack.isSameItemSameComponents(prevItem, item)) {
+            updateModifiers(locatorName,locators)
+            prevItem=item
+        }
+
         itemRenderer.renderStatic(entity, item, displayContext, false, poseStack, buffer, null, light, OverlayTexture.NO_OVERLAY, seed)
         poseStack.popPose()
     }
@@ -92,8 +100,7 @@ class HeldItemRenderer() {
         buffer: MultiBufferSource,
         light: Int = LightTexture.pack(11, 7)
     ){
-        if (item.`is`(CobblemonItemTags.HIDDEN_ITEMS)) return
-        render(null, item, locators, poseStack, buffer, light, 0)
+        if (!item.`is`(CobblemonItemTags.HIDDEN_ITEMS)) render(null, item, locators, poseStack, buffer, light, 0)
     }
 
     fun renderOnEntity(
@@ -109,7 +116,7 @@ class HeldItemRenderer() {
         render(entity, shownItem, locators, poseStack, buffer, light, 0)
     }
 
-    private fun applyModifiers(name: String, locators: Map<String, MatrixWrapper>) {
+    private fun updateModifiers(name: String, locators: Map<String, MatrixWrapper>) {
         locators.forEach { (locator: String, m: MatrixWrapper) ->
             val modifiers: Map<String, Float>
             if (locator.startsWith("_null_$name[")) {
