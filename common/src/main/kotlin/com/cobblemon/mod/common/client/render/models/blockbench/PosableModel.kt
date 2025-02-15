@@ -669,7 +669,6 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
      * found and used from other client-side systems.
      */
     fun updateLocators(entity: Entity?, state: PosableState) {
-        entity ?: return
         val matrixStack = PoseStack()
         var scale = 1F
         // We could improve this to be generalized for other entities. First we'd have to figure out wtf is going on, though.

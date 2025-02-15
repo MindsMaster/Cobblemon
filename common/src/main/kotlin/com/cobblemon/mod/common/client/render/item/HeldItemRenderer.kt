@@ -1,0 +1,130 @@
+/*
+ * Copyright (C) 2023 Cobblemon Contributors
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+package com.cobblemon.mod.common.client.render.item
+
+import com.cobblemon.mod.common.api.tags.CobblemonItemTags
+import com.cobblemon.mod.common.api.tags.CobblemonItemTags.WEARABLE_FACE_ITEMS
+import com.cobblemon.mod.common.api.tags.CobblemonItemTags.WEARABLE_HAT_ITEMS
+import com.cobblemon.mod.common.client.entity.PokemonClientDelegate
+import com.cobblemon.mod.common.client.render.MatrixWrapper
+import com.cobblemon.mod.common.client.render.models.blockbench.NullObjectParser
+import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
+import com.mojang.blaze3d.vertex.PoseStack
+import com.mojang.math.Axis
+import net.minecraft.client.Minecraft
+import net.minecraft.client.renderer.LightTexture
+import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.texture.OverlayTexture
+import net.minecraft.world.item.ItemDisplayContext
+import net.minecraft.world.item.ItemStack
+
+class HeldItemRenderer() {
+    private val itemRenderer = Minecraft.getInstance().itemRenderer
+    private var displayContext = ItemDisplayContext.FIXED
+    private var scale = 1.0f
+    private var prevItem = ItemStack.EMPTY
+
+    fun render(
+        entity: PokemonEntity?,
+        item: ItemStack,
+        locators: Map<String, MatrixWrapper>,
+        poseStack: PoseStack,
+        buffer: MultiBufferSource,
+        light: Int,
+        seed: Int
+    ) {
+        if (item.isEmpty) return
+        val locatorName: String
+
+        poseStack.pushPose()
+        when {
+            (locators.containsKey("item_face") && item.`is`(WEARABLE_FACE_ITEMS)) -> {
+                locatorName="item_face"
+                displayContext = ItemDisplayContext.HEAD
+                poseStack.mulPose(locators["item_face"]!!.matrix)
+                poseStack.translate(0f, 0f, .28f * scale)
+                poseStack.scale(0.7f * scale, 0.7f * scale, 0.7f * scale)
+            }
+            (locators.containsKey("item_hat") && item.`is`(WEARABLE_HAT_ITEMS)) -> {
+                locatorName="item_hat"
+                displayContext = ItemDisplayContext.HEAD
+                poseStack.mulPose(locators["item_hat"]!!.matrix)
+                poseStack.translate(0f, -0.26f * scale, 0f)
+                poseStack.scale(.68f * scale, .68f * scale, .68f * scale)
+            }
+            (locators.containsKey("item")) -> {
+                locatorName="item"
+                poseStack.mulPose(locators["item"]!!.matrix)
+                when(displayContext) {
+                    ItemDisplayContext.FIXED -> {
+                        poseStack.translate(0f, 0.01666f * scale, 0f)
+                        poseStack.scale(.5f * scale, .5f * scale, .5f * scale)
+                        poseStack.mulPose(Axis.XP.rotationDegrees(90f))
+                    }
+                    ItemDisplayContext.THIRD_PERSON_RIGHT_HAND -> {
+                        poseStack.translate(0.075f* scale, 0f * scale, -0.05f* scale)
+                        poseStack.scale(scale, scale, scale)
+                        poseStack.mulPose(Axis.XP.rotationDegrees(-90f))
+                        poseStack.mulPose(Axis.YP.rotationDegrees(-90f))
+                    }
+                    else -> {
+                        poseStack.scale(scale, scale, scale)
+                    }
+                }
+            }
+            else -> { // Don't render any item
+                poseStack.popPose()
+                return
+            }
+        }
+        //Modifiers only need to be updated once if the item changes
+        if (!ItemStack.isSameItemSameComponents(prevItem, item)) {
+            updateModifiers(locatorName,locators)
+            prevItem=item
+        }
+
+        itemRenderer.renderStatic(entity, item, displayContext, false, poseStack, buffer, null, light, OverlayTexture.NO_OVERLAY, seed)
+        poseStack.popPose()
+    }
+
+    fun renderOnModel(
+        item: ItemStack,
+        locators: Map<String, MatrixWrapper>,
+        poseStack: PoseStack,
+        buffer: MultiBufferSource,
+        light: Int = LightTexture.pack(11, 7)
+    ){
+        if (!item.`is`(CobblemonItemTags.HIDDEN_ITEMS)) render(null, item, locators, poseStack, buffer, light, 0)
+    }
+
+    fun renderOnEntity(
+        entity: PokemonEntity,
+        delegate: PokemonClientDelegate,
+        poseStack: PoseStack,
+        buffer: MultiBufferSource,
+        light: Int
+    ) {
+        val shownItem = entity.shownItem
+        val locators: Map<String, MatrixWrapper> = delegate.locatorStates
+
+        render(entity, shownItem, locators, poseStack, buffer, light, 0)
+    }
+
+    private fun updateModifiers(name: String, locators: Map<String, MatrixWrapper>) {
+        locators.forEach { (locator: String, m: MatrixWrapper) ->
+            val modifiers: Map<String, Float>
+            if (locator.startsWith("_null_$name[")) {
+                modifiers = NullObjectParser.parseNullObject(locator).modifiers
+                if (modifiers.containsKey("scale")) scale = modifiers["scale"]!!
+                if (modifiers.containsKey("mode")) displayContext = ItemDisplayContext.entries[((modifiers["mode"]!!).toInt()) % 9]
+                return
+            }
+        }
+    }
+}
