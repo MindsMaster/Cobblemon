@@ -8,6 +8,7 @@
 
 package com.cobblemon.mod.common.client.gui.pc
 
+import com.cobblemon.mod.common.Cobblemon.LOGGER
 import com.cobblemon.mod.common.CobblemonNetwork
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.gui.blitk
@@ -20,6 +21,7 @@ import com.cobblemon.mod.common.client.gui.pasture.PasturePCGUIConfiguration
 import com.cobblemon.mod.common.client.gui.pasture.PastureWidget
 import com.cobblemon.mod.common.client.gui.summary.widgets.SoundlessWidget
 import com.cobblemon.mod.common.client.render.drawScaledText
+import com.cobblemon.mod.common.client.render.gui.PCBoxWallpaperRepository
 import com.cobblemon.mod.common.client.settings.ServerSettings
 import com.cobblemon.mod.common.client.storage.ClientPC
 import com.cobblemon.mod.common.client.storage.ClientParty
@@ -38,6 +40,7 @@ import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
 import net.minecraft.network.chat.Component
 import net.minecraft.sounds.SoundEvent
+import java.io.FileNotFoundException
 
 class StorageWidget(
     pX: Int, pY: Int,
@@ -57,6 +60,7 @@ class StorageWidget(
         const val PARTY_SLOT_PADDING = 6
 
         private val partyPanelResource = cobblemonResource("textures/gui/pc/party_panel.png")
+        private val defaultScreenResource = cobblemonResource("textures/gui/pc/pc_screen_overlay.png")
     }
 
     private val partySlots = arrayListOf<PartyStorageSlot>()
@@ -253,9 +257,13 @@ class StorageWidget(
         }
 
         // Screen Overlay
+        val screenResource =
+            if (PCBoxWallpaperRepository.wallpapers.contains(pc.boxes[box].wallpaper)) pc.boxes[box].wallpaper
+            else defaultScreenResource
+
         blitk(
             matrixStack = matrices,
-            texture = pc.boxes[box].wallpaper,
+            texture = screenResource,
             x = x - 17,
             y = y - 17,
             width = 208,
