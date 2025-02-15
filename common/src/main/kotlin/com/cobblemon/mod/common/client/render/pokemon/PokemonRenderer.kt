@@ -87,6 +87,8 @@ class PokemonRenderer(
         it.put(RenderContext.RENDER_STATE, RenderContext.RenderState.WORLD)
     }
 
+    private val heldItemRenderer = HeldItemRenderer()
+
     override fun getTextureLocation(entity: PokemonEntity): ResourceLocation {
         return VaryingModelRepository.getTexture(entity.pokemon.species.resourceIdentifier, entity.delegate as PokemonClientDelegate)
     }
@@ -152,7 +154,7 @@ class PokemonRenderer(
 //        Minecraft.getInstance().bufferBuilders.entityVertexConsumers.draw()
 
         //Render Held Item
-        HeldItemRenderer().renderOnEntity(
+        heldItemRenderer.renderOnEntity(
             entity,
             clientDelegate,
             poseMatrix,
