@@ -45,6 +45,8 @@ class ModelWidget(
             state = FloatingState()
         }
 
+    private val heldItemRenderer = HeldItemRenderer()
+
     var state = FloatingState()
     var lookStartTime: Long? = null
     var currentYawAndPitch: Pair<Float, Float> = Pair(0f, 0f)
@@ -110,7 +112,7 @@ class ModelWidget(
             headPitch = currentYawAndPitch.second,
         )
 
-        HeldItemRenderer().renderOnModel(
+        heldItemRenderer.renderOnModel(
             heldItem?: ItemStack.EMPTY,
             state.locatorStates,
             matrices,

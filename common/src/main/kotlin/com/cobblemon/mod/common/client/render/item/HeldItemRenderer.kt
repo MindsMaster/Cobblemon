@@ -24,10 +24,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.world.item.ItemDisplayContext
 import net.minecraft.world.item.ItemStack
 
-class HeldItemRenderer(
-
-) {
-
+class HeldItemRenderer() {
     private val itemRenderer = Minecraft.getInstance().itemRenderer
     private var displayContext = ItemDisplayContext.FIXED
     private var scale = 1.0f

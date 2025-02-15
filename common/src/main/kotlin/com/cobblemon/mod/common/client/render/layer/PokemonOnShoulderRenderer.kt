@@ -44,6 +44,8 @@ class PokemonOnShoulderRenderer<T : Player>(renderLayerParent: RenderLayerParent
         it.put(RenderContext.RENDER_STATE, RenderContext.RenderState.WORLD)
     }
 
+    private val heldItemRenderer = HeldItemRenderer()
+
     var leftState = FloatingState()
     var lastRenderedLeft: ShoulderData? = null
     var rightState = FloatingState()
@@ -158,7 +160,7 @@ class PokemonOnShoulderRenderer<T : Player>(renderLayerParent: RenderLayerParent
                 model.render(context, matrixStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, -0x1)
             }
 
-            HeldItemRenderer().renderOnModel(
+            heldItemRenderer.renderOnModel(
                 shoulderData.shownItem,
                 state.locatorStates,
                 matrixStack,
