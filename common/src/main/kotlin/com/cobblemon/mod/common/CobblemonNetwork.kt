@@ -94,7 +94,13 @@ import com.cobblemon.mod.common.net.messages.client.storage.party.InitializePart
 import com.cobblemon.mod.common.net.messages.client.storage.party.MoveClientPartyPokemonPacket
 import com.cobblemon.mod.common.net.messages.client.storage.party.SetPartyPokemonPacket
 import com.cobblemon.mod.common.net.messages.client.storage.party.SetPartyReferencePacket
-import com.cobblemon.mod.common.net.messages.client.storage.pc.*
+import com.cobblemon.mod.common.net.messages.client.storage.pc.ClosePCPacket
+import com.cobblemon.mod.common.net.messages.client.storage.pc.InitializePCPacket
+import com.cobblemon.mod.common.net.messages.client.storage.pc.MoveClientPCPokemonPacket
+import com.cobblemon.mod.common.net.messages.client.storage.pc.OpenPCPacket
+import com.cobblemon.mod.common.net.messages.client.storage.pc.RenamePCBoxPacket
+import com.cobblemon.mod.common.net.messages.client.storage.pc.SetPCBoxPacket
+import com.cobblemon.mod.common.net.messages.client.storage.pc.SetPCPokemonPacket
 import com.cobblemon.mod.common.net.messages.client.storage.pc.wallpaper.ChangePCBoxWallpaperPacket
 import com.cobblemon.mod.common.net.messages.client.storage.pc.wallpaper.RequestPCBoxWallpapersPacket
 import com.cobblemon.mod.common.net.messages.client.storage.pc.wallpaper.SetPCBoxWallpapersPacket
@@ -147,16 +153,7 @@ import com.cobblemon.mod.common.net.messages.server.storage.SwapPCPartyPokemonPa
 import com.cobblemon.mod.common.net.messages.server.storage.party.MovePartyPokemonPacket
 import com.cobblemon.mod.common.net.messages.server.storage.party.ReleasePartyPokemonPacket
 import com.cobblemon.mod.common.net.messages.server.storage.party.SwapPartyPokemonPacket
-import com.cobblemon.mod.common.net.messages.server.storage.pc.MovePCPokemonPacket
-import com.cobblemon.mod.common.net.messages.server.storage.pc.MovePCPokemonToPartyPacket
-import com.cobblemon.mod.common.net.messages.server.storage.pc.MovePartyPokemonToPCPacket
-import com.cobblemon.mod.common.net.messages.server.storage.pc.PCBoxWallpapersPacket
-import com.cobblemon.mod.common.net.messages.server.storage.pc.ReleasePCPokemonPacket
-import com.cobblemon.mod.common.net.messages.server.storage.pc.RequestChangePCBoxWallpaperPacket
-import com.cobblemon.mod.common.net.messages.server.storage.pc.RequestRenamePCBoxPacket
-import com.cobblemon.mod.common.net.messages.server.storage.pc.SortPCBoxPacket
-import com.cobblemon.mod.common.net.messages.server.storage.pc.SwapPCPokemonPacket
-import com.cobblemon.mod.common.net.messages.server.storage.pc.UnlinkPlayerFromPCPacket
+import com.cobblemon.mod.common.net.messages.server.storage.pc.*
 import com.cobblemon.mod.common.net.messages.server.trade.AcceptTradeRequestPacket
 import com.cobblemon.mod.common.net.messages.server.trade.CancelTradePacket
 import com.cobblemon.mod.common.net.messages.server.trade.ChangeTradeAcceptancePacket
@@ -219,13 +216,11 @@ import net.minecraft.server.level.ServerPlayer
  * @since November 27th, 2021
  */
 object CobblemonNetwork {
-    //private val logger = LogUtils.getLogger()
 
     fun ServerPlayer.sendPacket(packet: NetworkPacket<*>) {
         sendPacketToPlayer(this, packet)
     }
     fun sendToServer(packet: NetworkPacket<*>) {
-        //logger.info("[C->S] ${packet.type()}")
         Cobblemon.implementation.networkManager.sendToServer(packet)
     }
     fun sendToAllPlayers(packet: NetworkPacket<*>) = sendPacketToPlayers(server()!!.playerList.players, packet)
@@ -506,7 +501,6 @@ object CobblemonNetwork {
     }
 
     fun sendPacketToPlayer(player: ServerPlayer, packet: NetworkPacket<*>) {
-        //logger.info("[S->C] ${packet.type()}")
         Cobblemon.implementation.networkManager.sendPacketToPlayer(player, packet)
     }
 }
