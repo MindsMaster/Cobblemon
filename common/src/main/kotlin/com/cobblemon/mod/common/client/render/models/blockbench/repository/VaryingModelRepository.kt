@@ -33,10 +33,12 @@ import com.cobblemon.mod.common.client.render.models.blockbench.pokemon.gen7.*
 import com.cobblemon.mod.common.client.render.models.blockbench.pokemon.gen8.*
 import com.cobblemon.mod.common.client.render.models.blockbench.pokemon.gen9.*
 import com.cobblemon.mod.common.client.render.models.blockbench.pose.Bone
+import com.cobblemon.mod.common.client.render.models.blockbench.pose.ModelPartTransformation
 import com.cobblemon.mod.common.client.render.models.blockbench.pose.Pose
 import com.cobblemon.mod.common.client.util.exists
 import com.cobblemon.mod.common.util.adapters.ExpressionAdapter
 import com.cobblemon.mod.common.util.adapters.ExpressionLikeAdapter
+import com.cobblemon.mod.common.util.adapters.ModelPartTransformationAdapter
 import com.cobblemon.mod.common.util.adapters.Vec3dAdapter
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.common.util.endsWith
@@ -116,6 +118,7 @@ object VaryingModelRepository {
             .registerTypeAdapter(FossilModel::class.java, JsonModelAdapter(::FossilModel))
             .registerTypeAdapter(BlockEntityModel::class.java, JsonModelAdapter(::BlockEntityModel))
             .registerTypeAdapter(Pose::class.java, PoseAdapter { JsonModelAdapter.model!! })
+            .registerTypeAdapter(ModelPartTransformation::class.java, ModelPartTransformationAdapter)
             .addDeserializationExclusionStrategy(MixinCompatibilityExclusionStrategy)
             .create()
     }

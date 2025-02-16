@@ -65,9 +65,6 @@ import com.cobblemon.mod.common.net.messages.client.dialogue.DialogueOpenedPacke
 import com.cobblemon.mod.common.net.messages.client.effect.RunPosableMoLangPacket
 import com.cobblemon.mod.common.net.messages.client.effect.SpawnSnowstormEntityParticlePacket
 import com.cobblemon.mod.common.net.messages.client.effect.SpawnSnowstormParticlePacket
-import com.cobblemon.mod.common.net.messages.client.fishing.FishingBaitRegistrySyncPacket
-import com.cobblemon.mod.common.net.messages.client.fossil.FossilRegistrySyncPacket
-import com.cobblemon.mod.common.net.messages.client.fossil.NaturalMaterialRegistrySyncPacket
 import com.cobblemon.mod.common.net.messages.client.npc.CloseNPCEditorPacket
 import com.cobblemon.mod.common.net.messages.client.npc.OpenNPCEditorPacket
 import com.cobblemon.mod.common.net.messages.client.pasture.ClosePasturePacket
@@ -94,6 +91,9 @@ import com.cobblemon.mod.common.net.messages.client.storage.party.MoveClientPart
 import com.cobblemon.mod.common.net.messages.client.storage.party.SetPartyPokemonPacket
 import com.cobblemon.mod.common.net.messages.client.storage.party.SetPartyReferencePacket
 import com.cobblemon.mod.common.net.messages.client.storage.pc.*
+import com.cobblemon.mod.common.net.messages.client.storage.pc.wallpaper.ChangePCBoxWallpaperPacket
+import com.cobblemon.mod.common.net.messages.client.storage.pc.wallpaper.RequestPCBoxWallpapersPacket
+import com.cobblemon.mod.common.net.messages.client.storage.pc.wallpaper.SetPCBoxWallpapersPacket
 import com.cobblemon.mod.common.net.messages.client.toast.ToastPacket
 import com.cobblemon.mod.common.net.messages.client.trade.*
 import com.cobblemon.mod.common.net.messages.client.ui.InteractPokemonUIPacket
@@ -117,6 +117,7 @@ import com.cobblemon.mod.common.net.messages.server.pasture.UnpasturePokemonPack
 import com.cobblemon.mod.common.net.messages.server.pokedex.scanner.FinishScanningPacket
 import com.cobblemon.mod.common.net.messages.server.pokedex.scanner.StartScanningPacket
 import com.cobblemon.mod.common.net.messages.server.pokemon.interact.InteractPokemonPacket
+import com.cobblemon.mod.common.net.messages.server.pokemon.update.SetItemHiddenPacket
 import com.cobblemon.mod.common.net.messages.server.pokemon.update.SetNicknamePacket
 import com.cobblemon.mod.common.net.messages.server.pokemon.update.evolution.AcceptEvolutionPacket
 import com.cobblemon.mod.common.net.messages.server.starter.RequestStarterScreenPacket
@@ -147,6 +148,7 @@ import com.cobblemon.mod.common.net.serverhandling.pasture.UnpasturePokemonHandl
 import com.cobblemon.mod.common.net.serverhandling.pokedex.scanner.FinishScanningHandler
 import com.cobblemon.mod.common.net.serverhandling.pokedex.scanner.StartScanningHandler
 import com.cobblemon.mod.common.net.serverhandling.pokemon.interact.InteractPokemonHandler
+import com.cobblemon.mod.common.net.serverhandling.pokemon.update.SetItemHiddenHandler
 import com.cobblemon.mod.common.net.serverhandling.pokemon.update.SetNicknameHandler
 import com.cobblemon.mod.common.net.serverhandling.starter.RequestStarterScreenHandler
 import com.cobblemon.mod.common.net.serverhandling.starter.SelectStarterPacketHandler
@@ -213,6 +215,9 @@ object CobblemonNetwork {
         list.add(PacketRegisterInfo(SpeciesFeatureUpdatePacket.ID, SpeciesFeatureUpdatePacket::decode, PokemonUpdatePacketHandler()))
         list.add(PacketRegisterInfo(OriginalTrainerUpdatePacket.ID, OriginalTrainerUpdatePacket::decode, PokemonUpdatePacketHandler()))
         list.add(PacketRegisterInfo(FormUpdatePacket.ID, FormUpdatePacket::decode, PokemonUpdatePacketHandler()))
+        list.add(PacketRegisterInfo(TeraTypeUpdatePacket.ID, TeraTypeUpdatePacket::decode, PokemonUpdatePacketHandler()))
+        list.add(PacketRegisterInfo(DmaxLevelUpdatePacket.ID, DmaxLevelUpdatePacket::decode, PokemonUpdatePacketHandler()))
+        list.add(PacketRegisterInfo(GmaxFactorUpdatePacket.ID, GmaxFactorUpdatePacket::decode, PokemonUpdatePacketHandler()))
 
         // Evolution start
         list.add(PacketRegisterInfo(AddEvolutionPacket.ID, AddEvolutionPacket::decode, PokemonUpdatePacketHandler()))
@@ -227,12 +232,17 @@ object CobblemonNetwork {
         list.add(PacketRegisterInfo(SetPartyReferencePacket.ID, SetPartyReferencePacket::decode, SetPartyReferenceHandler))
         list.add(PacketRegisterInfo(InitializePCPacket.ID, InitializePCPacket::decode, InitializePCHandler))
         list.add(PacketRegisterInfo(MoveClientPCPokemonPacket.ID, MoveClientPCPokemonPacket::decode, MoveClientPCPokemonHandler))
-        list.add(PacketRegisterInfo(SetPCBoxPokemonPacket.ID, SetPCBoxPokemonPacket::decode, SetPCBoxPokemonHandler))
+        list.add(PacketRegisterInfo(SetPCBoxPacket.ID, SetPCBoxPacket::decode, SetPCBoxHandler))
         list.add(PacketRegisterInfo(SetPCPokemonPacket.ID, SetPCPokemonPacket::decode, SetPCPokemonHandler))
         list.add(PacketRegisterInfo(OpenPCPacket.ID, OpenPCPacket::decode, OpenPCHandler))
         list.add(PacketRegisterInfo(ClosePCPacket.ID, ClosePCPacket::decode, ClosePCHandler))
         list.add(PacketRegisterInfo(SwapClientPokemonPacket.ID, SwapClientPokemonPacket::decode, SwapClientPokemonHandler))
         list.add(PacketRegisterInfo(RemoveClientPokemonPacket.ID, RemoveClientPokemonPacket::decode, RemoveClientPokemonHandler))
+
+        list.add(PacketRegisterInfo(RenamePCBoxPacket.ID, RenamePCBoxPacket::decode, RenamePCBoxHandler))
+        list.add(PacketRegisterInfo(RequestPCBoxWallpapersPacket.ID, RequestPCBoxWallpapersPacket::decode, RequestPCBoxWallpapersHandler))
+        list.add(PacketRegisterInfo(SetPCBoxWallpapersPacket.ID, SetPCBoxWallpapersPacket::decode, SetPCBoxWallpapersHandler))
+        list.add(PacketRegisterInfo(ChangePCBoxWallpaperPacket.ID, ChangePCBoxWallpaperPacket::decode, ChangePCBoxWallpaperHandler))
 
         // UI Packets
         list.add(PacketRegisterInfo(SummaryUIPacket.ID, SummaryUIPacket::decode, SummaryUIPacketHandler))
@@ -271,6 +281,7 @@ object CobblemonNetwork {
         // MultiBattleTeam Packets
         list.add(PacketRegisterInfo(TeamRequestNotificationPacket.ID, TeamRequestNotificationPacket::decode, TeamRequestNotificationHandler))
         list.add(PacketRegisterInfo(TeamRequestExpiredPacket.ID, TeamRequestExpiredPacket::decode, TeamRequestExpiredHandler))
+        list.add(PacketRegisterInfo(TeamMemberAddNotificationPacket.ID, TeamMemberAddNotificationPacket::decode, TeamMemberAddNotificationHandler))
         list.add(PacketRegisterInfo(TeamMemberRemoveNotificationPacket.ID, TeamMemberRemoveNotificationPacket::decode, TeamMemberRemoveNotificationHandler))
         list.add(PacketRegisterInfo(TeamJoinNotificationPacket.ID, TeamJoinNotificationPacket::decode, TeamJoinNotificationHandler))
 
@@ -358,6 +369,7 @@ object CobblemonNetwork {
         val list = mutableListOf<PacketRegisterInfo<*>>()
         // Pokemon Update Packets
         list.add(PacketRegisterInfo(SetNicknamePacket.ID, SetNicknamePacket::decode, SetNicknameHandler))
+        list.add(PacketRegisterInfo(SetItemHiddenPacket.ID, SetItemHiddenPacket::decode, SetItemHiddenHandler))
 
         // Evolution Packets
         list.add(PacketRegisterInfo(AcceptEvolutionPacket.ID, AcceptEvolutionPacket::decode, AcceptEvolutionHandler))
@@ -382,6 +394,10 @@ object CobblemonNetwork {
         list.add(PacketRegisterInfo(ReleasePCPokemonPacket.ID, ReleasePCPokemonPacket::decode, ReleasePCPokemonHandler))
         list.add(PacketRegisterInfo(UnlinkPlayerFromPCPacket.ID, UnlinkPlayerFromPCPacket::decode, UnlinkPlayerFromPCHandler))
 
+        list.add(PacketRegisterInfo(RequestRenamePCBoxPacket.Companion.ID, RequestRenamePCBoxPacket.Companion::decode, RequestRenamePCBoxHandler))
+        list.add(PacketRegisterInfo(PCBoxWallpapersPacket.ID, PCBoxWallpapersPacket::decode, PCBoxWallpapersHandler))
+        list.add(PacketRegisterInfo(RequestChangePCBoxWallpaperPacket.ID, RequestChangePCBoxWallpaperPacket::decode, RequestChangePCBoxWallpaperHandler))
+
         // Starter packets
         list.add(PacketRegisterInfo(SelectStarterPacket.ID, SelectStarterPacket::decode, SelectStarterPacketHandler))
         list.add(PacketRegisterInfo(RequestStarterScreenPacket.ID, RequestStarterScreenPacket::decode, RequestStarterScreenHandler))
@@ -393,6 +409,8 @@ object CobblemonNetwork {
         list.add(PacketRegisterInfo(MovePartyPokemonPacket.ID, MovePartyPokemonPacket::decode, MovePartyPokemonHandler))
 
         list.add(PacketRegisterInfo(SwapPCPartyPokemonPacket.ID, SwapPCPartyPokemonPacket::decode, SwapPCPartyPokemonHandler))
+
+        list.add(PacketRegisterInfo(SortPCBoxPacket.ID, SortPCBoxPacket::decode, SortPCBoxHandler))
 
         // Battle packets
         list.add(PacketRegisterInfo(BattleSelectActionsPacket.ID, BattleSelectActionsPacket::decode, BattleSelectActionsHandler))

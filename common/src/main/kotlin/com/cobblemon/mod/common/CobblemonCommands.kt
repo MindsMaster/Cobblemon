@@ -23,6 +23,7 @@ object CobblemonCommands {
         ChangeEyeHeight.register(dispatcher)
         ChangeScaleAndSize.register(dispatcher)
         ChangeWalkSpeed.register(dispatcher)
+        ChangeJointScaleCommand.register(dispatcher)
         TestCommand.register(dispatcher)
         ReloadShowdownCommand.register(dispatcher)
         ClickTextCommand.register(dispatcher)
@@ -56,6 +57,8 @@ object CobblemonCommands {
         AbandonMultiTeam.register(dispatcher)
         FreezePokemonCommand.register(dispatcher)
         ApplyPlayerTextureCommand.register(dispatcher)
+        RenameBoxCommand.register(dispatcher)
+        ChangeBoxWallpaperCommand.register(dispatcher)
         RunMolangScriptCommand.register(dispatcher)
         CobblemonConfigCommand.register(dispatcher)
 

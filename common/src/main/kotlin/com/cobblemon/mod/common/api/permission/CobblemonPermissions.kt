@@ -16,6 +16,7 @@ object CobblemonPermissions {
     val CHANGE_EYE_HEIGHT = this.create("${COMMAND_PREFIX}changeeyeheight", PermissionLevel.ALL_COMMANDS)
     val CHANGE_SCALE_AND_SIZE = this.create("${COMMAND_PREFIX}changescaleandsize", PermissionLevel.ALL_COMMANDS)
     val CHANGE_WALK_SPEED = this.create("${COMMAND_PREFIX}changewalkspeed", PermissionLevel.ALL_COMMANDS)
+    val CHANGE_JOINT_SCALE = this.create("${COMMAND_PREFIX}changejointscale", PermissionLevel.ALL_COMMANDS)
     val CHECKSPAWNS = this.create("${COMMAND_PREFIX}checkspawns", PermissionLevel.CHEAT_COMMANDS_AND_COMMAND_BLOCKS)
 
     val GET_NBT = this.create("${COMMAND_PREFIX}getnbt", PermissionLevel.ALL_COMMANDS)
@@ -61,6 +62,9 @@ object CobblemonPermissions {
     val PC = this.create("${COMMAND_PREFIX}pc", PermissionLevel.CHEAT_COMMANDS_AND_COMMAND_BLOCKS)
 
     val POKEBOX = this.create("${COMMAND_PREFIX}pokebox", PermissionLevel.CHEAT_COMMANDS_AND_COMMAND_BLOCKS)
+
+    val RENAMEBOX = this.create("${COMMAND_PREFIX}renamebox", PermissionLevel.CHEAT_COMMANDS_AND_COMMAND_BLOCKS)
+    val CHANGE_WALLPAPER = this.create("${COMMAND_PREFIX}changewallpaper", PermissionLevel.CHEAT_COMMANDS_AND_COMMAND_BLOCKS)
 
     val TEST_STORE = this.create("${COMMAND_PREFIX}teststore", PermissionLevel.CHEAT_COMMANDS_AND_COMMAND_BLOCKS)
 

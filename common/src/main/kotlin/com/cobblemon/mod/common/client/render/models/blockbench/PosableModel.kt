@@ -78,6 +78,8 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
     @Transient
     lateinit var locatorAccess: LocatorAccess
 
+    open var transformedParts = arrayOf<ModelPartTransformation>()
+
     open var portraitScale = 1F
     open var portraitTranslation = Vec3(0.0, 0.0, 0.0)
 
@@ -482,7 +484,7 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
 
 
     /** Applies the given pose's [ModelPartTransformation]s to the model, if there is a matching pose. */
-    fun applyPose(state: PosableState, pose: Pose, intensity: Float) = pose.transformedParts.forEach { it.apply(state, intensity) }
+    fun applyPose(state: PosableState, pose: Pose, intensity: Float) = (pose.transformedParts + transformedParts).forEach { it.apply(state, intensity) }
     /** Gets the first pose of this model that matches the given [PoseType]. */
     fun getPose(pose: PoseType) = poses.values.firstOrNull { pose in it.poseTypes }
     fun getPose(name: String) = poses[name]
@@ -667,7 +669,6 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
      * found and used from other client-side systems.
      */
     fun updateLocators(entity: Entity?, state: PosableState) {
-        entity ?: return
         val matrixStack = PoseStack()
         var scale = 1F
         // We could improve this to be generalized for other entities. First we'd have to figure out wtf is going on, though.
