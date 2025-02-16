@@ -37,19 +37,50 @@ class CakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : BlockE
         const val TOP_LAYER_HEIGHT = 0.5625f
         const val BOTTOM_LAYER_HEIGHT = 0.0f
 
-        val TOP_LAYER: TextureAtlasSprite = loadTexture("block/poke_snack_top_layer2")
-        val CHERRY_LAYER: TextureAtlasSprite = loadTexture("block/poke_snack_top_layer3")
-        val SIDE_LAYER_BOTTOM: TextureAtlasSprite = loadTexture("block/poke_snack_side_layer1")
-        val SIDE_LAYER_TOP: TextureAtlasSprite = loadTexture("block/poke_snack_side_layer2")
-        val SIDE_LAYER_MIDDLE: TextureAtlasSprite = loadTexture("block/poke_snack_side_layer3")
-        val BOTTOM_LAYER: TextureAtlasSprite = loadTexture("block/poke_snack_bottom_layer1")
-        val FIRST_INNER_LAYER: TextureAtlasSprite = loadTexture("block/poke_snack_inner_layer1")
-        val SECOND_INNER_LAYER: TextureAtlasSprite = loadTexture("block/poke_snack_inner_layer2")
-        val THIRD_INNER_LAYER: TextureAtlasSprite = loadTexture("block/poke_snack_inner_layer3")
+        object DefaultCake : RenderableCake {
+            override val topLayers: List<LayerTexture> = mutableListOf(
+                LayerTexture(loadTexture("block/poke_snack_top_layer2"), LayerColor.SECONDARY),
+                LayerTexture(loadTexture("block/poke_snack_top_layer3"), LayerColor.PRIMARY),
+            )
+            override val sideLayers: List<LayerTexture> = mutableListOf(
+                LayerTexture(loadTexture("block/poke_snack_side_layer1"), LayerColor.TERTIARY),
+                LayerTexture(loadTexture("block/poke_snack_side_layer2"), LayerColor.SECONDARY),
+                LayerTexture(loadTexture("block/poke_snack_side_layer3"), LayerColor.PRIMARY),
+            )
+            override val bottomLayers: List<LayerTexture> = mutableListOf(
+                LayerTexture(loadTexture("block/poke_snack_bottom_layer1"), LayerColor.TERTIARY),
+            )
+            override val innerLayers: List<LayerTexture> = mutableListOf(
+                LayerTexture(loadTexture("block/poke_snack_inner_layer1"), LayerColor.TERTIARY),
+                LayerTexture(loadTexture("block/poke_snack_inner_layer2"), LayerColor.SECONDARY),
+                LayerTexture(loadTexture("block/poke_snack_inner_layer3"), LayerColor.PRIMARY),
+            )
+        }
 
         fun loadTexture(textureName: String): TextureAtlasSprite {
             return Minecraft.getInstance().getTextureAtlas(BLOCK_ATLAS).apply(ResourceLocation("cobblemon", textureName))
         }
+    }
+
+    interface RenderableCake {
+        val topLayers: List<LayerTexture>
+        val sideLayers: List<LayerTexture>
+        val bottomLayers: List<LayerTexture>
+        val innerLayers: List<LayerTexture>
+    }
+
+    class LayerTexture(val texture: TextureAtlasSprite, val color: LayerColor) {
+        fun getColor(primaryColor: Int, secondaryColor: Int, tertiaryColor: Int): Int {
+            return when (color) {
+                LayerColor.PRIMARY -> primaryColor
+                LayerColor.SECONDARY -> secondaryColor
+                LayerColor.TERTIARY -> tertiaryColor
+            }
+        }
+    }
+
+    enum class LayerColor {
+        PRIMARY, SECONDARY, TERTIARY
     }
 
     override fun render(
@@ -71,11 +102,13 @@ class CakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : BlockE
         light: Int,
         bites: Int,
     ) {
+        val renderableCake: RenderableCake = DefaultCake
         val maxBites = MAX_NUMBER_OF_BITES + 1f
         val cakeIsFull = bites.toFloat() == 0f
         val percentageToRender = if (cakeIsFull) 1.0f else PIXEL_SHIFT.toFloat() + (PIXEL_SHIFT.toFloat() * 2f * (maxBites - bites).toFloat())
         val clippedWidth = (ATLAS_END - ATLAS_START) * percentageToRender
-        val uClipped = TOP_LAYER.u0 + (TOP_LAYER.u1 - TOP_LAYER.u0) * percentageToRender
+        val topLayer = renderableCake.topLayers.first().texture
+        val uClipped = topLayer.u0 + (topLayer.u1 - topLayer.u0) * percentageToRender
 
         val vertexConsumer = multiBufferSource.getBuffer(RenderType.cutout())
         val primaryColor = cookingComponent?.seasoning1?.color?.let { getColor(it) } ?: WHITE_OPAQUE_COLOR
@@ -88,19 +121,15 @@ class CakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : BlockE
         poseStack.translate(-0.5, -0.5, -0.5)
 
         poseStack.pushPose()
-        drawQuad(
-            vertexConsumer, poseStack,
-            ATLAS_START, TOP_LAYER_HEIGHT, ATLAS_START, clippedWidth, TOP_LAYER_HEIGHT, ATLAS_END,
-            TOP_LAYER.u0, TOP_LAYER.v0, uClipped, TOP_LAYER.v1,
-            light, secondaryColor
-        )
-
-        drawQuad(
-            vertexConsumer, poseStack,
-            ATLAS_START, TOP_LAYER_HEIGHT, ATLAS_START, clippedWidth, TOP_LAYER_HEIGHT, ATLAS_END,
-            CHERRY_LAYER.u0, CHERRY_LAYER.v0, uClipped, CHERRY_LAYER.v1,
-            light, primaryColor
-        )
+        for (layer in renderableCake.topLayers) {
+            val texture = layer.texture
+            drawQuad(
+                vertexConsumer, poseStack,
+                ATLAS_START, TOP_LAYER_HEIGHT, ATLAS_START, clippedWidth, TOP_LAYER_HEIGHT, ATLAS_END,
+                texture.u0, texture.v0, uClipped, texture.v1,
+                light, layer.getColor(primaryColor, secondaryColor, tertiaryColor)
+            )
+        }
         poseStack.popPose()
 
         val translations = arrayOf(
@@ -125,84 +154,48 @@ class CakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : BlockE
 
             if (i == 0 && !cakeIsFull) {
                 poseStack.translate(0.0, -bites * PIXEL_SHIFT * 2, 0.0)
-                drawQuad(
-                    vertexConsumer, poseStack,
-                    ATLAS_START, HEIGHT, ATLAS_START, ATLAS_END, HEIGHT, ATLAS_END,
-                    FIRST_INNER_LAYER.u0, FIRST_INNER_LAYER.v0, FIRST_INNER_LAYER.u1, FIRST_INNER_LAYER.v1,
-                    light, tertiaryColor
-                )
-                drawQuad(
-                    vertexConsumer, poseStack,
-                    ATLAS_START, HEIGHT, ATLAS_START, ATLAS_END, HEIGHT, ATLAS_END,
-                    SECOND_INNER_LAYER.u0, SECOND_INNER_LAYER.v0, SECOND_INNER_LAYER.u1, SECOND_INNER_LAYER.v1,
-                    light, secondaryColor
-                )
-                drawQuad(
-                    vertexConsumer, poseStack,
-                    ATLAS_START, HEIGHT, ATLAS_START, ATLAS_END, HEIGHT, ATLAS_END,
-                    THIRD_INNER_LAYER.u0, THIRD_INNER_LAYER.v0, THIRD_INNER_LAYER.u1, THIRD_INNER_LAYER.v1,
-                    light, primaryColor
-                )
+                for (layer in renderableCake.innerLayers) {
+                    val texture = layer.texture
+                    drawQuad(
+                        vertexConsumer, poseStack,
+                        ATLAS_START, HEIGHT, ATLAS_START, ATLAS_END, HEIGHT, ATLAS_END,
+                        texture.u0, texture.v0, texture.u1, texture.v1,
+                        light, layer.getColor(primaryColor, secondaryColor, tertiaryColor)
+                    )
+                }
             } else if (i == 0 || i == 1) {
-                drawQuad(
-                    vertexConsumer, poseStack,
-                    ATLAS_START, HEIGHT, ATLAS_START, clippedWidth, HEIGHT, ATLAS_END,
-                    SIDE_LAYER_BOTTOM.u0, SIDE_LAYER_BOTTOM.v0, uClipped, SIDE_LAYER_BOTTOM.v1,
-                    light, tertiaryColor
-                )
-                drawQuad(
-                    vertexConsumer, poseStack,
-                    ATLAS_START, HEIGHT, ATLAS_START, clippedWidth, HEIGHT, ATLAS_END,
-                    SIDE_LAYER_TOP.u0, SIDE_LAYER_TOP.v0, uClipped, SIDE_LAYER_TOP.v1,
-                    light, secondaryColor
-                )
-                drawQuad(
-                    vertexConsumer, poseStack,
-                    ATLAS_START, HEIGHT, ATLAS_START, clippedWidth, HEIGHT, ATLAS_END,
-                    SIDE_LAYER_MIDDLE.u0, SIDE_LAYER_MIDDLE.v0, uClipped, SIDE_LAYER_MIDDLE.v1,
-                    light, primaryColor
-                )
+                for (layer in renderableCake.sideLayers) {
+                    val texture = layer.texture
+                    drawQuad(
+                        vertexConsumer, poseStack,
+                        ATLAS_START, HEIGHT, ATLAS_START, clippedWidth, HEIGHT, ATLAS_END,
+                        texture.u0, texture.v0, uClipped, texture.v1,
+                        light, layer.getColor(primaryColor, secondaryColor, tertiaryColor)
+                    )
+                }
             } else if (i == 2) {
-                drawQuad(
-                    vertexConsumer, poseStack,
-                    ATLAS_START, HEIGHT, ATLAS_START, ATLAS_END, HEIGHT, ATLAS_END,
-                    SIDE_LAYER_BOTTOM.u0, SIDE_LAYER_BOTTOM.v0, SIDE_LAYER_BOTTOM.u1, SIDE_LAYER_BOTTOM.v1,
-                    light, tertiaryColor
-                )
-                drawQuad(
-                    vertexConsumer, poseStack,
-                    ATLAS_START, HEIGHT, ATLAS_START, ATLAS_END, HEIGHT, ATLAS_END,
-                    SIDE_LAYER_TOP.u0, SIDE_LAYER_TOP.v0, SIDE_LAYER_TOP.u1, SIDE_LAYER_TOP.v1,
-                    light, secondaryColor
-                )
-                drawQuad(
-                    vertexConsumer, poseStack,
-                    ATLAS_START, HEIGHT, ATLAS_START, ATLAS_END, HEIGHT, ATLAS_END,
-                    SIDE_LAYER_TOP.u0, SIDE_LAYER_MIDDLE.v0, SIDE_LAYER_MIDDLE.u1, SIDE_LAYER_MIDDLE.v1,
-                    light, primaryColor
-                )
+                for (layer in renderableCake.sideLayers) {
+                    val texture = layer.texture
+                    drawQuad(
+                        vertexConsumer, poseStack,
+                        ATLAS_START, HEIGHT, ATLAS_START, ATLAS_END, HEIGHT, ATLAS_END,
+                        texture.u0, texture.v0, texture.u1, texture.v1,
+                        light, layer.getColor(primaryColor, secondaryColor, tertiaryColor)
+                    )
+                }
             } else if (i == 3) {
                 val clippedStartX = ATLAS_START + (ATLAS_END - ATLAS_START) * (1 - percentageToRender)
-                val clippedUStart = SIDE_LAYER_BOTTOM.u0 + (SIDE_LAYER_BOTTOM.u1 - SIDE_LAYER_BOTTOM.u0) * (1 - percentageToRender)
 
-                drawQuad(
-                    vertexConsumer, poseStack,
-                    clippedStartX, HEIGHT, ATLAS_START, ATLAS_END, HEIGHT, ATLAS_END,
-                    clippedUStart, SIDE_LAYER_BOTTOM.v0, SIDE_LAYER_BOTTOM.u1, SIDE_LAYER_BOTTOM.v1,
-                    light, tertiaryColor
-                )
-                drawQuad(
-                    vertexConsumer, poseStack,
-                    clippedStartX, HEIGHT, ATLAS_START, ATLAS_END, HEIGHT, ATLAS_END,
-                    clippedUStart, SIDE_LAYER_TOP.v0, SIDE_LAYER_TOP.u1, SIDE_LAYER_TOP.v1,
-                    light, secondaryColor
-                )
-                drawQuad(
-                    vertexConsumer, poseStack,
-                    clippedStartX, HEIGHT, ATLAS_START, ATLAS_END, HEIGHT, ATLAS_END,
-                    clippedUStart, SIDE_LAYER_MIDDLE.v0, SIDE_LAYER_MIDDLE.u1, SIDE_LAYER_MIDDLE.v1,
-                    light, primaryColor
-                )
+                for (layer in renderableCake.sideLayers) {
+                    val texture = layer.texture
+                    val clippedUStart = texture.u0 + (texture.u1 - texture.u0) * (1 - percentageToRender)
+                    drawQuad(
+                        vertexConsumer, poseStack,
+                        clippedStartX, HEIGHT, ATLAS_START, ATLAS_END, HEIGHT, ATLAS_END,
+                        clippedUStart, texture.v0, texture.u1, texture.v1,
+                        light, layer.getColor(primaryColor, secondaryColor, tertiaryColor)
+                    )
+                }
             }
 
             poseStack.popPose()
@@ -212,12 +205,17 @@ class CakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : BlockE
         poseStack.translate(0.5, 0.0, 0.5)
         poseStack.mulPose(Axis.XP.rotationDegrees(180f))
         poseStack.translate(-0.5, 0.0, -0.5)
-        drawQuad(
-            vertexConsumer, poseStack,
-            ATLAS_START, BOTTOM_LAYER_HEIGHT, ATLAS_START, clippedWidth, BOTTOM_LAYER_HEIGHT, ATLAS_END,
-            BOTTOM_LAYER.u0, BOTTOM_LAYER.v0, uClipped, BOTTOM_LAYER.v1,
-            light, tertiaryColor
-        )
+
+        for (layer in renderableCake.bottomLayers) {
+            val texture = layer.texture
+            drawQuad(
+                vertexConsumer, poseStack,
+                ATLAS_START, BOTTOM_LAYER_HEIGHT, ATLAS_START, clippedWidth, BOTTOM_LAYER_HEIGHT, ATLAS_END,
+                texture.u0, texture.v0, uClipped, texture.v1,
+                light, layer.getColor(primaryColor, secondaryColor, tertiaryColor)
+            )
+        }
+
         poseStack.popPose()
 
         poseStack.popPose()
