@@ -24,6 +24,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.inventory.InventoryMenu.BLOCK_ATLAS
 import org.joml.Vector3d
+import kotlin.random.Random
 
 class CakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : BlockEntityRenderer<CakeBlockEntity> {
 
@@ -37,39 +38,64 @@ class CakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : BlockE
         const val TOP_LAYER_HEIGHT = 0.5625f
         const val BOTTOM_LAYER_HEIGHT = 0.0f
 
-        object DefaultCake : RenderableCake {
-            override val topLayers: List<LayerTexture> = mutableListOf(
-                LayerTexture(loadTexture("block/poke_snack_top_layer2"), LayerColor.SECONDARY),
-                LayerTexture(loadTexture("block/poke_snack_top_layer3"), LayerColor.PRIMARY),
+        object DefaultCakeLayout : CakeLayout {
+            override val topLayers: List<CakeTexture> = mutableListOf(
+                CakeTexture("poke_snack_top_layer2", LayerColor.SECONDARY),
+                CakeTexture("poke_snack_top_layer3", LayerColor.PRIMARY),
             )
-            override val sideLayers: List<LayerTexture> = mutableListOf(
-                LayerTexture(loadTexture("block/poke_snack_side_layer1"), LayerColor.TERTIARY),
-                LayerTexture(loadTexture("block/poke_snack_side_layer2"), LayerColor.SECONDARY),
-                LayerTexture(loadTexture("block/poke_snack_side_layer3"), LayerColor.PRIMARY),
+            override val sideLayers: List<CakeTexture> = mutableListOf(
+                CakeTexture("poke_snack_side_layer1", LayerColor.TERTIARY),
+                CakeTexture("poke_snack_side_layer2", LayerColor.SECONDARY),
+                CakeTexture("poke_snack_side_layer3", LayerColor.PRIMARY),
             )
-            override val bottomLayers: List<LayerTexture> = mutableListOf(
-                LayerTexture(loadTexture("block/poke_snack_bottom_layer1"), LayerColor.TERTIARY),
+            override val bottomLayers: List<CakeTexture> = mutableListOf(
+                CakeTexture("poke_snack_bottom_layer1", LayerColor.TERTIARY),
             )
-            override val innerLayers: List<LayerTexture> = mutableListOf(
-                LayerTexture(loadTexture("block/poke_snack_inner_layer1"), LayerColor.TERTIARY),
-                LayerTexture(loadTexture("block/poke_snack_inner_layer2"), LayerColor.SECONDARY),
-                LayerTexture(loadTexture("block/poke_snack_inner_layer3"), LayerColor.PRIMARY),
+            override val innerLayers: List<CakeTexture> = mutableListOf(
+                CakeTexture("poke_snack_inner_layer1", LayerColor.TERTIARY),
+                CakeTexture("poke_snack_inner_layer2", LayerColor.SECONDARY),
+                CakeTexture("poke_snack_inner_layer3", LayerColor.PRIMARY),
             )
         }
+
+        object HeartCakeLayout : CakeLayout {
+            override val topLayers: List<CakeTexture> = mutableListOf(
+                CakeTexture("poke_snack_top_layer4", LayerColor.SECONDARY),
+                CakeTexture("poke_snack_top_layer5", LayerColor.PRIMARY),
+            )
+            override val sideLayers: List<CakeTexture> = mutableListOf(
+                CakeTexture("poke_snack_side_layer1", LayerColor.TERTIARY),
+                CakeTexture("poke_snack_side_layer2", LayerColor.SECONDARY),
+                CakeTexture("poke_snack_side_layer3", LayerColor.PRIMARY),
+            )
+            override val bottomLayers: List<CakeTexture> = mutableListOf(
+                CakeTexture("poke_snack_bottom_layer1", LayerColor.TERTIARY),
+            )
+            override val innerLayers: List<CakeTexture> = mutableListOf(
+                CakeTexture("poke_snack_inner_layer1", LayerColor.TERTIARY),
+                CakeTexture("poke_snack_inner_layer2", LayerColor.SECONDARY),
+                CakeTexture("poke_snack_inner_layer3", LayerColor.PRIMARY),
+            )
+        }
+
+        val CAKE_LAYOUTS = listOf(DefaultCakeLayout, HeartCakeLayout)
 
         fun loadTexture(textureName: String): TextureAtlasSprite {
             return Minecraft.getInstance().getTextureAtlas(BLOCK_ATLAS).apply(ResourceLocation("cobblemon", textureName))
         }
     }
 
-    interface RenderableCake {
-        val topLayers: List<LayerTexture>
-        val sideLayers: List<LayerTexture>
-        val bottomLayers: List<LayerTexture>
-        val innerLayers: List<LayerTexture>
+    interface CakeLayout {
+        val topLayers: List<CakeTexture>
+        val sideLayers: List<CakeTexture>
+        val bottomLayers: List<CakeTexture>
+        val innerLayers: List<CakeTexture>
     }
 
-    class LayerTexture(val texture: TextureAtlasSprite, val color: LayerColor) {
+    class CakeTexture(textureName: String, val color: LayerColor) {
+
+        val texture = loadTexture("block/${textureName}")
+
         fun getColor(primaryColor: Int, secondaryColor: Int, tertiaryColor: Int): Int {
             return when (color) {
                 LayerColor.PRIMARY -> primaryColor
@@ -102,12 +128,15 @@ class CakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : BlockE
         light: Int,
         bites: Int,
     ) {
-        val renderableCake: RenderableCake = DefaultCake
+        val seedString = "${cookingComponent?.seasoning1?.color}${cookingComponent?.seasoning2?.color}${cookingComponent?.seasoning3?.color}"
+        val random = Random(seedString.hashCode())
+        val cakeLayout: CakeLayout = CAKE_LAYOUTS[random.nextInt(CAKE_LAYOUTS.size)]
+
         val maxBites = MAX_NUMBER_OF_BITES + 1f
         val cakeIsFull = bites.toFloat() == 0f
         val percentageToRender = if (cakeIsFull) 1.0f else PIXEL_SHIFT.toFloat() + (PIXEL_SHIFT.toFloat() * 2f * (maxBites - bites).toFloat())
         val clippedWidth = (ATLAS_END - ATLAS_START) * percentageToRender
-        val topLayer = renderableCake.topLayers.first().texture
+        val topLayer = cakeLayout.topLayers.first().texture
         val uClipped = topLayer.u0 + (topLayer.u1 - topLayer.u0) * percentageToRender
 
         val vertexConsumer = multiBufferSource.getBuffer(RenderType.cutout())
@@ -121,7 +150,7 @@ class CakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : BlockE
         poseStack.translate(-0.5, -0.5, -0.5)
 
         poseStack.pushPose()
-        for (layer in renderableCake.topLayers) {
+        for (layer in cakeLayout.topLayers) {
             val texture = layer.texture
             drawQuad(
                 vertexConsumer, poseStack,
@@ -154,7 +183,7 @@ class CakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : BlockE
 
             if (i == 0 && !cakeIsFull) {
                 poseStack.translate(0.0, -bites * PIXEL_SHIFT * 2, 0.0)
-                for (layer in renderableCake.innerLayers) {
+                for (layer in cakeLayout.innerLayers) {
                     val texture = layer.texture
                     drawQuad(
                         vertexConsumer, poseStack,
@@ -164,7 +193,7 @@ class CakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : BlockE
                     )
                 }
             } else if (i == 0 || i == 1) {
-                for (layer in renderableCake.sideLayers) {
+                for (layer in cakeLayout.sideLayers) {
                     val texture = layer.texture
                     drawQuad(
                         vertexConsumer, poseStack,
@@ -174,7 +203,7 @@ class CakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : BlockE
                     )
                 }
             } else if (i == 2) {
-                for (layer in renderableCake.sideLayers) {
+                for (layer in cakeLayout.sideLayers) {
                     val texture = layer.texture
                     drawQuad(
                         vertexConsumer, poseStack,
@@ -186,7 +215,7 @@ class CakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : BlockE
             } else if (i == 3) {
                 val clippedStartX = ATLAS_START + (ATLAS_END - ATLAS_START) * (1 - percentageToRender)
 
-                for (layer in renderableCake.sideLayers) {
+                for (layer in cakeLayout.sideLayers) {
                     val texture = layer.texture
                     val clippedUStart = texture.u0 + (texture.u1 - texture.u0) * (1 - percentageToRender)
                     drawQuad(
@@ -206,7 +235,7 @@ class CakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : BlockE
         poseStack.mulPose(Axis.XP.rotationDegrees(180f))
         poseStack.translate(-0.5, 0.0, -0.5)
 
-        for (layer in renderableCake.bottomLayers) {
+        for (layer in cakeLayout.bottomLayers) {
             val texture = layer.texture
             drawQuad(
                 vertexConsumer, poseStack,
