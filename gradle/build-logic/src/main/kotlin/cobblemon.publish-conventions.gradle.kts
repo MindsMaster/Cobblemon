@@ -1,4 +1,5 @@
 import utilities.VersionType
+import utilities.isSnapshot
 import utilities.writeVersion
 
 plugins {
@@ -24,7 +25,7 @@ publishing {
         }
 
         maven {
-            val snapshot = version.toString().endsWith("SNAPSHOT")
+            val snapshot = project.isSnapshot()
 
             val releases = uri("https://artefacts.cobblemon.com/releases")
             val snapshots = uri("https://artefacts.cobblemon.com/snapshots")
