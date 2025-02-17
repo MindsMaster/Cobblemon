@@ -43,6 +43,7 @@ object DataKeys {
     const val POKEMON_NATURE = "Nature"
     const val POKEMON_MINTED_NATURE = "MintedNature"
     const val HELD_ITEM = "HeldItem"
+    const val HELD_ITEM_VISIBLE = "HeldItemVisible"
     const val POKEMON_TERA_TYPE = "TeraType"
     const val POKEMON_DMAX_LEVEL = "DmaxLevel"
     const val POKEMON_GMAX_FACTOR = "GmaxFactor"
@@ -68,6 +69,7 @@ object DataKeys {
     const val POKEMON_PLATFORM_TYPE = "PlatformType"
 
     const val POKEMON_ORIGINAL_TRAINER = "PokemonOriginalTrainer"
+    const val POKEMON_ORIGINAL_TRAINER_NAME = "PokemonOriginalTrainerName"
     const val POKEMON_ORIGINAL_TRAINER_TYPE = "PokemonOriginalTrainerType"
 
     const val POKEMON_PROPERTIES_MOVES = "Moves"
@@ -90,6 +92,8 @@ object DataKeys {
     const val STORE_SLOT = "Slot"
     const val STORE_SLOT_COUNT = "SlotCount"
     const val STORE_BOX = "Box"
+    const val STORE_BOX_NAME = "BoxName"
+    const val STORE_BOX_WALLPAPER = "BoxWallpaper"
     const val STORE_BOX_COUNT = "BoxCount"
     const val STORE_BOX_COUNT_LOCKED = "BoxCountLocked"
     const val STORE_BACKUP = "BackupStore"
@@ -159,6 +163,7 @@ object DataKeys {
     const val SHOULDER_FORM = "shoulder_form"
     const val SHOULDER_ASPECTS = "shoulder_aspects"
     const val SHOULDER_SCALE_MODIFIER = "shoulder_scale"
+    const val SHOULDER_ITEM = "shoulder_item"
 
     // Multi-Block
     const val MULTIBLOCK_STORAGE = "MultiblockStore"
@@ -224,6 +229,7 @@ object DataKeys {
     const val NPC_HITBOX_WIDTH = "Width"
     const val NPC_HITBOX_HEIGHT = "Height"
     const val NPC_HITBOX_FIXED = "Fixed"
+    const val NPC_HIDE_NAME_TAG = "HideNPCNameTag"
 
     // PokemonProperties
     const val ELEMENTAL_TYPE = "ElementalType"

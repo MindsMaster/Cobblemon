@@ -40,7 +40,7 @@ class NPCClass {
     var aspects: MutableSet<String> = mutableSetOf() // These only make sense when applied via presets
     var baseScale: Float = 1F
     var hitbox = EntityDimensions.scalable(0.6F, 1.8F).withEyeHeight(1.62F)
-    var modelScale: Float = 0.94F
+    var modelScale: Float = 0.9375F
     var battleConfiguration = NPCBattleConfiguration()
     var interaction: NPCInteractConfiguration? = null
     var canDespawn = true
@@ -57,6 +57,7 @@ class NPCClass {
     var isInvulnerable = false
     var isLeashable = true
     var allowProjectileHits = true
+    var hideNameTag = false
 
     // If you're adding stuff here, add it to NPCPreset and NPCClassAdapter too
 
@@ -97,6 +98,7 @@ class NPCClass {
         buffer.writeBoolean(isInvulnerable)
         buffer.writeBoolean(isLeashable)
         buffer.writeBoolean(allowProjectileHits)
+        buffer.writeBoolean(hideNameTag)
     }
 
     fun decode(buffer: RegistryFriendlyByteBuf) {
@@ -148,5 +150,6 @@ class NPCClass {
         isInvulnerable = buffer.readBoolean()
         isLeashable = buffer.readBoolean()
         allowProjectileHits = buffer.readBoolean()
+        hideNameTag = buffer.readBoolean()
     }
 }
