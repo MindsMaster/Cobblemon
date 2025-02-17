@@ -22,6 +22,20 @@ publishing {
                 password = System.getenv("COBBLEMON_MAVEN_PASSWORD")
             }
         }
+
+        maven {
+            val snapshot = version.toString().endsWith("SNAPSHOT")
+
+            val releases = uri("https://artefacts.cobblemon.com/releases")
+            val snapshots = uri("https://artefacts.cobblemon.com/snapshots")
+
+            url = if (snapshot) snapshots else releases
+            name = "Reposilite.${if (snapshot) "Snapshots" else "Releases"}"
+            credentials {
+                username = System.getenv("COBBLEMON_REPOSILITE_USERNAME")
+                password = System.getenv("COBBLEMON_REPOSILITE_PASSWORD")
+            }
+        }
     }
 
     publications {
