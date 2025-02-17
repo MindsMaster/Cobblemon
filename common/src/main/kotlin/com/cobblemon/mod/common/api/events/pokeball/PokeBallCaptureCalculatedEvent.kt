@@ -8,10 +8,10 @@
 
 package com.cobblemon.mod.common.api.events.pokeball
 
-import com.bedrockk.molang.runtime.MoParams
 import com.bedrockk.molang.runtime.value.DoubleValue
 import com.bedrockk.molang.runtime.value.MoValue
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMostSpecificMoLangValue
+import com.cobblemon.mod.common.api.molang.MoLangFunctions.moLangFunctionMap
 import com.cobblemon.mod.common.api.pokeball.catching.CaptureContext
 import com.cobblemon.mod.common.entity.pokeball.EmptyPokeBallEntity
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
@@ -47,7 +47,7 @@ class PokeBallCaptureCalculatedEvent(
         "is_critical_capture" to DoubleValue(captureResult.isCriticalCapture),
     )
 
-    val functions = mutableMapOf<String, (MoParams) -> MoValue>(
+    val functions = moLangFunctionMap(
         "set_shakes" to { params ->
             val numShakes = params.getInt(0)
             val successful = params.getBooleanOrNull(1) ?: (numShakes == 4)
