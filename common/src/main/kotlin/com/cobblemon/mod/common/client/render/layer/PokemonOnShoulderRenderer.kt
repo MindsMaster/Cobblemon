@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.client.render.layer
 
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
+import com.cobblemon.mod.common.client.render.item.HeldItemRenderer
 import com.cobblemon.mod.common.client.render.models.blockbench.FloatingState
 import com.cobblemon.mod.common.client.render.models.blockbench.PosableModel
 import com.cobblemon.mod.common.client.render.models.blockbench.repository.RenderContext
@@ -35,12 +36,15 @@ import net.minecraft.nbt.NbtOps
 import net.minecraft.nbt.Tag
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 
 class PokemonOnShoulderRenderer<T : Player>(renderLayerParent: RenderLayerParent<T, PlayerModel<T>>) : RenderLayer<T, PlayerModel<T>>(renderLayerParent) {
 
     val context = RenderContext().also {
         it.put(RenderContext.RENDER_STATE, RenderContext.RenderState.WORLD)
     }
+
+    private val heldItemRenderer = HeldItemRenderer()
 
     var leftState = FloatingState()
     var lastRenderedLeft: ShoulderData? = null
@@ -155,6 +159,14 @@ class PokemonOnShoulderRenderer<T : Player>(renderLayerParent: RenderLayerParent
             model.withLayerContext(buffer, state, VaryingModelRepository.getLayers(shoulderData.species.resourceIdentifier, state)) {
                 model.render(context, matrixStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, -0x1)
             }
+
+            heldItemRenderer.renderOnModel(
+                shoulderData.shownItem,
+                state.locatorStates,
+                matrixStack,
+                buffer
+            )
+
             model.setDefault()
             matrixStack.popPose()
             livingEntity.level().profiler.pop()
@@ -177,7 +189,7 @@ class PokemonOnShoulderRenderer<T : Player>(renderLayerParent: RenderLayerParent
         if (!shoulderNbt.contains(DataKeys.SHOULDER_SPECIES)) {
             return Pokemon.CLIENT_CODEC.decode(NbtOps.INSTANCE, shoulderNbt.getCompound(DataKeys.POKEMON))
                 .map { it.first }
-                .mapOrElse({ ShoulderData(pokemonUUID, it.species, it.form, it.aspects, it.scaleModifier) }, { null })
+                .mapOrElse({ ShoulderData(pokemonUUID, it.species, it.form, it.aspects, it.scaleModifier, it.heldItem) }, { null })
         }
         val species = PokemonSpecies.getByIdentifier(ResourceLocation.parse(shoulderNbt.getString(DataKeys.SHOULDER_SPECIES)))
             ?: return null
@@ -185,7 +197,10 @@ class PokemonOnShoulderRenderer<T : Player>(renderLayerParent: RenderLayerParent
         val form = species.forms.firstOrNull { it.name == formName } ?: species.standardForm
         val aspects = shoulderNbt.getList(DataKeys.SHOULDER_ASPECTS, Tag.TAG_STRING.toInt()).map { it.asString }.toSet()
         val scaleModifier = shoulderNbt.getFloat(DataKeys.SHOULDER_SCALE_MODIFIER)
-        return ShoulderData(pokemonUUID, species, form, aspects, scaleModifier)
+        val shownItem = Minecraft.getInstance().level?.registryAccess()
+            ?.let { ItemStack.parseOptional(it, shoulderNbt.getCompound(DataKeys.SHOULDER_ITEM)) }
+            ?: ItemStack.EMPTY
+        return ShoulderData(pokemonUUID, species, form, aspects, scaleModifier, shownItem)
     }
 
     private data class ShoulderCache(
@@ -198,7 +213,8 @@ class PokemonOnShoulderRenderer<T : Player>(renderLayerParent: RenderLayerParent
         val species: Species,
         val form: FormData,
         val aspects: Set<String>,
-        val scaleModifier: Float
+        val scaleModifier: Float,
+        val shownItem: ItemStack
     )
 
     companion object {

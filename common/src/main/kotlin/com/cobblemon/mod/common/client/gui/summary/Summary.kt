@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.client.gui.summary
 
 import com.cobblemon.mod.common.Cobblemon
+import com.cobblemon.mod.common.CobblemonNetwork.sendToServer
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.gui.blitk
 import com.cobblemon.mod.common.api.moves.Move
@@ -36,6 +37,7 @@ import com.cobblemon.mod.common.client.gui.summary.widgets.screens.moves.MovesWi
 import com.cobblemon.mod.common.client.gui.summary.widgets.screens.stats.StatWidget
 import com.cobblemon.mod.common.client.render.drawScaledText
 import com.cobblemon.mod.common.client.render.models.blockbench.repository.VaryingModelRepository
+import com.cobblemon.mod.common.net.messages.server.pokemon.update.SetItemHiddenPacket
 import com.cobblemon.mod.common.net.messages.server.storage.party.MovePartyPokemonPacket
 import com.cobblemon.mod.common.net.messages.server.storage.party.SwapPartyPokemonPacket
 import com.cobblemon.mod.common.pokemon.Gender
@@ -89,6 +91,8 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
         private val typeSpacerDoubleResource = cobblemonResource("textures/gui/summary/type_spacer_double.png")
         private val sideSpacerResource = cobblemonResource("textures/gui/summary/summary_side_spacer.png")
         private val evolveButtonResource = cobblemonResource("textures/gui/summary/summary_evolve_button.png")
+        private val itemVisibleResource = cobblemonResource("textures/gui/summary/item_visible.png")
+        private val itemHiddenResource = cobblemonResource("textures/gui/summary/item_hidden.png")
         private val tabIconInfo = cobblemonResource("textures/gui/summary/summary_tab_icon_info.png")
         private val tabIconMoves = cobblemonResource("textures/gui/summary/summary_tab_icon_moves.png")
         private val tabIconStats = cobblemonResource("textures/gui/summary/summary_tab_icon_stats.png")
@@ -168,6 +172,40 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
             )
         )
 
+        //Item Visibility Button
+        val hideHeldItemBtn = SummaryButton(
+            buttonX = x + 22f,
+            buttonY = y + 101f,
+            buttonWidth = 13,
+            buttonHeight = 9,
+            clickAction = {
+                selectedPokemon.heldItemVisible=!selectedPokemon.heldItemVisible
+                modelWidget.heldItem = if (selectedPokemon.heldItemVisible) selectedPokemon.heldItem else null
+                // Send item visibility update to server
+                sendToServer(
+                    SetItemHiddenPacket(
+                        selectedPokemon.uuid,
+                        selectedPokemon.heldItemVisible
+                    )
+                )
+            },
+            resource = itemVisibleResource,
+            renderRequirement = { selectedPokemon.heldItemVisible },
+            clickRequirement = { true },
+        )
+        val showHeldItemBtn = SummaryButton(
+            buttonX = x + 22f,
+            buttonY = y + 101f,
+            buttonWidth = 13,
+            buttonHeight = 9,
+            clickAction = { },
+            resource = itemHiddenResource,
+            renderRequirement = { !selectedPokemon.heldItemVisible },
+            clickRequirement = { false },
+        )
+        addRenderableWidget(showHeldItemBtn)
+        addRenderableWidget(hideHeldItemBtn)
+
         // Init Tabs
         summaryTabs.clear()
         summaryTabs.add(
@@ -237,6 +275,7 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
             rotationY = 325F,
             offsetY = -10.0,
             shouldFollowCursor = true,
+            heldItem = if (selectedPokemon.heldItemVisible) selectedPokemon.heldItem else null
         )
         addRenderableOnly(this.modelWidget)
     }
@@ -278,6 +317,7 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
 
         if (::modelWidget.isInitialized) {
             modelWidget.pokemon = selectedPokemon.asRenderablePokemon()
+            modelWidget.heldItem = if (selectedPokemon.heldItemVisible) selectedPokemon.heldItem else null
         }
 
         if (this::nicknameEntryWidget.isInitialized) {

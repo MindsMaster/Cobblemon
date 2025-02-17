@@ -6,6 +6,8 @@
 - Added `/cobblemonconfig reload` command to reload `main.json` configuration. **Note:** Some settings require a server restart to take effect; use this command cautiously.
 - Added `blacklisted_items_to_hold` and `whitelisted_items_to_hold` tags to allow for controlling which items players can give to their Pokémon. If the whitelist is empty, it will consider all item as allowed (unless they are in the blacklist).
 - Pokémon now follow the mouse cursor on the Summary screen, with an option to disable this in the settings.
+- Pokémon's held items can now be rendered, with a visibility toggle in the Summary screen.
+- Added `visibility/hidden`, `visibility/hat` and `visibility/face` tags to control where and how certain items are rendered.
 
 ### Changes
 - Renamed `chargeGainedPerTick` config to `secondsToChargeHealingMachine`.
@@ -21,6 +23,7 @@
 - Fixed fling not using Item Names for minecraft held items that substitute Pokémon items
 - Fixed evolutions sometimes preventing players from logging in to servers
 - Fixed rendering of shoulder-mounted Pokémon desyncing between clients
+- Fixed apricorn chest boats forgetting their inventories when being unloaded
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
