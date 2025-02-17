@@ -26,7 +26,7 @@ import net.minecraft.world.inventory.InventoryMenu.BLOCK_ATLAS
 import org.joml.Vector3d
 import kotlin.random.Random
 
-class CakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : BlockEntityRenderer<CakeBlockEntity> {
+open class CakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : BlockEntityRenderer<CakeBlockEntity> {
 
     companion object {
         const val PIXEL_SHIFT = 1.0 / 16.0

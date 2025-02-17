@@ -35,6 +35,7 @@ import net.minecraft.world.level.block.*
 import net.minecraft.world.level.block.state.BlockBehaviour
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.properties.BlockSetType
+import net.minecraft.world.level.block.state.properties.BlockStateProperties.LIT
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument
 import net.minecraft.world.level.block.state.properties.WoodType
 import net.minecraft.world.level.material.MapColor
@@ -233,7 +234,9 @@ object CobblemonBlocks : PlatformRegistry<Registry<Block>, ResourceKey<Registry<
     @JvmField
     val LURE_CAKE = this.create("lure_cake", LureCakeBlock(BlockBehaviour.Properties.of().forceSolidOn().strength(0.5F).sound(SoundType.WOOL).pushReaction(PushReaction.DESTROY)))
     @JvmField
-    val POKE_CAKE = this.create("poke_cake", PokeCakeBlock(BlockBehaviour.Properties.of().forceSolidOn().strength(0.5F).sound(SoundType.WOOL).pushReaction(PushReaction.DESTROY)))
+    val POKE_CAKE = this.create("poke_cake", PokeCakeBlock(BlockBehaviour.Properties.ofFullCopy(LURE_CAKE)))
+    @JvmField
+    val CANDLE_POKE_CAKE = this.create("candle_poke_cake", CandlePokeCakeBlock(BlockBehaviour.Properties.ofFullCopy(LURE_CAKE).lightLevel { blockState -> if (blockState.getValue(LIT) == true) 3 else 0 }))
 
     @JvmField
     val TUMBLESTONE_CLUSTER = tumblestoneBlock("tumblestone_cluster", GrowableStoneBlock.STAGE_3, 7, 3, null)

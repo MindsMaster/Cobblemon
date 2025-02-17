@@ -130,3 +130,4 @@ transitive-accessible field net/minecraft/stats/RecipeBookSettings states Ljava/
 transitive-accessible class net/minecraft/stats/RecipeBookSettings$TypeSettings
 transitive-accessible field net/minecraft/client/gui/screens/recipebook/RecipeBookComponent tabButtons Ljava/util/List;
 accessible field net/minecraft/client/gui/screens/recipebook/RecipeBookComponent menu Lnet/minecraft/world/inventory/RecipeBookMenu;
+accessible method net/minecraft/world/level/block/AbstractCandleBlock addParticlesAndSound (Lnet/minecraft/world/level/Level;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/util/RandomSource;)V

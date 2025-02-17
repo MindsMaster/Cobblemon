@@ -114,6 +114,9 @@ object CobblemonBlockEntities : PlatformRegistry<Registry<BlockEntityType<*>>, R
         "poke_cake",
         BlockEntityType.Builder.of(::PokeCakeBlockEntity, CobblemonBlocks.POKE_CAKE).build(null)
     )
-
-
+    @JvmField
+    val CANDLE_POKE_CAKE: BlockEntityType<CandlePokeCakeBlockEntity> = this.create(
+        "candle_poke_cake",
+        BlockEntityType.Builder.of(::CandlePokeCakeBlockEntity, CobblemonBlocks.CANDLE_POKE_CAKE).build(null)
+    )
 }

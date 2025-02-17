@@ -23,6 +23,7 @@ import com.cobblemon.mod.common.client.battle.ClientBattle
 import com.cobblemon.mod.common.client.gui.PartyOverlay
 import com.cobblemon.mod.common.client.gui.battle.BattleOverlay
 import com.cobblemon.mod.common.client.particle.BedrockParticleOptionsRepository
+import com.cobblemon.mod.common.client.render.block.CandlePokeCakeBlockEntityRenderer
 import com.cobblemon.mod.common.client.render.ClientPlayerIcon
 import com.cobblemon.mod.common.client.render.DeferredRenderer
 import com.cobblemon.mod.common.client.render.block.*
@@ -306,6 +307,7 @@ object CobblemonClient {
         this.implementation.registerBlockEntityRenderer(CobblemonBlockEntities.CAMPFIRE, ::CampfireBlockEntityRenderer)
         this.implementation.registerBlockEntityRenderer(CobblemonBlockEntities.LURE_CAKE, ::CakeBlockEntityRenderer)
         this.implementation.registerBlockEntityRenderer(CobblemonBlockEntities.POKE_CAKE, ::CakeBlockEntityRenderer)
+        this.implementation.registerBlockEntityRenderer(CobblemonBlockEntities.CANDLE_POKE_CAKE, ::CandlePokeCakeBlockEntityRenderer)
     }
 
     private fun registerEntityRenderers() {

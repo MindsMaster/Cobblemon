@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.block
 
 import com.cobblemon.mod.common.block.entity.CakeBlockEntity
+import com.cobblemon.mod.common.item.components.CookingComponent
 import net.minecraft.core.BlockPos
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
@@ -87,6 +88,14 @@ abstract class CakeBlock(settings: Properties): BaseEntityBlock(settings) {
         }
 
         level.levelEvent(player, 2001, pos, getId(woolBlock.defaultBlockState()))
+    }
+
+    fun getCookingComponent(level: BlockGetter, pos: BlockPos): CookingComponent? {
+        return (level.getBlockEntity(pos) as? CakeBlockEntity)?.cookingComponent
+    }
+
+    fun setCookingComponent(level: BlockGetter, pos: BlockPos, cookingComponent: CookingComponent) {
+        (level.getBlockEntity(pos) as? CakeBlockEntity)?.cookingComponent = cookingComponent
     }
 
     fun getBites(level: BlockGetter, pos: BlockPos): Int = (level.getBlockEntity(pos) as? CakeBlockEntity)?.bites ?: 0
