@@ -14,6 +14,7 @@ import com.bedrockk.molang.runtime.value.StringValue
 import com.cobblemon.mod.common.api.events.Cancelable
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMoLangValue
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMostSpecificMoLangValue
+import com.cobblemon.mod.common.api.molang.MoLangFunctions.moLangFunctionMap
 import net.minecraft.advancements.AdvancementHolder
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
@@ -72,6 +73,8 @@ interface ServerPlayerEvent {
                 put("hand", StringValue(hand.name))
                 face?.let { put("face", StringValue(it.name)) }
             }
+
+        val functions = moLangFunctionMap(cancelFunc)
     }
 
     /**
@@ -89,6 +92,8 @@ interface ServerPlayerEvent {
                 put("hand", StringValue(hand.name))
                 put("entity", entity.asMostSpecificMoLangValue())
             }
+
+        val functions = moLangFunctionMap(cancelFunc)
     }
 
     data class AdvancementEarned(override val player: ServerPlayer, val advancement: AdvancementHolder): ServerPlayerEvent {

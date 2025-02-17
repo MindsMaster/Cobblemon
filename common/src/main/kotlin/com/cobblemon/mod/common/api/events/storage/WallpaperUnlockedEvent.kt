@@ -12,9 +12,11 @@ import com.bedrockk.molang.runtime.value.DoubleValue
 import com.bedrockk.molang.runtime.value.MoValue
 import com.cobblemon.mod.common.api.events.Cancelable
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMoLangValue
+import com.cobblemon.mod.common.api.molang.MoLangFunctions.moLangFunctionMap
 import com.cobblemon.mod.common.api.storage.pc.PCStore
 import com.cobblemon.mod.common.api.storage.pc.UnlockablePCWallpaper
 import com.cobblemon.mod.common.util.asArrayValue
+import com.cobblemon.mod.common.util.getBoolean
 import net.minecraft.server.level.ServerPlayer
 
 /**
@@ -44,4 +46,12 @@ data class WallpaperUnlockedEvent(
             "players" to players.asArrayValue { it.asMoLangValue() },
             "play_sound" to DoubleValue(playSound)
         )
+
+    val functions = moLangFunctionMap(
+        cancelFunc,
+        "set_plays_sound" to { params ->
+            playSound = params.getBoolean(0)
+            DoubleValue.ONE
+        }
+    )
 }
