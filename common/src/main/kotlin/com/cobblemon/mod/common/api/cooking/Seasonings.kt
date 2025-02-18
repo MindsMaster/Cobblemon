@@ -20,6 +20,7 @@ import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.packs.PackType
+import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 
 object Seasonings : JsonDataRegistry<Seasoning> {
@@ -34,6 +35,7 @@ object Seasonings : JsonDataRegistry<Seasoning> {
         .create()
 
     private val itemMap = mutableMapOf<ResourceLocation, Seasoning>()
+    val allSeasoningItems = mutableListOf<Item>()
 
     override fun sync(player: ServerPlayer) {
         SeasoningRegistrySyncPacket(this.itemMap.values.toList()).sendToPlayer(player)
@@ -44,6 +46,16 @@ object Seasonings : JsonDataRegistry<Seasoning> {
         data.forEach { id, seasoning ->
             //println("Loaded Seasoning: $id -> $seasoning") // Debugging output
             itemMap[id] = seasoning
+        }
+
+        allSeasoningItems.clear()
+        cacheAllSeasoningItems()
+    }
+
+    fun cacheAllSeasoningItems() {
+        itemMap.forEach { (id, seasoning) ->
+            val item = BuiltInRegistries.ITEM.get(id)
+            allSeasoningItems.add(item)
         }
     }
 

@@ -9,14 +9,18 @@
 package com.cobblemon.mod.common.integration.jei.cooking
 
 import com.cobblemon.mod.common.CobblemonItems
+import com.cobblemon.mod.common.api.cooking.Seasonings
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.CRAFTING_GRID_WIDTH
+import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.SEASONING_SLOTS
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotRecipeBase
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotScreen
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.common.util.lang
+import mezz.jei.api.constants.VanillaTypes
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder
 import mezz.jei.api.gui.drawable.IDrawable
 import mezz.jei.api.helpers.IGuiHelper
+import mezz.jei.api.ingredients.IIngredientType
 import mezz.jei.api.recipe.IFocusGroup
 import mezz.jei.api.recipe.RecipeIngredientRole
 import mezz.jei.api.recipe.RecipeType
@@ -62,6 +66,14 @@ class CampfirePotRecipeCategory(registration: IRecipeCategoryRegistration) : IRe
             val y = 1 + column * 18
 
             builder.addSlot(RecipeIngredientRole.INPUT, x, y).addIngredients(ingredient)
+        }
+
+        val allSeasoningIngredients = Seasonings.allSeasoningItems.map { it.defaultInstance }
+        for ((index, _) in SEASONING_SLOTS.withIndex()) {
+            val x = 93 + index * 18
+            val y = 1
+
+            builder.addSlot(RecipeIngredientRole.INPUT, x, y).addIngredients(VanillaTypes.ITEM_STACK, allSeasoningIngredients.shuffled())
         }
 
         val registryAccess = Minecraft.getInstance().level?.registryAccess() ?: throw IllegalStateException("Registry access not found")
