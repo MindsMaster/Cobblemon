@@ -24,6 +24,7 @@
 - Fixed evolutions sometimes preventing players from logging in to servers
 - Fixed rendering of shoulder-mounted Pokémon desyncing between clients
 - Fixed apricorn chest boats forgetting their inventories when being unloaded
+- Fixed moves not updating correctly between form changes resulting in illegal movesets
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
