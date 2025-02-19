@@ -43,6 +43,7 @@ repositories {
 }
 
 dependencies {
+    modRuntimeOnly("local.com.moulberry:flashback:0.17.2")
     implementation(project(":common", configuration = "namedElements")) {
         isTransitive = false
     }

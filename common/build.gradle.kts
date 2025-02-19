@@ -35,6 +35,7 @@ repositories {
 }
 
 dependencies {
+    modImplementation("local.com.moulberry:flashback:0.17.2")
     implementation(libs.bundles.kotlin)
     modImplementation(libs.fabric.loader)
     modApi(libs.molang)
