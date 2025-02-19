@@ -17,9 +17,9 @@ import com.cobblemon.mod.common.api.text.text
 import com.cobblemon.mod.common.client.CobblemonClient
 import com.cobblemon.mod.common.client.CobblemonResources
 import com.cobblemon.mod.common.client.gui.battle.BattleGUI
-import com.cobblemon.mod.common.client.gui.portrait.FabulousPortraitDrawer
-import com.cobblemon.mod.common.client.gui.portrait.FancyPortraitDrawer
-import com.cobblemon.mod.common.client.gui.portrait.FastPortraitDrawer
+import com.cobblemon.mod.common.client.gui.portrait.FullyAnimatedPortraitDrawer
+import com.cobblemon.mod.common.client.gui.portrait.SelectedAnimatedPortraitDrawer
+import com.cobblemon.mod.common.client.gui.portrait.InanimatePortraitDrawer
 import com.cobblemon.mod.common.client.gui.portrait.PortraitStyle
 import com.cobblemon.mod.common.client.gui.toast.CobblemonToast
 import com.cobblemon.mod.common.client.keybind.boundKey
@@ -59,9 +59,9 @@ class PartyOverlay : Gui(Minecraft.getInstance()) {
         private val genderIconFemale = cobblemonResource("textures/gui/party/party_gender_female.png")
         private val portraitBackground = cobblemonResource("textures/gui/party/party_slot_portrait_background.png")
 
-        private val fastPortraitDrawer = FastPortraitDrawer()
-        private val fancyPortraitDrawer = FancyPortraitDrawer()
-        private val fabulousPortraitDrawer = FabulousPortraitDrawer()
+        private val inanimatePortraitDrawer = InanimatePortraitDrawer()
+        private val selectedAnimatedPortraitDrawer = SelectedAnimatedPortraitDrawer()
+        private val fullyAnimatedPortraitDrawer = FullyAnimatedPortraitDrawer()
     }
 
     private val screenExemptions: List<Class<out Screen>> = listOf(
@@ -161,9 +161,9 @@ class PartyOverlay : Gui(Minecraft.getInstance()) {
                 )
 
                 val portraitDrawer = when (Cobblemon.config.partyPortraitAnimations) {
-                    PortraitStyle.FAST -> fastPortraitDrawer
-                    PortraitStyle.FANCY -> fancyPortraitDrawer
-                    PortraitStyle.FABULOUS -> fabulousPortraitDrawer
+                    PortraitStyle.NEVER_ANIMATE -> inanimatePortraitDrawer
+                    PortraitStyle.ANIMATE_SELECTED -> selectedAnimatedPortraitDrawer
+                    PortraitStyle.ALWAYS_ANIMATE -> fullyAnimatedPortraitDrawer
                 }
 
                 portraitDrawer.draw(pokemon, matrices, partialDeltaTicks, selectedSlot == index, index)

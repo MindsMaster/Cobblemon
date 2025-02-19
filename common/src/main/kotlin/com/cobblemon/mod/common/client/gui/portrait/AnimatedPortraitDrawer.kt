@@ -19,7 +19,7 @@ import java.util.UUID
  */
 abstract class AnimatedPortraitDrawer : PortraitDrawer {
 
-    private val stale = FloatingState()
+    private val state = FloatingState()
 
     private val stateAtIndex = hashMapOf<Int, Pair<UUID, FloatingState>>()
 
@@ -41,7 +41,7 @@ abstract class AnimatedPortraitDrawer : PortraitDrawer {
 
     protected open fun stateFor(pokemon: Pokemon, isSelected: Boolean, index: Int): FloatingState {
         if (!this.shouldAnimate(pokemon, isSelected)) {
-            return this.stale
+            return this.state
         }
         val state = this.stateAtIndex.getOrPut(index) { pokemon.uuid to this.createState(pokemon) }
         if (state.first != pokemon.uuid) {

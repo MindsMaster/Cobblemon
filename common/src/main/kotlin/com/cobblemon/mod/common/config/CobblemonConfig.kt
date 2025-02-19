@@ -257,7 +257,7 @@ class CobblemonConfig {
     var summaryPokemonFollowCursor = true
 
     @CobblemonConfigField(Category.Interface, lang = "party_portrait_animations")
-    var partyPortraitAnimations = PortraitStyle.FAST
+    var partyPortraitAnimations = PortraitStyle.NEVER_ANIMATE
 
     @CobblemonConfigField(Category.Debug, lang = "enable_debug_keys")
     var enableDebugKeys = false

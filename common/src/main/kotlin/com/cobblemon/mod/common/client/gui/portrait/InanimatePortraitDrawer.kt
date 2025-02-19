@@ -19,7 +19,7 @@ import net.minecraft.client.GraphicsStatus
  *
  * Meant for client with [GraphicsStatus.FAST].
  */
-class FastPortraitDrawer : PortraitDrawer {
+class InanimatePortraitDrawer : PortraitDrawer {
 
     private val state = FloatingState()
 

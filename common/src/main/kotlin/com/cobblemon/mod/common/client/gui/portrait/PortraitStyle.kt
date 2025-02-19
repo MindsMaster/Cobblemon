@@ -13,9 +13,9 @@ import net.minecraft.util.StringRepresentable
 
 enum class PortraitStyle : StringRepresentable {
 
-    FAST,
-    FANCY,
-    FABULOUS;
+    NEVER_ANIMATE,
+    ANIMATE_SELECTED,
+    ALWAYS_ANIMATE;
 
     override fun getSerializedName(): String = this.name
 

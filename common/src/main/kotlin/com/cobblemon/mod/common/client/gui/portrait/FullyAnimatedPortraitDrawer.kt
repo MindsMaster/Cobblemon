@@ -16,7 +16,7 @@ import net.minecraft.client.GraphicsStatus
  *
  * Meant for client with [GraphicsStatus.FABULOUS].
  */
-class FabulousPortraitDrawer : AnimatedPortraitDrawer() {
+class FullyAnimatedPortraitDrawer : AnimatedPortraitDrawer() {
 
     override fun shouldAnimate(pokemon: Pokemon, isSelected: Boolean): Boolean {
         return !pokemon.isFainted()
