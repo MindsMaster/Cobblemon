@@ -24,6 +24,8 @@
 - Fixed evolutions sometimes preventing players from logging in to servers
 - Fixed rendering of shoulder-mounted Pokémon desyncing between clients
 - Fixed apricorn chest boats forgetting their inventories when being unloaded
+- Fixed crash sometimes occurring with the "Oritech" mod
+- Fixed crashes due to an incorrect Java version handing out an obscure crash
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
