@@ -6,10 +6,9 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package com.cobblemon.mod.common.mixin;
+package com.cobblemon.mod.common.mixin.client;
 
 import com.cobblemon.mod.common.CobblemonRecipeCategories;
-import com.cobblemon.mod.common.CobblemonRecipeTypes;
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotBookCategory;
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotRecipe;
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotShapelessRecipe;
@@ -23,7 +22,6 @@ import net.minecraft.core.RegistryAccess;
 
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.RecipeType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -54,7 +52,6 @@ public abstract class ClientRecipeBookMixin {
                     ? ((CookingPotRecipe) recipe2).getCategory()
                     : ((CookingPotShapelessRecipe) recipe2).category();
             RecipeBookCategories var7;
-            System.out.println(category);
             switch (category) {
                 case MISC -> var7 = CobblemonRecipeCategories.COOKING_POT_MISC.toVanillaCategory();
                 case FOODS -> var7 = CobblemonRecipeCategories.COOKING_POT_FOODS.toVanillaCategory();
