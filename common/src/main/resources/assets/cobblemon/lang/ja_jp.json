@@ -5925,5 +5925,19 @@
     "cobblemon.gender.female": "メス",
     "block.cobblemon.pink_apricorn": "ももぼんぐり",
     "item.cobblemon.electric_seed": "エレキシード",
-    "item.cobblemon.grassy_seed": "グラスシード"
+    "item.cobblemon.grassy_seed": "グラスシード",
+    "cobblemon.fishing_bait_effects.nature.tooltip": "%1$s%% - %2$s↑ 性格引き寄せ",
+    "cobblemon.fishing_bait_effects.iv.tooltip": "%1$s%% - %2$s 個体値 +%3$s",
+    "cobblemon.fishing_bait_effects.ev.tooltip": "%1$s%% - %2$s努力値持ち引き寄せ",
+    "cobblemon.fishing_bait_effects.bite_time.tooltip": "%1$s%% - 食いつきまでの時間短縮 %3$s%%",
+    "cobblemon.fishing_bait_effects.gender_chance.tooltip": "%1$s%% - 性別 %2$s 引き寄せ",
+    "cobblemon.fishing_bait_effects.level_raise.tooltip": "%1$s%% - レベル上昇 +%3$s",
+    "cobblemon.fishing_bait_effects.tera.tooltip": "%1$s%% - %2$s テラスタイプ引き寄せ",
+    "cobblemon.fishing_bait_effects.shiny_reroll.tooltip": "%1$sx - %3$sx 色違い運",
+    "cobblemon.fishing_bait_effects.ha_chance.tooltip": "%1$s%% - 隠れ特性引き寄せ",
+    "cobblemon.fishing_bait_effects.pokemon_chance.tooltip": "%1$s%% - ポケモンが食いつきやすくなる",
+    "cobblemon.fishing_bait_effects.friendship.tooltip": "%1$s%% - すぐに懐く +%3$s",
+    "cobblemon.fishing_bait_effects.inert.tooltip": "効果は知られていないようだ",
+    "entity.minecraft.villager.nurse": "ポケモンナース",
+    "entity.minecraft.villager.cobblemon.nurse": "ポケモンナース"
 }
