@@ -5939,5 +5939,18 @@
     "cobblemon.fishing_bait_effects.friendship.tooltip": "%1$s%% - すぐに懐く +%3$s",
     "cobblemon.fishing_bait_effects.inert.tooltip": "効果は知られていないようだ",
     "entity.minecraft.villager.nurse": "ポケモンナース",
-    "entity.minecraft.villager.cobblemon.nurse": "ポケモンナース"
+    "entity.minecraft.villager.cobblemon.nurse": "ポケモンナース",
+    "cobblemon.ui.starter.narrator.backbutton": "戻るボタンが押されました",
+    "cobblemon.ui.moves.forget": "技を忘れる",
+    "cobblemon.ui.stash.gold": "コインの蓄え",
+    "cobblemon.ui.stash.netherite": "欠片の蓄え",
+    "cobblemon.ui.interact.accept": "受け入れる",
+    "cobblemon.ui.interact.decline": "拒否する",
+    "cobblemon.ui.interact.failed": "ターゲットが遮られているか、遠すぎます。",
+    "cobblemon.ui.interact.team_leave": "チームを離れる",
+    "cobblemon.ui.interact.team_request": "チームを組む",
+    "cobblemon.ui.interact.too_far": "ターゲットが遠すぎます",
+    "cobblemon.ui.pokedex.scan.registered_suffix": "%1$s が新しく図鑑に登録されます！",
+    "cobblemon.ui.pokenav.narrator.backbutton": "ポケナビのボタンが押されました",
+    "cobblemon.ui.interact.unavailable": "現在、ターゲットはその行動を行うことができません。"
 }
