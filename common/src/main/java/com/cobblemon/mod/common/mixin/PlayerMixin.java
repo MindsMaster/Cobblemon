@@ -167,8 +167,7 @@ public abstract class PlayerMixin extends LivingEntity implements ScannableEntit
 
     @Inject(method = "isInvulnerableTo", at = @At("HEAD"), cancellable = true)
     public void isInvulnerableTo(DamageSource source, CallbackInfoReturnable<Boolean> ci) {
-        if (!level().isClientSide) {
-            ServerPlayer player = (ServerPlayer)(Object)this;
+        if (!level().isClientSide && (Object) this instanceof ServerPlayer player) {
             boolean invulnerableInBattle = this.level().getGameRules().getBoolean(CobblemonGameRules.BATTLE_INVULNERABILITY);
             boolean inBattle = Cobblemon.INSTANCE.getBattleRegistry().getBattleByParticipatingPlayer(player) != null;
             if (invulnerableInBattle && inBattle) {
