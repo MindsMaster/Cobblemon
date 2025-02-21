@@ -6,12 +6,11 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package com.cobblemon.mod.common.mixin;
+package com.cobblemon.mod.common.mixin.client;
 
 import com.cobblemon.mod.common.Rollable;
 import com.cobblemon.mod.common.item.PokedexItem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;

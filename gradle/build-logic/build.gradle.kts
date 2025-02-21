@@ -21,11 +21,3 @@ dependencies {
     implementation(libs.blossom)
     implementation(libs.ideaExt)
 }
-
-configurations {
-    all {
-        resolutionStrategy {
-            force("com.google.code.gson:gson:2.10.1")
-        }
-    }
-}

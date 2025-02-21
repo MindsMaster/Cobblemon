@@ -29,7 +29,7 @@ import net.minecraft.world.phys.Vec3
  * the pokemon experience drifting after movement, or generic movement. It's up to the
  * controller to decide how the pokemon behaves.
  *
- * @since x.x.x
+ * @since 1.7.0
  */
 interface RideController : Encodable, Decodable {
 

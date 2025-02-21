@@ -12,14 +12,6 @@ object CobblemonBuildDetails {
     const val BRANCH = "{{ branch | default("Not Specified") }}"
 
     fun smallCommitHash(): String {
-        if(this.GIT_COMMIT.equals("Not Specified")) {
-            return "Unknown"
-        }
-
         return this.GIT_COMMIT.substring(0, 7)
-    }
-
-    fun version(): String {
-        return this.VERSION + if(this.SNAPSHOT) "+${this.smallCommitHash()}" else ""
     }
 }

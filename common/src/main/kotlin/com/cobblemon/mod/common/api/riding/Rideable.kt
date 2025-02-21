@@ -13,7 +13,7 @@ import net.minecraft.world.entity.PlayerRideableJumping
 /**
  * Represents an entity that supports riding.
  *
- * @since 1.5.0
+ * @since 1.7.0
  */
 interface Rideable : PlayerRideableJumping {
 
