@@ -26,7 +26,8 @@
 - Fixed apricorn chest boats forgetting their inventories when being unloaded
 - Fixed moves not updating correctly between form changes resulting in illegal movesets
 - Fixed crash sometimes occurring with the "Oritech" mod
-- Fixed crashes due to an incorrect Java version handing out an obscure crash
+- Fixed crashes due to an incorrect Java version handing out an obscure crash.
+- Fixed some berries being able to rarely get too many berries and cause a crash.
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
