@@ -100,7 +100,7 @@ object CobblemonFlows : DataRegistry {
         }
 
         // Most places in the mod use query structs so it's probably nicer to present the things as query values.
-        context.forEach { (key, value) -> runtime.environment.query.addFunction(key) { value } }
+        context.forEach { (key, value) -> runtime.environment.query.addFunction(key) { return@addFunction value } }
 
         functions.forEach { (name, function) -> runtime.environment.query.addFunction(name, function) }
 

@@ -16,10 +16,12 @@ import com.cobblemon.mod.common.api.storage.pc.UnlockablePCWallpaper
 import com.cobblemon.mod.common.util.adapters.ExpressionAdapter
 import com.cobblemon.mod.common.util.adapters.ExpressionLikeAdapter
 import com.cobblemon.mod.common.util.adapters.IdentifierAdapter
+import com.cobblemon.mod.common.util.adapters.TextAdapter
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
+import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.packs.PackType
@@ -39,6 +41,7 @@ object CobblemonUnlockableWallpapers : JsonDataRegistry<UnlockablePCWallpaper> {
         .registerTypeAdapter(Expression::class.java, ExpressionAdapter)
         .registerTypeAdapter(ExpressionLike::class.java, ExpressionLikeAdapter)
         .registerTypeAdapter(ResourceLocation::class.java, IdentifierAdapter)
+        .registerTypeAdapter(Component::class.java, TextAdapter)
         .create()
 
     override val typeToken = TypeToken.get(UnlockablePCWallpaper::class.java)

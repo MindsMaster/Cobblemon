@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.api.storage.pc
 
 import com.cobblemon.mod.common.Cobblemon
+import com.cobblemon.mod.common.CobblemonItems
 import com.cobblemon.mod.common.CobblemonNetwork.sendPacket
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.CobblemonUnlockableWallpapers
@@ -19,6 +20,9 @@ import com.cobblemon.mod.common.api.reactive.SimpleObservable
 import com.cobblemon.mod.common.api.storage.BottomlessStore
 import com.cobblemon.mod.common.api.storage.PokemonStore
 import com.cobblemon.mod.common.api.storage.StoreCoordinates
+import com.cobblemon.mod.common.api.text.add
+import com.cobblemon.mod.common.api.text.text
+import com.cobblemon.mod.common.api.toast.Toast
 import com.cobblemon.mod.common.net.messages.client.storage.RemoveClientPokemonPacket
 import com.cobblemon.mod.common.net.messages.client.storage.SwapClientPokemonPacket
 import com.cobblemon.mod.common.net.messages.client.storage.pc.InitializePCPacket
@@ -41,6 +45,7 @@ import net.minecraft.network.chat.MutableComponent
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundSource
+import net.minecraft.world.item.ItemStack
 
 /**
  * The store used for PCs. It is divided into some number of [PCBox]es, and can
@@ -295,7 +300,7 @@ open class PCStore(
         val unlockableWallpaper = CobblemonUnlockableWallpapers.unlockableWallpapers[wallpaper]
         var succeeded = false
         if (unlockableWallpaper != null && unlockableWallpaper.enabled) {
-            val event = WallpaperUnlockedEvent(pc = this, wallpaper = unlockableWallpaper, playSound = playSound)
+            val event = WallpaperUnlockedEvent(pc = this, wallpaper = unlockableWallpaper, shouldNotify = playSound)
             CobblemonEvents.WALLPAPER_UNLOCKED_EVENT.postThen(
                 event = event,
                 ifSucceeded = {
@@ -303,7 +308,14 @@ open class PCStore(
                         pcChangeObservable.emit(Unit)
                         getObservingPlayers().forEach { player ->
                             player.sendPacket(UnlockPCBoxWallpaperPacket(unlockableWallpaper.texture))
-                            if (event.playSound) {
+                            if (event.shouldNotify) {
+                                val toast = Toast(
+                                    title = lang("wallpaper_unlocked"),
+                                    description = unlockableWallpaper.displayName?.let { "\"".text().add(it).add("\"") } ?: lang("unknown_wallpaper") ,
+                                    icon = ItemStack(CobblemonItems.PC)
+                                )
+                                toast.addListeners(player)
+                                toast.expireAfter(5F)
                                 player.playNotifySound(CobblemonSounds.PC_WALLPAPER_UNLOCK, SoundSource.MASTER, 1F, 1F)
                             }
                         }

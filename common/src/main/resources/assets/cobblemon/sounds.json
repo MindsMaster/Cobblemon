@@ -30,8 +30,7 @@
     "sounds": [ "cobblemon:pc/pc_click" ]
   },
   "pc.wallpaper.unlock": {
-    "sounds": [ "cobblemon:pc/pc_wallpaper_unlock" ],
-    "subtitle": "cobblemon.subtitle.wallpaper.unlock"
+    "sounds": [ { "name": "cobblemon:pc/pc_wallpaper_unlock", "volume": 0.1 } ]
   },
   "poke_ball.capture_succeeded": {
     "subtitle": "cobblemon.subtitle.poke_ball.capture_succeeded",

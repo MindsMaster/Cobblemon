@@ -587,11 +587,6 @@ object MoLangFunctions {
         { entity ->
             val map = hashMapOf<String, java.util.function.Function<MoParams, Any>>()
             map.put("is_living_entity") { DoubleValue.ONE }
-            map.put("damage") { params ->
-                val amount = params.getDouble(0)
-                val source = DamageSource(entity.level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolder(DamageTypes.GENERIC).get())
-                entity.hurt(source, amount.toFloat())
-            }
             map.put("is_flying") { _ -> DoubleValue(entity.isFallFlying) }
             map.put("is_sleeping") { _ -> DoubleValue(entity.isSleeping) }
             map.put("health") { _ -> DoubleValue(entity.health) }
@@ -1153,13 +1148,20 @@ object MoLangFunctions {
     fun Holder<DimensionType>.asDimensionTypeMoLangValue() = asMoLangValue(Registries.DIMENSION_TYPE).addFunctions(dimensionTypeFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())
     fun Player.asMoLangValue(): ObjectValue<Player> {
         if (this is ServerPlayer && uuid in Cobblemon.serverPlayerStructs) {
-            return Cobblemon.serverPlayerStructs[uuid]!!
+            val existing = Cobblemon.serverPlayerStructs[uuid]!!
+            if (existing.obj == this) {
+                return existing
+            } else {
+                Cobblemon.serverPlayerStructs.remove(uuid)
+            }
         }
 
         val value = ObjectValue(
             obj = this,
             stringify = { it.effectiveName().string }
         )
+
+        value.addFunctions(entityFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())
         value.addFunctions(livingEntityFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())
         value.addFunctions(playerFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())
 
@@ -1220,6 +1222,7 @@ object MoLangFunctions {
             obj = this,
             stringify = { it.name.string }
         )
+        value.addFunctions(entityFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())
         value.addFunctions(livingEntityFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())
         value.addFunctions(npcFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())
         return value
@@ -1230,6 +1233,7 @@ object MoLangFunctions {
             obj = this,
             stringify = { it.pokemon.uuid.toString() }
         )
+        value.addFunctions(entityFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())
         value.addFunctions(livingEntityFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())
         value.addFunctions(pokemonFunctions.flatMap { it(this.pokemon).entries.map { it.key to it.value } }.toMap()) // Convenience
         value.addFunctions(pokemonEntityFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())

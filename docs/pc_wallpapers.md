@@ -14,6 +14,7 @@ For example, you could create a JSON file called `some_texture.json` with the fo
 
     {
         "enabled": true,
+        "displayName": "Something",
         "texture": "cobblemon:textures/gui/pc/wallpaper/some_texture.png"
     }
 
@@ -26,12 +27,18 @@ The `enabled` field is used when you want to actively prevent a specific texture
 is a wallpaper supplied by Cobblemon that you want to remove, setting this to false will prevent its use despite existing
 in the client's resources.
 
+The `displayName` field is used to provide a name in the toast when the wallpaper is unlocked. If it is null, the toast
+will instead insert '???' in place of the name.
+
 For enabled, datapacked wallpapers, the server will build a list of which of these have been unlocked by the player.
-Unlocking can be done from MoLang scripts using `q.player.pc.unlock_wallpaper(id)`, from 
+Unlocking can be done from MoLang scripts using `q.player.pc.unlock_wallpaper(id, [shouldNotify])`, from 
 `/unlockpcboxwallpaper <player> <wallpaper>`, and from code unlocks. 
 
 For MoLang and command unlocks, references to the wallpaper use the JSON's file ID, not the texture. For example, in the 
-above example, unlocking from the command would be `/unlockpcboxwallpaper <player> cobblemon:some_texture`.
+above example, unlocking from the command would be `/unlockpcboxwallpaper <player> cobblemon:some_texture`. 
+
+Similarly, using the MoLang script would be `q.player.pc.unlock_wallpaper("cobblemon:some_texture", true)`. The second 
+parameter is a boolean that determines if the player should be notified of this new texture using a toast.
 
 A datapacked wallpaper results in a validation check when the client asks the service to apply a texture. If the texture
 is mentioned by a datapacked wallpaper, and the player has not unlocked that ID, the client will be told that it is not

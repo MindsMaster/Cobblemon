@@ -1537,6 +1537,8 @@
   "cobblemon.command.cobblemon_config.reload": "Reloading Cobblemon settings.",
   "cobblemon.command.unlockboxwallpaper.success": "%1$s can now use the %2$s wallpaper.",
   "cobblemon.command.unlockboxwallpaper.already": "%1$s already has the %2$s wallpaper.",
+  "cobblemon.wallpaper_unlocked": "Wallpaper Unlocked",
+  "cobblemon.unknown_wallpaper": "???",
 
   "cobblemon.config.ui.search_configurations": "Search Configurations",
   "cobblemon.config.ui.reset": "Reset",

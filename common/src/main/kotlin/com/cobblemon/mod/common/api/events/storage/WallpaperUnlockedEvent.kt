@@ -29,7 +29,7 @@ import net.minecraft.server.level.ServerPlayer
 data class WallpaperUnlockedEvent(
     val pc: PCStore,
     val wallpaper: UnlockablePCWallpaper,
-    var playSound: Boolean
+    var shouldNotify: Boolean
 ): Cancelable() {
     /** For shared PCs with multiple players online, and for offline PC access, the player will be null. */
     val player: ServerPlayer?
@@ -44,13 +44,13 @@ data class WallpaperUnlockedEvent(
             "wallpaper" to wallpaper.struct,
             "player" to (player?.asMoLangValue() ?: DoubleValue.ZERO),
             "players" to players.asArrayValue { it.asMoLangValue() },
-            "play_sound" to DoubleValue(playSound)
+            "should_notify" to DoubleValue(shouldNotify)
         )
 
     val functions = moLangFunctionMap(
         cancelFunc,
-        "set_plays_sound" to { params ->
-            playSound = params.getBoolean(0)
+        "set_should_notify" to { params ->
+            shouldNotify = params.getBoolean(0)
             DoubleValue.ONE
         }
     )
