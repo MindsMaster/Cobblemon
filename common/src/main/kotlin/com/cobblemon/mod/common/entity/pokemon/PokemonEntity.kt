@@ -227,6 +227,7 @@ open class PokemonEntity(
 
     var tethering: PokemonPastureBlockEntity.Tethering? = null
 
+    // TODO review if we still want this
     var queuedToDespawn = false
 
     var enablePoseTypeRecalculation = true
@@ -1420,7 +1421,7 @@ open class PokemonEntity(
 
     /**
      * If this Pokémon has a nickname, then the nickname is returned.
-     * Otherwise, [getDefaultName] is returned
+     * Otherwise, [getDisplayName] is returned
      *
      * @return The current display name of this entity.
      */
@@ -1560,21 +1561,11 @@ open class PokemonEntity(
     }
 
     override fun stopSeenByPlayer(player: ServerPlayer) {
-        if (player == null) {
-            return
-        }
-
         if (this.ownerUUID == player.uuid && tethering == null) {
-            queuedToDespawn = true
+            // queuedToDespawn = true
+            this.remove(RemovalReason.DISCARDED)
             return
         }
-//
-//            val chunkPos = ChunkPos(BlockPos(x.toInt(), y.toInt(), z.toInt()))
-//            (world as ServerWorld).chunkManager
-//                .addTicket(ChunkTicketType.POST_TELEPORT, chunkPos, 0, id)
-//            this.goalSelector.tick()
-//            if(distanceTo(player.blockPos) > 100) pokemon.recall()
-//        }
     }
 
     override fun canBeLeashed() = true

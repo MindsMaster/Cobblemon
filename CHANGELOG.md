@@ -29,6 +29,7 @@
 - Fixed crashes due to an incorrect Java version handing out an obscure crash.
 - Fixed some berries being able to rarely get too many berries and cause a crash.
 - Fixed status curing berries not playing the berry eating sound, same for healing berries used mid-battle.
+- Fixed owned Pokémon sometimes being un-interactable after the player relogs fast
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
