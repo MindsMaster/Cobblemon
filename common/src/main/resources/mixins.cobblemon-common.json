@@ -28,7 +28,6 @@
     "client.PlayerModelMixin",
     "client.CameraMixin",
     "invoker.ClientPlayNetworkHandlerInvoker",
-    "renderer.LivingEntityRendererMixin",
     "riding.JetMixin"
   ],
   "mixins": [
