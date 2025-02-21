@@ -183,6 +183,7 @@ open class PokemonEntity(
         @JvmStatic val FREEZE_FRAME = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.FLOAT)
         @JvmStatic val CAUGHT_BALL = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.STRING)
         @JvmStatic val EVOLUTION_STARTED = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BOOLEAN)
+        @JvmStatic var SHOWN_HELD_ITEM = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.ITEM_STACK)
 
         const val BATTLE_LOCK = "battle"
         const val EVOLUTION_LOCK = "evolving"
@@ -239,6 +240,10 @@ open class PokemonEntity(
         get() = entityData.get(FRIENDSHIP)
     val seats: List<Seat>
         get() = form.riding.seats
+
+    var shownItem: ItemStack
+        get() = entityData.get(SHOWN_HELD_ITEM)
+        set(value) = entityData.set(SHOWN_HELD_ITEM, value)
 
     var drops: DropTable? = null
 
@@ -339,6 +344,7 @@ open class PokemonEntity(
         builder.define(FREEZE_FRAME, -1F)
         builder.define(CAUGHT_BALL, "")
         builder.define(EVOLUTION_STARTED, false)
+        builder.define(SHOWN_HELD_ITEM, ItemStack.EMPTY)
     }
 
     override fun onSyncedDataUpdated(data: EntityDataAccessor<*>) {
@@ -1220,6 +1226,7 @@ open class PokemonEntity(
         nbt.putString(DataKeys.SHOULDER_FORM, this.pokemon.form.name)
         nbt.put(DataKeys.SHOULDER_ASPECTS, this.pokemon.aspects.map(StringTag::valueOf).toNbtList())
         nbt.putFloat(DataKeys.SHOULDER_SCALE_MODIFIER, this.pokemon.scaleModifier)
+        nbt.put(DataKeys.SHOULDER_ITEM, this.level().registryAccess().let { if (this.shownItem.isEmpty) CompoundTag() else this.shownItem.saveOptional(it) } as CompoundTag)
         if (isLeft) player.shoulderEntityLeft = nbt else player.shoulderEntityRight = nbt
         return true
     }

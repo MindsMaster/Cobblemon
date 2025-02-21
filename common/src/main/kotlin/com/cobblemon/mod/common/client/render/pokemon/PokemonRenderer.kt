@@ -19,6 +19,7 @@ import com.cobblemon.mod.common.client.entity.PokemonClientDelegate.Companion.BE
 import com.cobblemon.mod.common.client.entity.PokemonClientDelegate.Companion.BEAM_SHRINK_TIME
 import com.cobblemon.mod.common.client.keybind.boundKey
 import com.cobblemon.mod.common.client.keybind.keybinds.PartySendBinding
+import com.cobblemon.mod.common.client.render.item.HeldItemRenderer
 import com.cobblemon.mod.common.client.render.models.blockbench.PosableModel
 import com.cobblemon.mod.common.client.render.models.blockbench.PosableState
 import com.cobblemon.mod.common.client.render.models.blockbench.pokemon.PosablePokemonEntityModel
@@ -84,6 +85,8 @@ class PokemonRenderer(
     val ballContext = RenderContext().also {
         it.put(RenderContext.RENDER_STATE, RenderContext.RenderState.WORLD)
     }
+
+    private val heldItemRenderer = HeldItemRenderer()
 
     override fun getTextureLocation(entity: PokemonEntity): ResourceLocation {
         return VaryingModelRepository.getTexture(entity.pokemon.species.resourceIdentifier, entity.delegate as PokemonClientDelegate)
@@ -153,6 +156,15 @@ class PokemonRenderer(
             this.renderNameTag(entity, entity.effectiveName(), poseMatrix, buffer, packedLight, partialTicks)
         }
 //        Minecraft.getInstance().bufferBuilders.entityVertexConsumers.draw()
+
+        //Render Held Item
+        heldItemRenderer.renderOnEntity(
+            entity,
+            clientDelegate,
+            poseMatrix,
+            buffer,
+            packedLight
+        )
     }
 
     fun renderRiding(
