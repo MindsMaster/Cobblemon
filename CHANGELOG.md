@@ -24,6 +24,13 @@
 - Fixed evolutions sometimes preventing players from logging in to servers
 - Fixed rendering of shoulder-mounted Pokémon desyncing between clients
 - Fixed apricorn chest boats forgetting their inventories when being unloaded
+- Fixed moves not updating correctly between form changes resulting in illegal movesets
+- Fixed crash sometimes occurring with the "Oritech" mod
+- Fixed crashes due to an incorrect Java version handing out an obscure crash.
+- Fixed some berries being able to rarely get too many berries and cause a crash.
+- Fixed status curing berries not playing the berry eating sound, same for healing berries used mid-battle.
+- Fixed owned Pokémon sometimes being un-interactable after the player relogs fast
+- Fixed field name in evolution requirements for Spewpa Pokeball.
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
@@ -37,11 +44,13 @@
 
 ### Changes
 - When using the `cobblemon` or `generation_9` capture calculators a critical capture with a single shake will always play for successful captures when you've already registered the Pokémon as caught in your Pokédex.
+
 ### MoLang & Datapacks
 - The following usages for item predicates can now use item conditions like advancements do, you can learn about them in the [Minecraft wiki](https://minecraft.wiki/w/Advancement_definition#minecraft:filled_bucket)
   - The `requiredContext` for an item interaction evolution
   - The `itemCondition` for a held item evolution requirement
   - The `fossils` for a fossil entry
+- Added MoLang flows for `poke_ball_capture_calculated`, `evolution_tested`, `evolution_accepted`, `evolution_completed`
 
 ## [1.6.1 (January 26th, 2025)](#1-6-1)
 

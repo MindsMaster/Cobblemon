@@ -52,6 +52,7 @@ import com.cobblemon.mod.common.api.reactive.EventObservable
 import com.cobblemon.mod.common.api.reactive.Observable.Companion.filter
 import com.cobblemon.mod.common.api.reactive.Observable.Companion.map
 import com.cobblemon.mod.common.api.reactive.SimpleObservable
+import com.cobblemon.mod.common.api.riding.events.SelectDriverEvent
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import net.minecraft.server.level.ServerPlayer
 
@@ -258,4 +259,12 @@ object CobblemonEvents {
     val HATCH_EGG_PRE = CancelableObservable<HatchEggEvent.Pre>()
     @JvmField
     val HATCH_EGG_POST = EventObservable<HatchEggEvent.Post>()
+
+    // -------------------------------------------------------------------------------------
+    //
+    // Riding
+    //
+    // -------------------------------------------------------------------------------------
+    @JvmField
+    val SELECT_DRIVER = EventObservable<SelectDriverEvent>()
 }

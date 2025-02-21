@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package com.cobblemon.mod.common.mixin;
+package com.cobblemon.mod.common.mixin.client;
 
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.ModAPI;
@@ -40,7 +40,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  */
 @Mixin(ItemRenderer.class)
 public abstract class ItemRendererMixin {
-    @Unique private final String MODEL_PATH = Cobblemon.implementation.getModAPI() == ModAPI.FABRIC ? "fabric_resource" : "standalone";
+    // ignore the hint saying implmentation is never null, if something crashes then it is null and causes red herrings
+    @Unique private final String MODEL_PATH = (Cobblemon.implementation != null && Cobblemon.implementation.getModAPI() == ModAPI.FABRIC) ? "fabric_resource" : "standalone";
 
     @Shadow @Final private ItemModelShaper itemModelShaper;
 
