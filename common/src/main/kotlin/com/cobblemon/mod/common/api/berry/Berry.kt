@@ -248,10 +248,6 @@ class Berry(
         }
          */
         this.growthFactors.forEach { it.validateArguments() }
-        val maxYield = this.maxYield()
-        if (this.growthPoints.size < maxYield) {
-            throw IllegalArgumentException("Anchor points must have enough elements for the max possible yield of $maxYield you've provided ${this.growthPoints.size} points")
-        }
         this.shapedFlower = hashMapOf()
         this.shapedFruit = hashMapOf()
         this.sproutShape = this.createAndUniteShapes(this.sproutShapeBoxes)
