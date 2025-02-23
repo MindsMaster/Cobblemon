@@ -140,6 +140,7 @@ import com.cobblemon.mod.common.net.messages.server.callback.partymove.PartyPoke
 import com.cobblemon.mod.common.net.messages.server.dialogue.EscapeDialoguePacket
 import com.cobblemon.mod.common.net.messages.server.dialogue.InputToDialoguePacket
 import com.cobblemon.mod.common.net.messages.server.npc.SaveNPCPacket
+import com.cobblemon.mod.common.net.messages.server.orientation.C2SUpdateOrientationPacket
 import com.cobblemon.mod.common.net.messages.server.pasture.PasturePokemonPacket
 import com.cobblemon.mod.common.net.messages.server.pasture.UnpastureAllPokemonPacket
 import com.cobblemon.mod.common.net.messages.server.pasture.UnpasturePokemonPacket
@@ -181,6 +182,7 @@ import com.cobblemon.mod.common.net.serverhandling.dialogue.EscapeDialogueHandle
 import com.cobblemon.mod.common.net.serverhandling.dialogue.InputToDialogueHandler
 import com.cobblemon.mod.common.net.serverhandling.evolution.AcceptEvolutionHandler
 import com.cobblemon.mod.common.net.serverhandling.npc.SaveNPCHandler
+import com.cobblemon.mod.common.net.serverhandling.orientation.OrientationPacketHandler
 import com.cobblemon.mod.common.net.serverhandling.pasture.PasturePokemonHandler
 import com.cobblemon.mod.common.net.serverhandling.pasture.UnpastureAllPokemonHandler
 import com.cobblemon.mod.common.net.serverhandling.pasture.UnpasturePokemonHandler
@@ -217,13 +219,11 @@ import net.minecraft.server.level.ServerPlayer
  * @since November 27th, 2021
  */
 object CobblemonNetwork {
-    //private val logger = LogUtils.getLogger()
 
     fun ServerPlayer.sendPacket(packet: NetworkPacket<*>) {
         sendPacketToPlayer(this, packet)
     }
     fun sendToServer(packet: NetworkPacket<*>) {
-        //logger.info("[C->S] ${packet.type()}")
         Cobblemon.implementation.networkManager.sendToServer(packet)
     }
     fun sendToAllPlayers(packet: NetworkPacket<*>) = sendPacketToPlayers(server()!!.playerList.players, packet)
@@ -262,6 +262,7 @@ object CobblemonNetwork {
         list.add(PacketRegisterInfo(TeraTypeUpdatePacket.ID, TeraTypeUpdatePacket::decode, PokemonUpdatePacketHandler()))
         list.add(PacketRegisterInfo(DmaxLevelUpdatePacket.ID, DmaxLevelUpdatePacket::decode, PokemonUpdatePacketHandler()))
         list.add(PacketRegisterInfo(GmaxFactorUpdatePacket.ID, GmaxFactorUpdatePacket::decode, PokemonUpdatePacketHandler()))
+        list.add(PacketRegisterInfo(CosmeticItemUpdatePacket.ID, CosmeticItemUpdatePacket::decode, PokemonUpdatePacketHandler()))
 
         // Evolution start
         list.add(PacketRegisterInfo(AddEvolutionPacket.ID, AddEvolutionPacket::decode, PokemonUpdatePacketHandler()))
@@ -353,6 +354,7 @@ object CobblemonNetwork {
         list.add(PacketRegisterInfo(DexEntrySyncPacket.ID, DexEntrySyncPacket::decode, DataRegistrySyncPacketHandler()))
         list.add(PacketRegisterInfo(FishingBaitRegistrySyncPacket.ID, FishingBaitRegistrySyncPacket::decode, DataRegistrySyncPacketHandler()))
         list.add(PacketRegisterInfo(FlowRegistrySyncPacket.ID, FlowRegistrySyncPacket::decode, DataRegistrySyncPacketHandler()))
+        list.add(PacketRegisterInfo(CosmeticItemAssignmentSyncPacket.ID, CosmeticItemAssignmentSyncPacket::decode, DataRegistrySyncPacketHandler()))
 
         // Effects
         list.add(PacketRegisterInfo(SpawnSnowstormParticlePacket.ID, SpawnSnowstormParticlePacket::decode, SpawnSnowstormParticleHandler))
@@ -500,11 +502,13 @@ object CobblemonNetwork {
         // NPC packets
         list.add(PacketRegisterInfo(SaveNPCPacket.ID, SaveNPCPacket::decode, SaveNPCHandler))
 
+        // Orientation packet(s)
+        list.add(PacketRegisterInfo(C2SUpdateOrientationPacket.ID, C2SUpdateOrientationPacket::decode, OrientationPacketHandler))
+
         return list
     }
 
     fun sendPacketToPlayer(player: ServerPlayer, packet: NetworkPacket<*>) {
-        //logger.info("[S->C] ${packet.type()}")
         Cobblemon.implementation.networkManager.sendPacketToPlayer(player, packet)
     }
 }
