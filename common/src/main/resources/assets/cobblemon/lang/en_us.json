@@ -1021,6 +1021,7 @@
   "cobblemon.pasture.too_many_nearby": "There are too many Pokémon nearby.",
 
   "cobblemon.ui.interact.give.item": "Change held item",
+  "cobblemon.ui.interact.give.cosmetic_item": "Change cosmetic item",
   "cobblemon.ui.interact.spectate": "Spectate",
   "cobblemon.ui.interact.trade": "Trade",
   "cobblemon.ui.interact.battle": "Battle",
@@ -1215,6 +1216,17 @@
   "cobblemon.pokedex.variation.season": "Season",
   "cobblemon.pokedex.variation.snake_pattern": "Snake Pattern",
 
+  "cobblemon.cosmetic.held_logs.oak": "Oak Log",
+  "cobblemon.cosmetic.held_logs.spruce": "Spruce Log",
+  "cobblemon.cosmetic.held_logs.birch": "Birch Log",
+  "cobblemon.cosmetic.held_logs.jungle": "Jungle Log",
+  "cobblemon.cosmetic.held_logs.acacia": "Acacia Log",
+  "cobblemon.cosmetic.held_logs.dark_oak": "Dark Oak Log",
+  "cobblemon.cosmetic.held_logs.crimson": "Crimson Log",
+  "cobblemon.cosmetic.held_logs.warped": "Warped Log",
+  "cobblemon.cosmetic.held_logs.mangrove": "Mangrove Log",
+  "cobblemon.cosmetic.held_logs.cherry": "Cherry Log",
+
   "key.cobblemon.upshiftparty": "Party Shift Up",
   "key.cobblemon.downshiftparty": "Party Shift Down",
   "key.cobblemon.hideparty": "Hide Party Overlay",
@@ -1267,6 +1279,12 @@
   "cobblemon.held_item.take": "You retrieved %1$s from %2$s.",
   "cobblemon.held_item.forbidden": "You can't give %1$s for %2$s to hold.",
   "cobblemon.held_item.already_holding": "%1$s is already holding %2$s!",
+
+  "cobblemon.cosmetic_item": "Cosmetic Item",
+  "cobblemon.cosmetic_item.give": "%1$s was given %2$s to wear.",
+  "cobblemon.cosmetic_item.replace": "You retrieved %1$s from %2$s and gave it %3$s to wear.",
+  "cobblemon.cosmetic_item.take": "You retrieved %1$s from %2$s.",
+  "cobblemon.cosmetic_item.already_wearing": "%1$s is already wearing %2$s!",
 
   "cobblemon.ui.pokemonteam": "Pokémon Team",
   "cobblemon.ui.lv": "Lv.",

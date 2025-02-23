@@ -8,9 +8,7 @@
 
 package com.cobblemon.mod.common.entity.pokemon
 
-import com.cobblemon.mod.common.Cobblemon
-import com.cobblemon.mod.common.CobblemonEntities
-import com.cobblemon.mod.common.CobblemonItems
+import com.cobblemon.mod.common.*
 import com.cobblemon.mod.common.CobblemonNetwork.sendPacket
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.Rollable
@@ -312,7 +310,6 @@ open class PokemonEntity(
             .addPokemonFunctions(pokemon)
             .addPokemonEntityFunctions(this)
     }
-
 
     init {
         delegate.initialize(this)
@@ -946,10 +943,15 @@ open class PokemonEntity(
         }
 
         if (hand == InteractionHand.MAIN_HAND && player is ServerPlayer && pokemon.getOwnerPlayer() == player) {
+            val cosmeticItemDefinition = CobblemonCosmeticItems.findValidCosmeticForPokemonAndItem(player.level().registryAccess(), pokemon, itemStack)
             if (player.isShiftKeyDown) {
-                InteractPokemonUIPacket(this.getUUID(), canSitOnShoulder() && pokemon in player.party(), this.canRide(player)).sendToPlayer(
-                    player
-                )
+                InteractPokemonUIPacket(
+                    this.getUUID(),
+                    canSitOnShoulder() && pokemon in player.party(),
+                    !(pokemon.heldItemNoCopy().isEmpty && itemStack.isEmpty),
+                    (!pokemon.cosmeticItem.isEmpty && itemStack.isEmpty) || cosmeticItemDefinition != null,
+                    this.canRide(player) && pokemon.riding.canRide
+                ).sendToPlayer(player)
             } else {
                 // TODO #105
                 if (this.attemptItemInteraction(player, player.getItemInHand(hand))) return InteractionResult.SUCCESS
@@ -1118,37 +1120,56 @@ open class PokemonEntity(
     }
 
     fun offerHeldItem(player: Player, stack: ItemStack): Boolean {
+        return offerItem(player, stack, isCosmetic = false)
+    }
+
+    fun offerCosmeticItem(player: Player, stack: ItemStack): Boolean {
+        return offerItem(player, stack, isCosmetic = true)
+    }
+
+    fun offerItem(
+        player: Player,
+        stack: ItemStack,
+        isCosmetic: Boolean
+    ): Boolean {
         if (player !is ServerPlayer || this.isBusy || this.pokemon.getOwnerPlayer() != player) {
             return false
         }
 
-        if (!stack.isEmpty && (isBlacklisted(stack) || !isWhitelisted(stack))) {
+        if (!stack.isEmpty && !isCosmetic && (isBlacklisted(stack) || !isWhitelisted(stack))) {
             player.sendSystemMessage(lang("held_item.forbidden", stack.hoverName, this.pokemon.getDisplayName()))
             return false
         }
 
-        // We want the count of 1 in order to match the ItemStack#areEqual
+        val possibleReturn = if (isCosmetic) this.pokemon.cosmeticItem.copy() else this.pokemon.heldItemNoCopy()
         val giving = stack.copy().apply { count = 1 }
-        val possibleReturn = this.pokemon.heldItemNoCopy()
-        if (stack.isEmpty && possibleReturn.isEmpty) {
+
+        if (ItemStack.isSameItem(giving, possibleReturn)) {
+            val message = if (isCosmetic) {
+                lang("cosmetic_item.already_wearing", this.pokemon.getDisplayName(), stack.hoverName)
+            } else {
+                lang("held_item.already_holding", this.pokemon.getDisplayName(), stack.hoverName)
+            }
+            player.sendSystemMessage(message)
             return false
         }
 
-        if (ItemStack.isSameItem(giving, possibleReturn)) {
-            player.sendSystemMessage(lang("held_item.already_holding", this.pokemon.getDisplayName(), stack.hoverName))
-            return true
+        val returned = if (isCosmetic) {
+            this.pokemon.swapCosmeticItem(stack = stack, decrement = !player.isCreative)
+        } else {
+            this.pokemon.swapHeldItem(stack = stack, decrement = !player.isCreative)
         }
 
-        val returned = this.pokemon.swapHeldItem(stack = stack, decrement = !player.isCreative)
         val text = when {
-            giving.isEmpty -> lang("held_item.take", returned.hoverName, this.pokemon.getDisplayName())
-            returned.isEmpty -> lang("held_item.give", this.pokemon.getDisplayName(), giving.hoverName)
-            else -> lang("held_item.replace", returned.hoverName, this.pokemon.getDisplayName(), giving.hoverName)
+            isCosmetic && giving.isEmpty -> lang("cosmetic_item.take", returned.hoverName, this.pokemon.getDisplayName())
+            isCosmetic && returned.isEmpty -> lang("cosmetic_item.give", this.pokemon.getDisplayName(), returned.hoverName)
+            !isCosmetic && giving.isEmpty -> lang("held_item.take", returned.hoverName, this.pokemon.getDisplayName())
+            !isCosmetic && returned.isEmpty -> lang("held_item.give", this.pokemon.getDisplayName(), returned.hoverName)
+            isCosmetic -> lang("cosmetic_item.replace", returned.hoverName, this.pokemon.getDisplayName(), returned.hoverName)
+            else -> lang("held_item.replace", returned.hoverName, this.pokemon.getDisplayName(), returned.hoverName)
         }
 
-        player.giveOrDropItemStack(returned)
         player.sendSystemMessage(text)
-
         this.level().playSoundServer(
             position = this.position(),
             sound = SoundEvents.ITEM_PICKUP,

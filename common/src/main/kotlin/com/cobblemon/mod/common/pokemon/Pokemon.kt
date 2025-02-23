@@ -473,6 +473,12 @@ open class Pokemon : ShowdownIdentifiable {
     var caughtBall: PokeBall = PokeBalls.POKE_BALL
         set(value) { field = value ; _caughtBall.emit(caughtBall) }
     var features = mutableListOf<SpeciesFeature>()
+    var cosmeticItem = ItemStack.EMPTY
+        set(value) {
+            field = value
+            updateAspects()
+            _cosmeticItem.emit(value)
+        }
 
     fun asRenderablePokemon() = RenderablePokemon(species, aspects)
 
@@ -956,6 +962,20 @@ open class Pokemon : ShowdownIdentifiable {
         return stack
     }
 
+    fun swapCosmeticItem(stack: ItemStack, decrement: Boolean = true): ItemStack {
+        val existing = this.cosmeticItem.copy()
+        CobblemonEvents.COSMETIC_ITEM_PRE.postThen(HeldItemEvent.Pre(this, stack, existing, decrement), ifSucceeded = { event ->
+            val giving = event.receiving.copy().apply { count = 1 }
+            if (event.decrement) {
+                event.receiving.shrink(1)
+            }
+            this.cosmeticItem = giving
+            CobblemonEvents.COSMETIC_ITEM_POST.post(HeldItemEvent.Post(this, this.cosmeticItem.copy(), event.returning.copy(), event.decrement))
+            return event.returning
+        })
+        return stack
+    }
+
     /**
      * Swaps out the current [heldItem] for an [ItemStack.EMPTY].
      *
@@ -1061,6 +1081,7 @@ open class Pokemon : ShowdownIdentifiable {
         this.originalTrainerType = other.originalTrainerType
         this.originalTrainer = other.originalTrainer
         this.forcedAspects = other.forcedAspects
+        this.cosmeticItem = other.cosmeticItem
         this.refreshOriginalTrainer()
         this.initialize()
         return this
@@ -1649,6 +1670,7 @@ open class Pokemon : ShowdownIdentifiable {
     private val _state = registerObservable(SimpleObservable<PokemonState>()) { PokemonStateUpdatePacket({ this }, it) }
     private val _status = registerObservable(SimpleObservable<PersistentStatus?>()) { StatusUpdatePacket({ this }, it) }
     private val _caughtBall = registerObservable(SimpleObservable<PokeBall>()) { CaughtBallUpdatePacket({ this }, it) }
+    private val _cosmeticItem = registerObservable(SimpleObservable<ItemStack>()) { CosmeticItemUpdatePacket({ this }, it) }
     private val _benchedMoves = registerObservable(benchedMoves.observable) { BenchedMovesUpdatePacket({ this }, BenchedMoves().also {copy -> copy.copyFrom(it)}) }
     private val _ivs = registerObservable(ivs.observable) { IVsUpdatePacket({ this }, it as IVs) }
     private val _evs = registerObservable(evs.observable) { EVsUpdatePacket({ this }, it as EVs) }
