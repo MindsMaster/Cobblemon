@@ -10,23 +10,28 @@ package com.cobblemon.mod.common.integration.jei.cooking
 
 import com.cobblemon.mod.common.CobblemonItems
 import com.cobblemon.mod.common.api.cooking.Seasonings
+import com.cobblemon.mod.common.block.entity.CampfireBlockEntity
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.CRAFTING_GRID_WIDTH
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.SEASONING_SLOTS
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotRecipeBase
-import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotScreen
+import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotScreen.Companion.COOK_PROGRESS_HEIGHT
+import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotScreen.Companion.COOK_PROGRESS_SPRITE
+import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotScreen.Companion.COOK_PROGRESS_WIDTH
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.common.util.lang
 import mezz.jei.api.constants.VanillaTypes
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder
 import mezz.jei.api.gui.drawable.IDrawable
+import mezz.jei.api.gui.drawable.IDrawableAnimated
+import mezz.jei.api.gui.ingredient.IRecipeSlotsView
 import mezz.jei.api.helpers.IGuiHelper
-import mezz.jei.api.ingredients.IIngredientType
 import mezz.jei.api.recipe.IFocusGroup
 import mezz.jei.api.recipe.RecipeIngredientRole
 import mezz.jei.api.recipe.RecipeType
 import mezz.jei.api.recipe.category.IRecipeCategory
 import mezz.jei.api.registration.IRecipeCategoryRegistration
 import net.minecraft.client.Minecraft
+import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.crafting.Ingredient
@@ -46,6 +51,10 @@ class CampfirePotRecipeCategory(registration: IRecipeCategoryRegistration) : IRe
     val campfirePotBackground: IDrawable = guiHelper.drawableBuilder(CAMPFIRE_POT_TEXTURE, 0, 0, WIDTH, HEIGHT)
         .setTextureSize(TEXTURE_WIDTH, TEXTURE_HEIGHT)
         .build()
+    val cookProgressSprite: IDrawableAnimated =
+        guiHelper.drawableBuilder(COOK_PROGRESS_SPRITE, 0, 0, COOK_PROGRESS_WIDTH, COOK_PROGRESS_HEIGHT)
+        .setTextureSize(22, COOK_PROGRESS_HEIGHT)
+        .buildAnimated(CampfireBlockEntity.COOKING_TOTAL_TIME, IDrawableAnimated.StartDirection.LEFT, false)
     val campfirePotIcon: IDrawable = guiHelper.createDrawableItemStack(CobblemonItems.CAMPFIRE_POT_BLACK.defaultInstance)
 
     override fun getRecipeType(): RecipeType<CookingPotRecipeBase?>? = RECIPE_TYPE
@@ -78,5 +87,17 @@ class CampfirePotRecipeCategory(registration: IRecipeCategoryRegistration) : IRe
 
         val registryAccess = Minecraft.getInstance().level?.registryAccess() ?: throw IllegalStateException("Registry access not found")
         builder.addSlot(RecipeIngredientRole.OUTPUT, 111, 38).addIngredients(Ingredient.of(recipe.getResultItem(registryAccess)))
+    }
+
+    override fun draw(
+        recipe: CookingPotRecipeBase,
+        recipeSlotsView: IRecipeSlotsView,
+        guiGraphics: GuiGraphics,
+        mouseX: Double,
+        mouseY: Double
+    ) {
+        super.draw(recipe, recipeSlotsView, guiGraphics, mouseX, mouseY)
+
+        cookProgressSprite.draw(guiGraphics, 79, 22)
     }
 }

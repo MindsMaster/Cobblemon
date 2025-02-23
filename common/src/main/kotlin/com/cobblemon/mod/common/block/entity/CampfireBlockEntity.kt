@@ -78,6 +78,7 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
         const val CRAFTING_GRID_WIDTH = 3
         const val PLAYER_INVENTORY_WIDTH = 9
 
+        const val COOKING_TOTAL_TIME = 200
         const val COOKING_PROGRESS_PER_TICK = 2
 
         const val COOKING_PROGRESS_INDEX = 0
@@ -192,7 +193,7 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
 
     private val runningSound = CobblemonSounds.CAMPFIRE_POT_COOK
     private var cookingProgress : Int = 0
-    private var cookingTotalTime : Int = 200
+    private var cookingTotalTime : Int = COOKING_TOTAL_TIME
     private var isLidOpen : Boolean = true
     private var items : NonNullList<ItemStack?> = NonNullList.withSize(ITEMS_SIZE, ItemStack.EMPTY)
     private val recipesUsed: Object2IntOpenHashMap<ResourceLocation> = Object2IntOpenHashMap()

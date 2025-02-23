@@ -49,11 +49,11 @@ class CookingPotScreen(
         private const val BACKGROUND_HEIGHT = 166
         private const val BACKGROUND_WIDTH = 176
 
-        private const val COOK_PROGRESS_HEIGHT = 12
-        private const val COOK_PROGRESS_WIDTH = 22
+        const val COOK_PROGRESS_HEIGHT = 12
+        const val COOK_PROGRESS_WIDTH = 22
 
         private val BACKGROUND = cobblemonResource("textures/gui/campfirepot/campfire_pot.png")
-        private val COOK_PROGRESS_SPRITE = cobblemonResource("textures/gui/campfirepot/cook_progress.png")
+        val COOK_PROGRESS_SPRITE: ResourceLocation = cobblemonResource("textures/gui/campfirepot/cook_progress.png")
         private val FILTER_BUTTON_SPRITES = WidgetSprites(
             ResourceLocation.withDefaultNamespace("recipe_book/campfire_pot_filter_enabled"),
             ResourceLocation.withDefaultNamespace("recipe_book/campfire_pot_filter_disabled"),
