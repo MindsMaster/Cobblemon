@@ -6393,5 +6393,10 @@
     "cobblemon.challenge.decline.sender": "Has rechazado combatir con %1$s...",
     "cobblemon.challenge.decline.receiver": "%1$s ha rechazado combatir contigo...",
     "cobblemon.battle.center": "¡Al centro automáticamente!",
-    "npc.sacchi.name": "Profesora Sacchi"
+    "npc.sacchi.name": "Profesora Sacchi",
+    "item.cobblemon.dragon_scale.tooltip": "Evoluciona a Seadra a Kingdra cuando lo sostiene al intercambiar",
+    "cobblemon.pokerod.apply": "Botón derecho para aplicar Cebo",
+    "cobblemon.pokerod.remove": "Botón derecho para quitar Cebo",
+    "item.cobblemon.npc_editor": "Tarjeta de PNJ entrenador",
+    "item.cobblemon.link_cable.tooltip": "Evoluciona a los Pokémon que requieren intercambios"
 }
