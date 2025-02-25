@@ -13,11 +13,12 @@ import com.cobblemon.mod.common.api.events.fishing.BaitEffectFunctionRegistryEve
 import com.cobblemon.mod.common.api.spawning.fishing.FishingSpawnCause
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.cobblemonResource
+import com.mojang.serialization.Codec
+import com.mojang.serialization.codecs.RecordCodecBuilder
+import java.util.Optional
 import net.minecraft.core.Registry
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.nbt.ListTag
+import net.minecraft.network.codec.ByteBufCodecs
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 
@@ -33,45 +34,29 @@ data class FishingBait(
         val chance: Double = 0.0,
         val value: Double = 0.0
     ) {
-        fun toNbt(): CompoundTag {
-            val nbt = CompoundTag()
-            nbt.putString("Type", type.toString())
-            subcategory?.let { nbt.putString("Subcategory", it.toString()) }
-            nbt.putDouble("Chance", chance)
-            nbt.putDouble("Value", value)
-            return nbt
-        }
+        constructor(type: ResourceLocation, subcategory: Optional<ResourceLocation>, chance: Double, value: Double) : this(type, subcategory.orElse(null), chance, value)
 
         companion object {
-            fun fromNbt(nbt: CompoundTag): Effect {
-                val type = ResourceLocation.parse(nbt.getString("Type"))
-                val subcategory = if (nbt.contains("Subcategory")) ResourceLocation.parse(nbt.getString("Subcategory")) else null
-                val chance = nbt.getDouble("Chance")
-                val value = nbt.getDouble("Value")
-                return Effect(type, subcategory, chance, value)
+            val CODEC = RecordCodecBuilder.create<Effect> { instance ->
+                instance.group(
+                    ResourceLocation.CODEC.fieldOf("type").forGetter { it.type },
+                    ResourceLocation.CODEC.optionalFieldOf("subcategory").forGetter { Optional.ofNullable(it.subcategory) },
+                    Codec.DOUBLE.fieldOf("chance").forGetter { it.chance },
+                    Codec.DOUBLE.fieldOf("value").forGetter { it.value }
+                ).apply(instance, ::Effect)
             }
         }
-    }
-
-    fun toNbt(): CompoundTag {
-        val nbt = CompoundTag()
-        nbt.putString("Item", item.toString())
-        val effectsList = ListTag()
-        effects.forEach { effectsList.add(it.toNbt()) }
-        nbt.put("Effects", effectsList)
-        return nbt
     }
 
     companion object {
-        fun fromNbt(nbt: CompoundTag): FishingBait {
-            val item = ResourceLocation.parse(nbt.getString("Item"))
-            val effectsList = nbt.getList("Effects", 10) // 10 is the type for NbtCompound
-            val effects = mutableListOf<Effect>()
-            for (i in 0 until effectsList.size) {
-                effects.add(Effect.fromNbt(effectsList.getCompound(i)))
-            }
-            return FishingBait(item, effects)
+        val CODEC = RecordCodecBuilder.create<FishingBait> { instance ->
+            instance.group(
+                ResourceLocation.CODEC.fieldOf("item").forGetter { it.item },
+                Effect.CODEC.listOf().fieldOf("effects").forGetter {it.effects}
+            ).apply(instance, ::FishingBait)
         }
+
+        val STREAM_CODEC = ByteBufCodecs.fromCodec(CODEC)
 
         val BLANK_BAIT = FishingBait(
             cobblemonResource("blank"),
@@ -87,7 +72,8 @@ data class FishingBait(
         val BITE_TIME = cobblemonResource("bite_time")
         val GENDER_CHANCE = cobblemonResource("gender_chance")
         val LEVEL_RAISE = cobblemonResource("level_raise")
-        val TERA = cobblemonResource("tera")
+        val TYPING = cobblemonResource("typing")
+        val EGG_GROUP = cobblemonResource("egg_group")
         val SHINY_REROLL = cobblemonResource("shiny_reroll")
         val HIDDEN_ABILITY_CHANCE = cobblemonResource("ha_chance")
         val POKEMON_CHANCE = cobblemonResource("pokemon_chance")
@@ -108,7 +94,6 @@ data class FishingBait(
             EFFECT_FUNCTIONS[SHINY_REROLL] = { entity, effect -> FishingSpawnCause.shinyReroll(entity, effect) }
             EFFECT_FUNCTIONS[GENDER_CHANCE] = { entity, effect -> FishingSpawnCause.alterGenderAttempt(entity, effect) }
             EFFECT_FUNCTIONS[LEVEL_RAISE] = { entity, effect -> FishingSpawnCause.alterLevelAttempt(entity, effect) }
-            EFFECT_FUNCTIONS[TERA] = { entity, effect -> FishingSpawnCause.alterTeraAttempt(entity, effect) }
             EFFECT_FUNCTIONS[HIDDEN_ABILITY_CHANCE] = { entity, _ -> FishingSpawnCause.alterHAAttempt(entity) }
             EFFECT_FUNCTIONS[FRIENDSHIP] = { entity, effect -> FishingSpawnCause.alterFriendshipAttempt(entity, effect) }
             CobblemonEvents.BAIT_EFFECT_REGISTRATION.post(BaitEffectFunctionRegistryEvent()) { event ->

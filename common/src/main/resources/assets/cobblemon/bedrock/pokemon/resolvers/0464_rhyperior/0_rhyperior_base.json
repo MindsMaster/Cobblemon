@@ -6,13 +6,11 @@
       "aspects": [],
       "poser": "cobblemon:rhyperior",
       "model": "cobblemon:rhyperior_male.geo",
-      "texture": "cobblemon:textures/pokemon/0464_rhyperior/rhyperior_brown.png",
+      "texture": "cobblemon:textures/pokemon/0464_rhyperior/rhyperior.png",
       "layers": []
     },
     {
-      "aspects": [
-        "shiny"
-      ],
+      "aspects": ["shiny"],
       "texture": "cobblemon:textures/pokemon/0464_rhyperior/rhyperior_shiny.png"
     }
   ]

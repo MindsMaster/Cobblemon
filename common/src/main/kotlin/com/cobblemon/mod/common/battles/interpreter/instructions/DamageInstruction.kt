@@ -114,7 +114,8 @@ class DamageInstruction(
             val context = ActionEffectContext(
                 actionEffect = actionEffect,
                 runtime = runtime,
-                providers = providers
+                providers = providers,
+                level = battle.players.firstOrNull()?.level()
             )
             this.future = actionEffect.run(context)
             holds = context.holds // Reference so future things can check on this action effect's holds
@@ -150,12 +151,12 @@ class DamageInstruction(
 
             if (effect != null) {
                 val lang = when (effect.id) {
-                    "blacksludge", "stickybarb" -> battleLang("damage.item", pokemonName, effect.typelessData)
+                    "blacksludge", "stickybarb", "jabocaberry", "rowapberry" -> battleLang("damage.item", pokemonName, effect.typelessData)
                     "brn", "psn", "tox" -> {
                         val status = Statuses.getStatus(effect.id)?.name?.path ?: return@dispatch GO
                         lang("status.$status.hurt", pokemonName)
                     }
-                    "aftermath" -> battleLang("damage.generic", pokemonName)
+                    "aftermath", "innardsout" -> battleLang("damage.generic", pokemonName)
                     "chloroblast", "steelbeam" -> battleLang("damage.mindblown", pokemonName)
                     "jumpkick" -> battleLang("damage.highjumpkick", pokemonName)
                     else -> battleLang("damage.${effect.id}", pokemonName, source?.getName() ?: Component.literal("UNKOWN"))
@@ -209,7 +210,7 @@ class DamageInstruction(
             } else if (causedFaint) {
                 GO
             } else {
-                UntilDispatch {"effects" !in holds}
+                UntilDispatch { "effects" !in holds}
             }
         }
     }

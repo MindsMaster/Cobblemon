@@ -30,7 +30,7 @@ class MegaInstruction(val message: BattleMessage): InterpreterInstruction {
         battle.dispatchWaiting {
             val pokemonName = battlePokemon.getName()
             battle.broadcastChatMessage(battleLang("mega", pokemonName).yellow())
-            CobblemonEvents.MEGA_EVOLUTON.post(MegaEvolutionEvent(battle, battlePokemon))
+            CobblemonEvents.MEGA_EVOLUTION.post(MegaEvolutionEvent(battle, battlePokemon))
             battle.minorBattleActions[battlePokemon.uuid] = message
         }
     }

@@ -8,15 +8,15 @@
 
 package com.cobblemon.mod.common.api.npc.configuration
 
-import com.cobblemon.mod.common.api.npc.NPCPartyProvider
 import com.cobblemon.mod.common.util.DataKeys
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.RegistryFriendlyByteBuf
 
 class NPCBattleConfiguration {
     var canChallenge = false
-    var party: NPCPartyProvider? = null
+    @Deprecated("This is not likely to get used")
     var simultaneousBattles = false
+    @Deprecated("This is not likely to get used")
     var healAfterwards = true
 
     fun encode(buffer: RegistryFriendlyByteBuf) {

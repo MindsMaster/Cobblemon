@@ -7,13 +7,13 @@
     {
       "type": "entity_particles",
       "effect": "cobblemon:sleep_actor",
-      "locator": "middle",
+      "locators": ["middle"],
       "delay": 0.05
     },
     {
       "type": "entity_particles",
       "effect": "cobblemon:sleep_actorresidual",
-      "locator": "middle",
+      "locators": ["middle"],
       "delay": 0.05
     },
     {

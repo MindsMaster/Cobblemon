@@ -12,12 +12,12 @@
 			},
 			"bones": [
 				{
-					"name": "milotic_male",
+					"name": "milotic",
 					"pivot": [0, 0, 0]
 				},
 				{
 					"name": "body",
-					"parent": "milotic_male",
+					"parent": "milotic",
 					"pivot": [0, 6, -0.5]
 				},
 				{

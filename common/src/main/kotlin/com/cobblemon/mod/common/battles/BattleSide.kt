@@ -40,7 +40,7 @@ class BattleSide(vararg val actors: BattleActor) {
         activePokemon.forEach {
             val entity = it.battlePokemon?.entity ?: return@forEach
             entity.cry()
-            if(entity.pokemon.shiny) {
+            if(entity.pokemon.shiny && entity.pokemon.isWild()) {
                 SpawnSnowstormEntityParticlePacket(cobblemonResource("shiny_ring"), entity.id, listOf("shiny_particles", "middle"))
                     .sendToPlayersAround(entity.x, entity.y, entity.z, 64.0, entity.level().dimension())
             }

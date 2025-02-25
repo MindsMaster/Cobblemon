@@ -56,6 +56,7 @@
     "cobblemon:swipe",
     "cobblemon:tailflame",
     "cobblemon:vanilla_smoke",
+    "cobblemon:white_vanilla_smoke",
     "cobblemon:waterjet",
     "cobblemon:waterjet_head",
     "cobblemon:white_bubble",
@@ -107,6 +108,8 @@
     "cobblemon:spiral",
     "cobblemon:mud_bubble",
     "cobblemon:mud_splash",
-    "cobblemon:splash"
+    "cobblemon:splash",
+    "cobblemon:rain_splash",
+    "cobblemon:water_ripple"
   ]
 }

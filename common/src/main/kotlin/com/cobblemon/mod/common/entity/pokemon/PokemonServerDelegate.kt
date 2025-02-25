@@ -9,17 +9,21 @@
 package com.cobblemon.mod.common.entity.pokemon
 
 import com.cobblemon.mod.common.CobblemonSounds
+import com.cobblemon.mod.common.Rollable
 import com.cobblemon.mod.common.api.entity.PokemonSender
 import com.cobblemon.mod.common.api.entity.PokemonSideDelegate
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties
 import com.cobblemon.mod.common.api.pokemon.stats.Stats
 import com.cobblemon.mod.common.api.pokemon.status.Statuses
+import com.cobblemon.mod.common.api.tags.CobblemonItemTags
 import com.cobblemon.mod.common.battles.BattleRegistry
+import com.cobblemon.mod.common.entity.PlatformType
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.pokemon.Pokemon
 import com.cobblemon.mod.common.pokemon.activestate.ActivePokemonState
 import com.cobblemon.mod.common.pokemon.activestate.SentOutState
 import com.cobblemon.mod.common.util.getIsSubmerged
+import com.cobblemon.mod.common.util.math.geometry.toRadians
 import com.cobblemon.mod.common.util.playSoundServer
 import com.cobblemon.mod.common.util.update
 import com.cobblemon.mod.common.world.gamerules.CobblemonGameRules
@@ -30,8 +34,12 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.network.chat.Component
 import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.world.damagesource.DamageSource
+import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.ai.attributes.Attributes
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.pathfinder.PathType
+import org.joml.Matrix3f
+import org.joml.Vector3f
 
 /** Handles purely server logic for a Pokémon */
 class PokemonServerDelegate : PokemonSideDelegate {
@@ -102,18 +110,20 @@ class PokemonServerDelegate : PokemonSideDelegate {
         val trackedSpecies = mock?.species ?: entity.pokemon.species.resourceIdentifier.toString()
         val trackedNickname =  mock?.nickname ?: entity.pokemon.nickname ?: Component.empty()
         val trackedAspects = mock?.aspects ?: entity.pokemon.aspects
+        val trackedBall = mock?.pokeball ?: entity.pokemon.caughtBall.name.toString()
 
-        //used getOwnerPlayer().uuid instead of getOwnerUUID() to avoid a potential NPE
-        entity.ownerUUID = entity.pokemon.getOwnerPlayer()?.uuid
+        entity.ownerUUID = entity.pokemon.getOwnerUUID()
         entity.entityData.set(PokemonEntity.SPECIES, trackedSpecies)
         if (entity.entityData.get(PokemonEntity.NICKNAME) != trackedNickname) {
             entity.entityData.set(PokemonEntity.NICKNAME, trackedNickname)
         }
         entity.entityData.set(PokemonEntity.ASPECTS, trackedAspects)
         entity.entityData.set(PokemonEntity.LABEL_LEVEL, entity.pokemon.level)
-        entity.entityData.set(PokemonEntity.MOVING, entity.deltaMovement.multiply(1.0, if (entity.onGround()) 0.0 else 1.0, 1.0).length() > 0.005F)
+        entity.entityData.set(PokemonEntity.MOVING, entity.platform == PlatformType.NONE && entity.deltaMovement.multiply(1.0, if (entity.onGround()) 0.0 else 1.0, 1.0).length() > 0.005F)
         entity.entityData.set(PokemonEntity.FRIENDSHIP, entity.pokemon.friendship)
+        entity.entityData.set(PokemonEntity.CAUGHT_BALL, trackedBall)
 
+        updateShownItem()
         updatePoseType()
     }
 
@@ -190,8 +200,23 @@ class PokemonServerDelegate : PokemonSideDelegate {
         updateTrackedValues()
     }
 
+    fun updateShownItem() {
+        val trackedShownItem = when {
+            // Show Hand Item if Held item is hidden
+            !entity.pokemon.heldItemVisible -> entity.mainHandItem
+            // Show Held Item unless it is empty
+            else -> (entity as PokemonEntity?)?.pokemon?.heldItemNoCopy()?.takeUnless { it.isEmpty }
+            // Show Hand Item if Held item is empty
+            ?: entity.mainHandItem
+        }.copy()
+        /* Hide items tagged as hidden (If the item is in this list, it will not render) */
+        .let { if (it.`is`(CobblemonItemTags.HIDDEN_ITEMS)) ItemStack.EMPTY else it}
+
+        entity.entityData.set(PokemonEntity.SHOWN_HELD_ITEM, trackedShownItem)
+    }
+
     fun updatePoseType() {
-        if (!entity.enablePoseTypeRecalculation) {
+        if (!entity.enablePoseTypeRecalculation || entity.passengers.isNotEmpty()) {
             return
         }
 
@@ -254,6 +279,8 @@ class PokemonServerDelegate : PokemonSideDelegate {
             if (entity.ownerUUID == null && entity.owner == null) {
                 entity.level().broadcastEntityEvent(entity, 60.toByte()) // Sends smoke effect
                 if(entity.level().gameRules.getBoolean(CobblemonGameRules.DO_POKEMON_LOOT)) {
+                    val heldItem = (entity as PokemonEntity?)?.pokemon?.heldItemNoCopy() ?: ItemStack.EMPTY
+                    if (!heldItem.isEmpty) entity.spawnAtLocation(heldItem.item)
                     (entity.drops ?: entity.pokemon.form.drops).drop(entity, entity.level() as ServerLevel, entity.position(), entity.killer)
                 }
             }

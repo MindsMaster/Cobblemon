@@ -14,9 +14,10 @@ import com.cobblemon.mod.common.api.storage.party.NPCPartyStore
 import com.cobblemon.mod.common.entity.npc.NPCEntity
 import com.cobblemon.mod.common.util.toProperties
 import com.google.gson.JsonElement
+import net.minecraft.server.level.ServerPlayer
 
 /**
- * A basic party provider that just produces a [StaticNPCParty] based on a list of [PokemonProperties].
+ * A basic party provider that just produces a [NPCPartyStore] based on a simple list of [PokemonProperties].
  *
  * @author Hiroku
  * @since August 19th, 2023
@@ -28,10 +29,15 @@ class SimplePartyProvider : NPCPartyProvider {
 
     @Transient
     override val type = TYPE
+    override var isStatic = true
 
     val pokemon = mutableListOf<PokemonProperties>()
 
     override fun loadFromJSON(json: JsonElement) {
+        val isStatic = json.asJsonObject.get("isStatic")?.asBoolean
+        if (isStatic != null) {
+            this.isStatic = isStatic
+        }
         val pokemonList = json.asJsonObject.getAsJsonArray("pokemon")
         pokemonList.forEach {
             val pokemon = if (it.isJsonPrimitive) {
@@ -47,10 +53,10 @@ class SimplePartyProvider : NPCPartyProvider {
         }
     }
 
-    override fun provide(npc: NPCEntity, level: Int): NPCParty {
+    override fun provide(npc: NPCEntity, level: Int, players: List<ServerPlayer>): NPCPartyStore {
         val pokemon = pokemon.map { it.copy().also { it.level = it.level ?: level }.create() }
         val party = NPCPartyStore(npc)
         pokemon.forEach(party::add)
-        return StaticNPCParty(party)
+        return party
     }
 }

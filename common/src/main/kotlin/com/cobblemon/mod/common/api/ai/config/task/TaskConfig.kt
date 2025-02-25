@@ -52,6 +52,14 @@ fun interface TaskConfig {
             "look_at_speaker" to LookAtSpeakerTaskConfig::class.java,
             "switch_to_action_effect" to SwitchToActionEffectTaskConfig::class.java,
             "switch_from_action_effect" to SwitchFromActionEffectTaskConfig::class.java,
+            "exit_battle_when_hurt" to ExitBattleWhenHurtTaskConfig::class.java,
+            "switch_to_panic_when_hurt" to SwitchToPanicWhenHurtTaskConfig::class.java,
+            "switch_to_panic_when_hostiles_nearby" to SwitchToPanicWhenHostilesNearbyTaskConfig::class.java,
+            "calm_down" to CalmDownTaskConfig::class.java,
+            "flee_attacker" to FleeAttackerTaskConfig::class.java,
+            "flee_nearest_hostile" to FleeNearestHostileTaskConfig::class.java,
+            "run_script" to RunScript::class.java,
+            "look_in_direction" to LookInDirectionTaskConfig::class.java,
         )
 
         val runtime = MoLangRuntime().setup()

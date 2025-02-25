@@ -67,7 +67,7 @@ class MovesWidget(
 
     private var descriptionScrollList = MoveDescriptionScrollList(
         x + 69,
-        y + 114,
+        y + 113,
         5
     )
 
@@ -218,10 +218,18 @@ class MovesWidget(
         descriptionScrollList.setMoveDescription(selectedMove?.description ?: "".text())
     }
 
+    override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
+        if (descriptionScrollList.isHovered) descriptionScrollList.mouseClicked(mouseX, mouseY, button)
+        return super.mouseClicked(mouseX, mouseY, button)
+    }
+
     override fun mouseScrolled(mouseX: Double, mouseY: Double, horizontalAmount: Double, verticalAmount: Double): Boolean {
-        if (descriptionScrollList.isHovered) {
-            descriptionScrollList.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount)
-        }
+        if (descriptionScrollList.isHovered) descriptionScrollList.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount)
         return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount)
+    }
+
+    override fun mouseDragged(mouseX: Double, mouseY: Double, button: Int, deltaX: Double, deltaY: Double): Boolean {
+        if (descriptionScrollList.isHovered) descriptionScrollList.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)
+        return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)
     }
 }

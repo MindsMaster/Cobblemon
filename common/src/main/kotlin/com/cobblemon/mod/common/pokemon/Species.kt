@@ -10,10 +10,17 @@ package com.cobblemon.mod.common.pokemon
 
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.CobblemonSounds
+import com.cobblemon.mod.common.api.Priority
+import com.cobblemon.mod.common.api.abilities.Abilities
 import com.cobblemon.mod.common.api.abilities.AbilityPool
+import com.cobblemon.mod.common.api.abilities.CommonAbility
+import com.cobblemon.mod.common.api.abilities.PotentialAbility
 import com.cobblemon.mod.common.api.data.ClientDataSynchronizer
 import com.cobblemon.mod.common.api.data.ShowdownIdentifiable
 import com.cobblemon.mod.common.api.drop.DropTable
+import com.cobblemon.mod.common.api.molang.MoLangFunctions.addSpeciesFunctions
+import com.cobblemon.mod.common.api.molang.MoLangFunctions.addStandardFunctions
+import com.cobblemon.mod.common.api.molang.ObjectValue
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.api.pokemon.effect.ShoulderEffect
@@ -23,22 +30,33 @@ import com.cobblemon.mod.common.api.pokemon.evolution.PreEvolution
 import com.cobblemon.mod.common.api.pokemon.experience.ExperienceGroups
 import com.cobblemon.mod.common.api.pokemon.moves.Learnset
 import com.cobblemon.mod.common.api.pokemon.stats.Stat
+import com.cobblemon.mod.common.api.storage.InvalidSpeciesException
+import com.cobblemon.mod.common.api.riding.RidingProperties
 import com.cobblemon.mod.common.api.types.ElementalType
 import com.cobblemon.mod.common.api.types.ElementalTypes
 import com.cobblemon.mod.common.entity.PoseType.Companion.FLYING_POSES
 import com.cobblemon.mod.common.entity.PoseType.Companion.SWIMMING_POSES
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.net.IntSize
+import com.cobblemon.mod.common.pokemon.abilities.HiddenAbility
 import com.cobblemon.mod.common.pokemon.ai.PokemonBehaviour
 import com.cobblemon.mod.common.pokemon.lighthing.LightingData
-import com.cobblemon.mod.common.util.codec.CodecUtils
-import com.cobblemon.mod.common.util.*
+import com.cobblemon.mod.common.util.readEntityDimensions
+import com.cobblemon.mod.common.util.readEnumConstant
+import com.cobblemon.mod.common.util.readIdentifier
+import com.cobblemon.mod.common.util.readSizedInt
+import com.cobblemon.mod.common.util.readString
+import com.cobblemon.mod.common.util.writeEnumConstant
+import com.cobblemon.mod.common.util.writeIdentifier
+import com.cobblemon.mod.common.util.writeSizedInt
+import com.cobblemon.mod.common.util.writeString
 import com.mojang.serialization.Codec
-import net.minecraft.world.entity.EntityDimensions
+import com.mojang.serialization.DataResult
 import net.minecraft.network.RegistryFriendlyByteBuf
-import net.minecraft.network.chat.MutableComponent
 import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.MutableComponent
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.entity.EntityDimensions
 
 class Species : ClientDataSynchronizer<Species>, ShowdownIdentifiable {
     var name: String = "Bulbasaur"
@@ -106,6 +124,9 @@ class Species : ClientDataSynchronizer<Species>, ShowdownIdentifiable {
     var forms = mutableListOf<FormData>()
         private set
 
+    var riding: RidingProperties = RidingProperties()
+        private set
+
     val standardForm by lazy { FormData(_evolutions = this.evolutions).initialize(this) }
 
     var labels = hashSetOf<String>()
@@ -113,15 +134,7 @@ class Species : ClientDataSynchronizer<Species>, ShowdownIdentifiable {
 
     val possibleGenders: Set<Gender>
         get() = forms.flatMap {
-            if (it.maleRatio == -1F) {
-                setOf(Gender.GENDERLESS)
-            } else if (it.maleRatio == 0F) {
-                setOf(Gender.FEMALE)
-            } else if (it.maleRatio == 1F) {
-                setOf(Gender.MALE)
-            } else {
-                setOf(Gender.FEMALE, Gender.MALE)
-            }
+            it.possibleGenders
         }.toSet() + (if (maleRatio == -1F) {
             setOf(Gender.GENDERLESS)
         } else if (maleRatio == 0F) {
@@ -156,6 +169,12 @@ class Species : ClientDataSynchronizer<Species>, ShowdownIdentifiable {
     var lightingData: LightingData? = null
         private set
 
+    @Transient
+    val struct = ObjectValue<Species>(this)
+        .addStandardFunctions()
+        .addSpeciesFunctions(this)
+
+
     fun initialize() {
         Cobblemon.statProvider.provide(this)
         this.forms.forEach { it.initialize(this) }
@@ -183,6 +202,8 @@ class Species : ClientDataSynchronizer<Species>, ShowdownIdentifiable {
     fun create(level: Int = 10) = PokemonProperties.parse("species=\"${this.name}\" level=${level}").create()
 
     fun getForm(aspects: Set<String>) = forms.lastOrNull { it.aspects.all { it in aspects } } ?: standardForm
+    fun getFormByName(name: String) = forms.firstOrNull { it.name == name } ?: standardForm
+    fun getFormByShowdownId(formOnlyShowdownId: String) = forms.firstOrNull { it.formOnlyShowdownId() == formOnlyShowdownId } ?: standardForm
 
     fun eyeHeight(entity: PokemonEntity): Float {
         return this.resolveEyeHeight(entity) ?: VANILLA_DEFAULT_EYE_HEIGHT
@@ -210,6 +231,7 @@ class Species : ClientDataSynchronizer<Species>, ShowdownIdentifiable {
         buffer.writeString(this.experienceGroup.name)
         buffer.writeFloat(this.height)
         buffer.writeFloat(this.weight)
+        buffer.writeFloat(this.maleRatio)
         buffer.writeFloat(this.baseScale)
         // Hitbox start
         buffer.writeFloat(this.hitbox.width)
@@ -225,6 +247,14 @@ class Species : ClientDataSynchronizer<Species>, ShowdownIdentifiable {
             pb.writeInt(data.lightLevel)
             pb.writeEnumConstant(data.liquidGlowMode)
         }
+
+        drops.encode(buffer)
+        buffer.writeCollection<PotentialAbility>(abilities.toList()) { pb, ability ->
+            pb.writeBoolean(ability is CommonAbility)
+            pb.writeString(ability.template.name)
+        }
+
+        this.riding.encode(buffer)
     }
 
     override fun decode(buffer: RegistryFriendlyByteBuf) {
@@ -240,6 +270,7 @@ class Species : ClientDataSynchronizer<Species>, ShowdownIdentifiable {
         this.experienceGroup = ExperienceGroups.findByName(buffer.readString())!!
         this.height = buffer.readFloat()
         this.weight = buffer.readFloat()
+        this.maleRatio = buffer.readFloat()
         this.baseScale = buffer.readFloat()
         this.hitbox = buffer.readEntityDimensions()
         this.moves.decode(buffer)
@@ -251,6 +282,21 @@ class Species : ClientDataSynchronizer<Species>, ShowdownIdentifiable {
         this.features.clear()
         this.features += buffer.readList { pb -> pb.readString() }
         this.lightingData = buffer.readNullable { pb -> LightingData(pb.readInt(), pb.readEnumConstant(LightingData.LiquidGlowMode::class.java)) }
+        this.drops.decode(buffer)
+        this.abilities = AbilityPool().also { pool ->
+            buffer.readList { pb ->
+                val isCommon = pb.readBoolean()
+                val template = pb.readString()
+                if (isCommon) {
+                    CommonAbility(Abilities.getOrException(template))
+                } else {
+                    HiddenAbility(Abilities.getOrException(template))
+                }
+            }.forEach {
+                pool.add(Priority.NORMAL, it)
+            }
+        }
+        this.riding = RidingProperties.decode(buffer)
         this.initialize()
     }
 
@@ -307,13 +353,13 @@ class Species : ClientDataSynchronizer<Species>, ShowdownIdentifiable {
 
         // TODO: Registries have dedicated Codecs, migrate to that once this is a proper registry impl
         /**
-         * A [Codec] that maps to/from an [Identifier] associated as [Species.resourceIdentifier].
+         * A [Codec] that maps to/from an [ResourceLocation] associated as [Species.resourceIdentifier].
          * Uses [PokemonSpecies.getByIdentifier] to query.
          */
         @JvmStatic
-        val BY_IDENTIFIER_CODEC: Codec<Species> = CodecUtils.createByIdentifierCodec(
-            PokemonSpecies::getByIdentifier,
+        val BY_IDENTIFIER_CODEC: Codec<Species> = ResourceLocation.CODEC.comapFlatMap(
+            { identifier -> DataResult.success(PokemonSpecies.getByIdentifier(identifier) ?: throw InvalidSpeciesException(identifier))  },
             Species::resourceIdentifier
-        ) { identifier -> "No species for ID $identifier" }
+        )
     }
 }

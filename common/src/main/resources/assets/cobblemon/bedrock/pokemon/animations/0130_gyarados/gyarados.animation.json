@@ -919,6 +919,11 @@
 		},
 		"animation.gyarados.cry": {
 			"animation_length": 1.1667,
+			"sound_effects": {
+				"0.04": {
+					"effect": "pokemon.gyarados.cry"
+				}
+			},
 			"bones": {
 				"muzzle": {
 					"rotation": {
@@ -1048,12 +1053,7 @@
 						"0.8333": [-10, 0, 0],
 						"1.1667": [0, 0, 0]
 					}
-				},
-				"sound_effects": {
-					"0.04": {
-						"effect": "pokemon.gyarados.cry"
-					}
-				},
+				}
 			}
 		},
 		"animation.gyarados.hawk_tuah": {

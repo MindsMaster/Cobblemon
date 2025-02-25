@@ -9,12 +9,7 @@
 package com.cobblemon.mod.common.datafixer
 
 import com.cobblemon.mod.common.Cobblemon
-import com.cobblemon.mod.common.datafixer.fix.BlockPosUpdateFix
-import com.cobblemon.mod.common.datafixer.fix.EvolutionProxyNestingFix
-import com.cobblemon.mod.common.datafixer.fix.FeatureFix
-import com.cobblemon.mod.common.datafixer.fix.IvEvToIdentifierFix
-import com.cobblemon.mod.common.datafixer.fix.TeraTypeFix
-import com.cobblemon.mod.common.datafixer.fix.TradeableMissingFix
+import com.cobblemon.mod.common.datafixer.fix.*
 import com.cobblemon.mod.common.datafixer.schema.CobblemonRootSchema
 import com.cobblemon.mod.common.datafixer.schema.CobblemonSchemaV2
 import com.google.common.util.concurrent.ThreadFactoryBuilder
@@ -83,6 +78,10 @@ object CobblemonSchemas {
         builder.addFixer(ItemStackComponentizationFix(schema1))
         builder.addFixer(BlockPosUpdateFix(schema1))
         builder.addFixer(FeatureFix(schema1))
+        builder.addFixer(MovesetJsonFix(schema1))
+        builder.addFixer(ShoulderStateJsonFix(schema1))
+        builder.addFixer(NicknameFix(schema1))
+        builder.addFixer(RaisedPPStagesFix(schema1))
     }
 
     private class CobblemonDataFixerCodec<R>(private val baseCodec: Codec<R>, private val typeReference: TypeReference) : Codec<R> {
@@ -98,7 +97,7 @@ object CobblemonSchemas {
                 .map(Number::toInt)
                 .result()
                 // If none always do op unlike vanilla.
-                .orElse(DATA_VERSION - 1)
+                .orElse(0)
             val dynamicWithoutVersion = Dynamic(ops, ops.remove(input, VERSION_KEY))
             val dataFixedDynamic = DATA_FIXER.update(this.typeReference, dynamicWithoutVersion, inputVersion, DATA_VERSION)
             return this.baseCodec.decode(dataFixedDynamic)

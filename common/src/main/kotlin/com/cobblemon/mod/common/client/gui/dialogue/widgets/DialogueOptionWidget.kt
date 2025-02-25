@@ -60,7 +60,7 @@ class DialogueOptionWidget(
         if (!selectable || dialogueScreen.waitingForServerUpdate) return true
 
         dialogueScreen.sendToServer(InputToDialoguePacket(dialogueScreen.dialogueDTO.dialogueInput.inputId, value))
-        Minecraft.getInstance().soundManager.play(SimpleSoundInstance.forUI(CobblemonSounds.GUI_CLICK, 0.6F))
+        Minecraft.getInstance().soundManager.play(SimpleSoundInstance.forUI(CobblemonSounds.GUI_CLICK, 1.0F))
         return true
     }
 }

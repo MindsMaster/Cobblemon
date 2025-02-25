@@ -8,14 +8,12 @@
 
 package com.cobblemon.mod.common.api.npc
 
-import com.cobblemon.mod.common.api.npc.partyproviders.DynamicPartyProvider
-import com.cobblemon.mod.common.api.npc.partyproviders.NPCParty
+import com.cobblemon.mod.common.api.npc.partyproviders.PoolPartyProvider
+import com.cobblemon.mod.common.api.npc.partyproviders.ScriptPartyProvider
 import com.cobblemon.mod.common.api.npc.partyproviders.SimplePartyProvider
-import com.cobblemon.mod.common.api.storage.party.PartyStore
+import com.cobblemon.mod.common.api.storage.party.NPCPartyStore
 import com.cobblemon.mod.common.entity.npc.NPCEntity
 import com.google.gson.JsonElement
-import net.minecraft.nbt.CompoundTag
-import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.server.level.ServerPlayer
 
 /**
@@ -29,11 +27,14 @@ interface NPCPartyProvider {
     companion object {
         val types = mutableMapOf<String, (String) -> NPCPartyProvider>(
             SimplePartyProvider.TYPE to { SimplePartyProvider() },
-            DynamicPartyProvider.TYPE to { DynamicPartyProvider() }
+            PoolPartyProvider.TYPE to { PoolPartyProvider() },
+            ScriptPartyProvider.TYPE to { ScriptPartyProvider() }
         )
     }
 
     val type: String
-    fun provide(npc: NPCEntity, level: Int): NPCParty
+    val isStatic: Boolean
+    fun provide(npc: NPCEntity, level: Int, players: List<ServerPlayer> = emptyList()): NPCPartyStore
+    // Why did I opt for manual JSON loading??? I must have had a reason but I can't remember. Maybe for S2C? Use a codec doofus
     fun loadFromJSON(json: JsonElement)
 }

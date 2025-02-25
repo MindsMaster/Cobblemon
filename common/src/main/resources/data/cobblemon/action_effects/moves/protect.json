@@ -15,7 +15,7 @@
       {
         "type": "entity_particles",
         "effect": "cobblemon:protect-shine",
-        "locator": "target"
+        "locators": ["target"]
       },
       {
         "type": "pause",
@@ -24,7 +24,7 @@
       {
         "type": "entity_particles",
         "effect": "cobblemon:protect-sparkle",
-        "locator": "middle"
+        "locators": ["middle"]
       },
       {
         "type": "pause",

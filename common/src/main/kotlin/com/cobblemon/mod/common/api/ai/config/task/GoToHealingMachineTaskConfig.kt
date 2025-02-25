@@ -25,7 +25,7 @@ class GoToHealingMachineTaskConfig(
     val condition: ExpressionLike = "true".asExpressionLike(),
     val horizontalSearchRange: Expression = "10".asExpression(),
     val verticalSearchRange: Expression = "5".asExpression(),
-    val speedMultiplier: Expression = "0.33".asExpression(),
+    val speedMultiplier: Expression = "0.35".asExpression(),
     val completionRange: Expression = "1".asExpression()
 ) : SingleTaskConfig {
     override fun createTask(

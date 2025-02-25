@@ -7,12 +7,12 @@
     {
       "type": "entity_particles",
       "effect": "cobblemon:toxpoison_actor",
-      "locator": "middle"
+      "locators": ["middle"]
     },
     {
       "type": "entity_particles",
       "effect": "cobblemon:toxpoison_actorresidual",
-      "locator": "target"
+      "locators": ["target"]
     },
     {
       "type": "remove_holds",

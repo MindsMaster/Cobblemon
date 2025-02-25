@@ -9,11 +9,11 @@
 package com.cobblemon.mod.common.client.render.layer
 
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
+import com.cobblemon.mod.common.client.render.item.HeldItemRenderer
 import com.cobblemon.mod.common.client.render.models.blockbench.FloatingState
 import com.cobblemon.mod.common.client.render.models.blockbench.PosableModel
-import com.cobblemon.mod.common.client.render.models.blockbench.PosableState
-import com.cobblemon.mod.common.client.render.models.blockbench.repository.PokemonModelRepository
 import com.cobblemon.mod.common.client.render.models.blockbench.repository.RenderContext
+import com.cobblemon.mod.common.client.render.models.blockbench.repository.VaryingModelRepository
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.pokemon.FormData
 import com.cobblemon.mod.common.pokemon.Pokemon
@@ -23,6 +23,7 @@ import com.cobblemon.mod.common.util.isPokemonEntity
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
 import java.util.UUID
+import net.minecraft.client.Minecraft
 import net.minecraft.client.model.PlayerModel
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
@@ -35,12 +36,15 @@ import net.minecraft.nbt.NbtOps
 import net.minecraft.nbt.Tag
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 
 class PokemonOnShoulderRenderer<T : Player>(renderLayerParent: RenderLayerParent<T, PlayerModel<T>>) : RenderLayer<T, PlayerModel<T>>(renderLayerParent) {
 
     val context = RenderContext().also {
         it.put(RenderContext.RENDER_STATE, RenderContext.RenderState.WORLD)
     }
+
+    private val heldItemRenderer = HeldItemRenderer()
 
     var leftState = FloatingState()
     var lastRenderedLeft: ShoulderData? = null
@@ -59,8 +63,11 @@ class PokemonOnShoulderRenderer<T : Player>(renderLayerParent: RenderLayerParent
         netHeadYaw: Float,
         headPitch: Float
     ) {
-        this.render(matrixStack, buffer, packedLight, livingEntity, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, true)
-        this.render(matrixStack, buffer, packedLight, livingEntity, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, false)
+        // It's unclear why Minecraft's providing a partial ticks based on 60FPS regardless of the real FPS.
+        // Whatever - the delta manager works correctly.
+        val realPartialTicks = Minecraft.getInstance().timer.realtimeDeltaTicks
+        this.render(matrixStack, buffer, packedLight, livingEntity, limbSwing, limbSwingAmount, realPartialTicks, ageInTicks, netHeadYaw, headPitch, true)
+        this.render(matrixStack, buffer, packedLight, livingEntity, limbSwing, limbSwingAmount, realPartialTicks, ageInTicks, netHeadYaw, headPitch, false)
     }
 
     fun configureState(state: FloatingState, model: PosableModel, leftShoulder: Boolean): FloatingState {
@@ -84,27 +91,21 @@ class PokemonOnShoulderRenderer<T : Player>(renderLayerParent: RenderLayerParent
     ) {
         val compoundTag = if (pLeftShoulder) livingEntity.shoulderEntityLeft else livingEntity.shoulderEntityRight
         if (compoundTag.isPokemonEntity()) {
-            matrixStack.pushPose()
+            livingEntity.level().profiler.push("shoulder_render_".plus(if(pLeftShoulder) "left" else "right"))
             val uuid = this.extractUuid(compoundTag)
             val cache = playerCache.getOrPut(livingEntity.uuid) { ShoulderCache() }
-            var shoulderData: ShoulderData? = null
-            if (pLeftShoulder && cache.lastKnownLeft?.uuid != uuid) {
-                shoulderData = this.extractData(compoundTag, uuid)
-                cache.lastKnownLeft = shoulderData
-            }
-            else if (!pLeftShoulder && cache.lastKnownRight?.uuid != uuid) {
-                shoulderData = this.extractData(compoundTag, uuid)
-                cache.lastKnownRight = shoulderData
-            }
+            val shoulderData = this.extractData(compoundTag, uuid)
+            if (pLeftShoulder) cache.lastKnownLeft = shoulderData else cache.lastKnownRight = shoulderData
 
             if (shoulderData == null){
-                // Could be null
-                shoulderData = (if (pLeftShoulder) cache.lastKnownLeft else cache.lastKnownRight) ?: return
+                // Nothing to do
+                return
             }
 
+            matrixStack.pushPose()
             var state = FloatingState()
             state.currentAspects = shoulderData.aspects
-            val model = PokemonModelRepository.getPoser(shoulderData.species.resourceIdentifier, state)
+            val model = VaryingModelRepository.getPoser(shoulderData.species.resourceIdentifier, state)
             model.context = context
             context.put(RenderContext.SPECIES, shoulderData.species.resourceIdentifier)
             context.put(RenderContext.ASPECTS, shoulderData.aspects)
@@ -126,6 +127,7 @@ class PokemonOnShoulderRenderer<T : Player>(renderLayerParent: RenderLayerParent
             )
 
             matrixStack.scale(scale, scale, scale)
+            matrixStack.translate(0f, 1.5f, 0f)
 
             state = if (pLeftShoulder && shoulderData != lastRenderedLeft) {
                 leftState = configureState(state, model, true)
@@ -141,7 +143,7 @@ class PokemonOnShoulderRenderer<T : Player>(renderLayerParent: RenderLayerParent
             state.updatePartialTicks(partialTicks)
             context.put(RenderContext.POSABLE_STATE, state)
             state.currentModel = model
-            val vertexConsumer = buffer.getBuffer(RenderType.entityCutout(PokemonModelRepository.getTexture(shoulderData.species.resourceIdentifier, state)))
+            val vertexConsumer = buffer.getBuffer(RenderType.entityCutout(VaryingModelRepository.getTexture(shoulderData.species.resourceIdentifier, state)))
             val i = LivingEntityRenderer.getOverlayCoords(livingEntity, 0.0f)
 
             model.applyAnimations(
@@ -154,11 +156,24 @@ class PokemonOnShoulderRenderer<T : Player>(renderLayerParent: RenderLayerParent
                 ageInTicks = livingEntity.tickCount.toFloat()
             )
             model.render(context, matrixStack, vertexConsumer, packedLight, i, -0x1)
-            model.withLayerContext(buffer, state, PokemonModelRepository.getLayers(shoulderData.species.resourceIdentifier, state)) {
+            model.withLayerContext(buffer, state, VaryingModelRepository.getLayers(shoulderData.species.resourceIdentifier, state)) {
                 model.render(context, matrixStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, -0x1)
             }
+
+            heldItemRenderer.renderOnModel(
+                shoulderData.shownItem,
+                state.locatorStates,
+                matrixStack,
+                buffer
+            )
+
             model.setDefault()
             matrixStack.popPose()
+            livingEntity.level().profiler.pop()
+        }
+        else {
+            val entry = playerCache.getOrPut(livingEntity.uuid) { ShoulderCache() }
+            if (pLeftShoulder) entry.lastKnownLeft = null else entry.lastKnownRight = null
         }
     }
 
@@ -174,7 +189,7 @@ class PokemonOnShoulderRenderer<T : Player>(renderLayerParent: RenderLayerParent
         if (!shoulderNbt.contains(DataKeys.SHOULDER_SPECIES)) {
             return Pokemon.CLIENT_CODEC.decode(NbtOps.INSTANCE, shoulderNbt.getCompound(DataKeys.POKEMON))
                 .map { it.first }
-                .mapOrElse({ ShoulderData(pokemonUUID, it.species, it.form, it.aspects, it.scaleModifier) }, { null })
+                .mapOrElse({ ShoulderData(pokemonUUID, it.species, it.form, it.aspects, it.scaleModifier, it.heldItem) }, { null })
         }
         val species = PokemonSpecies.getByIdentifier(ResourceLocation.parse(shoulderNbt.getString(DataKeys.SHOULDER_SPECIES)))
             ?: return null
@@ -182,7 +197,10 @@ class PokemonOnShoulderRenderer<T : Player>(renderLayerParent: RenderLayerParent
         val form = species.forms.firstOrNull { it.name == formName } ?: species.standardForm
         val aspects = shoulderNbt.getList(DataKeys.SHOULDER_ASPECTS, Tag.TAG_STRING.toInt()).map { it.asString }.toSet()
         val scaleModifier = shoulderNbt.getFloat(DataKeys.SHOULDER_SCALE_MODIFIER)
-        return ShoulderData(pokemonUUID, species, form, aspects, scaleModifier)
+        val shownItem = Minecraft.getInstance().level?.registryAccess()
+            ?.let { ItemStack.parseOptional(it, shoulderNbt.getCompound(DataKeys.SHOULDER_ITEM)) }
+            ?: ItemStack.EMPTY
+        return ShoulderData(pokemonUUID, species, form, aspects, scaleModifier, shownItem)
     }
 
     private data class ShoulderCache(
@@ -195,7 +213,8 @@ class PokemonOnShoulderRenderer<T : Player>(renderLayerParent: RenderLayerParent
         val species: Species,
         val form: FormData,
         val aspects: Set<String>,
-        val scaleModifier: Float
+        val scaleModifier: Float,
+        val shownItem: ItemStack
     )
 
     companion object {
@@ -206,23 +225,12 @@ class PokemonOnShoulderRenderer<T : Player>(renderLayerParent: RenderLayerParent
          * Checks if a player has shoulder data cached.
          *
          * @param player The player being checked.
-         * @return A [Pair] with [Pair.left] and [Pair.right] being the respective shoulder.
+         * @return A [Pair] with [Pair.first] and [Pair.second] being the respective shoulder.
          */
         @JvmStatic
         fun shoulderDataOf(player: Player): Pair<ShoulderData?, ShoulderData?> {
             val cache = playerCache[player.uuid] ?: return Pair(null, null)
             return Pair(cache.lastKnownLeft, cache.lastKnownRight)
-        }
-
-        /**
-         * Clears the cache for the respective player.
-         * This is required to be done whenever a Pokémon changes in any way (form, evolution, etc.)
-         *
-         * @param player The player whose cache to clear
-         */
-        @JvmStatic
-        fun clearCache(player: Player) {
-            playerCache.remove(player.uuid)
         }
 
     }

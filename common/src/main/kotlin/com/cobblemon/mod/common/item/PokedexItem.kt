@@ -9,9 +9,11 @@
 package com.cobblemon.mod.common.item
 
 import com.cobblemon.mod.common.client.CobblemonClient
-import com.cobblemon.mod.common.client.pokedex.PokedexTypes
+import com.cobblemon.mod.common.client.pokedex.PokedexType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.isLookingAt
+import com.cobblemon.mod.common.util.isServerSide
+import com.cobblemon.mod.common.util.traceFirstEntityCollision
 import net.minecraft.client.player.LocalPlayer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
@@ -24,7 +26,7 @@ import net.minecraft.world.item.UseAnim
 import net.minecraft.world.level.Level
 import net.minecraft.world.phys.AABB
 
-class PokedexItem(val type: PokedexTypes): CobblemonItem(Item.Properties().stacksTo(1)) {
+class PokedexItem(val type: PokedexType): CobblemonItem(Item.Properties().stacksTo(1)) {
 
     override fun getUseAnimation(itemStack: ItemStack): UseAnim? = UseAnim.TOOT_HORN
 
@@ -36,6 +38,19 @@ class PokedexItem(val type: PokedexTypes): CobblemonItem(Item.Properties().stack
         usedHand: InteractionHand
     ): InteractionResultHolder<ItemStack> {
         val itemStack = player.getItemInHand(usedHand)
+
+        if (player.isCrouching) {
+            val hitPokemon = player.traceFirstEntityCollision(
+                entityClass = PokemonEntity::class.java,
+                maxDistance = player.entityInteractionRange().toFloat()
+            )
+
+            // If the player is looking at a Pokémon within range, block Pokedex usage
+            if (hitPokemon != null && hitPokemon.isOwnedBy(player)) {
+                return InteractionResultHolder.pass(itemStack)
+            }
+        }
+
         if (world.isClientSide && player is LocalPlayer) {
             CobblemonClient.pokedexUsageContext.type = type
         }
@@ -51,6 +66,11 @@ class PokedexItem(val type: PokedexTypes): CobblemonItem(Item.Properties().stack
         stack: ItemStack,
         remainingUseTicks: Int
     ) {
+        if (world.isServerSide() && user is ServerPlayer && user.isChangingDimension) {
+            user.stopUsingItem()
+            return
+        }
+
         if (world.isClientSide && user is LocalPlayer) {
             val usageContext = CobblemonClient.pokedexUsageContext
             val ticksInUse = getUseDuration(stack, user) - remainingUseTicks
@@ -66,7 +86,8 @@ class PokedexItem(val type: PokedexTypes): CobblemonItem(Item.Properties().stack
         remainingUseTicks: Int
     ) {
         // Check if the player is interacting with a Pokémon
-        val entity = world.getEntities(user, AABB.ofSize(user.position(), 11.0, 11.0, 11.0))
+        val range = if (user is Player) user.entityInteractionRange() else 5.0
+        val entity = world.getEntities(user, AABB.ofSize(user.position(), range, range, range))
             .filter { user.isLookingAt(it, stepDistance = 0.1F) }
             .minByOrNull { it.distanceTo(user) } as? PokemonEntity?
 

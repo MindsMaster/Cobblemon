@@ -13,10 +13,8 @@ import com.cobblemon.mod.common.api.ai.BrainConfigurationContext
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder
 import net.minecraft.world.entity.ai.behavior.declarative.Trigger
-import net.minecraft.world.entity.schedule.Activity
 
 class SwitchFromChattingTaskConfig : SingleTaskConfig {
-    val activity = Activity.IDLE
     override fun createTask(
         entity: LivingEntity,
         brainConfigurationContext: BrainConfigurationContext
@@ -24,8 +22,8 @@ class SwitchFromChattingTaskConfig : SingleTaskConfig {
         it.group(
             it.absent(CobblemonMemories.DIALOGUES)
         ).apply(it) { _ ->
-            Trigger { world, entity, _ ->
-                entity.brain.setActiveActivityIfPossible(activity)
+            Trigger { level, entity, _ ->
+                entity.brain.updateActivityFromSchedule(level.dayTime, level.gameTime)
                 return@Trigger true
             }
         }

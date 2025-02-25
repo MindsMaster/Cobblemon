@@ -113,7 +113,6 @@ object CobblemonHeldItemManager : BaseCobblemonHeldItemManager() {
             "magician", "pickpocket", "covet", "thief" -> battleLang("item.thief", battlerName, itemName, sourceName) // The "source" is actually the target here
             "pickup", "recycle" -> battleLang("item.recycle", battlerName, itemName)
             "switcheroo", "trick" -> battleLang("item.trick", battlerName, itemName)
-            "focussash" -> battleLang("item.trick", battlerName, itemName)
             else -> battleLang("item.$effectId", battlerName, itemName, sourceName)
         }
         battle.broadcastChatMessage(text)
@@ -123,6 +122,10 @@ object CobblemonHeldItemManager : BaseCobblemonHeldItemManager() {
         }
         // Block item swapping in PVP until we have a rule
         if (battle.isPvP && !consumeHeldItems) {
+            return
+        }
+        // Block stealing from NPCs
+        if (battle.isPvN) {
             return
         }
         // if items aren't consumed, then we don't want to give them to wild pokemon (dupe)
@@ -155,8 +158,10 @@ object CobblemonHeldItemManager : BaseCobblemonHeldItemManager() {
         val text = when {
             effect?.id != null -> battleLang("enditem.${effect.id}", battlerName, itemName, sourceName)
             else -> when (itemID) {
-                "boosterenergy", "electricseed", "grassyseed", "mistyseed", "psychicseed", "roomservice" -> battleLang("enditem.generic", battlerName, itemName)
-                else -> battleLang("enditem.$itemID", battlerName)
+                "boosterenergy", "electricseed", "grassyseed", "mistyseed", "psychicseed", "roomservice", "blunderpolicy", "weaknesspolicy", "absorbbulb",
+                    -> battleLang("enditem.generic", battlerName, itemName)   // TODO this cannot scale like this
+                else
+                    -> battleLang("enditem.$itemID", battlerName)
             }
         }
         if (consumeHeldItems) this.take(pokemon, itemID)
@@ -190,5 +195,15 @@ object CobblemonHeldItemManager : BaseCobblemonHeldItemManager() {
      */
     fun registerStackRemap(remap: Function<ItemStack, String?>) {
         this.stackRemaps.add(remap)
+    }
+
+    override fun nameOf(showdownId: String): Component {
+        // Check Remaps before defaulting to super
+        for (remap in remaps) {
+            if (remap.value == showdownId) {
+                return remap.key.description
+            }
+        }
+        return super.nameOf(showdownId)
     }
 }

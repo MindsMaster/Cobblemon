@@ -13,10 +13,10 @@
             "context": "grounded",
             "bucket": "uncommon",
             "level": "9-34",
-            "weight": 9.0,
+            "weight": 8.4,
             "condition": {
                 "biomes": [
-                    "#minecraft:is_end"
+                    "#cobblemon:is_end"
                 ]
             },
             "drops": {
@@ -65,7 +65,7 @@
             }
         },
         {
-            "id": "elgyem-3",
+            "id": "elgyem-5",
             "pokemon": "elgyem",
             "type": "pokemon",
             "context": "grounded",

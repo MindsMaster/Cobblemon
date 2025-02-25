@@ -21,60 +21,94 @@ import com.cobblemon.mod.common.net.messages.server.trade.OfferTradePacket
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.google.common.collect.ArrayListMultimap
 import com.google.common.collect.Multimap
+import java.util.UUID
 import net.minecraft.client.Minecraft
 import net.minecraft.network.chat.Component
-import java.util.*
 import org.joml.Vector3f
 
-fun createPokemonInteractGui(pokemonID: UUID, canMountShoulder: Boolean): InteractWheelGUI {
+fun createPokemonInteractGui(pokemonID: UUID, canMountShoulder: Boolean, canGiveHeld: Boolean, canGiveCosmetic: Boolean, canRide: Boolean): InteractWheelGUI {
     val mountShoulder = InteractWheelOption(
         iconResource = cobblemonResource("textures/gui/interact/icon_shoulder.png"),
         tooltipText = "cobblemon.ui.interact.mount.shoulder",
+        enabled = canMountShoulder,
         onPress = {
             if (canMountShoulder) {
-                InteractPokemonPacket(pokemonID, true).sendToServer()
+                InteractPokemonPacket(pokemonID, InteractTypePokemon.SHOULDER).sendToServer()
                 closeGUI()
             }
         }
     )
-    val giveItem = InteractWheelOption(
+    val giveHeldItem = InteractWheelOption(
         iconResource = cobblemonResource("textures/gui/interact/icon_held_item.png"),
         tooltipText = "cobblemon.ui.interact.give.item",
+        enabled = canGiveHeld,
         onPress = {
-            InteractPokemonPacket(pokemonID, false).sendToServer()
-            closeGUI()
+            if (canGiveHeld) {
+                InteractPokemonPacket(pokemonID, InteractTypePokemon.HELD_ITEM).sendToServer()
+                closeGUI()
+            }
         }
     )
+    val giveCosmeticItem = InteractWheelOption(
+        iconResource = cobblemonResource("textures/gui/interact/icon_cosmetic_item.png"),
+        tooltipText = "cobblemon.ui.interact.give.cosmetic_item",
+        enabled = canGiveCosmetic,
+        onPress = {
+            if (canGiveCosmetic) {
+                InteractPokemonPacket(pokemonID, InteractTypePokemon.COSMETIC_ITEM).sendToServer()
+                closeGUI()
+            }
+        }
+    )
+
+    val ride = InteractWheelOption(
+        iconResource = cobblemonResource("textures/gui/interact/icon_ride.png"),
+        tooltipText = "cobblemon.ui.interact.ride",
+        onPress = {
+            if (canRide) {
+                InteractPokemonPacket(pokemonID, InteractTypePokemon.RIDE).sendToServer()
+                closeGUI()
+            }
+        }
+    )
+
     val options: Multimap<Orientation, InteractWheelOption> = ArrayListMultimap.create()
-    options.put(Orientation.TOP_RIGHT, giveItem)
-    if (canMountShoulder) {
-        options.put(Orientation.TOP_LEFT, mountShoulder)
-    }
-    CobblemonEvents.POKEMON_INTERACTION_GUI_CREATION.post(PokemonInteractionGUICreationEvent(pokemonID, canMountShoulder, options))
+    options.put(Orientation.TOP_RIGHT, giveHeldItem)
+    options.put(Orientation.BOTTOM_RIGHT, giveCosmeticItem)
+    options.put(Orientation.BOTTOM_LEFT, ride)
+    options.put(Orientation.TOP_LEFT, mountShoulder)
+    CobblemonEvents.POKEMON_INTERACTION_GUI_CREATION.post(PokemonInteractionGUICreationEvent(
+        pokemonID = pokemonID,
+        mountShoulder = canMountShoulder,
+        giveHeld = canGiveHeld,
+        giveCosmetic = canGiveCosmetic,
+        canRide = canRide,
+        options = options
+    ))
     return InteractWheelGUI(options, Component.translatable("cobblemon.ui.interact.pokemon"))
 }
 
 fun createPlayerInteractGui(optionsPacket: PlayerInteractOptionsPacket): InteractWheelGUI {
     val trade = InteractWheelOption(
         iconResource = cobblemonResource("textures/gui/interact/icon_trade.png"),
-        secondaryIconResource =  if (CobblemonClient.requests.tradeOffers.any { it.traderId == optionsPacket.targetId })
+        secondaryIconResource =  if (CobblemonClient.requests.tradeOffers[optionsPacket.targetId] != null)
             cobblemonResource("textures/gui/interact/icon_exclamation.png")
         else null,
         colour = { null },
         tooltipText = "cobblemon.ui.interact.trade",
         onPress = {
-            val tradeOffer = CobblemonClient.requests.tradeOffers.find { it.traderId == optionsPacket.targetId }
+            val tradeOffer = CobblemonClient.requests.tradeOffers[optionsPacket.targetId]
             if (tradeOffer == null) {
                 CobblemonNetwork.sendToServer(OfferTradePacket(optionsPacket.targetId))
             } else {
-                CobblemonClient.requests.tradeOffers -= tradeOffer
-                CobblemonNetwork.sendToServer(AcceptTradeRequestPacket(tradeOffer.tradeOfferId))
+                CobblemonClient.requests.tradeOffers.remove(optionsPacket.targetId)
+                CobblemonNetwork.sendToServer(AcceptTradeRequestPacket(tradeOffer.requestID))
             }
             closeGUI()
         }
     )
-    val activeBattleRequest = CobblemonClient.requests.battleChallenges.firstOrNull { it.challengerIds.contains(optionsPacket.targetId) }
-    val activeTeamRequest = CobblemonClient.requests.multiBattleTeamRequests.firstOrNull { it.challengerIds.contains(optionsPacket.targetId) }
+    val activeBattleRequest = CobblemonClient.requests.battleChallenges[optionsPacket.targetId]
+    val activeTeamRequest = CobblemonClient.requests.multiBattleTeamRequests[optionsPacket.targetId]
     val battle = InteractWheelOption(
         iconResource = cobblemonResource("textures/gui/interact/icon_battle.png"),
         secondaryIconResource =  if(activeBattleRequest != null|| activeTeamRequest != null)
@@ -89,7 +123,7 @@ fun createPlayerInteractGui(optionsPacket: PlayerInteractOptionsPacket): Interac
 
     val spectate = InteractWheelOption(
         iconResource = cobblemonResource("textures/gui/interact/icon_spectate_battle.png"),
-        colour = { if (CobblemonClient.requests.battleChallenges.any { it.challengerIds.contains(optionsPacket.targetId) }) Vector3f(0F, 0.6F, 0F) else null },
+        colour = { if (CobblemonClient.requests.battleChallenges[optionsPacket.targetId] != null) Vector3f(0F, 0.6F, 0F) else null },
         onPress = {
             SpectateBattlePacket(optionsPacket.targetId).sendToServer()
             closeGUI()
@@ -98,8 +132,8 @@ fun createPlayerInteractGui(optionsPacket: PlayerInteractOptionsPacket): Interac
     )
     val options: Multimap<Orientation, InteractWheelOption> = ArrayListMultimap.create()
     //TODO: hasChallenge and hasTeamRequest get calculated a bunch of times. Might consider having the server just passing it over.
-    val hasChallenge = CobblemonClient.requests.battleChallenges.any { it.challengerIds.contains(optionsPacket.targetId) }
-    val hasTeamRequest = CobblemonClient.requests.multiBattleTeamRequests.any { it.challengerIds.contains(optionsPacket.targetId) }
+    val hasChallenge = CobblemonClient.requests.battleChallenges[optionsPacket.targetId] != null
+    val hasTeamRequest = CobblemonClient.requests.multiBattleTeamRequests[optionsPacket.targetId] != null
     //The way things are positioned should probably be more thought out if more options are added
     var addBattleOption = false
     optionsPacket.options.forEach {
@@ -131,7 +165,7 @@ fun createPlayerInteractGui(optionsPacket: PlayerInteractOptionsPacket): Interac
                 ))
             }
         }
-        if (it.equals(PlayerInteractOptionsPacket.Options.SPECTATE_BATTLE)) {
+        if (it.key == PlayerInteractOptionsPacket.Options.SPECTATE_BATTLE) {
             if(!hasChallenge) {
                 options.put(Orientation.TOP_RIGHT, spectate)
             }

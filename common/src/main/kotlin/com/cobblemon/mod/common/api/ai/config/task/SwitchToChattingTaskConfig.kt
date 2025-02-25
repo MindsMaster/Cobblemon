@@ -8,21 +8,15 @@
 
 package com.cobblemon.mod.common.api.ai.config.task
 
-import com.bedrockk.molang.runtime.struct.QueryStruct
 import com.cobblemon.mod.common.CobblemonActivities
 import com.cobblemon.mod.common.CobblemonMemories
 import com.cobblemon.mod.common.api.ai.BrainConfigurationContext
-import com.cobblemon.mod.common.entity.PosableEntity
-import com.cobblemon.mod.common.util.asExpressionLike
-import com.cobblemon.mod.common.util.resolveBoolean
-import com.cobblemon.mod.common.util.withQueryValue
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder
 import net.minecraft.world.entity.ai.behavior.declarative.Trigger
 import net.minecraft.world.entity.ai.memory.MemoryModuleType
 
 class SwitchToChattingTaskConfig : SingleTaskConfig {
-    val condition = "true".asExpressionLike()
     override fun createTask(
         entity: LivingEntity,
         brainConfigurationContext: BrainConfigurationContext
@@ -32,8 +26,6 @@ class SwitchToChattingTaskConfig : SingleTaskConfig {
             it.registered(MemoryModuleType.WALK_TARGET)
         ).apply(it) { _, walkTarget ->
             Trigger { world, entity, _ ->
-                runtime.withQueryValue("entity", (entity as? PosableEntity)?.struct ?: QueryStruct(hashMapOf()))
-                if (!runtime.resolveBoolean(condition)) return@Trigger false
                 walkTarget.erase()
                 entity.brain.setActiveActivityIfPossible(CobblemonActivities.NPC_CHATTING)
                 return@Trigger true

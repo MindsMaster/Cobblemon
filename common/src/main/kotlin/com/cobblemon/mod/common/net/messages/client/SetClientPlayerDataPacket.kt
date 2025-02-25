@@ -14,8 +14,6 @@ import com.cobblemon.mod.common.api.storage.player.PlayerInstancedDataStoreType
 import com.cobblemon.mod.common.api.storage.player.PlayerInstancedDataStoreTypes
 import com.cobblemon.mod.common.api.storage.player.client.ClientInstancedPlayerData
 import com.cobblemon.mod.common.util.cobblemonResource
-import com.cobblemon.mod.common.util.readEnumConstant
-import com.cobblemon.mod.common.util.writeEnumConstant
 import net.minecraft.network.RegistryFriendlyByteBuf
 
 /**

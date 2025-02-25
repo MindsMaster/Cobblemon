@@ -137,7 +137,7 @@ class HealingMachineBlockEntity(
             val npc = level
                 ?.getEntities(null, AABB.ofSize(blockPos.toVec3d(), 10.0, 10.0, 10.0)) { it.uuid == currentUser && it is NPCEntity }
                 ?.firstOrNull() as? NPCEntity
-            val party = npc?.staticParty
+            val party = npc?.party
             if (party != null) {
                 party.heal()
                 npc.sendSystemMessage(lang("healingmachine.healed").green()) // An NPC can read text, right?
@@ -308,9 +308,12 @@ class HealingMachineBlockEntity(
             } else {
                 // Recharging
                 if (blockEntity.healingCharge < blockEntity.maxCharge) {
-                    val chargePerTick = (Cobblemon.config.chargeGainedPerTick).coerceAtLeast(0F)
+                    val secondsToChargeHealingMachine = (Cobblemon.config.secondsToChargeHealingMachine).coerceAtLeast(0.0)
+                    val totalTicks = secondsToChargeHealingMachine * 20
+                    val chargePerTick = if (totalTicks > 0) blockEntity.maxCharge / totalTicks else 0.0
+
                     blockEntity.healingCharge =
-                        (blockEntity.healingCharge + chargePerTick).coerceIn(0F..blockEntity.maxCharge)
+                        (blockEntity.healingCharge + chargePerTick.toFloat()).coerceIn(0F..blockEntity.maxCharge)
                     blockEntity.updateBlockChargeLevel()
                     blockEntity.updateRedstoneSignal()
                     blockEntity.markUpdated()

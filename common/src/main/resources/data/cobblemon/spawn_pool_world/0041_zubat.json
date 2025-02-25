@@ -105,7 +105,7 @@
             "context": "grounded",
             "bucket": "uncommon",
             "level": "1-25",
-            "weight": 9.0,
+            "weight": 8.4,
             "weightMultiplier": {
                 "multiplier": 1.5,
                 "condition": {
@@ -162,12 +162,31 @@
             "context": "grounded",
             "bucket": "uncommon",
             "level": "1-25",
-            "weight": 9.0,
+            "weight": 8.4,
             "condition": {
                 "minSkyLight": 0,
                 "maxSkyLight": 7,
                 "biomes": [
                     "#cobblemon:is_deep_dark"
+                ]
+            }
+        },
+        {
+            "id": "zubat-9",
+            "pokemon": "zubat",
+            "presets": [
+                "natural"
+            ],
+            "type": "pokemon",
+            "context": "grounded",
+            "bucket": "common",
+            "level": "1-25",
+            "weight": 9.0,
+            "condition": {
+                "minSkyLight": 0,
+                "maxSkyLight": 7,
+                "biomes": [
+                    "#aether:is_aether"
                 ]
             }
         }

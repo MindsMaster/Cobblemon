@@ -8,7 +8,7 @@
   },
   {
     "type": "add_tasks_to_activity",
-    "activity": "cobblemon:npc_action_effect",
+    "activity": "cobblemon:action_effect",
     "tasksByPriority": {
       "0": ["switch_from_action_effect"]
     }

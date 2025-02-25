@@ -12,12 +12,12 @@
 			},
 			"bones": [
 				{
-					"name": "girafarig_female",
+					"name": "girafarig",
 					"pivot": [0, 0, 0]
 				},
 				{
 					"name": "body",
-					"parent": "girafarig_female",
+					"parent": "girafarig",
 					"pivot": [0, 16, 0]
 				},
 				{

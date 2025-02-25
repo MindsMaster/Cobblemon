@@ -45,21 +45,4 @@ public class ChunkStorageMixin {
         int curVersion = vanillaFixed.contains(VERSION_KEY) ? vanillaFixed.getInt(VERSION_KEY) : 0;
         return DataFixTypes.CHUNK.update(CobblemonSchemas.getDATA_FIXER(), vanillaFixed, curVersion, CobblemonSchemas.DATA_VERSION);
     }
-
-    @Inject(
-        method = "upgradeChunkTag(Lnet/minecraft/resources/ResourceKey;Ljava/util/function/Supplier;Lnet/minecraft/nbt/CompoundTag;Ljava/util/Optional;)Lnet/minecraft/nbt/CompoundTag;",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/nbt/NbtUtils;addCurrentDataVersion(Lnet/minecraft/nbt/CompoundTag;)Lnet/minecraft/nbt/CompoundTag;"
-        )
-    )
-    public void cobblemon$addChunkVersion(
-        ResourceKey<Level> resourceKey,
-        Supplier<DimensionDataStorage> supplier,
-        CompoundTag compoundTag,
-        Optional<ResourceKey<MapCodec<? extends ChunkGenerator>>> optional,
-        CallbackInfoReturnable<CompoundTag> cir
-    ) {
-        compoundTag.put(VERSION_KEY, IntTag.valueOf(CobblemonSchemas.DATA_VERSION));
-    }
 }

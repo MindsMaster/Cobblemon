@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.client.gui.pokedex
 
 import com.bedrockk.molang.runtime.MoLangRuntime
+import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.gui.blitk
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.setup
@@ -19,17 +20,19 @@ import com.cobblemon.mod.common.api.pokedex.def.PokedexDef
 import com.cobblemon.mod.common.api.pokedex.entry.PokedexEntry
 import com.cobblemon.mod.common.api.pokedex.entry.PokedexForm
 import com.cobblemon.mod.common.api.pokedex.filter.EntryFilter
+import com.cobblemon.mod.common.api.pokedex.filter.SearchByType
 import com.cobblemon.mod.common.api.pokedex.filter.SearchFilter
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.api.storage.player.client.ClientPokedexManager
 import com.cobblemon.mod.common.api.text.bold
+import com.cobblemon.mod.common.api.text.font
 import com.cobblemon.mod.common.api.text.text
 import com.cobblemon.mod.common.client.ClientMoLangFunctions.setupClient
 import com.cobblemon.mod.common.client.CobblemonClient
 import com.cobblemon.mod.common.client.CobblemonResources
+import com.cobblemon.mod.common.client.gui.CobblemonRenderable
 import com.cobblemon.mod.common.client.gui.pokedex.PokedexGUIConstants.BASE_HEIGHT
 import com.cobblemon.mod.common.client.gui.pokedex.PokedexGUIConstants.BASE_WIDTH
-import com.cobblemon.mod.common.client.gui.pokedex.PokedexGUIConstants.HALF_OVERLAY_WIDTH
 import com.cobblemon.mod.common.client.gui.pokedex.PokedexGUIConstants.HEADER_BAR_HEIGHT
 import com.cobblemon.mod.common.client.gui.pokedex.PokedexGUIConstants.SCALE
 import com.cobblemon.mod.common.client.gui.pokedex.PokedexGUIConstants.TAB_ABILITIES
@@ -38,25 +41,23 @@ import com.cobblemon.mod.common.client.gui.pokedex.PokedexGUIConstants.TAB_DROPS
 import com.cobblemon.mod.common.client.gui.pokedex.PokedexGUIConstants.TAB_ICON_SIZE
 import com.cobblemon.mod.common.client.gui.pokedex.PokedexGUIConstants.TAB_SIZE
 import com.cobblemon.mod.common.client.gui.pokedex.PokedexGUIConstants.TAB_STATS
-import com.cobblemon.mod.common.client.gui.pokedex.widgets.AbilitiesWidget
-import com.cobblemon.mod.common.client.gui.pokedex.widgets.DescriptionWidget
-import com.cobblemon.mod.common.client.gui.pokedex.widgets.DropsScrollingWidget
-import com.cobblemon.mod.common.client.gui.pokedex.widgets.EntriesScrollingWidget
-import com.cobblemon.mod.common.client.gui.pokedex.widgets.PokemonInfoWidget
-import com.cobblemon.mod.common.client.gui.pokedex.widgets.SearchWidget
-import com.cobblemon.mod.common.client.gui.pokedex.widgets.SizeWidget
-import com.cobblemon.mod.common.client.gui.pokedex.widgets.StatsWidget
-import com.cobblemon.mod.common.client.pokedex.PokedexTypes
+import com.cobblemon.mod.common.client.gui.pokedex.widgets.*
+import com.cobblemon.mod.common.client.pokedex.PokedexType
 import com.cobblemon.mod.common.client.render.drawScaledText
+import com.cobblemon.mod.common.net.messages.server.block.AdjustBlockEntityViewerCountPacket
 import com.cobblemon.mod.common.pokemon.abilities.HiddenAbility
 import com.cobblemon.mod.common.util.cobblemonResource
+import com.cobblemon.mod.common.util.isInventoryKeyPressed
+import com.cobblemon.mod.common.util.lang
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.components.EditBox
 import net.minecraft.client.gui.components.Renderable
 import net.minecraft.client.gui.components.events.GuiEventListener
 import net.minecraft.client.gui.narration.NarratableEntry
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
+import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.sounds.SoundEvent
@@ -68,9 +69,41 @@ import net.minecraft.sounds.SoundEvent
  * @since February 24, 2024
  */
 class PokedexGUI private constructor(
-    val type: PokedexTypes,
-    val initSpecies: ResourceLocation?
-): Screen(Component.translatable("cobblemon.ui.pokedex.title")) {
+    val type: PokedexType,
+    val initSpecies: ResourceLocation?,
+    val blockPos: BlockPos?
+): Screen(Component.translatable("cobblemon.ui.pokedex.title")), CobblemonRenderable {
+    companion object {
+        private val screenBackground = cobblemonResource("textures/gui/pokedex/pokedex_screen.png")
+
+        private val globeIcon = cobblemonResource("textures/gui/pokedex/globe_icon.png")
+        private val caughtSeenIcon = cobblemonResource("textures/gui/pokedex/caught_seen_icon.png")
+
+        private val arrowUpIcon = cobblemonResource("textures/gui/pokedex/arrow_up.png")
+        private val arrowDownIcon = cobblemonResource("textures/gui/pokedex/arrow_down.png")
+
+        private val tooltipEdge = cobblemonResource("textures/gui/pokedex/tooltip_edge.png")
+        private val tooltipBackground = cobblemonResource("textures/gui/pokedex/tooltip_background.png")
+
+        private val tabSelectArrow = cobblemonResource("textures/gui/pokedex/select_arrow.png")
+        private val tabIcons = arrayOf(
+            cobblemonResource("textures/gui/pokedex/tab_info.png"),
+            cobblemonResource("textures/gui/pokedex/tab_abilities.png"),
+            cobblemonResource("textures/gui/pokedex/tab_size.png"),
+            cobblemonResource("textures/gui/pokedex/tab_stats.png"),
+            cobblemonResource("textures/gui/pokedex/tab_drops.png")
+        )
+
+        /**
+         * Attempts to open this screen for a client.
+         */
+        fun open(pokedex: ClientPokedexManager, type: PokedexType, species: ResourceLocation? = null, blockPos: BlockPos? = null) {
+            val mc = Minecraft.getInstance()
+            val screen = PokedexGUI(type, species, blockPos)
+            mc.setScreen(screen)
+        }
+    }
+
     var oldDragPosX = 0.0
     var canDragRender = false
 
@@ -88,12 +121,14 @@ class PokedexGUI private constructor(
     private var availableRegions = emptyList<ResourceLocation>()
     private var selectedRegionIndex = 0
 
+    private lateinit var regionSelectWidgetUp: ScaledButton
+    private lateinit var regionSelectWidgetDown: ScaledButton
+    private lateinit var searchByTypeButton: ScaledButton
     private lateinit var scrollScreen: EntriesScrollingWidget
     private lateinit var pokemonInfoWidget: PokemonInfoWidget
     private lateinit var searchWidget: SearchWidget
-    private lateinit var regionSelectWidgetUp: ScaledButton
-    private lateinit var regionSelectWidgetDown: ScaledButton
 
+    private var selectedSearchByType: SearchByType = SearchByType.SPECIES
     private val tabButtons: MutableList<ScaledButton> = mutableListOf()
 
     lateinit var tabInfoElement: GuiEventListener
@@ -132,7 +167,7 @@ class PokedexGUI private constructor(
         displaytabInfoElement(tabInfoIndex, false)
 
         if (::searchWidget.isInitialized) removeWidget(searchWidget)
-        searchWidget = SearchWidget(x + 26, y + 28, HALF_OVERLAY_WIDTH, HEADER_BAR_HEIGHT, update = ::updateFilters)
+        searchWidget = SearchWidget(x + 26, y + 28, 128, HEADER_BAR_HEIGHT, update = ::updateFilters)
         addRenderableWidget(searchWidget)
 
         if (::regionSelectWidgetUp.isInitialized) removeWidget(regionSelectWidgetUp)
@@ -157,8 +192,25 @@ class PokedexGUI private constructor(
             resource = arrowDownIcon,
             clickAction = { updatePokedexRegion(true) }
         )
-
         addRenderableWidget(regionSelectWidgetDown)
+
+        if (::searchByTypeButton.isInitialized) removeWidget(searchByTypeButton)
+        searchByTypeButton = ScaledButton(
+            buttonX = (x + 154.5).toFloat(),
+            buttonY = (y + 29.5).toFloat(),
+            buttonWidth = 16,
+            buttonHeight = 16,
+            scale = SCALE,
+            resource = cobblemonResource("textures/gui/pokedex/tab_${selectedSearchByType.name.lowercase()}.png"),
+            clickAction = {
+                val searchTypes = SearchByType.entries.toList()
+                val selectedIndex = searchTypes.indexOf(selectedSearchByType)
+                selectedSearchByType = searchTypes.get(if (selectedIndex == searchTypes.lastIndex) 0 else (selectedIndex + 1))
+                (it as ScaledButton).resource = cobblemonResource("textures/gui/pokedex/tab_${selectedSearchByType.name.lowercase()}.png")
+                updateFilters()
+            }
+        )
+        addRenderableWidget(searchByTypeButton)
 
         updateFilters(true)
     }
@@ -271,9 +323,25 @@ class PokedexGUI private constructor(
         }
 
         super.render(context, mouseX, mouseY, delta)
+
+        // Search type tooltip
+        if (searchByTypeButton.isButtonHovered(mouseX, mouseY)) {
+            matrices.pushPose()
+            matrices.translate(0.0, 0.0, 1000.0)
+            val searchTypeText = lang("ui.pokedex.search.search_by", lang("ui.pokedex.search.type.${selectedSearchByType.name.lowercase()}")).bold()
+            val searchTypeTextWidth = Minecraft.getInstance().font.width(searchTypeText.font(CobblemonResources.DEFAULT_LARGE))
+            val tooltipWidth = searchTypeTextWidth + 6
+
+            blitk(matrixStack = matrices, texture = tooltipEdge, x = mouseX - (tooltipWidth / 2) - 1, y = mouseY - 16, width = 1, height = 11)
+            blitk(matrixStack = matrices, texture = tooltipBackground, x = mouseX - (tooltipWidth / 2), y = mouseY - 16, width = tooltipWidth, height = 11)
+            blitk(matrixStack = matrices, texture = tooltipEdge, x = mouseX + (tooltipWidth / 2), y = mouseY - 16, width = 1, height = 11)
+            drawScaledText(context = context, font = CobblemonResources.DEFAULT_LARGE, text = searchTypeText, x = mouseX, y = mouseY - 15, shadow = true, centered = true)
+            matrices.popPose()
+        }
     }
 
     override fun onClose() {
+        if (blockPos != null) AdjustBlockEntityViewerCountPacket(blockPos, false).sendToServer()
         playSound(CobblemonSounds.POKEDEX_CLOSE)
         super.onClose()
     }
@@ -339,6 +407,13 @@ class PokedexGUI private constructor(
         var entries = filteredPokedex
             .flatMap { it.getEntries() }
 
+        if (Cobblemon.config.hideUnimplementedPokemonInThePokedex) {
+            entries = entries.filter {
+                val species = PokemonSpecies.getByIdentifier(it.speciesId) ?: return@filter false
+                return@filter species.implemented
+            }
+        }
+
         for (filter in getFilters()) {
             entries = entries.filter { filter.test(it) }
         }
@@ -363,7 +438,7 @@ class PokedexGUI private constructor(
     fun getFilters(): Collection<EntryFilter> {
         val filters: MutableList<EntryFilter> = mutableListOf()
 
-        filters.add(SearchFilter(CobblemonClient.clientPokedexData, searchWidget.value))
+        filters.add(SearchFilter(CobblemonClient.clientPokedexData, searchWidget.value, selectedSearchByType))
 
         return filters
     }
@@ -448,7 +523,7 @@ class PokedexGUI private constructor(
             val form = species.forms.find { it.name.equals(formName, ignoreCase = true) } ?: species.standardForm
             when (tabInfoIndex) {
                 TAB_DESCRIPTION -> {
-                    textToShowInDescription.addAll(species.pokedex)
+                    textToShowInDescription.addAll(form.pokedex)
                     (tabInfoElement as DescriptionWidget).showPlaceholder = false
                 }
                 TAB_ABILITIES -> {
@@ -508,36 +583,16 @@ class PokedexGUI private constructor(
 
     override fun isPauseScreen(): Boolean = false
 
-    fun playSound(soundEvent: SoundEvent) {
-        Minecraft.getInstance().soundManager.play(SimpleSoundInstance.forUI(soundEvent, 1.0F))
+    override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
+        if (isInventoryKeyPressed(minecraft, keyCode, scanCode) && focused !is EditBox) {
+            onClose()
+            return true
+        }
+
+        return super.keyPressed(keyCode, scanCode, modifiers)
     }
 
-    companion object {
-        private val screenBackground = cobblemonResource("textures/gui/pokedex/pokedex_screen.png")
-
-        private val globeIcon = cobblemonResource("textures/gui/pokedex/globe_icon.png")
-        private val caughtSeenIcon = cobblemonResource("textures/gui/pokedex/caught_seen_icon.png")
-
-        private val arrowUpIcon = cobblemonResource("textures/gui/pokedex/arrow_up.png")
-        private val arrowDownIcon = cobblemonResource("textures/gui/pokedex/arrow_down.png")
-
-
-        private val tabSelectArrow = cobblemonResource("textures/gui/pokedex/select_arrow.png")
-        private val tabIcons = arrayOf(
-            cobblemonResource("textures/gui/pokedex/tab_info.png"),
-            cobblemonResource("textures/gui/pokedex/tab_abilities.png"),
-            cobblemonResource("textures/gui/pokedex/tab_size.png"),
-            cobblemonResource("textures/gui/pokedex/tab_stats.png"),
-            cobblemonResource("textures/gui/pokedex/tab_drops.png")
-        )
-
-        /**
-         * Attempts to open this screen for a client.
-         */
-        fun open(pokedex: ClientPokedexManager, type: PokedexTypes, species: ResourceLocation? = null) {
-            val mc = Minecraft.getInstance()
-            val screen = PokedexGUI(type, species)
-            mc.setScreen(screen)
-        }
+    fun playSound(soundEvent: SoundEvent) {
+        Minecraft.getInstance().soundManager.play(SimpleSoundInstance.forUI(soundEvent, 1.0F))
     }
 }

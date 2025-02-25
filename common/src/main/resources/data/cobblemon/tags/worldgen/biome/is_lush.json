@@ -2,12 +2,16 @@
   "replace": false,
   "values": [
     "minecraft:lush_caves",
-    {
-      "id": "#forge:is_lush",
+	{
+      "id": "#c:is_lush",
       "required": false
     },
 	{
       "id": "byg:lush_stacks",
+      "required": false
+    },
+	{
+      "id": "terralith:cave/fungal_caves",
       "required": false
     },
 	{

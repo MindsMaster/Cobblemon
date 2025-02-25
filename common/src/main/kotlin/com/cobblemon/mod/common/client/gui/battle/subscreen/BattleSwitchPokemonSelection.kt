@@ -47,8 +47,8 @@ class BattleSwitchPokemonSelection(
     battleGUI,
     request,
     x = 0,
-    y = if (Minecraft.getInstance().window.guiScaledHeight > 630) Minecraft.getInstance().window.guiScaledHeight / 2 - 148 / 2
-    else Minecraft.getInstance().window.guiScaledHeight - 226,
+    y = if (Minecraft.getInstance().window.guiScaledHeight > 304) (Minecraft.getInstance().window.guiScaledHeight / 2) - (BACKGROUND_HEIGHT / 2)
+        else Minecraft.getInstance().window.guiScaledHeight - (BACKGROUND_HEIGHT + 78),
     width = Minecraft.getInstance().window.guiScaledWidth,
     height = Minecraft.getInstance().window.guiScaledHeight,
     battleLang("switch_pokemon")

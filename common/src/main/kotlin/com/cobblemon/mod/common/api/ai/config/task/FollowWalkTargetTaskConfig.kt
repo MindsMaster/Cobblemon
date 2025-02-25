@@ -26,14 +26,14 @@ import net.minecraft.world.entity.ai.behavior.BehaviorControl
 
 class FollowWalkTargetTaskConfig : SingleTaskConfig {
     val condition: ExpressionLike = "true".asExpressionLike()
-    val minRunTime: Expression = "150".asExpression()
-    val maxRunTime: Expression = "250".asExpression()
+    val minRunTicks: Expression = "150".asExpression()
+    val maxRunTicks: Expression = "250".asExpression()
 
     override fun createTask(entity: LivingEntity, brainConfigurationContext: BrainConfigurationContext): BehaviorControl<LivingEntity>? {
         runtime.withQueryValue("entity", (entity as? PosableEntity)?.struct ?: QueryStruct(hashMapOf()))
         if (!runtime.resolveBoolean(condition)) return null
         return WrapperLivingEntityTask(
-            FollowWalkTargetTask(runtime.resolveInt(minRunTime), runtime.resolveInt(maxRunTime)),
+            FollowWalkTargetTask(runtime.resolveInt(minRunTicks), runtime.resolveInt(maxRunTicks)),
             PathfinderMob::class.java
         )
     }

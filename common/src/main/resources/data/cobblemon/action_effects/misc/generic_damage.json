@@ -7,7 +7,7 @@
     {
       "type": "entity_particles",
       "effect": "cobblemon:hit",
-      "locator": "target",
+      "locators": ["target"],
       "delay": 0.3
     },
     {

@@ -8,15 +8,24 @@
 
 package com.cobblemon.mod.common.api.ai.config.task
 
+import com.cobblemon.mod.common.CobblemonMemories
 import com.cobblemon.mod.common.api.ai.BrainConfigurationContext
-import com.cobblemon.mod.common.entity.npc.ai.SwitchFromActionEffectTask
 import net.minecraft.world.entity.LivingEntity
-import net.minecraft.world.entity.schedule.Activity
+import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder
+import net.minecraft.world.entity.ai.behavior.declarative.Trigger
 
 class SwitchFromActionEffectTaskConfig : SingleTaskConfig {
-    val activity = Activity.IDLE
     override fun createTask(
         entity: LivingEntity,
         brainConfigurationContext: BrainConfigurationContext
-    ) = SwitchFromActionEffectTask.create(activity)
+    ) = BehaviorBuilder.create {
+        it.group(
+            it.absent(CobblemonMemories.ACTIVE_ACTION_EFFECT)
+        ).apply(it) { _ ->
+            Trigger { level, entity, _ ->
+                entity.brain.updateActivityFromSchedule(level.dayTime, level.gameTime)
+                return@Trigger true
+            }
+        }
+    }
 }

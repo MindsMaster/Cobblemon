@@ -53,8 +53,16 @@ internal class PokemonP1(
         other.experience = this.experience
         other.setFriendship(this.friendship)
         // Applied before current health for calcs to take place
-        other.ivs = this.ivs
-        other.evs = this.evs
+        other.ivs.doWithoutEmitting {
+            this.ivs.forEach {
+                other.ivs[it.key] = it.value
+            }
+        }
+        other.evs.doWithoutEmitting {
+            this.evs.forEach {
+                other.evs[it.key] = it.value
+            }
+        }
         other.currentHealth = this.currentHealth
         other.gender = this.gender
         other.moveSet.copyFrom(this.moveSet)

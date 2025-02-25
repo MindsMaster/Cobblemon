@@ -16,6 +16,9 @@ import java.util.UUID
 data class PokemonInteractionGUICreationEvent(
     val pokemonID: UUID,
     val mountShoulder: Boolean,
+    val giveHeld: Boolean,
+    val giveCosmetic: Boolean,
+    val canRide: Boolean,
     val options: Multimap<Orientation, InteractWheelOption>
 ) {
     fun addFillingOption(option: InteractWheelOption) {

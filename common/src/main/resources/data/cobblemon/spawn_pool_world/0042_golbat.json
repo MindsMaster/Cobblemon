@@ -105,7 +105,7 @@
             "context": "grounded",
             "bucket": "uncommon",
             "level": "22-46",
-            "weight": 0.9,
+            "weight": 1.52,
             "weightMultiplier": {
                 "multiplier": 1.5,
                 "condition": {
@@ -162,12 +162,31 @@
             "context": "grounded",
             "bucket": "uncommon",
             "level": "22-46",
-            "weight": 0.9,
+            "weight": 1.52,
             "condition": {
                 "minSkyLight": 0,
                 "maxSkyLight": 7,
                 "biomes": [
                     "#cobblemon:is_deep_dark"
+                ]
+            }
+        },
+        {
+            "id": "golbat-9",
+            "pokemon": "golbat",
+            "presets": [
+                "natural"
+            ],
+            "type": "pokemon",
+            "context": "grounded",
+            "bucket": "common",
+            "level": "22-46",
+            "weight": 0.9,
+            "condition": {
+                "minSkyLight": 0,
+                "maxSkyLight": 7,
+                "biomes": [
+                    "#aether:is_aether"
                 ]
             }
         }

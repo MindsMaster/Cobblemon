@@ -10,13 +10,12 @@ package com.cobblemon.mod.common.api.spawning.fishing
 
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.Cobblemon.LOGGER
-import com.cobblemon.mod.common.api.Priority
-import com.cobblemon.mod.common.api.abilities.Abilities
 import com.cobblemon.mod.common.api.events.CobblemonEvents
 import com.cobblemon.mod.common.api.events.fishing.BobberSpawnPokemonEvent
 import com.cobblemon.mod.common.api.fishing.FishingBait
 import com.cobblemon.mod.common.api.pokemon.Natures
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
+import com.cobblemon.mod.common.api.pokemon.egg.EggGroup
 import com.cobblemon.mod.common.api.pokemon.stats.Stats
 import com.cobblemon.mod.common.api.spawning.SpawnBucket
 import com.cobblemon.mod.common.api.spawning.SpawnCause
@@ -24,7 +23,7 @@ import com.cobblemon.mod.common.api.spawning.context.SpawningContext
 import com.cobblemon.mod.common.api.spawning.detail.PokemonSpawnDetail
 import com.cobblemon.mod.common.api.spawning.detail.SpawnDetail
 import com.cobblemon.mod.common.api.spawning.spawner.Spawner
-import com.cobblemon.mod.common.api.types.tera.TeraTypes
+import com.cobblemon.mod.common.api.types.ElementalTypes
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.item.interactive.PokerodItem
 import com.cobblemon.mod.common.pokemon.Gender
@@ -101,13 +100,6 @@ class FishingSpawnCause(
             pokemonEntity.pokemon.level = level
         }
 
-        fun alterTeraAttempt(pokemonEntity: PokemonEntity, effect: FishingBait.Effect) {
-            if (pokemonEntity.pokemon.teraType == effect.subcategory?.let { TeraTypes.get(it.path) } ||
-                TeraTypes.get(effect.subcategory!!.path) == null) return
-
-            pokemonEntity.pokemon.teraType = TeraTypes.get(effect.subcategory.path)!!
-        }
-
         fun alterHAAttempt(pokemonEntity: PokemonEntity) {
             //val species = pokemonEntity.pokemon.species.let { PokemonSpecies.getByName(it.name) } ?: return
             //val ability = species.abilities.mapping[Priority.LOW]?.first()?.template?.name ?: return
@@ -122,7 +114,7 @@ class FishingSpawnCause(
                     .randomOrNull ()
                     ?.let { ability ->
                         // No need to force, this is legal
-                        pokemonEntity.pokemon.ability = ability.template.create(false)
+                        pokemonEntity.pokemon.ability = ability.template.create(false, ability.priority)
                         return
                     }
             }
@@ -133,8 +125,8 @@ class FishingSpawnCause(
         }
 
         fun alterFriendshipAttempt(pokemonEntity: PokemonEntity, effect: FishingBait.Effect) {
-            if (pokemonEntity.pokemon.friendship + effect.value > 255)
-                pokemonEntity.pokemon.setFriendship(255)
+            if (pokemonEntity.pokemon.friendship + effect.value > Cobblemon.config.maxPokemonFriendship)
+                pokemonEntity.pokemon.setFriendship(Cobblemon.config.maxPokemonFriendship)
             else
                 pokemonEntity.pokemon.setFriendship(pokemonEntity.pokemon.friendship + effect.value.toInt())
         }
@@ -177,6 +169,49 @@ class FishingSpawnCause(
                        else -> super.affectWeight(detail, ctx, 0f) // use spawn weight of 0 if EV yield is 0
                    }
                }
+            }
+        }
+        // if bait exists and any effects are related to Typing
+        if (bait != null && bait.effects.any{ it.type == FishingBait.Effects.TYPING }){
+            if (detail is PokemonSpawnDetail) {
+                val detailSpecies = detail.pokemon.species?.let { PokemonSpecies.getByName(it) }
+                val baitEffect = bait.effects.firstOrNull { it.type == FishingBait.Effects.TYPING }
+                val baitTypingEffect = baitEffect?.subcategory?.path?.let { ElementalTypes.get(it) }
+
+                if (detailSpecies != null && baitTypingEffect != null) {
+                    val isMatchingType = detailSpecies.types.contains(baitTypingEffect)
+                    return when {
+                        isMatchingType -> super.affectWeight(detail, ctx, weight * baitEffect.value.toFloat()) // multiply weight by multiplier of bait effect if typing is found
+                        else -> super.affectWeight(detail, ctx, weight) // use base spawn weight if typing is not same as bait
+                    }
+                }
+            }
+        }
+        // if bait exists and any effects are related to Egg Groups
+        if (bait != null && bait.effects.any { it.type == FishingBait.Effects.EGG_GROUP }) {
+            if (detail is PokemonSpawnDetail) {
+                val detailSpecies = detail.pokemon.species?.let { PokemonSpecies.getByName(it) }
+
+                if (detailSpecies != null) {
+                    // Collect all the egg group effects
+                    val eggGroupEffects = bait.effects.filter { it.type == FishingBait.Effects.EGG_GROUP }
+
+                    // Check if any of the egg group effects match the species' egg groups
+                    val matchingEffect = eggGroupEffects.firstOrNull { effect ->
+                        val effectEggGroupKey = effect.subcategory?.path ?: return@firstOrNull false
+                        val eggGroup = EggGroup.fromIdentifier(effectEggGroupKey)
+                        if (eggGroup == null) {
+                            LOGGER.warn("Unknown egg group identifier: $effectEggGroupKey")
+                            return@firstOrNull false
+                        }
+                        detailSpecies.eggGroups.contains(eggGroup)
+                    }
+
+                    if (matchingEffect != null) {
+                        val multiplier = matchingEffect.value
+                        return super.affectWeight(detail, ctx, (weight * multiplier).toFloat())
+                    }
+                }
             }
         }
         return super.affectWeight(detail, ctx, weight)
