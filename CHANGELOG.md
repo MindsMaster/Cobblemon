@@ -33,6 +33,7 @@
 - Fixed status curing berries not playing the berry eating sound, same for healing berries used mid-battle.
 - Fixed owned Pokémon sometimes being un-interactable after the player relogs fast
 - Fixed field name in evolution requirements for Spewpa Pokeball.
+- Fixed LevelUpCriterion logic to correctly check that the Pokémon is a preEvo.
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
