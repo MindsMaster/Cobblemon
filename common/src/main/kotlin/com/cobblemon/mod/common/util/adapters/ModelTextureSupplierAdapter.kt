@@ -40,10 +40,12 @@ object ModelTextureSupplierAdapter : JsonDeserializer<ModelTextureSupplier> {
             val fps = jsonObject.get("fps")?.asFloat ?: 1F
             val frames = jsonObject.get("frames")?.asJsonArray?.map { ResourceLocation.parse(it.asString) }
                 ?: throw IllegalArgumentException("Animated textures require a 'frames' value.")
+            val interpolation = jsonObject.get("interpolation")?.asBoolean ?: false
             return AnimatedModelTextureSupplier(
                 loop = loop,
                 fps = fps,
-                frames = frames
+                frames = frames,
+                interpolation = interpolation
             )
         } else {
             throw IllegalArgumentException("Invalid JSON provided for model texture, it was of type ${json::class.simpleName} instead of a String or Object.")

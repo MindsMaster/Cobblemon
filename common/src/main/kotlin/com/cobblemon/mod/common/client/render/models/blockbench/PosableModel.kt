@@ -17,6 +17,7 @@ import com.cobblemon.mod.common.api.molang.MoLangFunctions.setup
 import com.cobblemon.mod.common.client.ClientMoLangFunctions.animationFunctions
 import com.cobblemon.mod.common.client.ClientMoLangFunctions.setupClient
 import com.cobblemon.mod.common.client.entity.PokemonClientDelegate
+import com.cobblemon.mod.common.client.render.AnimatedModelTextureSupplier
 import com.cobblemon.mod.common.client.render.ModelLayer
 import com.cobblemon.mod.common.client.render.models.blockbench.animation.*
 import com.cobblemon.mod.common.client.render.models.blockbench.bedrock.animation.BedrockActiveAnimation
@@ -40,6 +41,7 @@ import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.asExpressionLike
 import com.cobblemon.mod.common.util.plus
 import com.cobblemon.mod.common.util.toRGBA
+import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.DefaultVertexFormat
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
@@ -49,6 +51,7 @@ import net.minecraft.client.model.geom.ModelPart
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderStateShard
 import net.minecraft.client.renderer.RenderType
+import net.minecraft.client.renderer.texture.DynamicTexture
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.phys.Vec3
@@ -384,6 +387,13 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
 
     fun registerRelevantPart(pairing: Pair<String, ModelPart>) = registerRelevantPart(pairing.first, pairing.second)
 
+    /** Needed a custom one, so I can make it take in a dynamic texture instead of resource location */
+    class DynamicStateShard(texture: DynamicTexture) : RenderStateShard.EmptyTextureStateShard(Runnable {
+        RenderSystem.setShaderTexture(0, texture.id)
+    }, Runnable {
+        texture.close() // Cleanup
+    })
+
     /** Renders the model. Assumes rotations have been set. Will simply render the base model and then any extra layers. */
     fun render(
         context: RenderContext,
@@ -418,8 +428,16 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
         val provider = bufferProvider
         if (provider != null) {
             for (layer in currentLayers) {
-                val texture = layer.texture?.invoke(currentState ?: FloatingState()) ?: continue
-                val renderLayer = getLayer(texture, layer.emissive, layer.translucent)
+                var renderLayer : RenderType
+                if (layer.texture is AnimatedModelTextureSupplier && layer.texture.interpolation) {
+                    //Handle Interpolation
+                    val texture = layer.texture.interpolatedTexture(currentState ?: FloatingState()) ?: continue
+                    renderLayer = makeLayer(DynamicStateShard(texture), layer.emissive, layer.translucent)
+                }
+                else {
+                    val texture = layer.texture?.invoke(currentState ?: FloatingState()) ?: continue
+                    renderLayer = getLayer(texture, layer.emissive, layer.translucent)
+                }
                 val consumer = provider.getBuffer(renderLayer)
                 val tint = layer.tint
                 val tintRed = (tint.x * r2 * 255).toInt()
@@ -443,7 +461,7 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
     }
 
     /** Generates a [RenderType] by the power of god and anime. Only possible thanks to 100 access wideners. */
-    fun makeLayer(texture: ResourceLocation, emissive: Boolean, translucent: Boolean): RenderType {
+    fun makeLayer(texture: RenderStateShard.EmptyTextureStateShard, emissive: Boolean, translucent: Boolean): RenderType {
         val multiPhaseParameters: RenderType.CompositeState = RenderType.CompositeState.builder()
             .setShaderState(
                 when {
@@ -453,7 +471,7 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
                     else -> RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_SHADER // This one should be changed to maybe a custom shader? Translucent stuffs with things
                 }
             )
-            .setTextureState(RenderStateShard.TextureStateShard(texture, false, false))
+            .setTextureState(texture)
             .setTransparencyState(if (translucent) RenderStateShard.TRANSLUCENT_TRANSPARENCY else RenderStateShard.NO_TRANSPARENCY)
             .setCullState(RenderStateShard.CULL)
             .setWriteMaskState(RenderStateShard.COLOR_DEPTH_WRITE)
@@ -478,7 +496,7 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
         } else if (!emissive) {
             RenderType.entityTranslucent(texture)
         } else {
-            makeLayer(texture, emissive = emissive, translucent = translucent)
+            makeLayer(RenderStateShard.TextureStateShard(texture, false, false), emissive = emissive, translucent = translucent)
         }
     }
 

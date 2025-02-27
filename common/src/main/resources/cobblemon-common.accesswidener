@@ -112,3 +112,5 @@ transitive-extendable method net/minecraft/world/entity/LivingEntity getDimensio
 transitive-accessible field net/minecraft/world/level/material/MapColor MATERIAL_COLORS [Lnet/minecraft/world/level/material/MapColor;
 
 transitive-accessible field net/minecraft/client/Minecraft textureManager Lnet/minecraft/client/renderer/texture/TextureManager;
+
+transitive-accessible class net/minecraft/client/renderer/RenderStateShard$EmptyTextureStateShard
