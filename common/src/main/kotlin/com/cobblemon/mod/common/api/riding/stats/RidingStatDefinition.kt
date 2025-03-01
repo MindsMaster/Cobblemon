@@ -23,7 +23,9 @@ import net.minecraft.network.chat.Component
  * @author Hiroku
  * @since February 17th, 2025
  */
-class RidingStatDefinitions {
+class RidingStatDefinition {
+    // This object gets read from a JSON adapter manually (field-by-field) so don't add fields without updating the adapter.
+
     /** A map from [RidingStyle] to a minimum and maximum value for this stat. */
     val ranges = mutableMapOf<RidingStyle, IntRange>()
     /** Display name for the stat, if null falls back to [RidingStat.displayName]. */
@@ -51,14 +53,14 @@ class RidingStatDefinitions {
     }
 
     companion object {
-        fun decode(buffer: RegistryFriendlyByteBuf): RidingStatDefinitions {
+        fun decode(buffer: RegistryFriendlyByteBuf): RidingStatDefinition {
             val displayName = buffer.readNullable { buffer.readText() }
             val description = buffer.readNullable { buffer.readText() }
             val ranges = buffer.readMap<RidingStyle, IntRange>(
                 { buffer.readEnum<RidingStyle>(RidingStyle::class.java) },
                 { IntRange(buffer.readSizedInt(IntSize.U_BYTE), buffer.readSizedInt(IntSize.U_BYTE)) }
             )
-            return RidingStatDefinitions().apply {
+            return RidingStatDefinition().apply {
                 this.displayName = displayName
                 this.description = description
                 this.ranges.putAll(ranges)
