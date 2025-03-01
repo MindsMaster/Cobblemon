@@ -16,7 +16,7 @@ import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonBehaviourFlag
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.pokemon.riding.states.CompositeState
-import com.cobblemon.mod.common.util.adapters.riding.RideControllerAdapter
+import com.cobblemon.mod.common.util.adapters.RideControllerAdapter
 import com.cobblemon.mod.common.util.asExpression
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.common.util.getString
