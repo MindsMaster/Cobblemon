@@ -25,10 +25,12 @@ import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.item.PokedexItem
 import com.cobblemon.mod.common.platform.events.PlatformEvents
 import com.cobblemon.mod.common.pokemon.Pokemon
+import com.cobblemon.mod.common.pokemon.activestate.ShoulderedState
 import com.cobblemon.mod.common.trade.TradeManager
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.nbt.StringTag
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvents
@@ -410,8 +412,7 @@ fun Player.giveOrDropItemStack(stack: ItemStack, playSound: Boolean = true) {
             this.level().playSound(null, this.x, this.y, this.z, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2f, ((this.random.nextFloat() - this.random.nextFloat()) * 0.7f + 1.0f) * 2.0f)
         }
         this.containerMenu.broadcastChanges()
-    }
-    else {
+    } else {
         this.drop(stack, false)?.let { itemEntity ->
             itemEntity.setNoPickUpDelay()
             itemEntity.setTarget(this.uuid)
@@ -458,3 +459,14 @@ fun Player.isPartyBusy() =
 fun Player.isUsingPokedex() = isUsingItem &&
     ((mainHandItem.item is PokedexItem && usedItemHand == InteractionHand.MAIN_HAND) ||
     (offhandItem.item is PokedexItem && usedItemHand == InteractionHand.OFF_HAND))
+
+fun ServerPlayer.updateShoulderNbt(pokemon: Pokemon) {
+    // Use copies because player doesn't expose a forceful update of shoulder data
+    val nbt = if ((pokemon.state as ShoulderedState).isLeftShoulder) shoulderEntityLeft.copy() else shoulderEntityRight.copy()
+    nbt.putUUID(DataKeys.SHOULDER_UUID, uuid)
+    nbt.putString(DataKeys.SHOULDER_SPECIES, pokemon.species.resourceIdentifier.toString())
+    nbt.putString(DataKeys.SHOULDER_FORM, pokemon.form.name)
+    nbt.put(DataKeys.SHOULDER_ASPECTS, pokemon.aspects.map(StringTag::valueOf).toNbtList())
+    nbt.putFloat(DataKeys.SHOULDER_SCALE_MODIFIER, pokemon.scaleModifier)
+    if ((pokemon.state as ShoulderedState).isLeftShoulder) shoulderEntityLeft = nbt else shoulderEntityRight = nbt
+}
