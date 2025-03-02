@@ -57,7 +57,9 @@ class WaterWanderTaskConfig : SingleTaskConfig {
 
                     runtime.withQueryValue("entity", entity.asMostSpecificMoLangValue())
                     val wanderChance = wanderChance.resolveFloat()
-                    if (wanderChance <= 0 || world.random.nextFloat() > wanderChance) return@Trigger false
+                    if (wanderChance <= 0 || world.random.nextFloat() > wanderChance) {
+                        return@Trigger false
+                    }
 
                     val target = BehaviorUtils.getRandomSwimmablePos(entity, horizontalRange.resolveInt(), verticalRange.resolveInt()) ?: return@Trigger false
                     walkTarget.set(WalkTarget(target, speedMultiplier.resolveFloat(), 1))
