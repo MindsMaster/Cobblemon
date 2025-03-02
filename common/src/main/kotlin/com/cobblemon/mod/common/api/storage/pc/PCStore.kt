@@ -321,9 +321,6 @@ open class PCStore(
                         }
                         succeeded = true
                     }
-                },
-                ifCanceled = {
-                    succeeded = false
                 }
             )
         }
