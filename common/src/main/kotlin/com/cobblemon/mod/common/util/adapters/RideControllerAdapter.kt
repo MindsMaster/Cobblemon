@@ -10,12 +10,15 @@ package com.cobblemon.mod.common.util.adapters
 
 import com.cobblemon.mod.common.api.riding.controller.RideController
 import com.cobblemon.mod.common.pokemon.riding.controllers.BirdAirController
+import com.cobblemon.mod.common.pokemon.riding.controllers.DolphinController
 import com.cobblemon.mod.common.pokemon.riding.controllers.FallToFlightCompositeController
 import com.cobblemon.mod.common.pokemon.riding.controllers.GenericLandController
 import com.cobblemon.mod.common.pokemon.riding.controllers.GenericLiquidController
 import com.cobblemon.mod.common.pokemon.riding.controllers.GliderAirController
 import com.cobblemon.mod.common.pokemon.riding.controllers.HelicopterAirController
+import com.cobblemon.mod.common.pokemon.riding.controllers.JetAirController
 import com.cobblemon.mod.common.pokemon.riding.controllers.RunUpToFlightCompositeController
+import com.cobblemon.mod.common.pokemon.riding.controllers.RunUpToJetFlightCompositeController
 import com.cobblemon.mod.common.pokemon.riding.controllers.SwimDashController
 import com.cobblemon.mod.common.pokemon.riding.controllers.VehicleLandController
 import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
@@ -33,15 +36,18 @@ import net.minecraft.resources.ResourceLocation
  */
 object RideControllerAdapter : JsonDeserializer<RideController> {
     val types: MutableMap<ResourceLocation, Class<out RideController>> = mutableMapOf(
-        GenericLandController.Companion.KEY to GenericLandController::class.java,
-        GenericLiquidController.Companion.KEY to GenericLiquidController::class.java,
-        SwimDashController.Companion.KEY to SwimDashController::class.java,
-        RunUpToFlightCompositeController.Companion.KEY to RunUpToFlightCompositeController::class.java,
-        BirdAirController.Companion.KEY to BirdAirController::class.java,
-        HelicopterAirController.Companion.KEY to HelicopterAirController::class.java,
-        GliderAirController.Companion.KEY to GliderAirController::class.java,
-        FallToFlightCompositeController.Companion.KEY to FallToFlightCompositeController::class.java,
-        VehicleLandController.Companion.KEY to VehicleLandController::class.java
+        GenericLandController.KEY to GenericLandController::class.java,
+        GenericLiquidController.KEY to GenericLiquidController::class.java,
+        SwimDashController.KEY to SwimDashController::class.java,
+        RunUpToFlightCompositeController.KEY to RunUpToFlightCompositeController::class.java,
+        RunUpToJetFlightCompositeController.KEY to RunUpToJetFlightCompositeController::class.java,
+        BirdAirController.KEY to BirdAirController::class.java,
+        HelicopterAirController.KEY to HelicopterAirController::class.java,
+        GliderAirController.KEY to GliderAirController::class.java,
+        FallToFlightCompositeController.KEY to FallToFlightCompositeController::class.java,
+        VehicleLandController.KEY to VehicleLandController::class.java,
+        DolphinController.KEY to DolphinController::class.java,
+        JetAirController.KEY to JetAirController::class.java
     )
 
     override fun deserialize(element: JsonElement, type: Type, context: JsonDeserializationContext): RideController {
