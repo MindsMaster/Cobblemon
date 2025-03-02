@@ -54,6 +54,7 @@
   - The `itemCondition` for a held item evolution requirement
   - The `fossils` for a fossil entry
 - Added MoLang flows for `poke_ball_capture_calculated`, `evolution_tested`, `evolution_accepted`, `evolution_completed`
+- Added `interpolate` boolean property to animated textures to allow gradual colour changes between frames.
 
 ## [1.6.1 (January 26th, 2025)](#1-6-1)
 

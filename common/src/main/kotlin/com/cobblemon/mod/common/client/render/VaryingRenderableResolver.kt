@@ -205,10 +205,11 @@ class AnimatedModelTextureSupplier(
 ): ModelTextureSupplier {
     override fun invoke(state: PosableState): ResourceLocation {
         val frameIndex = floor(state.animationSeconds * fps).toInt()
-        if (frameIndex >= frames.size && !loop) {
-            return frames.last()
+        return if (frameIndex >= frames.size && !loop) {
+            frames.last()
+        } else {
+            frames[frameIndex % frames.size]
         }
-        return frames[frameIndex % frames.size]
     }
 
     fun interpolatedTexture(state: PosableState): DynamicTexture? {
@@ -216,13 +217,9 @@ class AnimatedModelTextureSupplier(
 
         val frameIndex = floor(state.animationSeconds * fps).toInt()
         try {
-            if (frameIndex >= frames.size && !loop) return DynamicTexture(
-                NativeImage.read(
-                    resourceManager.getResourceOrThrow(
-                        frames.last()
-                    ).open()
-                )
-            )
+            if (frameIndex >= frames.size && !loop) {
+                return DynamicTexture(NativeImage.read(resourceManager.getResourceOrThrow(frames.last()).open()))
+            }
         } catch (e : Exception) {
             return null
         }
@@ -236,8 +233,7 @@ class AnimatedModelTextureSupplier(
             texture1 = NativeImage.read(resourceManager.getResourceOrThrow(frames[o]).open())
             val s = if (o == frames.size - 1) 0 else o + 1
             texture2 = NativeImage.read(resourceManager.getResourceOrThrow(frames[s]).open())
-        }
-        catch (e : Exception) {
+        } catch (e : Exception) {
             return null
         }
 
