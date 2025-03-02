@@ -27,11 +27,13 @@ object RequestChangePCBoxWallpaperHandler : ServerNetworkPacketHandler<RequestCh
             return
         }
 
-        val unlockable = CobblemonUnlockableWallpapers.unlockableWallpapers.values.find { it.texture == packet.wallpaper }
-        if (unlockable != null && (!unlockable.enabled || unlockable.id !in pc.unlockedWallpapers)) {
-            // Bro did you just try to hack on a wallpaper? How embarrassing.
-            return
+        CobblemonUnlockableWallpapers.unlockableWallpapers.values.find { it.texture == packet.wallpaper }?.let { unlockable ->
+            if (!unlockable.enabled || unlockable.id !in pc.unlockedWallpapers) {
+                // Bro did you just try to hack on a wallpaper? How embarrassing.
+                return
+            }
         }
+
 
         val box = pc.boxes[packet.boxNumber]
         val event = ChangePCBoxWallpaperEvent.Pre(player, box, packet.wallpaper)

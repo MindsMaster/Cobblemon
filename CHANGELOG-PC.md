@@ -11,10 +11,10 @@
 - Added ChangePCBoxWallpaperEvent.Pre/Post to prevent players from changing to a wallpaper or change their selection
 - Added WallpaperCollectionEvent which gets called when clients connect to a server, allowing the server which of the clients found wallpapers it's allowed to move (collected wallpapers can be removed for example to make it "vanish" client-side)
 - Added WallpaperUnlockedEvent.
-- Wallpapers are loaded from `assets/<namespace>/textures/gui/pc/wallpaper/` and all wallpapers in this folder are available to the client to  choose by default
 - Renamed `SetPCBoxPokemonPacket` and the respective handler to `SetPCBoxPacket`
 
 ### Addons
 - Added Flows for `player_tick_pre`, `player_tick_post`, `advancement_earned`, `right_clicked_entity`, `right_clicked_block`, `player_died`, `wallpaper_unlocked`.
 - Flows now have `q.` for any context properties in addition to the `c.` properties, making it a bit more convenient when calling other scripts from Flows.
 - Added `unlockable_pc_box_wallpapers` datapack folder for wallpapers that need to be unlocked before they're usable.
+- Wallpapers are loaded from `assets/<namespace>/textures/gui/pc/wallpaper/` and all wallpapers in this folder are available to the client to  choose by default
