@@ -46,7 +46,7 @@ data class RidingManager(val entity: PokemonEntity) {
     }
 
     fun getController(entity: PokemonEntity): RideController? {
-        if (entity.controllingPassenger != null) {
+        if (entity.controllingPassenger == null) {
             return null
         }
 
