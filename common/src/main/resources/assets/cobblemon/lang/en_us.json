@@ -2737,6 +2737,12 @@
   "cobblemon.brain_preset.wanders.name": "Wanders",
   "cobblemon.brain_preset.wanders.desc": "Randomly wanders around.",
 
+  "cobblemon.brain_preset.wanders_water.name": "Wanders Water",
+  "cobblemon.brain_preset.wanders_water.desc": "Randomly swims around in water.",
+
+  "cobblemon.brain_preset.wanders_air.name": "Wanders Air",
+  "cobblemon.brain_preset.wanders_air.desc": "Randomly flies around in the air.",
+
   "cobblemon.brain_preset.chats.name": "Stops During Chat",
   "cobblemon.brain_preset.chats.desc": "Stops to look at the speaker during dialogue.",
 

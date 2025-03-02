@@ -133,15 +133,15 @@ class Species : ClientDataSynchronizer<Species>, ShowdownIdentifiable {
             presets.add(cobblemonResource("pokemon_sleeps"))
         },
         ApplyPresets().apply {
-            condition = Either.left("q.entity.behaviour.moving.walk.can_walk && !q.entity.behaviour.moving.walk.avoids_land".asExpression())
+            condition = Either.left("!q.entity.is_in_party && q.entity.behaviour.moving.walk.can_walk".asExpression())
             presets.add(cobblemonResource("wanders"))
         },
+//        ApplyPresets().apply {
+//            condition = Either.left("!q.entity.is_in_party && q.entity.behaviour.moving.fly.can_fly && q.entity.behaviour.moving.walk.avoids_land".asExpression())
+//            presets.add(cobblemonResource("wanders_air"))
+//        },
         ApplyPresets().apply {
-            condition = Either.left("q.entity.behaviour.moving.fly.can_fly && q.entity.behaviour.moving.walk.avoids_land".asExpression())
-            presets.add(cobblemonResource("wanders_air"))
-        },
-        ApplyPresets().apply {
-            condition = Either.left("q.entity.behaviour.moving.walk.avoids_land && q.entity.behaviour.moving.swim.can_swim_in_water && !q.entity.behaviour.moving.swim.avoids_water".asExpression())
+            condition = Either.left("!q.entity.is_in_party && q.entity.behaviour.moving.walk.avoids_land && q.entity.behaviour.moving.swim.can_swim_in_water && !q.entity.behaviour.moving.swim.avoids_water".asExpression())
             presets.add(cobblemonResource("wanders_water"))
         },
         ApplyPresets().apply {

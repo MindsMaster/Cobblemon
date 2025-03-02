@@ -175,7 +175,6 @@
     "moving": {
       "walk": {
         "canWalk": true,
-        "avoidsLand": true,
         "walkSpeed": 0.147
       },
       "fly": {

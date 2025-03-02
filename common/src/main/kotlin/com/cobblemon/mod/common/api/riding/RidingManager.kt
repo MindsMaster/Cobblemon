@@ -46,6 +46,10 @@ data class RidingManager(val entity: PokemonEntity) {
     }
 
     fun getController(entity: PokemonEntity): RideController? {
+        if (entity.controllingPassenger != null) {
+            return null
+        }
+
         return entity.pokemon.riding.controller?.takeIf { it.condition.invoke(entity) }
     }
 
@@ -117,7 +121,7 @@ data class RidingManager(val entity: PokemonEntity) {
     }
 
     fun shouldRotatePokemonHead(entity: PokemonEntity): Boolean {
-        val controller = getController(entity) ?: return false
+        val controller = getController(entity) ?: return true
         return controller.shouldRotatePokemonHead()
     }
 
