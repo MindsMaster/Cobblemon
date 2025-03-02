@@ -33,8 +33,8 @@ object RidingStatDefinitionAdapter : JsonDeserializer<RidingStatDefinition> {
 
         json as JsonObject
         val rangesJson = json.get("ranges")
-        val displayName = json.get("displayName")?.let { TextAdapter.deserialize(json, TypeToken.get(Component::class.java).type, context) }
-        val description = json.get("description")?.let { TextAdapter.deserialize(json, TypeToken.get(Component::class.java).type, context) }
+        val displayName = json.get("displayName")?.let { TextAdapter.deserialize(it, TypeToken.get(Component::class.java).type, context) }
+        val description = json.get("description")?.let { TextAdapter.deserialize(it, TypeToken.get(Component::class.java).type, context) }
 
         if (rangesJson.isJsonPrimitive) {
             val range = IntRangeAdapter.deserialize(rangesJson, TypeToken.get(IntRange::class.java).type, context)
