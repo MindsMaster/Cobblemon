@@ -593,6 +593,7 @@ object CobblemonItemGroups {
         entries.accept(CobblemonItems.MEDICINAL_LEEK)
         entries.accept(Items.BONE)
         entries.accept(Items.SNOWBALL)
+        entries.accept(Items.GOLD_BLOCK)
 
         entries.accept(CobblemonItems.NORMAL_GEM)
         entries.accept(CobblemonItems.FIRE_GEM)
@@ -625,7 +626,7 @@ object CobblemonItemGroups {
     }
 
     private fun blocksInjections(injector: Injector) {
-        if(Cobblemon.implementation.isModInstalled("adorn")) { //adorn modifies vanilla block tab and if we dont follow suit we crash the game
+        if(Cobblemon.implementation.isModInstalled("adorn")) { //adorn modifies vanilla block tab and if we don't follow suit we crash the game
             injector.putLast(CobblemonItems.APRICORN_LOG)
             injector.putLast(CobblemonItems.APRICORN_WOOD)
             injector.putLast(CobblemonItems.STRIPPED_APRICORN_LOG)
