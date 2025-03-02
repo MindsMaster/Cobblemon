@@ -32,7 +32,7 @@ object CobblemonItemGroups {
     private val INJECTORS = hashMapOf<ResourceKey<CreativeModeTab>, (injector: Injector) -> Unit>()
 
     @JvmStatic val BLOCKS_KEY = this.create("blocks", this::blockEntries) {
-        ItemStack( CobblemonItems.PC)
+        ItemStack(CobblemonItems.PC)
     }
     @JvmStatic val UTILITY_ITEMS_KEY = this.create("utility_item", this::utilityItemEntries) {
         ItemStack(CobblemonItems.POKE_BALL)
