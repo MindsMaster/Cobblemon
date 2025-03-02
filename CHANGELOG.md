@@ -34,6 +34,7 @@
 - Fixed owned Pokémon sometimes being un-interactable after the player relogs fast
 - Fixed field name in evolution requirements for Spewpa Pokeball.
 - Fixed LevelUpCriterion logic to correctly check that the Pokémon is a preEvo.
+- Fixed `hide_additional_tooltip` vanilla flag not properly hiding tooltips on pokerod and bait items
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
