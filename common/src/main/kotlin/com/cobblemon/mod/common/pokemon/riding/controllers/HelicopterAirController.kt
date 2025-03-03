@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.pokemon.riding.controllers
 
 import com.bedrockk.molang.Expression
+import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.Rollable
 import com.cobblemon.mod.common.api.riding.controller.RideController
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
@@ -182,8 +183,9 @@ class HelicopterAirController : RideController {
         if(driver !is Rollable) return Vec3.ZERO
 
         val rollable = driver as Rollable
+        val invertYaw = if(Cobblemon.config.invertYaw) -1 else 1
         //yaw, pitch, roll
-        return Vec3(xMouse, 0.0, 0.0 )
+        return Vec3(xMouse*invertYaw, 0.0, 0.0 )
     }
 
     override fun gravity(entity: PokemonEntity, regularGravity: Double): Double {

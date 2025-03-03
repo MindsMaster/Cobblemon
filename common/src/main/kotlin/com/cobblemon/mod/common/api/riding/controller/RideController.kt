@@ -8,6 +8,7 @@
 
 package com.cobblemon.mod.common.api.riding.controller
 
+import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.Rollable
 import com.cobblemon.mod.common.api.net.Decodable
 import com.cobblemon.mod.common.api.net.Encodable
@@ -124,7 +125,9 @@ interface RideController : Encodable, Decodable {
 
         //Might need to add the smoothing here for default.
         val rollable = driver as Rollable
-        return Vec3(0.0, yMouse, xMouse )
+        val invertRoll = if(Cobblemon.config.invertRoll) -1 else 1
+        val invertPitch = if(Cobblemon.config.invertPitch) -1 else 1
+        return Vec3(0.0, yMouse*invertPitch, xMouse*invertRoll)
     }
 
     fun turnOffOnGround(entity: PokemonEntity): Boolean = false

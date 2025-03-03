@@ -10,6 +10,7 @@ package com.cobblemon.mod.common.pokemon.riding.controllers
 
 import com.bedrockk.molang.Expression
 import com.bedrockk.molang.runtime.value.DoubleValue
+import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.Rollable
 import com.cobblemon.mod.common.api.riding.RidingStyle
 import com.cobblemon.mod.common.api.riding.controller.RideController
@@ -199,8 +200,10 @@ class BirdAirController : RideController {
 
         //Smooth out mouse input.
         val smoothingSpeed = 4
-        var xInput = xMouseSmoother.getNewDeltaValue(xMouse * 0.1, deltaTime * smoothingSpeed);
-        val YInput = yMouseSmoother.getNewDeltaValue(yMouse * 0.1, deltaTime * smoothingSpeed);
+        val invertRoll = if(Cobblemon.config.invertRoll) -1 else 1
+        val invertPitch = if(Cobblemon.config.invertPitch) -1 else 1
+        var xInput = xMouseSmoother.getNewDeltaValue(xMouse * 0.1 * invertRoll, deltaTime * smoothingSpeed);
+        val YInput = yMouseSmoother.getNewDeltaValue(yMouse * 0.1 * invertPitch, deltaTime * smoothingSpeed);
 
         //limit rolling based on healing
         val rotLimit = handling

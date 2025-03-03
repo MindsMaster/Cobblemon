@@ -10,6 +10,7 @@ package com.cobblemon.mod.common.pokemon.riding.controllers
 
 import com.bedrockk.molang.Expression
 import com.bedrockk.molang.runtime.value.DoubleValue
+import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.Rollable
 import com.cobblemon.mod.common.api.riding.RidingStyle
 import com.cobblemon.mod.common.api.riding.controller.RideController
@@ -141,9 +142,12 @@ class JetAirController : RideController {
         //Retrieve state
         val state = getState(entity, ::JetAirState)
 
+        val invertRoll = if(Cobblemon.config.invertRoll) -1 else 1
+        val invertPitch = if(Cobblemon.config.invertPitch) -1 else 1
+
         // Accumulate the mouse input
-        state.currMouseXForce = (state.currMouseXForce + (0.0015 * xMouse)).coerceIn(-1.0, 1.0)
-        state.currMouseYForce = (state.currMouseYForce + (0.0015 * yMouse)).coerceIn(-1.0, 1.0)
+        state.currMouseXForce = (state.currMouseXForce + (0.0015 * xMouse * invertRoll)).coerceIn(-1.0, 1.0)
+        state.currMouseYForce = (state.currMouseYForce + (0.0015 * yMouse * invertPitch)).coerceIn(-1.0, 1.0)
 
         //Get handling in degrees per second
         var handling = getRuntime(entity).resolveDouble(handlingExpr)
