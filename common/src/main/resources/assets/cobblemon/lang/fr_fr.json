@@ -6420,5 +6420,21 @@
     "item.cobblemon.upgrade.tooltip": "Fait évoluer Porygon en Porygon2 lorsqu'il est tenu pendant un échange",
     "item.cobblemon.whipped_dream.tooltip": "Fait évoluer Sucroquin en Cupcanaille lorsqu'il est tenu pendant un échange",
     "item.cobblemon.protector.tooltip": "Fait évoluer Rhinoféros en Rhinastoc lorsqu'il est tenu pendant un échange",
-    "item.cobblemon.love_sweet.tooltip": "Fait évoluer Crémy en Charmilly forme Cœur"
+    "item.cobblemon.love_sweet.tooltip": "Fait évoluer Crémy en Charmilly forme Cœur",
+    "item.cobblemon.link_cable.tooltip": "Fait évoluer les Pokémon qui nécessitent un échange",
+    "item.cobblemon.dragon_scale.tooltip": "Fait évoluer Hypocéan en Hyporoi lorsqu'il est tenu pendant un échange",
+    "item.cobblemon.kings_rock.tooltip_1": "Les capacités du Pokémon peuvent parfois apeurer l'adversaire",
+    "item.cobblemon.kings_rock.tooltip_2": "Fait évoluer Têtarte en Tarpaud et Ramoloss en Roigada lorsqu'elle est tenue pendant un échange",
+    "item.cobblemon.deep_sea_scale.tooltip_2": "Fait évoluer Coquiperl en Rosabyss lorsqu'elle est tenue pendant un échange",
+    "item.cobblemon.deep_sea_tooth.tooltip_1": "Augmente l'Attaque Spéciale de Coquiperl",
+    "item.cobblemon.deep_sea_tooth.tooltip_2": "Fait évoluer Coquiperl en Serpang lorsqu'elle est tenue pendant un échange",
+    "item.cobblemon.electirizer.tooltip": "Fait évoluer Élektek en Élekable lorsqu'il est tenu pendant un échange",
+    "item.cobblemon.magmarizer.tooltip": "Fait évoluer Magmar en Maganon lorsqu'il est tenu pendant un échange",
+    "item.cobblemon.masterpiece_teacup.tooltip": "Fait évoluer Poltchageist Forme Onéreuse en Théffroyable Exceptionnelle",
+    "item.cobblemon.unremarkable_teacup.tooltip": "Fait évoluer Poltchageist Imitation en Théffroyable Médiocre",
+    "item.cobblemon.sweet_apple.tooltip": "Fait évoluer Verpom en Dratatin",
+    "item.cobblemon.tart_apple.tooltip": "Fait évoluer Verpom en Pomdrapi",
+    "item.cobblemon.galarica_cuff.tooltip": "Fait évoluer Ramoloss de Galar en Flagadoss de Galar",
+    "item.cobblemon.galarica_wreath.tooltip": "Fait évoluer Ramoloss de Galar en Roigada de Galar",
+    "item.cobblemon.black_augurite.tooltip": "Fait évoluer Insécateur en Hachécateur"
 }
