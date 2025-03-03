@@ -9,9 +9,18 @@
 package com.cobblemon.mod.common.mixin.client;
 
 import com.cobblemon.mod.common.Rollable;
+import com.cobblemon.mod.common.api.riding.Rideable;
+import com.cobblemon.mod.common.api.riding.Seat;
+import com.cobblemon.mod.common.client.entity.PokemonClientDelegate;
+import com.cobblemon.mod.common.client.render.MatrixWrapper;
+import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix3f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -36,8 +45,11 @@ public abstract class CameraMixin {
     @Shadow private float yRot;
 
     @Shadow public abstract float getXRot();
-
     @Shadow public abstract float getYRot();
+
+    @Shadow private Vec3 position;
+    @Shadow private float eyeHeight;
+    @Shadow private float eyeHeightOld;
 
     @Unique private float returnTimer = 0;
     @Unique private float rollAngleStart = 0;
@@ -78,6 +90,48 @@ public abstract class CameraMixin {
         this.returnTimer = 0;
         this.rollAngleStart = rollable.getRoll();
         ci.cancel();
+    }
+
+    //If you want to move this to a delagate you need an AW for position
+    @WrapOperation(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setPosition(DDD)V"))
+    public void positionCamera(Camera instance, double x, double y, double z, Operation<Void> original){
+        Entity entity = instance.getEntity();
+        Entity vehicle = entity.getVehicle();
+
+        if(vehicle instanceof Rideable){
+            //RidingCameraDelagate.INSTANCE.positionCamera(instance, x, y, z, original);
+            if(!(vehicle instanceof PokemonEntity)){
+                original.call(instance, x, y, z);
+                return;
+            }
+            PokemonEntity pokemon = (PokemonEntity) vehicle;
+
+            int seatIndex = pokemon.getPassengers().indexOf(entity);
+            Seat seat = pokemon.getSeats().get(seatIndex);
+            PokemonClientDelegate delegate = (PokemonClientDelegate) pokemon.getDelegate();
+            MatrixWrapper locator = delegate.getLocatorStates().get(seat.getLocator());
+            if(locator == null){
+                original.call(instance, x, y, z);
+                return;
+            }
+
+            Vec3 locatorOffset = new Vec3(locator.getMatrix().getTranslation(new Vector3f()));
+
+            Vec3 entityPos = new Vec3(
+                    Mth.lerp(instance.getPartialTickTime(), pokemon.xOld, pokemon.getX()),
+                    Mth.lerp(instance.getPartialTickTime(), pokemon.yOld, pokemon.getY()),
+                    Mth.lerp(instance.getPartialTickTime(), pokemon.zOld, pokemon.getZ())
+            );
+
+            Rollable rollable = (Rollable) entity;
+            float currEyeHeight = Mth.lerp(instance.getPartialTickTime(), eyeHeightOld, eyeHeight);
+            Matrix3f orientation = rollable.shouldRoll() && rollable.getOrientation() != null ? rollable.getOrientation() : new Matrix3f();
+            Vec3 rotatedEyeHeight = new Vec3(orientation.transform(new Vector3f(0f, currEyeHeight, 0f)));
+
+            position = locatorOffset.add(entityPos).add(rotatedEyeHeight);
+        } else {
+            original.call(instance, x, y, z);
+        }
     }
 
     @Unique

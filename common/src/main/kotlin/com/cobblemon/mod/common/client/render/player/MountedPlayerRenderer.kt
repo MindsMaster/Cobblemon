@@ -48,10 +48,10 @@ object MountedPlayerRenderer {
             val locatorOffsetToCenter = locatorOffset.sub(center, Vector3f())
 
             val transformationMatrix = Matrix4f()
-            if (player is Rollable && player.shouldRoll()){
+            //if (player is Rollable && player.shouldRoll()){
                 //transformationMatrix.rotate(Axis.YP.rotationDegrees(-yBodyRot))
                 //transformationMatrix.mulLocal(player.orientation)
-            }
+            //}
 
             val rotatedOffset = transformationMatrix.transformPosition(locatorOffsetToCenter, Vector3f()).add(center).sub(Vector3f(0f, player.bbHeight/2, 0f))
             matrix.translate(rotatedOffset)
