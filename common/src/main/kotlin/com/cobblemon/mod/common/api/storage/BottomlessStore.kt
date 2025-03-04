@@ -110,7 +110,7 @@ open class BottomlessStore(override val uuid: UUID) : PokemonStore<BottomlessPos
             } else {
                 this.pokemon.removeAt(position.currentIndex)
             }
-            for(i in startIndex until this.pokemon.size) {
+            for (i in startIndex until this.pokemon.size) {
                 this.pokemon[i].storeCoordinates.set(StoreCoordinates(this, BottomlessPosition(i)))
             }
             storeChangeObservable.emit(Unit)

@@ -28,7 +28,6 @@ class HeldItemRenderer() {
     private val itemRenderer = Minecraft.getInstance().itemRenderer
     private var displayContext = ItemDisplayContext.FIXED
     private var scale = 1.0f
-    private var prevItem = ItemStack.EMPTY
 
     fun render(
         entity: PokemonEntity?,
@@ -40,26 +39,24 @@ class HeldItemRenderer() {
         seed: Int
     ) {
         if (item.isEmpty) return
-        val locatorName: String
+        displayContext = ItemDisplayContext.FIXED
 
         poseStack.pushPose()
         when {
             (locators.containsKey("item_face") && item.`is`(WEARABLE_FACE_ITEMS)) -> {
-                locatorName="item_face"
                 displayContext = ItemDisplayContext.HEAD
                 poseStack.mulPose(locators["item_face"]!!.matrix)
                 poseStack.translate(0f, 0f, .28f * scale)
                 poseStack.scale(0.7f * scale, 0.7f * scale, 0.7f * scale)
             }
             (locators.containsKey("item_hat") && item.`is`(WEARABLE_HAT_ITEMS)) -> {
-                locatorName="item_hat"
                 displayContext = ItemDisplayContext.HEAD
                 poseStack.mulPose(locators["item_hat"]!!.matrix)
                 poseStack.translate(0f, -0.26f * scale, 0f)
                 poseStack.scale(.68f * scale, .68f * scale, .68f * scale)
             }
             (locators.containsKey("item")) -> {
-                locatorName="item"
+                updateModifiers("item",locators)
                 poseStack.mulPose(locators["item"]!!.matrix)
                 when(displayContext) {
                     ItemDisplayContext.FIXED -> {
@@ -82,11 +79,6 @@ class HeldItemRenderer() {
                 poseStack.popPose()
                 return
             }
-        }
-        //Modifiers only need to be updated once if the item changes
-        if (!ItemStack.isSameItemSameComponents(prevItem, item)) {
-            updateModifiers(locatorName,locators)
-            prevItem=item
         }
 
         itemRenderer.renderStatic(entity, item, displayContext, false, poseStack, buffer, null, light, OverlayTexture.NO_OVERLAY, seed)

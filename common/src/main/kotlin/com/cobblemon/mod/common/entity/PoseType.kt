@@ -8,7 +8,9 @@
 
 package com.cobblemon.mod.common.entity
 
-import java.util.EnumSet
+import com.cobblemon.mod.common.util.cobblemonResource
+import java.util.*
+import net.minecraft.resources.ResourceLocation
 
 /**
  * The type of a pose. Used for normalizing pose swapping for all models.
@@ -24,6 +26,7 @@ enum class PoseType {
     FLY,
     FLOAT,
     SWIM,
+    GLIDE,
     /** A pose for rendering on the left shoulder. Pose animations are given the player head yaw, pitch, and ageInTicks. */
     SHOULDER_LEFT,
     /** A pose for rendering on the right shoulder. Pose animations are given the player head yaw, pitch, and ageInTicks. */
@@ -46,5 +49,11 @@ enum class PoseType {
         val UI_POSES = EnumSet.of(PROFILE, PORTRAIT)
         val MOVING_POSES = EnumSet.of(WALK, SWIM, FLY)
         val STATIONARY_POSES = EnumSet.of(STAND, FLOAT, HOVER)
+
+        fun identified() : List<ResourceLocation> {
+            return ALL_POSES.stream()
+                .map { cobblemonResource(it.name.lowercase(Locale.getDefault())) }
+                .toList()
+        }
     }
 }
