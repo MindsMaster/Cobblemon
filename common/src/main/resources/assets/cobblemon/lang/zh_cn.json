@@ -6408,7 +6408,7 @@
     "item.cobblemon.metal_coat.tooltip_2": "当携带进行连接交换时，大岩蛇会进化为大钢蛇，飞天螳螂会进化为巨钳螳螂",
     "item.cobblemon.upgrade.tooltip": "当多边兽携带进行连接交换时，会使其进化为多边兽2型",
     "item.cobblemon.dubious_disc.tooltip": "当多边兽2型携带进行连接交换时，会使其进化为多边兽乙型",
-    "item.cobblemon.deep_sea_scale.tooltip_1": "让珍珠贝携带后，特防就会提高",
+    "item.cobblemon.deep_sea_scale.tooltip_1": "大幅提升珍珠贝的特防",
     "item.cobblemon.deep_sea_scale.tooltip_2": "当珍珠贝携带进行连接交换时，会使其进化为樱花鱼",
     "item.cobblemon.deep_sea_tooth.tooltip_2": "当珍珠贝携带进行连接交换时，会使其进化为猎斑鱼",
     "item.cobblemon.electirizer.tooltip": "当电击兽携带进行连接交换时，会使其进化为电击魔兽",
@@ -6676,5 +6676,6 @@
     "item.cobblemon.electric_gem.tooltip_2": "使用后消耗",
     "item.cobblemon.x_special_attack.tooltip": "在战斗中使用时，会使目标的特攻提升一级",
     "item.cobblemon.water_gem.tooltip_1": "携带后，水属性的招式威力会增强一次",
-    "item.cobblemon.bug_gem.tooltip_1": "携带后，虫属性的招式威力会增强一次"
+    "item.cobblemon.bug_gem.tooltip_1": "携带后，虫属性的招式威力会增强一次",
+    "item.cobblemon.deep_sea_tooth.tooltip_1": "大幅提升珍珠贝的特攻"
 }
