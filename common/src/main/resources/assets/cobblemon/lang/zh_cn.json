@@ -6392,8 +6392,21 @@
     "cobblemon.battle.activate.custapberry": "%1$s用了释陀果后，行动变快了！",
     "cobblemon.battle.clearboost": "%1$s的能力变化消失了！",
     "cobblemon.pokerod.bobber": "浮标：%1$s",
-    "cobblemon.pokerod.bait": "鱼饵：%1$s x%2$s",
+    "cobblemon.pokerod.bait": "鱼饵：%1$s ×%2$s",
     "cobblemon.pokedex.variation.wood": "树种",
     "cobblemon.challenge.rule.anything_goes": "无限制",
-    "cobblemon.challenge.rule.level": "等级调至 %1$s"
+    "cobblemon.challenge.rule.level": "等级调至 %1$s",
+    "cobblemon.pokerod.apply": "点击右键使用鱼饵",
+    "cobblemon.pokerod.remove": "点击右键取下鱼饵",
+    "item.cobblemon.galarica_nuts": "伽勒豆蔻枝",
+    "item.cobblemon.npc_editor": "NPC的训练家卡片",
+    "item.cobblemon.dragon_scale.tooltip": "当海刺龙携带进行连接交换时，会进化为刺龙王",
+    "item.cobblemon.link_cable.tooltip": "进化需连接交换进化的宝可梦",
+    "item.cobblemon.kings_rock.tooltip_2": "当携带进行连接交换时，蚊香君会进化为蚊香蛙皇，呆呆兽会进化为呆呆王",
+    "item.cobblemon.metal_coat.tooltip_1": "钢属性的招式威力就会提高",
+    "item.cobblemon.kings_rock.tooltip_1": "携带后进行攻击，在造成伤害时，有时会让对手畏缩",
+    "item.cobblemon.metal_coat.tooltip_2": "当携带进行连接交换时，大岩蛇会进化为大钢蛇，飞天螳螂会进化为巨钳螳螂",
+    "item.cobblemon.upgrade.tooltip": "当多边兽携带进行连接交换时，会进化为多边兽2型",
+    "item.cobblemon.dubious_disc.tooltip": "当多边兽2型携带进行连接交换时，会进化为多边兽乙型",
+    "item.cobblemon.deep_sea_scale.tooltip_1": "让珍珠贝携带后，特防就会提高"
 }
