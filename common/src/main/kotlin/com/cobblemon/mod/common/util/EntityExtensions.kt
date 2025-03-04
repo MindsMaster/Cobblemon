@@ -45,14 +45,15 @@ fun Entity.effectiveName() = this.displayName ?: this.name
 
 
 private fun getPosScore(level: Level, entity: Entity, box: AABB, pos: BlockPos): Int {
+    // position the hitbox in the xz center of the block
     val movedBox = box.move(Vec3(pos.x + 0.5, pos.y.toDouble(), pos.z + 0.5).subtract(box.bottomCenter))
     return level.getBlockCollisions(entity, movedBox).count()
 }
 private fun findBestBlockPosBFS(
-        entity: Entity,
-        pos: Vec3,
-        level: Level,
-        maxRadius: Int = 4
+    entity: Entity,
+    pos: Vec3,
+    level: Level,
+    maxRadius: Int = 4
 ): BlockPos {
     val directions = listOf(
         BlockPos(0, 1, 0), BlockPos(0, -1, 0), // Up and down
