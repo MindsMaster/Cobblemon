@@ -5952,5 +5952,8 @@
     "cobblemon.ui.interact.too_far": "ターゲットが遠すぎます",
     "cobblemon.ui.pokedex.scan.registered_suffix": "%1$s が新しく図鑑に登録されます！",
     "cobblemon.ui.pokenav.narrator.backbutton": "ポケナビのボタンが押されました",
-    "cobblemon.ui.interact.unavailable": "現在、ターゲットはその行動を行うことができません。"
+    "cobblemon.ui.interact.unavailable": "現在、ターゲットはその行動を行うことができません。",
+    "cobblemon.pokerod.remove": "右クリックして餌を外す",
+    "item.cobblemon.galarica_nuts": "ガラナツのナッツ",
+    "cobblemon.pokerod.apply": "右クリックでエサを付ける"
 }
