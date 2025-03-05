@@ -17,7 +17,9 @@
     "walking": {
       "poseTypes": ["WALK"],
       "animations": [
-        "q.bedrock('simisage', 'ground_idle')"
+        "q.bedrock('simisage', 'ground_idle')",
+        "q.biped_walk(0.56, 0.5, 'leg_left', 'leg_right')",
+        "q.bimanual_swing(0.66, 0.6, 'arm_left', 'arm_right')"
       ],
       "quirks": ["q.bedrock_quirk('simisage', 'blink')"]
     }
