@@ -25,6 +25,7 @@ class IconButton(
     val buttonWidth: Int,
     val buttonHeight: Int,
     val resource: ResourceLocation,
+    val altResource: ResourceLocation? = null,
     val tooltipKey: String? = null,
     label: String,
     onPress: OnPress,
@@ -35,13 +36,15 @@ class IconButton(
     }
 
     var highlighted = false
+    var showAlt = false
 
     override fun renderWidget(context: GuiGraphics, mouseX: Int, mouseY: Int, partialTicks: Float) {
+
         blitk(
             matrixStack = context.pose(),
             x = x / SCALE,
             y = y / SCALE,
-            texture = resource,
+            texture = if (altResource != null && showAlt) altResource else resource,
             width = buttonWidth,
             height = buttonHeight,
             vOffset = if (isHovered() || highlighted) buttonHeight else 0,

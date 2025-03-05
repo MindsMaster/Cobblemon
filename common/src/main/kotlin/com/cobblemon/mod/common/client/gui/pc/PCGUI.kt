@@ -108,7 +108,6 @@ class PCGUI(
                     wallpaperWidget.visible = false
                     configuration.showParty = true
                     for (button in optionButtons) button.highlighted = false
-                    if (!unseenWallpapers.isEmpty()) MarkPCBoxWallpapersSeenPacket(unseenWallpapers).sendToServer()
                     playSound(CobblemonSounds.PC_CLICK)
                 } else {
                     configuration.exitFunction(this)
@@ -178,7 +177,6 @@ class PCGUI(
                     if (!displayOptions && wallpaperWidget.visible) {
                         configuration.showParty = true
                         wallpaperWidget.visible = false
-                        if (!unseenWallpapers.isEmpty()) MarkPCBoxWallpapersSeenPacket(unseenWallpapers).sendToServer()
                     }
                     (it as IconButton).highlighted = displayOptions
                     storageWidget.setupStorageSlots()
@@ -202,20 +200,20 @@ class PCGUI(
             }
             this.addRenderableWidget(wallpaperWidget)
 
-            // Add Wallpaper Button
+            // Add Wallpaper Settings Button
             this.addRenderableWidget(IconButton(
                 pX = x + 242,
                 pY = y + 31,
                 buttonWidth = 20,
                 buttonHeight = 20,
                 resource = buttonWallpaperResource,
-                label = "set_wallpaper"
+                label = "open_wallpaper_settings"
             ) {
                 val isVisible = wallpaperWidget.visible
                 configuration.showParty = isVisible
                 wallpaperWidget.visible = !isVisible
                 (it as IconButton).highlighted = !isVisible
-                if (isVisible && !unseenWallpapers.isEmpty()) MarkPCBoxWallpapersSeenPacket(unseenWallpapers).sendToServer()
+                if (!unseenWallpapers.isEmpty()) MarkPCBoxWallpapersSeenPacket(unseenWallpapers).sendToServer()
             }.also {
                 it.visible = displayOptions
                 optionButtons.add(it)
@@ -229,6 +227,7 @@ class PCGUI(
                     buttonWidth = 20,
                     buttonHeight = 20,
                     resource = cobblemonResource("textures/gui/pc/pc_button_sort_${typeName}.png"),
+                    altResource = cobblemonResource("textures/gui/pc/pc_button_sort_${typeName}_reverse.png"),
                     tooltipKey = "ui.sort.${typeName}",
                     label = "sort_${typeName}"
                 ) {
@@ -526,6 +525,10 @@ class PCGUI(
             scale = SCALE
         )
 
+        if (!optionButtons.isEmpty() && displayOptions) {
+            for (button in optionButtons) button.showAlt = hasShiftDown()
+        }
+
         super.render(context, mouseX, mouseY, delta)
 
         // Item Tooltip
@@ -573,9 +576,6 @@ class PCGUI(
 
         if (isInventoryKeyPressed(minecraft, keyCode, scanCode) && !boxNameFocused && !filterFocused) {
             playSound(CobblemonSounds.PC_OFF)
-            if (::wallpaperWidget.isInitialized && wallpaperWidget.visible && !unseenWallpapers.isEmpty()) {
-                MarkPCBoxWallpapersSeenPacket(unseenWallpapers).sendToServer()
-            }
             UnlinkPlayerFromPCPacket().sendToServer()
             Minecraft.getInstance().setScreen(null)
             return true
