@@ -109,7 +109,7 @@ private fun findBestBlockPosBFS(
 
 fun Entity.setPositionSafely(pos: Vec3): Boolean {
     // Unmute to view how long the BFS algorithm takes to run
-    val mute = false
+//    val mute = false
     // TODO: Rework this function. Detect collisions in three categories: suffocation, damaging blocks, and general collision
     // The closest position with the least severe collision types will be selected to move the Pokemon to
     // The throw could be cancelled if there are no viable locations without severe problems
@@ -139,18 +139,18 @@ fun Entity.setPositionSafely(pos: Vec3): Boolean {
 
     var bestBlockPosition: BlockPos
     var result: Vec3
-    val elapsedTime = measureTime {
+//    val elapsedTime = measureTime {
         val searchRadius = min(ceil((this.bbWidth * 2)).toInt(), 4)
         bestBlockPosition = findBestBlockPosBFS(this, pos, level(), searchRadius)
         result = Vec3(bestBlockPosition.x + 0.5, bestBlockPosition.y.toDouble(), bestBlockPosition.z + 0.5)
         setPos(result)
-    }
-    if (!mute) {
-        // Displays the time taken to calculate the best position
-        server()?.playerList?.players?.forEach {
-            it.sendSystemMessage("Send out for ${(this as PokemonEntity).pokemon.species.name} completed in $elapsedTime".yellow())
-        }
-    }
+//    }
+//    if (!mute) {
+//        // Displays the time taken to calculate the best position
+//        server()?.playerList?.players?.forEach {
+//            it.sendSystemMessage("Send out for ${(this as PokemonEntity).pokemon.species.name} completed in $elapsedTime".yellow())
+//        }
+//    }
 
     // I don't see the point of returning to the original position here, as the new position is guaranteed to have equal or fewer
     // block collisions are the original given position
