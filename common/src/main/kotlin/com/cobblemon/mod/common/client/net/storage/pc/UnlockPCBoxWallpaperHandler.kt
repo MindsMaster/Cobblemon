@@ -15,6 +15,6 @@ import net.minecraft.client.Minecraft
 
 object UnlockPCBoxWallpaperHandler : ClientNetworkPacketHandler<UnlockPCBoxWallpaperPacket> {
     override fun handle(packet: UnlockPCBoxWallpaperPacket, client: Minecraft) {
-        PCBoxWallpaperRepository.wallpapers.add(packet.texture)
+        PCBoxWallpaperRepository.availableWallpapers.add(packet.texture)
     }
 }

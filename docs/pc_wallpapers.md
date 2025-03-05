@@ -3,9 +3,11 @@
 PC box wallpapers have two sides, one on client and an optional one on server.
 
 #### Client Side
-This involves adding the texture PNG to the `assets/cobblemon/textures/gui/pc/wallpaper/` directory. The mod will trawl
+This involves adding the texture PNG file to the `assets/cobblemon/textures/gui/pc/wallpaper/` directory. The mod will trawl
 this directory on asset load and form a base list. The client will send this list to the server to validate
 the list, with the server returning a list of valid wallpapers. The client will then display the wallpapers in the GUI.
+The emissive screen glow will be automatically generated using colour of the center pixel of the provided wallpaper.
+For a custom screen glow, place the file in the `assets/cobblemon/textures/gui/pc/wallpaper/glow` directory with the same file name as the wallpaper.
 
 #### Server Side
 A datapack folder exists called `unlockable_pc_box_wallpapers`. This contains JSONs of a simplistic format.

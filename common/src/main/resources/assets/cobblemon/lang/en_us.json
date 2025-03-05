@@ -1011,10 +1011,19 @@
   "cobblemon.ui.effect": "Effect",
   "cobblemon.ui.pokemon": "Pokémon",
   "cobblemon.ui.exit": "Exit",
+
   "cobblemon.ui.pc.box.title": "Box %1$s",
-  "cobblemon.ui.wallpapers": "Wallpapers",
-  "cobblemon.ui.pc.search": "Search",
+  "cobblemon.ui.pc.wallpaper": "Wallpaper",
+  "cobblemon.ui.pc.filter": "Filter",
+  "cobblemon.ui.pc.filter.tooltip": "Format: pikachu shiny held_item lvl=1...",
+  "cobblemon.ui.pc.options": "Options",
   "cobblemon.ui.pc.release": "Release",
+
+  "cobblemon.ui.sort.name": "Sort by name",
+  "cobblemon.ui.sort.level": "Sort by level",
+  "cobblemon.ui.sort.pokedex_number": "Sort by Pokédex number",
+  "cobblemon.ui.sort.gender": "Sort by gender",
+  "cobblemon.ui.sort.type": "Sort by type",
 
   "cobblemon.ui.pasture": "Pasture",
   "cobblemon.ui.pasture.recall_all": "Recall All",
