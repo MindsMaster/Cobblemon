@@ -36,6 +36,7 @@
 - Fixed field name in evolution requirements for Spewpa Pokeball.
 - Fixed LevelUpCriterion logic to correctly check that the Pokémon is a preEvo.
 - Fixed `hide_additional_tooltip` vanilla flag not properly hiding tooltips on pokerod and bait items
+- Removed a number of scenarios in which a Pokémon battle may send out a Pokémon into collision geometry.
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
