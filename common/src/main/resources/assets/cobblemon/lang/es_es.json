@@ -6658,5 +6658,11 @@
     "item.cobblemon.scope_lens.tooltip": "Aumenta la probabilidad del portador de asestar un golpe crítico",
     "item.cobblemon.malicious_armor.tooltip": "Evoluciona a Charcadet en Ceruledge",
     "item.cobblemon.choice_specs.tooltip": "Aumenta el At. Esp. del portador, pero se verá forzado a usar un único movimiento",
-    "item.cobblemon.rocky_helmet.tooltip": "Inflige daño a cualquier Pokémon que entre en contacto con el portador"
+    "item.cobblemon.rocky_helmet.tooltip": "Inflige daño a cualquier Pokémon que entre en contacto con el portador",
+    "item.cobblemon.dire_hit.tooltip": "Al usarlo en combate, aumenta temporalmente el índice de golpe crítico",
+    "item.cobblemon.guard_spec.tooltip": "Al usarlo en combate, previene temporalmente que las características se reduzcan",
+    "item.cobblemon.full_heal.tooltip": "Cura cualquier problema de estado de un Pokémon",
+    "item.cobblemon.antidote.tooltip": "Cura a un Pokémon del envenenamiento",
+    "item.cobblemon.awakening.tooltip": "Despierta a un Pokémon dormido",
+    "item.cobblemon.burn_heal.tooltip": "Cura a un Pokémon de una quemadura"
 }
