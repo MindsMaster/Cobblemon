@@ -137,8 +137,8 @@ fun Entity.setPositionSafely(pos: Vec3): Boolean {
         return true
     }
 
-    var bestBlockPosition: BlockPos
-    var result: Vec3
+    val bestBlockPosition: BlockPos
+    val result: Vec3
 //    val elapsedTime = measureTime {
         val searchRadius = min(ceil((this.bbWidth * 2)).toInt(), 4)
         bestBlockPosition = findBestBlockPosBFS(this, pos, level(), searchRadius)
