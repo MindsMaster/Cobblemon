@@ -6845,5 +6845,19 @@
     "cobblemon.config.ui.mongodb_database_name.tooltip": "当存储格式为MongoDB时数据库的名称。",
     "item.cobblemon.grepa_berry.tooltip_1": "使一只宝可梦的特防基础点数降低10点，同时降低它的亲密度",
     "cobblemon.config.ui.category.healing": "治愈",
-    "cobblemon.config.ui.max_pokemon_level.tooltip": "宝可梦可以达到的最高等级。"
+    "cobblemon.config.ui.max_pokemon_level.tooltip": "宝可梦可以达到的最高等级。",
+    "cobblemon.config.ui.max_vertical_correction_blocks.tooltip": "在选择生成区域时，可以校正的最大方块数量。该数值越大，在垂直起伏较大的地形（如山地区域）中生成机制将运行得越可靠。提高此数值仅会对性能产生非常微小的负面影响。",
+    "cobblemon.config.ui.max_vertical_correction_blocks": "最大垂直生成校正方块",
+    "cobblemon.config.ui.minimum_level_range_max.tooltip": "该参数值越高，当玩家没有或拥有等级极低的宝可梦时，周围出现的宝可梦等级上限就越高。",
+    "cobblemon.config.ui.minimum_level_range_max": "最小等级范围上限",
+    "cobblemon.config.ui.enable_spawning": "启用生成",
+    "cobblemon.config.ui.enable_spawning.tooltip": "是否禁止宝可梦的生成。",
+    "cobblemon.config.ui.minimum_distance_between_entities": "实体间的最小距离",
+    "cobblemon.config.ui.minimum_distance_between_entities.tooltip": "数值越大，新生成的宝可梦分布越离散，可有效避免生成点过度密集的问题。",
+    "cobblemon.config.ui.max_nearby_blocks_vertical_range.tooltip": "该参数定义在生成判定中，垂直方向方块被视为附近状态（neededNearbyBlocks条件）的最大距离。降低此数值可轻微提升游戏运行效率。",
+    "cobblemon.config.ui.max_vertical_space": "最大垂直空间",
+    "cobblemon.config.ui.max_nearby_blocks_vertical_range": "可视为方块附近的垂直最大范围",
+    "cobblemon.config.ui.max_nearby_blocks_horizontal_range": "可视为方块附近的水平最大范围",
+    "cobblemon.config.ui.max_nearby_blocks_horizontal_range.tooltip": "该参数定义在生成判定中，水平方向方块被视为附近状态（neededNearbyBlocks条件）的最大距离。降低此数值可轻微提升游戏运行效率。",
+    "cobblemon.config.ui.max_vertical_space.tooltip": "该参数定义在生成位置上方可用空间的垂直距离。设置此值可优化碰撞检测性能，但必须确保其数值不小于生成配置文件中所有“height”/“depth”条件参数的最大值，否则可能导致符合条件的宝可梦无法正常生成。"
 }
