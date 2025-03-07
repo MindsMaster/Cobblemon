@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.api.storage.party
 
 import com.cobblemon.mod.common.entity.npc.NPCEntity
+import com.cobblemon.mod.common.Cobblemon.LOGGER
 
 class NPCPartyStore(val npc: NPCEntity) : PartyStore(npc.uuid) {
 }
