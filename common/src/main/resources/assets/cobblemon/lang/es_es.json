@@ -6664,5 +6664,20 @@
     "item.cobblemon.full_heal.tooltip": "Cura cualquier problema de estado de un Pokémon",
     "item.cobblemon.antidote.tooltip": "Cura a un Pokémon del envenenamiento",
     "item.cobblemon.awakening.tooltip": "Despierta a un Pokémon dormido",
-    "item.cobblemon.burn_heal.tooltip": "Cura a un Pokémon de una quemadura"
+    "item.cobblemon.burn_heal.tooltip": "Cura a un Pokémon de una quemadura",
+    "item.cobblemon.ice_heal.tooltip": "Deshiela a un Pokémon congelado",
+    "item.cobblemon.paralyze_heal.tooltip": "Cura a un Pokémon paralizado",
+    "item.cobblemon.ether.tooltip": "Restaura 10 PP de uno de los movimientos de un Pokémon",
+    "item.cobblemon.max_ether.tooltip": "Restaura todos los PP de uno de los movimientos de un Pokémon",
+    "item.cobblemon.elixir.tooltip": "Restaura 10 PP de todos los movimientos de un Pokémon",
+    "item.cobblemon.max_elixir.tooltip": "Restaura todos los PP de todos los movimientos de un Pokémon",
+    "item.cobblemon.rock_gem.tooltip_1": "Aumenta el poder del primer ataque de tipo Roca del portador",
+    "item.cobblemon.psychic_gem.tooltip_1": "Aumenta el poder del primer ataque de tipo Psíquico del portador",
+    "item.cobblemon.electric_gem.tooltip_1": "Aumenta el poder del primer ataque de tipo Eléctrico del portador",
+    "item.cobblemon.bug_gem.tooltip_1": "Aumenta el poder del primer ataque de tipo Bicho del portador",
+    "item.cobblemon.poison_gem.tooltip_1": "Aumenta el poder del primer ataque de tipo Veneno del portador",
+    "item.cobblemon.ice_gem.tooltip_1": "Aumenta el poder del primer ataque de tipo Hielo del portador",
+    "item.cobblemon.dark_gem.tooltip_1": "Aumenta el poder del primer ataque de tipo Siniestro del portador",
+    "item.cobblemon.fighting_gem.tooltip_1": "Aumenta el poder del primer ataque de tipo Lucha del portador",
+    "item.cobblemon.flying_gem.tooltip_1": "Aumenta el poder del primer ataque de tipo Volador del portador"
 }
