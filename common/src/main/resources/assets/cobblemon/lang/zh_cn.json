@@ -6859,5 +6859,13 @@
     "cobblemon.config.ui.max_nearby_blocks_vertical_range": "可视为方块附近的垂直最大范围",
     "cobblemon.config.ui.max_nearby_blocks_horizontal_range": "可视为方块附近的水平最大范围",
     "cobblemon.config.ui.max_nearby_blocks_horizontal_range.tooltip": "该参数定义在生成判定中，水平方向方块被视为附近状态（neededNearbyBlocks条件）的最大距离。降低此数值可轻微提升游戏运行效率。",
-    "cobblemon.config.ui.max_vertical_space.tooltip": "该参数定义在生成位置上方可用空间的垂直距离。设置此值可优化碰撞检测性能，但必须确保其数值不小于生成配置文件中所有“height”/“depth”条件参数的最大值，否则可能导致符合条件的宝可梦无法正常生成。"
+    "cobblemon.config.ui.max_vertical_space.tooltip": "该参数定义在生成位置上方可用空间的垂直距离。设置此值可优化碰撞检测性能，但必须确保其数值不小于生成配置文件中所有“height”/“depth”条件参数的最大值，否则可能导致符合条件的宝可梦无法正常生成。",
+    "cobblemon.config.ui.world_slice_diameter": "世界区块直径",
+    "cobblemon.config.ui.world_slice_height": "世界区块高度",
+    "cobblemon.config.ui.world_slice_height.tooltip": "世界区块中可生成宝可梦的高度范围。当此值较大时，生成会更频繁且稳定，但会以牺牲游戏性能为代价。",
+    "cobblemon.config.ui.world_slice_diameter.tooltip": "可生成宝可梦的区块范围。当此值较大时，生成会更频繁且稳定，但会以牺牲游戏性能为代价。",
+    "cobblemon.config.ui.ticks_between_spawn_attempts": "生成的时间间隔",
+    "cobblemon.config.ui.minimum_slice_distance_from_player.tooltip": "宝可梦可生成位置与玩家之间的最小方块距离。",
+    "cobblemon.config.ui.minimum_slice_distance_from_player": "距玩家的最小区块距离",
+    "cobblemon.config.ui.ticks_between_spawn_attempts.tooltip": "使用刻（Tick；20刻=1秒）决定生成之间的间隔时间。"
 }
