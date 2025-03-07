@@ -150,8 +150,7 @@ class PoolPartyProvider : NPCPartyProvider {
             val instance = selected.pokemon.copy().also { it.level = it.level ?: dictatedLevel ?: randomLevel }.create()
             party.add(instance)
         }
-        if (party.none())
-        {
+        if (party.none()) {
             LOGGER.error("${npc} has no Pokemon on Party")
         }
 
