@@ -91,7 +91,7 @@ class PoolPartyProvider : NPCPartyProvider {
                     it.get("npcLevels")?.asString?.split("-")?.let { it[0].toInt()..it[1].toInt() } ?: 1..100,
                     it.get("selectableTimes")?.asString?.asExpression() ?: "1".asExpression(),
                     it.get("weight")?.asString?.asExpression() ?: "1".asExpression()
-                 )
+                )
             }
         }.toMutableList()
         isStatic = json.get("isStatic").asBoolean
