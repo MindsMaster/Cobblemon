@@ -36,6 +36,7 @@
 - Fixed field name in evolution requirements for Spewpa Pokeball.
 - Fixed LevelUpCriterion logic to correctly check that the Pokémon is a preEvo.
 - Fixed `hide_additional_tooltip` vanilla flag not properly hiding tooltips on pokerod and bait items
+- Fixed NPCs using Pokémon outside of their pool when a Pokémon name had a typo.
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.

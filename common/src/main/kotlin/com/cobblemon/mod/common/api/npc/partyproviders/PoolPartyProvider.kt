@@ -83,15 +83,15 @@ class PoolPartyProvider : NPCPartyProvider {
                 LOGGER.warn("Error making NPC pokemon pool. ${it.get("pokemon").asString.substringBefore(" ")} is not a valid species, ignoring")
                     null
             }
-            else{
-            DynamicPokemon(
-                properties,
-                it.get("levelVariation")?.asString?.asExpression() ?: "0".asExpression(),
-                it.get("level")?.asString?.asExpression(),
-                it.get("npcLevels")?.asString?.split("-")?.let { it[0].toInt()..it[1].toInt() } ?: 1..100,
-                it.get("selectableTimes")?.asString?.asExpression() ?: "1".asExpression(),
-                it.get("weight")?.asString?.asExpression() ?: "1".asExpression()
-            )
+            else {
+                DynamicPokemon(
+                    properties,
+                    it.get("levelVariation")?.asString?.asExpression() ?: "0".asExpression(),
+                    it.get("level")?.asString?.asExpression(),
+                    it.get("npcLevels")?.asString?.split("-")?.let { it[0].toInt()..it[1].toInt() } ?: 1..100,
+                    it.get("selectableTimes")?.asString?.asExpression() ?: "1".asExpression(),
+                    it.get("weight")?.asString?.asExpression() ?: "1".asExpression()
+                 )
             }
         }.toMutableList()
         isStatic = json.get("isStatic").asBoolean
