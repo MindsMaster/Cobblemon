@@ -6759,7 +6759,6 @@
     "cobblemon.challenge.multi.error.player_distance": "¡%1$s está demasiado lejos del resto como para empezar el combate!",
     "cobblemon.challenge.multi.error.player_different_dimension": "¡No todos los participantes están en la misma dimensión!",
     "cobblemon.challenge.multi.error.incorrect_player_count": "¡Hay solo %1$s participantes cuando se necesitan %2$s!",
-    "cobblemon.ui.team.invite": "",
     "item.cobblemon.grepa_berry.tooltip_1": "Disminuye los EV de Defensa Especial de un Pokémon, aumentando la amistad",
     "item.cobblemon.grepa_berry.tooltip_2": "El portador no puede comerse la baya",
     "item.cobblemon.hondew_berry.tooltip_1": "Disminuye los EV de Ataque Especial de un Pokémon, aumentando la amistad",
