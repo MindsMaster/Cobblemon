@@ -5921,7 +5921,7 @@
     "cobblemon.battle.activate.allyswitch": "%1$s和%2$s互换了场地！",
     "cobblemon.battle.damage.roughskin": "%1$s受伤了！",
     "cobblemon.battle.damage.ironbarbs": "%1$s受伤了！",
-    "cobblemon.battle.enditem.focusband": "%1$s用气势披带撑住了！",
+    "cobblemon.battle.enditem.focusband": "%1$s用气势头带撑住了！",
     "cobblemon.battle.enditem.ejectpack": "%1$s要用避难背包回去了！",
     "item.cobblemon.pokerod_smithing_template": "锻造模版",
     "item.cobblemon.smithing_template.pokerod.ingredients": "精灵球",
@@ -6980,5 +6980,12 @@
     "cobblemon.config.ui.battle_spectate_max_distance": "观战的最大距离",
     "cobblemon.config.ui.max_pokedex_scanning_detection_range.tooltip": "宝可梦图鉴可以检测和扫描宝可梦的最大距离。",
     "cobblemon.config.ui.enable_debug_keys.tooltip": "启用额外命令及聊天日志记录功能，以协助实现宝可梦相关功能（详见Wiki获取命令列表）。",
-    "cobblemon.battle.activate.insomnia": "因为有着睡不着的体质， 所以不会陷入睡眠状态。"
+    "cobblemon.battle.activate.insomnia": "这只宝可梦的不眠使它保持清醒！",
+    "cobblemon.battle.block.sweetveil": "%1$s因为甜幕无法入睡！",
+    "cobblemon.battle.ability.replace": "%1$s的特性变成了%2$s！",
+    "cobblemon.battle.enditem.focussash": "%1$s用气势披带撑住了！",
+    "cobblemon.battle.end.stockpile": "%1$s的蓄力效果消失了！",
+    "cobblemon.battle.end.infestation": "%1$s摆脱了死缠乱打的束缚！",
+    "cobblemon.battle.activate.lingeringaroma": "%2$s沾上了味道且挥之不去！",
+    "cobblemon.battle.error.incorrect_actor_count": "当前有%1$s名参与者，但是需要%2%s名才能开启。"
 }
