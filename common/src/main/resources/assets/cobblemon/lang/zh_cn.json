@@ -6979,5 +6979,6 @@
     "cobblemon.config.ui.party_portrait_animations.animate_selected.tooltip": "选择的宝可梦播放动画，除非濒死",
     "cobblemon.config.ui.battle_spectate_max_distance": "观战的最大距离",
     "cobblemon.config.ui.max_pokedex_scanning_detection_range.tooltip": "宝可梦图鉴可以检测和扫描宝可梦的最大距离。",
-    "cobblemon.config.ui.enable_debug_keys.tooltip": "启用额外命令及聊天日志记录功能，以协助实现宝可梦相关功能（详见Wiki获取命令列表）。"
+    "cobblemon.config.ui.enable_debug_keys.tooltip": "启用额外命令及聊天日志记录功能，以协助实现宝可梦相关功能（详见Wiki获取命令列表）。",
+    "cobblemon.battle.activate.insomnia": "因为有着睡不着的体质， 所以不会陷入睡眠状态。"
 }
