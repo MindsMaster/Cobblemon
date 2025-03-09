@@ -305,6 +305,7 @@ open class PCStore(
                 event = event,
                 ifSucceeded = {
                     if (unlockedWallpapers.add(wallpaper)) {
+                        unseenWallpapers.add(unlockableWallpaper.texture)
                         pcChangeObservable.emit(Unit)
                         getObservingPlayers().forEach { player ->
                             player.sendPacket(UnlockPCBoxWallpaperPacket(unlockableWallpaper.texture))

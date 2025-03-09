@@ -49,10 +49,15 @@ class OpenPCPacket : NetworkPacket<OpenPCPacket> {
     override fun encode(buffer: RegistryFriendlyByteBuf) {
         buffer.writeUUID(storeID)
         buffer.writeInt(box)
+        buffer.writeCollection(unseenWallpapers) { _, it -> buffer.writeResourceLocation(it) }
     }
 
     companion object {
         val ID = cobblemonResource("open_pc")
-        fun decode(buffer: RegistryFriendlyByteBuf) = OpenPCPacket(buffer.readUUID(), buffer.readInt())
+        fun decode(buffer: RegistryFriendlyByteBuf) = OpenPCPacket(
+            buffer.readUUID(),
+            buffer.readInt(),
+            buffer.readList { buffer.readResourceLocation() }.toSet()
+        )
     }
 }
