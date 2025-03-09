@@ -858,7 +858,7 @@ object MoLangFunctions {
         { spawningContext ->
             val map = hashMapOf<String, java.util.function.Function<MoParams, Any>>()
             val worldValue = spawningContext.world.registryAccess().registryOrThrow(Registries.DIMENSION).wrapAsHolder(spawningContext.world).asWorldMoLangValue()
-            val biomeValue = spawningContext.biomeRegistry.wrapAsHolder(spawningContext.biome).asBiomeMoLangValue()
+            val biomeValue = spawningContext.biomeHolder.asBiomeMoLangValue()
             map.put("biome") { _ -> biomeValue }
             map.put("world") { _ -> worldValue }
             map.put("light") { _ -> DoubleValue(spawningContext.light.toDouble()) }

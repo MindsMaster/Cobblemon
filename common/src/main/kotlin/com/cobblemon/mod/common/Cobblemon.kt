@@ -388,8 +388,8 @@ object Cobblemon {
             storage.unregisterAll(it.server.registryAccess())
             playerDataManager.saveAllStores()
         }
-        PlatformEvents.SERVER_STARTED.subscribe {
-            bestSpawner.onServerStarted()
+        PlatformEvents.SERVER_STARTED.subscribe { event ->
+            bestSpawner.onServerStarted(event.server)
             battleRegistry.onServerStarted()
         }
         PlatformEvents.SERVER_TICK_POST.subscribe { ServerTickHandler.onTick(it.server) }
