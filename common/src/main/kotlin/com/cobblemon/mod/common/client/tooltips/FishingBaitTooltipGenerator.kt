@@ -16,6 +16,7 @@ import com.cobblemon.mod.common.api.types.ElementalTypes
 import com.cobblemon.mod.common.item.interactive.PokerodItem
 import com.cobblemon.mod.common.pokemon.Gender
 import com.cobblemon.mod.common.util.lang
+import net.minecraft.core.component.DataComponents
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
 import java.text.DecimalFormat
@@ -31,11 +32,17 @@ object FishingBaitTooltipGenerator : TooltipGenerator() {
     )
 
     override fun generateCategoryTooltip(stack: ItemStack, lines: MutableList<Component>): MutableList<Component>? {
+        if (stack.get(DataComponents.HIDE_ADDITIONAL_TOOLTIP) != null) {
+            return null
+        }
         if (!FishingBaits.isFishingBait(stack)) return null
         return mutableListOf(fishingBaitItemClass)
     }
 
     override fun generateAdditionalTooltip(stack: ItemStack, lines: MutableList<Component>): MutableList<Component>? {
+        if (stack.get(DataComponents.HIDE_ADDITIONAL_TOOLTIP) != null) {
+            return null
+        }
         val resultLines = mutableListOf<Component>()
 
         // Determine the FishingBait or combined effects from poke_bait

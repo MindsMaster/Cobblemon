@@ -7,10 +7,13 @@
 - Added `blacklisted_items_to_hold` and `whitelisted_items_to_hold` tags to allow for controlling which items players can give to their Pokémon. If the whitelist is empty, it will consider all item as allowed (unless they are in the blacklist).
 - Pokémon now follow the mouse cursor on the Summary screen, with an option to disable this in the settings.
 - Pokémon's held items can now be rendered, with a visibility toggle in the Summary screen.
+- Added cosmetic item functionality for Pokémon. Certain cosmetic items can be given to applicable Pokémon via the interact menu.
+  - Added the various log blocks as cosmetic items for Timburr and Komala.
 - Added `visibility/hidden`, `visibility/hat` and `visibility/face` tags to control where and how certain items are rendered.
 
 ### Changes
 - Renamed `chargeGainedPerTick` config to `secondsToChargeHealingMachine`.
+- Made Blocks of Gold count as Big Nuggets when held by a Pokémon (for Fling functionality)
 
 ### Fixes
 - Fixed Particles sometimes facing the wrong direction (looking at you, Swords Dance)
@@ -31,6 +34,10 @@
 - Fixed status curing berries not playing the berry eating sound, same for healing berries used mid-battle.
 - Fixed owned Pokémon sometimes being un-interactable after the player relogs fast
 - Fixed field name in evolution requirements for Spewpa Pokeball.
+- Fixed LevelUpCriterion logic to correctly check that the Pokémon is a preEvo.
+- Fixed `hide_additional_tooltip` vanilla flag not properly hiding tooltips on pokerod and bait items
+- Fixed NPCs using Pokémon outside of their pool when a Pokémon name had a typo.
+- Fixed an issue with datapacked species features not being applied properly when relogging.
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
@@ -51,6 +58,8 @@
   - The `itemCondition` for a held item evolution requirement
   - The `fossils` for a fossil entry
 - Added MoLang flows for `poke_ball_capture_calculated`, `evolution_tested`, `evolution_accepted`, `evolution_completed`
+- Added `interpolate` boolean property to animated textures to allow gradual colour changes between frames.
+- Fixed species additions not being capable of changing implemented status.
 
 ## [1.6.1 (January 26th, 2025)](#1-6-1)
 
