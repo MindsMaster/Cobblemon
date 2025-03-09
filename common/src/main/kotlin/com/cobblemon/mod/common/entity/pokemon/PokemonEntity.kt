@@ -1154,9 +1154,9 @@ open class PokemonEntity(
 
         val text = when {
             isCosmetic && giving.isEmpty -> lang("cosmetic_item.take", returned.hoverName, this.pokemon.getDisplayName())
-            isCosmetic && returned.isEmpty -> lang("cosmetic_item.give", this.pokemon.getDisplayName(), returned.hoverName)
+            isCosmetic && returned.isEmpty -> lang("cosmetic_item.give", this.pokemon.getDisplayName(), giving.hoverName)
             !isCosmetic && giving.isEmpty -> lang("held_item.take", returned.hoverName, this.pokemon.getDisplayName())
-            !isCosmetic && returned.isEmpty -> lang("held_item.give", this.pokemon.getDisplayName(), returned.hoverName)
+            !isCosmetic && returned.isEmpty -> lang("held_item.give", this.pokemon.getDisplayName(), giving.hoverName)
             isCosmetic -> lang("cosmetic_item.replace", returned.hoverName, this.pokemon.getDisplayName(), returned.hoverName)
             else -> lang("held_item.replace", returned.hoverName, this.pokemon.getDisplayName(), returned.hoverName)
         }
