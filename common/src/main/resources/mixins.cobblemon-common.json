@@ -59,7 +59,6 @@
     "PointedDripstoneBlockMixin",
     "RecipeBookSettingsMixin",
     "RecipeBookTypeMixin",
-    "RecipeManagerMixin",
     "ShearsDispenserBehaviorMixin",
     "StructurePoolAccessor",
     "StructurePoolGeneratorMixin",

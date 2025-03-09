@@ -8,7 +8,7 @@
 
 package com.cobblemon.mod.common.item
 
-import com.cobblemon.mod.common.api.fishing.FishingBait
+import com.cobblemon.mod.common.api.fishing.SpawnBait
 import com.cobblemon.mod.common.api.fishing.FishingBaits
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
@@ -19,17 +19,17 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.ItemStack
 
 /**
- * A simple component that contains a reference to the [FishingBait].
+ * A simple component that contains a reference to the [SpawnBait].
  *
  * @author Hiroku
  * @since June 9th, 2024
  */
-class RodBaitComponent(val bait: FishingBait, val stack: ItemStack = ItemStack.EMPTY) {
+class RodBaitComponent(val bait: SpawnBait, val stack: ItemStack = ItemStack.EMPTY) {
     companion object {
         val CODEC: Codec<RodBaitComponent> = RecordCodecBuilder.create { builder -> builder.group(
             ResourceLocation.CODEC.fieldOf("bait").forGetter { it.bait.item },
             ItemStack.CODEC.optionalFieldOf("stack", ItemStack.EMPTY).forGetter { it.stack }
-        ).apply(builder) { bait, stack -> RodBaitComponent(FishingBaits.getFromIdentifier(bait) ?: FishingBait.BLANK_BAIT, stack) } }
+        ).apply(builder) { bait, stack -> RodBaitComponent(FishingBaits.getFromIdentifier(bait) ?: SpawnBait.BLANK_BAIT, stack) } }
 
         val PACKET_CODEC: StreamCodec<ByteBuf, RodBaitComponent> = ByteBufCodecs.fromCodec(CODEC)
     }

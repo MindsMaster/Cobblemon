@@ -21,16 +21,8 @@ import net.minecraft.world.item.crafting.RecipeSerializer
 
 object CobblemonRecipeSerializers : PlatformRegistry<Registry<RecipeSerializer<*>>, ResourceKey<Registry<RecipeSerializer<*>>>, RecipeSerializer<*>>() {
 
-    val COOKING_POT_COOKING: RecipeSerializer<*> = register("cobblemon:cooking_pot", CookingPotRecipe.Serializer()).also {
-        println("Registered cooking pot recipe serializer: $it")
-    }
-
-    val COOKING_POT_SHAPELESS: RecipeSerializer<*> = register(
-        "cobblemon:cooking_pot_shapeless",
-        CookingPotShapelessRecipe.Serializer()
-    ).also {
-        println("Registered cooking pot shapeless recipe serializer: $it")
-    }
+    val COOKING_POT_COOKING: RecipeSerializer<*> = register("cobblemon:cooking_pot", CookingPotRecipe.Serializer())
+    val COOKING_POT_SHAPELESS: RecipeSerializer<*> = register("cobblemon:cooking_pot_shapeless", CookingPotShapelessRecipe.Serializer())
 
     override val registry: Registry<RecipeSerializer<*>>
         get() = BuiltInRegistries.RECIPE_SERIALIZER

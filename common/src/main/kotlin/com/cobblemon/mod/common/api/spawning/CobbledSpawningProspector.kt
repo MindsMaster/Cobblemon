@@ -10,6 +10,9 @@ package com.cobblemon.mod.common.api.spawning
 
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.Cobblemon.config
+import com.cobblemon.mod.common.api.spawning.influence.WorldSlicedSpatialSpawningInfluence
+import com.cobblemon.mod.common.api.spawning.influence.WorldSlicedSpawningInfluence
+import com.cobblemon.mod.common.api.spawning.prospecting.SpawningInfluenceProspector
 import com.cobblemon.mod.common.api.spawning.prospecting.SpawningProspector
 import com.cobblemon.mod.common.api.spawning.spawner.Spawner
 import com.cobblemon.mod.common.api.spawning.spawner.SpawningArea
@@ -79,6 +82,7 @@ object CobblemonSpawningProspector : SpawningProspector {
         val blocks = Array(area.length) { Array(height) { Array(area.width) { defaultBlockData } } }
         val skyLevel = Array(area.length) { Array(area.width) { world.maxBuildHeight } }
         val pos = BlockPos.MutableBlockPos()
+        val worldSlicedSpawningInfluences = mutableListOf<WorldSlicedSpawningInfluence>()
 
         val chunks = mutableMapOf<Pair<Int, Int>, ChunkAccess?>()
         val yRange = (baseY until baseY + height).reversed()
@@ -98,6 +102,7 @@ object CobblemonSpawningProspector : SpawningProspector {
                         light = world.getMaxLocalRawBrightness(pos),
                         skyLight = skyLight
                     )
+                    worldSlicedSpawningInfluences.addAll(SpawningInfluenceProspector.prospectors.mapNotNull { it.prospect(world, pos, state) })
                     if (canSeeSky) {
                         skyLevel[x - area.baseX][z - area.baseZ] = y
                     }
@@ -116,7 +121,8 @@ object CobblemonSpawningProspector : SpawningProspector {
             baseZ = area.baseZ,
             blocks = blocks,
             skyLevel = skyLevel,
-            nearbyEntityPositions = nearbyEntityPositions
+            nearbyEntityPositions = nearbyEntityPositions,
+            influences = worldSlicedSpawningInfluences
         )
     }
 }

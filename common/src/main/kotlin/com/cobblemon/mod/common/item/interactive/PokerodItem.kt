@@ -17,7 +17,7 @@ import com.cobblemon.mod.common.api.events.fishing.BaitConsumedEvent
 import com.cobblemon.mod.common.api.events.fishing.BaitSetEvent
 import com.cobblemon.mod.common.api.events.fishing.PokerodCastEvent
 import com.cobblemon.mod.common.api.events.fishing.PokerodReelEvent
-import com.cobblemon.mod.common.api.fishing.FishingBait
+import com.cobblemon.mod.common.api.fishing.SpawnBait
 import com.cobblemon.mod.common.api.fishing.FishingBaits
 import com.cobblemon.mod.common.entity.fishing.PokeRodFishingBobberEntity
 import com.cobblemon.mod.common.item.RodBaitComponent
@@ -27,7 +27,6 @@ import com.cobblemon.mod.common.util.enchantmentRegistry
 import com.cobblemon.mod.common.util.itemRegistry
 import com.cobblemon.mod.common.util.playSoundServer
 import com.cobblemon.mod.common.util.toEquipmentSlot
-import net.minecraft.client.resources.sounds.SimpleSoundInstance
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
@@ -61,7 +60,7 @@ class PokerodItem(val pokeRodId: ResourceLocation, settings: Properties) : Fishi
             return itemStack
         }
 
-        fun getBaitOnRod(stack: ItemStack): FishingBait? {
+        fun getBaitOnRod(stack: ItemStack): SpawnBait? {
             return getCookingComponentOnRod(stack) ?: stack.components.get(CobblemonItemComponents.BAIT)?.bait
         }
 
@@ -69,7 +68,7 @@ class PokerodItem(val pokeRodId: ResourceLocation, settings: Properties) : Fishi
             return stack.components.get(CobblemonItemComponents.BAIT)?.stack ?: ItemStack.EMPTY
         }
 
-        fun getCookingComponentOnRod(rodStack: ItemStack): FishingBait? {
+        fun getCookingComponentOnRod(rodStack: ItemStack): SpawnBait? {
             // Check if the stack within the RodBaitComponent has a CookingComponent
             val cookingComponent = rodStack.get(CobblemonItemComponents.COOKING_COMPONENT) ?: return null
 
@@ -81,7 +80,7 @@ class PokerodItem(val pokeRodId: ResourceLocation, settings: Properties) : Fishi
             ).flatten()
 
             // Return a new FishingBait with combined effects
-            return FishingBait(
+            return SpawnBait(
                 item = BuiltInRegistries.ITEM.getKey(rodStack.components.get(CobblemonItemComponents.BAIT)?.stack?.item ?: ItemStack.EMPTY.item), // Use the rodStack's item as the bait identifier
                 effects = combinedEffects
             )
@@ -139,7 +138,7 @@ class PokerodItem(val pokeRodId: ResourceLocation, settings: Properties) : Fishi
 
 
 
-        fun getBaitEffects(stack: ItemStack): List<FishingBait.Effect> {
+        fun getBaitEffects(stack: ItemStack): List<SpawnBait.Effect> {
             return getBaitOnRod(stack)?.effects ?: return emptyList()
         }
     }

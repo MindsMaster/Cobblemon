@@ -16,14 +16,13 @@ import com.cobblemon.mod.common.CobblemonBrainConfigs
 import com.cobblemon.mod.common.CobblemonMechanics
 import com.cobblemon.mod.common.api.abilities.Abilities
 import com.cobblemon.mod.common.api.berry.Berries
-import com.cobblemon.mod.common.api.cooking.Seasoning
 import com.cobblemon.mod.common.api.cooking.Seasonings
 import com.cobblemon.mod.common.api.data.DataProvider
 import com.cobblemon.mod.common.api.data.DataRegistry
 import com.cobblemon.mod.common.api.pokedex.Dexes
 import com.cobblemon.mod.common.api.dialogue.Dialogues
 import com.cobblemon.mod.common.api.events.CobblemonEvents
-import com.cobblemon.mod.common.api.fishing.FishingBait
+import com.cobblemon.mod.common.api.fishing.SpawnBait
 import com.cobblemon.mod.common.api.fishing.FishingBaits
 import com.cobblemon.mod.common.api.fishing.PokeRods
 import com.cobblemon.mod.common.api.fossil.Fossils
@@ -103,7 +102,7 @@ object CobblemonDataProvider : DataProvider {
         this.register(Berries)
         this.register(Seasonings)
         this.register(FishingBaits)
-        FishingBait.Effects.setupEffects()
+        SpawnBait.Effects.setupEffects()
 
         PlatformEvents.SERVER_PLAYER_LOGOUT.subscribe {
             synchronizedPlayerIds.remove(it.player.uuid)

@@ -23,39 +23,39 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.packs.PackType
 import net.minecraft.world.item.ItemStack
 
-object FishingBaits : JsonDataRegistry<FishingBait>{
+object FishingBaits : JsonDataRegistry<SpawnBait>{
     override val id = cobblemonResource("fishing_baits")
     override val type = PackType.SERVER_DATA
     override val observable = SimpleObservable<FishingBaits>()
-    override val typeToken: TypeToken<FishingBait> = TypeToken.get(FishingBait::class.java)
+    override val typeToken: TypeToken<SpawnBait> = TypeToken.get(SpawnBait::class.java)
     override val resourcePath = "fishing_baits"
     override val gson: Gson = GsonBuilder()
         .registerTypeAdapter(ResourceLocation::class.java, IdentifierAdapter)
         .setPrettyPrinting()
         .create()
 
-    private val itemMap = mutableMapOf<ResourceLocation, FishingBait>()
+    private val itemMap = mutableMapOf<ResourceLocation, SpawnBait>()
 
     override fun sync(player: ServerPlayer) {
         FishingBaitRegistrySyncPacket(this.itemMap.values.toList()).sendToPlayer(player)
     }
 
-    override fun reload(data: Map<ResourceLocation, FishingBait>) {
+    override fun reload(data: Map<ResourceLocation, SpawnBait>) {
         itemMap.clear()
         data.forEach { id, bait ->
             itemMap[bait.item] = bait
         }
     }
 
-    fun getFromRodItemStack(stack: ItemStack): FishingBait? {
+    fun getFromRodItemStack(stack: ItemStack): SpawnBait? {
         return stack.components.get(CobblemonItemComponents.BAIT)?.bait
     }
 
-    fun getFromBaitItemStack(stack: ItemStack): FishingBait? {
+    fun getFromBaitItemStack(stack: ItemStack): SpawnBait? {
         return getFromIdentifier(BuiltInRegistries.ITEM.getKey(stack.item))
     }
 
-    fun getFromIdentifier(identifier: ResourceLocation): FishingBait? {
+    fun getFromIdentifier(identifier: ResourceLocation): SpawnBait? {
         return itemMap[identifier]
     }
 

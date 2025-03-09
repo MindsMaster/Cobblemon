@@ -34,17 +34,14 @@ enum class CookingPotBookCategory(private val categoryName: String, private val 
     companion object {
         val CODEC: Codec<CookingPotBookCategory> = Codec.STRING.flatXmap(
             { name ->
-                val category = CookingPotBookCategory.values().firstOrNull { it.categoryName.equals(name, ignoreCase = true) }
+                val category = CookingPotBookCategory.entries.firstOrNull { it.categoryName.equals(name, ignoreCase = true) }
                 if (category != null) {
-                    println("Successfully parsed category: $name -> ${category.name}")
                     DataResult.success(category)
                 } else {
-                    println("Failed to parse category: $name")
                     DataResult.error { "Unknown category: $name" }
                 }
             },
             { category ->
-                println("Serializing category: ${category.categoryName}")
                 DataResult.success(category.categoryName)
             }
         )

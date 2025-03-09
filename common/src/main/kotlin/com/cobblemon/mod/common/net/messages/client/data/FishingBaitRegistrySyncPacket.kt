@@ -8,27 +8,27 @@
 
 package com.cobblemon.mod.common.net.messages.client.data
 
-import com.cobblemon.mod.common.api.fishing.FishingBait
+import com.cobblemon.mod.common.api.fishing.SpawnBait
 import com.cobblemon.mod.common.api.fishing.FishingBaits
 import com.cobblemon.mod.common.util.cobblemonResource
 import net.minecraft.network.RegistryFriendlyByteBuf
 
-class FishingBaitRegistrySyncPacket(fishingBaits: List<FishingBait>) : DataRegistrySyncPacket<FishingBait, FishingBaitRegistrySyncPacket>(fishingBaits) {
+class FishingBaitRegistrySyncPacket(spawnBaits: List<SpawnBait>) : DataRegistrySyncPacket<SpawnBait, FishingBaitRegistrySyncPacket>(spawnBaits) {
     companion object {
         val ID = cobblemonResource("fishing_baits")
         fun decode(buffer: RegistryFriendlyByteBuf) = FishingBaitRegistrySyncPacket(emptyList()).apply { decodeBuffer(buffer) }
     }
 
     override val id = ID
-    override fun encodeEntry(buffer: RegistryFriendlyByteBuf, entry: FishingBait) {
-        FishingBait.STREAM_CODEC.encode(buffer, entry)
+    override fun encodeEntry(buffer: RegistryFriendlyByteBuf, entry: SpawnBait) {
+        SpawnBait.STREAM_CODEC.encode(buffer, entry)
     }
 
-    override fun decodeEntry(buffer: RegistryFriendlyByteBuf): FishingBait {
-        return FishingBait.STREAM_CODEC.decode(buffer)
+    override fun decodeEntry(buffer: RegistryFriendlyByteBuf): SpawnBait {
+        return SpawnBait.STREAM_CODEC.decode(buffer)
     }
 
-    override fun synchronizeDecoded(entries: Collection<FishingBait>) {
+    override fun synchronizeDecoded(entries: Collection<SpawnBait>) {
         FishingBaits.reload(entries.associateBy { it.item })
     }
 }

@@ -9,7 +9,7 @@
 package com.cobblemon.mod.common.item.components
 
 import com.cobblemon.mod.common.api.cooking.Seasoning
-import com.cobblemon.mod.common.api.fishing.FishingBait
+import com.cobblemon.mod.common.api.fishing.SpawnBait
 import com.cobblemon.mod.common.api.fishing.FishingBaits
 import com.cobblemon.mod.common.api.cooking.Seasonings
 import com.cobblemon.mod.common.client.pot.CookingQuality
@@ -18,13 +18,12 @@ import net.minecraft.network.codec.StreamCodec
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import io.netty.buffer.ByteBuf
-import net.minecraft.ChatFormatting
 import net.minecraft.resources.ResourceLocation
 
 class CookingComponent(
-    val bait1: FishingBait,
-    val bait2: FishingBait,
-    val bait3: FishingBait,
+    val bait1: SpawnBait,
+    val bait2: SpawnBait,
+    val bait3: SpawnBait,
     val seasoning1: Seasoning,
     val seasoning2: Seasoning,
     val seasoning3: Seasoning
@@ -40,9 +39,9 @@ class CookingComponent(
                 ResourceLocation.CODEC.fieldOf("seasoning3").forGetter<CookingComponent> { it.seasoning3.ingredient }
             ).apply(builder) { bait1Loc, bait2Loc, bait3Loc, seasoning1Loc, seasoning2Loc, seasoning3Loc ->
                 CookingComponent(
-                    bait1 = FishingBaits.getFromIdentifier(bait1Loc) ?: FishingBait.BLANK_BAIT,
-                    bait2 = FishingBaits.getFromIdentifier(bait2Loc) ?: FishingBait.BLANK_BAIT,
-                    bait3 = FishingBaits.getFromIdentifier(bait3Loc) ?: FishingBait.BLANK_BAIT,
+                    bait1 = FishingBaits.getFromIdentifier(bait1Loc) ?: SpawnBait.BLANK_BAIT,
+                    bait2 = FishingBaits.getFromIdentifier(bait2Loc) ?: SpawnBait.BLANK_BAIT,
+                    bait3 = FishingBaits.getFromIdentifier(bait3Loc) ?: SpawnBait.BLANK_BAIT,
                     seasoning1 = Seasonings.getFromIdentifier(seasoning1Loc)
                         ?: Seasoning(ResourceLocation("minecraft", "unknown"), mapOf(), "", 0),
                     seasoning2 = Seasonings.getFromIdentifier(seasoning2Loc)

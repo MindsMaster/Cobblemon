@@ -13,7 +13,7 @@ import com.cobblemon.mod.common.CobblemonItemComponents
 import com.cobblemon.mod.common.CobblemonRecipeTypes
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.cooking.*
-import com.cobblemon.mod.common.api.fishing.FishingBait
+import com.cobblemon.mod.common.api.fishing.SpawnBait
 import com.cobblemon.mod.common.api.fishing.FishingBaits
 import com.cobblemon.mod.common.block.PotComponent
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotMenu
@@ -281,9 +281,9 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
 
     fun createCookingComponentFromSlots(): CookingComponent {
         // Variables to store bait and seasoning
-        var bait1 = FishingBait.BLANK_BAIT
-        var bait2 = FishingBait.BLANK_BAIT
-        var bait3 = FishingBait.BLANK_BAIT
+        var bait1 = SpawnBait.BLANK_BAIT
+        var bait2 = SpawnBait.BLANK_BAIT
+        var bait3 = SpawnBait.BLANK_BAIT
         var seasoning1 = Seasoning.BLANK_SEASONING
         var seasoning2 = Seasoning.BLANK_SEASONING
         var seasoning3 = Seasoning.BLANK_SEASONING
