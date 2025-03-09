@@ -37,6 +37,8 @@
 - Fixed field name in evolution requirements for Spewpa Pokeball.
 - Fixed LevelUpCriterion logic to correctly check that the Pokémon is a preEvo.
 - Fixed `hide_additional_tooltip` vanilla flag not properly hiding tooltips on pokerod and bait items
+- Fixed NPCs using Pokémon outside of their pool when a Pokémon name had a typo.
+- Fixed an issue with datapacked species features not being applied properly when relogging.
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
@@ -58,6 +60,7 @@
   - The `fossils` for a fossil entry
 - Added MoLang flows for `poke_ball_capture_calculated`, `evolution_tested`, `evolution_accepted`, `evolution_completed`
 - Added `interpolate` boolean property to animated textures to allow gradual colour changes between frames.
+- Fixed species additions not being capable of changing implemented status.
 
 ## [1.6.1 (January 26th, 2025)](#1-6-1)
 

@@ -129,6 +129,11 @@ object PokemonSpecies : JsonDataRegistry<Species> {
         SpeciesAdditions.observable.subscribe {
             this.species.forEach(Species::initialize)
             this.species.forEach(Species::resolveEvolutionMoves)
+            this.species.forEach {
+                if (it.implemented) {
+                    this.implemented.add(it)
+                }
+            }
             Cobblemon.showdownThread.queue {
                 it.registerSpecies()
                 it.indicateSpeciesInitialized()
@@ -206,9 +211,6 @@ object PokemonSpecies : JsonDataRegistry<Species> {
                 this.speciesByDex.remove(old.resourceIdentifier.namespace, old.nationalPokedexNumber)
             }
             this.speciesByDex.put(species.resourceIdentifier.namespace, species.nationalPokedexNumber, species)
-            if (species.implemented) {
-                this.implemented.add(species)
-            }
         }
     }
 
