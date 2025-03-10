@@ -8,6 +8,7 @@
 
 package com.cobblemon.mod.common.api.spawning
 
+import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.api.spawning.condition.BiomePrecalculation
 import com.cobblemon.mod.common.api.spawning.condition.BucketPrecalculation
 import com.cobblemon.mod.common.api.spawning.condition.ContextPrecalculation
@@ -38,6 +39,7 @@ object CobblemonSpawnPools {
     }
 
     fun onServerLoad(server: MinecraftServer) {
+        Cobblemon.LOGGER.info("Optimizing spawn pools...")
         WORLD_SPAWN_POOL.forEach { it.onServerLoad(server) }
         WORLD_SPAWN_POOL.precalculate()
     }

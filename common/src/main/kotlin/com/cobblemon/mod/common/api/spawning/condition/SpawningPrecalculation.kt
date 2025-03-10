@@ -72,7 +72,8 @@ interface SpawningPrecalculation<T : Any> {
  * @since January 31st, 2022
  */
 object RootPrecalculation : SpawningPrecalculation<Any> {
-    override fun select(detail: SpawnDetail): List<Any> = listOf(Unit)
+    val list = listOf(Unit)
+    override fun select(detail: SpawnDetail): List<Any> = list
     override fun select(ctx: SpawningContext): Any = Unit
 }
 
