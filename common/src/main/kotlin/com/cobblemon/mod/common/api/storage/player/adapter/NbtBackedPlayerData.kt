@@ -30,7 +30,7 @@ abstract class NbtBackedPlayerData<T : InstancedPlayerData>(
         fileTmp.parentFile.mkdirs()
         val encodeResult = codec.encodeStart(NbtOps.INSTANCE, playerData)
         NbtIo.write(encodeResult.result().get() as CompoundTag, fileTmp.toPath())
-        postSaveFileMoving(playerData)
+        postSaveFileMoving(playerData.uuid)
     }
 
     override fun load(uuid: UUID): T {

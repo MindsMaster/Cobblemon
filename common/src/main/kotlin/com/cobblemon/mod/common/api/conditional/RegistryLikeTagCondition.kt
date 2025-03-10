@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.api.conditional
 
 import com.google.gson.JsonElement
+import net.minecraft.core.Holder
 import net.minecraft.core.Registry
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
@@ -39,16 +40,5 @@ open class RegistryLikeTagCondition<T : Any>(val tag: TagKey<T>) : RegistryLikeC
         }
     }
 
-    override fun fits(t: T, registry: Registry<T>): Boolean {
-//        val registryHasTag = registry.containsTag(tag)
-//        if (!registryHasTag) {
-////            LOGGER.warn("No tag in registry: ${tag.id}")
-//            return false
-//        }
-
-        return registry.getResourceKey(t)
-            .flatMap(registry::getHolder)
-            .map { entry -> entry.`is`(tag) }
-            .orElse(false)
-    }
+    override fun fits(t: Holder<T>) = t.`is`(tag)
 }
