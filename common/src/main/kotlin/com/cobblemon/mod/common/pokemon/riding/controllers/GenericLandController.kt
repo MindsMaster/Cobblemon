@@ -14,6 +14,7 @@ import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
+import com.cobblemon.mod.common.pokemon.riding.states.GenericLandState
 import com.cobblemon.mod.common.util.asExpression
 import com.cobblemon.mod.common.util.blockPositionsAsListRounded
 import com.cobblemon.mod.common.util.cobblemonResource
@@ -29,6 +30,8 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.phys.shapes.Shapes
+import kotlin.math.max
+import kotlin.math.min
 
 class GenericLandController : RideController {
     companion object {
@@ -74,7 +77,9 @@ class GenericLandController : RideController {
     }
 
     override fun speed(entity: PokemonEntity, driver: Player): Float {
-        return getRuntime(entity).resolveFloat(speed)
+        val state = getState(entity, ::GenericLandState)
+        state.currSpeed = 1.0
+        return state.currSpeed.toFloat()
     }
 
     override fun rotation(entity: PokemonEntity, driver: LivingEntity): Vec2 {
@@ -82,6 +87,8 @@ class GenericLandController : RideController {
     }
 
     override fun velocity(entity: PokemonEntity, driver: Player, input: Vec3): Vec3 {
+        val currSpeed = 1.0
+
         val runtime = getRuntime(entity)
         val driveFactor = runtime.resolveFloat(this.driveFactor)
         val strafeFactor = runtime.resolveFloat(this.strafeFactor)
@@ -90,13 +97,26 @@ class GenericLandController : RideController {
         if (g <= 0.0f) {
             g *= runtime.resolveFloat(this.reverseDriveFactor)
         }
+        val gravity = -0.8
 
-        val velocity = Vec3(f.toDouble(), 0.0, g.toDouble())
+        val state = getState(entity, ::GenericLandState)
+
+        val velocity = Vec3(f.toDouble() * state.currSpeed, gravity, g.toDouble() * state.currSpeed)
 
         return velocity
     }
 
     override fun canJump(entity: PokemonEntity, driver: Player) = getRuntime(entity).resolveBoolean(canJump)
+
+    //TODO: bring in stamina stats
+    override fun setRideBar(entity: PokemonEntity, driver: Player): Float {
+
+        //Retrieve stamina from state and tick up at a rate of 0.1 a second
+        val state = getState(entity, ::GenericLandState)
+        val staminaGain = (1.0 / 20.0)*0.1
+        state.stamina = min(state.stamina + staminaGain,1.0).toFloat()
+        return (state.stamina / 1.0f)
+    }
 
     override fun jumpForce(entity: PokemonEntity, driver: Player, jumpStrength: Int): Vec3 {
         val runtime = getRuntime(entity)
@@ -104,6 +124,12 @@ class GenericLandController : RideController {
         val jumpVector = jumpVector.map { runtime.resolveFloat(it) }
         return Vec3(jumpVector[0].toDouble(), jumpVector[1].toDouble(), jumpVector[2].toDouble())
     }
+
+    override fun gravity(entity: PokemonEntity, regularGravity: Double): Double {
+        return 0.0
+    }
+
+    override fun inertia(entity: PokemonEntity ): Double = 0.3
 
     override fun encode(buffer: RegistryFriendlyByteBuf) {
         super.encode(buffer)

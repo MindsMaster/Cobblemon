@@ -26,6 +26,7 @@ enum class PoseType {
     FLY,
     FLOAT,
     SWIM,
+    GLIDE,
     /** A pose for rendering on the left shoulder. Pose animations are given the player head yaw, pitch, and ageInTicks. */
     SHOULDER_LEFT,
     /** A pose for rendering on the right shoulder. Pose animations are given the player head yaw, pitch, and ageInTicks. */
