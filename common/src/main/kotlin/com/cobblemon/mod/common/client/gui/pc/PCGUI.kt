@@ -48,7 +48,7 @@ class PCGUI(
     val party: ClientParty,
     val configuration: PCGUIConfiguration,
     val openOnBox: Int = 0,
-    val unseenWallpapers: Set<ResourceLocation> = emptySet()
+    val unseenWallpapers: MutableSet<ResourceLocation> = mutableSetOf()
 ) : Screen(Component.translatable("cobblemon.ui.pc.title")), CobblemonRenderable {
 
     companion object {

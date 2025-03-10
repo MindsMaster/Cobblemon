@@ -100,7 +100,7 @@ class WallpapersScrollingWidget(
         return this.rowLeft + SLOT_WIDTH
     }
 
-    inner class WallpaperEntry(val wallpaper: ResourceLocation, val isNew: Boolean) : Slot<WallpaperEntry>() {
+    inner class WallpaperEntry(val wallpaper: ResourceLocation, var isNew: Boolean) : Slot<WallpaperEntry>() {
         override fun render(
             guiGraphics: GuiGraphics,
             index: Int,
@@ -139,6 +139,8 @@ class WallpapersScrollingWidget(
             if (this@WallpapersScrollingWidget.visible && isMouseOver(mouseX, mouseY)) {
                 RequestChangePCBoxWallpaperPacket(pcGui.pc.uuid, storageWidget.box, wallpaper).sendToServer()
                 pcGui.pc.boxes[storageWidget.box].wallpaper = wallpaper
+                pcGui.unseenWallpapers.remove(wallpaper)
+                isNew = false
                 minecraft.soundManager.play(SimpleSoundInstance.forUI(CobblemonSounds.PC_CLICK, 1.0F))
                 return true
             }
