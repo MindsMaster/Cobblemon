@@ -326,8 +326,6 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     val SWEET_SAP = noSettingsItem("sweet_sap")
     @JvmField
     val BUGWORT = bugwortItem("bugwort", BugwortItem(CobblemonBlocks.BUGWORT))
-    @JvmField
-    val POKE_BAIT = noSettingsItem("poke_bait")
 
     @JvmField
     val LURE_CAKE = blockItem("lure_cake", CobblemonBlocks.LURE_CAKE)
@@ -356,6 +354,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     // FOODS
     @JvmField
     val SWEET_HEART = noSettingsItem("sweet_heart") // todo make a SweetHeartItem class for breeding purposes
+
     @JvmField
     val PEWTER_CRUNCHIES = create("pewter_crunchies", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
@@ -369,6 +368,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
             return super.finishUsingItem(stack, world, user)
         }
     })
+
     @JvmField
     val RAGE_CANDY_BAR = create("rage_candy_bar", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
@@ -382,6 +382,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
             return super.finishUsingItem(stack, world, user)
         }
     })
+
     @JvmField
     val LAVA_COOKIE = create("lava_cookie", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
@@ -395,6 +396,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
             return super.finishUsingItem(stack, world, user)
         }
     })
+
     @JvmField
     val OLD_GATEAU = create("old_gateau", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
@@ -408,6 +410,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
             return super.finishUsingItem(stack, world, user)
         }
     })
+
     @JvmField
     val CASTELIACONE = create("casteliacone", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
@@ -421,6 +424,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
             return super.finishUsingItem(stack, world, user)
         }
     })
+
     @JvmField
     val SHALOR_SABLE = create("shalor_sable", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
@@ -434,6 +438,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
             return super.finishUsingItem(stack, world, user)
         }
     })
+
     @JvmField
     val LUMIOSE_GALETTE = create("lumiose_galette", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
@@ -447,6 +452,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
             return super.finishUsingItem(stack, world, user)
         }
     })
+
     @JvmField
     val BIG_MALASADA = create("big_malasada", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
@@ -460,6 +466,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
             return super.finishUsingItem(stack, world, user)
         }
     })
+
     /*@JvmField // todo see what we are doing for these (are there different kinds?)
     val CURRY = create("curry", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
@@ -474,6 +481,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
             return super.finishUsingItem(stack, world, user)
         }
     })*/
+
     @JvmField
     val JUBILIFE_MUFFIN = create("jubilife_muffin", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
@@ -487,6 +495,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
             return super.finishUsingItem(stack, world, user)
         }
     })
+
     /*@JvmField // todo see what we are doing for these (are there different kinds?)
     val SANDWICH = create("sandwich", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()

@@ -137,6 +137,11 @@ class FishingSpawnCause(
         if (entity is PokemonEntity) {
             entity.pokemon.forcedAspects += FISHED_ASPECT
             bait?.affectSpawn(entity)
+            // Some of the bait actions might have changed the aspects and we need it to be
+            // in the entityData IMMEDIATELY otherwise it will flash as what it would be
+            // with the old aspects.
+            // New aspects copy into the entity data only on the next tick.
+            entity.entityData.set(PokemonEntity.ASPECTS, entity.pokemon.aspects)
             CobblemonEvents.BOBBER_SPAWN_POKEMON_MODIFY.post(BobberSpawnPokemonEvent.Modify(bucket, rodStack, entity))
         }
     }

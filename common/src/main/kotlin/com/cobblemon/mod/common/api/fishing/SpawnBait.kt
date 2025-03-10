@@ -8,6 +8,7 @@
 
 package com.cobblemon.mod.common.api.fishing
 
+import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.Cobblemon.LOGGER
 import com.cobblemon.mod.common.api.events.CobblemonEvents
 import com.cobblemon.mod.common.api.events.fishing.BaitEffectFunctionRegistryEvent
@@ -117,22 +118,17 @@ data class SpawnBait(
         if (entity is PokemonEntity) {
             effects.forEach { it ->
                 if (Math.random() <= it.chance) {
+                    Cobblemon.LOGGER.info("Effect ${it.type} applied to ${entity.pokemon.species}")
                     Effects.getEffectFunction(it.type)?.invoke(entity, it)
                 }
             }
-
-            // Some of the bait actions might have changed the aspects and we need it to be
-            // in the entityData IMMEDIATELY otherwise it will flash as what it would be
-            // with the old aspects.
-            // New aspects copy into the entity data only on the next tick.
-            entity.entityData.set(PokemonEntity.ASPECTS, entity.pokemon.aspects)
         }
     }
 
     // EV related bait effects
     override fun affectWeight(detail: SpawnDetail, ctx: SpawningContext, weight: Float): Float {
         // if bait exists and any effects are related to EV yields
-        if (effects.any{ it.type == Effects.EV }){
+        if (effects.any { it.type == Effects.EV }){
             if (detail is PokemonSpawnDetail) {
                 val detailSpecies = detail.pokemon.species?.let { PokemonSpecies.getByName(it) }
                 val baitEVStat = effects.firstOrNull { it.type == Effects.EV }?.subcategory?.path?.let { Stats.getStat(it) }
@@ -147,7 +143,7 @@ data class SpawnBait(
             }
         }
         // if bait exists and any effects are related to Typing
-        if (effects.any{ it.type == Effects.TYPING }){
+        if (effects.any { it.type == Effects.TYPING }){
             if (detail is PokemonSpawnDetail) {
                 val detailSpecies = detail.pokemon.species?.let { PokemonSpecies.getByName(it) }
                 val baitEffect = effects.firstOrNull { it.type == Effects.TYPING }
