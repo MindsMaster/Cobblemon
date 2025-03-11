@@ -793,6 +793,7 @@ object MoLangFunctions {
     val pokemonStoreFunctions = mutableListOf<(PokemonStore<*>) -> HashMap<String, java.util.function.Function<MoParams, Any>>>(
         { store ->
             val map = hashMapOf<String, java.util.function.Function<MoParams, Any>>()
+            map.put("uuid") { StringValue(store.uuid.toString()) }
             map.put("add") { params ->
                 val pokemon = params.get<ObjectValue<Pokemon>>(0)
                 return@put DoubleValue(store.add(pokemon.obj))
