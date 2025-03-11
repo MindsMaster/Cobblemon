@@ -49,6 +49,7 @@
 - Removed the NbtItemPredicate class, all the mod usages now use the vanilla item predicate solution, this causes breaking changes on Fossil, HeldItemRequirement & ItemInteractionEvolution
 - Renamed Cobblemon's creative tabs to start with "Cobblemon: " to distinguish Cobblemon's tabs from tabs for other mods.
 - Various items now have a rarity value.
+- Reworked observable handling in `Pokemon.kt` to cut down on RAM usage, potentially breaking mods that used our observable functionality there or in MoveSet, IVs, EVs, or BenchedMoves.
 
 ### Changes
 - When using the `cobblemon` or `generation_9` capture calculators a critical capture with a single shake will always play for successful captures when you've already registered the Pokémon as caught in your Pokédex.
