@@ -1309,7 +1309,15 @@ object MoLangFunctions {
         return this
     }
 
-    fun QueryStruct.addEntityFunctions(entity: LivingEntity): QueryStruct {
+    fun QueryStruct.addEntityFunctions(entity: Entity): QueryStruct {
+        val addedFunctions = entityFunctions
+            .flatMap { it.invoke(entity).entries }
+            .associate { it.key to it.value }
+        functions.putAll(addedFunctions)
+        return this
+    }
+
+    fun QueryStruct.addLivingEntityFunctions(entity: LivingEntity): QueryStruct {
         val addedFunctions = livingEntityFunctions
             .flatMap { it.invoke(entity).entries }
             .associate { it.key to it.value }

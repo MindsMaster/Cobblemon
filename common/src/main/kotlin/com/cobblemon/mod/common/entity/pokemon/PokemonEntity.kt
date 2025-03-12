@@ -22,6 +22,7 @@ import com.cobblemon.mod.common.api.events.entity.PokemonEntitySaveToWorldEvent
 import com.cobblemon.mod.common.api.events.pokemon.ShoulderMountEvent
 import com.cobblemon.mod.common.api.interaction.PokemonEntityInteraction
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addEntityFunctions
+import com.cobblemon.mod.common.api.molang.MoLangFunctions.addLivingEntityFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addPokemonEntityFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addPokemonFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addStandardFunctions
@@ -299,6 +300,7 @@ open class PokemonEntity(
     override val struct: ObjectValue<PokemonEntity> = ObjectValue(this).also {
         it.addStandardFunctions()
             .addEntityFunctions(this)
+            .addLivingEntityFunctions(this)
             .addPokemonFunctions(pokemon)
             .addPokemonEntityFunctions(this)
     }
