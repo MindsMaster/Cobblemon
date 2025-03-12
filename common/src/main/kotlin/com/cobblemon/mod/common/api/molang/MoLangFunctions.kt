@@ -480,24 +480,6 @@ object MoLangFunctions {
                 val owner = entity.owner
                 return@put owner?.asMostSpecificMoLangValue() ?: DoubleValue.ZERO
             }
-            map.put("can_see") { params ->
-                val target = params.get<MoValue>(0)
-                val range = params.getDoubleOrNull(1) ?: 32.0
-                if (target is ObjectValue<*>) {
-                    val targetEntity = target.obj as? LivingEntity ?: return@put DoubleValue.ZERO
-                    val vector = targetEntity.eyePosition.subtract(entity.eyePosition).normalize()
-                    val trace = entity.traceEntityCollision(
-                        maxDistance = range.toFloat(),
-                        stepDistance = 0.1F,
-                        direction = vector,
-                        entityClass = targetEntity.javaClass,
-                        collideBlock = ClipContext.Fluid.NONE
-                    )
-                    return@put DoubleValue(targetEntity in (trace?.entities ?: emptyList()))
-                } else {
-                    return@put DoubleValue.ZERO
-                }
-            }
             map.put("walk_to") { params ->
                 val x = params.getDouble(0)
                 val y = params.getDouble(1)
@@ -649,7 +631,24 @@ object MoLangFunctions {
             map.put("is_sleeping") { _ -> DoubleValue(entity.isSleeping) }
             map.put("health") { _ -> DoubleValue(entity.health) }
             map.put("max_health") { _ -> DoubleValue(entity.maxHealth) }
-
+            map.put("can_see") { params ->
+                val target = params.get<MoValue>(0)
+                val range = params.getDoubleOrNull(1) ?: 32.0
+                if (target is ObjectValue<*>) {
+                    val targetEntity = target.obj as? LivingEntity ?: return@put DoubleValue.ZERO
+                    val vector = targetEntity.eyePosition.subtract(entity.eyePosition).normalize()
+                    val trace = entity.traceEntityCollision(
+                        maxDistance = range.toFloat(),
+                        stepDistance = 0.1F,
+                        direction = vector,
+                        entityClass = targetEntity.javaClass,
+                        collideBlock = ClipContext.Fluid.NONE
+                    )
+                    return@put DoubleValue(targetEntity in (trace?.entities ?: emptyList()))
+                } else {
+                    return@put DoubleValue.ZERO
+                }
+            }
             if (entity is PathfinderMob) {
                 map.put("walk_to") { params ->
                     val x = params.getDouble(0)
