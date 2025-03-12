@@ -33,7 +33,7 @@ abstract class JsonBackedPlayerDataStoreBackend<T : InstancedPlayerData>(
         fileTmp.printWriter().use { pw ->
             pw.write(gson.toJson(playerData))
         }
-        postSaveFileMoving(playerData)
+        postSaveFileMoving(playerData.uuid)
     }
 
     override fun load(uuid: UUID): T {

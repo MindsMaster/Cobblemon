@@ -66,9 +66,12 @@ abstract class AreaSpawner(
         if (constrainedArea != null) {
 
             val areaBox = AABB.ofSize(
-                Vec3(
-                    constrainedArea.getCenter().toVec3f()
-                ), CHUNK_REACH * 16.0 * 2, 1000.0, CHUNK_REACH * 16.0 * 2)
+                Vec3(constrainedArea.getCenter().toVec3f()),
+                CHUNK_REACH * 16.0 * 2,
+                1000.0,
+                CHUNK_REACH * 16.0 * 2
+            )
+
             if (!constrainedArea.world.isBoxLoaded(areaBox)) {
                 return null
             }

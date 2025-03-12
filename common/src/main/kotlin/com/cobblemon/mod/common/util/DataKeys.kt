@@ -98,6 +98,8 @@ object DataKeys {
     const val STORE_BOX_COUNT = "BoxCount"
     const val STORE_BOX_COUNT_LOCKED = "BoxCountLocked"
     const val STORE_BACKUP = "BackupStore"
+    const val STORE_UNLOCKED_WALLPAPERS = "UnlockedWallpapers"
+    const val STORE_UNSEEN_WALLPAPERS = "UnseenWallpapers"
 
     // Pokédex Keys
     const val POKEDEX_TYPE = "PokedexType"

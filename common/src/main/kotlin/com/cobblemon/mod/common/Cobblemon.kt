@@ -19,6 +19,7 @@ import com.cobblemon.mod.common.api.drop.ItemDropEntry
 import com.cobblemon.mod.common.api.events.CobblemonEvents
 import com.cobblemon.mod.common.api.events.CobblemonEvents.DATA_SYNCHRONIZED
 import com.cobblemon.mod.common.api.interaction.RequestManager
+import com.cobblemon.mod.common.api.molang.ObjectValue
 import com.cobblemon.mod.common.api.permission.PermissionValidator
 import com.cobblemon.mod.common.api.pokeball.catching.calculators.CaptureCalculator
 import com.cobblemon.mod.common.api.pokeball.catching.calculators.CaptureCalculators
@@ -119,6 +120,7 @@ import kotlin.properties.Delegates
 import kotlin.reflect.full.memberProperties
 import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaField
+import net.minecraft.world.entity.player.Player
 
 object Cobblemon {
     const val MODID = CobblemonBuildDetails.MOD_ID
@@ -152,7 +154,9 @@ object Cobblemon {
     var permissionValidator: PermissionValidator by Delegates.observable(LaxPermissionValidator().also { it.initialize() }) { _, _, newValue -> newValue.initialize() }
     var statProvider: StatProvider = CobblemonStatProvider
     var seasonResolver: SeasonResolver = TagSeasonResolver
-    var wallpapers = mapOf<UUID, List<ResourceLocation>>()
+    var wallpapers = mutableMapOf<UUID, Set<ResourceLocation>>()
+
+    val serverPlayerStructs = mutableMapOf<UUID, ObjectValue<Player>>()
 
     @JvmStatic
     val builtinPacks = listOf<CobblemonPack>(
@@ -218,6 +222,7 @@ object Cobblemon {
             storage.onPlayerDisconnect(it.player)
             playerDataManager.onPlayerDisconnect(it.player)
             RequestManager.onLogoff(it.player)
+            serverPlayerStructs.remove(it.player.uuid)
         }
         PlatformEvents.PLAYER_DEATH.subscribe {
             PCLinkManager.removeLink(it.player.uuid)
@@ -388,8 +393,8 @@ object Cobblemon {
             storage.unregisterAll(it.server.registryAccess())
             playerDataManager.saveAllStores()
         }
-        PlatformEvents.SERVER_STARTED.subscribe {
-            bestSpawner.onServerStarted()
+        PlatformEvents.SERVER_STARTED.subscribe { event ->
+            bestSpawner.onServerStarted(event.server)
             battleRegistry.onServerStarted()
         }
         PlatformEvents.SERVER_TICK_POST.subscribe { ServerTickHandler.onTick(it.server) }
@@ -537,6 +542,7 @@ object Cobblemon {
         this.implementation.registerCommandArgument(cobblemonResource("form"), FormArgumentType::class, SingletonArgumentInfo.contextFree(FormArgumentType::form))
         this.implementation.registerCommandArgument(cobblemonResource("dex"), DexArgumentType::class, SingletonArgumentInfo.contextFree (DexArgumentType::dex))
         this.implementation.registerCommandArgument(cobblemonResource("npc_class"), NPCClassArgumentType::class, SingletonArgumentInfo.contextFree(NPCClassArgumentType::npcClass))
+        this.implementation.registerCommandArgument(cobblemonResource("wallpaper"), UnlockablePCBoxWallpaperArgumentType::class, SingletonArgumentInfo.contextFree(UnlockablePCBoxWallpaperArgumentType::wallpaper))
     }
 
 }
