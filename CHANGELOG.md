@@ -40,6 +40,7 @@
 - Fixed NPCs using Pokémon outside of their pool when a Pokémon name had a typo.
 - Fixed an issue with datapacked species features not being applied properly when relogging.
 - Fixed Pokémon marked as silent still playing shiny sounds and effects.
+- Fixed an issue with newer versions of Fabric API where underground Pokémon were spawning in The End.
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
