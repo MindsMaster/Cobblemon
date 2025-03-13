@@ -56,6 +56,7 @@ import net.minecraft.client.renderer.texture.DynamicTexture
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.item.ItemDisplayContext
 import net.minecraft.world.phys.Vec3
 import org.joml.Matrix4f
 import org.joml.Vector3f
@@ -78,7 +79,6 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
     @Transient
     lateinit var context: RenderContext
 
-
     var poses = mutableMapOf<String, Pose>()
 
     /** A way to view the definition of all the different locators that are registered for the model. */
@@ -91,6 +91,14 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
     open var portraitTranslation = Vec3(0.0, 0.0, 0.0)
 
     open var profileScale = 1F
+
+    /**
+     * These are open-ended properties that can be used to store miscellaneous properties about the model.
+     *
+     * The internal use currently is to name locators and what display context should be used when rendering
+     * held items at that position.
+     */
+    open var properties = mutableMapOf<String, String>()
 
     /*
      * Hello future Hiro, this is past Hiro. You've gotten forgetful in your old age.
@@ -163,7 +171,6 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
      * Generates an active animation by name. This can be legacy-backed cry or faint animations, a prepared builder
      * for an animation in the [animations] mapping, a product of MoLang in the name parameter, or a highly specific
      * format used in [extractAnimation].
-     *
      * First priority is given to any named animations inside of [Pose], and then to the [animations] mapping, before
      * resorting to legacy, MoLang resolution, and finally the [extractAnimation] hail-Mary.
      */
@@ -462,6 +469,12 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
                 stack.popPose()
             }
         }
+    }
+
+    /** Checks for whether a property has been set to configure how an item would render on this locator. */
+    fun getLocatorDisplayContext(locator: String): ItemDisplayContext? {
+        val displayContextString = properties["${locator}_display_context"] ?: return null
+        return ItemDisplayContext.valueOf(displayContextString)
     }
 
     /** Generates a [RenderType] by the power of god and anime. Only possible thanks to 100 access wideners. */
