@@ -507,13 +507,16 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
 
 
     /** Applies the given pose's [ModelPartTransformation]s to the model, if there is a matching pose. */
-    fun applyPose(state: PosableState, pose: Pose, intensity: Float) = (pose.transformedParts + transformedParts).forEach { it.apply(state, intensity) }
+    fun applyPose(state: PosableState, pose: Pose, intensity: Float) = pose.transformedParts.forEach { it.apply(state, intensity) }
     /** Gets the first pose of this model that matches the given [PoseType]. */
     fun getPose(pose: PoseType) = poses.values.firstOrNull { pose in it.poseTypes }
     fun getPose(name: String) = poses[name]
 
     /** Puts the model back to its original location and rotations. */
-    fun setDefault() = defaultPositions.forEach { it.set() }
+    fun setDefault() {
+        defaultPositions.forEach { it.set() }
+        transformedParts.forEach { it.set() }
+    }
 
     /**
      * Finds the first of the model's poses that the given state and optional [PoseType] is appropriate for.
