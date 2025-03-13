@@ -39,6 +39,7 @@
 - Fixed `hide_additional_tooltip` vanilla flag not properly hiding tooltips on pokerod and bait items
 - Fixed NPCs using Pokémon outside of their pool when a Pokémon name had a typo.
 - Fixed an issue with datapacked species features not being applied properly when relogging.
+- Fixed Pokémon marked as silent still playing shiny sounds and effects.
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
