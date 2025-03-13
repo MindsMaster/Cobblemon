@@ -22,6 +22,7 @@ import com.cobblemon.mod.common.api.events.entity.PokemonEntitySaveToWorldEvent
 import com.cobblemon.mod.common.api.events.pokemon.ShoulderMountEvent
 import com.cobblemon.mod.common.api.interaction.PokemonEntityInteraction
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addEntityFunctions
+import com.cobblemon.mod.common.api.molang.MoLangFunctions.addLivingEntityFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addPokemonEntityFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addPokemonFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addStandardFunctions
@@ -299,6 +300,7 @@ open class PokemonEntity(
     override val struct: ObjectValue<PokemonEntity> = ObjectValue(this).also {
         it.addStandardFunctions()
             .addEntityFunctions(this)
+            .addLivingEntityFunctions(this)
             .addPokemonFunctions(pokemon)
             .addPokemonEntityFunctions(this)
     }
@@ -908,7 +910,7 @@ open class PokemonEntity(
                             val newColorFeature =
                                 StringSpeciesFeature(DataKeys.CAN_BE_COLORED, item.dyeColor.name.lowercase())
                             this.pokemon.features.add(newColorFeature)
-                            this.pokemon.anyChangeObservable.emit(pokemon)
+                            this.pokemon.onChange()
                         }
 
                         this.pokemon.updateAspects()
@@ -1154,9 +1156,9 @@ open class PokemonEntity(
 
         val text = when {
             isCosmetic && giving.isEmpty -> lang("cosmetic_item.take", returned.hoverName, this.pokemon.getDisplayName())
-            isCosmetic && returned.isEmpty -> lang("cosmetic_item.give", this.pokemon.getDisplayName(), returned.hoverName)
+            isCosmetic && returned.isEmpty -> lang("cosmetic_item.give", this.pokemon.getDisplayName(), giving.hoverName)
             !isCosmetic && giving.isEmpty -> lang("held_item.take", returned.hoverName, this.pokemon.getDisplayName())
-            !isCosmetic && returned.isEmpty -> lang("held_item.give", this.pokemon.getDisplayName(), returned.hoverName)
+            !isCosmetic && returned.isEmpty -> lang("held_item.give", this.pokemon.getDisplayName(), giving.hoverName)
             isCosmetic -> lang("cosmetic_item.replace", returned.hoverName, this.pokemon.getDisplayName(), returned.hoverName)
             else -> lang("held_item.replace", returned.hoverName, this.pokemon.getDisplayName(), returned.hoverName)
         }

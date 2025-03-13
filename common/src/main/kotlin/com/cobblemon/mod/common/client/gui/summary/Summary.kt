@@ -13,9 +13,6 @@ import com.cobblemon.mod.common.CobblemonNetwork.sendToServer
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.gui.blitk
 import com.cobblemon.mod.common.api.moves.Move
-import com.cobblemon.mod.common.api.moves.MoveSet
-import com.cobblemon.mod.common.api.reactive.Observable.Companion.emitWhile
-import com.cobblemon.mod.common.api.reactive.ObservableSubscription
 import com.cobblemon.mod.common.api.scheduling.Schedulable
 import com.cobblemon.mod.common.api.scheduling.SchedulingTracker
 import com.cobblemon.mod.common.api.storage.party.PartyPosition
@@ -317,8 +314,8 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
      * Switches the selected PKM
      */
     fun switchSelection(newSelection: Int) {
+        this.selectedPokemon.moveSet.changeFunction = {}
         this.party.getOrNull(newSelection)?.let { this.selectedPokemon = it }
-        moveSetSubscription?.unsubscribe()
         listenToMoveSet()
         displayMainScreen(mainScreenIndex)
         children().find { it is EvolutionSelectScreen }?.let(this::removeWidget)
@@ -333,18 +330,15 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
         }
     }
 
-    private var moveSetSubscription: ObservableSubscription<MoveSet>? = null
-
     /**
      * Start observing the MoveSet of the current PKM for changes
      */
     private fun listenToMoveSet() {
-        moveSetSubscription = selectedPokemon.moveSet.observable
-                .pipe(emitWhile { isOpen() })
-                .subscribe {
-                    if (mainScreen is MovesWidget)
-                        displayMainScreen(MOVES)
-                }
+        selectedPokemon.moveSet.changeFunction = {
+            if (mainScreen is MovesWidget) {
+                displayMainScreen(MOVES)
+            }
+        }
     }
 
     /**
