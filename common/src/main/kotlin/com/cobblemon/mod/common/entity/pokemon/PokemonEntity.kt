@@ -1419,6 +1419,7 @@ open class PokemonEntity(
         return this.deltaMovement
     }
 
+    /*
     override fun shouldDiscardFriction(): Boolean {
         val riders = this.passengers.filterIsInstance<LivingEntity>()
         if (riders.isEmpty()) {
@@ -1427,6 +1428,7 @@ open class PokemonEntity(
             return true
         }
     }
+     */
 
     override fun travel(movementInput: Vec3) {
         val prevBlockPos = this.blockPosition()
@@ -1692,16 +1694,18 @@ open class PokemonEntity(
         this.yBodyRot = this.yRot
         this.yRotO = this.yRot
 
+        val riders = this.passengers.filterIsInstance<LivingEntity>()
+
         if (this.riding.canJump(this, driver)) {
             if (this.onGround()) {
                 if (this.jumpInputStrength > 0) {
-//                this.jump(this.jumpStrength, movementInput)
-//                this.jump()
+                    //this.jump(this.jumpStrength, movementInput)
+                    //this.jump()
                     val f = PI.toFloat() - this.yRot * PI.toFloat() / 180
                     val jumpVector = riding.jumpVelocity(this, driver, this.jumpInputStrength)
                     val velocity = jumpVector.yRot(f)
                     // Rotate the jump vector f degrees around the Y axis
-//                val velocity = Vec3d(-sin(f) * jumpVector.x, jumpVector.y, cos(f) * jumpVector.z)
+                    //val velocity = Vec3d(-sin(f) * jumpVector.x, jumpVector.y, cos(f) * jumpVector.z)
 
                     this.addDeltaMovement(velocity)
                     hasImpulse = true
@@ -1893,6 +1897,11 @@ open class PokemonEntity(
     fun setRideBar(): Float {
         val driver = this.controllingPassenger as? Player ?: return 0.0f
         return this.riding.setRideBar(this, driver)
+    }
+
+    fun rideFovMult(): Float {
+        val driver = this.controllingPassenger as? Player ?: return 1.0f
+        return this.riding.rideFovMult(this, driver)
     }
 
     /**
