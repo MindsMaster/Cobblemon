@@ -161,6 +161,7 @@ class PokemonRenderer(
         heldItemRenderer.renderOnEntity(
             entity,
             clientDelegate,
+            model.posableModel,
             poseMatrix,
             buffer,
             packedLight

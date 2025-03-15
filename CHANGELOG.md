@@ -14,6 +14,9 @@
 ### Changes
 - Renamed `chargeGainedPerTick` config to `secondsToChargeHealingMachine`.
 - Made Blocks of Gold count as Big Nuggets when held by a Pokémon (for Fling functionality)
+- Substantially optimised spawning checks mainly by front-loading biome filtering.
+- When using the `cobblemon` or `generation_9` capture calculators a critical capture with a single shake will always play for successful captures when you've already registered the Pokémon as caught in your Pokédex.
+- Improved the performance of saving Pokédex and player data.
 
 ### Fixes
 - Fixed Particles sometimes facing the wrong direction (looking at you, Swords Dance)
@@ -38,6 +41,9 @@
 - Fixed `hide_additional_tooltip` vanilla flag not properly hiding tooltips on pokerod and bait items
 - Fixed NPCs using Pokémon outside of their pool when a Pokémon name had a typo.
 - Fixed an issue with datapacked species features not being applied properly when relogging.
+- Fixed Pokémon marked as silent still playing shiny sounds and effects.
+- Fixed an issue with newer versions of Fabric API where underground Pokémon were spawning in The End.
+- Fixed spawning not working well when you're at high points surrounded by lower altitude spawning areas, such as flying.
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
@@ -48,9 +54,10 @@
 - Removed the NbtItemPredicate class, all the mod usages now use the vanilla item predicate solution, this causes breaking changes on Fossil, HeldItemRequirement & ItemInteractionEvolution
 - Renamed Cobblemon's creative tabs to start with "Cobblemon: " to distinguish Cobblemon's tabs from tabs for other mods.
 - Various items now have a rarity value.
-
-### Changes
-- When using the `cobblemon` or `generation_9` capture calculators a critical capture with a single shake will always play for successful captures when you've already registered the Pokémon as caught in your Pokédex.
+- Reworked observable handling in `Pokemon.kt` to cut down on RAM usage and clarify the file.
+  - Note: This will break mods that used our observable functionality there or in MoveSet, IVs, EVs, or BenchedMoves. 
+  - Using `Pokemon#onChange()` is now the way to mark a Pokémon as needing a save.
+  - Using `[Pokemon].changeObservable` is now the way to get an `Observable` for any save-worthy changes.
 
 ### MoLang & Datapacks
 - The following usages for item predicates can now use item conditions like advancements do, you can learn about them in the [Minecraft wiki](https://minecraft.wiki/w/Advancement_definition#minecraft:filled_bucket)
@@ -60,6 +67,7 @@
 - Added MoLang flows for `poke_ball_capture_calculated`, `evolution_tested`, `evolution_accepted`, `evolution_completed`
 - Added `interpolate` boolean property to animated textures to allow gradual colour changes between frames.
 - Fixed species additions not being capable of changing implemented status.
+- Added support for action effects that are triggered by `|-activate|` Showdown instructions. `activate_{effect_id}` is the syntax.
 
 ## [1.6.1 (January 26th, 2025)](#1-6-1)
 

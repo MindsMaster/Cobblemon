@@ -974,6 +974,7 @@
   "cobblemon.command.clearpc.cleared": "Cleared %1$s's PC.",
   "cobblemon.command.dialogue.invalid-dialogue": "Invalid dialogue identifier",
   "cobblemon.command.pc.invalid-box": "Box number %1$s exceeds max boxes of %2$s.",
+  "cobblemon.command.unlockablepcboxwallpaper.invalid-wallpaper": "Invalid wallpaper identifier",
 
   "cobblemon.ui.generic.yes": "Yes",
   "cobblemon.ui.generic.no": "No",
@@ -1049,10 +1050,19 @@
   "cobblemon.ui.effect": "Effect",
   "cobblemon.ui.pokemon": "Pokémon",
   "cobblemon.ui.exit": "Exit",
+
   "cobblemon.ui.pc.box.title": "Box %1$s",
-  "cobblemon.ui.wallpapers": "Wallpapers",
-  "cobblemon.ui.pc.search": "Search",
+  "cobblemon.ui.pc.wallpaper": "Wallpaper",
+  "cobblemon.ui.pc.filter": "Filter",
+  "cobblemon.ui.pc.filter.tooltip": "Format: pikachu shiny held_item lvl=1...",
+  "cobblemon.ui.pc.options": "Options",
   "cobblemon.ui.pc.release": "Release",
+
+  "cobblemon.ui.sort.name": "Sort by name",
+  "cobblemon.ui.sort.level": "Sort by level",
+  "cobblemon.ui.sort.pokedex_number": "Sort by Pokédex number",
+  "cobblemon.ui.sort.gender": "Sort by gender",
+  "cobblemon.ui.sort.type": "Sort by type",
 
   "cobblemon.ui.pasture": "Pasture",
   "cobblemon.ui.pasture.recall_all": "Recall All",
@@ -1300,6 +1310,7 @@
   "cobblemon.subtitle.fossilmachine.retrieve_pokemon": "Fossil Pokémon retrieved",
   "cobblemon.subtitle.fossilmachine.unprotected": "Restoration Machine protection ends",
   "cobblemon.subtitle.fossilmachine.assemble": "Restoration Machine assembles",
+  "cobblemon.subtitle.wallpaper.unlock": "PC box wallpaper unlocked",
 
   "cobblemon.healingmachine.alreadyinuse": "This healing machine is already in use!",
   "cobblemon.healingmachine.nopokemon": "You don't have any Pokémon in your party to heal!",
@@ -1591,6 +1602,10 @@
   "cobblemon.command.freezepokemon.non_pokemon": "You are not looking at a Pokémon.",
   "cobblemon.command.npcedit.non_npc": "You are not looking at a NPC.",
   "cobblemon.command.cobblemon_config.reload": "Reloading Cobblemon settings.",
+  "cobblemon.command.unlockboxwallpaper.success": "%1$s can now use the %2$s wallpaper.",
+  "cobblemon.command.unlockboxwallpaper.already": "%1$s already has the %2$s wallpaper.",
+  "cobblemon.wallpaper_unlocked": "Wallpaper Unlocked",
+  "cobblemon.unknown_wallpaper": "???",
 
   "cobblemon.config.ui.search_configurations": "Search Configurations",
   "cobblemon.config.ui.reset": "Reset",

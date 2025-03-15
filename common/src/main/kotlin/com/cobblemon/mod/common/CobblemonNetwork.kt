@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common
 
 import com.cobblemon.mod.common.api.net.NetworkPacket
+import com.cobblemon.mod.common.client.net.CalculateSeatPositionsHandler
 import com.cobblemon.mod.common.client.net.PlayerInteractOptionsHandler
 import com.cobblemon.mod.common.client.net.SetClientPlayerDataHandler
 import com.cobblemon.mod.common.client.net.animation.PlayPosableAnimationHandler
@@ -57,6 +58,7 @@ import com.cobblemon.mod.common.client.net.trade.TradeProcessStartedHandler
 import com.cobblemon.mod.common.client.net.trade.TradeStartedHandler
 import com.cobblemon.mod.common.client.net.trade.TradeUpdatedHandler
 import com.cobblemon.mod.common.net.PacketRegisterInfo
+import com.cobblemon.mod.common.net.messages.client.CalculateSeatPositionsPacket
 import com.cobblemon.mod.common.net.messages.client.PlayerInteractOptionsPacket
 import com.cobblemon.mod.common.net.messages.client.SetClientPlayerDataPacket
 import com.cobblemon.mod.common.net.messages.client.animation.PlayPosableAnimationPacket
@@ -107,6 +109,7 @@ import com.cobblemon.mod.common.net.messages.client.storage.pc.SetPCPokemonPacke
 import com.cobblemon.mod.common.net.messages.client.storage.pc.wallpaper.ChangePCBoxWallpaperPacket
 import com.cobblemon.mod.common.net.messages.client.storage.pc.wallpaper.RequestPCBoxWallpapersPacket
 import com.cobblemon.mod.common.net.messages.client.storage.pc.wallpaper.SetPCBoxWallpapersPacket
+import com.cobblemon.mod.common.net.messages.client.storage.pc.wallpaper.UnlockPCBoxWallpaperPacket
 import com.cobblemon.mod.common.net.messages.client.toast.ToastPacket
 import com.cobblemon.mod.common.net.messages.client.trade.TradeAcceptanceChangedPacket
 import com.cobblemon.mod.common.net.messages.client.trade.TradeCancelledPacket
@@ -290,6 +293,7 @@ object CobblemonNetwork {
         list.add(PacketRegisterInfo(RequestPCBoxWallpapersPacket.ID, RequestPCBoxWallpapersPacket::decode, RequestPCBoxWallpapersHandler))
         list.add(PacketRegisterInfo(SetPCBoxWallpapersPacket.ID, SetPCBoxWallpapersPacket::decode, SetPCBoxWallpapersHandler))
         list.add(PacketRegisterInfo(ChangePCBoxWallpaperPacket.ID, ChangePCBoxWallpaperPacket::decode, ChangePCBoxWallpaperHandler))
+        list.add(PacketRegisterInfo(UnlockPCBoxWallpaperPacket.ID, UnlockPCBoxWallpaperPacket::decode, UnlockPCBoxWallpaperHandler))
 
         // UI Packets
         list.add(PacketRegisterInfo(SummaryUIPacket.ID, SummaryUIPacket::decode, SummaryUIPacketHandler))
@@ -410,6 +414,9 @@ object CobblemonNetwork {
         // Pokédex scanning
         list.add(PacketRegisterInfo(ServerConfirmedRegisterPacket.ID, ServerConfirmedRegisterPacket::decode, ServerConfirmedRegisterHandler))
 
+        // Debug / cheats
+        list.add(PacketRegisterInfo(CalculateSeatPositionsPacket.ID, CalculateSeatPositionsPacket::decode, CalculateSeatPositionsHandler))
+
         return list
     }
 
@@ -445,6 +452,7 @@ object CobblemonNetwork {
         list.add(PacketRegisterInfo(RequestRenamePCBoxPacket.Companion.ID, RequestRenamePCBoxPacket.Companion::decode, RequestRenamePCBoxHandler))
         list.add(PacketRegisterInfo(PCBoxWallpapersPacket.ID, PCBoxWallpapersPacket::decode, PCBoxWallpapersHandler))
         list.add(PacketRegisterInfo(RequestChangePCBoxWallpaperPacket.ID, RequestChangePCBoxWallpaperPacket::decode, RequestChangePCBoxWallpaperHandler))
+        list.add(PacketRegisterInfo(MarkPCBoxWallpapersSeenPacket.ID, MarkPCBoxWallpapersSeenPacket::decode, MarkPCBoxWallpapersSeenHandler))
 
         // Starter packets
         list.add(PacketRegisterInfo(SelectStarterPacket.ID, SelectStarterPacket::decode, SelectStarterPacketHandler))

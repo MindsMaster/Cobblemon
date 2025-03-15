@@ -55,6 +55,7 @@
     "NbtUtilsMixin",
     "PiglinBarterMixin",
     "PiglinEntityMixin",
+    "PlayerAdvancementsMixin",
     "PlayerMixin",
     "PointedDripstoneBlockMixin",
     "RecipeBookSettingsMixin",
