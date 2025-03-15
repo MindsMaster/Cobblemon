@@ -8,6 +8,7 @@
 
 package com.cobblemon.mod.common.api.spawning.prospecting
 
+import com.cobblemon.mod.common.api.spawning.influence.WorldSlicedSpatialSpawningInfluence
 import com.cobblemon.mod.common.api.spawning.influence.WorldSlicedSpawningInfluence
 import com.cobblemon.mod.common.block.LureCakeBlock
 import com.cobblemon.mod.common.block.entity.LureCakeBlockEntity
@@ -16,13 +17,16 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.block.state.BlockState
 
 object LureCakeProspector : SpawningInfluenceProspector {
-    override fun prospect(world: ServerLevel, pos: BlockPos, blockState: BlockState): WorldSlicedSpawningInfluence? {
+    @JvmField
+    val RANGE: Int = 48
+
+    override fun prospect(world: ServerLevel, pos: BlockPos, blockState: BlockState): WorldSlicedSpatialSpawningInfluence? {
         val block = blockState.block
         if (block !is LureCakeBlock) {
             return null
         }
         val blockEntity = world.getBlockEntity(pos) as? LureCakeBlockEntity ?: return null
         val bait = blockEntity.getBaitFromLureCake() ?: return null
-        return WorldSlicedSpawningInfluence(influence = bait)
+        return WorldSlicedSpatialSpawningInfluence(pos, RANGE.toFloat(), influence = bait)
     }
 }

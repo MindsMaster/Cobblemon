@@ -10,22 +10,30 @@ package com.cobblemon.mod.common.api.spawning
 
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.Cobblemon.config
-import com.cobblemon.mod.common.api.spawning.influence.WorldSlicedSpatialSpawningInfluence
+import com.cobblemon.mod.common.CobblemonPoiTypes
 import com.cobblemon.mod.common.api.spawning.influence.WorldSlicedSpawningInfluence
-import com.cobblemon.mod.common.api.spawning.prospecting.SpawningInfluenceProspector
+import com.cobblemon.mod.common.api.spawning.prospecting.LureCakeProspector
 import com.cobblemon.mod.common.api.spawning.prospecting.SpawningProspector
 import com.cobblemon.mod.common.api.spawning.spawner.Spawner
 import com.cobblemon.mod.common.api.spawning.spawner.SpawningArea
 import com.cobblemon.mod.common.api.tags.CobblemonBlockTags
+import com.cobblemon.mod.common.util.math.pow
+import com.cobblemon.mod.common.util.toBlockPos
 import net.minecraft.core.BlockPos
+import net.minecraft.core.Holder
 import net.minecraft.core.SectionPos.blockToSectionCoord
 import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.ai.village.poi.PoiManager.Occupancy
+import net.minecraft.world.entity.ai.village.poi.PoiRecord
+import net.minecraft.world.entity.ai.village.poi.PoiType
 import net.minecraft.world.level.LightLayer
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.chunk.ChunkAccess
 import net.minecraft.world.level.chunk.status.ChunkStatus
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
+import kotlin.math.ceil
+import kotlin.math.sqrt
 
 /**
  * A spawning prospector that takes a straightforward approach
@@ -102,7 +110,7 @@ object CobblemonSpawningProspector : SpawningProspector {
                         light = world.getMaxLocalRawBrightness(pos),
                         skyLight = skyLight
                     )
-                    worldSlicedSpawningInfluences.addAll(SpawningInfluenceProspector.prospectors.mapNotNull { it.prospect(world, pos, state) })
+                    //worldSlicedSpawningInfluences.addAll(SpawningInfluenceProspector.prospectors.mapNotNull { it.prospect(world, pos, state) }) // Keeping this for future use if need be
                     if (canSeeSky) {
                         skyLevel[x - area.baseX][z - area.baseZ] = y
                     }
@@ -111,6 +119,13 @@ object CobblemonSpawningProspector : SpawningProspector {
                     }
                 }
             }
+        }
+
+        val searchRange = LureCakeProspector.RANGE + ceil(sqrt(((area.length pow 2) + (area.width pow 2)).toDouble())).toInt()
+        val lureCakePositions = world.poiManager.findAll({ holder: Holder<PoiType> -> holder.`is`(CobblemonPoiTypes.LURE_CAKE_KEY) },{ true },area.getCenter().toBlockPos(),searchRange,Occupancy.ANY).toList()
+        for (lureCakePos in lureCakePositions) {
+            val lureCakeInfluence = LureCakeProspector.prospect(world, lureCakePos, world.getBlockState(lureCakePos)) ?: continue
+            worldSlicedSpawningInfluences.add(lureCakeInfluence)
         }
 
         return WorldSlice(
