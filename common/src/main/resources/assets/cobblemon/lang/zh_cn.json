@@ -6986,7 +6986,7 @@
     "cobblemon.battle.enditem.focussash": "%1$s用气势披带撑住了！",
     "cobblemon.battle.end.stockpile": "%1$s的蓄力效果消失了！",
     "cobblemon.battle.end.infestation": "%1$s摆脱了死缠乱打的束缚！",
-    "cobblemon.battle.activate.lingeringaroma": "%2$s沾上了味道且挥之不去！",
+    "cobblemon.battle.activate.lingeringaroma": "一种甩不掉的气味粘在了 %2$s 身上！",
     "cobblemon.battle.error.incorrect_actor_count": "当前有%1$s名参与者，但是需要%2%s名才能开启。",
     "cobblemon.battle.enditem.passhoberry": "千香果减轻了对%1$造成的伤害！",
     "cobblemon.battle.enditem.rindoberry": "罗子果减轻了对%1$造成的伤害！",
