@@ -145,7 +145,7 @@ abstract class AreaSpawner(
                     break
                 } else if (isValidStartPoint(area.world, chunk, basePos.setY(originalY - offset))) {
                     valid = true
-                    basePos.y = originalY + offset
+                    basePos.y = originalY - offset
                     break
                 }
                 offset++

@@ -43,6 +43,7 @@
 - Fixed an issue with datapacked species features not being applied properly when relogging.
 - Fixed Pokémon marked as silent still playing shiny sounds and effects.
 - Fixed an issue with newer versions of Fabric API where underground Pokémon were spawning in The End.
+- Fixed spawning not working well when you're at high points surrounded by lower altitude spawning areas, such as flying.
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
