@@ -40,7 +40,7 @@ object ChangePCBoxesCommand {
     private fun executeQuery(context: CommandContext<CommandSourceStack>): Int {
         val player = context.getArgument("player", EntitySelector::class.java).findSinglePlayer(context.source)
         val playerPc = player.pc()
-        context.source.sendSystemMessage((lang("command.boxcount", player.name, playerPc.boxes.size)))
+        context.source.sendSystemMessage(lang("command.boxcount", player.name, playerPc.boxes.size))
 
         return Command.SINGLE_SUCCESS
     }
@@ -52,7 +52,7 @@ object ChangePCBoxesCommand {
 
         playerPc.resize(playerPc.boxes.size + amount, true)
         playerPc.sendTo(player)
-        context.source.sendSystemMessage((lang("command.changeboxcount", player.name, playerPc.boxes.size).green()))
+        context.source.sendSystemMessage(lang("command.changeboxcount", player.name, playerPc.boxes.size).green())
 
         return Command.SINGLE_SUCCESS
     }
@@ -69,7 +69,7 @@ object ChangePCBoxesCommand {
             if (boxEmpty) {
                 playerPc.resize(playerPc.boxes.size - amount, true)
                 playerPc.sendTo(player)
-                context.source.sendSystemMessage((lang("command.changeboxcount", player.name, playerPc.boxes.size).green()))
+                context.source.sendSystemMessage(lang("command.changeboxcount", player.name, playerPc.boxes.size).green())
             }
             else {
                 context.source.sendSystemMessage(lang("command.changeboxcount.removing_not_empty_box").red())
@@ -94,13 +94,13 @@ object ChangePCBoxesCommand {
             val boxEmpty = slicedBoxes.all { box -> box.getNonEmptySlots().isEmpty() }
 
             if (!boxEmpty) {
-                context.source.sendSystemMessage((lang("command.changeboxcount.removing_not_empty_box").red()))
+                context.source.sendSystemMessage(lang("command.changeboxcount.removing_not_empty_box").red())
                 return 0
             }
         }
         playerPc.resize(amount, true)
         playerPc.sendTo(player)
-        context.source.sendSystemMessage((lang("command.changeboxcount", player.name, playerPc.boxes.size).green()))
+        context.source.sendSystemMessage(lang("command.changeboxcount", player.name, playerPc.boxes.size).green())
 
         return Command.SINGLE_SUCCESS
     }
