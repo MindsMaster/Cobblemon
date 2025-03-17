@@ -11,6 +11,26 @@
   - Added the various log blocks as cosmetic items for Timburr and Komala.
 - Added `visibility/hidden`, `visibility/hat` and `visibility/face` tags to control where and how certain items are rendered.
 
+### Pokémon Added
+
+#### Gen 4
+- Croagunk
+
+#### Gen 5
+- Pansage
+- Simisage
+- Pansear
+- Simisear
+- Panpour
+- Simipour
+
+### Animation updates for the following Pokémon
+- Soon
+
+### Model updates for the following Pokémon
+- Gyarados
+- Dragonite
+
 ### Changes
 - Renamed `chargeGainedPerTick` config to `secondsToChargeHealingMachine`.
 - Made Blocks of Gold count as Big Nuggets when held by a Pokémon (for Fling functionality)
