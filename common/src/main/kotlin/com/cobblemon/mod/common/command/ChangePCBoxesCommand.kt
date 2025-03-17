@@ -1,6 +1,5 @@
 package com.cobblemon.mod.common.command
 
-import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.api.permission.CobblemonPermissions
 import com.cobblemon.mod.common.api.text.green
 import com.cobblemon.mod.common.api.text.red
@@ -70,13 +69,7 @@ object ChangePCBoxesCommand {
             if (boxEmpty) {
                 playerPc.resize(playerPc.boxes.size - amount, true)
                 playerPc.sendTo(player)
-                context.source.sendSystemMessage(
-                    (lang(
-                        "command.changeboxcount",
-                        player.name,
-                        playerPc.boxes.size
-                    ).green())
-                )
+                context.source.sendSystemMessage((lang("command.changeboxcount", player.name, playerPc.boxes.size).green()))
             }
             else {
                 context.source.sendSystemMessage(lang("command.changeboxcount.removing_not_empty_box").red())
@@ -99,8 +92,6 @@ object ChangePCBoxesCommand {
         if (amount < playerPc.boxes.size) {
             val slicedBoxes = playerPc.boxes.slice(amount until playerPc.boxes.size)
             val boxEmpty = slicedBoxes.all { box -> box.getNonEmptySlots().isEmpty() }
-            Cobblemon.LOGGER.info(boxEmpty)
-            Cobblemon.LOGGER.info(slicedBoxes)
 
             if (!boxEmpty) {
                 context.source.sendSystemMessage((lang("command.changeboxcount.removing_not_empty_box").red()))
