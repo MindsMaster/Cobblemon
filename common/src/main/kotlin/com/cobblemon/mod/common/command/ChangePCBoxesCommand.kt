@@ -70,7 +70,13 @@ object ChangePCBoxesCommand {
             if (boxEmpty) {
                 playerPc.resize(playerPc.boxes.size - amount, true)
                 playerPc.sendTo(player)
-                context.source.sendSystemMessage((lang("command.changeboxcount", player.name, playerPc.boxes.size).green()))
+                context.source.sendSystemMessage(
+                    (lang(
+                        "command.changeboxcount",
+                        player.name,
+                        playerPc.boxes.size
+                    ).green())
+                )
             }
             else {
                 context.source.sendSystemMessage(lang("command.changeboxcount.removing_not_empty_box").red())
