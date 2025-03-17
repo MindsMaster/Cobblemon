@@ -1,5 +1,6 @@
 package com.cobblemon.mod.common.command
 
+import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.api.permission.CobblemonPermissions
 import com.cobblemon.mod.common.api.text.green
 import com.cobblemon.mod.common.api.text.red
@@ -19,17 +20,22 @@ object ChangePCBoxesCommand {
     fun register(dispatcher : CommandDispatcher<CommandSourceStack>) {
         dispatcher.register(literal(NAME)
                 .permission(CobblemonPermissions.CHANGE_BOX_COUNT)
-                .then(argument("player", EntityArgument.player())
-                    .then(literal("query").executes(::executeQuery))
+                    .then(literal("query").then(
+                        argument("player", EntityArgument.player()).executes(::executeQuery))
+                    )
                     .then(literal("add").then(
-                        argument("amount", IntegerArgumentType.integer(1, 1000)).executes(::executeAdd)
-                    ))
+                        argument("player", EntityArgument.player()).then(
+                        argument("amount", IntegerArgumentType.integer(1, 1000)).executes(::executeAdd)))
+                    )
                     .then(literal("remove").then(
-                        argument("amount", IntegerArgumentType.integer(1, 1000)).executes(::executeRemove)
-                    ))
+                        argument("player", EntityArgument.player()).then(
+                        argument("amount", IntegerArgumentType.integer(1, 1000)).executes(::executeRemove)))
+                    )
                     .then(literal("set").then(
-                        argument("amount", IntegerArgumentType.integer(1, 1000)).executes(::executeSet)
-                    ))))
+                        argument("player", EntityArgument.player()).then(
+                        argument("amount", IntegerArgumentType.integer(1, 1000)).executes(::executeSet)))
+                    )
+        )
     }
 
     private fun executeQuery(context: CommandContext<CommandSourceStack>): Int {
@@ -48,7 +54,7 @@ object ChangePCBoxesCommand {
         playerPc.resize(playerPc.boxes.size + amount, true)
         playerPc.sendTo(player)
         context.source.sendSystemMessage((lang("command.changeboxcount", player.name, playerPc.boxes.size).green()))
-
+        Cobblemon.LOGGER.info("Este es el nuevo")
         return Command.SINGLE_SUCCESS
     }
 
