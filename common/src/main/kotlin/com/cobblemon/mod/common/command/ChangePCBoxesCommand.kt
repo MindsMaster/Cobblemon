@@ -54,7 +54,6 @@ object ChangePCBoxesCommand {
         playerPc.resize(playerPc.boxes.size + amount, true)
         playerPc.sendTo(player)
         context.source.sendSystemMessage((lang("command.changeboxcount", player.name, playerPc.boxes.size).green()))
-        Cobblemon.LOGGER.info("Este es el nuevo")
         return Command.SINGLE_SUCCESS
     }
 
