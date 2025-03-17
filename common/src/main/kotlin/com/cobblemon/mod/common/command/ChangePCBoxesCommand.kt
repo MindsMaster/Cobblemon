@@ -32,9 +32,6 @@ object ChangePCBoxesCommand {
                     ))))
     }
 
-
-
-
     private fun executeQuery(context: CommandContext<CommandSourceStack>): Int {
         val player = context.getArgument("player", EntitySelector::class.java).findSinglePlayer(context.source)
         val playerPc = player.pc()
@@ -42,6 +39,7 @@ object ChangePCBoxesCommand {
 
         return Command.SINGLE_SUCCESS
     }
+
     private fun executeAdd(context: CommandContext<CommandSourceStack>): Int {
         val player = context.getArgument("player", EntitySelector::class.java).findSinglePlayer(context.source)
         val playerPc = player.pc()
@@ -53,6 +51,7 @@ object ChangePCBoxesCommand {
 
         return Command.SINGLE_SUCCESS
     }
+
     private fun executeRemove(context: CommandContext<CommandSourceStack>): Int {
         val player = context.getArgument("player", EntitySelector::class.java).findSinglePlayer(context.source)
         val playerPc = player.pc()
@@ -73,6 +72,7 @@ object ChangePCBoxesCommand {
 
         return Command.SINGLE_SUCCESS
     }
+
     private fun executeSet(context: CommandContext<CommandSourceStack>): Int {
         val player = context.getArgument("player", EntitySelector::class.java).findSinglePlayer(context.source)
         val playerPc = player.pc()
