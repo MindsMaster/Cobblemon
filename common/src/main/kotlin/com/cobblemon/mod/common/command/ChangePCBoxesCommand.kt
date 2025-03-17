@@ -1,5 +1,6 @@
 package com.cobblemon.mod.common.command
 
+import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.api.permission.CobblemonPermissions
 import com.cobblemon.mod.common.api.text.green
 import com.cobblemon.mod.common.api.text.red
@@ -53,6 +54,7 @@ object ChangePCBoxesCommand {
         playerPc.resize(playerPc.boxes.size + amount, true)
         playerPc.sendTo(player)
         context.source.sendSystemMessage((lang("command.changeboxcount", player.name, playerPc.boxes.size).green()))
+
         return Command.SINGLE_SUCCESS
     }
 
@@ -61,20 +63,26 @@ object ChangePCBoxesCommand {
         val playerPc = player.pc()
         val amount = context.getArgument("amount", Int::class.java)
 
-        val slicedBoxes = playerPc.boxes.slice(playerPc.boxes.size - amount until playerPc.boxes.size)
-        val boxEmpty = slicedBoxes.all { box -> box.getNonEmptySlots().isEmpty() }
+        if (amount < playerPc.boxes.size) {
+            val slicedBoxes = playerPc.boxes.slice(playerPc.boxes.size - amount until playerPc.boxes.size)
+            val boxEmpty = slicedBoxes.all { box -> box.getNonEmptySlots().isEmpty() }
 
-        if (boxEmpty) {
-            playerPc.resize(playerPc.boxes.size - amount, true)
-            playerPc.sendTo(player)
-            context.source.sendSystemMessage((lang("command.changeboxcount", player.name, playerPc.boxes.size).green()))
+            if (boxEmpty) {
+                playerPc.resize(playerPc.boxes.size - amount, true)
+                playerPc.sendTo(player)
+                context.source.sendSystemMessage((lang("command.changeboxcount", player.name, playerPc.boxes.size).green()))
+            }
+            else {
+                context.source.sendSystemMessage(lang("command.changeboxcount.removing_not_empty_box").red())
+                return 0
+            }
+
+            return Command.SINGLE_SUCCESS
         }
         else {
-            context.source.sendSystemMessage(lang("command.changeboxcount.removing_not_empty_box").red())
+            context.source.sendSystemMessage(lang("command.changeboxcount.removing_too_much_boxes", player.name, playerPc.boxes.size).red())
             return 0
         }
-
-        return Command.SINGLE_SUCCESS
     }
 
     private fun executeSet(context: CommandContext<CommandSourceStack>): Int {
@@ -82,10 +90,12 @@ object ChangePCBoxesCommand {
         val playerPc = player.pc()
         val amount = context.getArgument("amount", Int::class.java)
 
-        val slicedBoxes = playerPc.boxes.slice(playerPc.boxes.size - amount until playerPc.boxes.size)
-        val boxEmpty = slicedBoxes.all { box -> box.getNonEmptySlots().isEmpty() }
-
         if (amount < playerPc.boxes.size) {
+            val slicedBoxes = playerPc.boxes.slice(amount until playerPc.boxes.size)
+            val boxEmpty = slicedBoxes.all { box -> box.getNonEmptySlots().isEmpty() }
+            Cobblemon.LOGGER.info(boxEmpty)
+            Cobblemon.LOGGER.info(slicedBoxes)
+
             if (!boxEmpty) {
                 context.source.sendSystemMessage((lang("command.changeboxcount.removing_not_empty_box").red()))
                 return 0
