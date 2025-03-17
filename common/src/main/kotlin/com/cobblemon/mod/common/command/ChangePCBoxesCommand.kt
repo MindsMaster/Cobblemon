@@ -1,6 +1,5 @@
 package com.cobblemon.mod.common.command
 
-import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.api.permission.CobblemonPermissions
 import com.cobblemon.mod.common.api.text.green
 import com.cobblemon.mod.common.api.text.red
