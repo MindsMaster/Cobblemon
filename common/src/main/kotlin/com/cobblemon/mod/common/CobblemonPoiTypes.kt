@@ -19,7 +19,7 @@ import net.minecraft.world.entity.ai.village.poi.PoiType
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
 
-object CobblemonVillagerPoiTypes: PlatformRegistry<Registry<PoiType>, ResourceKey<Registry<PoiType>>, PoiType>() {
+object CobblemonPoiTypes: PlatformRegistry<Registry<PoiType>, ResourceKey<Registry<PoiType>>, PoiType>() {
     override val registry: Registry<PoiType> = BuiltInRegistries.POINT_OF_INTEREST_TYPE
     override val resourceKey: ResourceKey<Registry<PoiType>> = Registries.POINT_OF_INTEREST_TYPE
 
@@ -27,6 +27,10 @@ object CobblemonVillagerPoiTypes: PlatformRegistry<Registry<PoiType>, ResourceKe
     val NURSE_KEY: ResourceKey<PoiType> = createKey("nurse")
     @JvmField
     val NURSE = create(NURSE_KEY.location().path, PoiType(getBlockStates(CobblemonBlocks.HEALING_MACHINE), 1, 1))
+    @JvmField
+    val LURE_CAKE_KEY: ResourceKey<PoiType> = createKey("lure_cake")
+    @JvmField
+    val LURE_CAKE = create(LURE_CAKE_KEY.location().path, PoiType(getBlockStates(CobblemonBlocks.LURE_CAKE), 0, 1))
 
     private fun createKey(string: String): ResourceKey<PoiType> = ResourceKey.create(Registries.POINT_OF_INTEREST_TYPE, cobblemonResource(string))
 

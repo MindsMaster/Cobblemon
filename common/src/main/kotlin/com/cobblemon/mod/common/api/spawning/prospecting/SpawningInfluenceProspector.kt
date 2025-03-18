@@ -13,6 +13,8 @@ import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.block.state.BlockState
 import com.cobblemon.mod.common.api.spawning.WorldSlice
+import com.cobblemon.mod.common.api.spawning.spawner.Spawner
+import com.cobblemon.mod.common.api.spawning.spawner.SpawningArea
 
 /**
  * Prospects for [WorldSlicedSpawningInfluence] in a world at a given position. Occurs as part of a
@@ -29,5 +31,7 @@ interface SpawningInfluenceProspector {
         )
     }
 
-    fun prospect(world: ServerLevel, pos: BlockPos, blockState: BlockState): WorldSlicedSpawningInfluence?
+    fun prospect(spawner: Spawner, area: SpawningArea) : MutableList<WorldSlicedSpawningInfluence>
+
+    fun prospectBlock(world: ServerLevel, pos: BlockPos, blockState: BlockState): WorldSlicedSpawningInfluence?
 }

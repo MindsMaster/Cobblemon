@@ -10,7 +10,6 @@ package com.cobblemon.mod.common.api.spawning
 
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.Cobblemon.config
-import com.cobblemon.mod.common.api.spawning.influence.WorldSlicedSpatialSpawningInfluence
 import com.cobblemon.mod.common.api.spawning.influence.WorldSlicedSpawningInfluence
 import com.cobblemon.mod.common.api.spawning.prospecting.SpawningInfluenceProspector
 import com.cobblemon.mod.common.api.spawning.prospecting.SpawningProspector
@@ -102,7 +101,7 @@ object CobblemonSpawningProspector : SpawningProspector {
                         light = world.getMaxLocalRawBrightness(pos),
                         skyLight = skyLight
                     )
-                    worldSlicedSpawningInfluences.addAll(SpawningInfluenceProspector.prospectors.mapNotNull { it.prospect(world, pos, state) })
+                    worldSlicedSpawningInfluences.addAll(SpawningInfluenceProspector.prospectors.mapNotNull { it.prospectBlock(world, pos, state) })
                     if (canSeeSky) {
                         skyLevel[x - area.baseX][z - area.baseZ] = y
                     }
@@ -111,6 +110,10 @@ object CobblemonSpawningProspector : SpawningProspector {
                     }
                 }
             }
+        }
+
+        for (prospector in SpawningInfluenceProspector.prospectors) {
+            worldSlicedSpawningInfluences.addAll(prospector.prospect(spawner, area))
         }
 
         return WorldSlice(
