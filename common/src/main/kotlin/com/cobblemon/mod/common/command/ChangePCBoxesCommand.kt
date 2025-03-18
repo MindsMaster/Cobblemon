@@ -1,8 +1,8 @@
 package com.cobblemon.mod.common.command
 
 import com.cobblemon.mod.common.api.permission.CobblemonPermissions
-import com.cobblemon.mod.common.api.text.green
-import com.cobblemon.mod.common.api.text.red
+import com.cobblemon.mod.common.api.storage.pc.PCStore
+import com.cobblemon.mod.common.api.text.*
 import com.cobblemon.mod.common.util.*
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.CommandDispatcher
@@ -13,6 +13,7 @@ import net.minecraft.commands.Commands.argument
 import net.minecraft.commands.Commands.literal
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.commands.arguments.selector.EntitySelector
+import net.minecraft.server.level.ServerPlayer
 
 object ChangePCBoxesCommand {
     private const val NAME = "boxcount"
@@ -67,12 +68,12 @@ object ChangePCBoxesCommand {
             val boxEmpty = slicedBoxes.all { box -> box.getNonEmptySlots().isEmpty() }
 
             if (boxEmpty) {
-                playerPc.resize(playerPc.boxes.size - amount, true)
-                playerPc.sendTo(player)
-                context.source.sendSystemMessage(lang("command.changeboxcount", player.name, playerPc.boxes.size).green())
+                remove(context,player, playerPc, amount)
             }
             else {
-                context.source.sendSystemMessage(lang("command.changeboxcount.removing_not_empty_box").red())
+                context.source.sendSystemMessage(lang("command.changeboxcount.removing_not_empty_box").red().append("\n").append(
+                    lang("command.changeboxcount.force_remove").gray().onClick(true){remove(context,player, playerPc, amount)}
+                ))
                 return 0
             }
 
@@ -94,14 +95,27 @@ object ChangePCBoxesCommand {
             val boxEmpty = slicedBoxes.all { box -> box.getNonEmptySlots().isEmpty() }
 
             if (!boxEmpty) {
-                context.source.sendSystemMessage(lang("command.changeboxcount.removing_not_empty_box").red())
+                context.source.sendSystemMessage(lang("command.changeboxcount.removing_not_empty_box").red().append("\n").append(
+                    lang("command.changeboxcount.force_remove").gray().onClick(true){set(context,player, playerPc, amount)}
+                ))
                 return 0
             }
         }
-        playerPc.resize(amount, true)
-        playerPc.sendTo(player)
-        context.source.sendSystemMessage(lang("command.changeboxcount", player.name, playerPc.boxes.size).green())
+        set(context,player, playerPc, amount)
 
         return Command.SINGLE_SUCCESS
     }
+
+    private fun set(context: CommandContext<CommandSourceStack>,player: ServerPlayer, playerPc: PCStore, amount: Int){
+        playerPc.resize(amount, true)
+        playerPc.sendTo(player)
+        context.source.sendSystemMessage(lang("command.changeboxcount", player.name, playerPc.boxes.size).green())
+    }
+
+    private fun remove(context: CommandContext<CommandSourceStack>,player: ServerPlayer, playerPc: PCStore, amount: Int){
+        playerPc.resize(playerPc.boxes.size - amount, true)
+        playerPc.sendTo(player)
+        context.source.sendSystemMessage(lang("command.changeboxcount", player.name, playerPc.boxes.size).green())
+    }
+
 }
