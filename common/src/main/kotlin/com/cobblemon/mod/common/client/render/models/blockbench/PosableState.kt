@@ -39,11 +39,15 @@ import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
 import net.minecraft.client.Minecraft
 import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
+import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.Vec3
 import org.joml.Matrix4f
+import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
@@ -124,6 +128,8 @@ abstract class PosableState : Schedulable {
     /** This gets called 500 million times so use a mutable value for runtime */
     private val reusableAnimTime = DoubleValue(0.0)
 
+    var animationItem : ItemStack? = null
+
     /** All of the MoLang functions that can be applied to something with this state. */
     val functions = QueryStruct(hashMapOf())
         .addFunction("anim_time") {
@@ -146,6 +152,18 @@ abstract class PosableState : Schedulable {
                 Minecraft.getInstance().soundManager.play(
                     SimpleSoundInstance(soundEvent, SoundSource.NEUTRAL, volume, pitch, entity.level().random, entity.x, entity.y, entity.z)
                 )
+            }
+        }
+        .addFunction("render_item") { params ->
+            if (params.get<MoValue>(0) !is StringValue) return@addFunction Unit
+
+            val item = BuiltInRegistries.ITEM.get( ResourceLocation.parse(params.getString(0)) )
+            val count = if (params.contains(1)) params.getInt(1) else 1
+            val stack = ItemStack(item, count)
+            if (stack.isEmpty) {
+                updateAnimationItem(null)
+            } else {
+                updateAnimationItem(stack)
             }
         }
         .addFunction("play_animation") { params ->
@@ -208,6 +226,11 @@ abstract class PosableState : Schedulable {
 
     val runtime: MoLangRuntime = MoLangRuntime().setup().setupClient().also {
         it.environment.query.addFunctions(functions.functions)
+    }
+
+    /** Used to render dummy items in animations */
+    private fun updateAnimationItem(item: ItemStack?) {
+        animationItem = item
     }
 
     /** Gets the entity related to this state if this state is actually attached to an entity. */

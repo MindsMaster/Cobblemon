@@ -98,6 +98,15 @@
 					]
 				},
 				{
+					"name": "locator_item",
+					"parent": "arm_right",
+					"pivot": [-5.15, 12, -1],
+					"rotation": [0, 0, -90],
+					"locators": {
+						"item": [-5.15, 12, -1]
+					}
+				},
+				{
 					"name": "arm_left",
 					"parent": "torso",
 					"pivot": [5, 21, 0],

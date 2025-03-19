@@ -11,17 +11,17 @@ package com.cobblemon.mod.common.client.render.item
 import com.cobblemon.mod.common.api.tags.CobblemonItemTags
 import com.cobblemon.mod.common.api.tags.CobblemonItemTags.WEARABLE_FACE_ITEMS
 import com.cobblemon.mod.common.api.tags.CobblemonItemTags.WEARABLE_HAT_ITEMS
-import com.cobblemon.mod.common.client.entity.PokemonClientDelegate
 import com.cobblemon.mod.common.client.render.MatrixWrapper
 import com.cobblemon.mod.common.client.render.models.blockbench.NullObjectParser
 import com.cobblemon.mod.common.client.render.models.blockbench.PosableModel
-import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
+import com.cobblemon.mod.common.client.render.models.blockbench.PosableState
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.LightTexture
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.texture.OverlayTexture
+import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.ItemDisplayContext
 import net.minecraft.world.item.ItemStack
 
@@ -37,7 +37,7 @@ class HeldItemRenderer() {
     }
 
     fun render(
-        entity: PokemonEntity?,
+        entity: LivingEntity?,
         model: PosableModel,
         item: ItemStack,
         locators: Map<String, MatrixWrapper>,
@@ -108,17 +108,16 @@ class HeldItemRenderer() {
     }
 
     fun renderOnEntity(
-        entity: PokemonEntity,
-        delegate: PokemonClientDelegate,
+        entity: LivingEntity,
+        item: ItemStack,
+        delegate: PosableState,
         model: PosableModel,
         poseStack: PoseStack,
         buffer: MultiBufferSource,
         light: Int
     ) {
-        val shownItem = entity.shownItem
         val locators: Map<String, MatrixWrapper> = delegate.locatorStates
-
-        render(entity, model, shownItem, locators, poseStack, buffer, light, 0)
+        render(entity, model, item, locators, poseStack, buffer, light, 0)
     }
 
     private fun updateModifiers(name: String, locators: Map<String, MatrixWrapper>) {
