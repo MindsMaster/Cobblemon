@@ -20,6 +20,7 @@ import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.entity.EntityRendererProvider.Context
 import net.minecraft.client.renderer.entity.LivingEntityRenderer
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.phys.Vec3
 import kotlin.math.min
 
 class NPCRenderer(context: Context) : LivingEntityRenderer<NPCEntity, PosableEntityModel<NPCEntity>>(context, PosableNPCModel(), 0.5f) {
@@ -59,16 +60,17 @@ class NPCRenderer(context: Context) : LivingEntityRenderer<NPCEntity, PosableEnt
         model.blue = 1F
         model.resetLayerContext()
 
-        if (entity.deathTime < 1) {
+        if (entity.deathTime < 1){
             //Render Held Item
             heldItemRenderer.renderOnEntity(
                 entity,
-                clientDelegate.animationItem?:entity.mainHandItem,
-                clientDelegate,
+                entity.mainHandItem,
                 model,
+                clientDelegate,
                 poseMatrix,
                 buffer,
-                packedLight
+                packedLight,
+                Vec3(-90.0,0.0,0.0)
             )
         }
 

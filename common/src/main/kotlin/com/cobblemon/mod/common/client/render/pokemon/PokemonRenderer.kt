@@ -160,12 +160,13 @@ class PokemonRenderer(
         //Render Held Item
         heldItemRenderer.renderOnEntity(
             entity,
-            clientDelegate.animationItem?:entity.shownItem,
-            clientDelegate,
+            entity.shownItem,
             model.posableModel,
+            clientDelegate,
             poseMatrix,
             buffer,
-            packedLight
+            packedLight,
+            Vec3(0.0,-90.0,90.0)
         )
     }
 

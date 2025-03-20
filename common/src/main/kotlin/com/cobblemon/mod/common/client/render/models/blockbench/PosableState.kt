@@ -36,11 +36,11 @@ import com.cobblemon.mod.common.client.render.models.blockbench.quirk.QuirkData
 import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
+import com.mojang.brigadier.StringReader
 import net.minecraft.client.Minecraft
 import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
-import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.commands.arguments.item.ItemParser
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.entity.Entity
@@ -128,7 +128,9 @@ abstract class PosableState : Schedulable {
     /** This gets called 500 million times so use a mutable value for runtime */
     private val reusableAnimTime = DoubleValue(0.0)
 
-    var animationItem : ItemStack? = null
+    val itemRenderingLocations = mutableMapOf<String, ItemStack>()
+//    var itemRenderingLocation = ""
+//    var animationItem : ItemStack? = null
 
     /** All of the MoLang functions that can be applied to something with this state. */
     val functions = QueryStruct(hashMapOf())
@@ -157,15 +159,21 @@ abstract class PosableState : Schedulable {
         .addFunction("render_item") { params ->
             if (params.get<MoValue>(0) !is StringValue) return@addFunction Unit
 
-            val item = BuiltInRegistries.ITEM.get( ResourceLocation.parse(params.getString(0)) )
-            val count = if (params.contains(1)) params.getInt(1) else 1
-            val stack = ItemStack(item, count)
-            if (stack.isEmpty) {
-                updateAnimationItem(null)
+            val client = Minecraft.getInstance().connection ?: return@addFunction Unit
+            val result = ItemParser(client.registryAccess()).parse(StringReader(params.getString(0)))
+            val item = ItemStack(result.item)
+            item.applyComponents(result.components)
+
+            val renderLocation = if (params.contains(1)) params.getString(1) else "item"
+
+            if (!item.isEmpty && locatorStates.containsKey(renderLocation)) {
+                itemRenderingLocations.put(renderLocation, item)
             } else {
-                updateAnimationItem(stack)
+                if (itemRenderingLocations.containsKey(renderLocation)) itemRenderingLocations.remove(renderLocation)
+                return@addFunction Unit
             }
         }
+        .addFunction("clear_items") { itemRenderingLocations.clear() }
         .addFunction("play_animation") { params ->
             val animationParameter = params.get<MoValue>(0)
             val animation = if (animationParameter is ObjectValue<*>) {
@@ -226,11 +234,6 @@ abstract class PosableState : Schedulable {
 
     val runtime: MoLangRuntime = MoLangRuntime().setup().setupClient().also {
         it.environment.query.addFunctions(functions.functions)
-    }
-
-    /** Used to render dummy items in animations */
-    private fun updateAnimationItem(item: ItemStack?) {
-        animationItem = item
     }
 
     /** Gets the entity related to this state if this state is actually attached to an entity. */
