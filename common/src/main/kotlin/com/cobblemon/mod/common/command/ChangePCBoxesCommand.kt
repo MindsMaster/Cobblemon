@@ -1,8 +1,10 @@
 package com.cobblemon.mod.common.command
 
 import com.cobblemon.mod.common.api.permission.CobblemonPermissions
+import com.cobblemon.mod.common.api.storage.pc.PCBox
 import com.cobblemon.mod.common.api.storage.pc.PCStore
 import com.cobblemon.mod.common.api.text.*
+import com.cobblemon.mod.common.pokemon.Pokemon
 import com.cobblemon.mod.common.util.*
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.CommandDispatcher
@@ -64,23 +66,21 @@ object ChangePCBoxesCommand {
         val amount = context.getArgument("amount", Int::class.java)
 
         if (amount < playerPc.boxes.size) {
-            val slicedBoxes = playerPc.boxes.slice(playerPc.boxes.size - amount until playerPc.boxes.size)
-            val boxEmpty = slicedBoxes.all { box -> box.getNonEmptySlots().isEmpty() }
+            val emptyBoxes = playerPc.boxes.filter { it.getNonEmptySlots().isEmpty() }
 
-            if (boxEmpty) {
-                remove(context,player, playerPc, amount)
+            if (emptyBoxes.size >= amount) {
+                remove(context,player, playerPc, amount, emptyBoxes)
+                return Command.SINGLE_SUCCESS
             }
             else {
                 context.source.sendSystemMessage(lang("command.changeboxcount.removing_not_empty_box").red().append("\n").append(
-                    lang("command.changeboxcount.force_remove").gray().onClick(true){remove(context,player, playerPc, amount)}
+                    lang("command.changeboxcount.force_remove").gray().onClick(true){remove(context,player, playerPc, amount, emptyBoxes)}
                 ))
                 return 0
             }
-
-            return Command.SINGLE_SUCCESS
         }
         else {
-            context.source.sendSystemMessage(lang("command.changeboxcount.removing_too_much_boxes", player.name, playerPc.boxes.size).red())
+            context.source.sendSystemMessage(lang("command.changeboxcount.removing_too_many_boxes", player.name, playerPc.boxes.size).red())
             return 0
         }
     }
@@ -91,14 +91,18 @@ object ChangePCBoxesCommand {
         val amount = context.getArgument("amount", Int::class.java)
 
         if (amount < playerPc.boxes.size) {
-            val slicedBoxes = playerPc.boxes.slice(amount until playerPc.boxes.size)
-            val boxEmpty = slicedBoxes.all { box -> box.getNonEmptySlots().isEmpty() }
+            val emptyBoxes = playerPc.boxes.filter { it.getNonEmptySlots().isEmpty() }
+            val deleteAmount = playerPc.boxes.size - amount
 
-            if (!boxEmpty) {
+            if (emptyBoxes.size <= deleteAmount) {
                 context.source.sendSystemMessage(lang("command.changeboxcount.removing_not_empty_box").red().append("\n").append(
-                    lang("command.changeboxcount.force_remove").gray().onClick(true){set(context,player, playerPc, amount)}
+                    lang("command.changeboxcount.force_remove").gray().onClick(true){ remove(context,player, playerPc, deleteAmount, emptyBoxes) }
                 ))
                 return 0
+            }
+            else {
+                remove(context,player, playerPc, deleteAmount, emptyBoxes)
+                return Command.SINGLE_SUCCESS
             }
         }
         set(context,player, playerPc, amount)
@@ -112,8 +116,16 @@ object ChangePCBoxesCommand {
         context.source.sendSystemMessage(lang("command.changeboxcount", player.name, playerPc.boxes.size).green())
     }
 
-    private fun remove(context: CommandContext<CommandSourceStack>,player: ServerPlayer, playerPc: PCStore, amount: Int){
-        playerPc.resize(playerPc.boxes.size - amount, true)
+    private fun remove(context: CommandContext<CommandSourceStack>,player: ServerPlayer, playerPc: PCStore, amount: Int, emptyBoxes: List<PCBox>, overflowHandler: (Pokemon) -> Unit = playerPc::relocateEvictedBoxPokemon){
+        if (amount <= emptyBoxes.size) {
+            playerPc.boxes.removeAll(emptyBoxes.takeLast(amount))
+        }
+        else {
+            val slicedBoxes = emptyBoxes + playerPc.boxes.takeLast(amount - emptyBoxes.size)
+            playerPc.boxes.removeAll(slicedBoxes)
+            slicedBoxes.flatMap { it.asIterable() }.forEach(overflowHandler)
+        }
+        playerPc.initialize()
         playerPc.sendTo(player)
         context.source.sendSystemMessage(lang("command.changeboxcount", player.name, playerPc.boxes.size).green())
     }
