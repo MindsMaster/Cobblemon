@@ -59,7 +59,7 @@ class NPCRenderer(context: Context) : LivingEntityRenderer<NPCEntity, PosableEnt
         model.blue = 1F
         model.resetLayerContext()
 
-        if (entity.deathTime < 1){
+        if (entity.deathTime < 1) {
             //Render Held Item
             heldItemRenderer.renderOnEntity(
                 entity,
