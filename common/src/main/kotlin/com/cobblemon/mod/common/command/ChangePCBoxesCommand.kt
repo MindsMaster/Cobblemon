@@ -4,7 +4,6 @@ import com.cobblemon.mod.common.api.permission.CobblemonPermissions
 import com.cobblemon.mod.common.api.storage.pc.PCBox
 import com.cobblemon.mod.common.api.storage.pc.PCStore
 import com.cobblemon.mod.common.api.text.*
-import com.cobblemon.mod.common.pokemon.Pokemon
 import com.cobblemon.mod.common.util.*
 import com.mojang.brigadier.Command
 import com.mojang.brigadier.CommandDispatcher
@@ -116,18 +115,16 @@ object ChangePCBoxesCommand {
         context.source.sendSystemMessage(lang("command.changeboxcount", player.name, playerPc.boxes.size).green())
     }
 
-    private fun remove(context: CommandContext<CommandSourceStack>,player: ServerPlayer, playerPc: PCStore, amount: Int, emptyBoxes: List<PCBox>, overflowHandler: (Pokemon) -> Unit = playerPc::relocateEvictedBoxPokemon){
+    private fun remove(context: CommandContext<CommandSourceStack>,player: ServerPlayer, playerPc: PCStore, amount: Int,emptyBoxes: List<PCBox>){
         if (amount <= emptyBoxes.size) {
-            playerPc.boxes.removeAll(emptyBoxes.takeLast(amount))
+            playerPc.removeListOfBoxes(emptyBoxes.takeLast(amount),true)
         }
         else {
             val slicedBoxes = emptyBoxes + playerPc.boxes.takeLast(amount - emptyBoxes.size)
-            playerPc.boxes.removeAll(slicedBoxes)
-            slicedBoxes.flatMap { it.asIterable() }.forEach(overflowHandler)
+            playerPc.removeListOfBoxes(slicedBoxes,true)
         }
         playerPc.initialize()
         playerPc.sendTo(player)
         context.source.sendSystemMessage(lang("command.changeboxcount", player.name, playerPc.boxes.size).green())
     }
-
 }
