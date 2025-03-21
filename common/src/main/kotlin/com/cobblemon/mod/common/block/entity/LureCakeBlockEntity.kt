@@ -10,7 +10,7 @@ package com.cobblemon.mod.common.block.entity
 
 import com.cobblemon.mod.common.CobblemonBlockEntities
 import com.cobblemon.mod.common.api.fishing.SpawnBait
-import com.cobblemon.mod.common.util.cobblemonResource
+import com.cobblemon.mod.common.api.fishing.SpawnBaitEffects
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.state.BlockState
 
@@ -20,19 +20,9 @@ class LureCakeBlockEntity(
 ) : CakeBlockEntity(CobblemonBlockEntities.LURE_CAKE, pos, state) {
 
     /**
-     * Generate a `FishingBait` by combining effects from all `RodBaitComponent` data in the `CookingComponent`.
+     * Combine all the [SpawnBait.Effect] values from the [baitEffectsComponent] data.
      */
-    fun getBaitFromLureCake(): SpawnBait? {
-        val component = cookingComponent ?: return null
-        val combinedEffects = listOf(
-            component.bait1.effects,
-            component.bait2.effects,
-            component.bait3.effects
-        ).flatten()
-
-        return SpawnBait(
-            item = cobblemonResource("lure_cake"), // Directly specify the lure_cake ResourceLocation
-            effects = combinedEffects
-        )
+    fun getBaitEffectsFromLureCake(): List<SpawnBait.Effect> {
+        return baitEffectsComponent?.effects?.mapNotNull(SpawnBaitEffects::getFromIdentifier)?.flatMap { it.effects }.orEmpty()
     }
 }

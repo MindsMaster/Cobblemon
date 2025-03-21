@@ -22,5 +22,6 @@
     ],
     "result": {
         "id": "minecraft:cake"
-    }
+    },
+    "seasoningProcessors": []
 }

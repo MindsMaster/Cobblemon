@@ -25,15 +25,14 @@ import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.particle.SnowstormParticleOptions
 import com.cobblemon.mod.common.util.math.geometry.transformDirection
 import com.mojang.blaze3d.vertex.PoseStack
+import kotlin.random.Random
 import net.minecraft.client.Minecraft
 import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.particle.NoRenderParticle
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.Vec3
-import kotlin.random.Random
-import net.minecraft.world.entity.LivingEntity
-import net.minecraft.world.level.Level
 import org.joml.Vector4f
 
 /**

@@ -12,6 +12,7 @@ import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.Cobblemon.LOGGER
 import com.cobblemon.mod.common.api.events.CobblemonEvents
 import com.cobblemon.mod.common.api.events.fishing.BobberSpawnPokemonEvent
+import com.cobblemon.mod.common.api.fishing.SpawnBaitEffects
 import com.cobblemon.mod.common.api.fishing.SpawnBait
 import com.cobblemon.mod.common.api.pokemon.Natures
 import com.cobblemon.mod.common.api.pokemon.stats.Stats
@@ -19,6 +20,7 @@ import com.cobblemon.mod.common.api.spawning.SpawnBucket
 import com.cobblemon.mod.common.api.spawning.SpawnCause
 import com.cobblemon.mod.common.api.spawning.context.SpawningContext
 import com.cobblemon.mod.common.api.spawning.detail.SpawnDetail
+import com.cobblemon.mod.common.api.spawning.influence.SpawnBaitInfluence
 import com.cobblemon.mod.common.api.spawning.spawner.Spawner
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.item.interactive.PokerodItem
@@ -130,13 +132,13 @@ class FishingSpawnCause(
 
     val rodItem = rodStack.item as? PokerodItem
     // Determine the combined bait effects if any
-    val bait = PokerodItem.getBaitOnRod(rodStack)
+    val baitEffects = SpawnBaitInfluence(SpawnBaitEffects.getEffectsFromRodItemStack(rodStack))
 
     override fun affectSpawn(entity: Entity) {
         super.affectSpawn(entity)
         if (entity is PokemonEntity) {
             entity.pokemon.forcedAspects += FISHED_ASPECT
-            bait?.affectSpawn(entity)
+            baitEffects.affectSpawn(entity)
             // Some of the bait actions might have changed the aspects and we need it to be
             // in the entityData IMMEDIATELY otherwise it will flash as what it would be
             // with the old aspects.
@@ -146,10 +148,8 @@ class FishingSpawnCause(
         }
     }
 
-    // EV related bait effects
     override fun affectWeight(detail: SpawnDetail, ctx: SpawningContext, weight: Float): Float {
-        // if bait exists and any effects are related to EV yields
-        val weight = bait?.affectWeight(detail, ctx, weight) ?: weight
+        val weight = baitEffects.affectWeight(detail, ctx, weight)
         return super.affectWeight(detail, ctx, weight)
     }
 }

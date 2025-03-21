@@ -15,5 +15,6 @@
     "result": {
         "id": "minecraft:pumpkin_pie",
         "count": 1
-    }
+    },
+    "seasoningProcessors": []
 }

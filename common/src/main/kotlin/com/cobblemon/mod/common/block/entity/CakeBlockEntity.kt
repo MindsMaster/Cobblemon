@@ -9,7 +9,11 @@
 package com.cobblemon.mod.common.block.entity
 
 import com.cobblemon.mod.common.CobblemonItemComponents
-import com.cobblemon.mod.common.item.components.CookingComponent
+import com.cobblemon.mod.common.CobblemonItems
+import com.cobblemon.mod.common.item.components.BaitEffectsComponent
+import com.cobblemon.mod.common.item.components.FlavourComponent
+import com.cobblemon.mod.common.item.components.FoodColourComponent
+import com.cobblemon.mod.common.util.DataKeys
 import net.minecraft.core.BlockPos
 import net.minecraft.core.HolderLookup
 import net.minecraft.nbt.CompoundTag
@@ -27,16 +31,19 @@ open class CakeBlockEntity(
     pos: BlockPos,
     state: BlockState
 ) : BlockEntity(type, pos, state) {
-
     companion object {
         const val MAX_NUMBER_OF_BITES = 6
     }
 
-    var cookingComponent: CookingComponent? = null
+    var flavourComponent: FlavourComponent? = null
+    var baitEffectsComponent: BaitEffectsComponent? = null
+    var foodColourComponent: FoodColourComponent? = null
     var bites: Int = 0
 
     fun initializeFromItemStack(itemStack: ItemStack) {
-        cookingComponent = itemStack.get(CobblemonItemComponents.COOKING_COMPONENT)
+        flavourComponent = itemStack.get(CobblemonItemComponents.FLAVOUR)
+        baitEffectsComponent = itemStack.get(CobblemonItemComponents.BAIT_EFFECTS)
+        foodColourComponent = itemStack.get(CobblemonItemComponents.FOOD_COLOUR)
     }
 
     override fun saveAdditional(
@@ -45,13 +52,29 @@ open class CakeBlockEntity(
     ) {
         super.saveAdditional(tag, registries)
 
-        tag.putInt("Bites", bites)
-        cookingComponent?.let { component ->
-            CobblemonItemComponents.COOKING_COMPONENT.codec()
-                ?.encodeStart(NbtOps.INSTANCE, component)
-                ?.result()
-                ?.ifPresent { encodedTag ->
-                    tag.put("CookingComponent", encodedTag)
+        tag.putInt(DataKeys.CAKE_BITES, bites)
+        flavourComponent?.let { component ->
+            CobblemonItemComponents.FLAVOUR.codec()!!
+                .encodeStart(NbtOps.INSTANCE, component)
+                .result()
+                .ifPresent { encodedTag ->
+                   tag.put(DataKeys.CAKE_FLAVOUR, encodedTag)
+                }
+        }
+        baitEffectsComponent?.let { component ->
+            CobblemonItemComponents.BAIT_EFFECTS.codec()!!
+                .encodeStart(NbtOps.INSTANCE, component)
+                .result()
+                .ifPresent { encodedTag ->
+                    tag.put(DataKeys.CAKE_BAIT_EFFECTS, encodedTag)
+                }
+        }
+        foodColourComponent?.let { component ->
+            CobblemonItemComponents.FOOD_COLOUR.codec()!!
+                .encodeStart(NbtOps.INSTANCE, component)
+                .result()
+                .ifPresent { encodedTag ->
+                    tag.put(DataKeys.CAKE_FOOD_COLOUR, encodedTag)
                 }
         }
     }
@@ -62,13 +85,29 @@ open class CakeBlockEntity(
     ) {
         super.loadAdditional(tag, registries)
 
-        bites = tag.getInt("Bites")
-        if (tag.contains("CookingComponent")) {
-            CobblemonItemComponents.COOKING_COMPONENT.codec()
-                ?.parse(NbtOps.INSTANCE, tag.getCompound("CookingComponent"))
+        bites = tag.getInt(DataKeys.CAKE_BITES)
+        if (tag.contains(DataKeys.CAKE_FLAVOUR)) {
+            CobblemonItemComponents.FLAVOUR.codec()
+                ?.parse(NbtOps.INSTANCE, tag.getCompound(DataKeys.CAKE_FLAVOUR))
                 ?.result()
                 ?.ifPresent { component ->
-                    cookingComponent = component
+                    flavourComponent = component
+                }
+        }
+        if (tag.contains(DataKeys.CAKE_BAIT_EFFECTS)) {
+            CobblemonItemComponents.BAIT_EFFECTS.codec()
+                ?.parse(NbtOps.INSTANCE, tag.getCompound(DataKeys.CAKE_BAIT_EFFECTS))
+                ?.result()
+                ?.ifPresent { component ->
+                    baitEffectsComponent = component
+                }
+        }
+        if (tag.contains(DataKeys.CAKE_FOOD_COLOUR)) {
+            CobblemonItemComponents.FOOD_COLOUR.codec()
+                ?.parse(NbtOps.INSTANCE, tag.getCompound(DataKeys.CAKE_FOOD_COLOUR))
+                ?.result()
+                ?.ifPresent { component ->
+                    foodColourComponent = component
                 }
         }
     }
@@ -85,10 +124,14 @@ open class CakeBlockEntity(
 
     fun toItemStack(): ItemStack {
         val stack = ItemStack(this.blockState.block)
-        cookingComponent?.let { component ->
-            stack.getComponents().apply {
-                stack.set(CobblemonItemComponents.COOKING_COMPONENT, component)
-            }
+        if (stack.item == CobblemonItems.LURE_CAKE && baitEffectsComponent != null) {
+            stack.set(CobblemonItemComponents.BAIT_EFFECTS, baitEffectsComponent)
+        }
+        if (flavourComponent != null) {
+            stack.set(CobblemonItemComponents.FLAVOUR, flavourComponent)
+        }
+        if (foodColourComponent != null) {
+            stack.set(CobblemonItemComponents.FOOD_COLOUR, foodColourComponent)
         }
         return stack
     }

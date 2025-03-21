@@ -16,7 +16,6 @@ import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
 import com.cobblemon.mod.common.api.riding.stats.RidingStat
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
-import com.cobblemon.mod.common.pokemon.riding.controllers.BirdAirController.Companion
 import com.cobblemon.mod.common.util.asExpression
 import com.cobblemon.mod.common.util.blockPositionsAsListRounded
 import com.cobblemon.mod.common.util.cobblemonResource
@@ -26,6 +25,8 @@ import com.cobblemon.mod.common.util.resolveBoolean
 import com.cobblemon.mod.common.util.resolveFloat
 import com.cobblemon.mod.common.util.writeString
 import kotlin.math.absoluteValue
+import kotlin.math.max
+import kotlin.math.min
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.Mth
@@ -34,8 +35,6 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.phys.shapes.Shapes
-import kotlin.math.max
-import kotlin.math.min
 
 class VehicleLandController : RideController {
     companion object {
@@ -103,7 +102,6 @@ class VehicleLandController : RideController {
     }
 
     override fun speed(entity: PokemonEntity, driver: Player): Float {
-
         val topSpeed = entity.getRideStat(RidingStat.SPEED, RidingStyle.AIR, MINTOPSPEED, MAXTOPSPEED)
         val accel = entity.getRideStat(RidingStat.ACCELERATION, RidingStyle.AIR, MINACCEL, MAXACCEL)
 

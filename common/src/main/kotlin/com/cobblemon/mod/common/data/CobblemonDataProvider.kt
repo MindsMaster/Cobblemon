@@ -24,7 +24,7 @@ import com.cobblemon.mod.common.api.pokedex.Dexes
 import com.cobblemon.mod.common.api.dialogue.Dialogues
 import com.cobblemon.mod.common.api.events.CobblemonEvents
 import com.cobblemon.mod.common.api.fishing.SpawnBait
-import com.cobblemon.mod.common.api.fishing.FishingBaits
+import com.cobblemon.mod.common.api.fishing.SpawnBaitEffects
 import com.cobblemon.mod.common.api.fishing.PokeRods
 import com.cobblemon.mod.common.api.fossil.Fossils
 import com.cobblemon.mod.common.api.fossil.NaturalMaterials
@@ -103,7 +103,7 @@ object CobblemonDataProvider : DataProvider {
         this.register(PokeRods)
         this.register(Berries)
         this.register(Seasonings)
-        this.register(FishingBaits)
+        this.register(SpawnBaitEffects)
         SpawnBait.Effects.setupEffects()
 
         PlatformEvents.SERVER_PLAYER_LOGOUT.subscribe {

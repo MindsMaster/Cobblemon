@@ -10,6 +10,7 @@ package com.cobblemon.mod.common.util.codec.internal
 
 import com.cobblemon.mod.common.api.pokemon.feature.SpeciesFeatures
 import com.cobblemon.mod.common.api.pokemon.feature.SynchronizedSpeciesFeatureProvider
+import com.cobblemon.mod.common.api.riding.stats.RidingStat
 import com.cobblemon.mod.common.pokemon.OriginalTrainerType
 import com.cobblemon.mod.common.pokemon.Pokemon
 import com.cobblemon.mod.common.util.DataKeys
@@ -31,7 +32,8 @@ internal data class PokemonP3(
     val forcedAspects: Set<String>,
     val features: List<CompoundTag>,
     val heldItemVisible: Optional<Boolean>,
-    val cosmeticItem: ItemStack
+    val cosmeticItem: ItemStack,
+    val rideBoosts: Map<String, Float>
 ) : Partial<Pokemon> {
 
     override fun into(other: Pokemon): Pokemon {
@@ -58,6 +60,7 @@ internal data class PokemonP3(
         }
         this.heldItemVisible.ifPresent { other.heldItemVisible = it }
         this.cosmeticItem.let { other.cosmeticItem = it }
+        this.rideBoosts.let { other.setRideBoosts(it.mapKeys { RidingStat.valueOf(it.key) }) }
         return other
     }
 
@@ -69,8 +72,9 @@ internal data class PokemonP3(
                 Codec.list(Codec.STRING).optionalFieldOf(DataKeys.POKEMON_FORCED_ASPECTS, emptyList()).forGetter { it.forcedAspects.toMutableList() },
                 Codec.list(CompoundTag.CODEC).optionalFieldOf(FEATURES, emptyList()).forGetter(PokemonP3::features),
                 Codec.BOOL.optionalFieldOf(DataKeys.HELD_ITEM_VISIBLE).forGetter(PokemonP3::heldItemVisible),
-                ItemStack.CODEC.optionalFieldOf(DataKeys.POKEMON_COSMETIC_ITEM).forGetter { Optional.ofNullable(it.cosmeticItem.takeIf { !it.isEmpty }) }
-            ).apply(instance) { originalTrainerType, originalTrainer, forcedAspects, features, heldItemVisible, cosmeticItem -> PokemonP3(originalTrainerType, originalTrainer, forcedAspects.toSet(), features, heldItemVisible, cosmeticItem.orElse(ItemStack.EMPTY)) }
+                ItemStack.CODEC.optionalFieldOf(DataKeys.POKEMON_COSMETIC_ITEM).forGetter { Optional.ofNullable(it.cosmeticItem.takeIf { !it.isEmpty }) },
+                Codec.unboundedMap(Codec.STRING, Codec.FLOAT).fieldOf(DataKeys.POKEMON_RIDE_BOOSTS).forGetter { it.rideBoosts }
+            ).apply(instance) { originalTrainerType, originalTrainer, forcedAspects, features, heldItemVisible, cosmeticItem, rideBoosts -> PokemonP3(originalTrainerType, originalTrainer, forcedAspects.toSet(), features, heldItemVisible, cosmeticItem.orElse(ItemStack.EMPTY), rideBoosts) }
         }
 
         internal fun from(pokemon: Pokemon): PokemonP3 = PokemonP3(
@@ -83,7 +87,8 @@ internal data class PokemonP3(
                 feature.saveToNBT(nbt)
             },
             Optional.ofNullable(pokemon.heldItemVisible),
-            pokemon.cosmeticItem
+            pokemon.cosmeticItem,
+            pokemon.getRideBoosts().mapKeys { it.key.name }
         )
     }
 

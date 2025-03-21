@@ -56,7 +56,6 @@ class GliderAirController : RideController {
         val xVector = if (getRuntime(entity).resolveBoolean(canStrafe)) driver.xxa.toDouble() else 0.0
         val yVector = -getRuntime(entity).resolveDouble(glideSpeed)
         val zVector = driver.zza.toDouble()
-        val statSpeed = entity.rideProp.calculate(RidingStat.SPEED, RidingStyle.AIR, 0 )
 
         return Vec3(xVector, yVector, zVector)
     }

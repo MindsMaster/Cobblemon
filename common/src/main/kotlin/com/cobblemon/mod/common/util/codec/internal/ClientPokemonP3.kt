@@ -8,6 +8,7 @@
 
 package com.cobblemon.mod.common.util.codec.internal
 
+import com.cobblemon.mod.common.api.riding.stats.RidingStat
 import com.cobblemon.mod.common.client.settings.ServerSettings
 import com.cobblemon.mod.common.pokemon.OriginalTrainerType
 import com.cobblemon.mod.common.pokemon.Pokemon
@@ -25,7 +26,8 @@ internal data class ClientPokemonP3(
     val originalTrainerName: Optional<String>,
     val aspects: Set<String>,
     val heldItemVisible: Optional<Boolean>,
-    val cosmeticItem: Optional<ItemStack>
+    val cosmeticItem: Optional<ItemStack>,
+    val rideBoosts: Map<String, Float>
 ) : Partial<Pokemon> {
 
     override fun into(other: Pokemon): Pokemon {
@@ -35,6 +37,7 @@ internal data class ClientPokemonP3(
         other.forcedAspects = this.aspects
         this.heldItemVisible.ifPresent { other.heldItemVisible = it }
         other.cosmeticItem = this.cosmeticItem.orElse(ItemStack.EMPTY)
+        this.rideBoosts.let { other.setRideBoosts(it.mapKeys { RidingStat.valueOf(it.key) }) }
         return other
     }
 
@@ -49,7 +52,8 @@ internal data class ClientPokemonP3(
                 Codec.STRING.optionalFieldOf(DataKeys.POKEMON_ORIGINAL_TRAINER_NAME).forGetter(ClientPokemonP3::originalTrainerName),
                 Codec.list(Codec.STRING).optionalFieldOf(DataKeys.POKEMON_FORCED_ASPECTS, emptyList()).xmap({ it.toSet() }, { it.toMutableList() }).forGetter(ClientPokemonP3::aspects),
                 Codec.BOOL.optionalFieldOf(DataKeys.HELD_ITEM_VISIBLE).forGetter(ClientPokemonP3::heldItemVisible),
-                ItemStack.CODEC.optionalFieldOf(DataKeys.POKEMON_COSMETIC_ITEM).forGetter(ClientPokemonP3::cosmeticItem)
+                ItemStack.CODEC.optionalFieldOf(DataKeys.POKEMON_COSMETIC_ITEM).forGetter(ClientPokemonP3::cosmeticItem),
+                Codec.unboundedMap(Codec.STRING, Codec.FLOAT).fieldOf(DataKeys.POKEMON_RIDE_BOOSTS).forGetter(ClientPokemonP3::rideBoosts)
             ).apply(instance, ::ClientPokemonP3)
         }
 
@@ -59,7 +63,8 @@ internal data class ClientPokemonP3(
             Optional.ofNullable(pokemon.originalTrainerName),
             pokemon.aspects + pokemon.forcedAspects,
             Optional.ofNullable(pokemon.heldItemVisible),
-            Optional.ofNullable(pokemon.cosmeticItem.takeIf { !it.isEmpty })
+            Optional.ofNullable(pokemon.cosmeticItem.takeIf { !it.isEmpty }),
+            pokemon.getRideBoosts().mapKeys { it.key.name }
         )
     }
 

@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.api.spawning.prospecting
 
 import com.cobblemon.mod.common.CobblemonPoiTypes
+import com.cobblemon.mod.common.api.spawning.influence.SpawnBaitInfluence
 import com.cobblemon.mod.common.api.spawning.influence.WorldSlicedSpatialSpawningInfluence
 import com.cobblemon.mod.common.api.spawning.influence.WorldSlicedSpawningInfluence
 import com.cobblemon.mod.common.api.spawning.spawner.Spawner
@@ -42,9 +43,9 @@ object LureCakeProspector : SpawningInfluenceProspector {
             if (blockState.block !is LureCakeBlock) continue
 
             val blockEntity = world.getBlockEntity(lureCakePos) as? LureCakeBlockEntity ?: continue
-            val bait = blockEntity.getBaitFromLureCake() ?: continue
+            val baitEffects = blockEntity.getBaitEffectsFromLureCake()
 
-            listOfInfluences.add(WorldSlicedSpatialSpawningInfluence(lureCakePos, RANGE.toFloat(), influence = bait))
+            listOfInfluences.add(WorldSlicedSpatialSpawningInfluence(lureCakePos, RANGE.toFloat(), influence = SpawnBaitInfluence(baitEffects)))
         }
 
         return listOfInfluences

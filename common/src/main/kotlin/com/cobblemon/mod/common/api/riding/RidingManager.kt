@@ -44,11 +44,7 @@ data class RidingManager(val entity: PokemonEntity) {
                     val rideStyle = RidingStyle.valueOf(params.getString(1).uppercase())
                     val maxVal = params.getDouble(2)
                     val minVal = params.getDouble(3)
-                    //TODO: Use the mons actual boost once implemented
-                    val normalizedStat = entity.rideProp.calculate(rideStat, rideStyle, 0) / 100.0f
-                    val trueStatVal = (normalizedStat *  (maxVal - minVal)) + minVal
-
-                    DoubleValue(trueStatVal)
+                    DoubleValue(entity.getRideStat(rideStat, rideStyle, minVal, maxVal))
                 }
             }
     }

@@ -33,10 +33,9 @@ class RidingStatDefinition {
     /** Description for the stat, if null falls back to [RidingStat.description]. */
     var description: Component? = null
 
-    fun calculate(style: RidingStyle, aprijuiceBoost: Int): Float {
+    fun calculate(style: RidingStyle, boost: Float): Float {
         val range = ranges[style] ?: ranges[RidingStyle.LAND] ?: return 0F
-        val boostQuotient = aprijuiceBoost / 255F
-        return range.first + (range.last - range.first) * boostQuotient
+        return (range.first + boost).coerceAtMost(range.endInclusive.toFloat())
     }
 
     fun encode(buffer: RegistryFriendlyByteBuf) {

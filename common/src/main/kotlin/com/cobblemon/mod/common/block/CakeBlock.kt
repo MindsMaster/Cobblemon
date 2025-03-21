@@ -12,6 +12,7 @@ import com.cobblemon.mod.common.block.entity.CakeBlockEntity
 import net.minecraft.core.BlockPos
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.DyeColor
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.BlockGetter
 import net.minecraft.world.level.Level
@@ -69,20 +70,19 @@ abstract class CakeBlock(settings: Properties): BaseEntityBlock(settings) {
         state: BlockState
     ) {
         val blockEntity = level.getBlockEntity(pos) as? CakeBlockEntity
-        val color = blockEntity?.cookingComponent?.seasoning3?.color
-        val woolBlock = when (color?.lowercase()) {
-            "red" -> Blocks.RED_WOOL
-            "orange" -> Blocks.ORANGE_WOOL
-            "yellow" -> Blocks.YELLOW_WOOL
-            "lime" -> Blocks.LIME_WOOL
-            "green" -> Blocks.GREEN_WOOL
-            "cyan" -> Blocks.CYAN_WOOL
-            "light blue" -> Blocks.LIGHT_BLUE_WOOL
-            "blue" -> Blocks.BLUE_WOOL
-            "purple" -> Blocks.PURPLE_WOOL
-            "magenta" -> Blocks.MAGENTA_WOOL
-            "pink" -> Blocks.PINK_WOOL
-            "white" -> Blocks.WHITE_WOOL
+        val color = blockEntity?.foodColourComponent?.colours?.lastOrNull()
+        val woolBlock = when (color) {
+            DyeColor.RED -> Blocks.RED_WOOL
+            DyeColor.ORANGE -> Blocks.ORANGE_WOOL
+            DyeColor.YELLOW -> Blocks.YELLOW_WOOL
+            DyeColor.LIME -> Blocks.LIME_WOOL
+            DyeColor.GREEN -> Blocks.GREEN_WOOL
+            DyeColor.CYAN -> Blocks.CYAN_WOOL
+            DyeColor.LIGHT_BLUE -> Blocks.LIGHT_BLUE_WOOL
+            DyeColor.BLUE -> Blocks.BLUE_WOOL
+            DyeColor.PURPLE -> Blocks.PURPLE_WOOL
+            DyeColor.MAGENTA -> Blocks.MAGENTA_WOOL
+            DyeColor.PINK -> Blocks.PINK_WOOL
             else -> Blocks.WHITE_WOOL
         }
 

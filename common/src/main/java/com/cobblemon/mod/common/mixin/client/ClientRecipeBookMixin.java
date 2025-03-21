@@ -9,9 +9,9 @@
 package com.cobblemon.mod.common.mixin.client;
 
 import com.cobblemon.mod.common.CobblemonRecipeCategories;
-import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotBookCategory;
-import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotRecipe;
-import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotShapelessRecipe;
+import com.cobblemon.mod.common.item.crafting.CookingPotBookCategory;
+import com.cobblemon.mod.common.item.crafting.CookingPotRecipe;
+import com.cobblemon.mod.common.item.crafting.CookingPotShapelessRecipe;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;

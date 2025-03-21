@@ -10,9 +10,10 @@ package com.cobblemon.mod.common
 
 import com.cobblemon.mod.common.api.apricorn.Apricorn
 import com.cobblemon.mod.common.block.*
-import com.cobblemon.mod.common.block.CampfireBlock
+import com.cobblemon.mod.common.block.campfirepot.CampfireBlock
 import com.cobblemon.mod.common.block.LecternBlock
 import com.cobblemon.mod.common.block.MintBlock.MintType
+import com.cobblemon.mod.common.block.campfirepot.CampfirePotBlock
 import com.cobblemon.mod.common.block.chest.GildedChestBlock
 import com.cobblemon.mod.common.block.sign.CobblemonHangingSignBlock
 import com.cobblemon.mod.common.block.sign.CobblemonSignBlock
@@ -387,19 +388,55 @@ object CobblemonBlocks : PlatformRegistry<Registry<Block>, ResourceKey<Registry<
     val YELLOW_APRICORN = apricornBlock("yellow_apricorn", Apricorn.YELLOW)
 
     @JvmField
-    val BLACK_CAMPFIRE_POT = create("campfire_pot_black", CampfirePotBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLACK).sound(CobblemonSounds.CAMPFIRE_POT_SOUNDS).strength(0.5F).pushReaction(PushReaction.BLOCK).noOcclusion()))
+    val BLACK_CAMPFIRE_POT = create("campfire_pot_black",
+        CampfirePotBlock(
+            BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLACK).sound(CobblemonSounds.CAMPFIRE_POT_SOUNDS)
+                .strength(0.5F).pushReaction(PushReaction.BLOCK).noOcclusion()
+        )
+    )
     @JvmField
-    val BLUE_CAMPFIRE_POT = create("campfire_pot_blue", CampfirePotBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLUE).sound(CobblemonSounds.CAMPFIRE_POT_SOUNDS).strength(0.5F).pushReaction(PushReaction.BLOCK).noOcclusion()))
+    val BLUE_CAMPFIRE_POT = create("campfire_pot_blue",
+        CampfirePotBlock(
+            BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLUE).sound(CobblemonSounds.CAMPFIRE_POT_SOUNDS)
+                .strength(0.5F).pushReaction(PushReaction.BLOCK).noOcclusion()
+        )
+    )
     @JvmField
-    val GREEN_CAMPFIRE_POT = create("campfire_pot_green", CampfirePotBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_GREEN).sound(CobblemonSounds.CAMPFIRE_POT_SOUNDS).strength(0.5F).pushReaction(PushReaction.BLOCK).noOcclusion()))
+    val GREEN_CAMPFIRE_POT = create("campfire_pot_green",
+        CampfirePotBlock(
+            BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_GREEN).sound(CobblemonSounds.CAMPFIRE_POT_SOUNDS)
+                .strength(0.5F).pushReaction(PushReaction.BLOCK).noOcclusion()
+        )
+    )
     @JvmField
-    val PINK_CAMPFIRE_POT = create("campfire_pot_pink", CampfirePotBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_PINK).sound(CobblemonSounds.CAMPFIRE_POT_SOUNDS).strength(0.5F).pushReaction(PushReaction.BLOCK).noOcclusion()))
+    val PINK_CAMPFIRE_POT = create("campfire_pot_pink",
+        CampfirePotBlock(
+            BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_PINK).sound(CobblemonSounds.CAMPFIRE_POT_SOUNDS)
+                .strength(0.5F).pushReaction(PushReaction.BLOCK).noOcclusion()
+        )
+    )
     @JvmField
-    val RED_CAMPFIRE_POT = create("campfire_pot_red", CampfirePotBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_RED).sound(CobblemonSounds.CAMPFIRE_POT_SOUNDS).strength(0.5F).pushReaction(PushReaction.BLOCK).noOcclusion()))
+    val RED_CAMPFIRE_POT = create("campfire_pot_red",
+        CampfirePotBlock(
+            BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_RED).sound(CobblemonSounds.CAMPFIRE_POT_SOUNDS)
+                .strength(0.5F).pushReaction(PushReaction.BLOCK).noOcclusion()
+        )
+    )
     @JvmField
-    val WHITE_CAMPFIRE_POT = create("campfire_pot_white", CampfirePotBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_LIGHT_GRAY).sound(CobblemonSounds.CAMPFIRE_POT_SOUNDS).strength(0.5F).pushReaction(PushReaction.BLOCK).noOcclusion()))
+    val WHITE_CAMPFIRE_POT = create("campfire_pot_white",
+        CampfirePotBlock(
+            BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_LIGHT_GRAY)
+                .sound(CobblemonSounds.CAMPFIRE_POT_SOUNDS).strength(0.5F).pushReaction(PushReaction.BLOCK)
+                .noOcclusion()
+        )
+    )
     @JvmField
-    val YELLOW_CAMPFIRE_POT = create("campfire_pot_yellow", CampfirePotBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_YELLOW).sound(CobblemonSounds.CAMPFIRE_POT_SOUNDS).strength(0.5F).pushReaction(PushReaction.BLOCK).noOcclusion()))
+    val YELLOW_CAMPFIRE_POT = create("campfire_pot_yellow",
+        CampfirePotBlock(
+            BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_YELLOW).sound(CobblemonSounds.CAMPFIRE_POT_SOUNDS)
+                .strength(0.5F).pushReaction(PushReaction.BLOCK).noOcclusion()
+        )
+    )
 
     @JvmField
     val CAMPFIRE = create("campfire", CampfireBlock(BlockBehaviour.Properties.of().sound(SoundType.WOOD).noOcclusion().pushReaction(PushReaction.BLOCK).mapColor(MapColor.PODZOL).strength(2.0F).lightLevel { if ((it.getValue(CampfireBlock.SOUL) as Boolean)) 9 else 14 }))

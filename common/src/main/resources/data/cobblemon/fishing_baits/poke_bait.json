@@ -1,8 +1,0 @@
-{
-  "item": "cobblemon:poke_bait",
-  "effects": [
-    {
-      "type": "cobblemon:inert"
-    }
-  ]
-}

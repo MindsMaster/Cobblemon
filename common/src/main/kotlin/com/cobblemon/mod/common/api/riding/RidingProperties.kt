@@ -59,9 +59,9 @@ class RidingProperties(
         buffer.writeNullable(controller) { _, controller -> controller.encode(buffer) }
     }
 
-    fun calculate(stat: RidingStat, style: RidingStyle, boosts: Int): Float {
+    fun calculate(stat: RidingStat, style: RidingStyle, boost: Float): Float {
         val definitions = stats[stat] ?: return 0F
-        return definitions.calculate(style, boosts)
+        return definitions.calculate(style, boost)
     }
 
     fun hasStat(stat: RidingStat, style: RidingStyle): Boolean {

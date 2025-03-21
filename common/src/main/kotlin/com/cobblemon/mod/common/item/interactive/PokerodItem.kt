@@ -17,17 +17,13 @@ import com.cobblemon.mod.common.api.events.fishing.BaitConsumedEvent
 import com.cobblemon.mod.common.api.events.fishing.BaitSetEvent
 import com.cobblemon.mod.common.api.events.fishing.PokerodCastEvent
 import com.cobblemon.mod.common.api.events.fishing.PokerodReelEvent
-import com.cobblemon.mod.common.api.fishing.SpawnBait
-import com.cobblemon.mod.common.api.fishing.FishingBaits
+import com.cobblemon.mod.common.api.fishing.SpawnBaitEffects
 import com.cobblemon.mod.common.entity.fishing.PokeRodFishingBobberEntity
-import com.cobblemon.mod.common.item.RodBaitComponent
-import com.cobblemon.mod.common.item.components.CookingComponent
+import com.cobblemon.mod.common.item.components.RodBaitComponent
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.common.util.enchantmentRegistry
-import com.cobblemon.mod.common.util.itemRegistry
 import com.cobblemon.mod.common.util.playSoundServer
 import com.cobblemon.mod.common.util.toEquipmentSlot
-import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundSource
@@ -50,96 +46,40 @@ import net.minecraft.world.phys.Vec3
 class PokerodItem(val pokeRodId: ResourceLocation, settings: Properties) : FishingRodItem(settings) {
 
     companion object {
-        fun getBaitOnRodAsItemStack(stack: ItemStack, world: Level): ItemStack {
-            val itemStack = getBaitOnRod(stack)?.toItemStack(world.itemRegistry) ?: ItemStack.EMPTY
-            stack.get(CobblemonItemComponents.BAIT)?.stack?.count?.let { itemStack.count = it }
-
-            val cookingComponent = stack.get(CobblemonItemComponents.COOKING_COMPONENT)
-            itemStack.set(CobblemonItemComponents.COOKING_COMPONENT, cookingComponent)
-
-            return itemStack
-        }
-
-        fun getBaitOnRod(stack: ItemStack): SpawnBait? {
-            return getCookingComponentOnRod(stack) ?: stack.components.get(CobblemonItemComponents.BAIT)?.bait
-        }
-
         fun getBaitStackOnRod(stack: ItemStack): ItemStack {
             return stack.components.get(CobblemonItemComponents.BAIT)?.stack ?: ItemStack.EMPTY
         }
-
-        fun getCookingComponentOnRod(rodStack: ItemStack): SpawnBait? {
-            // Check if the stack within the RodBaitComponent has a CookingComponent
-            val cookingComponent = rodStack.get(CobblemonItemComponents.COOKING_COMPONENT) ?: return null
-
-            // Combine effects from the CookingComponent
-            val combinedEffects = listOf(
-                cookingComponent.bait1.effects,
-                cookingComponent.bait2.effects,
-                cookingComponent.bait3.effects
-            ).flatten()
-
-            // Return a new FishingBait with combined effects
-            return SpawnBait(
-                item = BuiltInRegistries.ITEM.getKey(rodStack.components.get(CobblemonItemComponents.BAIT)?.stack?.item ?: ItemStack.EMPTY.item), // Use the rodStack's item as the bait identifier
-                effects = combinedEffects
-            )
-        }
-
 
         fun setBait(stack: ItemStack, bait: ItemStack) {
             CobblemonEvents.BAIT_SET.postThen(BaitSetEvent(stack, bait), { event -> }, {
                 if (bait.isEmpty) {
                     stack.set<RodBaitComponent>(CobblemonItemComponents.BAIT, null)
-                    stack.set<CookingComponent>(CobblemonItemComponents.COOKING_COMPONENT, null)
                     return
                 }
 
-                // Retrieve FishingBait and CookingComponent from the bait ItemStack
-                val fishingBait = FishingBaits.getFromBaitItemStack(bait) ?: return
-                val cookingComponent = bait.get(CobblemonItemComponents.COOKING_COMPONENT)
-
-                // Apply both RodBaitComponent and CookingComponent to the rod ItemStack
-                stack.set(CobblemonItemComponents.BAIT, RodBaitComponent(fishingBait, bait))
-                if (cookingComponent != null) {
-                    stack.set(CobblemonItemComponents.COOKING_COMPONENT, cookingComponent)
-                } else {
-                    // Clear CookingComponent if the new bait does not have it
-                    stack.set<CookingComponent>(CobblemonItemComponents.COOKING_COMPONENT, null)
-                }
+                // Apply RodBaitComponent to the rod ItemStack
+                stack.set(CobblemonItemComponents.BAIT, RodBaitComponent(bait))
             })
         }
 
 
         fun consumeBait(stack: ItemStack) {
-            CobblemonEvents.BAIT_CONSUMED.postThen(BaitConsumedEvent(stack), { event -> }, {
+            CobblemonEvents.BAIT_CONSUMED.postThen(BaitConsumedEvent(stack)) {
                 val baitStack = getBaitStackOnRod(stack)
                 val baitCount = baitStack.count
-                val cookingComponent = stack.get(CobblemonItemComponents.COOKING_COMPONENT)
 
                 if (baitCount == 1) {
                     stack.set<RodBaitComponent>(CobblemonItemComponents.BAIT, null)
-                    stack.set<CookingComponent>(CobblemonItemComponents.COOKING_COMPONENT, null)
                     return
                 }
 
                 if (baitCount > 1) {
-                    val fishingBait = getBaitOnRod(stack) ?: return
-                    stack.set<RodBaitComponent>(
+                    stack.set(
                         CobblemonItemComponents.BAIT,
-                        RodBaitComponent(fishingBait, ItemStack(baitStack.item, baitCount - 1))
+                        RodBaitComponent(ItemStack(baitStack.item, baitCount - 1))
                     )
-                    if (cookingComponent != null) {
-                        stack.set(CobblemonItemComponents.COOKING_COMPONENT, cookingComponent)
-                    }
                 }
-            })
-        }
-
-
-
-        fun getBaitEffects(stack: ItemStack): List<SpawnBait.Effect> {
-            return getBaitOnRod(stack)?.effects ?: return emptyList()
+            }
         }
     }
 
@@ -156,7 +96,7 @@ class PokerodItem(val pokeRodId: ResourceLocation, settings: Properties) : Fishi
         if (clickAction != ClickAction.SECONDARY || !slot.allowModification(player))
             return false
 
-        val baitStack = getBaitOnRodAsItemStack(itemStack, player.level())
+        val baitStack = getBaitStackOnRod(itemStack)
 
         CobblemonEvents.BAIT_SET_PRE.postThen(BaitSetEvent(itemStack, itemStack2), { event ->
             return event.isCanceled
@@ -176,7 +116,7 @@ class PokerodItem(val pokeRodId: ResourceLocation, settings: Properties) : Fishi
             else {
 
                 // If item on cursor is a valid bait
-                if (FishingBaits.getFromBaitItemStack(itemStack2) != null) {
+                if (SpawnBaitEffects.isFishingBait(itemStack2)) {
 
                     // Add as much as possible
                     if (baitStack != ItemStack.EMPTY) {
@@ -213,25 +153,19 @@ class PokerodItem(val pokeRodId: ResourceLocation, settings: Properties) : Fishi
 
         val itemStack = user.getItemInHand(hand)
         val offHandItem = user.getItemInHand(InteractionHand.OFF_HAND)
-        val offHandBait = FishingBaits.getFromBaitItemStack(offHandItem)
-
-        var baitOnRod = getBaitOnRod(itemStack)
 
         // Check if offhand item is valid bait and the rod is not in use, if so then apply bait from offhand
-        if (!world.isClientSide && user.fishing == null && offHandBait != null) {
+        if (!world.isClientSide && user.fishing == null && SpawnBaitEffects.isFishingBait(offHandItem)) {
             CobblemonEvents.BAIT_SET_PRE.postThen(BaitSetEvent(itemStack, offHandItem), { event ->
                 return InteractionResultHolder.fail(itemStack)
             }, {
                 playAttachSound(user)
 
                 // if there is bait on the rod already then drop it on the ground before applying offhand bait
-                val baitStack = baitOnRod?.toItemStack(world.itemRegistry)
+                val baitStack = getBaitStackOnRod(itemStack)
 
-                if (baitStack != null && offHandItem.item != baitStack.item) {
-                    if (!baitStack.isEmpty) {
-                        baitStack.count = getBaitStackOnRod(itemStack).count
-                        user.drop(baitStack, true) // Drop the full stack
-                    }
+                if (baitStack != ItemStack.EMPTY && offHandItem.item != baitStack.item) {
+                    user.drop(baitStack, true) // Drop the full stack
 
                     // apply single bait item from offhand
                     val singleBait = offHandItem.copy()
@@ -276,7 +210,7 @@ class PokerodItem(val pokeRodId: ResourceLocation, settings: Properties) : Fishi
                 val bobberEntity = PokeRodFishingBobberEntity(
                     user,
                     pokeRodId,
-                    getBaitOnRodAsItemStack(itemStack, world),
+                    getBaitStackOnRod(itemStack),
                     world,
                     luckLevel,
                     lureLevel,
@@ -287,7 +221,7 @@ class PokerodItem(val pokeRodId: ResourceLocation, settings: Properties) : Fishi
                     { event -> return InteractionResultHolder.fail(itemStack) },
                     { event ->
                         world.addFreshEntity(bobberEntity)
-                        var baitId = getBaitOnRod(itemStack)?.item ?: cobblemonResource("empty_bait")
+                        var baitId = getBaitStackOnRod(itemStack).takeUnless { it.isEmpty }?.itemHolder?.unwrapKey()?.orElse(null)?.location() ?: cobblemonResource("empty_bait")
                         CobblemonCriteria.CAST_POKE_ROD.trigger(user as ServerPlayer, CastPokeRodContext(baitId))
 
                         CobblemonEvents.POKEROD_CAST_POST.post(

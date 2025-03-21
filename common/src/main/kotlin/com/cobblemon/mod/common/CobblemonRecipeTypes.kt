@@ -9,14 +9,13 @@
 package com.cobblemon.mod.common
 
 
-import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotRecipe
-import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotShapelessRecipe
+import com.cobblemon.mod.common.item.crafting.CookingPotRecipe
+import com.cobblemon.mod.common.item.crafting.CookingPotShapelessRecipe
 import com.cobblemon.mod.common.platform.PlatformRegistry
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.item.crafting.Recipe
 import net.minecraft.world.item.crafting.RecipeType
 

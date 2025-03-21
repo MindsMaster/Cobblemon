@@ -29,6 +29,7 @@ import com.cobblemon.mod.common.api.molang.MoLangFunctions.addStandardFunctions
 import com.cobblemon.mod.common.api.molang.ObjectValue
 import com.cobblemon.mod.common.api.net.serializers.PlatformTypeDataSerializer
 import com.cobblemon.mod.common.api.net.serializers.PoseTypeDataSerializer
+import com.cobblemon.mod.common.api.net.serializers.RideBoostsDataSerializer
 import com.cobblemon.mod.common.api.net.serializers.StringSetDataSerializer
 import com.cobblemon.mod.common.api.pokemon.feature.ChoiceSpeciesFeatureProvider
 import com.cobblemon.mod.common.api.pokemon.feature.FlagSpeciesFeature
@@ -174,6 +175,7 @@ open class PokemonEntity(
         @JvmStatic val CAUGHT_BALL = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.STRING)
         @JvmStatic val EVOLUTION_STARTED = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BOOLEAN)
         @JvmStatic var SHOWN_HELD_ITEM = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.ITEM_STACK)
+        @JvmStatic var RIDE_BOOSTS = SynchedEntityData.defineId(PokemonEntity::class.java, RideBoostsDataSerializer)
 
         const val BATTLE_LOCK = "battle"
         const val EVOLUTION_LOCK = "evolving"
@@ -337,6 +339,7 @@ open class PokemonEntity(
         builder.define(CAUGHT_BALL, "")
         builder.define(EVOLUTION_STARTED, false)
         builder.define(SHOWN_HELD_ITEM, ItemStack.EMPTY)
+        builder.define(RIDE_BOOSTS, emptyMap())
     }
 
     override fun onSyncedDataUpdated(data: EntityDataAccessor<*>) {
@@ -1669,11 +1672,18 @@ open class PokemonEntity(
 
     // Takes in a requested stat type with a base minimum and base maximum and returns the interpolated
     // stat based on the boost of that pokemons stat
-    fun getRideStat(stat: RidingStat, style: RidingStyle, baseMin: Double, baseMax: Double ): Double {
-        //TODO: Change from static zero boost once aprijuice is implemented.
-        val stat = this.rideProp.calculate(stat, style, 0 )
+    fun getRideStat(stat: RidingStat, style: RidingStyle, baseMin: Double, baseMax: Double): Double {
+        val stat = this.rideProp.calculate(stat, style, entityData.get(RIDE_BOOSTS)[stat] ?: 0F )
+        // This re-ranging is because different ride controllers may want to interpolate between a different min and
+        // max. A species might have 20 to 80, but standard land controller converts that to speed where the lowest
+        // possible value is 0.1 and highest is 1.5, as a hypothetical. In which case this function will apply the
+        // rescaling based on the parameters. 0-100 is the most extreme range possible.
         val statVal = (((baseMax - baseMin) / 100) * stat) + baseMin
         return statVal
+    }
+
+    fun getRideBoost(stat: RidingStat): Float {
+        return entityData.get(RIDE_BOOSTS)[stat] ?: 0F
     }
 
     override fun canAddPassenger(passenger: Entity): Boolean {
