@@ -222,8 +222,14 @@ class PokemonRenderer(
 
         val phaseTarget = clientDelegate.phaseTarget ?: return
         poseMatrix.pushPose()
-        var beamSourcePosition = if (phaseTarget is PosableEntity) {
-            (phaseTarget.delegate as PosableState).locatorStates["beam"]?.getOrigin() ?: phaseTarget.position()
+        var beamSourcePosition = if (phaseTarget is NPCEntity) {
+                val npcDelegate = phaseTarget.delegate as NPCClientDelegate
+                val baseScale = phaseTarget.baseScale?.toDouble() ?: 1.0
+
+                (npcDelegate.locatorStates["beam"]?.getOrigin()?.scale(baseScale))
+                    ?: phaseTarget.position().add(0.0, (phaseTarget.bbHeight / 2.0) * baseScale, 0.0)
+                } else if (phaseTarget is PosableEntity) {
+                    (phaseTarget.delegate as PosableState).locatorStates["beam"]?.getOrigin() ?: phaseTarget.position()
         } else {
             if (phaseTarget.uuid == Minecraft.getInstance().player?.uuid) {
                 val lookVec = phaseTarget.lookAngle.yRot((PI / 2).toFloat()).multiply(1.0, 0.0, 1.0).normalize()
