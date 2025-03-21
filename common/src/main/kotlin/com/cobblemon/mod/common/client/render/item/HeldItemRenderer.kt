@@ -19,15 +19,16 @@ import com.mojang.math.Axis
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.LightTexture
 import net.minecraft.client.renderer.MultiBufferSource
+import net.minecraft.client.renderer.entity.ItemRenderer
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.ItemDisplayContext
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.Vec3
 
-class HeldItemRenderer() {
-    private val itemRenderer = Minecraft.getInstance().itemRenderer
-    private var displayContext = ItemDisplayContext.FIXED
+class HeldItemRenderer {
+    private val itemRenderer: ItemRenderer = Minecraft.getInstance().itemRenderer
+    private var displayContext: ItemDisplayContext = ItemDisplayContext.FIXED
 
     companion object {
         const val ITEM_FACE = "item_face"
@@ -69,9 +70,10 @@ class HeldItemRenderer() {
             (locators.containsKey(ITEM)) -> {
                 displayContext = model.getLocatorDisplayContext(ITEM) ?: ItemDisplayContext.FIXED
                 poseStack.mulPose(locators[ITEM]!!.matrix)
-                applyContextTranslation(poseStack, rotation)
+                applyContextTransformation(poseStack, rotation)
             }
-            else -> { // Don't render any item
+            // Don't render any item
+            else -> {
                 poseStack.popPose()
                 return
             }
@@ -96,7 +98,7 @@ class HeldItemRenderer() {
             if (locators.containsKey(locatorName)) {
                 displayContext = model.getLocatorDisplayContext(locatorName)?: ItemDisplayContext.FIXED
                 poseStack.mulPose(locators[locatorName]!!.matrix)
-                applyContextTranslation(poseStack, rotation)
+                applyContextTransformation(poseStack, rotation)
             }
             itemRenderer.renderStatic(entity, item, displayContext, (displayContext==ItemDisplayContext.THIRD_PERSON_LEFT_HAND), poseStack, buffer, null, light, OverlayTexture.NO_OVERLAY, 0)
             poseStack.popPose()
@@ -140,7 +142,7 @@ class HeldItemRenderer() {
         }
     }
 
-    private fun applyContextTranslation(poseStack: PoseStack, rotation: Vec3) {
+    private fun applyContextTransformation(poseStack: PoseStack, rotation: Vec3) {
         when (displayContext) {
             ItemDisplayContext.FIXED -> {
                 poseStack.mulPose(Axis.XP.rotationDegrees(90.0f))

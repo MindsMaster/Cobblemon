@@ -98,12 +98,11 @@
 					]
 				},
 				{
-					"name": "locator_item",
+					"name": "item_right",
 					"parent": "arm_right",
-					"pivot": [-5.15, 12, -1],
-					"rotation": [0, 0, -90],
+					"pivot": [-5.5, 12, -2],
 					"locators": {
-						"item": [-5.15, 12, -1]
+						"item_right": [-5.5, 12, -2]
 					}
 				},
 				{
@@ -114,6 +113,14 @@
 						{"origin": [4, 12, -2], "size": [3, 11, 4], "uv": [32, 48]},
 						{"origin": [4, 12, -2], "size": [3, 11, 4], "inflate": 0.25, "uv": [46, 48]}
 					]
+				},
+				{
+					"name": "item_left",
+					"parent": "arm_left",
+					"pivot": [5.5, 12, -2],
+					"locators": {
+						"item_left": [5.5, 12, -2]
+					}
 				},
 				{
 					"name": "leg_right",
