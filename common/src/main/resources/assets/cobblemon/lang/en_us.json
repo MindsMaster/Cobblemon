@@ -2746,6 +2746,12 @@
   "cobblemon.entity.variable.flee_nearest_hostile.name": "Flee Nearest Hostile",
   "cobblemon.entity.variable.flee_nearest_hostile.desc": "Whether the entity will flee from the nearest hostile mob.",
 
+  "cobblemon.entity.variable.eat_grass_cooldown_ticks.name": "Eat Grass Cooldown Ticks",
+  "cobblemon.entity.variable.eat_grass_cooldown_ticks.desc": "How many ticks that must pass between eating grass.",
+
+  "cobblemon.entity.variable.eat_grass_chance.name": "Eat Grass Chance",
+  "cobblemon.entity.variable.eat_grass_chance.desc": "The chance, per tick, that the entity will eat grass.",
+
   "cobblemon.entity.variable.script.name": "Script",
   "cobblemon.entity.variable.script.desc": "The script to run every tick as part of AI logic.",
 

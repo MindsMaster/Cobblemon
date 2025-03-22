@@ -41,6 +41,7 @@ object CobblemonMemories {
     val TARGETED_BATTLE_POKEMON = register<UUID>("targeted_battle_pokemon")
     val NEAREST_VISIBLE_ATTACKER = register<LivingEntity>("nearest_visible_attacker")
     val NEARBY_GROWABLE_CROPS = register<BlockPos>("nearby_growable_crops")
+    val RECENTLY_ATE_GRASS = register<Boolean>("recently_ate_grass")
 
     fun <U> register(id: String, codec: Codec<U>): MemoryModuleType<U> {
         val memoryModule = MemoryModuleType(Optional.of(codec))

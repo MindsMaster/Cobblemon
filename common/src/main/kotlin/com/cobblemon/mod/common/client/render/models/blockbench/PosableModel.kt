@@ -135,8 +135,6 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
 
     /** Legacy faint code. */
     open fun getFaintAnimation(state: PosableState): ActiveAnimation? = null
-    /** Legacy eating code. */
-    open fun getEatAnimation(state: PosableState): ActiveAnimation? = null
     /** Legacy cry code. */
     @Transient
     open val cryAnimation: CryProvider = CryProvider { null }

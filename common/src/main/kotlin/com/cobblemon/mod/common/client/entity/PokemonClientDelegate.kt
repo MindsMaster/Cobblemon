@@ -13,7 +13,6 @@ import com.bedrockk.molang.runtime.value.DoubleValue
 import com.bedrockk.molang.runtime.value.StringValue
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.CobblemonSounds
-import com.cobblemon.mod.common.Rollable
 import com.cobblemon.mod.common.api.entity.PokemonSideDelegate
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addFunctions
 import com.cobblemon.mod.common.api.pokeball.PokeBalls
@@ -33,7 +32,11 @@ import com.cobblemon.mod.common.client.render.models.blockbench.repository.Varyi
 import com.cobblemon.mod.common.client.render.pokemon.PokemonRenderer.Companion.ease
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.pokemon.Pokemon
-import com.cobblemon.mod.common.util.*
+import com.cobblemon.mod.common.util.MovingSoundInstance
+import com.cobblemon.mod.common.util.asExpressionLike
+import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
+import com.cobblemon.mod.common.util.cobblemonResource
+import com.cobblemon.mod.common.util.resolve
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.Minecraft
 import net.minecraft.network.syncher.EntityDataAccessor
@@ -42,11 +45,8 @@ import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.Entity
-import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.Vec3
-import org.joml.Matrix3f
-import org.joml.Vector3f
 
 class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
     companion object {
@@ -405,14 +405,6 @@ class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
 
     fun setPhaseTarget(targetId: Int) {
         this.phaseTarget = currentEntity.level().getEntity(targetId)
-    }
-
-    override fun handleStatus(status: Byte) {
-        if (status == 10.toByte()) {
-            val model = (currentModel ?: return)
-            val animation = model.getEatAnimation(this) ?: return
-            activeAnimations.add(animation)
-        }
     }
 
     override fun updatePostDeath() {

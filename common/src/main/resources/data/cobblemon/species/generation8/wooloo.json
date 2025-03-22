@@ -51,6 +51,17 @@
     "height": 1,
     "fixed": false
   },
+  "ai": [
+    {
+      "type": "add_tasks_to_activity",
+      "activity": "idle",
+      "tasksByPriority": {
+        "2": [
+          "eat_grass"
+        ]
+      }
+    }
+  ],
   "standingEyeHeight": 0.6,
   "drops": {
     "amount": 3,

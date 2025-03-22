@@ -162,21 +162,9 @@ object PokemonBrain {
         MemoryModuleType.DISTURBANCE_LOCATION,
         CobblemonMemories.NEARBY_GROWABLE_CROPS,
         MemoryModuleType.AVOID_TARGET,
-        CobblemonMemories.POKEMON_SLEEPING
+        CobblemonMemories.POKEMON_SLEEPING,
+        CobblemonMemories.RECENTLY_ATE_GRASS
     )
-
-    fun updateActivities(pokemon:PokemonEntity) {
-        pokemon.brain.setActiveActivityToFirstValid(
-            ImmutableList.of(
-                Activity.CORE,
-                Activity.AVOID,
-                Activity.IDLE,
-                CobblemonActivities.BATTLING,
-                CobblemonActivities.POKEMON_SLEEPING_ACTIVITY,
-                CobblemonActivities.POKEMON_GROW_CROP
-            )
-        )
-    }
 
     private fun coreTasks(pokemon: Pokemon) = buildList<Pair<Int, BehaviorControl<in PokemonEntity>>> {
         if (!pokemon.form.behaviour.moving.swim.canBreatheUnderwater) {
@@ -222,7 +210,7 @@ object PokemonBrain {
         add(0 toDF ChooseLandWanderTargetTask.create(pokemon.form.behaviour.moving.wanderChance, horizontalRange = 10, verticalRange = 5, walkSpeed = 0.33F, completionRange = 1))
         add(0 toDF GoToSleepTask.create())
         add(0 toDF FindRestingPlaceTask.create(16, 8))
-        add(0 toDF EatGrassTask())
+//        add(0 toDF EatGrassTask())
         add(0 toDF AttackAngryAtTask.create())
 //        add(0 toDF MoveToOwnerTask.create(completionRange = 4, maxDistance = 14F, teleportDistance = 24F))
         add(0 toDF WalkTowardsParentSpeciesTask.create(ADULT_FOLLOW_RANGE, 0.4f))
