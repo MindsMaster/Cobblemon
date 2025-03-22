@@ -151,6 +151,10 @@ class Species : ClientDataSynchronizer<Species>, ShowdownIdentifiable {
         ApplyPresets().apply {
             condition = Either.left("!q.entity.is_wild".asExpression())
             presets.add(cobblemonResource("pokemon_follows_owner"))
+        },
+        ApplyPresets().apply {
+            condition = Either.left("!q.entity.is_wild && q.entity.behaviour.resting.will_sleep_on_bed".asExpression())
+            presets.add(cobblemonResource("pokemon_sleeps_on_trainer_bed"))
         }
     )
     var ai = mutableListOf<BrainConfig>()

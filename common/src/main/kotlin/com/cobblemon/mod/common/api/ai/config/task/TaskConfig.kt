@@ -80,6 +80,9 @@ interface TaskConfig {
             "go_to_sleep" to GoToSleepTaskConfig::class.java,
             "find_resting_place" to FindRestingPlaceTaskConfig::class.java,
             "move_to_owner" to MoveToOwnerTaskConfig::class.java,
+            "switch_to_sleep_on_trainer_bed" to SwitchToSleepOnTrainerBedTaskConfig::class.java,
+            "switch_from_sleep_on_trainer_bed" to SwitchFromSleepOnTrainerBedTaskConfig::class.java,
+            "sleep_if_on_trainer_bed" to SleepIfOnTrainerBedTaskConfig::class.java,
         )
 
         val runtime = MoLangRuntime().setup()
