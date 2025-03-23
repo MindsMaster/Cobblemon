@@ -9,6 +9,7 @@
 
 ### Changes
 - Renamed `chargeGainedPerTick` config to `secondsToChargeHealingMachine`.
+- Pokémon hitbox now scales with entity attribute `generic.scale`.
 
 ### Fixes
 - Fixed Particles sometimes facing the wrong direction (looking at you, Swords Dance)
