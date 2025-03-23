@@ -17,6 +17,7 @@
 - Substantially optimised spawning checks mainly by front-loading biome filtering.
 - When using the `cobblemon` or `generation_9` capture calculators a critical capture with a single shake will always play for successful captures when you've already registered the Pokémon as caught in your Pokédex.
 - Improved the performance of saving Pokédex and player data.
+- Pokémon hitbox now scales with entity attribute `generic.scale`.
 
 ### Fixes
 - Fixed Particles sometimes facing the wrong direction (looking at you, Swords Dance)
