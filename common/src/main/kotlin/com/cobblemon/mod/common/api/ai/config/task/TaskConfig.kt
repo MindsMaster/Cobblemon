@@ -84,7 +84,9 @@ interface TaskConfig {
             "switch_from_sleep_on_trainer_bed" to SwitchFromSleepOnTrainerBedTaskConfig::class.java,
             "sleep_if_on_trainer_bed" to SleepIfOnTrainerBedTaskConfig::class.java,
             "point_to_spawn" to PointToSpawnTaskConfig::class.java,
-            "eat_grass" to EatGrassTaskConfig::class.java
+            "eat_grass" to EatGrassTaskConfig::class.java,
+            "find_air" to FindAirTaskConfig::class.java,
+            "go_to_land" to GoToLandTaskConfig::class.java
         )
 
         val runtime = MoLangRuntime().setup()

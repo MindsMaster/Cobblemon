@@ -9,7 +9,6 @@
 package com.cobblemon.mod.common.pokemon.ai
 
 import com.cobblemon.mod.common.CobblemonActivities
-import com.cobblemon.mod.common.CobblemonBrainConfigs
 import com.cobblemon.mod.common.CobblemonMemories
 import com.cobblemon.mod.common.CobblemonSensors
 import com.cobblemon.mod.common.api.ai.BrainConfigurationContext
@@ -155,7 +154,7 @@ object PokemonBrain {
         CobblemonMemories.POKEMON_DROWSY,
         CobblemonMemories.POKEMON_BATTLE,
         MemoryModuleType.HOME,
-        CobblemonMemories.REST_PATH_COOLDOWN,
+        CobblemonMemories.PATH_COOLDOWN,
         CobblemonMemories.TARGETED_BATTLE_POKEMON,
         MemoryModuleType.NEAREST_VISIBLE_ADULT,
         MemoryModuleType.IS_IN_WATER,

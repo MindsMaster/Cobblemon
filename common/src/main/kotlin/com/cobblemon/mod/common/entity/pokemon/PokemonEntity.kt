@@ -829,37 +829,13 @@ open class PokemonEntity(
 //        if (this.pokemon == null) {
 //            return
 //        }
-//        moveControl = PokemonMoveControl(this)
-//        goalSelector.clear { true }
-//        goalSelector.add(0, PokemonInBattleMovementGoal(this, 10))
-//        goalSelector.add(0, object : Goal() {
-//            override fun canStart() = this@PokemonEntity.dataTracker.get(PHASING_TARGET_ID) != -1 || pokemon.status?.status == Statuses.SLEEP || dataTracker.get(DYING_EFFECTS_STARTED) || evolutionEntity != null
-//            override fun shouldContinue(): Boolean {
-//                if (pokemon.status?.status == Statuses.SLEEP && !canSleep() && !isBusy) {
-//                    return false
-//                } else if (pokemon.status?.status == Statuses.SLEEP || isBusy) {
-//                    return true
-//                }
-//                return false
-//            }
-//            override fun getControls() = EnumSet.allOf(Control::class.java)
-//        })
-//
 //        goalSelector.add(1, PokemonBreatheAirGoal(this))
 //        goalSelector.add(2, PokemonFloatToSurfaceGoal(this))
-//        goalSelector.add(3, PokemonFollowOwnerGoal(this, 1.0, 8F, 2F, false))
 //        goalSelector.add(4, PokemonMoveIntoFluidGoal(this))
-//        goalSelector.add(5, SleepOnTrainerGoal(this))
-//        goalSelector.add(5, WildRestGoal(this))
 //
 //        if (pokemon.getFeature<FlagSpeciesFeature>(DataKeys.HAS_BEEN_SHEARED) != null) {
 //            goalSelector.add(5, EatGrassGoal(this))
 //        }
-//
-//        goalSelector.addGoal(6, PokemonWanderAroundGoal(this))
-//        goalSelector.addGoal(7, PokemonLookAtEntityGoal(this, ServerPlayer::class.java, 5F))
-//        goalSelector.addGoal(8, PokemonPointAtSpawnGoal(this))
-//    }
 
     fun canSleep(): Boolean {
         val rest = behaviour.resting

@@ -37,7 +37,7 @@ object CobblemonMemories {
     val POKEMON_DROWSY = register("pokemon_drowsy", PrimitiveCodec.BOOL)
     val POKEMON_SLEEPING = register("pokemon_sleeping", PrimitiveCodec.BOOL)
     val POKEMON_BATTLE = register<UUID>("pokemon_battle")
-    val REST_PATH_COOLDOWN = register("rest_path_cooldown", PrimitiveCodec.BOOL)
+    val PATH_COOLDOWN = register("path_cooldown", PrimitiveCodec.BOOL)
     val TARGETED_BATTLE_POKEMON = register<UUID>("targeted_battle_pokemon")
     val NEAREST_VISIBLE_ATTACKER = register<LivingEntity>("nearest_visible_attacker")
     val NEARBY_GROWABLE_CROPS = register<BlockPos>("nearby_growable_crops")
