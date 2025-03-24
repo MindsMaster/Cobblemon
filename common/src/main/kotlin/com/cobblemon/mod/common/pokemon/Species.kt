@@ -125,12 +125,8 @@ class Species : ClientDataSynchronizer<Species>, ShowdownIdentifiable {
             )
         },
         ApplyPresets().apply {
-            presets.add(cobblemonResource("floats"))
+            presets.addAll(listOf(cobblemonResource("floats"), cobblemonResource("avoids_water")))
             condition = Either.left("!q.entity.behaviour.moving.swim.can_breathe_underwater".asExpression())
-        },
-        ApplyPresets().apply {
-            presets.add(cobblemonResource("avoids_water"))
-            condition = Either.left("q.entity.behaviour.moving.swim.avoids_water".asExpression())
         },
         ApplyPresets().apply {
             condition = Either.left("!q.entity.is_in_party".asExpression())

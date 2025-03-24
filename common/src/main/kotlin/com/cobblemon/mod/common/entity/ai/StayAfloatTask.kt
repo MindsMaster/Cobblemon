@@ -12,13 +12,9 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.tags.FluidTags
 import net.minecraft.world.entity.PathfinderMob
 import net.minecraft.world.entity.ai.behavior.Behavior
-import net.minecraft.world.entity.ai.memory.MemoryModuleType
-import net.minecraft.world.entity.ai.memory.MemoryStatus
 
 class StayAfloatTask(private val chance: Float = 0F) : Behavior<PathfinderMob>(
-    mapOf(
-        MemoryModuleType.WALK_TARGET to MemoryStatus.VALUE_ABSENT,
-    )
+    mapOf()
 ) {
     override fun checkExtraStartConditions(world: ServerLevel, entity: PathfinderMob): Boolean {
         return entity.isInWater && entity.getFluidHeight(FluidTags.WATER) > entity.fluidJumpThreshold || entity.isInLava

@@ -67,7 +67,7 @@ class FindAirTaskConfig : SingleTaskConfig {
                     val blockPos = entity.closestPosition(iterable) { isAirPos(entity.level(), it) }
                         ?: return@Trigger false
 
-                    walkTarget.set(WalkTarget(blockPos.above(), 0.35F, 1))
+                    walkTarget.set(WalkTarget(blockPos.above(), 0.35F, 0))
                     return@Trigger true
                 }
             }

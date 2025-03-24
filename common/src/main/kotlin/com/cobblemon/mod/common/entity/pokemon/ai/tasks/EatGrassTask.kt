@@ -59,6 +59,7 @@ class EatGrassTask(
 
     override fun start(world: ServerLevel, entity: PokemonEntity, time: Long) {
         timer = 40
+        entity.brain.setMemoryWithExpiry(CobblemonMemories.PATH_COOLDOWN, true, 40L)
         entity.playAnimation("eat")
         world.broadcastEntityEvent(entity, 10.toByte())
     }

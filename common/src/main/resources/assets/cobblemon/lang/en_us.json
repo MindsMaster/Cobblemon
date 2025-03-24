@@ -939,6 +939,7 @@
   "cobblemon.command.dialogue.invalid-dialogue": "Invalid dialogue identifier",
   "cobblemon.command.pc.invalid-box": "Box number %1$s exceeds max boxes of %2$s.",
   "cobblemon.command.unlockablepcboxwallpaper.invalid-wallpaper": "Invalid wallpaper identifier",
+  "cobblemon.command.brainedit.non_scriptable": "You are not looking at a MoLang scriptable entity.",
 
   "cobblemon.ui.generic.yes": "Yes",
   "cobblemon.ui.generic.no": "No",
@@ -2822,6 +2823,9 @@
 
   "cobblemon.brain_preset.avoids_water.name": "Avoids Water",
   "cobblemon.brain_preset.avoids_water.desc": "Tries to find air and then gets away from water.",
+
+  "cobblemon.brain_preset.pokemon_eats_grass.name": "Eats Grass",
+  "cobblemon.brain_preset.pokemon_eats_grass.desc": "The Pokémon occasionally eats grass underfoot.",
 
   "cobblemon.move.10000000voltthunderbolt": "10,000,000 Volt Thunderbolt",
   "cobblemon.move.10000000voltthunderbolt.desc": "The user, Pikachu wearing a cap, powers up a jolt of electricity using its Z-Power and unleashes it. Critical hits land more easily.",

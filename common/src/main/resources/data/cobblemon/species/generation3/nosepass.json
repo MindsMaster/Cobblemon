@@ -64,11 +64,11 @@
     {
       "type": "add_tasks_to_activity",
       "activity": "idle",
-        "tasksByPriority": {
-          "2": [
-            "point_to_spawn"
-          ]
-        }
+      "tasksByPriority": {
+        "2": [
+          "point_to_spawn"
+        ]
+      }
     }
   ],
   "drops": {

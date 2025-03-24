@@ -64,13 +64,8 @@
   },
   "ai": [
     {
-      "type": "add_tasks_to_activity",
-      "activity": "idle",
-      "tasksByPriority": {
-        "2": [
-          "eat_grass"
-        ]
-      }
+      "type": "apply_presets",
+      "preset": "cobblemon:eats_grass"
     }
   ],
   "drops": {
