@@ -382,7 +382,7 @@ class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
         val player = Minecraft.getInstance().player ?: return
         val isWithinRange = player.position().distanceTo(currentEntity.position()) <= Cobblemon.config.shinyNoticeParticlesDistance
 
-        if (currentEntity.pokemon.shiny && currentEntity.ownerUUID == null) {
+        if (currentEntity.pokemon.shiny && currentEntity.ownerUUID == null && !currentEntity.isSilent) {
             if (isWithinRange) {
                 if (secondsSinceLastShinyParticle > SHINY_PARTICLE_COOLDOWN && !currentEntity.isBattling) {
                     playShinyEffect("cobblemon:shiny_sparkle_ambient_wild")
@@ -412,7 +412,7 @@ class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
     }
 
     override fun spawnShinyParticle(player: Player) {
-        if(secondsSinceLastShinyParticle > SHINY_PARTICLE_COOLDOWN) {
+        if (secondsSinceLastShinyParticle > SHINY_PARTICLE_COOLDOWN) {
             playShinyEffect("cobblemon:ambient_shiny_sparkle")
             lastShinyParticle = System.currentTimeMillis()
         }
