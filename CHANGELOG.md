@@ -2,6 +2,7 @@
 ## [1.7.0 (Month xth, 2025)](#1-7-0)
 
 ### Additions
+- Added `/spectateBattle <player>` command to spectate battles without having to manually walk up to the target.
 - Added an in-game configuration screen, allowing all settings from `main.json` to be edited directly in-game.
 - Added `/cobblemonconfig reload` command to reload `main.json` configuration. **Note:** Some settings require a server restart to take effect; use this command cautiously.
 - Added `blacklisted_items_to_hold` and `whitelisted_items_to_hold` tags to allow for controlling which items players can give to their Pokémon. If the whitelist is empty, it will consider all item as allowed (unless they are in the blacklist).
@@ -18,6 +19,7 @@
 - Substantially optimised spawning checks mainly by front-loading biome filtering.
 - When using the `cobblemon` or `generation_9` capture calculators a critical capture with a single shake will always play for successful captures when you've already registered the Pokémon as caught in your Pokédex.
 - Improved the performance of saving Pokédex and player data.
+- Pokémon hitbox now scales with entity attribute `generic.scale`.
 
 ### Fixes
 - Fixed Particles sometimes facing the wrong direction (looking at you, Swords Dance)
@@ -59,6 +61,9 @@
   - Note: This will break mods that used our observable functionality there or in MoveSet, IVs, EVs, or BenchedMoves. 
   - Using `Pokemon#onChange()` is now the way to mark a Pokémon as needing a save.
   - Using `[Pokemon].changeObservable` is now the way to get an `Observable` for any save-worthy changes.
+- Updated NPCEntity beam positioning to properly account for the baseScale property.
+- Updated NPCEntity pokeball throw positioning to properly account for the baseScale property.
+- Fixed `[Pokemon].copyFrom` error causing forms, IVs, and EVs to not be applied properly when using `[Pokemon].loadFromJSON` or `[Pokemon].loadFromNBT`
 
 ### MoLang & Datapacks
 - The following usages for item predicates can now use item conditions like advancements do, you can learn about them in the [Minecraft wiki](https://minecraft.wiki/w/Advancement_definition#minecraft:filled_bucket)
@@ -69,6 +74,7 @@
 - Added `interpolate` boolean property to animated textures to allow gradual colour changes between frames.
 - Fixed species additions not being capable of changing implemented status.
 - Added support for action effects that are triggered by `|-activate|` Showdown instructions. `activate_{effect_id}` is the syntax.
+- Added Molang functions for rendering items `render_item(item_id, locator_name)` and `clear_items()`.
 
 ## [1.6.1 (January 26th, 2025)](#1-6-1)
 

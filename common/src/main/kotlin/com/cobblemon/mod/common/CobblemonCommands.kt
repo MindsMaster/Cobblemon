@@ -60,6 +60,7 @@ object CobblemonCommands {
         RenameBoxCommand.register(dispatcher)
         ChangeBoxWallpaperCommand.register(dispatcher)
         RunMolangScriptCommand.register(dispatcher)
+        SpectateBattleCommand.register(dispatcher)
         CobblemonConfigCommand.register(dispatcher)
         UnlockPCBoxWallpaperCommand.register(dispatcher)
         ChangePCBoxesCommand.register(dispatcher)
