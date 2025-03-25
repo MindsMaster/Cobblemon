@@ -13,8 +13,8 @@ import com.bedrockk.molang.runtime.value.DoubleValue
 import com.bedrockk.molang.runtime.value.StringValue
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.CobblemonSounds
+import com.cobblemon.mod.common.Rollable
 import com.cobblemon.mod.common.api.entity.PokemonSideDelegate
-import com.cobblemon.mod.common.api.molang.MoLangFunctions.addEntityFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addFunctions
 import com.cobblemon.mod.common.api.pokeball.PokeBalls
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
@@ -29,7 +29,7 @@ import com.cobblemon.mod.common.client.render.MatrixWrapper
 import com.cobblemon.mod.common.client.render.models.blockbench.PosableState
 import com.cobblemon.mod.common.client.render.models.blockbench.animation.ActiveAnimation
 import com.cobblemon.mod.common.client.render.models.blockbench.animation.PrimaryAnimation
-import com.cobblemon.mod.common.client.render.models.blockbench.repository.PokemonModelRepository
+import com.cobblemon.mod.common.client.render.models.blockbench.repository.VaryingModelRepository
 import com.cobblemon.mod.common.client.render.pokemon.PokemonRenderer.Companion.ease
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.pokemon.Pokemon
@@ -42,8 +42,11 @@ import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.Vec3
+import org.joml.Matrix3f
+import org.joml.Vector3f
 
 class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
     companion object {
@@ -99,7 +102,7 @@ class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
                 currentPose = null
                 currentEntity.pokemon.species = PokemonSpecies.getByIdentifier(identifier)!! // TODO exception handling
                 // force a model update - handles edge case where the PosableState's tracked PosableModel isn't updated until the LivingEntityRenderer render is run
-                currentModel = PokemonModelRepository.getPoser(identifier, this)
+                currentModel = VaryingModelRepository.getPoser(identifier, this)
             } else if (data == PokemonEntity.ASPECTS) {
                 currentAspects = currentEntity.entityData.get(PokemonEntity.ASPECTS)
                 currentEntity.pokemon.shiny = currentAspects.contains("shiny")
@@ -372,24 +375,24 @@ class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
 
     override fun tick(entity: PokemonEntity) {
         incrementAge(entity)
-        if(currentEntity.ownerUUID == null && currentEntity.pokemon.shiny && secondsSinceLastShinyParticle > SHINY_PARTICLE_COOLDOWN && !currentEntity.isBattling) {
-            //wild shiny not looked at
-            playShinyEffect("cobblemon:shiny_sparkle_ambient_wild")
-            lastShinyParticle = System.currentTimeMillis()
-        }
-        getClientShinyPokemon()
+        playWildShinySounds()
     }
 
-    fun getClientShinyPokemon() {
+    fun playWildShinySounds() {
         val player = Minecraft.getInstance().player ?: return
         val isWithinRange = player.position().distanceTo(currentEntity.position()) <= Cobblemon.config.shinyNoticeParticlesDistance
 
-        if (currentEntity.pokemon.shiny && currentEntity.ownerUUID == null && !player.isSpectator ) {
-            if (isWithinRange && !shined) {
-                playShinyEffect("cobblemon:wild_shiny_ring")
-                shined = true
-                lastShinyParticle = System.currentTimeMillis()
-            } else if (!isWithinRange) {
+        if (currentEntity.pokemon.shiny && currentEntity.ownerUUID == null && !currentEntity.isSilent) {
+            if (isWithinRange) {
+                if (secondsSinceLastShinyParticle > SHINY_PARTICLE_COOLDOWN && !currentEntity.isBattling) {
+                    playShinyEffect("cobblemon:shiny_sparkle_ambient_wild")
+                    lastShinyParticle = System.currentTimeMillis()
+                }
+                if (!shined && !player.isSpectator) {
+                    playShinyEffect("cobblemon:wild_shiny_ring")
+                    shined = true
+                }
+            } else {
                 shined = false
             }
         }
@@ -417,7 +420,7 @@ class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
     }
 
     override fun spawnShinyParticle(player: Player) {
-        if(secondsSinceLastShinyParticle > SHINY_PARTICLE_COOLDOWN) {
+        if (secondsSinceLastShinyParticle > SHINY_PARTICLE_COOLDOWN) {
             playShinyEffect("cobblemon:ambient_shiny_sparkle")
             lastShinyParticle = System.currentTimeMillis()
         }

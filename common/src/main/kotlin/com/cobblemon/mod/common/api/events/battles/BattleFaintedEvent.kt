@@ -8,9 +8,12 @@
 
 package com.cobblemon.mod.common.api.events.battles
 
+import com.bedrockk.molang.runtime.value.MoValue
 import com.cobblemon.mod.common.api.battles.interpreter.BattleContext
 import com.cobblemon.mod.common.api.battles.model.PokemonBattle
+import com.cobblemon.mod.common.api.battles.model.actor.ActorType
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon
+import com.cobblemon.mod.common.util.asArrayValue
 
 /**
  * Event fired when a [BattlePokemon] faints. Exposes the [BattlePokemon] that fainted and the [BattleContext]
@@ -23,4 +26,13 @@ data class BattleFaintedEvent(
     override val battle: PokemonBattle,
     val killed: BattlePokemon,
     val context: BattleContext
-) : BattleEvent
+) : BattleEvent {
+    val structContext = mutableMapOf<String, MoValue>(
+        "battle" to battle.struct,
+        "players" to battle.actors.filter { it.type == ActorType.PLAYER }.asArrayValue { it.struct },
+        "npcs" to battle.actors.filter { it.type == ActorType.NPC }.asArrayValue { it.struct },
+        "wild_pokemon" to battle.actors.filter { it.type == ActorType.WILD }.asArrayValue { it.struct },
+        "pokemon" to killed.struct,
+        "context" to context.getStruct()
+    )
+}

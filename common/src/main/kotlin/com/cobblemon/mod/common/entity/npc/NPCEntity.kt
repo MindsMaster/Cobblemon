@@ -109,7 +109,15 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
     val level: Int
         get() = entityData.get(LEVEL)
 
+    var hideNameTag: Boolean
+        get() = entityData.get(HIDE_NAME_TAG)
+        set(value) {
+            entityData.set(HIDE_NAME_TAG, value)
+        }
+
     var skill: Int? = null // range from 0 - 5
+
+    var baseScale: Float? = null
 
     var hitbox: EntityDimensions? = null
 
@@ -202,7 +210,7 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
         val BATTLE_IDS = SynchedEntityData.defineId(NPCEntity::class.java, UUIDSetDataSerializer)
         val NPC_PLAYER_TEXTURE = SynchedEntityData.defineId(NPCEntity::class.java, NPCPlayerTextureSerializer)
         val LEVEL = SynchedEntityData.defineId(NPCEntity::class.java, EntityDataSerializers.INT)
-
+        val HIDE_NAME_TAG = SynchedEntityData.defineId(NPCEntity::class.java, EntityDataSerializers.BOOLEAN)
 
 //        val BATTLING = Activity.register("npc_battling")
 
@@ -253,6 +261,7 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
         builder.define(BATTLE_IDS, setOf())
         builder.define(NPC_PLAYER_TEXTURE, NPCPlayerTexture(ByteArray(1), NPCPlayerModelType.NONE))
         builder.define(LEVEL, 1)
+        builder.define(HIDE_NAME_TAG, false)
     }
 
     override fun getAddEntityPacket(serverEntity: ServerEntity) = ClientboundCustomPayloadPacket(
@@ -316,6 +325,7 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
         nbt.put(DataKeys.NPC_DATA, MoLangFunctions.writeMoValueToNBT(data))
         nbt.put(DataKeys.NPC_CONFIG, MoLangFunctions.writeMoValueToNBT(config))
         nbt.put(DataKeys.NPC_LEVEL, IntTag.valueOf(level))
+        nbt.putBoolean(DataKeys.NPC_HIDE_NAME_TAG, hideNameTag)
         nbt.putString(DataKeys.NPC_CLASS, npc.id.toString())
         nbt.put(DataKeys.NPC_ASPECTS, ListTag().also { list -> appliedAspects.forEach { list.add(StringTag.valueOf(it)) } })
         nbt.put(DataKeys.NPC_VARIATION_ASPECTS, ListTag().also { list -> variationAspects.forEach { list.add(StringTag.valueOf(it)) } })
@@ -347,6 +357,10 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
                 it.putByteArray(DataKeys.NPC_PLAYER_TEXTURE_TEXTURE, playerTexture.texture)
             })
         }
+        val baseScale = baseScale
+        if (baseScale != null) {
+            nbt.putFloat(DataKeys.NPC_BASE_SCALE, baseScale)
+        }
         val hitbox = hitbox
         if (hitbox != null) {
             nbt.put(DataKeys.NPC_HITBOX, CompoundTag().also {
@@ -377,6 +391,7 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
     override fun load(nbt: CompoundTag) {
         npc = NPCClasses.getByIdentifier(ResourceLocation.parse(nbt.getString(DataKeys.NPC_CLASS))) ?: NPCClasses.classes.first()
         entityData.set(LEVEL, nbt.getInt(DataKeys.NPC_LEVEL).takeIf { it != 0 } ?: 1)
+        entityData.set(HIDE_NAME_TAG, nbt.getBoolean(DataKeys.NPC_HIDE_NAME_TAG))
         super.load(nbt)
         data = MoLangFunctions.readMoValueFromNBT(nbt.getCompound(DataKeys.NPC_DATA)) as VariableStruct
         config = if (nbt.contains(DataKeys.NPC_CONFIG)) MoLangFunctions.readMoValueFromNBT(nbt.getCompound(DataKeys.NPC_CONFIG)) as VariableStruct else VariableStruct()
@@ -406,6 +421,7 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
         this.isInvulnerable = if (nbt.contains(DataKeys.NPC_IS_INVULNERABLE)) nbt.getBoolean(DataKeys.NPC_IS_INVULNERABLE) else null
         this.isLeashable = if (nbt.contains(DataKeys.NPC_IS_LEASHABLE)) nbt.getBoolean(DataKeys.NPC_IS_LEASHABLE) else null
         this.allowProjectileHits = if (nbt.contains(DataKeys.NPC_ALLOW_PROJECTILE_HITS)) nbt.getBoolean(DataKeys.NPC_ALLOW_PROJECTILE_HITS) else null
+        this.baseScale = if (nbt.contains(DataKeys.NPC_BASE_SCALE)) nbt.getFloat(DataKeys.NPC_BASE_SCALE) else null
         this.hitbox = if (nbt.contains(DataKeys.NPC_HITBOX)) {
             val hitboxNBT = nbt.getCompound(DataKeys.NPC_HITBOX)
 
@@ -453,7 +469,17 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
     override fun isPersistenceRequired(): Boolean {
         return super.isPersistenceRequired() || !npc.canDespawn
     }
-    override fun getDimensions(pose: Pose): EntityDimensions = hitbox ?: npc.hitbox
+
+    override fun getScale(): Float {
+        return baseScale ?: npc.baseScale
+    }
+
+    override fun getDimensions(pose: Pose): EntityDimensions {
+        val hitbox = hitbox ?: npc.hitbox
+        val scaledHitbox = hitbox.scale(baseScale ?: npc.baseScale)
+
+        return scaledHitbox
+    }
 
     override fun isPushable(): Boolean {
         return isMovable ?: npc.isMovable
@@ -473,6 +499,7 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
 
     fun initialize(level: Int) {
         variationAspects.clear()
+        entityData.set(HIDE_NAME_TAG, npc.hideNameTag)
         entityData.set(LEVEL, level)
         npc.config.forEach { it.applyDefault(this) }
         npc.variations.values.forEach { this.variationAspects.addAll(it.provideAspects(this)) }
@@ -530,10 +557,10 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
 
     private fun pokemonExpressions(pokemon: Pokemon): List<String> {
         return listOf(
-            "v.actioning_pokemon_name=\"${pokemon.species.name}\";",
+            "v.actioning_pokemon_name=\'${pokemon.species.name}\';",
             "v.actioning_pokemon_level=${pokemon.level};",
-            "v.actioning_pokemon_ball=\"${pokemon.caughtBall.name}\";",
-            "v.actioning_pokemon_shiny=\"${pokemon.shiny}\";",
+            "v.actioning_pokemon_ball=\'${pokemon.caughtBall.name}\';",
+            "v.actioning_pokemon_shiny=\'${pokemon.shiny}\';",
         )
     }
 

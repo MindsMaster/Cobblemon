@@ -8,9 +8,7 @@
 
 package com.cobblemon.mod.fabric.client
 
-import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.CobblemonClientImplementation
-import com.cobblemon.mod.common.ResourcePackActivationBehaviour
 import com.cobblemon.mod.common.api.pokeball.PokeBalls
 import com.cobblemon.mod.common.client.CobblemonClient
 import com.cobblemon.mod.common.client.CobblemonClient.pokedexUsageContext
@@ -51,8 +49,6 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper
-import net.fabricmc.fabric.api.resource.ResourcePackActivationType
-import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.client.Minecraft
 import net.minecraft.client.color.block.BlockColor
 import net.minecraft.client.color.item.ItemColor
@@ -97,18 +93,6 @@ class CobblemonFabricClient: ClientModInitializer, CobblemonClientImplementation
 
         CobblemonFabric.networkManager.registerClientHandlers()
 
-        CobblemonClient.builtinResourcePacks
-            .filter { it.neededMods.all(Cobblemon.implementation::isModInstalled) }
-            .forEach {
-                val mod = FabricLoader.getInstance().getModContainer(Cobblemon.MODID).get()
-                val resourcePackActivationType = when (it.activationBehaviour) {
-                    ResourcePackActivationBehaviour.NORMAL -> ResourcePackActivationType.NORMAL
-                    ResourcePackActivationBehaviour.DEFAULT_ENABLED -> ResourcePackActivationType.DEFAULT_ENABLED
-                    ResourcePackActivationBehaviour.ALWAYS_ENABLED -> ResourcePackActivationType.ALWAYS_ENABLED
-                }
-                ResourceManagerHelper.registerBuiltinResourcePack(cobblemonResource(it.id), mod, it.displayName, resourcePackActivationType)
-            }
-
         ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(object : IdentifiableResourceReloadListener {
             override fun reload(
                 synchronizer: PreparableReloadListener.PreparationBarrier,
@@ -137,9 +121,10 @@ class CobblemonFabricClient: ClientModInitializer, CobblemonClientImplementation
             val client = Minecraft.getInstance()
             val player = client.player
             if (player != null) {
-                if (player.isUsingPokedex()) {
+                if (player.isUsingPokedex() || pokedexUsageContext.transitionIntervals > 0) {
+                    if (!player.isUsingItem) pokedexUsageContext.resetState(false)
                     pokedexUsageContext.renderUpdate(graphics, tickDelta)
-                } else if (pokedexUsageContext.transitionIntervals > 0) {
+                } else {
                     pokedexUsageContext.resetState()
                 }
             }

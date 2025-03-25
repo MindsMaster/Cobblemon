@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.client.render.pokemon
 
 import com.cobblemon.mod.common.Cobblemon
+import com.cobblemon.mod.common.Rollable
 import com.cobblemon.mod.common.api.pokedex.PokedexEntryProgress
 import com.cobblemon.mod.common.client.CobblemonClient
 import com.cobblemon.mod.common.client.battle.ClientBallDisplay
@@ -18,13 +19,13 @@ import com.cobblemon.mod.common.client.entity.PokemonClientDelegate.Companion.BE
 import com.cobblemon.mod.common.client.entity.PokemonClientDelegate.Companion.BEAM_SHRINK_TIME
 import com.cobblemon.mod.common.client.keybind.boundKey
 import com.cobblemon.mod.common.client.keybind.keybinds.PartySendBinding
+import com.cobblemon.mod.common.client.render.item.HeldItemRenderer
 import com.cobblemon.mod.common.client.render.models.blockbench.PosableModel
 import com.cobblemon.mod.common.client.render.models.blockbench.PosableState
 import com.cobblemon.mod.common.client.render.models.blockbench.pokemon.PosablePokemonEntityModel
 import com.cobblemon.mod.common.client.render.models.blockbench.repository.MiscModelRepository
-import com.cobblemon.mod.common.client.render.models.blockbench.repository.PokeBallModelRepository
-import com.cobblemon.mod.common.client.render.models.blockbench.repository.PokemonModelRepository
 import com.cobblemon.mod.common.client.render.models.blockbench.repository.RenderContext
+import com.cobblemon.mod.common.client.render.models.blockbench.repository.VaryingModelRepository
 import com.cobblemon.mod.common.client.render.pokeball.PokeBallPosableState
 import com.cobblemon.mod.common.client.render.renderBeaconBeam
 import com.cobblemon.mod.common.client.settings.ServerSettings
@@ -41,7 +42,6 @@ import com.cobblemon.mod.common.util.math.geometry.toRadians
 import com.cobblemon.mod.common.util.math.remap
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
-import kotlin.math.*
 import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.Font.DisplayMode
@@ -51,15 +51,14 @@ import net.minecraft.client.renderer.entity.ItemRenderer
 import net.minecraft.client.renderer.entity.MobRenderer
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.MutableComponent
 import net.minecraft.network.chat.Style
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.phys.Vec3
-import org.joml.Math
-import org.joml.Quaternionf
-import org.joml.Vector3f
-import org.joml.Vector4f
+import org.joml.*
+import kotlin.math.*
 
 class PokemonRenderer(
     context: EntityRendererProvider.Context
@@ -75,14 +74,22 @@ class PokemonRenderer(
             .withUnderlined(false)
             .withStrikethrough(false)
             .withObfuscated(false)
+
+        private const val HIDDEN_NAME = "???"
+
+        private const val SPACE = " "
+
+        private const val DISABLE_ROLLING_DEBUG = false
     }
 
     val ballContext = RenderContext().also {
         it.put(RenderContext.RENDER_STATE, RenderContext.RenderState.WORLD)
     }
 
+    private val heldItemRenderer = HeldItemRenderer()
+
     override fun getTextureLocation(entity: PokemonEntity): ResourceLocation {
-        return PokemonModelRepository.getTexture(entity.pokemon.species.resourceIdentifier, entity.delegate as PokemonClientDelegate)
+        return VaryingModelRepository.getTexture(entity.pokemon.species.resourceIdentifier, entity.delegate as PokemonClientDelegate)
     }
 
     override fun render(
@@ -94,8 +101,8 @@ class PokemonRenderer(
         packedLight: Int
     ) {
         val clientDelegate = entity.delegate as PokemonClientDelegate
-        shadowRadius = min((entity.boundingBox.maxX - entity.boundingBox.minX), (entity.boundingBox.maxZ) - (entity.boundingBox.minZ)).toFloat() / 1.5F * (entity.delegate as PokemonClientDelegate).entityScaleModifier
-        model.posableModel = PokemonModelRepository.getPoser(entity.pokemon.species.resourceIdentifier, clientDelegate)
+        shadowRadius = (min((entity.boundingBox.maxX - entity.boundingBox.minX), (entity.boundingBox.maxZ) - (entity.boundingBox.minZ)).toFloat() / 1.5F * (entity.delegate as PokemonClientDelegate).entityScaleModifier)/entity.scale
+        model.posableModel = VaryingModelRepository.getPoser(entity.pokemon.species.resourceIdentifier, clientDelegate)
         model.posableModel.context = model.context
         model.setupEntityTypeContext(entity)
         val modelNow = model.posableModel
@@ -132,10 +139,15 @@ class PokemonRenderer(
             poseMatrix.translate(0.0, 0.25 * (entity.delegate as PokemonClientDelegate).entityScaleModifier, 0.0)
         }
 
-        modelNow.setLayerContext(buffer, clientDelegate, PokemonModelRepository.getLayers(entity.pokemon.species.resourceIdentifier, clientDelegate))
+        modelNow.setLayerContext(buffer, clientDelegate, VaryingModelRepository.getLayers(entity.pokemon.species.resourceIdentifier, clientDelegate))
 
 
-        super.render(entity, entityYaw, partialTicks, poseMatrix, buffer, packedLight)
+        if (entity.passengers.isNotEmpty()) {
+            renderRiding(entity, partialTicks, poseMatrix, buffer, packedLight)
+        }
+        else {
+            super.render(entity, entityYaw, partialTicks, poseMatrix, buffer, packedLight)
+        }
 
         modelNow.green = 1F
         modelNow.blue = 1F
@@ -144,6 +156,50 @@ class PokemonRenderer(
             this.renderNameTag(entity, entity.effectiveName(), poseMatrix, buffer, packedLight, partialTicks)
         }
 //        Minecraft.getInstance().bufferBuilders.entityVertexConsumers.draw()
+
+        //Render Held Item
+        heldItemRenderer.renderOnEntity(
+            entity,
+            entity.shownItem,
+            model.posableModel,
+            clientDelegate,
+            poseMatrix,
+            buffer,
+            packedLight,
+            Vec3(0.0,-90.0,90.0)
+        )
+    }
+
+    fun renderRiding(
+        entity: PokemonEntity,
+        partialTicks: Float,
+        poseMatrix: PoseStack,
+        buffer: MultiBufferSource,
+        packedLight: Int
+    ) {
+        val driver = entity.firstPassenger ?: return
+        val rollable = driver as? Rollable ?: return
+
+        poseMatrix.pushPose()
+
+        if(!DISABLE_ROLLING_DEBUG && rollable.shouldRoll()){
+            val matrix = poseMatrix.last().pose()
+            val yaw = Mth.rotLerp(partialTicks, entity.yBodyRotO, entity.yBodyRot)
+            val center = Vector3f(0f, entity.bbHeight/2, 0f)
+            val transformationMatrix = Matrix4f()
+            //Move origin to center of Pokemon
+            transformationMatrix.translate(center)
+            transformationMatrix.mul(Matrix4f(rollable.orientation))
+            //Move origin to base of the entity
+            transformationMatrix.translate(center.negate(Vector3f()))
+
+            //Pre-undo yaw rotation
+            transformationMatrix.rotate(Axis.YP.rotationDegrees(yaw+180f))
+            matrix.mul(transformationMatrix)
+        }
+
+        super.render(entity, 0f, partialTicks, poseMatrix, buffer, packedLight)
+        poseMatrix.popPose()
     }
 
     fun renderTransition(
@@ -168,8 +224,14 @@ class PokemonRenderer(
 
         val phaseTarget = clientDelegate.phaseTarget ?: return
         poseMatrix.pushPose()
-        var beamSourcePosition = if (phaseTarget is PosableEntity) {
-            (phaseTarget.delegate as PosableState).locatorStates["beam"]?.getOrigin() ?: phaseTarget.position()
+        var beamSourcePosition = if (phaseTarget is NPCEntity) {
+                val npcDelegate = phaseTarget.delegate as NPCClientDelegate
+                val baseScale = phaseTarget.baseScale?.toDouble() ?: 1.0
+
+                (npcDelegate.locatorStates["beam"]?.getOrigin()?.scale(baseScale))
+                    ?: phaseTarget.position().add(0.0, (phaseTarget.bbHeight / 2.0) * baseScale, 0.0)
+                } else if (phaseTarget is PosableEntity) {
+                    (phaseTarget.delegate as PosableState).locatorStates["beam"]?.getOrigin() ?: phaseTarget.position()
         } else {
             if (phaseTarget.uuid == Minecraft.getInstance().player?.uuid) {
                 val lookVec = phaseTarget.lookAngle.yRot((PI / 2).toFloat()).multiply(1.0, 0.0, 1.0).normalize()
@@ -249,7 +311,11 @@ class PokemonRenderer(
                 val lookVec = beamTarget.lookAngle.yRot((PI / 2).toFloat()).multiply(1.0, 0.0, 1.0).normalize()
                 beamTarget.getEyePosition(partialTicks).subtract(0.0, 0.4, 0.0).subtract(lookVec.scale(0.3))
             } else if (beamTarget is NPCEntity) {
-                (beamTarget.delegate as NPCClientDelegate).locatorStates["beam"]?.getOrigin() ?: beamTarget.position()
+                val npcDelegate = beamTarget.delegate as NPCClientDelegate
+                val baseScale = beamTarget.baseScale?.toDouble() ?: 1.0
+
+                (npcDelegate.locatorStates["beam"]?.getOrigin()?.scale(baseScale))
+                    ?: beamTarget.position().add(0.0, (beamTarget.bbHeight / 2.0) * baseScale, 0.0)
             } else {
                 val lookVec = beamTarget.lookAngle.yRot((PI / 2 - (beamTarget.visualRotationYInDegrees - beamTarget.xRot).toRadians()).toFloat()).multiply(1.0, 0.0, 1.0).normalize()
                 beamTarget.getEyePosition(partialTicks).subtract(0.0, 0.7, 0.0).subtract(lookVec.scale(0.4))
@@ -355,23 +421,15 @@ class PokemonRenderer(
             matrices.scale((0.025 * sizeScale).toFloat(), (-0.025 * sizeScale).toFloat(), (1 * sizeScale).toFloat())
             val matrix4f = matrices.last().pose()
             val opacity = (Minecraft.getInstance().options.getBackgroundOpacity(0.25F) * 255.0F).toInt() shl 24
-            var label = if (ServerSettings.displayEntityNameLabel &&
-                !Cobblemon.config.displayNameForUnknownPokemon &&
-                CobblemonClient.clientPokedexData.getKnowledgeForSpecies(entity.pokemon.species.resourceIdentifier) == PokedexEntryProgress.NONE) {
-                Component.literal("???")
-            } else if (ServerSettings.displayEntityNameLabel) {
-                entity.name.copy()
-            } else {
-                Component.empty()
-            }
-            if(ServerSettings.displayEntityNameLabel && ServerSettings.displayEntityLevelLabel && entity.labelLevel() > 0) {
-                label.append(Component.literal(" "))
-            }
+            val label = this.resolveBaseLabel(entity)
             if (ServerSettings.displayEntityLevelLabel && entity.labelLevel() > 0) {
+                if (ServerSettings.displayEntityNameLabel) {
+                    label.append(SPACE)
+                }
                 // This a Style.EMPTY with a lot of effects set to false and color set to white, renderer inherits these from nick otherwise
                 val levelLabel = lang("label.lv", entity.labelLevel())
                     .setStyle(LEVEL_LABEL_STYLE)
-                label = label.append(levelLabel)
+                label.append(levelLabel)
             }
             var h = (-this.font.width(label) / 2).toFloat()
             val y = 0F
@@ -390,6 +448,14 @@ class PokemonRenderer(
         }
     }
 
+    private fun resolveBaseLabel(entity: PokemonEntity): MutableComponent {
+        return when {
+            !ServerSettings.displayEntityNameLabel -> Component.empty()
+            Cobblemon.config.displayNameForUnknownPokemon || CobblemonClient.clientPokedexData.getKnowledgeForSpecies(entity.pokemon.species.resourceIdentifier) != PokedexEntryProgress.NONE -> entity.name.copy()
+            else -> Component.literal(HIDDEN_NAME)
+        }
+    }
+
     private fun drawPokeBall(
         state: ClientBallDisplay,
         matrixStack: PoseStack,
@@ -403,8 +469,8 @@ class PokemonRenderer(
     ) {
         matrixStack.pushPose()
         matrixStack.scale(0.7F, -0.7F, -0.7F)
-        val model = PokeBallModelRepository.getPoser(ball.name, state)
-        val texture = PokeBallModelRepository.getTexture(ball.name, state)
+        val model = VaryingModelRepository.getPoser(ball.name, state)
+        val texture = VaryingModelRepository.getTexture(ball.name, state)
         if (scale == 1.0f) {
             model.moveToPose(state, model.poses["open"]!!)
         } else {
