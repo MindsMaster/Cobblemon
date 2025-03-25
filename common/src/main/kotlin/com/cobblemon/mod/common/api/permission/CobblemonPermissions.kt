@@ -131,6 +131,8 @@ object CobblemonPermissions {
 
     val CALCULATE_SEAT_POSITIONS = this.create("${COMMAND_PREFIX}calculateseatpositions", PermissionLevel.CHEAT_COMMANDS_AND_COMMAND_BLOCKS)
 
+    val SPECTATE_BATTLE = this.create("${COMMAND_PREFIX}spectatebattle", PermissionLevel.ALL_COMMANDS)
+
     fun all(): Iterable<Permission> = this.permissions
 
     private fun create(node: String, level: PermissionLevel): Permission {
