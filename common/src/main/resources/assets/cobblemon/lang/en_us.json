@@ -1570,6 +1570,11 @@
   "cobblemon.command.unlockboxwallpaper.already": "%1$s already has the %2$s wallpaper.",
   "cobblemon.wallpaper_unlocked": "Wallpaper Unlocked",
   "cobblemon.unknown_wallpaper": "???",
+  "cobblemon.command.changeboxcount": "%1$s now has %2$s PC boxes",
+  "cobblemon.command.changeboxcount.removing_not_empty_box": "A box you are trying to remove is not empty",
+  "cobblemon.command.boxcount": "%1$s currently has %2$s PC boxes",
+  "cobblemon.command.changeboxcount.removing_too_many_boxes": "You can't remove all the boxes. %1$s currently has %2$s PC boxes",
+  "cobblemon.command.changeboxcount.force_remove": "Click here to remove anyway",
 
   "cobblemon.config.ui.search_configurations": "Search Configurations",
   "cobblemon.config.ui.reset": "Reset",
