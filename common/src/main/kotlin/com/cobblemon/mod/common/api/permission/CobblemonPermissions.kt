@@ -128,8 +128,12 @@ object CobblemonPermissions {
     val RUN_MOLANG_SCRIPT = this.create("${COMMAND_PREFIX}runmolangscript", PermissionLevel.CHEAT_COMMANDS_AND_COMMAND_BLOCKS)
     @JvmStatic
     val COBBLEMON_CONFIG_RELOAD = this.create("${COMMAND_PREFIX}cobblemonconfig.reload", PermissionLevel.CHEAT_COMMANDS_AND_COMMAND_BLOCKS)
-
+    @JvmStatic
     val CALCULATE_SEAT_POSITIONS = this.create("${COMMAND_PREFIX}calculateseatpositions", PermissionLevel.CHEAT_COMMANDS_AND_COMMAND_BLOCKS)
+    @JvmStatic
+    val CHANGE_BOX_COUNT = this.create("${COMMAND_PREFIX}boxcount", PermissionLevel.CHEAT_COMMANDS_AND_COMMAND_BLOCKS)
+    @JvmStatic
+    val SPECTATE_BATTLE = this.create("${COMMAND_PREFIX}spectatebattle", PermissionLevel.ALL_COMMANDS)
 
     fun all(): Iterable<Permission> = this.permissions
 
