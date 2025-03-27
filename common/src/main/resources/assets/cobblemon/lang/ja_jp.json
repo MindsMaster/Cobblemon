@@ -6157,7 +6157,7 @@
     "item.cobblemon.smooth_rock.tooltip": "持たせたポケモンが すなあらしを 起こすと いつもより すなあらしの時間が 長くなる。",
     "item.cobblemon.icy_rock.tooltip": "持たせたポケモンが 天気を ゆき または あられにすると いつもより 時間が 長くなる。",
     "item.cobblemon.medicinal_leek.tooltip_1": "クスリチャの調合に必要となる。世界の各地に自生しており 旅の供とも呼ばれる。",
-    "item.cobblemon.medicinal_leek.tooltip_2": "カモネギや カモネギ（ガラルのすがた）、ネギガナイトに 持たせると 技が 急所に 当たりやすくなる。",
+    "item.cobblemon.medicinal_leek.tooltip_2": "カモネギや カモネギ（ガラルのすがた）、ネギガナイトに 持たせると 急所に当てる確率が 2段階 あがる。",
     "item.cobblemon.revival_herb.tooltip": "とても にがい 薬草。 ひんしの ポケモン 1匹の HPを 4分の1 回復するが なかよし度は 下がる。",
     "item.cobblemon.berry_juice.tooltip": "きのみ 100％の ジュース。 ポケモンに 使ったり 持たせたりすると HPを 20だけ 回復する。",
     "item.cobblemon.remedy.tooltip": "キズぐすりと同じで ポケモン1匹のHPが60回復するが 苦く なかよし度がさがる。",
@@ -6256,5 +6256,13 @@
     "item.cobblemon.shell_bell.tooltip": "持たせた ポケモンが 攻撃して 相手に ダメージを あたえたとき HPを 少し 回復できる。",
     "item.cobblemon.shell_helmet.tooltip": "とあるポケモンが身に付けていた殻。カブルモに使うと シュバルゴに進化する。",
     "cobblemon.trade.expired.sender": "%1$s との交換リクエストがタイムアウトしました。",
-    "item.cobblemon.ground_gem.tooltip_1": "じめんのタイプの ジュエル。持たせると 1度だけ じめんの 技の威力が 強まる。"
+    "item.cobblemon.ground_gem.tooltip_1": "じめんのタイプの ジュエル。持たせると 1度だけ じめんの 技の威力が 強まる。",
+    "item.cobblemon.x_attack.tooltip": "戦闘中の ポケモンの 攻撃を 2段階 あげる 道具。ひっこめると 元に 戻る。",
+    "item.cobblemon.x_defence.tooltip": "戦闘中の ポケモンの 防御を 2段階 あげる 道具。ひっこめると 元に 戻る。",
+    "item.cobblemon.x_accuracy.tooltip": "戦闘中の ポケモンの 命中率を 2段階 あげる 道具。ひっこめると 元に 戻る。",
+    "item.cobblemon.x_speed.tooltip": "戦闘中の ポケモンの 素早さを 2段階 あげる 道具。ひっこめると 元に 戻る。",
+    "item.cobblemon.x_special_defence.tooltip": "戦闘中の ポケモンの 特防を 2段階 あげる 道具。ひっこめると 元に 戻る。",
+    "item.cobblemon.x_special_attack.tooltip": "戦闘中の ポケモンの 特攻を 2段階 あげる 道具。ひっこめると 元に 戻る。",
+    "item.cobblemon.dire_hit.tooltip": "戦闘中のポケモンが 急所に当てる確率を 2段階 あげる 道具。ひっこめると 元に 戻る。",
+    "item.cobblemon.guard_spec.tooltip": "戦闘中 5ターンの あいだ 味方の 能力を さげられなくする 道具。"
 }
