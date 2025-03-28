@@ -198,17 +198,17 @@ class HelicopterAirController : RideController {
 
     override fun encode(buffer: RegistryFriendlyByteBuf) {
         super.encode(buffer)
-        buffer.writeString(gravity.toString())
-        buffer.writeString(horizontalAcceleration.toString())
-        buffer.writeString(verticalVelocity.toString())
-        buffer.writeString(speed.toString())
+        buffer.writeExpression(gravity)
+        buffer.writeExpression(horizontalAcceleration)
+        buffer.writeExpression(verticalVelocity)
+        buffer.writeExpression(speed)
     }
 
     override fun decode(buffer: RegistryFriendlyByteBuf) {
-        gravity = buffer.readString().asExpression()
-        horizontalAcceleration = buffer.readString().asExpression()
-        verticalVelocity = buffer.readString().asExpression()
-        speed = buffer.readString().asExpression()
+        gravity = buffer.readExpression()
+        horizontalAcceleration = buffer.readExpression()
+        verticalVelocity = buffer.readExpression()
+        speed = buffer.readExpression()
     }
 
 
