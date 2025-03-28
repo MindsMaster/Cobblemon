@@ -112,32 +112,33 @@ class CampfireBlock(settings: Properties) : BaseEntityBlock(settings), SimpleWat
         hitResult: BlockHitResult
     ): InteractionResult {
         val blockEntity = level.getBlockEntity(pos)
-        if (blockEntity is CampfireBlockEntity) {
-            val potItem = blockEntity.getPotItem()
-            if (!potItem?.isEmpty!! && potItem.item is CampfirePotItem) {
-                if (!level.isClientSide) {
-                    if (player.isCrouching) {
-                        // Remove the pot item and give it to the player
-                        removePotItem(blockEntity, state, level, pos, player)
-                    } else {
-                        // Open the cooking pot's container
-                        openContainer(level, pos, player)
-                    }
-                }
-                return InteractionResult.SUCCESS
-            } else if (player.getItemInHand(InteractionHand.MAIN_HAND).item is CampfirePotItem) {
-                // Add the pot item to the block entity
-                if (potItem.isEmpty) {
-                    val heldItem = player.getItemInHand(InteractionHand.MAIN_HAND)
-                    blockEntity.setPotItem(heldItem.split(1))
-                    level.playSoundServer(
-                        position = pos.bottomCenter,
-                        sound = CobblemonSounds.CAMPFIRE_POT_PLACE,
-                    )
-                    return InteractionResult.SUCCESS
+        if (blockEntity !is CampfireBlockEntity) {
+            return InteractionResult.PASS
+        }
+
+        val potItem = blockEntity.getPotItem()?.item as? CampfirePotItem
+        if (potItem != null) {
+            if (!level.isClientSide) {
+                if (player.isCrouching) {
+                    removePotItem(blockEntity, state, level, pos, player)
+                } else {
+                    openContainer(level, pos, player)
                 }
             }
+
+            return InteractionResult.SUCCESS
+        } else if (player.getItemInHand(InteractionHand.MAIN_HAND).item is CampfirePotItem) {
+            val heldItem = player.getItemInHand(InteractionHand.MAIN_HAND)
+            blockEntity.setPotItem(heldItem.split(1))
+
+            level.playSoundServer(
+                position = pos.bottomCenter,
+                sound = CobblemonSounds.CAMPFIRE_POT_PLACE,
+            )
+
+            return InteractionResult.SUCCESS
         }
+
         return InteractionResult.PASS
     }
 
@@ -289,8 +290,13 @@ class CampfireBlock(settings: Properties) : BaseEntityBlock(settings), SimpleWat
                     level.addFreshEntity(itemEntity)
                 }
             }
+
+            level.playSoundServer(
+                position = blockPos.toVec3d(),
+                sound = CobblemonSounds.CAMPFIRE_POT_OPEN,
+                volume = 0.25F
+            )
         }
-        level.playSoundServer(position = blockPos.toVec3d(), sound = CobblemonSounds.CAMPFIRE_POT_OPEN, volume = 0.25F)
 
         return super.playerWillDestroy(level, blockPos, blockState, player)
     }
