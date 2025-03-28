@@ -352,7 +352,7 @@ class BirdAirController : RideController {
         val vertTopSpeed = topSpeed / 2.0
         val vertInput = when {
             driver.jumping -> 1.0
-            driver.isCrouching -> -1.0
+            driver.isShiftKeyDown -> -1.0
             else -> 0.0
         }
 
