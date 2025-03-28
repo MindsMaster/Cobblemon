@@ -120,11 +120,6 @@ public interface Rollable {
         return (float) Mth.wrapDegrees(-Math.toDegrees(getUpVector().angleSigned(UP, getForwardVector())));
     }
 
-    /**
-     * Get the angular velocity in degrees per second as a Vec3
-     */
-    Vec3 angRollVel( double deltaTime );
-
     public Vec3 rotationOnMouseXY(
         double yMouse,
         double xMouse,

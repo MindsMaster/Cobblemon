@@ -11,10 +11,10 @@ package com.cobblemon.mod.common.mixin.client;
 import com.cobblemon.mod.common.Rollable;
 import com.cobblemon.mod.common.client.CobblemonClient;
 import com.cobblemon.mod.common.client.keybind.keybinds.PartySendBinding;
+import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokedex.scanner.PokedexUsageContext;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.mojang.blaze3d.Blaze3D;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.player.LocalPlayer;
@@ -48,8 +48,6 @@ public class MouseHandlerMixin {
     @Shadow private double accumulatedDX;
 
     @Shadow private double accumulatedDY;
-
-    @Shadow private double accumulatedScrollX;
 
     @Inject(
             method = "onScroll",
@@ -153,35 +151,24 @@ public class MouseHandlerMixin {
             (float) angVecMouse.z
         );
 
-
         //Gather and apply the current rotation deltas
-        var angRot = rollable.angRollVel(movementTime);
+        var angRot = cobblemon$getAngularVelocity(movementTime);
 
         //Apply smoothing if requested by the controller.
         //This Might be best if done by the controller itself?
-        if( rollable.useAngVelSmoothing() )
+        if(rollable.useAngVelSmoothing())
         {
-            if( angRot != null ) {
-                var yaw = yawSmoother.getNewDeltaValue(angRot.x * 0.5f, d);
-                var pitch = pitchSmoother.getNewDeltaValue(angRot.y * 0.5f, d);
-                var roll = rollSmoother.getNewDeltaValue(angRot.z * 0.5f, d);
-                rollable.rotate((float) yaw, (float) pitch, (float) roll);
-            }
+            var yaw = yawSmoother.getNewDeltaValue(angRot.x * 0.5f, d);
+            var pitch = pitchSmoother.getNewDeltaValue(angRot.y * 0.5f, d);
+            var roll = rollSmoother.getNewDeltaValue(angRot.z * 0.5f, d);
+            rollable.rotate((float) yaw, (float) pitch, (float) roll);
         }
         //Otherwise simply apply the smoothing
         else
         {
-            if( angRot != null ) {
-                rollable.rotate((float) (
-                    angRot.x * 10 * d),
-                    (float) (angRot.y * 10 * d),
-                    (float) (angRot.z * 10 * d)
-                );
-            }
+            rollable.rotate((float) (angRot.x * 10 * d), (float) (angRot.y * 10 * d), (float) (angRot.z * 10 * d));
         }
         return false;
-
-
     }
 
     @Inject(method = "handleAccumulatedMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;isMouseGrabbed()Z", ordinal = 0))
@@ -194,6 +181,20 @@ public class MouseHandlerMixin {
         var pitch = pitchSmoother.getNewDeltaValue(0, e);
         var roll = rollSmoother.getNewDeltaValue(0, e);
         rollable.rotate(0.0F, (float)pitch, (float)roll);
+    }
+
+    @Unique
+    private Vec3 cobblemon$getAngularVelocity(double deltaTime) {
+        var ret = new Vec3(0.0, 0.0, 0.0);
+        var player = minecraft.player;
+        if (player == null) return ret;
+        if (!(player instanceof Rollable)) return ret;
+
+        var playerVehicle = player.getVehicle();
+        if (playerVehicle == null) return ret;
+        if (!(playerVehicle instanceof PokemonEntity pokemonEntity)) return ret;
+
+        return pokemonEntity.getRiding().angRollVel(pokemonEntity, player, deltaTime);
     }
 
 }
