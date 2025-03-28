@@ -160,9 +160,11 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
                 return
             }
 
-            if (!resultSlotItem.isEmpty && !ItemStack.isSameItemSameComponents(resultSlotItem, cookedItem)) {
-                campfireBlockEntity.cookingProgress = 0
-                return
+            if (!resultSlotItem.isEmpty) {
+                if (!ItemStack.isSameItemSameComponents(resultSlotItem, cookedItem) || resultSlotItem.count >= resultSlotItem.maxStackSize) {
+                    campfireBlockEntity.cookingProgress = 0
+                    return
+                }
             }
 
             campfireBlockEntity.cookingProgress += COOKING_PROGRESS_PER_TICK
