@@ -21,5 +21,6 @@
     "result": {
         "id": "minecraft:rabbit_stew",
         "count": 1
-    }
+    },
+    "seasoningProcessors": []
 }

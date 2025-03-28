@@ -8,13 +8,13 @@
 
 package com.cobblemon.mod.common.client.render.block
 
-import com.cobblemon.mod.common.api.cooking.getColor
 import com.cobblemon.mod.common.block.entity.CakeBlockEntity
 import com.cobblemon.mod.common.block.entity.CakeBlockEntity.Companion.MAX_NUMBER_OF_BITES
-import com.cobblemon.mod.common.item.components.CookingComponent
+import com.cobblemon.mod.common.item.components.FoodColourComponent
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
 import com.mojang.math.Axis
+import kotlin.random.Random
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderType
@@ -24,7 +24,6 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.inventory.InventoryMenu.BLOCK_ATLAS
 import org.joml.Vector3d
-import kotlin.random.Random
 
 open class CakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : BlockEntityRenderer<CakeBlockEntity> {
 
@@ -117,18 +116,18 @@ open class CakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : B
         packedLight: Int,
         packedOverlay: Int
     ) {
-        val cookingComponent = blockEntity.cookingComponent
-        renderCake(cookingComponent, poseStack, bufferSource, packedLight, blockEntity.bites)
+        val foodColourComponent = blockEntity.foodColourComponent
+        renderCake(foodColourComponent, poseStack, bufferSource, packedLight, blockEntity.bites)
     }
 
     fun renderCake(
-        cookingComponent: CookingComponent?,
+        foodColourComponent: FoodColourComponent?,
         poseStack: PoseStack,
         multiBufferSource: MultiBufferSource,
         light: Int,
         bites: Int,
     ) {
-        val seedString = "${cookingComponent?.seasoning1?.color}${cookingComponent?.seasoning2?.color}${cookingComponent?.seasoning3?.color}"
+        val seedString = foodColourComponent?.colours?.joinToString()
         val random = Random(seedString.hashCode())
         val cakeLayout: CakeLayout = CAKE_LAYOUTS[random.nextInt(CAKE_LAYOUTS.size)]
 
@@ -140,9 +139,9 @@ open class CakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : B
         val uClipped = topLayer.u0 + (topLayer.u1 - topLayer.u0) * percentageToRender
 
         val vertexConsumer = multiBufferSource.getBuffer(RenderType.cutout())
-        val primaryColor = cookingComponent?.seasoning1?.color?.let { getColor(it) } ?: WHITE_OPAQUE_COLOR
-        val secondaryColor = cookingComponent?.seasoning2?.color?.let { getColor(it) } ?: WHITE_OPAQUE_COLOR
-        val tertiaryColor = cookingComponent?.seasoning3?.color?.let { getColor(it) } ?: WHITE_OPAQUE_COLOR
+        val primaryColor = foodColourComponent?.colours?.getOrNull(0)?.textureDiffuseColor ?: WHITE_OPAQUE_COLOR
+        val secondaryColor = foodColourComponent?.colours?.getOrNull(1)?.textureDiffuseColor ?: WHITE_OPAQUE_COLOR
+        val tertiaryColor = foodColourComponent?.colours?.getOrNull(2)?.textureDiffuseColor ?: WHITE_OPAQUE_COLOR
 
         poseStack.pushPose()
         poseStack.translate(0.5, 0.5, 0.5)

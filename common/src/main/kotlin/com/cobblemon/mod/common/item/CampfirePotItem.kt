@@ -10,8 +10,6 @@ package com.cobblemon.mod.common.item
 
 import com.cobblemon.mod.common.CobblemonBlocks
 import com.cobblemon.mod.common.CobblemonSounds
-import com.cobblemon.mod.common.block.CampfireBlock.Companion.ITEM_DIRECTION
-import com.cobblemon.mod.common.block.CampfireBlock.Companion.SOUL
 import net.minecraft.core.Direction
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.InteractionResult
@@ -28,7 +26,7 @@ class CampfirePotItem(block: Block): BlockItem(block, Properties()) {
 
     override fun useOn(context: UseOnContext): InteractionResult {
         val world = context.level
-        val blockPos = context.getClickedPos()
+        val blockPos = context.clickedPos
         val blockState = world.getBlockState(blockPos)
         val blockEntity = world.getBlockEntity(blockPos)
         val player = context.player
@@ -58,8 +56,8 @@ class CampfirePotItem(block: Block): BlockItem(block, Properties()) {
 
                 val newBlockState = CobblemonBlocks.CAMPFIRE.defaultBlockState()
                     .setValue(HorizontalDirectionalBlock.FACING, facing)
-                    .setValue(ITEM_DIRECTION, itemFacing)
-                    .setValue(SOUL, isSoul)
+                    .setValue(com.cobblemon.mod.common.block.campfirepot.CampfireBlock.Companion.ITEM_DIRECTION, itemFacing)
+                    .setValue(com.cobblemon.mod.common.block.campfirepot.CampfireBlock.Companion.SOUL, isSoul)
                 world.setBlockAndUpdate(blockPos, newBlockState)
 
                 // Retrieve the new block entity and set the PotItem

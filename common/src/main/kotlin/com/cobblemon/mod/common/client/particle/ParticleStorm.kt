@@ -23,19 +23,16 @@ import com.cobblemon.mod.common.client.render.models.blockbench.PosableState
 import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.particle.SnowstormParticleOptions
-import com.cobblemon.mod.common.util.asExpressionLike
 import com.cobblemon.mod.common.util.math.geometry.transformDirection
 import com.mojang.blaze3d.vertex.PoseStack
-import com.cobblemon.mod.common.util.resolve
+import kotlin.random.Random
 import net.minecraft.client.Minecraft
 import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.particle.NoRenderParticle
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.Vec3
-import kotlin.random.Random
-import net.minecraft.world.entity.LivingEntity
-import net.minecraft.world.level.Level
 import org.joml.Vector4f
 
 /**
@@ -189,7 +186,7 @@ class ParticleStorm(
                 val matrixWrapper = MatrixWrapper()
                 matrixWrapper.updateFunction = { it.updatePosition(entity.position()) }
                 val particleRuntime = MoLangRuntime().setup().setupClient()
-                particleRuntime.environment.query.addFunction("entity") { params -> MoLangFunctions.entityFunctions.flatMap { it(entity).map { it.key to it.value } } }
+                particleRuntime.environment.query.addFunction("entity") { params -> MoLangFunctions.livingEntityFunctions.flatMap { it(entity).map { it.key to it.value } } }
                 return listOf(
                     ParticleStorm(
                         effect = effect,

@@ -14,5 +14,8 @@
     ],
     "result": {
         "id": "cobblemon:star_sweet"
-    }
+    },
+    "seasoningProcessors": [
+        "spawn_bait"
+    ]
 }

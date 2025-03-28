@@ -11,6 +11,7 @@ package com.cobblemon.mod.common.net.messages.client.spawn
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.api.pokeball.PokeBalls
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
+import com.cobblemon.mod.common.api.riding.stats.RidingStat
 import com.cobblemon.mod.common.entity.PlatformType
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
@@ -44,6 +45,7 @@ class SpawnPokemonPacket(
     var spawnYaw: Float,
     var friendship: Int,
     var freezeFrame: Float,
+    var rideBoosts: Map<RidingStat, Float>,
     vanillaSpawnPacket: ClientboundAddEntityPacket
 ) : SpawnExtraDataEntityPacket<SpawnPokemonPacket, PokemonEntity>(vanillaSpawnPacket) {
 
@@ -70,6 +72,7 @@ class SpawnPokemonPacket(
         entity.entityData.get(PokemonEntity.SPAWN_DIRECTION),
         entity.entityData.get(PokemonEntity.FRIENDSHIP),
         entity.entityData.get(PokemonEntity.FREEZE_FRAME),
+        entity.pokemon.getRideBoosts(),
         vanillaSpawnPacket
     )
 
@@ -94,6 +97,11 @@ class SpawnPokemonPacket(
         buffer.writeFloat(this.spawnYaw)
         buffer.writeInt(this.friendship)
         buffer.writeFloat(this.freezeFrame)
+        buffer.writeMap(
+            this.rideBoosts,
+            { pb, value -> pb.writeEnumConstant(value) },
+            { pb, value -> pb.writeFloat(value) }
+        )
     }
 
     override fun applyData(entity: PokemonEntity) {
@@ -121,6 +129,7 @@ class SpawnPokemonPacket(
         entity.entityData.set(PokemonEntity.SPAWN_DIRECTION, spawnYaw)
         entity.entityData.set(PokemonEntity.FRIENDSHIP, friendship)
         entity.entityData.set(PokemonEntity.FREEZE_FRAME, freezeFrame)
+        entity.entityData.set(PokemonEntity.RIDE_BOOSTS, rideBoosts)
     }
 
     override fun checkType(entity: Entity): Boolean = entity is PokemonEntity
@@ -148,9 +157,13 @@ class SpawnPokemonPacket(
             val spawnAngle = buffer.readFloat()
             val friendship = buffer.readInt()
             val freezeFrame = buffer.readFloat()
+            val rideBoosts = buffer.readMap(
+                { it.readEnumConstant(RidingStat::class.java) },
+                { it.readFloat() }
+            )
             val vanillaPacket = decodeVanillaPacket(buffer)
 
-            return SpawnPokemonPacket(ownerId, scaleModifier, speciesId, gender, shiny, formName, aspects, battleId, phasingTargetId, beamModeEmitter, platform, nickname, labelLevel, poseType, unbattlable, hideLabel, caughtBall, spawnAngle, friendship, freezeFrame, vanillaPacket)
+            return SpawnPokemonPacket(ownerId, scaleModifier, speciesId, gender, shiny, formName, aspects, battleId, phasingTargetId, beamModeEmitter, platform, nickname, labelLevel, poseType, unbattlable, hideLabel, caughtBall, spawnAngle, friendship, freezeFrame, rideBoosts, vanillaPacket)
         }
     }
 

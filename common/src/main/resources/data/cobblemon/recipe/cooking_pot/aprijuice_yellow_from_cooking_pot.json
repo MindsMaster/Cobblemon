@@ -8,5 +8,8 @@
     ],
     "result": {
         "id": "cobblemon:aprijuice_yellow"
-    }
+    },
+    "seasoningProcessors": [
+        "flavour"
+    ]
 }

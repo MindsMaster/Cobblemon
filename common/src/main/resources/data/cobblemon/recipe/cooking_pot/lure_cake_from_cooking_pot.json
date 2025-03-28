@@ -8,5 +8,10 @@
     ],
     "result": {
         "id": "cobblemon:lure_cake"
-    }
+    },
+    "seasoningProcessors": [
+        "spawn_bait",
+        "flavour",
+        "food_colour"
+    ]
 }

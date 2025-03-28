@@ -135,7 +135,7 @@ class CandlePokeCakeBlock(settings: Properties) : CakeBlock(settings) {
         player: Player,
         hitResult: BlockHitResult
     ): InteractionResult? {
-        val oldCookingComponent = getCookingComponent(level, pos)
+        val oldCookingComponent = getFoodColourComponent(level, pos)
         val candle = getCandleByMapColorId(state.getValue(CANDLE_COLOR))
 
         val newBlockState = CobblemonBlocks.POKE_CAKE.defaultBlockState()
@@ -144,7 +144,7 @@ class CandlePokeCakeBlock(settings: Properties) : CakeBlock(settings) {
 
         val pokeCakeBlock = newBlockState.block as PokeCakeBlock
         oldCookingComponent?.let {
-            pokeCakeBlock.setCookingComponent(level, pos, it)
+            pokeCakeBlock.setFoodColourComponent(level, pos, it)
         }
 
         val interactionResult = pokeCakeBlock.eat(level, pos, player)

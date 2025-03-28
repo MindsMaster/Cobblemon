@@ -8,6 +8,7 @@
 
 package com.cobblemon.mod.common.client.tooltips
 
+import com.cobblemon.mod.common.api.cooking.Flavour
 import com.cobblemon.mod.common.api.text.*
 import com.cobblemon.mod.common.util.lang
 import net.minecraft.network.chat.Component
@@ -15,26 +16,19 @@ import net.minecraft.network.chat.Component
 val seasoningHeader by lazy { lang("item_class.seasoning").blue() }
 private val flavorSubHeader by lazy { lang("seasoning_flavor_header").blue() }
 
-fun generateAdditionalFlavorTooltip(flavors: Map<String, Int>): MutableList<Component> {
+fun generateAdditionalFlavorTooltip(flavours: Map<Flavour, Int>): MutableList<Component> {
     val resultLines = mutableListOf<Component>()
     resultLines.add(flavorSubHeader)
 
     val combinedFlavorsLine = Component.literal("")
-    flavors.forEach { (flavor, value) ->
-        val flavorLangKey = when (flavor.lowercase()) {
-            "spicy" -> lang("seasoning_flavor.spicy").red()
-            "dry" -> lang("seasoning_flavor.dry").darkAqua()
-            "sweet" -> lang("seasoning_flavor.sweet").lightPurple()
-            "bitter" -> lang("seasoning_flavor.bitter").green()
-            "sour" -> lang("seasoning_flavor.sour").yellow()
-            else -> lang("seasoning_flavor.unknown").gray() // Default for unknown flavors
-        }
+    flavours.forEach { (flavour, value) ->
+        var flavourText = lang("seasoning_flavor.${flavour.name.lowercase()}").withStyle(flavour.chatFormatting)
 
         if (combinedFlavorsLine.string.isNotEmpty()) {
             combinedFlavorsLine.append(" ")
         }
 
-        combinedFlavorsLine.append(flavorLangKey).append(" $value")
+        combinedFlavorsLine.append(flavourText).append(" $value")
     }
 
     resultLines.add(combinedFlavorsLine)

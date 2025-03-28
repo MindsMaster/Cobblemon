@@ -94,7 +94,7 @@ class PokeCakeBlock(settings: Properties): CakeBlock(settings) {
                 stack.shrink(1)
                 level.playSound(null, pos, SoundEvents.CAKE_ADD_CANDLE, SoundSource.BLOCKS, 1.0f, 1.0f)
 
-                val oldCookingComponent = block.getCookingComponent(level, pos)
+                val oldCookingComponent = block.getFoodColourComponent(level, pos)
 
                 val newBlockState = CobblemonBlocks.CANDLE_POKE_CAKE.defaultBlockState()
                     .setValue(CANDLE_COLOR, (item as BlockItem).block.defaultMapColor().id)
@@ -102,7 +102,7 @@ class PokeCakeBlock(settings: Properties): CakeBlock(settings) {
                 level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos)
 
                 oldCookingComponent?.let {
-                    (newBlockState.block as CakeBlock).setCookingComponent(level, pos, it)
+                    (newBlockState.block as CakeBlock).setFoodColourComponent(level, pos, it)
                 }
 
                 player.awardStat(Stats.ITEM_USED[item])

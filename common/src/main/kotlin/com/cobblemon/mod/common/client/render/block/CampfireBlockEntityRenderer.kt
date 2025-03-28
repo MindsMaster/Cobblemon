@@ -8,8 +8,8 @@
 
 package com.cobblemon.mod.common.client.render.block
 
-import com.cobblemon.mod.common.block.CampfireBlock
-import com.cobblemon.mod.common.block.CampfirePotBlock
+import com.cobblemon.mod.common.block.campfirepot.CampfireBlock
+import com.cobblemon.mod.common.block.campfirepot.CampfirePotBlock
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.IS_LID_OPEN_INDEX
 import com.cobblemon.mod.common.item.CampfirePotItem

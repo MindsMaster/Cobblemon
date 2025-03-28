@@ -25,15 +25,6 @@
             }
         },
         {
-            "id": "charizard-1",
-            "pokemon": "charizard",
-            "type": "pokemon",
-            "context": "bait",
-            "bucket": "common",
-            "level": "36-53",
-            "weight": 0.4
-        },
-        {
             "id": "charizard-2",
             "pokemon": "charizard",
             "presets": [

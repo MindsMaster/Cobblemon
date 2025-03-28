@@ -11,23 +11,22 @@ package com.cobblemon.mod.common.client.render.color
 import com.cobblemon.mod.common.CobblemonItemComponents
 import net.minecraft.client.color.item.ItemColor
 import net.minecraft.world.item.ItemStack
-import com.cobblemon.mod.common.api.cooking.getColor
 
 object PokeBaitItemColorProvider : ItemColor {
     override fun getColor(stack: ItemStack, layer: Int): Int {
-        val cookingComponent = stack.get(CobblemonItemComponents.COOKING_COMPONENT) ?: return -1
+        val colourComponent = stack.get(CobblemonItemComponents.FOOD_COLOUR) ?: return -1
 
-        val primaryColor = cookingComponent.seasoning1.color
-        val secondaryColor = cookingComponent.seasoning2.color
-        val tertiaryColor = cookingComponent.seasoning3.color
+        val primaryColor = colourComponent.colours.getOrNull(0)
+        val secondaryColor = colourComponent.colours.getOrNull(1)
+        val tertiaryColor = colourComponent.colours.getOrNull(2)
 
-        val color = when (layer) {
-            0 -> getColor(primaryColor)
-            1 -> getColor(secondaryColor)
-            2 -> getColor(tertiaryColor)
+        val colour = when (layer) {
+            0 -> primaryColor?.textureDiffuseColor
+            1 -> secondaryColor?.textureDiffuseColor
+            2 -> tertiaryColor?.textureDiffuseColor
             else -> -1
         } ?: -1
 
-        return color
+        return colour
     }
 }
