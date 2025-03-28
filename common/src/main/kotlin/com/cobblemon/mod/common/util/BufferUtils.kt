@@ -101,7 +101,7 @@ fun ByteBuf.writeExpression(expression: Expression): ByteBuf {
 }
 
 fun ByteBuf.readExpression(): Expression {
-    return Utf8String.read(this, 32767).asExpression()
+    return this.readString().asExpression()
 }
 
 fun <T> ByteBuf.readNullable(reader: (ByteBuf) -> T): T? {
