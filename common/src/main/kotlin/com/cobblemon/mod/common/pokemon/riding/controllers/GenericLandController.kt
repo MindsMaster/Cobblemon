@@ -17,7 +17,6 @@ import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.pokemon.riding.states.GenericLandState
 import com.cobblemon.mod.common.util.*
-import net.minecraft.client.Minecraft
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SmoothDouble
@@ -115,7 +114,7 @@ class GenericLandController : RideController {
         calculateRideSpaceVel(entity, driver, state)
 
         //Jump the thang!
-        if (Minecraft.getInstance().options.keyJump.isDown() && entity.onGround()) {
+        if (driver.jumping && entity.onGround()) {
             state.rideVel = Vec3(state.rideVel.x, 2.0, state.rideVel.z)
         }
 

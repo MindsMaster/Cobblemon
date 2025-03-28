@@ -19,7 +19,6 @@ import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.pokemon.riding.states.BirdAirState
 import com.cobblemon.mod.common.util.*
-import net.minecraft.client.Minecraft
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
@@ -352,8 +351,8 @@ class BirdAirController : RideController {
         //Vertical movement based on driver input.
         val vertTopSpeed = topSpeed / 2.0
         val vertInput = when {
-            Minecraft.getInstance().options.keyJump.isDown() -> 1.0
-            Minecraft.getInstance().options.keyShift.isDown() -> -1.0
+            driver.jumping -> 1.0
+            driver.isCrouching -> -1.0
             else -> 0.0
         }
 

@@ -23,7 +23,6 @@ import com.cobblemon.mod.common.util.getString
 import com.cobblemon.mod.common.util.readString
 import com.cobblemon.mod.common.util.resolveInt
 import com.cobblemon.mod.common.util.writeString
-import net.minecraft.client.Minecraft
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
@@ -88,7 +87,7 @@ class RunUpToFlightCompositeController : RideController {
                 it.timeTransitioned = entity.level().gameTime
             }
         }
-        else if (state.activeController == landController && Minecraft.getInstance().options.keyJump.isDown &&
+        else if (state.activeController == landController && driver.jumping &&
             state.timeTransitioned + 20 < entity.level().gameTime) {
 
             //Pass the speed to the next state
@@ -143,7 +142,7 @@ class RunUpToFlightCompositeController : RideController {
     ): Vec3 {
         val controller = getActiveController(entity)
         val state = getState(entity, ::CompositeState)
-        val isJumping = Minecraft.getInstance().options.keyJump.isDown
+        val isJumping = driver.jumping
 
         return controller.jumpForce(entity, driver, jumpStrength)
     }

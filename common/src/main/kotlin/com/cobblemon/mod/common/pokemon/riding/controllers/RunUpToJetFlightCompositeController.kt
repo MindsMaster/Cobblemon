@@ -23,7 +23,6 @@ import com.cobblemon.mod.common.util.getString
 import com.cobblemon.mod.common.util.readString
 import com.cobblemon.mod.common.util.resolveInt
 import com.cobblemon.mod.common.util.writeString
-import net.minecraft.client.Minecraft
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
@@ -76,7 +75,7 @@ class RunUpToJetFlightCompositeController : RideController {
         val state = getState(entity, ::RunUpToFlightCompositeState)
         if ((state.activeController == flightController && entity.onGround() &&
             state.timeTransitioned + 20 < entity.level().gameTime) ||
-            (Minecraft.getInstance().options.keySprint.isDown && state.activeController == flightController &&
+            (driver.isSprinting && state.activeController == flightController &&
             state.timeTransitioned + 20 < entity.level().gameTime)) {
 
             //Pass the data to the next state
@@ -100,7 +99,7 @@ class RunUpToJetFlightCompositeController : RideController {
         //having to hit the ground
         else if(
             state.activeController == landController && entity.speed > 0.5 &&
-            Minecraft.getInstance().options.keySprint.isDown() &&
+            driver.isSprinting &&
             state.timeTransitioned + 20 < entity.level().gameTime
         )
         {
