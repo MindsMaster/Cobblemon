@@ -8,17 +8,21 @@
 
 package com.cobblemon.mod.common.client.tooltips
 
-import com.cobblemon.mod.common.CobblemonItemComponents
-import com.cobblemon.mod.common.api.fishing.FishingBaits
+import com.cobblemon.mod.common.api.fishing.SpawnBaitEffects
 import com.cobblemon.mod.common.api.pokemon.egg.EggGroup
-import com.cobblemon.mod.common.api.text.*
+import com.cobblemon.mod.common.api.text.blue
+import com.cobblemon.mod.common.api.text.gold
+import com.cobblemon.mod.common.api.text.green
+import com.cobblemon.mod.common.api.text.obfuscate
+import com.cobblemon.mod.common.api.text.yellow
 import com.cobblemon.mod.common.api.types.ElementalTypes
 import com.cobblemon.mod.common.item.interactive.PokerodItem
 import com.cobblemon.mod.common.pokemon.Gender
 import com.cobblemon.mod.common.util.lang
+import java.text.DecimalFormat
+import net.minecraft.core.component.DataComponents
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
-import java.text.DecimalFormat
 
 object FishingBaitTooltipGenerator : TooltipGenerator() {
     private val fishingBaitHeader by lazy { lang("fishing_bait_effect_header").blue() }
@@ -31,27 +35,30 @@ object FishingBaitTooltipGenerator : TooltipGenerator() {
     )
 
     override fun generateCategoryTooltip(stack: ItemStack, lines: MutableList<Component>): MutableList<Component>? {
-        if (!FishingBaits.isFishingBait(stack)) return null
+        if (stack.get(DataComponents.HIDE_ADDITIONAL_TOOLTIP) != null) {
+            return null
+        }
+        if (!SpawnBaitEffects.isFishingBait(stack)) {
+            return null
+        }
         return mutableListOf(fishingBaitItemClass)
     }
 
     override fun generateAdditionalTooltip(stack: ItemStack, lines: MutableList<Component>): MutableList<Component>? {
+        if (stack.get(DataComponents.HIDE_ADDITIONAL_TOOLTIP) != null) {
+            return null
+        }
         val resultLines = mutableListOf<Component>()
 
         // Determine the FishingBait or combined effects from poke_bait
         val baitEffects = when {
-            (stack.item.asItem()?.toString() == "cobblemon:poke_bait" || stack.item.asItem()?.toString() == "cobblemon:lure_cake") -> {
-                val cookingComponent = stack.get(CobblemonItemComponents.COOKING_COMPONENT) ?: return null
-                listOf(cookingComponent.bait1, cookingComponent.bait2, cookingComponent.bait3)
-                    .flatMap { it.effects }
-            }
-            stack.item is PokerodItem -> PokerodItem.getBaitOnRod(stack)?.effects
-            else -> FishingBaits.getFromBaitItemStack(stack)?.effects
-        } ?: return null
+            stack.item is PokerodItem -> SpawnBaitEffects.getEffectsFromRodItemStack(stack)
+            else -> SpawnBaitEffects.getEffectsFromItemStack(stack)
+        }
 
         if (baitEffects.isEmpty()) return null
 
-        resultLines.addLast(this.fishingBaitHeader)
+        resultLines.add(this.fishingBaitHeader)
 
         val formatter = DecimalFormat("0.##")
 
@@ -75,7 +82,7 @@ object FishingBaitTooltipGenerator : TooltipGenerator() {
                     "typing" -> ElementalTypes.get(effectSubcategory)?.displayName
 
                     "egg_group" -> {
-                        val effectSubcategory = effect.subcategory?.path
+                        val effectSubcategory = effect.subcategory.path
                         val eggGroup = effectSubcategory?.let { EggGroup.fromIdentifier(it) }
                         eggGroup?.let {
                             val langKey = "egg_group.${it.name.lowercase()}"
@@ -92,7 +99,7 @@ object FishingBaitTooltipGenerator : TooltipGenerator() {
                 effectValue++
             }
 
-            resultLines.addLast(
+            resultLines.add(
                 lang(
                     "fishing_bait_effects.$effectType.tooltip",
                     Component.literal(formatter.format(effectChance)).yellow(),

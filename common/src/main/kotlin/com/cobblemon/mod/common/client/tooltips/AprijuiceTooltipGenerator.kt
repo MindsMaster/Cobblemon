@@ -23,15 +23,14 @@ object AprijuiceTooltipGenerator : TooltipGenerator() {
     override fun generateAdditionalTooltip(stack: ItemStack, lines: MutableList<Component>): MutableList<Component>? {
         if (stack.item !is AprijuiceItem) return null
 
-        val cookingComponent = stack.get(CobblemonItemComponents.COOKING_COMPONENT) ?: return null
+        val flavourComponent = stack.get(CobblemonItemComponents.FLAVOUR) ?: return null
 
         val resultLines = mutableListOf<Component>()
 
-        val quality = cookingComponent.getCookingQuality()
+        val quality = flavourComponent.getQuality()
         resultLines.add(lang("cooking.cooking_quality", quality.getLang()))
 
-        val flavors: Map<String, Int> = cookingComponent.getFlavorsSum()
-        resultLines.addAll(generateAdditionalFlavorTooltip(flavors))
+        resultLines.addAll(generateAdditionalFlavorTooltip(flavourComponent.flavours))
 
         return resultLines
     }

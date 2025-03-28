@@ -9,14 +9,14 @@
 package com.cobblemon.mod.common.integration.jei.cooking
 
 import com.cobblemon.mod.common.CobblemonItems
-import com.cobblemon.mod.common.api.cooking.Seasonings
+import com.cobblemon.mod.common.api.berry.Berries
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.CRAFTING_GRID_WIDTH
 import com.cobblemon.mod.common.block.entity.CampfireBlockEntity.Companion.SEASONING_SLOTS
-import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotRecipeBase
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotScreen.Companion.COOK_PROGRESS_HEIGHT
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotScreen.Companion.COOK_PROGRESS_SPRITE
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotScreen.Companion.COOK_PROGRESS_WIDTH
+import com.cobblemon.mod.common.item.crafting.CookingPotRecipeBase
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.common.util.lang
 import mezz.jei.api.constants.VanillaTypes
@@ -41,10 +41,13 @@ class CampfirePotRecipeCategory(registration: IRecipeCategoryRegistration) : IRe
     companion object {
         val RECIPE_TYPE = RecipeType.create("cobblemon", "campfire_pot_recipe", CookingPotRecipeBase::class.java)!!
         val CAMPFIRE_POT_TEXTURE: ResourceLocation = cobblemonResource("textures/gui/jei/campfire_pot.png")
+
         const val TEXTURE_WIDTH = 146
         const val TEXTURE_HEIGHT = 59
         const val WIDTH = 146
         const val HEIGHT = 59
+
+        val EXAMPLE_SEASONINGS = Berries.all().map { it.item()?.defaultInstance }
     }
 
     val guiHelper: IGuiHelper = registration.jeiHelpers.guiHelper
@@ -77,12 +80,11 @@ class CampfirePotRecipeCategory(registration: IRecipeCategoryRegistration) : IRe
             builder.addSlot(RecipeIngredientRole.INPUT, x, y).addIngredients(ingredient)
         }
 
-        val allSeasoningIngredients = Seasonings.allSeasoningItems.map { it.defaultInstance }
         for ((index, _) in SEASONING_SLOTS.withIndex()) {
             val x = 93 + index * 18
             val y = 1
 
-            builder.addSlot(RecipeIngredientRole.INPUT, x, y).addIngredients(VanillaTypes.ITEM_STACK, allSeasoningIngredients.shuffled())
+            builder.addSlot(RecipeIngredientRole.INPUT, x, y).addIngredients(VanillaTypes.ITEM_STACK, EXAMPLE_SEASONINGS.shuffled())
         }
 
         val registryAccess = Minecraft.getInstance().level?.registryAccess() ?: throw IllegalStateException("Registry access not found")

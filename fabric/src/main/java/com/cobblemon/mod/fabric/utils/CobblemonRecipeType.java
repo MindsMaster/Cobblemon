@@ -8,7 +8,7 @@
 
 package com.cobblemon.mod.fabric.utils;
 
-import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotRecipe;
+import com.cobblemon.mod.common.item.crafting.CookingPotRecipe;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;

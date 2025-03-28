@@ -15,6 +15,7 @@ import com.cobblemon.mod.common.api.net.serializers.IdentifierDataSerializer
 import com.cobblemon.mod.common.api.net.serializers.NPCPlayerTextureSerializer
 import com.cobblemon.mod.common.api.net.serializers.PlatformTypeDataSerializer
 import com.cobblemon.mod.common.api.net.serializers.PoseTypeDataSerializer
+import com.cobblemon.mod.common.api.net.serializers.RideBoostsDataSerializer
 import com.cobblemon.mod.common.api.net.serializers.StringSetDataSerializer
 import com.cobblemon.mod.common.api.net.serializers.UUIDSetDataSerializer
 import com.cobblemon.mod.common.api.net.serializers.Vec3DataSerializer
@@ -265,6 +266,7 @@ class CobblemonNeoForge : CobblemonImplementation {
                 helper.register(Vec3DataSerializer.ID, Vec3DataSerializer)
                 helper.register(StringSetDataSerializer.ID, StringSetDataSerializer)
                 helper.register(PoseTypeDataSerializer.ID, PoseTypeDataSerializer)
+                helper.register(RideBoostsDataSerializer.ID, RideBoostsDataSerializer)
                 helper.register(PlatformTypeDataSerializer.ID, PlatformTypeDataSerializer)
                 helper.register(IdentifierDataSerializer.ID, IdentifierDataSerializer)
                 helper.register(UUIDSetDataSerializer.ID, UUIDSetDataSerializer)
@@ -367,13 +369,15 @@ class CobblemonNeoForge : CobblemonImplementation {
         }
     }
 
-    override fun registerVillagers() {
+    override fun registerPoiTypes() {
         MOD_BUS.addListener<RegisterEvent> { event ->
-            event.register(CobblemonVillagerPoiTypes.resourceKey) { helper ->
-                CobblemonVillagerPoiTypes.register { identifier, type -> helper.register(identifier, type) }
+            event.register(CobblemonPoiTypes.resourceKey) { helper ->
+                CobblemonPoiTypes.register { identifier, type -> helper.register(identifier, type) }
             }
         }
+    }
 
+    override fun registerVillagers() {
         MOD_BUS.addListener<RegisterEvent> { event ->
             event.register(CobblemonVillagerProfessions.resourceKey) { helper ->
                 CobblemonVillagerProfessions.register { identifier, profession -> helper.register(identifier, profession) }

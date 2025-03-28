@@ -9,7 +9,7 @@
 package com.cobblemon.mod.common
 
 
-import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotMenu
+import com.cobblemon.mod.common.block.campfirepot.CookingPotMenu
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotScreen
 import com.cobblemon.mod.common.platform.PlatformRegistry
 import net.minecraft.client.gui.screens.MenuScreens

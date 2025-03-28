@@ -8,32 +8,41 @@
 
 package com.cobblemon.mod.common.api.cooking
 
+import com.cobblemon.mod.common.api.conditional.ITEM_REGISTRY_LIKE_CODEC
+import com.cobblemon.mod.common.api.conditional.RegistryLikeCondition
+import com.cobblemon.mod.common.api.conditional.RegistryLikeIdentifierCondition
 import com.cobblemon.mod.common.util.cobblemonResource
+import com.google.gson.annotations.SerializedName
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import net.minecraft.resources.ResourceLocation
+import io.netty.buffer.ByteBuf
+import net.minecraft.network.codec.ByteBufCodecs
+import net.minecraft.network.codec.StreamCodec
+import net.minecraft.world.item.DyeColor
+import net.minecraft.world.item.Item
 
 data class Seasoning(
-    val ingredient: ResourceLocation,
-    val flavors: Map<String, Int>, // Updated to store a map of flavor types and values
-    val color: String,
-    val quality: Int
+    val ingredient: RegistryLikeCondition<Item>,
+    @SerializedName("flavours", alternate = ["flavors"])
+    val flavours: Map<Flavour, Int>,
+    @SerializedName("colour", alternate = ["color"])
+    val colour: DyeColor,
 ) {
     companion object {
         val CODEC: Codec<Seasoning> = RecordCodecBuilder.create { builder ->
             builder.group(
-                ResourceLocation.CODEC.fieldOf("ingredient").forGetter<Seasoning> { it.ingredient },
-                Codec.unboundedMap(Codec.STRING, Codec.INT).fieldOf("flavors").forGetter<Seasoning> { it.flavors }, // Use map codec
-                Codec.STRING.fieldOf("color").forGetter<Seasoning> { it.color },
-                Codec.INT.fieldOf("quality").forGetter<Seasoning> { it.quality }
+                ITEM_REGISTRY_LIKE_CODEC.fieldOf("ingredient").forGetter { it.ingredient },
+                Codec.unboundedMap(Flavour.CODEC, Codec.INT).fieldOf("flavours").forGetter { it.flavours }, // Use map codec
+                DyeColor.CODEC.fieldOf("colour").forGetter { it.colour },
             ).apply(builder, ::Seasoning)
         }
 
+        val STREAM_CODEC: StreamCodec<ByteBuf, Seasoning> = ByteBufCodecs.fromCodec(CODEC)
+
         val BLANK_SEASONING = Seasoning(
-            ingredient = cobblemonResource("blank"),
-            flavors = mapOf("spicy" to 0, "dry" to 0, "sweet" to 0, "bitter" to 0, "sour" to 0), // Default to all 0
-            color = "",
-            quality = 0
+            ingredient = RegistryLikeIdentifierCondition<Item>(cobblemonResource("blank")),
+            flavours = Flavour.entries.associate { it to 0 },
+            colour = DyeColor.WHITE,
         )
     }
 }

@@ -113,6 +113,7 @@ class ModelWidget(
         )
 
         heldItemRenderer.renderOnModel(
+            state.currentModel!!,
             heldItem?: ItemStack.EMPTY,
             state.locatorStates,
             matrices,

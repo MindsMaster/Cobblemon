@@ -94,6 +94,7 @@ interface CobblemonImplementation {
      */
     fun registerBlockEntityTypes()
 
+    fun registerPoiTypes()
     /**
      * TODO
      *

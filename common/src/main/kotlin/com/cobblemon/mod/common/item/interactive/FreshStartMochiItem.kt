@@ -21,7 +21,7 @@ import net.minecraft.world.level.Level
 
 class FreshStartMochiItem : CobblemonItem(Properties()), PokemonSelectingItem {
     override val bagItem = null
-    override fun canUseOnPokemon(pokemon: Pokemon) = pokemon.evs.any { it.value > 0 }
+    override fun canUseOnPokemon(stack: ItemStack, pokemon: Pokemon) = pokemon.evs.any { it.value > 0 }
 
     override fun applyToPokemon(
         player: ServerPlayer,

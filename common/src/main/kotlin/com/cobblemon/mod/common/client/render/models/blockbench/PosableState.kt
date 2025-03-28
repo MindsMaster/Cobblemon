@@ -36,6 +36,7 @@ import com.cobblemon.mod.common.client.render.models.blockbench.quirk.QuirkData
 import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
+import java.util.concurrent.ConcurrentLinkedQueue
 import net.minecraft.client.Minecraft
 import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
@@ -43,8 +44,6 @@ import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.phys.Vec3
-import org.joml.Matrix4f
-import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
  * Represents some kind of animation state for an entity or GUI element or other renderable component in the game.

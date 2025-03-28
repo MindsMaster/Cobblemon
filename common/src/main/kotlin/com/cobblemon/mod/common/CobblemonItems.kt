@@ -8,6 +8,7 @@
 
 package com.cobblemon.mod.common
 
+import com.cobblemon.mod.common.api.apricorn.Apricorn
 import com.cobblemon.mod.common.api.item.ability.AbilityChanger
 import com.cobblemon.mod.common.api.mulch.MulchVariant
 import com.cobblemon.mod.common.api.pokeball.PokeBalls
@@ -19,7 +20,6 @@ import com.cobblemon.mod.common.api.text.gray
 import com.cobblemon.mod.common.block.BerryBlock
 import com.cobblemon.mod.common.block.MintBlock
 import com.cobblemon.mod.common.block.MintBlock.MintType
-import com.cobblemon.mod.common.client.cooking.AprijuiceTypes
 import com.cobblemon.mod.common.client.pokedex.PokedexType
 import com.cobblemon.mod.common.entity.boat.CobblemonBoatType
 import com.cobblemon.mod.common.item.*
@@ -27,9 +27,14 @@ import com.cobblemon.mod.common.item.armor.CobblemonArmorTrims
 import com.cobblemon.mod.common.item.battle.DireHitItem
 import com.cobblemon.mod.common.item.battle.GuardSpecItem
 import com.cobblemon.mod.common.item.battle.XStatItem
-import com.cobblemon.mod.common.item.berry.*
+import com.cobblemon.mod.common.item.berry.BerryItem
+import com.cobblemon.mod.common.item.berry.FriendshipRaisingBerryItem
+import com.cobblemon.mod.common.item.berry.HealingBerryItem
+import com.cobblemon.mod.common.item.berry.PPRestoringBerryItem
+import com.cobblemon.mod.common.item.berry.PortionHealingBerryItem
+import com.cobblemon.mod.common.item.berry.StatusCuringBerryItem
+import com.cobblemon.mod.common.item.berry.VolatileCuringBerryItem
 import com.cobblemon.mod.common.item.interactive.*
-import com.cobblemon.mod.common.item.interactive.PotionItem
 import com.cobblemon.mod.common.item.interactive.ability.AbilityChangeItem
 import com.cobblemon.mod.common.platform.PlatformRegistry
 import com.cobblemon.mod.common.pokeball.PokeBall
@@ -45,7 +50,14 @@ import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.food.FoodProperties
-import net.minecraft.world.item.*
+import net.minecraft.world.item.BlockItem
+import net.minecraft.world.item.HangingSignItem
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.Items
+import net.minecraft.world.item.Rarity
+import net.minecraft.world.item.SignItem
+import net.minecraft.world.item.SmithingTemplateItem
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.Block
 
@@ -336,19 +348,19 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
 
     val aprijuices = mutableListOf<AprijuiceItem>()
     @JvmField
-    val APRIJUICE_BLACK = aprijuiceItem(AprijuiceTypes.BLACK)
+    val APRIJUICE_BLACK = aprijuiceItem(Apricorn.BLACK)
     @JvmField
-    val APRIJUICE_RED = aprijuiceItem(AprijuiceTypes.RED)
+    val APRIJUICE_RED = aprijuiceItem(Apricorn.RED)
     @JvmField
-    val APRIJUICE_BLUE = aprijuiceItem(AprijuiceTypes.BLUE)
+    val APRIJUICE_BLUE = aprijuiceItem(Apricorn.BLUE)
     @JvmField
-    val APRIJUICE_GREEN = aprijuiceItem(AprijuiceTypes.GREEN)
+    val APRIJUICE_GREEN = aprijuiceItem(Apricorn.GREEN)
     @JvmField
-    val APRIJUICE_YELLOW = aprijuiceItem(AprijuiceTypes.YELLOW)
+    val APRIJUICE_YELLOW = aprijuiceItem(Apricorn.YELLOW)
     @JvmField
-    val APRIJUICE_WHITE = aprijuiceItem(AprijuiceTypes.WHITE)
+    val APRIJUICE_WHITE = aprijuiceItem(Apricorn.WHITE)
     @JvmField
-    val APRIJUICE_PINK = aprijuiceItem(AprijuiceTypes.PINK)
+    val APRIJUICE_PINK = aprijuiceItem(Apricorn.PINK)
 
     @JvmField
     val POKE_PUFF = noSettingsItem("poke_puff") // todo make a PokePuffItem class for friendship boosting purposes
@@ -356,6 +368,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     // FOODS
     @JvmField
     val SWEET_HEART = noSettingsItem("sweet_heart") // todo make a SweetHeartItem class for breeding purposes
+
     @JvmField
     val PEWTER_CRUNCHIES = create("pewter_crunchies", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
@@ -369,6 +382,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
             return super.finishUsingItem(stack, world, user)
         }
     })
+
     @JvmField
     val RAGE_CANDY_BAR = create("rage_candy_bar", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
@@ -382,6 +396,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
             return super.finishUsingItem(stack, world, user)
         }
     })
+
     @JvmField
     val LAVA_COOKIE = create("lava_cookie", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
@@ -395,6 +410,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
             return super.finishUsingItem(stack, world, user)
         }
     })
+
     @JvmField
     val OLD_GATEAU = create("old_gateau", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
@@ -408,6 +424,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
             return super.finishUsingItem(stack, world, user)
         }
     })
+
     @JvmField
     val CASTELIACONE = create("casteliacone", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
@@ -421,6 +438,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
             return super.finishUsingItem(stack, world, user)
         }
     })
+
     @JvmField
     val SHALOR_SABLE = create("shalor_sable", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
@@ -434,6 +452,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
             return super.finishUsingItem(stack, world, user)
         }
     })
+
     @JvmField
     val LUMIOSE_GALETTE = create("lumiose_galette", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
@@ -447,6 +466,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
             return super.finishUsingItem(stack, world, user)
         }
     })
+
     @JvmField
     val BIG_MALASADA = create("big_malasada", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
@@ -460,6 +480,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
             return super.finishUsingItem(stack, world, user)
         }
     })
+
     /*@JvmField // todo see what we are doing for these (are there different kinds?)
     val CURRY = create("curry", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
@@ -474,6 +495,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
             return super.finishUsingItem(stack, world, user)
         }
     })*/
+
     @JvmField
     val JUBILIFE_MUFFIN = create("jubilife_muffin", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
@@ -487,6 +509,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
             return super.finishUsingItem(stack, world, user)
         }
     })
+
     /*@JvmField // todo see what we are doing for these (are there different kinds?)
     val SANDWICH = create("sandwich", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
@@ -1605,7 +1628,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
         return item
     }
 
-    private fun aprijuiceItem(type: AprijuiceTypes): AprijuiceItem {
+    private fun aprijuiceItem(type: Apricorn): AprijuiceItem {
         val item = create("aprijuice_${type.name.lowercase()}", AprijuiceItem(type))
         aprijuices.add(item)
         return item
@@ -1626,6 +1649,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
                 CobblemonHeldItemManager.registerRemap(it, remappedName)
                 CobblemonHeldItemManager.registerRemap(Items.BONE, "thickclub")
                 CobblemonHeldItemManager.registerRemap(Items.SNOWBALL, "snowball")
+                CobblemonHeldItemManager.registerRemap(Items.GOLD_BLOCK, "bignugget")
             }
         }
     )

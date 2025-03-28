@@ -14,6 +14,7 @@ import com.cobblemon.mod.common.api.tags.CobblemonItemTags.WEARABLE_HAT_ITEMS
 import com.cobblemon.mod.common.client.entity.PokemonClientDelegate
 import com.cobblemon.mod.common.client.render.MatrixWrapper
 import com.cobblemon.mod.common.client.render.models.blockbench.NullObjectParser
+import com.cobblemon.mod.common.client.render.models.blockbench.PosableModel
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
@@ -28,10 +29,16 @@ class HeldItemRenderer() {
     private val itemRenderer = Minecraft.getInstance().itemRenderer
     private var displayContext = ItemDisplayContext.FIXED
     private var scale = 1.0f
-    private var prevItem = ItemStack.EMPTY
+
+    companion object {
+        const val ITEM_FACE = "item_face"
+        const val ITEM_HAT = "item_hat"
+        const val ITEM = "item"
+    }
 
     fun render(
         entity: PokemonEntity?,
+        model: PosableModel,
         item: ItemStack,
         locators: Map<String, MatrixWrapper>,
         poseStack: PoseStack,
@@ -40,28 +47,29 @@ class HeldItemRenderer() {
         seed: Int
     ) {
         if (item.isEmpty) return
-        val locatorName: String
+        displayContext = ItemDisplayContext.FIXED
 
         poseStack.pushPose()
         when {
-            (locators.containsKey("item_face") && item.`is`(WEARABLE_FACE_ITEMS)) -> {
-                locatorName="item_face"
-                displayContext = ItemDisplayContext.HEAD
-                poseStack.mulPose(locators["item_face"]!!.matrix)
+            (locators.containsKey(ITEM_FACE) && item.`is`(WEARABLE_FACE_ITEMS)) -> {
+                displayContext = model.getLocatorDisplayContext(ITEM_FACE) ?: ItemDisplayContext.HEAD
+                poseStack.mulPose(locators[ITEM_FACE]!!.matrix)
                 poseStack.translate(0f, 0f, .28f * scale)
                 poseStack.scale(0.7f * scale, 0.7f * scale, 0.7f * scale)
             }
             (locators.containsKey("item_hat") && item.`is`(WEARABLE_HAT_ITEMS)) -> {
-                locatorName="item_hat"
-                displayContext = ItemDisplayContext.HEAD
+                displayContext = model.getLocatorDisplayContext(ITEM_HAT) ?: ItemDisplayContext.HEAD
                 poseStack.mulPose(locators["item_hat"]!!.matrix)
                 poseStack.translate(0f, -0.26f * scale, 0f)
                 poseStack.scale(.68f * scale, .68f * scale, .68f * scale)
             }
             (locators.containsKey("item")) -> {
-                locatorName="item"
+                updateModifiers("item",locators)
                 poseStack.mulPose(locators["item"]!!.matrix)
-                when(displayContext) {
+
+                displayContext = model.getLocatorDisplayContext(ITEM) ?: ItemDisplayContext.FIXED
+
+                when (displayContext) {
                     ItemDisplayContext.FIXED -> {
                         poseStack.translate(0f, 0.01666f * scale, 0f)
                         poseStack.scale(.5f * scale, .5f * scale, .5f * scale)
@@ -83,29 +91,26 @@ class HeldItemRenderer() {
                 return
             }
         }
-        //Modifiers only need to be updated once if the item changes
-        if (!ItemStack.isSameItemSameComponents(prevItem, item)) {
-            updateModifiers(locatorName,locators)
-            prevItem=item
-        }
 
         itemRenderer.renderStatic(entity, item, displayContext, false, poseStack, buffer, null, light, OverlayTexture.NO_OVERLAY, seed)
         poseStack.popPose()
     }
 
     fun renderOnModel(
+        model: PosableModel,
         item: ItemStack,
         locators: Map<String, MatrixWrapper>,
         poseStack: PoseStack,
         buffer: MultiBufferSource,
         light: Int = LightTexture.pack(11, 7)
     ){
-        if (!item.`is`(CobblemonItemTags.HIDDEN_ITEMS)) render(null, item, locators, poseStack, buffer, light, 0)
+        if (!item.`is`(CobblemonItemTags.HIDDEN_ITEMS)) render(null, model, item, locators, poseStack, buffer, light, 0)
     }
 
     fun renderOnEntity(
         entity: PokemonEntity,
         delegate: PokemonClientDelegate,
+        model: PosableModel,
         poseStack: PoseStack,
         buffer: MultiBufferSource,
         light: Int
@@ -113,7 +118,7 @@ class HeldItemRenderer() {
         val shownItem = entity.shownItem
         val locators: Map<String, MatrixWrapper> = delegate.locatorStates
 
-        render(entity, shownItem, locators, poseStack, buffer, light, 0)
+        render(entity, model, shownItem, locators, poseStack, buffer, light, 0)
     }
 
     private fun updateModifiers(name: String, locators: Map<String, MatrixWrapper>) {

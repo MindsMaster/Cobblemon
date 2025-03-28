@@ -8,5 +8,9 @@
     ],
     "result": {
         "id": "cobblemon:poke_cake"
-    }
+    },
+    "seasoningProcessors": [
+        "flavour",
+        "food_colour"
+    ]
 }

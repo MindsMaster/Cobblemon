@@ -9,7 +9,7 @@
 package com.cobblemon.mod.common.client.render.color
 
 import com.cobblemon.mod.common.CobblemonItemComponents
-import com.cobblemon.mod.common.api.cooking.getColorMixFromCookingComponent
+import com.cobblemon.mod.common.api.cooking.getColourMixFromFlavours
 import com.cobblemon.mod.common.client.pot.CookingQuality
 import net.minecraft.ChatFormatting
 import net.minecraft.client.color.item.ItemColor
@@ -24,10 +24,10 @@ object AprijuiceItemColorProvider : ItemColor {
     override fun getColor(stack: ItemStack, layer: Int): Int {
         if (layer == 0) return -1
 
-        val cookingComponent = stack.get(CobblemonItemComponents.COOKING_COMPONENT) ?: return -1
+        val flavourComponent = stack.get(CobblemonItemComponents.FLAVOUR) ?: return -1
 
         if (layer == LEAF_INDEX) {
-            val quality = cookingComponent.getCookingQuality()
+            val quality = flavourComponent.getQuality()
             val color = when (quality) {
                 CookingQuality.LOW -> ChatFormatting.RED.color
                 CookingQuality.MEDIUM -> ChatFormatting.YELLOW.color
@@ -38,7 +38,7 @@ object AprijuiceItemColorProvider : ItemColor {
         }
 
         if (layer == JUICE_INDEX) {
-            val colorMix = getColorMixFromCookingComponent(cookingComponent)
+            val colorMix = getColourMixFromFlavours(flavourComponent.getDominantFlavours())
             if (colorMix != null) return colorMix
         }
 
