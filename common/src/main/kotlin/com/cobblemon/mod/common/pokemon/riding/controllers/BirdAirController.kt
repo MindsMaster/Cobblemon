@@ -234,23 +234,23 @@ class BirdAirController : RideController {
 
     override fun encode(buffer: RegistryFriendlyByteBuf) {
         super.encode(buffer)
-        buffer.writeString(topSpeedExpr.toString())
-        buffer.writeString(glideTopSpeedExpr.toString())
-        buffer.writeString(accelExpr.toString())
-        buffer.writeString(handlingExpr.toString())
-        buffer.writeString(altitudeExpr.toString())
-        buffer.writeString(infiniteStamina.toString())
-        buffer.writeString(infiniteAltitude.toString())
+        buffer.writeExpression(topSpeedExpr)
+        buffer.writeExpression(glideTopSpeedExpr)
+        buffer.writeExpression(accelExpr)
+        buffer.writeExpression(handlingExpr)
+        buffer.writeExpression(altitudeExpr)
+        buffer.writeExpression(infiniteStamina)
+        buffer.writeExpression(infiniteAltitude)
     }
 
     override fun decode(buffer: RegistryFriendlyByteBuf) {
-        topSpeedExpr = buffer.readString().asExpression()
-        glideTopSpeedExpr = buffer.readString().asExpression()
-        accelExpr = buffer.readString().asExpression()
-        handlingExpr = buffer.readString().asExpression()
-        altitudeExpr = buffer.readString().asExpression()
-        infiniteStamina = buffer.readString().asExpression()
-        infiniteAltitude = buffer.readString().asExpression()
+        topSpeedExpr = buffer.readExpression()
+        glideTopSpeedExpr = buffer.readExpression()
+        accelExpr = buffer.readExpression()
+        handlingExpr = buffer.readExpression()
+        altitudeExpr = buffer.readExpression()
+        infiniteStamina = buffer.readExpression()
+        infiniteAltitude = buffer.readExpression()
     }
 
 

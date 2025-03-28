@@ -16,14 +16,7 @@ import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
 import com.cobblemon.mod.common.api.riding.stats.RidingStat
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
-import com.cobblemon.mod.common.util.asExpression
-import com.cobblemon.mod.common.util.cobblemonResource
-import com.cobblemon.mod.common.util.getString
-import com.cobblemon.mod.common.util.readString
-import com.cobblemon.mod.common.util.resolveBoolean
-import com.cobblemon.mod.common.util.resolveDouble
-import com.cobblemon.mod.common.util.resolveFloat
-import com.cobblemon.mod.common.util.writeString
+import com.cobblemon.mod.common.util.*
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.LivingEntity
@@ -72,13 +65,13 @@ class GliderAirController : RideController {
     override fun jumpForce(entity: PokemonEntity, driver: Player, jumpStrength: Int) = Vec3.ZERO
     override fun encode(buffer: RegistryFriendlyByteBuf) {
         super.encode(buffer)
-        buffer.writeString(glideSpeed.toString())
-        buffer.writeString(speed.toString())
+        buffer.writeExpression(glideSpeed)
+        buffer.writeExpression(speed)
     }
 
     override fun decode(buffer: RegistryFriendlyByteBuf) {
-        glideSpeed = buffer.readString().asExpression()
-        speed = buffer.readString().asExpression()
+        glideSpeed = buffer.readExpression()
+        speed = buffer.readExpression()
     }
 
     companion object {
