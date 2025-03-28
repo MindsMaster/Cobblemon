@@ -130,19 +130,9 @@ public class MouseHandlerMixin {
             return true;
         }
 
-        var defaultSensitivity = this.minecraft.options.sensitivity().get() * 0.6000000238418579 + 0.20000000298023224;
-        var ridingSensitivity = Math.pow(defaultSensitivity, 3);
-
         //Send mouse input to be interpreted into rotation
         //deltas by the ride controller
-        Vec3 angVecMouse = rollable.rotationOnMouseXY(
-            cursorDeltaY,
-            cursorDeltaX ,
-            yMouseSmoother,
-            xMouseSmoother,
-            ridingSensitivity,
-            movementTime
-        );
+        Vec3 angVecMouse = cobblemon$getRideMouseRotation(cursorDeltaX, cursorDeltaY, movementTime);
 
         //Perform Rotation using mouse influenced rotation deltas.
         rollable.rotate(
@@ -156,7 +146,7 @@ public class MouseHandlerMixin {
 
         //Apply smoothing if requested by the controller.
         //This Might be best if done by the controller itself?
-        if(rollable.useAngVelSmoothing())
+        if(cobblemon$shouldUseAngVelSmoothing())
         {
             var yaw = yawSmoother.getNewDeltaValue(angRot.x * 0.5f, d);
             var pitch = pitchSmoother.getNewDeltaValue(angRot.y * 0.5f, d);
@@ -185,16 +175,55 @@ public class MouseHandlerMixin {
 
     @Unique
     private Vec3 cobblemon$getAngularVelocity(double deltaTime) {
-        var ret = new Vec3(0.0, 0.0, 0.0);
         var player = minecraft.player;
-        if (player == null) return ret;
-        if (!(player instanceof Rollable)) return ret;
+        if (player == null) return Vec3.ZERO;
+        if (!(player instanceof Rollable)) return Vec3.ZERO;
 
         var playerVehicle = player.getVehicle();
-        if (playerVehicle == null) return ret;
-        if (!(playerVehicle instanceof PokemonEntity pokemonEntity)) return ret;
+        if (playerVehicle == null) return Vec3.ZERO;
+        if (!(playerVehicle instanceof PokemonEntity pokemonEntity)) return Vec3.ZERO;
 
         return pokemonEntity.getRiding().angRollVel(pokemonEntity, player, deltaTime);
+    }
+
+    @Unique
+    private Vec3 cobblemon$getRideMouseRotation(double mouseX, double mouseY, double deltaTime) {
+        var player = minecraft.player;
+        if (player == null) return Vec3.ZERO;
+        var vehicle = player.getVehicle();
+        if (vehicle == null) return Vec3.ZERO;
+        if (!(vehicle instanceof PokemonEntity pokemon)) return Vec3.ZERO;
+
+        var sensitivity = cobblemon$getRidingSensitivity();
+
+        return pokemon.getRiding().rotationOnMouseXY(
+                pokemon,
+                player,
+                mouseY,
+                mouseX,
+                yMouseSmoother,
+                xMouseSmoother,
+                sensitivity,
+                deltaTime
+        );
+    }
+
+    @Unique
+    private double cobblemon$getRidingSensitivity() {
+        var sensitivity = this.minecraft.options.sensitivity().get() * 0.6000000238418579 + 0.20000000298023224;
+        return Math.pow(sensitivity, 3);
+    }
+
+    @Unique
+    private boolean cobblemon$shouldUseAngVelSmoothing() {
+        var player = minecraft.player;
+        if (player == null) return true;
+
+        var playerVehicle = player.getVehicle();
+        if (playerVehicle == null) return true;
+        if (!(playerVehicle instanceof PokemonEntity pokemonEntity)) return true;
+
+        return pokemonEntity.getRiding().useAngVelSmoothing(pokemonEntity);
     }
 
 }

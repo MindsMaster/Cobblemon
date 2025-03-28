@@ -120,18 +120,7 @@ public interface Rollable {
         return (float) Mth.wrapDegrees(-Math.toDegrees(getUpVector().angleSigned(UP, getForwardVector())));
     }
 
-    public Vec3 rotationOnMouseXY(
-        double yMouse,
-        double xMouse,
-        SmoothDouble yMouseSmoother,
-        SmoothDouble xMouseSmoother,
-        double sensitivity,
-        double deltaTime
-    );
-
     boolean shouldRoll();
-
-    boolean useAngVelSmoothing();
 
     void clearRotation();
 
