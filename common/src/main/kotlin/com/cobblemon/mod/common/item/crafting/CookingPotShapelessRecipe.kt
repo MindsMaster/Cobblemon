@@ -17,16 +17,11 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.DataResult
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import net.minecraft.core.HolderLookup
 import net.minecraft.core.NonNullList
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.network.codec.StreamCodec
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.crafting.CraftingInput
-import net.minecraft.world.item.crafting.Ingredient
-import net.minecraft.world.item.crafting.Recipe
-import net.minecraft.world.item.crafting.RecipeSerializer
-import net.minecraft.world.item.crafting.RecipeType
+import net.minecraft.world.item.crafting.*
 import net.minecraft.world.level.Level
 
 class CookingPotShapelessRecipe(
@@ -42,20 +37,6 @@ class CookingPotShapelessRecipe(
     override fun canCraftInDimensions(width: Int, height: Int) = width * height >= ingredients.size
 
     override fun matches(input: CraftingInput, level: Level): Boolean {
-        //println("Debug: Starting matches check for CookingPotShapelessRecipe")
-
-        // Debug input crafting grid
-//        for (i in 0 until input.size()) {
-//            val stack = input.getItem(i)
-            //println("Debug: Slot $i contains item ${stack.item} with count ${stack.count}")
-//        }
-
-        // Check ingredient count
-//        if (input.ingredientCount() != ingredients.size) {
-            //println("Debug: Ingredient count mismatch. Expected ${ingredients.size}, but got ${input.ingredientCount()}")
-//            return false
-//        }
-
         // Match ingredients in any order
         val matchedIngredients = mutableListOf<Ingredient>()
         for (item in input.items()) {
@@ -65,15 +46,12 @@ class CookingPotShapelessRecipe(
             val matchingIngredient = ingredients.find { it.test(item) && it !in matchedIngredients }
             if (matchingIngredient != null) {
                 matchedIngredients.add(matchingIngredient)
-                //println("Debug: Matched item ${item.item} with ingredient $matchingIngredient")
             } else {
-                //println("Debug: No matching ingredient found for item ${item.item}")
                 return false
             }
         }
 
         val matches = matchedIngredients.size == ingredients.size
-        //println("Debug: Final matches result: $matches")
         return matches
     }
 

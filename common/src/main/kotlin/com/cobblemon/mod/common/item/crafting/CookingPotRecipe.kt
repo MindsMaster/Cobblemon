@@ -15,18 +15,14 @@ import com.cobblemon.mod.common.util.readString
 import com.cobblemon.mod.common.util.writeString
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
-import com.mojang.serialization.codecs.PrimitiveCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import net.minecraft.core.HolderLookup
 import net.minecraft.core.NonNullList
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.network.codec.StreamCodec
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.crafting.CraftingInput
 import net.minecraft.world.item.crafting.Ingredient
-import net.minecraft.world.item.crafting.Recipe
 import net.minecraft.world.item.crafting.RecipeSerializer
-import net.minecraft.world.item.crafting.RecipeType
 import net.minecraft.world.item.crafting.ShapedRecipePattern
 import net.minecraft.world.level.Level
 
@@ -42,31 +38,14 @@ class CookingPotRecipe(
     override fun getSerializer() = CobblemonRecipeSerializers.COOKING_POT_COOKING
     override fun getIngredients(): NonNullList<Ingredient> = this.pattern.ingredients()
     override fun matches(input: CraftingInput, level: Level): Boolean {
-        //println("Validating recipe match in CookingPotRecipe...")
-
         // Create a filtered CraftingInput with only slots 1-9
         val filteredItems = (0..8).mapNotNull { index ->
             if (index < input.size()) input.getItem(index) else ItemStack.EMPTY
         }
         val filteredInput = CraftingInput.of(3, 3, filteredItems)
 
-        /*// Debugging: Log filtered crafting grid contents
-        for (i in 0 until filteredInput.size()) {
-            val itemStack = filteredInput.getItem(i)
-            println("Filtered crafting slot $i: ${itemStack.item} (${itemStack.count})")
-        }*/
-
         // Perform pattern matching on the filtered input
         val matches = this.pattern.matches(filteredInput)
-        //println("Pattern match result: $matches")
-
-        /*// Additional logic for specific recipes
-        if (this.pattern.width() == 3 && this.pattern.height() == 3) {
-            if (this.result.item == CobblemonItems.DAWN_STONE_BLOCK.asItem()) {
-                println("Special case for Dawn Stone Block recipe.")
-            }
-        }*/
-
         return matches
     }
 
