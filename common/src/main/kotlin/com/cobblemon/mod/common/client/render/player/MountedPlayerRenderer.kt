@@ -9,7 +9,7 @@
 package com.cobblemon.mod.common.client.render.player
 
 import com.bedrockk.molang.runtime.value.DoubleValue
-import com.cobblemon.mod.common.Rollable
+import com.cobblemon.mod.common.OrientationControllable
 import com.cobblemon.mod.common.api.riding.Rideable
 import com.cobblemon.mod.common.client.entity.PokemonClientDelegate
 import com.cobblemon.mod.common.client.render.models.blockbench.bedrock.animation.BedrockAnimationRepository
@@ -48,10 +48,6 @@ object MountedPlayerRenderer {
             val locatorOffsetToCenter = locatorOffset.sub(center, Vector3f())
 
             val transformationMatrix = Matrix4f()
-            if (player is Rollable && player.shouldRoll()){
-                //transformationMatrix.rotate(Axis.YP.rotationDegrees(-yBodyRot))
-                //transformationMatrix.mulLocal(player.orientation)
-            }
 
             val rotatedOffset = transformationMatrix.transformPosition(locatorOffsetToCenter, Vector3f()).add(center).sub(Vector3f(0f, player.bbHeight/2, 0f))
             matrix.translate(rotatedOffset)
@@ -73,12 +69,13 @@ object MountedPlayerRenderer {
         }
 
         //Rotates player
-        if (player is Rollable && player.shouldRoll() && !disableRollableRenderDebug) {
+        val controller = (player as? OrientationControllable)?.orientationController ?: return
+        if (controller.active && !disableRollableRenderDebug) {
             val center = Vector3f(0f, player.bbHeight / 2, 0f)
             val transformationMatrix = Matrix4f()
             transformationMatrix.translate(center)
 
-            transformationMatrix.mul(Matrix4f(player.orientation))
+            transformationMatrix.mul(Matrix4f(controller.orientation))
 
             transformationMatrix.translate(center.negate(Vector3f()))
             //Pre-Undo Yaw

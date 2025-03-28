@@ -11,13 +11,12 @@ package com.cobblemon.mod.common.client.render.models.blockbench
 import com.bedrockk.molang.runtime.MoLangRuntime
 import com.bedrockk.molang.runtime.struct.QueryStruct
 import com.cobblemon.mod.common.Cobblemon
-import com.cobblemon.mod.common.Rollable
+import com.cobblemon.mod.common.OrientationControllable
 import com.cobblemon.mod.common.api.molang.ExpressionLike
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.setup
 import com.cobblemon.mod.common.client.ClientMoLangFunctions.animationFunctions
 import com.cobblemon.mod.common.client.ClientMoLangFunctions.setupClient
-import com.cobblemon.mod.common.client.entity.NPCClientDelegate
 import com.cobblemon.mod.common.client.entity.PokemonClientDelegate
 import com.cobblemon.mod.common.client.render.AnimatedModelTextureSupplier
 import com.cobblemon.mod.common.client.render.ModelLayer
@@ -717,12 +716,13 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
         var scale = 1F
         // We could improve this to be generalized for other entities. First we'd have to figure out wtf is going on, though.
         if (entity is PokemonEntity) {
-            if(entity.passengers.isNotEmpty() && entity.controllingPassenger is Rollable && (entity.controllingPassenger as Rollable).orientation != null){
+            if(entity.passengers.isNotEmpty() && entity.controllingPassenger is OrientationControllable
+                && (entity.controllingPassenger as OrientationControllable).orientationController.orientation != null){
                 val controllingPassenger = entity.controllingPassenger
                 val transformationMatrix = Matrix4f()
                 val center = Vector3f(0f, entity.bbHeight/2, 0f)
                 transformationMatrix.translate(center)
-                transformationMatrix.mul(Matrix4f((controllingPassenger as Rollable).orientation!!))
+                transformationMatrix.mul(Matrix4f((controllingPassenger as OrientationControllable).orientationController.orientation!!))
                 transformationMatrix.translate(center.negate())
                 matrixStack.mulPose(transformationMatrix)
             } else {

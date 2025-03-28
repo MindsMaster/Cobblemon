@@ -9,13 +9,12 @@
 package com.cobblemon.mod.common.pokemon.riding.controllers
 
 import com.bedrockk.molang.runtime.value.DoubleValue
-import com.cobblemon.mod.common.Rollable
+import com.cobblemon.mod.common.OrientationControllable
 import com.cobblemon.mod.common.api.riding.controller.RideController
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
-import com.cobblemon.mod.common.pokemon.Pokemon
 import com.cobblemon.mod.common.util.*
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.resources.ResourceLocation
@@ -28,7 +27,6 @@ import net.minecraft.world.phys.shapes.Shapes
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
-import kotlin.math.sqrt
 
 class DolphinController : RideController {
     companion object {
@@ -110,12 +108,12 @@ class DolphinController : RideController {
         //Not sure if this is desired? Will need to mess around with this
         //a bit more
         var zComp = 0.0
-        val rollable = driver as? Rollable
-        if (rollable != null)
+        val controller = (driver as? OrientationControllable)?.orientationController
+        if (controller != null)
         {
             //Can be used again if I better figure out how to deadzone it near the tops?
-            zComp = -1.0 * g.toDouble() * sin(Math.toRadians(rollable.roll.toDouble()))
-            yComp = -1.0 * g.toDouble() * sin(Math.toRadians(rollable.pitch.toDouble()))
+            zComp = -1.0 * g.toDouble() * sin(Math.toRadians(controller.roll.toDouble()))
+            yComp = -1.0 * g.toDouble() * sin(Math.toRadians(controller.pitch.toDouble()))
         }
 
         val currVelocity = Vec3(0.0, yComp , g.toDouble())
@@ -130,17 +128,17 @@ class DolphinController : RideController {
             return Vec3(0.0, 0.0, 0.0)
         }
 
-        val rollable = driver as? Rollable
+        val controller = (driver as? OrientationControllable)?.orientationController
 
         //this should be changed to be speed maybe?
         val movingForce = driver.zza
-        if (rollable != null) {
-            var yawAngVel = 3 * sin(Math.toRadians(rollable.roll.toDouble())).toFloat()
-            var pitchAngVel = -1 * Math.abs(sin(Math.toRadians(rollable.roll.toDouble())).toFloat())
+        if (controller != null) {
+            var yawAngVel = 3 * sin(Math.toRadians(controller.roll.toDouble())).toFloat()
+            var pitchAngVel = -1 * Math.abs(sin(Math.toRadians(controller.roll.toDouble())).toFloat())
 
             //limit rotation modulation when pitched up heavily or pitched down heavily
-            yawAngVel *= (abs(cos(Math.toRadians(rollable.pitch.toDouble())))).toFloat()
-            pitchAngVel *= (abs(cos(Math.toRadians(rollable.pitch.toDouble())))).toFloat()
+            yawAngVel *= (abs(cos(Math.toRadians(controller.pitch.toDouble())))).toFloat()
+            pitchAngVel *= (abs(cos(Math.toRadians(controller.pitch.toDouble())))).toFloat()
             //if you are not pressing forward then don't turn
             //yawAngVel *= movingForce
             //Ignore x,y,z its angular velocity:

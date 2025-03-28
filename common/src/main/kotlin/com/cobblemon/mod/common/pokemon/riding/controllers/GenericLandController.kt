@@ -10,14 +10,12 @@ package com.cobblemon.mod.common.pokemon.riding.controllers
 
 import com.bedrockk.molang.Expression
 import com.bedrockk.molang.runtime.value.DoubleValue
-import com.cobblemon.mod.common.Rollable
 import com.cobblemon.mod.common.api.riding.controller.RideController
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.pokemon.riding.states.GenericLandState
-import com.cobblemon.mod.common.pokemon.riding.states.JetAirState
 import com.cobblemon.mod.common.util.*
 import net.minecraft.client.Minecraft
 import net.minecraft.network.RegistryFriendlyByteBuf
@@ -28,7 +26,9 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.phys.shapes.Shapes
-import kotlin.math.*
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.pow
 
 class GenericLandController : RideController {
     companion object {

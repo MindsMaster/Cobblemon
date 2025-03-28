@@ -11,7 +11,7 @@ package com.cobblemon.mod.common.pokemon.riding.controllers
 import com.bedrockk.molang.Expression
 import com.bedrockk.molang.runtime.MoLangMath.lerp
 import com.cobblemon.mod.common.Cobblemon
-import com.cobblemon.mod.common.Rollable
+import com.cobblemon.mod.common.OrientationControllable
 import com.cobblemon.mod.common.api.riding.controller.RideController
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
@@ -21,7 +21,6 @@ import com.cobblemon.mod.common.pokemon.riding.states.BirdAirState
 import com.cobblemon.mod.common.util.*
 import net.minecraft.client.Minecraft
 import net.minecraft.network.RegistryFriendlyByteBuf
-import net.minecraft.util.Mth
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
@@ -82,15 +81,15 @@ class BirdAirController : RideController {
         calculateRideSpaceVel(entity, driver, state)
 
         //Translate ride space velocity to world space velocity.
-        val rollable = driver as? Rollable
-        if (rollable != null) {
+        val controller = (driver as? OrientationControllable)?.orientationController
+        if (controller != null) {
             //Need to deadzone this when straight up or down
 
-            upForce += -1.0 * sin(Math.toRadians(rollable.pitch.toDouble())) * state.rideVel.z
-            forwardForce += cos(Math.toRadians(rollable.pitch.toDouble())) * state.rideVel.z
+            upForce += -1.0 * sin(Math.toRadians(controller.pitch.toDouble())) * state.rideVel.z
+            forwardForce += cos(Math.toRadians(controller.pitch.toDouble())) * state.rideVel.z
 
-            upForce += cos(Math.toRadians(rollable.pitch.toDouble())) * state.rideVel.y
-            forwardForce += sin(Math.toRadians(rollable.pitch.toDouble())) * state.rideVel.y
+            upForce += cos(Math.toRadians(controller.pitch.toDouble())) * state.rideVel.y
+            forwardForce += sin(Math.toRadians(controller.pitch.toDouble())) * state.rideVel.y
         }
 
 
@@ -113,7 +112,7 @@ class BirdAirController : RideController {
 
     override fun angRollVel(entity: PokemonEntity, driver: Player, deltaTime: Double): Vec3 {
 
-        val rollable = driver as? Rollable
+        val controller = (driver as? OrientationControllable)?.orientationController
         val state = getState(entity, ::BirdAirState)
 
         //TODO: Tie in handling
@@ -121,14 +120,14 @@ class BirdAirController : RideController {
         val topSpeed = getRuntime(entity).resolveDouble(topSpeedExpr)
         val rotationChangeRate = 10.0
 
-        if (rollable != null) {
-            var yawForce =  rotationChangeRate * sin(Math.toRadians(rollable.roll.toDouble()))
+        if (controller != null) {
+            var yawForce =  rotationChangeRate * sin(Math.toRadians(controller.roll.toDouble()))
             //for a bit of correction on the rolls influence pitch as well
-            var pitchForce = -0.35 * rotationChangeRate * abs(sin(Math.toRadians(rollable.roll.toDouble())))
+            var pitchForce = -0.35 * rotationChangeRate * abs(sin(Math.toRadians(controller.roll.toDouble())))
 
             //limit rotation modulation when pitched up heavily or pitched down heavily
-            yawForce *= abs(cos(Math.toRadians(rollable.pitch.toDouble())))
-            pitchForce *= abs(cos(Math.toRadians(rollable.pitch.toDouble()))) * 1.5
+            yawForce *= abs(cos(Math.toRadians(controller.pitch.toDouble())))
+            pitchForce *= abs(cos(Math.toRadians(controller.pitch.toDouble()))) * 1.5
 
             return Vec3(yawForce, pitchForce, 0.0)
         }
@@ -146,8 +145,8 @@ class BirdAirController : RideController {
         sensitivity: Double,
         deltaTime: Double
     ): Vec3 {
-        if (driver !is Rollable) return Vec3.ZERO
-        val rollable = driver as Rollable
+        if (driver !is OrientationControllable) return Vec3.ZERO
+        val controller = (driver as OrientationControllable).orientationController
 
         val state = getState(entity, ::BirdAirState)
         val handling = getRuntime(entity).resolveDouble(handlingExpr)
@@ -169,12 +168,12 @@ class BirdAirController : RideController {
         //Limit roll by non linearly decreasing inputs towards
         // a rotation limit based on the current distance from
         // that rotation limit
-        if (abs(rollable.roll + rollForce) < rotLimit) {
-            if (sign(rollForce) == sign(rollable.roll).toDouble()) {
-                val d = abs(abs(rollable.roll) - rotLimit)
+        if (abs(controller.roll + rollForce) < rotLimit) {
+            if (sign(rollForce) == sign(controller.roll).toDouble()) {
+                val d = abs(abs(controller.roll) - rotLimit)
                 rollForce *= (d.pow(2)) / (rotLimit.pow(2))
             }
-        } else if (sign(rollForce) == sign(rollable.roll).toDouble()) {
+        } else if (sign(rollForce) == sign(controller.roll).toDouble()) {
             rollForce = 0.0
         }
 
@@ -305,10 +304,10 @@ class BirdAirController : RideController {
             activeInput = true
         }
 
-        val rollable = driver as? Rollable
-        if (rollable != null) {
+        val controller = (driver as? OrientationControllable)?.orientationController
+        if (controller != null) {
             //Base glide speed change on current pitch of the ride.
-            glideSpeedChange = sin(Math.toRadians(rollable.pitch.toDouble()))
+            glideSpeedChange = sin(Math.toRadians(controller.pitch.toDouble()))
             glideSpeedChange = glideSpeedChange.pow(3) * 0.5
 
             //TODO: Possibly create a deadzone around parallel where glide doesn't affect speed?

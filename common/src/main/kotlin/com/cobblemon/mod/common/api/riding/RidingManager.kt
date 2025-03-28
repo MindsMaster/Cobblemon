@@ -10,23 +10,17 @@ package com.cobblemon.mod.common.api.riding
 
 import com.bedrockk.molang.runtime.MoLangRuntime
 import com.bedrockk.molang.runtime.value.DoubleValue
-import com.cobblemon.mod.common.Rollable
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.setup
 import com.cobblemon.mod.common.api.riding.controller.RideController
 import com.cobblemon.mod.common.api.riding.stats.RidingStat
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
-import com.cobblemon.mod.common.util.toProperties
 import com.cobblemon.mod.common.util.withQueryValue
-import net.minecraft.ChatFormatting
-import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
-import kotlin.math.sin
-import kotlin.math.sin
 
 data class RidingManager(val entity: PokemonEntity) {
     var lastSpeed = 0F
@@ -82,7 +76,7 @@ data class RidingManager(val entity: PokemonEntity) {
         //val speedEntity = entity.deltaMovement.length()  //* 20 * 60 * 60) / ( 1000 )
         //println(speedEntity)
         //driver.displayClientMessage(Component.literal("Speed: ").withStyle { it.withColor(ChatFormatting.GREEN) }.append(Component.literal("${String.format("%.2f", speedEntity)} km/h")), true)
-        
+
     }
 
     fun speed(entity: PokemonEntity, driver: Player): Float {

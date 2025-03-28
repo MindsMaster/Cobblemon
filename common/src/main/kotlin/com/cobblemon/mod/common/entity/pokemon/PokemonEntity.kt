@@ -11,7 +11,6 @@ package com.cobblemon.mod.common.entity.pokemon
 import com.cobblemon.mod.common.*
 import com.cobblemon.mod.common.CobblemonNetwork.sendPacket
 import com.cobblemon.mod.common.CobblemonSounds
-import com.cobblemon.mod.common.Rollable
 import com.cobblemon.mod.common.api.drop.DropTable
 import com.cobblemon.mod.common.api.entity.Despawner
 import com.cobblemon.mod.common.api.entity.PokemonSender
@@ -1771,7 +1770,7 @@ open class PokemonEntity(
             val center = Vector3f(0f, this.bbHeight/2, 0f)
 
             val seatToCenter = center.sub(seatOffset, Vector3f())
-            val matrix = (this.passengers.first() as Rollable).orientation ?: Matrix3f().rotate((180f-passenger.yRot).toRadians(), Vector3f(0f, 1f, 0f))
+            val matrix = (this.passengers.first() as? OrientationControllable)?.orientationController?.orientation ?: Matrix3f().rotate((180f-passenger.yRot).toRadians(), Vector3f(0f, 1f, 0f))
             val rotatedOffset = matrix.transform(seatToCenter, Vector3f()).add(center).sub(Vector3f(0f, passenger.bbHeight/2, 0f))
 
             positionUpdater.accept(passenger, this.x + rotatedOffset.x, this.y + rotatedOffset.y, this.z + rotatedOffset.z)

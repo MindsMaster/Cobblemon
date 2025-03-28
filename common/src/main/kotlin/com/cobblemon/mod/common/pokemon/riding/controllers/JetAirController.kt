@@ -11,7 +11,7 @@ package com.cobblemon.mod.common.pokemon.riding.controllers
 import com.bedrockk.molang.Expression
 import com.bedrockk.molang.runtime.value.DoubleValue
 import com.cobblemon.mod.common.Cobblemon
-import com.cobblemon.mod.common.Rollable
+import com.cobblemon.mod.common.OrientationControllable
 import com.cobblemon.mod.common.api.riding.controller.RideController
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
@@ -105,17 +105,17 @@ class JetAirController : RideController {
         //Gather state information
         val state = getState(entity, ::JetAirState)
 
-        val rollable = driver as? Rollable
+        val controller = (driver as? OrientationControllable)?.orientationController
 
         //Calculate ride space velocity
         calculateRideSpaceVel(entity, driver, state)
 
         //Translate ride space velocity to world space velocity.
-        if( rollable != null ) {
+        if(controller != null) {
 
-            upForce =  -1.0 * sin(Math.toRadians( rollable.pitch.toDouble() )) * state.rideVel.z
+            upForce =  -1.0 * sin(Math.toRadians(controller.pitch.toDouble())) * state.rideVel.z
 
-            forwardForce =  cos(Math.toRadians( rollable.pitch.toDouble() )) * state.rideVel.z
+            forwardForce =  cos(Math.toRadians(controller.pitch.toDouble())) * state.rideVel.z
 
         }
 
@@ -169,7 +169,7 @@ class JetAirController : RideController {
                  sensitivity: Double,
                  deltaTime: Double ): Vec3
     {
-        if(driver !is Rollable) return Vec3.ZERO
+        if(driver !is OrientationControllable) return Vec3.ZERO
         //TODO: figure out a cleaner solution to this issue of large jumps when skipping frames or lagging
         //Cap at a rate of 5fps so frame skips dont lead to huge jumps
         val cappedDeltaTime = min( deltaTime, 0.2)

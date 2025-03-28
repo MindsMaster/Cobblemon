@@ -9,7 +9,7 @@
 package com.cobblemon.mod.common.api.riding.controller
 
 import com.cobblemon.mod.common.Cobblemon
-import com.cobblemon.mod.common.Rollable
+import com.cobblemon.mod.common.OrientationControllable
 import com.cobblemon.mod.common.api.net.Decodable
 import com.cobblemon.mod.common.api.net.Encodable
 import com.cobblemon.mod.common.api.riding.RidingState
@@ -113,7 +113,7 @@ interface RideController : Encodable, Decodable {
 
     fun useRidingAltPose(entity: PokemonEntity, driver: Player): Boolean = false
 
-    //If function is not overwritten by controllers then just perform the defualt
+    //If function is not overwritten by controllers then just perform the defauit
     //rolling function which is roll on mousex and pitch on mousey
     fun rotationOnMouseXY(
         entity: PokemonEntity,
@@ -125,10 +125,9 @@ interface RideController : Encodable, Decodable {
         sensitivity: Double,
         deltaTime: Double
     ): Vec3 {
-        if (driver !is Rollable) return Vec3.ZERO
+        if (driver !is OrientationControllable) return Vec3.ZERO
 
         //Might need to add the smoothing here for default.
-        val rollable = driver as Rollable
         val invertRoll = if (Cobblemon.config.invertRoll) -1 else 1
         val invertPitch = if (Cobblemon.config.invertPitch) -1 else 1
         return Vec3(0.0, yMouse * invertPitch, xMouse * invertRoll)

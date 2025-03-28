@@ -8,7 +8,7 @@
 
 package com.cobblemon.mod.common.mixin.client;
 
-import com.cobblemon.mod.common.Rollable;
+import com.cobblemon.mod.common.OrientationControllable;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
@@ -35,10 +35,6 @@ public abstract class CameraMixin {
     @Shadow private float xRot;
     @Shadow private float yRot;
 
-    @Shadow public abstract float getXRot();
-
-    @Shadow public abstract float getYRot();
-
     @Unique private float returnTimer = 0;
     @Unique private float rollAngleStart = 0;
     @Unique Minecraft minecraft = Minecraft.getInstance();
@@ -47,51 +43,53 @@ public abstract class CameraMixin {
 
     @Inject(method = "setRotation", at = @At("HEAD"), cancellable = true)
     public void open_camera$setRotation(float f, float g, CallbackInfo ci) {
-        if (!(this.entity instanceof Rollable rollable) || disableRollableCameraDebug) return;
-        if (!rollable.shouldRoll() && rollable.getOrientation() != null) {
+        if (!(this.entity instanceof OrientationControllable controllable) || disableRollableCameraDebug) return;
+        var controller = controllable.getOrientationController();
+        if (!controller.isActive() && controller.getOrientation() != null) {
             if(this.returnTimer < 1) {
                 //Rotation is taken from entity since we no longer handle mouse ourselves
                 //Stops a period of time when you can't input anything.
-                rollable.getOrientation().set(
+                controller.getOrientation().set(
                         new Matrix3f()
                                 .rotateY((float) Math.toRadians(180 - this.entity.getYRot()))
                                 .rotateX((float) Math.toRadians(-this.entity.getXRot()))
                 );
                 if(rollAngleStart == 0){
                     this.returnTimer = 1;
-                    rollable.clearRotation();
+                    controller.reset();
                     return;
                 }
-                rollable.getOrientation().rotateZ((float) Math.toRadians(-rollAngleStart*(1-returnTimer)));
+                controller.getOrientation().rotateZ((float) Math.toRadians(-rollAngleStart*(1-returnTimer)));
                 applyRotation();
                 this.returnTimer += .05F;
                 ci.cancel();
             } else {
                 this.returnTimer = 1;
-                rollable.clearRotation();
+                controller.reset();
             }
             return;
         }
-        if (rollable.getOrientation() == null) return;
+        if (controller.getOrientation() == null) return;
         applyRotation();
 
         this.returnTimer = 0;
-        this.rollAngleStart = rollable.getRoll();
+        this.rollAngleStart = controller.getRoll();
         ci.cancel();
     }
 
     @Unique
     private void applyRotation(){
-        if (!(this.entity instanceof Rollable rollable) || rollable.getOrientation() == null) return;
-        var newRotation = rollable.getOrientation().normal(new Matrix3f()).getNormalizedRotation(new Quaternionf());
+        if (!(this.entity instanceof OrientationControllable controllable) || controllable.getOrientationController().getOrientation() == null) return;
+        var controller = controllable.getOrientationController();
+        var newRotation = controller.getOrientation().normal(new Matrix3f()).getNormalizedRotation(new Quaternionf());
         if (this.minecraft.options.getCameraType().isMirrored()) {
             newRotation.rotateY((float)Math.toRadians(180));
         }
         this.rotation.set(newRotation);
-        this.xRot = rollable.getPitch();
-        this.yRot = rollable.getYaw();
-        this.forwards.set(rollable.getForwardVector());
-        this.up.set(rollable.getUpVector());
-        this.left.set(rollable.getLeftVector());
+        this.xRot = controller.getPitch();
+        this.yRot = controller.getYaw();
+        this.forwards.set(controller.getForwardVector());
+        this.up.set(controller.getUpVector());
+        this.left.set(controller.getLeftVector());
     }
 }

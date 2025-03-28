@@ -8,7 +8,7 @@
 
 package com.cobblemon.mod.common.mixin.client;
 
-import com.cobblemon.mod.common.Rollable;
+import com.cobblemon.mod.common.OrientationControllable;
 import com.cobblemon.mod.common.client.CobblemonClient;
 import com.cobblemon.mod.common.client.keybind.keybinds.PartySendBinding;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
@@ -119,9 +119,9 @@ public class MouseHandlerMixin {
             return false;
         }
 
-        if (!(player instanceof Rollable rollable)) return true;
+        if (!(player instanceof OrientationControllable controllable)) return true;
 
-        if (!rollable.shouldRoll()) {
+        if (!controllable.getOrientationController().isActive()) {
             xMouseSmoother.reset();
             yMouseSmoother.reset();
             pitchSmoother.reset();
@@ -135,7 +135,7 @@ public class MouseHandlerMixin {
         Vec3 angVecMouse = cobblemon$getRideMouseRotation(cursorDeltaX, cursorDeltaY, movementTime);
 
         //Perform Rotation using mouse influenced rotation deltas.
-        rollable.rotate(
+        controllable.getOrientationController().rotate(
             (float) angVecMouse.x,
             (float) angVecMouse.y,
             (float) angVecMouse.z
@@ -151,12 +151,12 @@ public class MouseHandlerMixin {
             var yaw = yawSmoother.getNewDeltaValue(angRot.x * 0.5f, d);
             var pitch = pitchSmoother.getNewDeltaValue(angRot.y * 0.5f, d);
             var roll = rollSmoother.getNewDeltaValue(angRot.z * 0.5f, d);
-            rollable.rotate((float) yaw, (float) pitch, (float) roll);
+            controllable.getOrientationController().rotate((float) yaw, (float) pitch, (float) roll);
         }
         //Otherwise simply apply the smoothing
         else
         {
-            rollable.rotate((float) (angRot.x * 10 * d), (float) (angRot.y * 10 * d), (float) (angRot.z * 10 * d));
+            controllable.getOrientationController().rotate((float) (angRot.x * 10 * d), (float) (angRot.y * 10 * d), (float) (angRot.z * 10 * d));
         }
         return false;
     }
@@ -164,20 +164,20 @@ public class MouseHandlerMixin {
     @Inject(method = "handleAccumulatedMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;isMouseGrabbed()Z", ordinal = 0))
     private void cobblemon$maintainMovementWhenInScreens(CallbackInfo ci, @Local(ordinal = 1) double e) {
         if (minecraft.player == null) return;
-        if (!(minecraft.player instanceof Rollable rollable)) return;
-        if (!rollable.shouldRoll()) return;
+        if (!(minecraft.player instanceof OrientationControllable controllable)) return;
+        if (!controllable.getOrientationController().isActive()) return;
         if (minecraft.isPaused()) return;
 
         var pitch = pitchSmoother.getNewDeltaValue(0, e);
         var roll = rollSmoother.getNewDeltaValue(0, e);
-        rollable.rotate(0.0F, (float)pitch, (float)roll);
+        controllable.getOrientationController().rotate(0.0F, (float)pitch, (float)roll);
     }
 
     @Unique
     private Vec3 cobblemon$getAngularVelocity(double deltaTime) {
         var player = minecraft.player;
         if (player == null) return Vec3.ZERO;
-        if (!(player instanceof Rollable)) return Vec3.ZERO;
+        if (!(player instanceof OrientationControllable)) return Vec3.ZERO;
 
         var playerVehicle = player.getVehicle();
         if (playerVehicle == null) return Vec3.ZERO;

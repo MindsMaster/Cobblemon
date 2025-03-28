@@ -10,7 +10,7 @@ package com.cobblemon.mod.common.pokemon.riding.controllers
 
 import com.bedrockk.molang.Expression
 import com.cobblemon.mod.common.Cobblemon
-import com.cobblemon.mod.common.Rollable
+import com.cobblemon.mod.common.OrientationControllable
 import com.cobblemon.mod.common.api.riding.controller.RideController
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
@@ -87,12 +87,12 @@ class HelicopterAirController : RideController {
         var xVel = 0.0
         var zVel = 0.0
 
-        val rollable = driver as? Rollable
+        val controller = (driver as? OrientationControllable)?.orientationController
 
         //Horizontal velocity is based on pitch and roll
-        if (rollable != null) {
-            xVel = -1.0 * sin(Math.toRadians(rollable.roll.toDouble()))
-            zVel = sin(Math.toRadians(rollable.pitch.toDouble()))
+        if (controller != null) {
+            xVel = -1.0 * sin(Math.toRadians(controller.roll.toDouble()))
+            zVel = sin(Math.toRadians(controller.pitch.toDouble()))
         }
 
         return Vec3(xVel, yVel, zVel)
@@ -101,7 +101,7 @@ class HelicopterAirController : RideController {
 
     override fun angRollVel(entity: PokemonEntity, driver: Player, deltaTime: Double): Vec3 {
 
-        val rollable = driver as? Rollable
+        val controller = (driver as? OrientationControllable)?.orientationController
 
         //In degrees per second? It was supposed to be I think but
         //I have messed something up
@@ -113,7 +113,7 @@ class HelicopterAirController : RideController {
 
 
         //TODO: Fix accumulated movement causing pitch and roll out of set bounds
-        if (rollable != null) {
+        if (controller != null) {
             //If the roll or pitch have exceeded the limit then do not modulate that
             //rotation in that direction further
 
@@ -124,20 +124,20 @@ class HelicopterAirController : RideController {
 
             //The three denotes that the force will be 1/3 what it would have been at
             //the rotation limit
-            rollForce *= 2.0.pow(-1.0 * (abs(rollable.roll.toDouble()) / ROTATION_LIMIT))
+            rollForce *= 2.0.pow(-1.0 * (abs(controller.roll.toDouble()) / ROTATION_LIMIT))
 
-            pitchForce *= 2.0.pow(-1.0 * (abs(rollable.pitch.toDouble()) / ROTATION_LIMIT))
+            pitchForce *= 2.0.pow(-1.0 * (abs(controller.pitch.toDouble()) / ROTATION_LIMIT))
 
-            if (rollable.roll >= ROTATION_LIMIT && rollForce > 0.0) {
+            if (controller.roll >= ROTATION_LIMIT && rollForce > 0.0) {
                 rollForce = 0.0;
             }
-            if (rollable.roll <= -ROTATION_LIMIT && rollForce < 0.0) {
+            if (controller.roll <= -ROTATION_LIMIT && rollForce < 0.0) {
                 rollForce = 0.0;
             }
-            if (rollable.pitch >= ROTATION_LIMIT && pitchForce > 0.0) {
+            if (controller.pitch >= ROTATION_LIMIT && pitchForce > 0.0) {
                 pitchForce = 0.0;
             }
-            if (rollable.pitch <= -ROTATION_LIMIT && pitchForce < 0.0) {
+            if (controller.pitch <= -ROTATION_LIMIT && pitchForce < 0.0) {
                 pitchForce = 0.0;
             }
 
@@ -181,9 +181,9 @@ class HelicopterAirController : RideController {
         sensitivity: Double,
         deltaTime: Double
     ): Vec3 {
-        if (driver !is Rollable) return Vec3.ZERO
+        if (driver !is OrientationControllable) return Vec3.ZERO
 
-        val rollable = driver as Rollable
+        val controller = (driver as OrientationControllable).orientationController
         val invertYaw = if (Cobblemon.config.invertYaw) -1 else 1
         //yaw, pitch, roll
         return Vec3(xMouse * invertYaw, 0.0, 0.0)

@@ -9,8 +9,10 @@
 package com.cobblemon.mod.common.mixin.client;
 
 import com.cobblemon.mod.common.CobblemonNetwork;
-import com.cobblemon.mod.common.Rollable;
+import com.cobblemon.mod.common.OrientationControllable;
+import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.net.messages.server.orientation.C2SUpdateOrientationPacket;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import org.joml.Matrix3f;
 import org.spongepowered.asm.mixin.Mixin;
@@ -25,19 +27,37 @@ public class LocalPlayerMixin {
     @Unique Matrix3f cobblemon$lastOrientation;
 
     @Inject(method = "sendPosition", at = @At("TAIL"))
-    private void cobblemon_updateRotationMatrix(CallbackInfo ci) {
-        if (!(this instanceof Rollable rollable)) return;
-        if (rollable.getOrientation() == cobblemon$lastOrientation) return;
-        cobblemon$lastOrientation = rollable.getOrientation() != null ? new Matrix3f(rollable.getOrientation()) : null;
-        CobblemonNetwork.INSTANCE.sendToServer(new C2SUpdateOrientationPacket(rollable.getOrientation()));
+    private void cobblemon$updateRotationMatrix(CallbackInfo ci) {
+        if (!(this instanceof OrientationControllable controllable)) return;
+        var controller = controllable.getOrientationController();
+        if (!controller.isActive() || controller.getOrientation() == cobblemon$lastOrientation) return;
+        cobblemon$lastOrientation = controller.getOrientation() != null ? new Matrix3f(controller.getOrientation()) : null;
+        CobblemonNetwork.INSTANCE.sendToServer(new C2SUpdateOrientationPacket(controller.getOrientation()));
     }
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientPacketListener;send(Lnet/minecraft/network/protocol/Packet;)V"))
-    private void cobblemon_updateRotationMatrixPassenger(CallbackInfo ci) {
-        if (!(this instanceof Rollable rollable)) return;
-        if (rollable.getOrientation() == cobblemon$lastOrientation) return;
-        cobblemon$lastOrientation = rollable.getOrientation() != null ? new Matrix3f(rollable.getOrientation()) : null;
-        CobblemonNetwork.INSTANCE.sendToServer(new C2SUpdateOrientationPacket(rollable.getOrientation()));
+    private void cobblemon$updateRotationMatrixPassenger(CallbackInfo ci) {
+        if (!(this instanceof OrientationControllable controllable)) return;
+        var controller = controllable.getOrientationController();
+        if (!controller.isActive() || controller.getOrientation() == cobblemon$lastOrientation) return;
+        cobblemon$lastOrientation = controller.getOrientation() != null ? new Matrix3f(controller.getOrientation()) : null;
+        CobblemonNetwork.INSTANCE.sendToServer(new C2SUpdateOrientationPacket(controller.getOrientation()));
+    }
+
+    @Inject(method = "rideTick", at = @At("HEAD"))
+    private void cobblemon$updateOrientationController(CallbackInfo ci) {
+        if (Minecraft.getInstance().player != (Object)this) return;
+        if (!(this instanceof OrientationControllable controllable)) return;
+        var shouldUseCustomOrientation = cobblemon$shouldUseCustomOrientation((LocalPlayer)(Object)this);
+        controllable.getOrientationController().setActive(shouldUseCustomOrientation);
+    }
+
+    @Unique
+    private boolean cobblemon$shouldUseCustomOrientation(LocalPlayer player) {
+        var playerVehicle = player.getVehicle();
+        if (playerVehicle == null) return false;
+        if (!(playerVehicle instanceof PokemonEntity pokemonEntity)) return false;
+        return pokemonEntity.getRiding().shouldRoll(pokemonEntity);
     }
 
 }
