@@ -14,6 +14,10 @@ import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.net.messages.server.orientation.C2SUpdateOrientationPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 import org.joml.Matrix3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -22,9 +26,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LocalPlayer.class)
-public class LocalPlayerMixin {
+public abstract class LocalPlayerMixin extends LivingEntity {
 
     @Unique Matrix3f cobblemon$lastOrientation;
+
+    protected LocalPlayerMixin(EntityType<? extends LivingEntity> entityType, Level level) {
+        super(entityType, level);
+    }
 
     @Inject(method = "sendPosition", at = @At("TAIL"))
     private void cobblemon$updateRotationMatrix(CallbackInfo ci) {
@@ -45,7 +53,7 @@ public class LocalPlayerMixin {
     }
 
     @Inject(method = "rideTick", at = @At("HEAD"))
-    private void cobblemon$updateOrientationController(CallbackInfo ci) {
+    private void cobblemon$updateOrientationControllerRideTick(CallbackInfo ci) {
         if (Minecraft.getInstance().player != (Object)this) return;
         if (!(this instanceof OrientationControllable controllable)) return;
         var shouldUseCustomOrientation = cobblemon$shouldUseCustomOrientation((LocalPlayer)(Object)this);
@@ -60,4 +68,16 @@ public class LocalPlayerMixin {
         return pokemonEntity.getRiding().shouldRoll(pokemonEntity);
     }
 
+    @Override
+    public boolean startRiding(Entity vehicle) {
+        return super.startRiding(vehicle);
+    }
+
+    @Override
+    public void stopRiding() {
+        super.stopRiding();
+        if (Minecraft.getInstance().player != (Object)this) return;
+        if (!(this instanceof OrientationControllable controllable)) return;
+        controllable.getOrientationController().setActive(false);
+    }
 }
