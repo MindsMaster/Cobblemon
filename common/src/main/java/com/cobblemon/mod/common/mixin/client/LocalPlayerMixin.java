@@ -69,11 +69,6 @@ public abstract class LocalPlayerMixin extends LivingEntity {
     }
 
     @Override
-    public boolean startRiding(Entity vehicle) {
-        return super.startRiding(vehicle);
-    }
-
-    @Override
     public void stopRiding() {
         super.stopRiding();
         if (Minecraft.getInstance().player != (Object)this) return;
