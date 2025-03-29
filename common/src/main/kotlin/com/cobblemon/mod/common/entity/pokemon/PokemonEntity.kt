@@ -393,6 +393,8 @@ open class PokemonEntity(
 //        return super.canWalkOnFluid(state)
     }
 
+    override fun canSprint() = true
+
     override fun handleEntityEvent(status: Byte) {
         delegate.handleStatus(status)
         super.handleEntityEvent(status)
