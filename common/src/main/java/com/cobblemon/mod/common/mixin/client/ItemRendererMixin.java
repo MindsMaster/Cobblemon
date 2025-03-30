@@ -9,7 +9,12 @@
 package com.cobblemon.mod.common.mixin.client;
 
 import com.cobblemon.mod.common.Cobblemon;
+import com.cobblemon.mod.common.CobblemonItems;
 import com.cobblemon.mod.common.ModAPI;
+import com.cobblemon.mod.common.api.spawning.detail.PossibleHeldItem;
+import com.cobblemon.mod.common.client.CobblemonClient;
+import com.cobblemon.mod.common.client.render.item.HeldItemRenderer;
+import com.cobblemon.mod.common.item.CobblemonItem;
 import com.cobblemon.mod.common.item.PokeBallItem;
 import com.cobblemon.mod.common.item.PokedexItem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -34,6 +39,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import static com.cobblemon.mod.common.api.tags.CobblemonItemTags.WEARABLE_FACE_ITEMS;
+import static com.cobblemon.mod.common.api.tags.CobblemonItemTags.WEARABLE_HAT_ITEMS;
+
 /*
     I think it would be nice to maybe use the existing mixin we have for custom item rendering [BuiltinModelItemRendererMixin]
     Obviously that would require changes. Potentially each item renderer defines what modes it overrides for?
@@ -54,17 +62,18 @@ public abstract class ItemRendererMixin {
     )
     private void cobblemon$overrideItemModel(ItemStack stack, ItemDisplayContext renderMode, boolean leftHanded, PoseStack matrices, MultiBufferSource multiBufferSource, int light, int overlay, BakedModel model, CallbackInfo ci) {
         boolean shouldBe2d = renderMode == ItemDisplayContext.GUI || renderMode == ItemDisplayContext.FIXED;
+        ResourceLocation resourceLocation = null;
         if (shouldBe2d) {
-            ResourceLocation resourceLocation = null;
             if (stack.getItem() instanceof PokeBallItem pokeBallItem) resourceLocation = pokeBallItem.getPokeBall().getModel2d();
             else if (stack.getItem() instanceof PokedexItem pokedexItem) resourceLocation = pokedexItem.getType().getItemSpritePath();
+        }
+        if ((stack.is(WEARABLE_HAT_ITEMS) || stack.is(WEARABLE_FACE_ITEMS)) && renderMode != ItemDisplayContext.HEAD) resourceLocation = HeldItemRenderer.Companion.getWearableModel2d(stack.getItem().toString());
 
-            if (resourceLocation != null) {
-                BakedModel replacementModel = this.itemModelShaper.getModelManager().getModel(new ModelResourceLocation(resourceLocation, "inventory"));
-                if (!cobblemon$isSameModel(model, replacementModel)) {
-                    ci.cancel();
-                    render(stack, renderMode, leftHanded, matrices, multiBufferSource, light, overlay, replacementModel);
-                }
+        if (resourceLocation != null) {
+            BakedModel replacementModel = this.itemModelShaper.getModelManager().getModel(new ModelResourceLocation(resourceLocation, "inventory"));
+            if (!cobblemon$isSameModel(model, replacementModel)) {
+                ci.cancel();
+                render(stack, renderMode, leftHanded, matrices, multiBufferSource, light, overlay, replacementModel);
             }
         }
     }
@@ -78,6 +87,7 @@ public abstract class ItemRendererMixin {
             boolean canOpenScreen = entity != null && ((entity.getOffhandItem() == stack && !(entity.getMainHandItem().getItem() instanceof PokedexItem)) || entity.getMainHandItem() == stack);
             resourceLocation = pokedexItem.getType().getItemModelPath(isScanModel ? "scanning" : (canOpenScreen ? null : "off"));
         }
+        else if ((stack.is(WEARABLE_HAT_ITEMS) || stack.is(WEARABLE_FACE_ITEMS))) resourceLocation = HeldItemRenderer.Companion.getWearableModel3d(stack.getItem().toString());
 
         if (resourceLocation != null) {
             BakedModel model = this.itemModelShaper.getModelManager().getModel(new ModelResourceLocation(resourceLocation, MODEL_PATH));

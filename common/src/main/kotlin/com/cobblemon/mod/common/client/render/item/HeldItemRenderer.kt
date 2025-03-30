@@ -14,6 +14,7 @@ import com.cobblemon.mod.common.api.tags.CobblemonItemTags.WEARABLE_HAT_ITEMS
 import com.cobblemon.mod.common.client.render.MatrixWrapper
 import com.cobblemon.mod.common.client.render.models.blockbench.PosableModel
 import com.cobblemon.mod.common.client.render.models.blockbench.PosableState
+import com.cobblemon.mod.common.util.cobblemonResource
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
 import net.minecraft.client.Minecraft
@@ -21,6 +22,7 @@ import net.minecraft.client.renderer.LightTexture
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.entity.ItemRenderer
 import net.minecraft.client.renderer.texture.OverlayTexture
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.ItemDisplayContext
 import net.minecraft.world.item.ItemStack
@@ -34,6 +36,31 @@ class HeldItemRenderer {
         const val ITEM_FACE = "item_face"
         const val ITEM_HAT = "item_hat"
         const val ITEM = "item"
+
+        enum class WearableItemModels {
+            BLACK_GLASSES,
+            CHOICE_BAND,
+            CHOICE_SPECS,
+            EXP_SHARE,
+            FOCUS_BAND,
+            KINGS_ROCK,
+            SAFETY_GOGGLES,
+            WISE_GLASSES;
+
+            fun getItemModelPath() = cobblemonResource("item/wearable/${this.name.lowercase()}")
+            fun getItemSpritePath() = cobblemonResource(this.name.lowercase())
+        }
+
+        fun getWearableModel3d(id: String): ResourceLocation? {
+            val itemName = id.substringAfterLast(":")
+            WearableItemModels.entries.toList().forEach { if (it.name.lowercase() == itemName ) return it.getItemModelPath() }
+            return null
+        }
+        fun getWearableModel2d(id: String): ResourceLocation? {
+            val itemName = id.substringAfterLast(":")
+            WearableItemModels.entries.toList().forEach { if (it.name.lowercase() == itemName ) return it.getItemSpritePath() }
+            return null
+        }
     }
 
     fun render(
@@ -56,7 +83,7 @@ class HeldItemRenderer {
             (locators.containsKey(ITEM_FACE) && item.`is`(WEARABLE_FACE_ITEMS)) -> {
                 displayContext = model.getLocatorDisplayContext(ITEM_FACE) ?: ItemDisplayContext.HEAD
                 poseStack.mulPose(locators[ITEM_FACE]!!.matrix)
-                poseStack.translate(0f, 0f, .28f)
+                poseStack.translate(0f, 0f, 0.28f)
                 poseStack.scale(0.7f, 0.7f, 0.7f)
             }
             //item_hat locator
@@ -112,7 +139,7 @@ class HeldItemRenderer {
         poseStack: PoseStack,
         buffer: MultiBufferSource,
         rotation: Vec3 = Vec3(0.0,0.0,0.0),
-        light: Int = LightTexture.pack(11, 7),
+        light: Int = LightTexture.pack(15, 15),
     ) {
         val locators: Map<String, MatrixWrapper> = state.locatorStates
         if (state.itemRenderingLocations.isNotEmpty()) {

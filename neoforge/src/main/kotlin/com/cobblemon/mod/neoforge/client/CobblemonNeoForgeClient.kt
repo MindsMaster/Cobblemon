@@ -19,6 +19,7 @@ import com.cobblemon.mod.common.client.keybind.CobblemonKeyBinds
 import com.cobblemon.mod.common.client.pokedex.PokedexType
 import com.cobblemon.mod.common.client.render.atlas.CobblemonAtlases
 import com.cobblemon.mod.common.client.render.item.CobblemonModelPredicateRegistry
+import com.cobblemon.mod.common.client.render.item.HeldItemRenderer
 import com.cobblemon.mod.common.client.render.shader.CobblemonShaders
 import com.cobblemon.mod.common.compat.LambDynamicLightsCompat
 import com.cobblemon.mod.common.item.PokedexItem
@@ -180,6 +181,9 @@ object CobblemonNeoForgeClient : CobblemonClientImplementation {
             event.register(ModelResourceLocation(pokedex.getItemModelPath("flat"), "standalone"))
             event.register(ModelResourceLocation(pokedex.getItemModelPath("flat_off"), "standalone"))
             event.register(ModelResourceLocation(pokedex.getItemModelPath("off"), "standalone"))
+        }
+        HeldItemRenderer.Companion.WearableItemModels.entries.toList().forEach { wearable ->
+            event.register(ModelResourceLocation(wearable.getItemModelPath(),"standalone"))
         }
     }
 
