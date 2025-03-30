@@ -51,8 +51,10 @@ class GenericLiquidController : RideController {
         private set
 
     override val key: ResourceLocation = KEY
+
     override val poseProvider: PoseProvider = PoseProvider(PoseType.FLOAT)
         .with(PoseOption(PoseType.SWIM) { it.isSwimming && it.entityData.get(PokemonEntity.MOVING) })
+
     override val condition: (PokemonEntity) -> Boolean = { entity ->
         //This could be kinda weird... what if the top of the mon is in a fluid but the bottom isnt?
         Shapes.create(entity.boundingBox).blockPositionsAsListRounded().any {

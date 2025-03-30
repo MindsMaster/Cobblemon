@@ -52,7 +52,8 @@ class DolphinController : RideController {
 
     override val key: ResourceLocation = KEY
     override val poseProvider: PoseProvider = PoseProvider(PoseType.FLOAT)
-        .with(PoseOption(PoseType.SWIM) { it.deltaMovement.length() >= 0.05 })
+        .with(PoseOption(PoseType.SWIM) { it.entityData.get(PokemonEntity.MOVING) })
+
     override val condition: (PokemonEntity) -> Boolean = { entity ->
 
         //If there are only fluid blocks or air block below the ride

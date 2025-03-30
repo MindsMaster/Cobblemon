@@ -27,7 +27,7 @@ import net.minecraft.world.phys.Vec3
 class GliderAirController : RideController {
     override val key = KEY
     override val poseProvider = PoseProvider(PoseType.HOVER)
-        .with(PoseOption(PoseType.FLY) { it.deltaMovement.horizontalDistance() > 0.1 })
+        .with(PoseOption(PoseType.FLY) { it.entityData.get(PokemonEntity.MOVING) })
     override val condition: (PokemonEntity) -> Boolean = { true }
 
     var glideSpeed: Expression = "0.1".asExpression()

@@ -38,7 +38,7 @@ import kotlin.math.sin
 class HelicopterAirController : RideController {
     override val key = KEY
     override val poseProvider = PoseProvider(PoseType.HOVER)
-        .with(PoseOption(PoseType.FLY) { it.deltaMovement.horizontalDistance() > 0.1 })
+        .with(PoseOption(PoseType.FLY) { it.entityData.get(PokemonEntity.MOVING) })
 
     //If there are only fluid blocks or air block below the ride
     //then activate the controller. If it is in water the ride will

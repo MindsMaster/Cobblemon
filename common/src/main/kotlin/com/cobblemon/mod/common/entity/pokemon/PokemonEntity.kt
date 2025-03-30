@@ -304,6 +304,11 @@ open class PokemonEntity(
             .addPokemonEntityFunctions(this)
     }
 
+    var flyDistO = 0F
+
+    var isPokemonWalking = false
+    var isPokemonFlying = false
+
     init {
         delegate.initialize(this)
         delegate.changePokemon(pokemon)
@@ -419,7 +424,13 @@ open class PokemonEntity(
         yHeadRotO = Mth.wrapDegrees(yHeadRotO)
         /* I'm sure it's not even us but something altering the logic of the loops in LivingEntity */
 
+        isPokemonFlying = flyDist - flyDistO > 0.005F
+        isPokemonWalking = walkDist - walkDistO > 0.005F
+
+        val isMoving = entityData.get(MOVING)
+
         super.tick()
+        flyDistO = flyDist
 
         if (isBattling) {
             // Deploy a platform if a non-wild Pokemon is touching water but not underwater.

@@ -54,6 +54,8 @@ interface RideController : Encodable, Decodable {
      */
     val condition: (PokemonEntity) -> Boolean
 
+    fun tick(entity: PokemonEntity, driver: Player, input: Vec3) {}
+
     /**
      * Specifies the pose the ridden mount should be positioned in. This queries the pose provider using
      * the entity as a means of determining the conditions the entity is currently under. This allows for

@@ -45,6 +45,18 @@ class FallToFlightCompositeController : RideController {
     var flightController: RideController = GliderAirController()
         private set
 
+    override fun tick(entity: PokemonEntity, driver: Player, input: Vec3) {
+        val state = getState(entity, ::CompositeState)
+        val shouldBeFlying = checkShouldBeFlying(entity, state.activeController == flightController)
+        if (state.activeController == flightController && !shouldBeFlying) { // && entity.onGround() && state.timeTransitioned + 20 < entity.level().gameTime) {
+            state.activeController = landController
+            entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, false)
+        } else if (state.activeController == landController && shouldBeFlying) {
+            state.activeController = flightController
+            entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, true)
+        }
+    }
+
     override fun pose(entity: PokemonEntity): PoseType {
         return getActiveController(entity).poseProvider.select(entity)
     }
@@ -77,20 +89,7 @@ class FallToFlightCompositeController : RideController {
         }
     }
 
-    override fun speed(
-        entity: PokemonEntity,
-        driver: Player
-    ): Float {
-        val state = getState(entity, ::CompositeState)
-        val shouldBeFlying = checkShouldBeFlying(entity, state.activeController == flightController)
-        if (state.activeController == flightController && !shouldBeFlying) { // && entity.onGround() && state.timeTransitioned + 20 < entity.level().gameTime) {
-            state.activeController = landController
-            entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, false)
-        } else if (state.activeController == landController && shouldBeFlying) {
-            state.activeController = flightController
-            entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, true)
-        }
-
+    override fun speed(entity: PokemonEntity, driver: Player): Float {
         return getActiveController(entity).speed(entity, driver)
     }
 

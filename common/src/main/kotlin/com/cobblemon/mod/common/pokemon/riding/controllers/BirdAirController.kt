@@ -30,9 +30,7 @@ import kotlin.math.*
 class BirdAirController : RideController {
     override val key = KEY
     override val poseProvider = PoseProvider(PoseType.HOVER)
-        .with(PoseOption(PoseType.FLY) {
-            val player = it.passengers.firstOrNull() as? Player ?: return@PoseOption false
-            it.deltaMovement.length() > 0.5 })
+        .with(PoseOption(PoseType.FLY) { it.entityData.get(PokemonEntity.MOVING) })
 
     override val condition: (PokemonEntity) -> Boolean = { true }
 
@@ -271,8 +269,6 @@ class BirdAirController : RideController {
     *  Calculates the change in the ride space vector due to player input and ride state
     */
     fun calculateRideSpaceVel(entity: PokemonEntity, driver: Player, state: BirdAirState) {
-
-
         //retrieve stats
         val topSpeed = getRuntime(entity).resolveDouble(topSpeedExpr)
         val glideTopSpeed = getRuntime(entity).resolveDouble(glideTopSpeedExpr)

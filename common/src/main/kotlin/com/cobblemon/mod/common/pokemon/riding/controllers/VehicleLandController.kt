@@ -82,7 +82,7 @@ class VehicleLandController : RideController {
     @Transient
     override val key: ResourceLocation = KEY
     @Transient
-    override val poseProvider: PoseProvider = PoseProvider(PoseType.STAND).with(PoseOption(PoseType.WALK) { it.deltaMovement.horizontalDistance() > 0.1 })
+    override val poseProvider: PoseProvider = PoseProvider(PoseType.STAND).with(PoseOption(PoseType.WALK) { it.entityData.get(PokemonEntity.MOVING) })
     @Transient
     override val condition: (PokemonEntity) -> Boolean = { entity ->
         // Are there any blocks under the mon that aren't air or fluid

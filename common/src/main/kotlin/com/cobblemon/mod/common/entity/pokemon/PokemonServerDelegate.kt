@@ -114,7 +114,14 @@ class PokemonServerDelegate : PokemonSideDelegate {
         }
         entity.entityData.set(PokemonEntity.ASPECTS, trackedAspects)
         entity.entityData.set(PokemonEntity.LABEL_LEVEL, entity.pokemon.level)
-        entity.entityData.set(PokemonEntity.MOVING, entity.platform == PlatformType.NONE && entity.deltaMovement.multiply(1.0, if (entity.onGround()) 0.0 else 1.0, 1.0).length() > 0.005F)
+
+        if (entity.getCurrentPoseType() in PoseType.FLYING_POSES) {
+            entity.entityData.set(PokemonEntity.MOVING, entity.isPokemonFlying)
+        }
+        else {
+            entity.entityData.set(PokemonEntity.MOVING, entity.isPokemonWalking)
+        }
+
         entity.entityData.set(PokemonEntity.FRIENDSHIP, entity.pokemon.friendship)
         entity.entityData.set(PokemonEntity.CAUGHT_BALL, trackedBall)
 

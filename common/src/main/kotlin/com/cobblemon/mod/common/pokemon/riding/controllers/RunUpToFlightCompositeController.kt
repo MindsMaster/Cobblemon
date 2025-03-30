@@ -46,64 +46,67 @@ class RunUpToFlightCompositeController : RideController {
     var flightController: RideController = BirdAirController()
         private set
 
+    private fun shouldTransitionToGround(state: RunUpToFlightCompositeState, entity: PokemonEntity): Boolean {
+        return state.activeController == flightController
+                && entity.onGround()
+                && state.timeTransitioned + 20 < entity.level().gameTime
+    }
+
+    private fun shouldTransitionToAir(state: RunUpToFlightCompositeState, entity: PokemonEntity, driver: Player): Boolean {
+        return state.activeController == landController
+                && driver.jumping
+                && state.timeTransitioned + 20 < entity.level().gameTime
+    }
+
+    override fun tick(entity: PokemonEntity, driver: Player, input: Vec3) {
+        val state = getState(entity, ::RunUpToFlightCompositeState)
+        val flightState = flightController.getState(entity, ::BirdAirState)
+        val groundState = landController.getState(entity, ::GenericLandState)
+        if (shouldTransitionToGround(state, entity)) {
+            //Pass the speed to the next state
+            groundState.currSpeed = flightState.currSpeed
+            groundState.rideVel = flightState.rideVel
+            groundState.stamina = flightState.stamina
+
+            state.activeController = landController
+            entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, false)
+            state.timeTransitioned = entity.level().gameTime
+        }
+        else if (shouldTransitionToAir(state, entity, driver)) {
+            //Pass the speed to the next state
+            flightState.currSpeed = groundState.currSpeed
+            flightState.rideVel = groundState.rideVel
+            flightState.stamina = groundState.stamina
+
+            state.activeController = flightController
+            entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, true)
+            state.timeTransitioned = entity.level().gameTime
+        }
+    }
+
     override fun pose(entity: PokemonEntity): PoseType {
         return getActiveController(entity).poseProvider.select(entity)
     }
 
     fun getActiveController(entity: PokemonEntity): RideController {
         val state = getState(entity, ::RunUpToFlightCompositeState)
-        return state.activeController ?: let {
-            val controller = if (entity.getCurrentPoseType() in PoseType.FLYING_POSES) {
-                entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, true)
-                flightController
-            } else {
-                entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, false)
-                landController
-            }
-            state.activeController = controller
+        if (state.activeController != null) return state.activeController!!
+
+        if (entity.getCurrentPoseType() in PoseType.FLYING_POSES) {
+            entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, true)
+            state.activeController = flightController
             state.timeTransitioned = entity.level().gameTime
-            controller
+            return flightController
+        }
+        else {
+            entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, false)
+            state.activeController = landController
+            state.timeTransitioned = entity.level().gameTime
+            return landController
         }
     }
 
-    override fun speed(
-        entity: PokemonEntity,
-        driver: Player
-    ): Float {
-        val state = getState(entity, ::RunUpToFlightCompositeState)
-        if (state.activeController == flightController && entity.onGround() &&
-            state.timeTransitioned + 20 < entity.level().gameTime) {
-
-            //Pass the speed to the next state
-            val flightState = flightController.getState(entity, ::BirdAirState)
-            val groundState = landController.getState(entity, ::GenericLandState)
-            groundState.currSpeed = flightState.currSpeed
-            groundState.rideVel = flightState.rideVel
-            groundState.stamina = flightState.stamina
-
-            getState(entity, ::RunUpToFlightCompositeState).let {
-                it.activeController = landController
-                entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, false)
-                it.timeTransitioned = entity.level().gameTime
-            }
-        }
-        else if (state.activeController == landController && driver.jumping &&
-            state.timeTransitioned + 20 < entity.level().gameTime) {
-
-            //Pass the speed to the next state
-            val flightState = flightController.getState( entity, ::BirdAirState )
-            val groundState = landController.getState( entity, ::GenericLandState )
-            flightState.currSpeed = groundState.currSpeed
-            flightState.rideVel = groundState.rideVel
-            flightState.stamina = groundState.stamina
-
-            getState(entity, ::RunUpToFlightCompositeState).let {
-                it.activeController = flightController
-                entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, true)
-                it.timeTransitioned = entity.level().gameTime
-            }
-        }
-
+    override fun speed(entity: PokemonEntity, driver: Player): Float {
         return getActiveController(entity).speed(entity, driver)
     }
 
@@ -141,9 +144,6 @@ class RunUpToFlightCompositeController : RideController {
         jumpStrength: Int
     ): Vec3 {
         val controller = getActiveController(entity)
-        val state = getState(entity, ::CompositeState)
-        val isJumping = driver.jumping
-
         return controller.jumpForce(entity, driver, jumpStrength)
     }
 

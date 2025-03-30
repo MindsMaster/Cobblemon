@@ -68,15 +68,11 @@ data class RidingManager(val entity: PokemonEntity) {
      */
     fun tick(entity: PokemonEntity, driver: Player, input: Vec3) {
         val controller = getController(entity) ?: return
-
-        val pose = controller.pose(entity)
-        entity.entityData.set(PokemonEntity.POSE_TYPE, pose)
-        //val speedPlayer = driver.deltaMovement.horizontalDistance()
-        //driver.displayClientMessage(Component.literal("Speed player: ").withStyle { it.withColor(ChatFormatting.GREEN) }.append(Component.literal("$speedPlayer b/t")), true)
-        //val speedEntity = entity.deltaMovement.length()  //* 20 * 60 * 60) / ( 1000 )
-        //println(speedEntity)
-        //driver.displayClientMessage(Component.literal("Speed: ").withStyle { it.withColor(ChatFormatting.GREEN) }.append(Component.literal("${String.format("%.2f", speedEntity)} km/h")), true)
-
+        controller.tick(entity, driver, input)
+        if (!entity.level().isClientSide) {
+            val pose = controller.pose(entity)
+            entity.entityData.set(PokemonEntity.POSE_TYPE, pose)
+        }
     }
 
     fun speed(entity: PokemonEntity, driver: Player): Float {

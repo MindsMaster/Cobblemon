@@ -21,7 +21,6 @@ import com.cobblemon.mod.common.util.asExpression
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.common.util.getString
 import com.cobblemon.mod.common.util.readString
-import com.cobblemon.mod.common.util.resolveInt
 import com.cobblemon.mod.common.util.writeString
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.util.SmoothDouble
@@ -33,7 +32,9 @@ import net.minecraft.world.phys.Vec3
 class RunUpToJetFlightCompositeController : RideController {
     override val key = KEY
     override val poseProvider = PoseProvider(PoseType.STAND)
-        .with(PoseOption(PoseType.WALK) { it.entityData.get(PokemonEntity.MOVING) })
+        .with(PoseOption(PoseType.WALK) {
+            it.entityData.get(PokemonEntity.MOVING)
+        })
     override val condition: (PokemonEntity) -> Boolean = { true }
 
     var minimumSpeed: Expression = "0.5".asExpression()
@@ -45,6 +46,44 @@ class RunUpToJetFlightCompositeController : RideController {
         private set
     var flightController: RideController = JetAirController()
         private set
+
+    fun shouldTransitionToGround(state: RunUpToFlightCompositeState, entity: PokemonEntity, driver: Player): Boolean {
+        if (state.activeController != flightController) return false
+        if (state.timeTransitioned + 20 >= entity.level().gameTime) return false
+        return driver.isSprinting || entity.onGround()
+    }
+
+    fun shouldTransitionToAir(state: RunUpToFlightCompositeState, entity: PokemonEntity, driver: Player, input: Vec3): Boolean {
+        if (state.activeController != landController) return false
+        if (state.timeTransitioned + 20 >= entity.level().gameTime) return false
+        return driver.isSprinting && input.z > 0.5
+    }
+
+    //TODO: This composite controller needs to have the jet lift off at a certain speed.
+    //maybe just pressing shift or space? Unsure, will need to test to see what works best.
+    override fun tick(entity: PokemonEntity, driver: Player, input: Vec3) {
+        val state = getState(entity, ::RunUpToFlightCompositeState)
+        val flightState = flightController.getState(entity, ::JetAirState)
+        val groundState = landController.getState(entity, ::GenericLandState)
+        if (shouldTransitionToGround(state, entity, driver)) {
+            groundState.currSpeed = flightState.currSpeed
+            groundState.stamina = flightState.stamina
+            groundState.rideVel = flightState.rideVel
+
+            state.activeController = landController
+            entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, false)
+            state.timeTransitioned = entity.level().gameTime
+        }
+        else if (shouldTransitionToAir(state, entity, driver, input)) {
+            flightState.currSpeed = groundState.currSpeed
+            flightState.stamina = groundState.stamina
+            flightState.rideVel = groundState.rideVel
+
+            state.activeController = flightController
+            entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, true)
+            state.timeTransitioned = entity.level().gameTime
+        }
+    }
 
     override fun pose(entity: PokemonEntity): PoseType {
         return getActiveController(entity).poseProvider.select(entity)
@@ -66,57 +105,7 @@ class RunUpToJetFlightCompositeController : RideController {
         }
     }
 
-    //TODO: This composite controller needs to have the jet lift off at a certain speed.
-    //maybe just pressing shift or space? Unsure, will need to test to see what works best.
-    override fun speed(
-        entity: PokemonEntity,
-        driver: Player
-    ): Float {
-        val state = getState(entity, ::RunUpToFlightCompositeState)
-        if ((state.activeController == flightController && entity.onGround() &&
-            state.timeTransitioned + 20 < entity.level().gameTime) ||
-            (driver.isSprinting && state.activeController == flightController &&
-            state.timeTransitioned + 20 < entity.level().gameTime)) {
-
-            //Pass the data to the next state
-            val flightState = flightController.getState(entity, ::JetAirState)
-            val groundState = landController.getState(entity, ::GenericLandState)
-            groundState.currSpeed = flightState.currSpeed
-            groundState.stamina = flightState.stamina
-            groundState.rideVel = flightState.rideVel
-
-            //Clear accumulated rotation input when transferring to ground input
-            flightState.currMouseXForce = 0.0
-            flightState.currMouseYForce = 0.0
-
-            getState(entity, ::RunUpToFlightCompositeState).let {
-                it.activeController = landController
-                entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, true)
-                it.timeTransitioned = entity.level().gameTime
-            }
-        }
-        //These conditions should also be more graceful. As it stands though it feels better than jump and then
-        //having to hit the ground
-        else if(
-            state.activeController == landController && entity.speed > 0.5 &&
-            driver.isSprinting &&
-            state.timeTransitioned + 20 < entity.level().gameTime
-        )
-        {
-            //Pass the data to the next state
-            val flightState = flightController.getState(entity, ::JetAirState)
-            val groundState = landController.getState(entity, ::GenericLandState)
-            flightState.currSpeed = groundState.currSpeed
-            flightState.stamina = groundState.stamina
-            flightState.rideVel = groundState.rideVel
-
-            getState(entity, ::RunUpToFlightCompositeState).let {
-                it.activeController = flightController
-                entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, true)
-                it.timeTransitioned = entity.level().gameTime
-            }
-        }
-
+    override fun speed(entity: PokemonEntity, driver: Player): Float {
         return getActiveController(entity).speed(entity, driver)
     }
 

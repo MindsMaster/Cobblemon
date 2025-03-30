@@ -30,7 +30,7 @@ import kotlin.math.*
 class JetAirController : RideController {
     override val key = KEY
     override val poseProvider = PoseProvider(PoseType.HOVER)
-        .with(PoseOption(PoseType.FLY) { it.deltaMovement.length() > 0 })
+        .with(PoseOption(PoseType.FLY) { it.entityData.get(PokemonEntity.MOVING) })
 
     override val condition: (PokemonEntity) -> Boolean = { true }
 
