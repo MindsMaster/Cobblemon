@@ -167,7 +167,7 @@ class PokemonOnShoulderRenderer<T : Player>(renderLayerParent: RenderLayerParent
                 state,
                 matrixStack,
                 buffer,
-                Vec3(0.0,-90.0,-90.0)
+                Vec3(0.0,-90.0,90.0)
             )
 
             model.setDefault()

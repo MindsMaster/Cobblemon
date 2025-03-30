@@ -119,7 +119,7 @@ class ModelWidget(
             state,
             matrices,
             context.bufferSource(),
-            Vec3(0.0,-90.0,-90.0)
+            Vec3(0.0,-90.0,90.0)
         )
 
         matrices.popPose()
