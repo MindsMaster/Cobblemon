@@ -45,7 +45,7 @@ object LureCakeProspector : SpawningInfluenceProspector {
             val blockEntity = world.getBlockEntity(lureCakePos) as? LureCakeBlockEntity ?: continue
             val baitEffects = blockEntity.getBaitEffectsFromLureCake()
 
-            listOfInfluences.add(WorldSlicedSpatialSpawningInfluence(lureCakePos, RANGE.toFloat(), influence = SpawnBaitInfluence(baitEffects)))
+            listOfInfluences.add(WorldSlicedSpatialSpawningInfluence(lureCakePos, RANGE.toFloat(), influence = SpawnBaitInfluence(baitEffects, lureCakePos)))
         }
 
         return listOfInfluences

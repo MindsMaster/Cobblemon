@@ -10,14 +10,19 @@ package com.cobblemon.mod.common.api.spawning.spawner
 
 import com.cobblemon.mod.common.api.spawning.SpawnCause
 import com.cobblemon.mod.common.api.spawning.SpawnerManager
+import com.cobblemon.mod.common.api.spawning.context.AreaSpawningContext
 import com.cobblemon.mod.common.api.spawning.context.SpawningContext
+import com.cobblemon.mod.common.api.spawning.context.SubmergedSpawningContext
 import com.cobblemon.mod.common.api.spawning.detail.EntitySpawnResult
 import com.cobblemon.mod.common.api.spawning.detail.SpawnAction
 import com.cobblemon.mod.common.api.spawning.detail.SpawnDetail
 import com.cobblemon.mod.common.api.spawning.detail.SpawnPool
+import com.cobblemon.mod.common.api.spawning.influence.SpawnBaitInfluence
 import com.cobblemon.mod.common.api.spawning.influence.SpawningInfluence
 import com.cobblemon.mod.common.api.spawning.selection.FlatContextWeightedSelector
 import com.cobblemon.mod.common.api.spawning.selection.SpawningSelector
+import com.cobblemon.mod.common.block.entity.CakeBlockEntity
+import com.cobblemon.mod.common.block.entity.LureCakeBlockEntity
 import net.minecraft.world.entity.Entity
 
 /**
@@ -74,6 +79,29 @@ abstract class TickingSpawner(
                 val ctx = spawn.first
                 val detail = spawn.second
                 val spawnAction = detail.doSpawn(ctx = ctx)
+                if (ctx is AreaSpawningContext) {
+                    val influence = ctx.influences.filter { it is SpawnBaitInfluence }.firstOrNull()
+
+                    // this is where we try to grab a possible SpawnBaitInfluence
+                    if (influence is SpawnBaitInfluence) {
+                        val baitInfluence = influence
+                        val baitPos = baitInfluence.baitPos
+                        val level = ctx.world.level
+
+                        val blockEntity = baitPos?.let { level.getBlockEntity(it) }
+
+                        if (blockEntity is LureCakeBlockEntity) {
+                            blockEntity.bites++
+
+                            if (blockEntity.bites >= CakeBlockEntity.MAX_NUMBER_OF_BITES) {
+                                level.removeBlock(baitPos, false)
+                            } else {
+                                blockEntity.setChanged()
+                                level.sendBlockUpdated(baitPos, blockEntity.blockState, blockEntity.blockState, 3)
+                            }
+                        }
+                    }
+                }
                 spawnAction.complete()
             }
         }
