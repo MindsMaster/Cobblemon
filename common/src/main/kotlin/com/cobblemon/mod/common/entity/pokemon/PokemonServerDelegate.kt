@@ -299,6 +299,13 @@ class PokemonServerDelegate : PokemonSideDelegate {
         if (entity.deathTime == 0) {
             entity.effects.wipe()
             entity.deathTime = 1
+            if (entity.ownerUUID == null && entity.owner == null) {
+                if(entity.level().gameRules.getBoolean(CobblemonGameRules.DO_POKEMON_LOOT)) {
+                    val heldItem = (entity as PokemonEntity?)?.pokemon?.heldItemNoCopy() ?: ItemStack.EMPTY
+                    if (!heldItem.isEmpty) entity.spawnAtLocation(heldItem.item)
+                    (entity.drops ?: entity.pokemon.form.drops).drop(entity, entity.level() as ServerLevel, entity.position(), entity.killer)
+                }
+            }
             return
         } else if (entity.effects.progress?.isDone == false) {
             return
@@ -316,15 +323,7 @@ class PokemonServerDelegate : PokemonSideDelegate {
         }
 
         if (entity.deathTime == 60) {
-            if (entity.ownerUUID == null && entity.owner == null) {
-                entity.level().broadcastEntityEvent(entity, 60.toByte()) // Sends smoke effect
-                if(entity.level().gameRules.getBoolean(CobblemonGameRules.DO_POKEMON_LOOT)) {
-                    val heldItem = (entity as PokemonEntity?)?.pokemon?.heldItemNoCopy() ?: ItemStack.EMPTY
-                    if (!heldItem.isEmpty) entity.spawnAtLocation(heldItem.item)
-                    (entity.drops ?: entity.pokemon.form.drops).drop(entity, entity.level() as ServerLevel, entity.position(), entity.killer)
-                }
-            }
-
+            entity.level().broadcastEntityEvent(entity, 60.toByte()) // Sends smoke effect
             entity.remove(Entity.RemovalReason.KILLED)
         }
     }
