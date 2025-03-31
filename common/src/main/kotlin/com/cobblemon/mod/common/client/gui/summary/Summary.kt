@@ -124,6 +124,7 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
     private lateinit var nicknameEntryWidget: NicknameEntryWidget
     private val summaryTabs = mutableListOf<SummaryTab>()
     private var showCosmeticItem = false
+    private lateinit var heldItemVisibilityButton: SummaryButton
     private var mainScreenIndex = INFO
     var sideScreenIndex = PARTY
     private val party = ArrayList(party)
@@ -173,7 +174,7 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
         )
 
         //Item Visibility Button
-        val HeldItemVisibilityButton = SummaryButton(
+        heldItemVisibilityButton = SummaryButton(
             buttonX = x + 3F,
             buttonY = y + 104F,
             buttonWidth = 32,
@@ -183,7 +184,7 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
             activeResource = itemHiddenResource,
             clickAction = {
                 selectedPokemon.heldItemVisible = !selectedPokemon.heldItemVisible
-                (it as SummaryButton).buttonActive = !selectedPokemon.heldItemVisible
+                heldItemVisibilityButton.buttonActive = !selectedPokemon.heldItemVisible
                 modelWidget.heldItem = if (selectedPokemon.heldItemVisible) selectedPokemon.heldItem else null
                 // Send item visibility update to server
                 sendToServer(SetItemHiddenPacket(selectedPokemon.uuid, selectedPokemon.heldItemVisible))
@@ -191,8 +192,8 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
             renderRequirement = { !selectedPokemon.heldItemNoCopy().isEmpty && !showCosmeticItem },
             clickRequirement = { !selectedPokemon.heldItemNoCopy().isEmpty && !showCosmeticItem }
         )
-
-        addRenderableWidget(HeldItemVisibilityButton)
+        heldItemVisibilityButton.buttonActive = !selectedPokemon.heldItemVisible
+        addRenderableWidget(heldItemVisibilityButton)
 
         // Held/Cosmetic Item Button
         addRenderableWidget(
@@ -323,6 +324,7 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
         if (::modelWidget.isInitialized) {
             modelWidget.pokemon = selectedPokemon.asRenderablePokemon()
             modelWidget.heldItem = if (selectedPokemon.heldItemVisible) selectedPokemon.heldItem else null
+            heldItemVisibilityButton.buttonActive = !selectedPokemon.heldItemVisible
         }
 
         if (this::nicknameEntryWidget.isInitialized) {
