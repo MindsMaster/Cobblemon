@@ -77,23 +77,21 @@ class HeldItemRenderer {
         seed: Int,
         frontLight: Boolean = false,
         targetLocator: String =
-            if (item.`is`(WEARABLE_FACE_ITEMS)) ITEM_FACE
-            else if (item.`is`(WEARABLE_HAT_ITEMS)) ITEM_HAT
+            if (item.`is`(WEARABLE_FACE_ITEMS) && state.locatorStates.containsKey(ITEM_FACE)) ITEM_FACE
+            else if (item.`is`(WEARABLE_HAT_ITEMS) && state.locatorStates.containsKey(ITEM_HAT)) ITEM_HAT
             else ITEM
     ) {
         if (item.isEmpty) return
 
-        val locators: Map<String, MatrixWrapper> = state.locatorStates
-
-        if (locators.containsKey(targetLocator)) {
+        if (state.locatorStates.containsKey(targetLocator)) {
             poseStack.pushPose()
             RenderSystem.applyModelViewMatrix()
 
             displayContext = model.getLocatorDisplayContext(targetLocator)?:
-                if (item.`is`(WEARABLE_FACE_ITEMS) || item.`is`(WEARABLE_HAT_ITEMS)) ItemDisplayContext.HEAD
+                if ((item.`is`(WEARABLE_FACE_ITEMS) && targetLocator==ITEM_FACE) || (item.`is`(WEARABLE_HAT_ITEMS)&& targetLocator== ITEM_HAT)) ItemDisplayContext.HEAD
                 else ItemDisplayContext.FIXED
 
-            poseStack.mulPose(locators[targetLocator]!!.matrix)
+            poseStack.mulPose(state.locatorStates[targetLocator]!!.matrix)
             when (displayContext) {
                 ItemDisplayContext.FIXED -> {
                     poseStack.mulPose(Axis.XP.rotationDegrees(90.0f))
