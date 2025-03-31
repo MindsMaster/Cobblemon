@@ -11,10 +11,13 @@ package com.cobblemon.mod.common.client.render.item
 import com.cobblemon.mod.common.api.tags.CobblemonItemTags
 import com.cobblemon.mod.common.api.tags.CobblemonItemTags.WEARABLE_FACE_ITEMS
 import com.cobblemon.mod.common.api.tags.CobblemonItemTags.WEARABLE_HAT_ITEMS
+import com.cobblemon.mod.common.client.entity.NPCClientDelegate
+import com.cobblemon.mod.common.client.entity.PokemonClientDelegate
 import com.cobblemon.mod.common.client.render.MatrixWrapper
+import com.cobblemon.mod.common.client.render.models.blockbench.FloatingState
 import com.cobblemon.mod.common.client.render.models.blockbench.PosableModel
 import com.cobblemon.mod.common.client.render.models.blockbench.PosableState
-import com.cobblemon.mod.common.util.cobblemonResource
+import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
 import net.minecraft.client.Minecraft
@@ -26,7 +29,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.ItemDisplayContext
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.phys.Vec3
+import org.joml.Vector3f
 
 class HeldItemRenderer {
     private val itemRenderer: ItemRenderer = Minecraft.getInstance().itemRenderer
@@ -36,20 +39,6 @@ class HeldItemRenderer {
         const val ITEM_FACE = "item_face"
         const val ITEM_HAT = "item_hat"
         const val ITEM = "item"
-
-        enum class WearableItemModels {
-            BLACK_GLASSES,
-            CHOICE_BAND,
-            CHOICE_SPECS,
-            EXP_SHARE,
-            FOCUS_BAND,
-            KINGS_ROCK,
-            SAFETY_GOGGLES,
-            WISE_GLASSES;
-
-            fun getItemModelPath() = cobblemonResource("item/wearable/${this.name.lowercase()}")
-            fun getItemSpritePath() = cobblemonResource(this.name.lowercase())
-        }
 
         fun getWearableModel3d(id: String): ResourceLocation? {
             val itemName = id.substringAfterLast(":")
@@ -63,131 +52,87 @@ class HeldItemRenderer {
         }
     }
 
-    fun render(
-        entity: LivingEntity?,
-        model: PosableModel,
+    fun renderOnModel(
         item: ItemStack,
-        locators: Map<String, MatrixWrapper>,
+        model: PosableModel,
+        state: PosableState,
+        poseStack: PoseStack,
+        buffer: MultiBufferSource,
+        light: Int = LightTexture.pack(11, 7),
+        frontLight: Boolean = false,
+        entity: LivingEntity? = null
+    ) {
+        if (!item.`is`(CobblemonItemTags.HIDDEN_ITEMS)) renderAtLocator(item, model, state, entity, poseStack, buffer, light, 0, frontLight)
+        state.animationItems.forEach { (targetLocator, item) -> renderAtLocator(item, model, state, entity, poseStack, buffer, light, 0, frontLight, targetLocator) }
+    }
+
+    private fun renderAtLocator(
+        item: ItemStack,
+        model: PosableModel,
+        state: PosableState,
+        entity: LivingEntity?,
         poseStack: PoseStack,
         buffer: MultiBufferSource,
         light: Int,
         seed: Int,
-        rotation: Vec3
+        frontLight: Boolean = false,
+        targetLocator: String =
+            if (item.`is`(WEARABLE_FACE_ITEMS)) ITEM_FACE
+            else if (item.`is`(WEARABLE_HAT_ITEMS)) ITEM_HAT
+            else ITEM
     ) {
         if (item.isEmpty) return
-        displayContext = ItemDisplayContext.FIXED
 
-        poseStack.pushPose()
-        when {
-            //item_face locator
-            (locators.containsKey(ITEM_FACE) && item.`is`(WEARABLE_FACE_ITEMS)) -> {
-                displayContext = model.getLocatorDisplayContext(ITEM_FACE) ?: ItemDisplayContext.HEAD
-                poseStack.mulPose(locators[ITEM_FACE]!!.matrix)
-                poseStack.translate(0f, 0f, 0.28f)
-                poseStack.scale(0.7f, 0.7f, 0.7f)
-            }
-            //item_hat locator
-            (locators.containsKey(ITEM_HAT) && item.`is`(WEARABLE_HAT_ITEMS)) -> {
-                displayContext = model.getLocatorDisplayContext(ITEM_HAT) ?: ItemDisplayContext.HEAD
-                poseStack.mulPose(locators[ITEM_HAT]!!.matrix)
-                poseStack.translate(0f, -0.26f, 0f)
-                poseStack.scale(.68f, .68f, .68f)
-            }
-            //item locator
-            (locators.containsKey(ITEM)) -> {
-                displayContext = model.getLocatorDisplayContext(ITEM) ?: ItemDisplayContext.FIXED
-                poseStack.mulPose(locators[ITEM]!!.matrix)
-                applyContextTransformation(poseStack, rotation)
-            }
-            // Don't render any item
-            else -> {
-                poseStack.popPose()
-                return
-            }
-        }
+        val locators: Map<String, MatrixWrapper> = state.locatorStates
 
-        itemRenderer.renderStatic(entity, item, displayContext, (displayContext==ItemDisplayContext.THIRD_PERSON_LEFT_HAND), poseStack, buffer, null, light, OverlayTexture.NO_OVERLAY, seed)
-        poseStack.popPose()
-    }
-
-    private fun renderAnimationItem(
-        model: PosableModel,
-        state: PosableState,
-        locators: Map<String, MatrixWrapper>,
-        poseStack: PoseStack,
-        buffer: MultiBufferSource,
-        light: Int,
-        entity: LivingEntity?,
-        rotation: Vec3
-    ) {
-        state.itemRenderingLocations.forEach { (locatorName, item) ->
+        if (locators.containsKey(targetLocator)) {
             poseStack.pushPose()
-            if (locators.containsKey(locatorName)) {
-                displayContext = model.getLocatorDisplayContext(locatorName)?: ItemDisplayContext.FIXED
-                poseStack.mulPose(locators[locatorName]!!.matrix)
-                applyContextTransformation(poseStack, rotation)
+            RenderSystem.applyModelViewMatrix()
+
+            displayContext = model.getLocatorDisplayContext(targetLocator)?:
+                if (item.`is`(WEARABLE_FACE_ITEMS) || item.`is`(WEARABLE_HAT_ITEMS)) ItemDisplayContext.HEAD
+                else ItemDisplayContext.FIXED
+
+            poseStack.mulPose(locators[targetLocator]!!.matrix)
+            when (displayContext) {
+                ItemDisplayContext.FIXED -> {
+                    poseStack.mulPose(Axis.XP.rotationDegrees(90.0f))
+                    poseStack.scale(.5f, .5f, .5f )
+                    poseStack.translate(0f, 0.01666f, 0f)
+                }
+                ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, ItemDisplayContext.THIRD_PERSON_LEFT_HAND -> {
+                    if (state is NPCClientDelegate) {
+                        poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F))
+                    }
+                    else if (state is PokemonClientDelegate || state is FloatingState) {
+                        poseStack.mulPose(Axis.YP.rotationDegrees(-90.0F))
+                        poseStack.mulPose(Axis.ZP.rotationDegrees(90.0F))
+                    }
+                    poseStack.translate(0.025f * if (displayContext==ItemDisplayContext.THIRD_PERSON_LEFT_HAND) 1 else -1 , 0.0f, 0.0f)
+                }
+                ItemDisplayContext.HEAD -> {
+                    if (state is NPCClientDelegate) poseStack.mulPose(Axis.XP.rotationDegrees(90.0f))
+                    if (item.`is`(WEARABLE_FACE_ITEMS)) {
+                        poseStack.translate(0f, 0f, 0.28f)
+                        poseStack.scale(0.7f, 0.7f, 0.7f)
+                    }
+                    else if (item.`is`(WEARABLE_HAT_ITEMS)) {
+                        poseStack.translate(0f, -0.26f, 0f)
+                        poseStack.scale(.68f, .68f, .68f)
+                    }
+                }
+                else -> {}
             }
-            itemRenderer.renderStatic(entity, item, displayContext, (displayContext==ItemDisplayContext.THIRD_PERSON_LEFT_HAND), poseStack, buffer, null, light, OverlayTexture.NO_OVERLAY, 0)
+
+            if (frontLight) {
+                val light1 = Vector3f(0F,0F,1F)
+                val light2 = Vector3f(0F,0F,1F)
+                RenderSystem.setShaderLights(light1, light2)
+            }
+
+            itemRenderer.renderStatic(entity, item, displayContext, (displayContext==ItemDisplayContext.THIRD_PERSON_LEFT_HAND), poseStack, buffer, null, light, OverlayTexture.NO_OVERLAY, seed)
+
             poseStack.popPose()
-        }
-    }
-
-    fun renderOnModel(
-        model: PosableModel,
-        item: ItemStack,
-        state: PosableState,
-        poseStack: PoseStack,
-        buffer: MultiBufferSource,
-        rotation: Vec3 = Vec3(0.0,0.0,0.0),
-        light: Int = LightTexture.pack(15, 15),
-    ) {
-        val locators: Map<String, MatrixWrapper> = state.locatorStates
-        if (state.itemRenderingLocations.isNotEmpty()) {
-            renderAnimationItem(model, state, locators, poseStack, buffer, light, null, rotation)
-        }
-        else if (!item.`is`(CobblemonItemTags.HIDDEN_ITEMS)) {
-            render(null, model, item, locators, poseStack, buffer, light, 0, rotation)
-        }
-    }
-
-    fun renderOnEntity(
-        entity: LivingEntity,
-        item: ItemStack,
-        model: PosableModel,
-        state: PosableState,
-        poseStack: PoseStack,
-        buffer: MultiBufferSource,
-        light: Int,
-        rotation: Vec3 = Vec3(0.0,0.0,0.0)
-    ) {
-        val locators: Map<String, MatrixWrapper> = state.locatorStates
-        if (state.itemRenderingLocations.isNotEmpty()) {
-            renderAnimationItem(model, state, locators, poseStack, buffer, light, entity, rotation)
-        }
-        else {
-            render(entity, model, item, locators, poseStack, buffer, light, 0, rotation)
-        }
-    }
-
-    private fun applyContextTransformation(poseStack: PoseStack, rotation: Vec3) {
-        when (displayContext) {
-            ItemDisplayContext.FIXED -> {
-                poseStack.mulPose(Axis.XP.rotationDegrees(90.0f))
-                poseStack.scale(.5f, .5f, .5f )
-                poseStack.translate(0f, 0.01666f, 0f)
-            }
-            ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, ItemDisplayContext.THIRD_PERSON_LEFT_HAND -> {
-                poseStack.mulPose(Axis.XP.rotationDegrees((rotation.x).toFloat()))
-                poseStack.mulPose(Axis.YP.rotationDegrees((rotation.y).toFloat()))
-                poseStack.mulPose(Axis.ZP.rotationDegrees((rotation.z).toFloat()))
-                poseStack.translate(0.025f * if (displayContext==ItemDisplayContext.THIRD_PERSON_LEFT_HAND) 1 else -1 , 0.0f, 0.0f)
-            }
-            ItemDisplayContext.HEAD -> {
-                poseStack.mulPose(Axis.XP.rotationDegrees(90.0f))
-                poseStack.scale(.6f, .6f, .6f)
-                poseStack.translate(0f, -0.6f, 0f)
-            }
-            else -> {}
         }
     }
 }
