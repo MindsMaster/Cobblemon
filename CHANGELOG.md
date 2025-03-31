@@ -75,6 +75,7 @@
 - Fixed species additions not being capable of changing implemented status.
 - Added support for action effects that are triggered by `|-activate|` Showdown instructions. `activate_{effect_id}` is the syntax.
 - Added Molang functions for rendering items `render_item(item_id, locator_name)` and `clear_items()`.
+- Fixed location spawn filter components causing crashes
 
 ## [1.6.1 (January 26th, 2025)](#1-6-1)
 
