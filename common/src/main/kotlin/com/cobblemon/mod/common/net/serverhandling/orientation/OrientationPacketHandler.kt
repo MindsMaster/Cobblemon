@@ -12,6 +12,7 @@ import com.cobblemon.mod.common.OrientationControllable
 import com.cobblemon.mod.common.api.net.ServerNetworkPacketHandler
 import com.cobblemon.mod.common.net.messages.server.orientation.C2SUpdateOrientationPacket
 import net.minecraft.server.MinecraftServer
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 
 object OrientationPacketHandler : ServerNetworkPacketHandler<C2SUpdateOrientationPacket> {
