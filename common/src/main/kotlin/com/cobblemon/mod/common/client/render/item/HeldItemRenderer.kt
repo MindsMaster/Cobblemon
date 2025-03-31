@@ -39,17 +39,6 @@ class HeldItemRenderer {
         const val ITEM_FACE = "item_face"
         const val ITEM_HAT = "item_hat"
         const val ITEM = "item"
-
-        fun getWearableModel3d(id: String): ResourceLocation? {
-            val itemName = id.substringAfterLast(":")
-            WearableItemModels.entries.toList().forEach { if (it.name.lowercase() == itemName ) return it.getItemModelPath() }
-            return null
-        }
-        fun getWearableModel2d(id: String): ResourceLocation? {
-            val itemName = id.substringAfterLast(":")
-            WearableItemModels.entries.toList().forEach { if (it.name.lowercase() == itemName ) return it.getItemSpritePath() }
-            return null
-        }
     }
 
     fun renderOnModel(
@@ -88,7 +77,7 @@ class HeldItemRenderer {
             RenderSystem.applyModelViewMatrix()
 
             displayContext = model.getLocatorDisplayContext(targetLocator)?:
-                if ((item.`is`(WEARABLE_FACE_ITEMS) && targetLocator==ITEM_FACE) || (item.`is`(WEARABLE_HAT_ITEMS)&& targetLocator== ITEM_HAT)) ItemDisplayContext.HEAD
+                if ((item.`is`(WEARABLE_FACE_ITEMS) && targetLocator==ITEM_FACE) || (item.`is`(WEARABLE_HAT_ITEMS) && targetLocator== ITEM_HAT)) ItemDisplayContext.HEAD
                 else ItemDisplayContext.FIXED
 
             poseStack.mulPose(state.locatorStates[targetLocator]!!.matrix)
