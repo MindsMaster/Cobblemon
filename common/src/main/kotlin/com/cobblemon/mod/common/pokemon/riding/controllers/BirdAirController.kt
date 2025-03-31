@@ -12,6 +12,7 @@ import com.bedrockk.molang.Expression
 import com.bedrockk.molang.runtime.MoLangMath.lerp
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.OrientationControllable
+import com.cobblemon.mod.common.api.riding.RidingState
 import com.cobblemon.mod.common.api.riding.controller.RideController
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
@@ -28,11 +29,14 @@ import net.minecraft.world.phys.Vec3
 import kotlin.math.*
 
 class BirdAirController : RideController {
+
     override val key = KEY
     override val poseProvider = PoseProvider(PoseType.HOVER)
         .with(PoseOption(PoseType.FLY) { it.entityData.get(PokemonEntity.MOVING) })
 
-    override val condition: (PokemonEntity) -> Boolean = { true }
+    override val isActive: Boolean = true
+
+    override val state = BirdAirState()
 
     var handlingExpr: Expression = "q.get_ride_stats('SKILL', 'AIR', 135.0, 45.0)".asExpression()
         private set
@@ -56,10 +60,6 @@ class BirdAirController : RideController {
         private set
 
     override fun speed(entity: PokemonEntity, driver: Player): Float {
-
-        //Retrieve the current bird controller state and stats
-        val state = getState(entity, ::BirdAirState)
-
         return state.rideVel.length().toFloat()
     }
 
@@ -72,7 +72,6 @@ class BirdAirController : RideController {
         var leftForce = 0.0
         var upForce = 0.0
         var forwardForce = 0.0
-        val state = getState(entity, ::BirdAirState)
 
         //Perform ride velocity update
         calculateRideSpaceVel(entity, driver, state)
@@ -108,9 +107,7 @@ class BirdAirController : RideController {
     }
 
     override fun angRollVel(entity: PokemonEntity, driver: Player, deltaTime: Double): Vec3 {
-
         val controller = (driver as? OrientationControllable)?.orientationController
-        val state = getState(entity, ::BirdAirState)
 
         //TODO: Tie in handling
         val handling = getRuntime(entity).resolveDouble(handlingExpr)
@@ -145,7 +142,6 @@ class BirdAirController : RideController {
         if (driver !is OrientationControllable) return Vec3.ZERO
         val controller = (driver as OrientationControllable).orientationController
 
-        val state = getState(entity, ::BirdAirState)
         val handling = getRuntime(entity).resolveDouble(handlingExpr)
         val topSpeed = getRuntime(entity).resolveDouble(topSpeedExpr)
 
@@ -189,9 +185,6 @@ class BirdAirController : RideController {
     }
 
     override fun setRideBar(entity: PokemonEntity, driver: Player): Float {
-        //Retrieve stamina from state
-        val state = getState(entity, ::BirdAirState)
-
         return (state.stamina / 1.0f)
     }
 
@@ -212,7 +205,6 @@ class BirdAirController : RideController {
     override fun rideFovMult(entity: PokemonEntity, driver: Player): Float {
         val topSpeed = getRuntime(entity).resolveDouble(topSpeedExpr)
         val glideTopSpeed = getRuntime(entity).resolveDouble(glideTopSpeedExpr)
-        val state = getState(entity, ::BirdAirState)
 
         //Must I ensure that topspeed is greater than minimum?
         val normalizedGlideSpeed = normalizeVal(state.rideVel.length(), topSpeed, glideTopSpeed)
@@ -225,12 +217,12 @@ class BirdAirController : RideController {
     override fun useAngVelSmoothing(entity: PokemonEntity): Boolean = false
 
     override fun useRidingAltPose(entity: PokemonEntity, driver: Player): Boolean {
-        val state = getState(entity, ::BirdAirState)
         return state.gliding
     }
 
     override fun encode(buffer: RegistryFriendlyByteBuf) {
         super.encode(buffer)
+        state.encode(buffer)
         buffer.writeExpression(topSpeedExpr)
         buffer.writeExpression(glideTopSpeedExpr)
         buffer.writeExpression(accelExpr)
@@ -241,6 +233,7 @@ class BirdAirController : RideController {
     }
 
     override fun decode(buffer: RegistryFriendlyByteBuf) {
+        state.decode(buffer)
         topSpeedExpr = buffer.readExpression()
         glideTopSpeedExpr = buffer.readExpression()
         accelExpr = buffer.readExpression()

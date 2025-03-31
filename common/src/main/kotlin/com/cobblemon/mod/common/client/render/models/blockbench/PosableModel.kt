@@ -602,7 +602,11 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
         applyPose(state, pose, 1F)
 
         val primaryAnimation = state.primaryAnimation
-        val shouldRotateHead = if(entity is PokemonEntity) entity.riding.shouldRotatePokemonHead(entity) else true
+        val shouldRotateHead = if (entity is PokemonEntity) {
+            entity.ifRidingAvailable(false) {
+                it.shouldRotatePokemonHead()
+            }
+        } else true
 
         // Quirks will run if there is no primary animation running and quirks are enabled for this context.
         if (primaryAnimation == null && context.request(RenderContext.DO_QUIRKS) != false) {

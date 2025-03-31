@@ -35,7 +35,6 @@ import net.minecraft.world.phys.Vec3
  * @since 1.7.0
  */
 interface RideController : Encodable, Decodable {
-
     /** A reference key used to denote the individual controller */
     val key: ResourceLocation
 
@@ -52,7 +51,9 @@ interface RideController : Encodable, Decodable {
      * Represents a condition that must be met for this controller to be active. For instance, this can be used
      * to evaluate things such as current velocity or block state of the entity.
      */
-    val condition: (PokemonEntity) -> Boolean
+    val isActive: Boolean
+
+    val state: RidingState?
 
     fun tick(entity: PokemonEntity, driver: Player, input: Vec3) {}
 
@@ -137,16 +138,14 @@ interface RideController : Encodable, Decodable {
 
     fun dismountOnShift(entity: PokemonEntity): Boolean = false
 
-    fun getRuntime(entity: PokemonEntity) = entity.riding.runtime
+    fun getRuntime(entity: PokemonEntity) = entity.runtime
 
     fun shouldRotatePokemonHead(): Boolean = false
-    fun shouldRotatePlayerHead(): Boolean = false
 
-    fun <T : RidingState> getState(entity: PokemonEntity, constructor: (PokemonEntity) -> T): T {
-        return entity.riding.getState(key, constructor)
-    }
+    fun shouldRotatePlayerHead(): Boolean = false
 
     override fun encode(buffer: RegistryFriendlyByteBuf) {
         buffer.writeIdentifier(this.key)
     }
+
 }

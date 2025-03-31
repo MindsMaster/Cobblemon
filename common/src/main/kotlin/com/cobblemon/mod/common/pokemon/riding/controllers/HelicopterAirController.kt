@@ -11,6 +11,7 @@ package com.cobblemon.mod.common.pokemon.riding.controllers
 import com.bedrockk.molang.Expression
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.OrientationControllable
+import com.cobblemon.mod.common.api.riding.RidingState
 import com.cobblemon.mod.common.api.riding.controller.RideController
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
@@ -35,7 +36,7 @@ import kotlin.math.sin
  * @author Apion, Jackowes
  * @since January 1, 2025
  */
-class HelicopterAirController : RideController {
+class HelicopterAirController(val entity: PokemonEntity) : RideController {
     override val key = KEY
     override val poseProvider = PoseProvider(PoseType.HOVER)
         .with(PoseOption(PoseType.FLY) { it.entityData.get(PokemonEntity.MOVING) })
@@ -43,8 +44,8 @@ class HelicopterAirController : RideController {
     //If there are only fluid blocks or air block below the ride
     //then activate the controller. If it is in water the ride will
     //dismount accordingly
-    override val condition: (PokemonEntity) -> Boolean = { entity ->
-        Shapes.create(entity.boundingBox).blockPositionsAsListRounded().any {
+    override val isActive: Boolean
+        get() = Shapes.create(entity.boundingBox).blockPositionsAsListRounded().any {
             if (it.y.toDouble() == (entity.position().y)) {
                 val blockState = entity.level().getBlockState(it.below())
                 return@any (blockState.isAir || !blockState.fluidState.isEmpty)
@@ -52,7 +53,8 @@ class HelicopterAirController : RideController {
             true
 
         }
-    }
+
+    override val state = null
 
     var gravity: Expression = "1.0".asExpression()
         private set

@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.pokemon.riding.controllers
 
 import com.bedrockk.molang.Expression
+import com.cobblemon.mod.common.api.riding.RidingState
 import com.cobblemon.mod.common.api.riding.RidingStyle
 import com.cobblemon.mod.common.api.riding.controller.RideController
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
@@ -28,7 +29,8 @@ class GliderAirController : RideController {
     override val key = KEY
     override val poseProvider = PoseProvider(PoseType.HOVER)
         .with(PoseOption(PoseType.FLY) { it.entityData.get(PokemonEntity.MOVING) })
-    override val condition: (PokemonEntity) -> Boolean = { true }
+
+    override val isActive = true
 
     var glideSpeed: Expression = "0.1".asExpression()
         private set
@@ -36,6 +38,8 @@ class GliderAirController : RideController {
         private set
     var canStrafe: Expression = "false".asExpression()
         private set
+
+    override val state = null
 
     override fun speed(entity: PokemonEntity, driver: Player): Float {
         return getRuntime(entity).resolveFloat(speed)

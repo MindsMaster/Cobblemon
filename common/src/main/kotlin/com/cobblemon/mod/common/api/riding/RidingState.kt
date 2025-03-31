@@ -8,6 +8,10 @@
 
 package com.cobblemon.mod.common.api.riding
 
+import com.cobblemon.mod.common.api.net.Decodable
+import com.cobblemon.mod.common.api.net.Encodable
+import net.minecraft.resources.ResourceLocation
+
 /**
  * Honestly having a base interface is probably unnecessary I'm just considering whether there's going to be some
  * kind of shared state later.
@@ -15,4 +19,8 @@ package com.cobblemon.mod.common.api.riding
  * @author Hiroku
  * @since October 6th, 2024
  */
-interface RidingState
+interface RidingState: Encodable, Decodable {
+    val key: ResourceLocation
+    var isDirty: Boolean
+    fun reset()
+}

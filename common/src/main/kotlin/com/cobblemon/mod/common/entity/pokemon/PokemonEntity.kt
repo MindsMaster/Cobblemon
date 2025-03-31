@@ -8,6 +8,8 @@
 
 package com.cobblemon.mod.common.entity.pokemon
 
+import com.bedrockk.molang.runtime.MoLangRuntime
+import com.bedrockk.molang.runtime.value.DoubleValue
 import com.cobblemon.mod.common.*
 import com.cobblemon.mod.common.CobblemonNetwork.sendPacket
 import com.cobblemon.mod.common.CobblemonSounds
@@ -25,6 +27,7 @@ import com.cobblemon.mod.common.api.molang.MoLangFunctions.addLivingEntityFuncti
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addPokemonEntityFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addPokemonFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addStandardFunctions
+import com.cobblemon.mod.common.api.molang.MoLangFunctions.setup
 import com.cobblemon.mod.common.api.molang.ObjectValue
 import com.cobblemon.mod.common.api.net.serializers.PlatformTypeDataSerializer
 import com.cobblemon.mod.common.api.net.serializers.PoseTypeDataSerializer
@@ -37,6 +40,8 @@ import com.cobblemon.mod.common.api.pokemon.status.Statuses
 import com.cobblemon.mod.common.api.reactive.ObservableSubscription
 import com.cobblemon.mod.common.api.reactive.SimpleObservable
 import com.cobblemon.mod.common.api.riding.*
+import com.cobblemon.mod.common.api.riding.controller.RideController
+import com.cobblemon.mod.common.api.riding.controller.RideControllerFactory
 import com.cobblemon.mod.common.api.riding.events.SelectDriverEvent
 import com.cobblemon.mod.common.api.riding.stats.RidingStat
 import com.cobblemon.mod.common.api.scheduling.Schedulable
@@ -199,6 +204,7 @@ open class PokemonEntity(
             value.isClient = this.level().isClientSide
             field = value
             delegate.changePokemon(value)
+            ridingController = value.riding.controller?.let { RideControllerFactory.create(it, this) }
 
             //This used to be referring to this.updateEyeHeight, I think this is the best conversion
             // We need to update this value every time the Pokémon changes, other eye height related things will be dynamic.
@@ -244,7 +250,27 @@ open class PokemonEntity(
 
     var enablePoseTypeRecalculation = true
 
-    override val riding: RidingManager = RidingManager(this)
+    override var ridingController: RideController? = pokemon.riding.controller?.let { RideControllerFactory.create(it, this) }
+
+    val runtime: MoLangRuntime by lazy {
+        MoLangRuntime()
+            .setup()
+            .withQueryValue("entity", struct)
+            .also {
+                it.environment.query.addFunction("passenger_count") { DoubleValue(passengers.size.toDouble()) }
+                it.environment.query.addFunction("get_ride_stats") { params ->
+                    val rideStat = RidingStat.valueOf(params.getString(0).uppercase())
+                    val rideStyle = RidingStyle.valueOf(params.getString(1).uppercase())
+                    val maxVal = params.getDouble(2)
+                    val minVal = params.getDouble(3)
+                    //TODO: Use the mons actual boost once implemented
+                    val normalizedStat = rideProp.calculate(rideStat, rideStyle, 0) / 100.0f
+                    val trueStatVal = (normalizedStat *  (maxVal - minVal)) + minVal
+
+                    DoubleValue(trueStatVal)
+                }
+            }
+    }
 
     /**
      * The amount of steps this entity has traveled.
@@ -291,6 +317,9 @@ open class PokemonEntity(
 
     /** The pokeball exposed to the client. Used for sendout animation. */
     val exposedBall: PokeBall get() = this.effects.mockEffect?.exposedBall ?: this.pokemon.caughtBall
+
+    var deltaRotation = Vec2.ZERO
+        private set
 
     var platform : PlatformType
         get() = entityData.get(PLATFORM_TYPE)
@@ -1422,10 +1451,16 @@ open class PokemonEntity(
         if (riders.isEmpty()) {
             super.handleRelativeFrictionAndCalculateMovement(deltaMovement, friction)
         } else {
+            val velocity = ifRidingAvailable(fallback = Vec3.ZERO) {
+                it.velocity(this, this.controllingPassenger as Player, deltaMovement)
+            }
             //Handle ridden pokemon differently to allow vector lerp instead of simple addition.
-            val v = Entity.getInputVector(riding.velocity(this, this.controllingPassenger as Player, Vec3.ZERO), 1.0f, this.getYRot());
+            val v = Entity.getInputVector(velocity, 1.0f, this.getYRot());
             //changing this will give the ride more or less inertia/handling/drift
-            this.deltaMovement = this.deltaMovement.lerp(v, riding.inertia(this));
+            val inertia = ifRidingAvailable(fallback = 0.5) {
+                it.inertia(this)
+            }
+            this.deltaMovement = this.deltaMovement.lerp(v, inertia);
             this.move(MoverType.SELF, this.deltaMovement.scale(this.speed.toDouble()))
         }
 
@@ -1700,7 +1735,7 @@ open class PokemonEntity(
 
     override fun tickRidden(driver: Player, movementInput: Vec3) {
         super.tickRidden(driver, movementInput)
-        this.riding.tick(this, driver, movementInput)
+        this.ridingController?.tick(this, driver, movementInput)
         val rotation = this.getControlledRotation(driver)
         setRot(rotation.y, rotation.x)
         this.yHeadRot = this.yRot
@@ -1709,13 +1744,13 @@ open class PokemonEntity(
 
         val riders = this.passengers.filterIsInstance<LivingEntity>()
 
-        if (this.riding.canJump(this, driver)) {
+        if (ridingController != null && ridingController!!.isActive && ridingController!!.canJump(this, driver)) {
             if (this.onGround()) {
                 if (this.jumpInputStrength > 0) {
                     //this.jump(this.jumpStrength, movementInput)
                     //this.jump()
                     val f = PI.toFloat() - this.yRot * PI.toFloat() / 180
-                    val jumpVector = riding.jumpVelocity(this, driver, this.jumpInputStrength)
+                    val jumpVector = ridingController!!.jumpForce(this, driver, this.jumpInputStrength)
                     val velocity = jumpVector.yRot(f)
                     // Rotate the jump vector f degrees around the Y axis
                     //val velocity = Vec3d(-sin(f) * jumpVector.x, jumpVector.y, cos(f) * jumpVector.z)
@@ -1768,11 +1803,19 @@ open class PokemonEntity(
 //    }
 
     private fun getControlledRotation(controller: LivingEntity): Vec2 {
-        return this.riding.controlledRotation(this, controller as Player)
+        if (ridingController == null || !ridingController!!.isActive) return rotationVector
+        val previousRotation = rotationVector
+        val rotation = ridingController!!.rotation(this, controller)
+        this.deltaRotation = Vec2(rotation.x - previousRotation.x, rotation.y - previousRotation.y)
+        return rotation
     }
 
     override fun onPassengerTurned(entityToUpdate: Entity) {
-        return this.riding.clampPassengerRotation(this, entityToUpdate as? LivingEntity ?: return)
+        if (ridingController == null || !ridingController!!.isActive) return
+        if (entityToUpdate !is LivingEntity) return
+        ifRidingAvailable(Unit) {
+            it.clampPassengerRotation(this, entityToUpdate)
+        }
     }
 
     override fun positionRider(passenger: Entity, positionUpdater: MoveFunction) {
@@ -1788,8 +1831,9 @@ open class PokemonEntity(
 
             positionUpdater.accept(passenger, this.x + rotatedOffset.x, this.y + rotatedOffset.y, this.z + rotatedOffset.z)
             if (passenger is LivingEntity) {
-                this.riding.updatePassengerRotation(this, passenger)
-                this.riding.clampPassengerRotation(this, passenger)
+                ifRidingAvailable(Unit) {
+                    it.updatePassengerRotation(this, passenger)
+                }
             }
         }
     }
@@ -1797,7 +1841,7 @@ open class PokemonEntity(
     override fun getControllingPassenger(): LivingEntity? {
         val riders = this.passengers.filterIsInstance<LivingEntity>()
         if (riders.isEmpty()) {
-            riding.states.clear()
+            ridingController?.state?.reset()
             return null
         }
 
@@ -1818,16 +1862,22 @@ open class PokemonEntity(
     }
 
     override fun getRiddenInput(controller: Player, movementInput: Vec3): Vec3 {
-        return this.riding.velocity(this, controller, movementInput)
+        return ifRidingAvailable(fallback = Vec3.ZERO) {
+            it.velocity(this, controller, movementInput)
+        }
     }
 
     override fun getRiddenSpeed(controller: Player): Float {
-        return this.riding.speed(this, controller)
+        return ifRidingAvailable(fallback = 0.05f) {
+            it.speed(this, controller)
+        }
     }
 
     fun useRidingAltPose(): Boolean {
         val driver = this.controllingPassenger as? Player ?: return false
-        return this.riding.useRidingAltPose(this, driver)
+        return ifRidingAvailable(fallback = false) {
+            it.useRidingAltPose(this, driver)
+        }
     }
 
     var jumpInputStrength: Int = 0 // move this
@@ -1893,9 +1943,8 @@ open class PokemonEntity(
     //Having it be able to be turned off by the flying or swimming controllers is the
     //temp solution I have found.
     override fun onGround() : Boolean {
-        if (riding.turnOffOnGround(this)) {
-            return false
-        }
+        if (ridingController == null || !ridingController!!.isActive) return false
+        if (ridingController!!.turnOffOnGround(this)) return false
         return super.onGround()
     }
 
@@ -1909,17 +1958,23 @@ open class PokemonEntity(
         if (this.passengers.isEmpty()) {
             return regularGravity
         }
-        return riding.gravity(this, regularGravity) ?: regularGravity
+        return ifRidingAvailable(fallback = regularGravity) {
+            it.gravity(this, regularGravity) ?: regularGravity
+        }
     }
 
     fun setRideBar(): Float {
         val driver = this.controllingPassenger as? Player ?: return 0.0f
-        return this.riding.setRideBar(this, driver)
+        return ifRidingAvailable(fallback = 0.0f) {
+            it.setRideBar(this, driver)
+        }
     }
 
     fun rideFovMult(): Float {
         val driver = this.controllingPassenger as? Player ?: return 1.0f
-        return this.riding.rideFovMult(this, driver)
+        return ifRidingAvailable(fallback = 1.0f) {
+            it.rideFovMult(this, driver)
+        }
     }
 
     /**
@@ -1943,5 +1998,9 @@ open class PokemonEntity(
 
     override fun resolveEntityScan(): LivingEntity {
         return this
+    }
+
+    fun <T> ifRidingAvailable(fallback: T, block: (RideController) -> T): T {
+        return if (ridingController != null && ridingController!!.isActive) block(ridingController!!) else fallback
     }
 }

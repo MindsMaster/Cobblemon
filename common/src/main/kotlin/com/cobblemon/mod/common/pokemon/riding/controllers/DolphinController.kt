@@ -10,11 +10,13 @@ package com.cobblemon.mod.common.pokemon.riding.controllers
 
 import com.bedrockk.molang.runtime.value.DoubleValue
 import com.cobblemon.mod.common.OrientationControllable
+import com.cobblemon.mod.common.api.riding.RidingState
 import com.cobblemon.mod.common.api.riding.controller.RideController
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
+import com.cobblemon.mod.common.pokemon.riding.states.DolphinState
 import com.cobblemon.mod.common.util.*
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.resources.ResourceLocation
@@ -28,7 +30,7 @@ import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 
-class DolphinController : RideController {
+class DolphinController(val entity: PokemonEntity) : RideController {
     companion object {
         val KEY: ResourceLocation = cobblemonResource("swim/dolphin")
     }
@@ -45,20 +47,16 @@ class DolphinController : RideController {
         private set
     var strafeFactor = "0.2".asExpression()
         private set
-    var lastVelocity = Vec3(0.0,0.0,0.0)
-        private set
 
-    private val rollSmoother = SmoothDouble()
+    override val state = DolphinState()
 
     override val key: ResourceLocation = KEY
+
     override val poseProvider: PoseProvider = PoseProvider(PoseType.FLOAT)
         .with(PoseOption(PoseType.SWIM) { it.entityData.get(PokemonEntity.MOVING) })
 
-    override val condition: (PokemonEntity) -> Boolean = { entity ->
-
-        //If there are only fluid blocks or air block below the ride
-        //or if the entity is in water then activate the controller
-        Shapes.create(entity.boundingBox).blockPositionsAsListRounded().any {
+    override val isActive: Boolean
+        get() = Shapes.create(entity.boundingBox).blockPositionsAsListRounded().any {
             if (it.y.toDouble() == (entity.position().y)) {
                 val blockState = entity.level().getBlockState(it.below())
                 return@any (blockState.isAir || !blockState.fluidState.isEmpty ) ||
@@ -66,8 +64,6 @@ class DolphinController : RideController {
             }
             true
         }
-    }
-
 
     override fun speed(entity: PokemonEntity, driver: Player): Float {
         return getRuntime(entity).resolveFloat(speed)
@@ -91,8 +87,8 @@ class DolphinController : RideController {
 
         if (!entity.isInWater && !entity.isUnderWater)
         {
-            lastVelocity = Vec3(lastVelocity.x, lastVelocity.y - 0.035, lastVelocity.z)
-            return lastVelocity
+            state.lastVelocity = Vec3(state.lastVelocity.x, state.lastVelocity.y - 0.035, state.lastVelocity.z)
+            return state.lastVelocity
         }
 
         val driveFactor = runtime.resolveFloat(this.driveFactor)
@@ -118,7 +114,7 @@ class DolphinController : RideController {
         }
 
         val currVelocity = Vec3(0.0, yComp , g.toDouble())
-        lastVelocity = currVelocity
+        state.lastVelocity = currVelocity
         return currVelocity
     }
 
@@ -167,6 +163,7 @@ class DolphinController : RideController {
 
     override fun encode(buffer: RegistryFriendlyByteBuf) {
         super.encode(buffer)
+        state.encode(buffer)
         buffer.writeString(this.speed.getString())
         buffer.writeString(this.canJump.getString())
         buffer.writeString(this.jumpVector[0].getString())
@@ -175,13 +172,11 @@ class DolphinController : RideController {
         buffer.writeString(this.driveFactor.getString())
         buffer.writeString(this.reverseDriveFactor.getString())
         buffer.writeString(this.strafeFactor.getString())
-        buffer.writeDouble(this.lastVelocity.x)
-        buffer.writeDouble(this.lastVelocity.y)
-        buffer.writeDouble(this.lastVelocity.z)
     }
 
 
     override fun decode(buffer: RegistryFriendlyByteBuf) {
+        state.decode(buffer)
         this.speed = buffer.readString().asExpression()
         this.canJump = buffer.readString().asExpression()
         this.jumpVector = listOf(
@@ -193,9 +188,5 @@ class DolphinController : RideController {
         this.reverseDriveFactor = buffer.readString().asExpression()
         this.strafeFactor = buffer.readString().asExpression()
         this.strafeFactor = buffer.readString().asExpression()
-        val x = buffer.readDouble()
-        val y = buffer.readDouble()
-        val z = buffer.readDouble()
-        this.lastVelocity = Vec3(x, y, z)
     }
 }

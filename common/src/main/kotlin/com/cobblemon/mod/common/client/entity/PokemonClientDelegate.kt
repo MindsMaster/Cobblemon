@@ -12,6 +12,7 @@ import com.bedrockk.molang.runtime.struct.QueryStruct
 import com.bedrockk.molang.runtime.value.DoubleValue
 import com.bedrockk.molang.runtime.value.StringValue
 import com.cobblemon.mod.common.Cobblemon
+import com.cobblemon.mod.common.CobblemonNetwork
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.entity.PokemonSideDelegate
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addFunctions
@@ -31,6 +32,7 @@ import com.cobblemon.mod.common.client.render.models.blockbench.animation.Primar
 import com.cobblemon.mod.common.client.render.models.blockbench.repository.VaryingModelRepository
 import com.cobblemon.mod.common.client.render.pokemon.PokemonRenderer.Companion.ease
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
+import com.cobblemon.mod.common.net.messages.server.pokemon.update.ServerboundUpdateRideControllerPacket
 import com.cobblemon.mod.common.pokemon.Pokemon
 import com.cobblemon.mod.common.util.*
 import com.mojang.blaze3d.vertex.PoseStack
@@ -372,6 +374,17 @@ class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
     override fun tick(entity: PokemonEntity) {
         incrementAge(entity)
         playWildShinySounds()
+    }
+
+    fun sendRidingChanges(entity: PokemonEntity) {
+        val controller = entity.ridingController ?: return
+        val ridingState = controller.state ?: return
+        val player = Minecraft.getInstance().player ?: return
+        if (entity.controllingPassenger != player) return
+        if (ridingState.isDirty) {
+            CobblemonNetwork.sendToServer(ServerboundUpdateRideControllerPacket(entity.id, controller))
+            ridingState.isDirty = false
+        }
     }
 
     fun playWildShinySounds() {

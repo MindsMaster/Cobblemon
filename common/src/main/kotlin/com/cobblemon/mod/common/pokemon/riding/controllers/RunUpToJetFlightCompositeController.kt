@@ -10,13 +10,13 @@ package com.cobblemon.mod.common.pokemon.riding.controllers
 
 import com.bedrockk.molang.Expression
 import com.cobblemon.mod.common.api.riding.controller.RideController
+import com.cobblemon.mod.common.api.riding.controller.RideControllerFactory
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonBehaviourFlag
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.pokemon.riding.states.*
-import com.cobblemon.mod.common.util.adapters.RideControllerAdapter
 import com.cobblemon.mod.common.util.asExpression
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.common.util.getString
@@ -29,32 +29,35 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 
-class RunUpToJetFlightCompositeController : RideController {
+class RunUpToJetFlightCompositeController(val entity: PokemonEntity) : RideController {
     override val key = KEY
     override val poseProvider = PoseProvider(PoseType.STAND)
         .with(PoseOption(PoseType.WALK) {
             it.entityData.get(PokemonEntity.MOVING)
         })
-    override val condition: (PokemonEntity) -> Boolean = { true }
+
+    override val isActive = true
+
+    override val state = RunUpToFlightCompositeState()
 
     var minimumSpeed: Expression = "0.5".asExpression()
         private set
     var minimumJump: Expression = "0.5".asExpression()
         private set
 
-    var landController: RideController = GenericLandController()
+    var landController: GenericLandController = GenericLandController(entity)
         private set
-    var flightController: RideController = JetAirController()
+    var flightController: JetAirController = JetAirController()
         private set
 
     fun shouldTransitionToGround(state: RunUpToFlightCompositeState, entity: PokemonEntity, driver: Player): Boolean {
-        if (state.activeController != flightController) return false
+        if (state.activeController != flightController.key) return false
         if (state.timeTransitioned + 20 >= entity.level().gameTime) return false
         return driver.isSprinting || entity.onGround()
     }
 
     fun shouldTransitionToAir(state: RunUpToFlightCompositeState, entity: PokemonEntity, driver: Player, input: Vec3): Boolean {
-        if (state.activeController != landController) return false
+        if (state.activeController != landController.key) return false
         if (state.timeTransitioned + 20 >= entity.level().gameTime) return false
         return driver.isSprinting && input.z > 0.5
     }
@@ -62,15 +65,14 @@ class RunUpToJetFlightCompositeController : RideController {
     //TODO: This composite controller needs to have the jet lift off at a certain speed.
     //maybe just pressing shift or space? Unsure, will need to test to see what works best.
     override fun tick(entity: PokemonEntity, driver: Player, input: Vec3) {
-        val state = getState(entity, ::RunUpToFlightCompositeState)
-        val flightState = flightController.getState(entity, ::JetAirState)
-        val groundState = landController.getState(entity, ::GenericLandState)
+        val flightState = flightController.state
+        val groundState = landController.state
         if (shouldTransitionToGround(state, entity, driver)) {
             groundState.currSpeed = flightState.currSpeed
             groundState.stamina = flightState.stamina
             groundState.rideVel = flightState.rideVel
 
-            state.activeController = landController
+            state.activeController = landController.key
             entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, false)
             state.timeTransitioned = entity.level().gameTime
         }
@@ -79,7 +81,7 @@ class RunUpToJetFlightCompositeController : RideController {
             flightState.stamina = groundState.stamina
             flightState.rideVel = groundState.rideVel
 
-            state.activeController = flightController
+            state.activeController = flightController.key
             entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, true)
             state.timeTransitioned = entity.level().gameTime
         }
@@ -90,8 +92,10 @@ class RunUpToJetFlightCompositeController : RideController {
     }
 
     fun getActiveController(entity: PokemonEntity): RideController {
-        val state = getState(entity, ::RunUpToFlightCompositeState)
-        return state.activeController ?: let {
+        if (state.activeController != null) {
+            return if (state.activeController == landController.key) landController else flightController
+        }
+        else {
             val controller = if (entity.getCurrentPoseType() in PoseType.FLYING_POSES) {
                 entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, true)
                 flightController
@@ -99,9 +103,9 @@ class RunUpToJetFlightCompositeController : RideController {
                 entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, false)
                 landController
             }
-            state.activeController = controller
+            state.activeController = controller.key
             state.timeTransitioned = entity.level().gameTime
-            controller
+            return controller
         }
     }
 
@@ -187,6 +191,7 @@ class RunUpToJetFlightCompositeController : RideController {
         super.encode(buffer)
         buffer.writeString(minimumSpeed.getString())
         buffer.writeString(minimumJump.getString())
+        state.encode(buffer)
         landController.encode(buffer)
         flightController.encode(buffer)
     }
@@ -194,13 +199,14 @@ class RunUpToJetFlightCompositeController : RideController {
     override fun decode(buffer: RegistryFriendlyByteBuf) {
         minimumSpeed = buffer.readString().asExpression()
         minimumJump = buffer.readString().asExpression()
+        state.decode(buffer)
         landController = buffer.readResourceLocation().let { key ->
-            val controller = RideControllerAdapter.types[key]?.getConstructor()?.newInstance() ?: error("Unknown controller key: $key")
+            val controller = RideControllerFactory.create<GenericLandController>(key, entity)
             controller.decode(buffer)
             controller
         }
         flightController = buffer.readResourceLocation().let { key ->
-            val controller = RideControllerAdapter.types[key]?.getConstructor()?.newInstance() ?: error("Unknown controller key: $key")
+            val controller = RideControllerFactory.create<JetAirController>(key, entity)
             controller.decode(buffer)
             controller
         }

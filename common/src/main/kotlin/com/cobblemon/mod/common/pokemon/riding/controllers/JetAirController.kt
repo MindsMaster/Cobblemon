@@ -12,6 +12,7 @@ import com.bedrockk.molang.Expression
 import com.bedrockk.molang.runtime.value.DoubleValue
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.OrientationControllable
+import com.cobblemon.mod.common.api.riding.RidingState
 import com.cobblemon.mod.common.api.riding.controller.RideController
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
@@ -32,7 +33,9 @@ class JetAirController : RideController {
     override val poseProvider = PoseProvider(PoseType.HOVER)
         .with(PoseOption(PoseType.FLY) { it.entityData.get(PokemonEntity.MOVING) })
 
-    override val condition: (PokemonEntity) -> Boolean = { true }
+    override val isActive = true
+
+    override val state = JetAirState()
 
     var gravity: Expression = "0".asExpression()
         private set
@@ -65,9 +68,6 @@ class JetAirController : RideController {
         //retrieve stats
         val topSpeed = getRuntime(entity).resolveDouble(topSpeedExpr)
         val staminaStat = getRuntime(entity).resolveDouble(staminaExpr)
-
-        //retrieve state
-        val state = getState(entity, ::JetAirState)
 
         //retrieve minSpeed
         val minSpeed = getRuntime(entity).resolveDouble(minSpeed)
@@ -102,9 +102,6 @@ class JetAirController : RideController {
         var upForce = 0.0
         var forwardForce = 0.0
 
-        //Gather state information
-        val state = getState(entity, ::JetAirState)
-
         val controller = (driver as? OrientationControllable)?.orientationController
 
         //Calculate ride space velocity
@@ -138,9 +135,6 @@ class JetAirController : RideController {
     override fun useAngVelSmoothing(entity: PokemonEntity): Boolean = true
 
     override fun angRollVel(entity: PokemonEntity, driver: Player, deltaTime: Double): Vec3 {
-        //Retrieve state
-        val state = getState(entity, ::JetAirState)
-
         //Cap at a rate of 5fps so frame skips dont lead to huge jumps
         val cappedDeltaTime = min( deltaTime, 0.2)
 
@@ -173,9 +167,6 @@ class JetAirController : RideController {
         //TODO: figure out a cleaner solution to this issue of large jumps when skipping frames or lagging
         //Cap at a rate of 5fps so frame skips dont lead to huge jumps
         val cappedDeltaTime = min( deltaTime, 0.2)
-
-        //Retrieve state
-        val state = getState(entity, ::JetAirState)
 
         val invertRoll = if (Cobblemon.config.invertRoll) -1 else 1
         val invertPitch = if (Cobblemon.config.invertPitch) -1 else 1
@@ -210,9 +201,6 @@ class JetAirController : RideController {
     }
 
     override fun setRideBar(entity: PokemonEntity, driver: Player): Float {
-        //Retrieve stamina from state
-        val state = getState(entity, ::JetAirState)
-
         return (state.stamina / 1.0f)
     }
 
@@ -241,7 +229,6 @@ class JetAirController : RideController {
     override fun rideFovMult(entity: PokemonEntity, driver: Player): Float {
         val topSpeed = getRuntime(entity).resolveDouble(topSpeedExpr)
         val minSpeed = getRuntime(entity).resolveDouble(minSpeed)
-        val state = getState(entity, ::JetAirState)
 
         //Must I ensure that topspeed is greater than minimum?
         val normalizedSpeed = normalizeSpeed(state.rideVel.length(), minSpeed, topSpeed)
@@ -254,6 +241,7 @@ class JetAirController : RideController {
 
     override fun encode(buffer: RegistryFriendlyByteBuf) {
         super.encode(buffer)
+        state.encode(buffer)
         buffer.writeExpression(gravity)
         buffer.writeExpression(minSpeed)
         buffer.writeExpression(handlingExpr)
@@ -267,6 +255,7 @@ class JetAirController : RideController {
     }
 
     override fun decode(buffer: RegistryFriendlyByteBuf) {
+        state.decode(buffer)
         gravity = buffer.readExpression()
         minSpeed = buffer.readExpression()
         handlingExpr = buffer.readExpression()

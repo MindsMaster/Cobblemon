@@ -10,6 +10,7 @@ package com.cobblemon.mod.common.pokemon.riding.controllers
 
 import com.bedrockk.molang.Expression
 import com.bedrockk.molang.runtime.value.DoubleValue
+import com.cobblemon.mod.common.api.riding.RidingState
 import com.cobblemon.mod.common.api.riding.controller.RideController
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
@@ -29,12 +30,10 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
 
-class GenericLandController : RideController {
+class GenericLandController(val entity: PokemonEntity) : RideController {
     companion object {
         val KEY: ResourceLocation = cobblemonResource("land/generic")
     }
-
-//    private var previousVelocity = Vec3d.ZERO
 
     var canJump = "true".asExpression()
         private set
@@ -66,16 +65,14 @@ class GenericLandController : RideController {
     @Transient
     override val key: ResourceLocation = KEY
 
+    override val state = GenericLandState()
+
     @Transient
     override val poseProvider: PoseProvider = PoseProvider(PoseType.STAND)
         .with(PoseOption(PoseType.WALK) { it.entityData.get(PokemonEntity.MOVING) })
 
-    @Transient
-    override val condition: (PokemonEntity) -> Boolean = { entity ->
-        // Are there any blocks under the mon that aren't air or fluid
-        // Cant just check one block since some mons may be more than one block big
-        // This should be changed so that the any predicate is only ran on blocks under the mon
-        Shapes.create(entity.boundingBox).blockPositionsAsListRounded().any {
+    override val isActive: Boolean
+        get() = Shapes.create(entity.boundingBox).blockPositionsAsListRounded().any {
             //Need to check other fluids
             if (entity.isInWater || entity.isUnderWater) {
                 return@any false
@@ -87,10 +84,8 @@ class GenericLandController : RideController {
             }
             true
         }
-    }
 
     override fun speed(entity: PokemonEntity, driver: Player): Float {
-        val state = getState(entity, ::GenericLandState)
         return state.rideVel.length().toFloat()
     }
 
@@ -110,9 +105,6 @@ class GenericLandController : RideController {
             g *= runtime.resolveFloat(this.reverseDriveFactor)
         }
         val gravity = -1.0
-
-        val state = getState(entity, ::GenericLandState)
-
 
         calculateRideSpaceVel(entity, driver, state)
 
@@ -162,7 +154,6 @@ class GenericLandController : RideController {
     override fun setRideBar(entity: PokemonEntity, driver: Player): Float {
 
         //Retrieve stamina from state and tick up at a rate of 0.1 a second
-        val state = getState(entity, ::GenericLandState)
         val staminaGain = (1.0 / 20.0)*0.1
         state.stamina = min(state.stamina + staminaGain,1.0).toFloat()
         return (state.stamina / 1.0f)
@@ -183,6 +174,7 @@ class GenericLandController : RideController {
 
     override fun encode(buffer: RegistryFriendlyByteBuf) {
         super.encode(buffer)
+        state.encode(buffer)
         buffer.writeString(this.speed.getString())
         buffer.writeString(this.canJump.getString())
         buffer.writeString(this.jumpVector[0].getString())
@@ -194,6 +186,7 @@ class GenericLandController : RideController {
     }
 
     override fun decode(buffer: RegistryFriendlyByteBuf) {
+        state.decode(buffer)
         this.speed = buffer.readString().asExpression()
         this.canJump = buffer.readString().asExpression()
         this.jumpVector = listOf(

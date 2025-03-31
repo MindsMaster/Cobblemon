@@ -11,10 +11,9 @@ package com.cobblemon.mod.common.mixin.client;
 import com.cobblemon.mod.common.CobblemonNetwork;
 import com.cobblemon.mod.common.OrientationControllable;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
-import com.cobblemon.mod.common.net.messages.server.orientation.C2SUpdateOrientationPacket;
+import com.cobblemon.mod.common.net.messages.server.orientation.ServerboundUpdateOrientationPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
@@ -40,7 +39,7 @@ public abstract class LocalPlayerMixin extends LivingEntity {
         var controller = controllable.getOrientationController();
         if (!controller.isActive() || controller.getOrientation() == cobblemon$lastOrientation) return;
         cobblemon$lastOrientation = controller.getOrientation() != null ? new Matrix3f(controller.getOrientation()) : null;
-        CobblemonNetwork.INSTANCE.sendToServer(new C2SUpdateOrientationPacket(controller.getOrientation()));
+        CobblemonNetwork.INSTANCE.sendToServer(new ServerboundUpdateOrientationPacket(controller.getOrientation()));
     }
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientPacketListener;send(Lnet/minecraft/network/protocol/Packet;)V"))
@@ -49,7 +48,7 @@ public abstract class LocalPlayerMixin extends LivingEntity {
         var controller = controllable.getOrientationController();
         if (!controller.isActive() || controller.getOrientation() == cobblemon$lastOrientation) return;
         cobblemon$lastOrientation = controller.getOrientation() != null ? new Matrix3f(controller.getOrientation()) : null;
-        CobblemonNetwork.INSTANCE.sendToServer(new C2SUpdateOrientationPacket(controller.getOrientation()));
+        CobblemonNetwork.INSTANCE.sendToServer(new ServerboundUpdateOrientationPacket(controller.getOrientation()));
     }
 
     @Inject(method = "rideTick", at = @At("HEAD"))
@@ -65,7 +64,9 @@ public abstract class LocalPlayerMixin extends LivingEntity {
         var playerVehicle = player.getVehicle();
         if (playerVehicle == null) return false;
         if (!(playerVehicle instanceof PokemonEntity pokemonEntity)) return false;
-        return pokemonEntity.getRiding().shouldRoll(pokemonEntity);
+        if (pokemonEntity.getRidingController() == null) return false;
+        if (!pokemonEntity.getRidingController().isActive()) return false;
+        return pokemonEntity.getRidingController().shouldRoll(pokemonEntity);
     }
 
     @Override

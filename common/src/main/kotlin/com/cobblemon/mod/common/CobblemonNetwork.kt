@@ -34,6 +34,7 @@ import com.cobblemon.mod.common.client.net.pasture.OpenPastureHandler
 import com.cobblemon.mod.common.client.net.pasture.PokemonPasturedHandler
 import com.cobblemon.mod.common.client.net.pasture.PokemonUnpasturedHandler
 import com.cobblemon.mod.common.client.net.pokedex.ServerConfirmedRegisterHandler
+import com.cobblemon.mod.common.client.net.pokemon.update.ClientboundUpdateRideControllerHandler
 import com.cobblemon.mod.common.client.net.pokemon.update.PokemonUpdatePacketHandler
 import com.cobblemon.mod.common.client.net.settings.OpenCobblemonConfigEditorHandler
 import com.cobblemon.mod.common.client.net.settings.ServerSettingsPacketHandler
@@ -142,7 +143,7 @@ import com.cobblemon.mod.common.net.messages.server.callback.partymove.PartyPoke
 import com.cobblemon.mod.common.net.messages.server.dialogue.EscapeDialoguePacket
 import com.cobblemon.mod.common.net.messages.server.dialogue.InputToDialoguePacket
 import com.cobblemon.mod.common.net.messages.server.npc.SaveNPCPacket
-import com.cobblemon.mod.common.net.messages.server.orientation.C2SUpdateOrientationPacket
+import com.cobblemon.mod.common.net.messages.server.orientation.ServerboundUpdateOrientationPacket
 import com.cobblemon.mod.common.net.messages.server.pasture.PasturePokemonPacket
 import com.cobblemon.mod.common.net.messages.server.pasture.UnpastureAllPokemonPacket
 import com.cobblemon.mod.common.net.messages.server.pasture.UnpasturePokemonPacket
@@ -151,6 +152,7 @@ import com.cobblemon.mod.common.net.messages.server.pokedex.scanner.StartScannin
 import com.cobblemon.mod.common.net.messages.server.pokemon.interact.InteractPokemonPacket
 import com.cobblemon.mod.common.net.messages.server.pokemon.update.SetItemHiddenPacket
 import com.cobblemon.mod.common.net.messages.server.pokemon.update.SetNicknamePacket
+import com.cobblemon.mod.common.net.messages.server.pokemon.update.ServerboundUpdateRideControllerPacket
 import com.cobblemon.mod.common.net.messages.server.pokemon.update.evolution.AcceptEvolutionPacket
 import com.cobblemon.mod.common.net.messages.server.starter.RequestStarterScreenPacket
 import com.cobblemon.mod.common.net.messages.server.storage.SwapPCPartyPokemonPacket
@@ -193,6 +195,7 @@ import com.cobblemon.mod.common.net.serverhandling.pokedex.scanner.StartScanning
 import com.cobblemon.mod.common.net.serverhandling.pokemon.interact.InteractPokemonHandler
 import com.cobblemon.mod.common.net.serverhandling.pokemon.update.SetItemHiddenHandler
 import com.cobblemon.mod.common.net.serverhandling.pokemon.update.SetNicknameHandler
+import com.cobblemon.mod.common.net.serverhandling.pokemon.update.ServerboundUpdateRideControllerHandler
 import com.cobblemon.mod.common.net.serverhandling.starter.RequestStarterScreenHandler
 import com.cobblemon.mod.common.net.serverhandling.starter.SelectStarterPacketHandler
 import com.cobblemon.mod.common.net.serverhandling.storage.BenchMoveHandler
@@ -413,6 +416,9 @@ object CobblemonNetwork {
         // Debug / cheats
         list.add(PacketRegisterInfo(CalculateSeatPositionsPacket.ID, CalculateSeatPositionsPacket::decode, CalculateSeatPositionsHandler))
 
+        // Riding
+        list.add(PacketRegisterInfo(ClientboundUpdateRideControllerPacket.ID, ClientboundUpdateRideControllerPacket::decode, ClientboundUpdateRideControllerHandler))
+
         return list
     }
 
@@ -508,8 +514,9 @@ object CobblemonNetwork {
         // NPC packets
         list.add(PacketRegisterInfo(SaveNPCPacket.ID, SaveNPCPacket::decode, SaveNPCHandler))
 
-        // Orientation packet(s)
-        list.add(PacketRegisterInfo(C2SUpdateOrientationPacket.ID, C2SUpdateOrientationPacket::decode, OrientationPacketHandler))
+        // Riding packet(s)
+        list.add(PacketRegisterInfo(ServerboundUpdateOrientationPacket.ID, ServerboundUpdateOrientationPacket::decode, OrientationPacketHandler))
+        list.add(PacketRegisterInfo(ServerboundUpdateRideControllerPacket.ID, ServerboundUpdateRideControllerPacket::decode, ServerboundUpdateRideControllerHandler))
 
         return list
     }

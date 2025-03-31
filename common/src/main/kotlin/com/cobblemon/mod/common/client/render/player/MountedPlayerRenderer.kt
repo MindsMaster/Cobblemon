@@ -33,8 +33,6 @@ object MountedPlayerRenderer {
         if(player.vehicle !is Rideable) return
         val matrix = stack.last().pose()
 
-        val vehicle = player.vehicle as Rideable?
-        val entity = vehicle!!.riding.entity
         val seatIndex = entity.passengers.indexOf(player)
         val seat = entity.seats[seatIndex]
         val delegate = entity.delegate as PokemonClientDelegate

@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.pokemon.riding.controllers
 
 import com.bedrockk.molang.runtime.value.DoubleValue
+import com.cobblemon.mod.common.api.riding.RidingState
 import com.cobblemon.mod.common.api.riding.RidingStyle
 import com.cobblemon.mod.common.api.riding.controller.RideController
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
@@ -83,12 +84,9 @@ class VehicleLandController : RideController {
     override val key: ResourceLocation = KEY
     @Transient
     override val poseProvider: PoseProvider = PoseProvider(PoseType.STAND).with(PoseOption(PoseType.WALK) { it.entityData.get(PokemonEntity.MOVING) })
-    @Transient
-    override val condition: (PokemonEntity) -> Boolean = { entity ->
-        // Are there any blocks under the mon that aren't air or fluid
-        // Cant just check one block since some mons may be more than one block big
-        // This should be changed so that the any predicate is only ran on blocks under the mon
-        Shapes.create(entity.boundingBox).blockPositionsAsListRounded().any {
+
+    override fun isActive(entity: PokemonEntity): Boolean {
+        return Shapes.create(entity.boundingBox).blockPositionsAsListRounded().any {
             //Need to check other fluids
             if (entity.isInWater || entity.isUnderWater) {
                 return@any false
@@ -101,6 +99,8 @@ class VehicleLandController : RideController {
             true
         }
     }
+
+    override val state = null
 
     override fun speed(entity: PokemonEntity, driver: Player): Float {
 
@@ -139,8 +139,9 @@ class VehicleLandController : RideController {
     }
 
     override fun updatePassengerRotation(entity: PokemonEntity, driver: LivingEntity) {
-        driver.yRot += (entity.riding.deltaRotation.y)
-        driver.setYHeadRot(driver.yHeadRot + (entity.riding.deltaRotation.y))
+        // TODO: Commented this out. Not sure what the purpose here was. Riding Manager always had a zero vec for delta rotation prior to removal. - Landon
+//        driver.yRot += (entity.riding.deltaRotation.y)
+//        driver.setYHeadRot(driver.yHeadRot + (entity.riding.deltaRotation.y))
     }
 
     override fun clampPassengerRotation(entity: PokemonEntity, driver: LivingEntity) {

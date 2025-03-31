@@ -8,6 +8,7 @@
 
 package com.cobblemon.mod.common.api.riding
 
+import com.cobblemon.mod.common.api.riding.controller.RideController
 import net.minecraft.world.entity.PlayerRideableJumping
 
 /**
@@ -20,6 +21,6 @@ interface Rideable : PlayerRideableJumping {
     /**
      * Denotes the manager responsible for handling any instance of riding taking place on an entity
      */
-    val riding: RidingManager
+    val ridingController: RideController?
 
 }

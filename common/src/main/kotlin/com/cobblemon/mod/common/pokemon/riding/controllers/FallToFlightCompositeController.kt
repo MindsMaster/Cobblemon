@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.pokemon.riding.controllers
 
 import com.bedrockk.molang.Expression
+import com.cobblemon.mod.common.api.riding.RidingState
 import com.cobblemon.mod.common.api.riding.controller.RideController
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
@@ -29,30 +30,32 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 
-class FallToFlightCompositeController : RideController {
+class FallToFlightCompositeController(val entity: PokemonEntity) : RideController {
     override val key = KEY
     override val poseProvider = PoseProvider(PoseType.STAND)
         .with(PoseOption(PoseType.WALK) { it.entityData.get(PokemonEntity.MOVING) })
-    override val condition: (PokemonEntity) -> Boolean = { true }
+
+    override val isActive = true
+
+    override val state = CompositeState()
 
     var minimumForwardSpeed: Expression = "0.0".asExpression()
         private set
     var minimumFallSpeed: Expression = "0.5".asExpression()
         private set
 
-    var landController: RideController = GenericLandController()
+    var landController: RideController = GenericLandController(entity)
         private set
     var flightController: RideController = GliderAirController()
         private set
 
     override fun tick(entity: PokemonEntity, driver: Player, input: Vec3) {
-        val state = getState(entity, ::CompositeState)
-        val shouldBeFlying = checkShouldBeFlying(entity, state.activeController == flightController)
-        if (state.activeController == flightController && !shouldBeFlying) { // && entity.onGround() && state.timeTransitioned + 20 < entity.level().gameTime) {
-            state.activeController = landController
+        val shouldBeFlying = checkShouldBeFlying(entity, state.activeController == flightController.key)
+        if (state.activeController == flightController.key && !shouldBeFlying) { // && entity.onGround() && state.timeTransitioned + 20 < entity.level().gameTime) {
+            state.activeController = landController.key
             entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, false)
-        } else if (state.activeController == landController && shouldBeFlying) {
-            state.activeController = flightController
+        } else if (state.activeController == landController.key && shouldBeFlying) {
+            state.activeController = flightController.key
             entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, true)
         }
     }
@@ -62,8 +65,7 @@ class FallToFlightCompositeController : RideController {
     }
 
     fun getActiveController(entity: PokemonEntity): RideController {
-        val state = getState(entity, ::CompositeState)
-        return state.activeController ?: let {
+        if (state.activeController == null) {
             val controller = if (entity.getCurrentPoseType() in PoseType.FLYING_POSES) {
                 entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, true)
                 flightController
@@ -71,9 +73,12 @@ class FallToFlightCompositeController : RideController {
                 entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, false)
                 landController
             }
-            state.activeController = controller
+            state.activeController = controller.key
             state.timeTransitioned = entity.level().gameTime
-            controller
+            return controller
+        }
+        else {
+            return if (state.activeController == landController.key) landController else flightController
         }
     }
 

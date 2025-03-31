@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.pokemon.riding.controllers
 
 import com.bedrockk.molang.runtime.value.DoubleValue
+import com.cobblemon.mod.common.api.riding.RidingState
 import com.cobblemon.mod.common.api.riding.controller.RideController
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
@@ -32,7 +33,7 @@ import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.phys.shapes.Shapes
 
-class GenericLiquidController : RideController {
+class GenericLiquidController(val entity: PokemonEntity) : RideController {
     companion object {
         val KEY: ResourceLocation = cobblemonResource("swim/generic")
     }
@@ -55,16 +56,16 @@ class GenericLiquidController : RideController {
     override val poseProvider: PoseProvider = PoseProvider(PoseType.FLOAT)
         .with(PoseOption(PoseType.SWIM) { it.isSwimming && it.entityData.get(PokemonEntity.MOVING) })
 
-    override val condition: (PokemonEntity) -> Boolean = { entity ->
-        //This could be kinda weird... what if the top of the mon is in a fluid but the bottom isnt?
-        Shapes.create(entity.boundingBox).blockPositionsAsListRounded().any {
+    override val isActive: Boolean
+        get() = Shapes.create(entity.boundingBox).blockPositionsAsListRounded().any {
             if (entity.isInWater || entity.isUnderWater) {
                 return@any true
             }
             val blockState = entity.level().getBlockState(it)
             return@any !blockState.fluidState.isEmpty
         }
-    }
+
+    override val state = null
 
     override fun speed(entity: PokemonEntity, driver: Player): Float {
         return getRuntime(entity).resolveFloat(speed)
