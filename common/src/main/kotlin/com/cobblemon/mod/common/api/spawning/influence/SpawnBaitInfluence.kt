@@ -29,11 +29,23 @@ import net.minecraft.world.entity.Entity
  * @since March 18th, 2025
  */
 class SpawnBaitInfluence(val effects: List<SpawnBait.Effect>, val baitPos: BlockPos? = null) : SpawningInfluence {
+
+    var used: Boolean = false
+
+    private fun markUsed() {
+        used = true
+    }
+
     override fun affectSpawn(entity: Entity) {
         super.affectSpawn(entity)
         if (entity is PokemonEntity) {
             effects.forEach { it ->
                 if (Math.random() <= it.chance) {
+                    // TODO clean this test IF up later once we know it works
+                    if (entity.pokemon.species.name == "Larvitar") {
+                        val test = 1
+                    }
+                    markUsed()
                     Effects.getEffectFunction(it.type)?.invoke(entity, it)
                 }
             }
@@ -51,8 +63,22 @@ class SpawnBaitInfluence(val effects: List<SpawnBait.Effect>, val baitPos: Block
                 if (detailSpecies != null && baitEVStat != null) {
                     val evYieldValue = detailSpecies.evYield[baitEVStat]?.toFloat() ?: 0f
                     return when {
-                        evYieldValue > 0 -> super.affectWeight(detail, ctx, weight) // use original weight if EV yield is greater than 0
-                        else -> super.affectWeight(detail, ctx, 0f) // use spawn weight of 0 if EV yield is 0
+                        evYieldValue > 0 -> {
+                            markUsed()
+                            // TODO clean this test IF up later once we know it works
+                            if (detailSpecies.name == "Larvitar") {
+                                val test = 1
+                            }
+                            super.affectWeight(detail, ctx, weight)
+                        }
+                        else -> {
+                            markUsed()
+                            // TODO clean this test IF up later once we know it works
+                            if (detailSpecies.name == "Larvitar") {
+                                val test = 1
+                            }
+                            super.affectWeight(detail, ctx, 0f)
+                        }
                     }
                 }
             }
@@ -67,8 +93,15 @@ class SpawnBaitInfluence(val effects: List<SpawnBait.Effect>, val baitPos: Block
                 if (detailSpecies != null && baitTypingEffect != null) {
                     val isMatchingType = detailSpecies.types.contains(baitTypingEffect)
                     return when {
-                        isMatchingType -> super.affectWeight(detail, ctx, weight * baitEffect.value.toFloat()) // multiply weight by multiplier of bait effect if typing is found
-                        else -> super.affectWeight(detail, ctx, weight) // use base spawn weight if typing is not same as bait
+                        isMatchingType -> {
+                            // TODO clean this test IF up later once we know it works
+                            if (detailSpecies.name == "Larvitar") {
+                                val test = 1
+                            }
+                            markUsed()
+                            super.affectWeight(detail, ctx, weight * baitEffect.value.toFloat())
+                        }
+                        else -> super.affectWeight(detail, ctx, weight)
                     }
                 }
             }
@@ -94,6 +127,7 @@ class SpawnBaitInfluence(val effects: List<SpawnBait.Effect>, val baitPos: Block
                     }
 
                     if (matchingEffect != null) {
+                        markUsed()
                         val multiplier = matchingEffect.value
                         return super.affectWeight(detail, ctx, (weight * multiplier).toFloat())
                     }

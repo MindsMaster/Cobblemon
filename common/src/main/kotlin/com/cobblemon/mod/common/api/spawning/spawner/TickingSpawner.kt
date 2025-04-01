@@ -83,9 +83,8 @@ abstract class TickingSpawner(
                     val influence = ctx.influences.filter { it is SpawnBaitInfluence }.firstOrNull()
 
                     // this is where we try to grab a possible SpawnBaitInfluence
-                    if (influence is SpawnBaitInfluence) {
-                        val baitInfluence = influence
-                        val baitPos = baitInfluence.baitPos
+                    if (influence is SpawnBaitInfluence && influence.used) {
+                        val baitPos = influence.baitPos
                         val level = ctx.world.level
 
                         val blockEntity = baitPos?.let { level.getBlockEntity(it) }
@@ -103,6 +102,11 @@ abstract class TickingSpawner(
                     }
                 }
                 spawnAction.complete()
+
+                // TODO reset the Influence (Not sure if we need to do this, but in case it persists by next time I am adding this)
+                ctx.influences.filterIsInstance<SpawnBaitInfluence>().forEach {
+                    it.used = false
+                }
             }
         }
     }
