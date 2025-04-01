@@ -41,17 +41,21 @@ public abstract class ServerEntityMixin {
     @Shadow @Final private Entity entity;
     @Unique
     private Matrix3f cobblemon$lastSentOrientation;
+    private boolean cobblemon$lastSentActive;
 
     @Inject(method = "sendChanges", at = @At("TAIL"))
     private void cobblemon$sendOrientationChanges(CallbackInfo ci) {
-        if (!(this instanceof OrientationControllable controllable)) return;
+        if (!(this.entity instanceof OrientationControllable controllable)) return;
 
 
         OrientationController controller = controllable.getOrientationController();
         Matrix3f currOrientation = controller.getOrientation();
+        boolean currActive = controller.getActive();
 
-        if (currOrientation == null || currOrientation.equals(cobblemon$lastSentOrientation)) return;
+        if (currOrientation == null || currOrientation.equals(cobblemon$lastSentOrientation) && (currActive == cobblemon$lastSentActive)) return;
         cobblemon$lastSentOrientation = new Matrix3f(currOrientation);
+        cobblemon$lastSentActive = currActive;
+
 
         if (!(entity.level() instanceof ServerLevel level)) return;
 
@@ -64,7 +68,7 @@ public abstract class ServerEntityMixin {
         for (ServerPlayerConnection conn : seenBy) {
             ServerPlayer player = conn.getPlayer();
             if (player == entity) continue;
-            CobblemonNetwork.INSTANCE.sendPacketToPlayer(player, new S2CUpdateOrientationPacket(currOrientation, entity.getId()));
+            CobblemonNetwork.INSTANCE.sendPacketToPlayer(player, new S2CUpdateOrientationPacket(currOrientation, currActive, entity.getId()));
         }
 
 

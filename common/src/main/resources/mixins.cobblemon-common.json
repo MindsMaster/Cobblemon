@@ -48,6 +48,7 @@
     "PlayerAdvancementsMixin",
     "PlayerMixin",
     "PointedDripstoneBlockMixin",
+    "ServerPlayerMixin",
     "ServerEntityMixin",
     "ShearsDispenserBehaviorMixin",
     "StructurePoolAccessor",

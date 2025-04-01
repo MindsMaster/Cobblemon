@@ -12,13 +12,21 @@ import com.cobblemon.mod.common.OrientationControllable
 import com.cobblemon.mod.common.api.net.ServerNetworkPacketHandler
 import com.cobblemon.mod.common.net.messages.server.orientation.C2SUpdateOrientationPacket
 import net.minecraft.server.MinecraftServer
-import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
+import kotlin.math.atan2
 
 object OrientationPacketHandler : ServerNetworkPacketHandler<C2SUpdateOrientationPacket> {
     override fun handle(packet: C2SUpdateOrientationPacket, server: MinecraftServer, player: ServerPlayer) {
         if (player is OrientationControllable) {
             player.orientationController.updateOrientation { _ -> packet.orientation }
+
+            println("Packet Received! Roll ${"%.2f".format(player.orientationController.roll)} degrees")
+
+//            val orientation = packet.orientation
+//            val roll = orientation?.let { atan2(it.m10, it.m00) } ?: 0f
+//            val rollDegrees = Math.toDegrees(roll.toDouble())
+//            println("Packet Received! Roll: ${"%.2f".format(rollDegrees)} degrees")
+
         }
     }
 }

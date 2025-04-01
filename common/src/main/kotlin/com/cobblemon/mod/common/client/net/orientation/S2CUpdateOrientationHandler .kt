@@ -19,6 +19,9 @@ object S2CUpdateOrientationHandler : ClientNetworkPacketHandler<S2CUpdateOrienta
         val entity = level.getEntity(packet.entityId)
         if (entity is OrientationControllable) {
             entity.orientationController.updateOrientation { _ -> packet.orientation }
+            packet.active?.let {
+                entity.orientationController.active = it
+            }
         }
     }
 }

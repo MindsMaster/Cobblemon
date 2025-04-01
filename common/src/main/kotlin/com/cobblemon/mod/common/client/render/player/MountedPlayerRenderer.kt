@@ -20,6 +20,7 @@ import net.minecraft.client.model.geom.ModelPart
 import net.minecraft.client.player.AbstractClientPlayer
 import net.minecraft.util.Mth
 import net.minecraft.world.phys.Vec3
+import org.joml.Matrix3f
 import org.joml.Matrix4f
 import org.joml.Vector3f
 
@@ -75,7 +76,8 @@ object MountedPlayerRenderer {
             val transformationMatrix = Matrix4f()
             transformationMatrix.translate(center)
 
-            transformationMatrix.mul(Matrix4f(controller.orientation))
+            val orientation = controller.orientation ?: Matrix3f()
+            transformationMatrix.mul(Matrix4f(orientation))
 
             transformationMatrix.translate(center.negate(Vector3f()))
             //Pre-Undo Yaw
