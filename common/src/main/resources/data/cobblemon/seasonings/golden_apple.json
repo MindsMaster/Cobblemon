@@ -1,9 +1,9 @@
 {
-  "ingredient": "minecraft:sugar",
+  "ingredient": "minecraft:golden_apple",
   "flavours": {
     "SWEET": 10
   },
-  "colour": "pink",
+  "colour": "yellow",
   "baitEffects": [
     {
       "type": "cobblemon:shiny_reroll",
