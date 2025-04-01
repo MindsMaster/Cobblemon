@@ -88,7 +88,7 @@ open class CakeBlockEntity(
         bites = tag.getInt(DataKeys.CAKE_BITES)
         if (tag.contains(DataKeys.CAKE_FLAVOUR)) {
             CobblemonItemComponents.FLAVOUR.codec()
-                ?.parse(NbtOps.INSTANCE, tag.getCompound(DataKeys.CAKE_FLAVOUR))
+                ?.parse(NbtOps.INSTANCE, tag.get(DataKeys.CAKE_FLAVOUR))
                 ?.result()
                 ?.ifPresent { component ->
                     flavourComponent = component
@@ -96,7 +96,7 @@ open class CakeBlockEntity(
         }
         if (tag.contains(DataKeys.CAKE_BAIT_EFFECTS)) {
             CobblemonItemComponents.BAIT_EFFECTS.codec()
-                ?.parse(NbtOps.INSTANCE, tag.getCompound(DataKeys.CAKE_BAIT_EFFECTS))
+                ?.parse(NbtOps.INSTANCE, tag.get(DataKeys.CAKE_BAIT_EFFECTS))
                 ?.result()
                 ?.ifPresent { component ->
                     baitEffectsComponent = component
@@ -104,7 +104,7 @@ open class CakeBlockEntity(
         }
         if (tag.contains(DataKeys.CAKE_FOOD_COLOUR)) {
             CobblemonItemComponents.FOOD_COLOUR.codec()
-                ?.parse(NbtOps.INSTANCE, tag.getCompound(DataKeys.CAKE_FOOD_COLOUR))
+                ?.parse(NbtOps.INSTANCE, tag.get(DataKeys.CAKE_FOOD_COLOUR))
                 ?.result()
                 ?.ifPresent { component ->
                     foodColourComponent = component
