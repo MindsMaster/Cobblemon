@@ -65,7 +65,7 @@ public abstract class LocalPlayerMixin extends LivingEntity {
         if (playerVehicle == null) return false;
         if (!(playerVehicle instanceof PokemonEntity pokemonEntity)) return false;
         if (pokemonEntity.getRidingController() == null) return false;
-        if (!pokemonEntity.getRidingController().isActive()) return false;
+        if (!pokemonEntity.getRidingController().isActive(pokemonEntity)) return false;
         return pokemonEntity.getRidingController().shouldRoll(pokemonEntity);
     }
 

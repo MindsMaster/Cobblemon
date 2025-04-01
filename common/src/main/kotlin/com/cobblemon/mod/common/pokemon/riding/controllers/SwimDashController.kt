@@ -8,7 +8,6 @@
 
 package com.cobblemon.mod.common.pokemon.riding.controllers
 
-import com.cobblemon.mod.common.api.riding.RidingState
 import com.cobblemon.mod.common.api.riding.controller.RideController
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
@@ -24,7 +23,7 @@ import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.phys.shapes.Shapes
 
-class SwimDashController(val entity: PokemonEntity) : RideController {
+class SwimDashController : RideController {
     companion object {
         val KEY: ResourceLocation = cobblemonResource("swim/dash")
         const val DASH_TICKS: Int = 60
@@ -32,24 +31,33 @@ class SwimDashController(val entity: PokemonEntity) : RideController {
 
     var dashSpeed = 1F
         private set
+
+    @Transient
     override val key: ResourceLocation = KEY
+
+    @Transient
     override val poseProvider: PoseProvider = PoseProvider(PoseType.FLOAT).with(PoseOption(PoseType.SWIM) { it.isSwimming && it.entityData.get(PokemonEntity.MOVING) })
 
-    //This could be kinda weird... what if the top of the mon is in a fluid but the bottom isnt?
-    override val isActive: Boolean
-        get() = Shapes.create(entity.boundingBox).blockPositionsAsListRounded().any {
+    @Transient
+    override val state = null
+
+    /** Indicates that we are currently enacting a dash, and that further movement inputs should be ignored */
+    @Transient
+    private var dashing = false
+
+    @Transient
+    private var ticks = 0
+
+    override fun isActive(entity: PokemonEntity): Boolean {
+        //This could be kinda weird... what if the top of the mon is in a fluid but the bottom isnt?
+        return Shapes.create(entity.boundingBox).blockPositionsAsListRounded().any {
             if (entity.isInWater || entity.isUnderWater) {
                 return@any true
             }
             val blockState = entity.level().getBlockState(it)
             return@any !blockState.fluidState.isEmpty
         }
-
-    override val state = null
-
-    /** Indicates that we are currently enacting a dash, and that further movement inputs should be ignored */
-    private var dashing = false
-    private var ticks = 0
+    }
 
     override fun speed(entity: PokemonEntity, driver: Player): Float {
         if(this.dashing) {
@@ -93,5 +101,10 @@ class SwimDashController(val entity: PokemonEntity) : RideController {
 
     override fun decode(buffer: RegistryFriendlyByteBuf) {
         this.dashSpeed = buffer.readFloat()
+    }
+
+    override fun copy(): RideController {
+        val controller = SwimDashController()
+        return controller
     }
 }

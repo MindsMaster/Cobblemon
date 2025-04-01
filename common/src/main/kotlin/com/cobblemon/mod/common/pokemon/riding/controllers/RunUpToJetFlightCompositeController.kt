@@ -10,13 +10,13 @@ package com.cobblemon.mod.common.pokemon.riding.controllers
 
 import com.bedrockk.molang.Expression
 import com.cobblemon.mod.common.api.riding.controller.RideController
-import com.cobblemon.mod.common.api.riding.controller.RideControllerFactory
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonBehaviourFlag
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.pokemon.riding.states.*
+import com.cobblemon.mod.common.util.adapters.RideControllerAdapter
 import com.cobblemon.mod.common.util.asExpression
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.common.util.getString
@@ -29,26 +29,32 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 
-class RunUpToJetFlightCompositeController(val entity: PokemonEntity) : RideController {
-    override val key = KEY
-    override val poseProvider = PoseProvider(PoseType.STAND)
-        .with(PoseOption(PoseType.WALK) {
-            it.entityData.get(PokemonEntity.MOVING)
-        })
-
-    override val isActive = true
-
-    override val state = RunUpToFlightCompositeState()
+class RunUpToJetFlightCompositeController : RideController {
+    companion object {
+        val KEY = cobblemonResource("composite/run_up_to_jet_flight")
+    }
 
     var minimumSpeed: Expression = "0.5".asExpression()
         private set
     var minimumJump: Expression = "0.5".asExpression()
         private set
 
-    var landController: GenericLandController = GenericLandController(entity)
+    var landController: GenericLandController = GenericLandController()
         private set
     var flightController: JetAirController = JetAirController()
         private set
+
+    @Transient
+    override val key = KEY
+
+    @Transient
+    override val poseProvider = PoseProvider(PoseType.STAND)
+        .with(PoseOption(PoseType.WALK) {
+            it.entityData.get(PokemonEntity.MOVING)
+        })
+
+    @Transient
+    override val state = RunUpToFlightCompositeState()
 
     fun shouldTransitionToGround(state: RunUpToFlightCompositeState, entity: PokemonEntity, driver: Player): Boolean {
         if (state.activeController != flightController.key) return false
@@ -201,18 +207,25 @@ class RunUpToJetFlightCompositeController(val entity: PokemonEntity) : RideContr
         minimumJump = buffer.readString().asExpression()
         state.decode(buffer)
         landController = buffer.readResourceLocation().let { key ->
-            val controller = RideControllerFactory.create<GenericLandController>(key, entity)
+            val controller = RideControllerAdapter.types[key]?.getConstructor()?.newInstance() ?: error("Unknown controller key: $key")
             controller.decode(buffer)
-            controller
+            controller as GenericLandController
         }
         flightController = buffer.readResourceLocation().let { key ->
-            val controller = RideControllerFactory.create<JetAirController>(key, entity)
+            val controller = RideControllerAdapter.types[key]?.getConstructor()?.newInstance() ?: error("Unknown controller key: $key")
             controller.decode(buffer)
-            controller
+            controller as JetAirController
         }
     }
 
-    companion object {
-        val KEY = cobblemonResource("composite/run_up_to_jet_flight")
+    override fun copy(): RideController {
+        val controller = RunUpToJetFlightCompositeController()
+        controller.minimumSpeed = minimumSpeed
+        controller.minimumJump = minimumJump
+        controller.state.activeController = state.activeController
+        controller.state.timeTransitioned = state.timeTransitioned
+        controller.landController = landController.copy()
+        controller.flightController = flightController.copy()
+        return controller
     }
 }

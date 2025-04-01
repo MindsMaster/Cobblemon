@@ -254,7 +254,7 @@ public abstract class PlayerMixin extends LivingEntity implements ScannableEntit
     public boolean delegateDismountToController(Player instance, Operation<Boolean> original) {
         if (this.getVehicle() instanceof PokemonEntity pokemon) {
             if (pokemon.getRidingController() == null) return false;
-            if (!pokemon.getRidingController().isActive()) return false;
+            if (!pokemon.getRidingController().isActive(pokemon)) return false;
             return pokemon.getRidingController().dismountOnShift(pokemon) && original.call(instance);
         }
         return original.call(instance);

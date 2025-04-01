@@ -27,7 +27,7 @@ public abstract class LocalPlayerMixin {
         if (player.isPassenger() && player.getVehicle() instanceof PokemonEntity pokemon) {
             var controller = pokemon.getRidingController();
             if (controller == null) return;
-            if (!controller.isActive()) return;
+            if (!controller.isActive(pokemon)) return;
             if (controller.canJump(pokemon, player)) return;
             //Use custom jump bar logic if the current ride does not jump using it.
             cir.setReturnValue(controller.setRideBar(pokemon, player));

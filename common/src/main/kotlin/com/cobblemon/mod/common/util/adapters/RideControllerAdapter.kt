@@ -54,6 +54,7 @@ object RideControllerAdapter : JsonDeserializer<RideController> {
         val root = element.asJsonObject
         val key = root.get("key").asString
         val controllerType = types[key.asIdentifierDefaultingNamespace()] ?: throw IllegalArgumentException("Unknown controller: $key")
-        return context.deserialize(element, controllerType)
+        val controller: RideController = context.deserialize(element, controllerType)
+        return controller
     }
 }

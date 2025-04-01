@@ -9,17 +9,18 @@
 package com.cobblemon.mod.common.api.riding
 
 import com.bedrockk.molang.Expression
+import com.cobblemon.mod.common.api.riding.controller.RideController
 import com.cobblemon.mod.common.api.riding.stats.RidingStat
 import com.cobblemon.mod.common.api.riding.stats.RidingStatDefinition
 import com.cobblemon.mod.common.util.*
+import com.cobblemon.mod.common.util.adapters.RideControllerAdapter
 import net.minecraft.network.RegistryFriendlyByteBuf
-import net.minecraft.resources.ResourceLocation
 
 class RidingProperties(
     val stats: Map<RidingStat, RidingStatDefinition> = mapOf(),
     val seats: List<Seat> = listOf(),
     val conditions: List<Expression> = listOf(),
-    val controller: ResourceLocation? = null
+    val controller: RideController? = null
 ) {
     companion object {
         fun decode(buffer: RegistryFriendlyByteBuf): RidingProperties {
@@ -29,7 +30,12 @@ class RidingProperties(
             )
             val seats: List<Seat> = buffer.readList { _ -> Seat.decode(buffer) }
             val conditions = buffer.readList { buffer.readString().asExpression() }
-            val controller = buffer.readNullable { _ -> buffer.readIdentifier() }
+            val controller = buffer.readNullable { _ ->
+                val key = buffer.readIdentifier()
+                val controller = RideControllerAdapter.types[key]?.getConstructor()?.newInstance() ?: error("Unknown controller key: $key")
+                controller.decode(buffer)
+                return@readNullable controller
+            }
 
             return RidingProperties(stats = stats, seats = seats, conditions = conditions, controller = controller)
         }
@@ -46,7 +52,7 @@ class RidingProperties(
         )
         buffer.writeCollection(seats) { _, seat -> seat.encode(buffer) }
         buffer.writeCollection(conditions) { _, condition -> buffer.writeString(condition.getString()) }
-        buffer.writeNullable(controller) { _, controller -> buffer.writeResourceLocation(controller) }
+        buffer.writeNullable(controller) { _, controller -> controller.encode(buffer) }
     }
 
     fun calculate(stat: RidingStat, style: RidingStyle, boosts: Int): Float {

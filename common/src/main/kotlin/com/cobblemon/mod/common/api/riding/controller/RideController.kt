@@ -47,13 +47,13 @@ interface RideController : Encodable, Decodable {
      */
     val poseProvider: PoseProvider
 
+    val state: RidingState?
+
     /**
      * Represents a condition that must be met for this controller to be active. For instance, this can be used
      * to evaluate things such as current velocity or block state of the entity.
      */
-    val isActive: Boolean
-
-    val state: RidingState?
+    fun isActive(entity: PokemonEntity): Boolean = true
 
     fun tick(entity: PokemonEntity, driver: Player, input: Vec3) {}
 
@@ -147,5 +147,7 @@ interface RideController : Encodable, Decodable {
     override fun encode(buffer: RegistryFriendlyByteBuf) {
         buffer.writeIdentifier(this.key)
     }
+
+    fun copy(): RideController
 
 }

@@ -29,13 +29,9 @@ import net.minecraft.world.phys.Vec3
 import kotlin.math.*
 
 class JetAirController : RideController {
-    override val key = KEY
-    override val poseProvider = PoseProvider(PoseType.HOVER)
-        .with(PoseOption(PoseType.FLY) { it.entityData.get(PokemonEntity.MOVING) })
-
-    override val isActive = true
-
-    override val state = JetAirState()
+    companion object {
+        val KEY = cobblemonResource("air/jet")
+    }
 
     var gravity: Expression = "0".asExpression()
         private set
@@ -62,6 +58,16 @@ class JetAirController : RideController {
         private set
     var infiniteAltitude: Expression = "false".asExpression()
         private set
+
+    @Transient
+    override val key = KEY
+
+    @Transient
+    override val poseProvider = PoseProvider(PoseType.HOVER)
+        .with(PoseOption(PoseType.FLY) { it.entityData.get(PokemonEntity.MOVING) })
+
+    @Transient
+    override val state = JetAirState()
 
     override fun speed(entity: PokemonEntity, driver: Player): Float {
 
@@ -268,10 +274,6 @@ class JetAirController : RideController {
         infiniteAltitude = buffer.readExpression()
     }
 
-    companion object {
-        val KEY = cobblemonResource("air/jet")
-    }
-
     /*
     *  Calculates the change in the ride space vector due to player input and ride state
     */
@@ -330,5 +332,19 @@ class JetAirController : RideController {
         return adjusted * sign
     }
 
+    override fun copy(): JetAirController {
+        val controller = JetAirController()
+        controller.gravity = gravity
+        controller.minSpeed = minSpeed
+        controller.handlingExpr = handlingExpr
+        controller.handlingYawExpr = handlingYawExpr
+        controller.topSpeedExpr = topSpeedExpr
+        controller.accelExpr = accelExpr
+        controller.jumpExpr = jumpExpr
+        controller.staminaExpr = staminaExpr
+        controller.infiniteStamina = infiniteStamina
+        controller.infiniteAltitude = infiniteAltitude
+        return controller
+    }
 
 }

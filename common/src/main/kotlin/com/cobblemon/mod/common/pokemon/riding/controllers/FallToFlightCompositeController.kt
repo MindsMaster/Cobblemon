@@ -30,24 +30,30 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 
-class FallToFlightCompositeController(val entity: PokemonEntity) : RideController {
-    override val key = KEY
-    override val poseProvider = PoseProvider(PoseType.STAND)
-        .with(PoseOption(PoseType.WALK) { it.entityData.get(PokemonEntity.MOVING) })
-
-    override val isActive = true
-
-    override val state = CompositeState()
+class FallToFlightCompositeController : RideController {
+    companion object {
+        val KEY = cobblemonResource("composite/fall_to_flight")
+    }
 
     var minimumForwardSpeed: Expression = "0.0".asExpression()
         private set
     var minimumFallSpeed: Expression = "0.5".asExpression()
         private set
 
-    var landController: RideController = GenericLandController(entity)
+    var landController: GenericLandController = GenericLandController()
         private set
-    var flightController: RideController = GliderAirController()
+    var flightController: GliderAirController = GliderAirController()
         private set
+
+    @Transient
+    override val key = KEY
+
+    @Transient
+    override val poseProvider = PoseProvider(PoseType.STAND)
+        .with(PoseOption(PoseType.WALK) { it.entityData.get(PokemonEntity.MOVING) })
+
+    @Transient
+    override val state = CompositeState()
 
     override fun tick(entity: PokemonEntity, driver: Player, input: Vec3) {
         val shouldBeFlying = checkShouldBeFlying(entity, state.activeController == flightController.key)
@@ -141,16 +147,22 @@ class FallToFlightCompositeController(val entity: PokemonEntity) : RideControlle
         landController = buffer.readResourceLocation().let { key ->
             val controller = RideControllerAdapter.types[key]?.getConstructor()?.newInstance() ?: error("Unknown controller key: $key")
             controller.decode(buffer)
-            controller
+            controller as GenericLandController
         }
         flightController = buffer.readResourceLocation().let { key ->
             val controller = RideControllerAdapter.types[key]?.getConstructor()?.newInstance() ?: error("Unknown controller key: $key")
             controller.decode(buffer)
-            controller
+            controller as GliderAirController
         }
     }
 
-    companion object {
-        val KEY = cobblemonResource("composite/fall_to_flight")
+    override fun copy(): FallToFlightCompositeController {
+        val controller = FallToFlightCompositeController()
+        controller.minimumForwardSpeed = minimumForwardSpeed
+        controller.minimumFallSpeed = minimumFallSpeed
+        controller.landController = landController.copy()
+        controller.flightController = flightController.copy()
+        return controller
     }
+
 }

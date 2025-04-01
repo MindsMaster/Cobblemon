@@ -77,6 +77,7 @@ class VehicleLandController : RideController {
     var lookYawLimit = "101".asExpression()
         private set
 
+    @Transient
     var currSpeed = 0.0
         private set
 
@@ -190,6 +191,19 @@ class VehicleLandController : RideController {
         this.minimumSpeedToTurn = buffer.readString().asExpression()
         this.rotationSpeed = buffer.readString().asExpression()
         this.lookYawLimit = buffer.readString().asExpression()
+    }
+
+    override fun copy(): VehicleLandController {
+        val controller = VehicleLandController()
+        controller.speed = speed
+        controller.canJump = canJump
+        controller.jumpVector = jumpVector
+        controller.driveFactor = driveFactor
+        controller.reverseDriveFactor = reverseDriveFactor
+        controller.minimumSpeedToTurn = minimumSpeedToTurn
+        controller.rotationSpeed = rotationSpeed
+        controller.lookYawLimit = lookYawLimit
+        return controller
     }
 
 }

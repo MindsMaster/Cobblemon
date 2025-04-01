@@ -36,25 +36,11 @@ import kotlin.math.sin
  * @author Apion, Jackowes
  * @since January 1, 2025
  */
-class HelicopterAirController(val entity: PokemonEntity) : RideController {
-    override val key = KEY
-    override val poseProvider = PoseProvider(PoseType.HOVER)
-        .with(PoseOption(PoseType.FLY) { it.entityData.get(PokemonEntity.MOVING) })
-
-    //If there are only fluid blocks or air block below the ride
-    //then activate the controller. If it is in water the ride will
-    //dismount accordingly
-    override val isActive: Boolean
-        get() = Shapes.create(entity.boundingBox).blockPositionsAsListRounded().any {
-            if (it.y.toDouble() == (entity.position().y)) {
-                val blockState = entity.level().getBlockState(it.below())
-                return@any (blockState.isAir || !blockState.fluidState.isEmpty)
-            }
-            true
-
-        }
-
-    override val state = null
+class HelicopterAirController : RideController {
+    companion object {
+        val KEY = cobblemonResource("air/helicopter")
+        val ROTATION_LIMIT = 30.0f
+    }
 
     var gravity: Expression = "1.0".asExpression()
         private set
@@ -65,6 +51,29 @@ class HelicopterAirController(val entity: PokemonEntity) : RideController {
     var speed: Expression = "1.0".asExpression()
         private set
 
+    @Transient
+    override val key = KEY
+
+    @Transient
+    override val poseProvider = PoseProvider(PoseType.HOVER)
+        .with(PoseOption(PoseType.FLY) { it.entityData.get(PokemonEntity.MOVING) })
+
+    @Transient
+    override val state = null
+
+    override fun isActive(entity: PokemonEntity): Boolean {
+        //If there are only fluid blocks or air block below the ride
+        //then activate the controller. If it is in water the ride will
+        //dismount accordingly
+        return Shapes.create(entity.boundingBox).blockPositionsAsListRounded().any {
+            if (it.y.toDouble() == (entity.position().y)) {
+                val blockState = entity.level().getBlockState(it.below())
+                return@any (blockState.isAir || !blockState.fluidState.isEmpty)
+            }
+            true
+
+        }
+    }
 
     override fun speed(entity: PokemonEntity, driver: Player): Float {
         //Increased max speed to exaggerate movement.
@@ -213,9 +222,13 @@ class HelicopterAirController(val entity: PokemonEntity) : RideController {
         speed = buffer.readExpression()
     }
 
-
-    companion object {
-        val KEY = cobblemonResource("air/helicopter")
-        val ROTATION_LIMIT = 30.0f
+    override fun copy(): HelicopterAirController {
+        val controller = HelicopterAirController()
+        controller.gravity = gravity
+        controller.horizontalAcceleration = horizontalAcceleration
+        controller.verticalVelocity = verticalVelocity
+        controller.speed = speed
+        return controller
     }
+
 }

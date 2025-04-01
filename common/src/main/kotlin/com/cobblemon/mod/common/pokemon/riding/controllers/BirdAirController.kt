@@ -12,7 +12,6 @@ import com.bedrockk.molang.Expression
 import com.bedrockk.molang.runtime.MoLangMath.lerp
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.OrientationControllable
-import com.cobblemon.mod.common.api.riding.RidingState
 import com.cobblemon.mod.common.api.riding.controller.RideController
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
@@ -29,14 +28,6 @@ import net.minecraft.world.phys.Vec3
 import kotlin.math.*
 
 class BirdAirController : RideController {
-
-    override val key = KEY
-    override val poseProvider = PoseProvider(PoseType.HOVER)
-        .with(PoseOption(PoseType.FLY) { it.entityData.get(PokemonEntity.MOVING) })
-
-    override val isActive: Boolean = true
-
-    override val state = BirdAirState()
 
     var handlingExpr: Expression = "q.get_ride_stats('SKILL', 'AIR', 135.0, 45.0)".asExpression()
         private set
@@ -58,6 +49,16 @@ class BirdAirController : RideController {
         private set
     var infiniteAltitude: Expression = "false".asExpression()
         private set
+
+    @Transient
+    override val key = KEY
+
+    @Transient
+    override val poseProvider = PoseProvider(PoseType.HOVER)
+        .with(PoseOption(PoseType.FLY) { it.entityData.get(PokemonEntity.MOVING) })
+
+    @Transient
+    override val state = BirdAirState()
 
     override fun speed(entity: PokemonEntity, driver: Player): Float {
         return state.rideVel.length().toFloat()
@@ -386,4 +387,17 @@ class BirdAirController : RideController {
             state.rideVel.y,
             lerp( state.rideVel.z,0.0, topSpeed / ( 20.0 * 30.0)))
     }
+
+    override fun copy(): BirdAirController {
+        val controller = BirdAirController()
+        controller.topSpeedExpr = topSpeedExpr
+        controller.glideTopSpeedExpr = glideTopSpeedExpr
+        controller.accelExpr = accelExpr
+        controller.handlingExpr = handlingExpr
+        controller.altitudeExpr = altitudeExpr
+        controller.infiniteStamina = infiniteStamina
+        controller.infiniteAltitude = infiniteAltitude
+        return controller
+    }
+
 }

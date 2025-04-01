@@ -27,7 +27,7 @@ public class PlayerModelMixin {
 
         if (!(vehicle instanceof PokemonEntity pokemon)) return;
         var controller = pokemon.getRidingController();
-        if (controller != null && controller.isActive() && controller.shouldRotatePlayerHead()) return;
+        if (controller != null && controller.isActive(pokemon) && controller.shouldRotatePlayerHead()) return;
 
         netHeadYaw = 0f;
         headPitch = 0f;

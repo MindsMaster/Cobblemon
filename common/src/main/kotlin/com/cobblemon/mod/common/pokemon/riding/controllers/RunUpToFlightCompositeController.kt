@@ -9,22 +9,15 @@
 package com.cobblemon.mod.common.pokemon.riding.controllers
 
 import com.bedrockk.molang.Expression
-import com.cobblemon.mod.common.api.riding.RidingState
 import com.cobblemon.mod.common.api.riding.controller.RideController
-import com.cobblemon.mod.common.api.riding.controller.RideControllerFactory
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonBehaviourFlag
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
-import com.cobblemon.mod.common.pokemon.riding.states.*
+import com.cobblemon.mod.common.pokemon.riding.states.RunUpToFlightCompositeState
+import com.cobblemon.mod.common.util.*
 import com.cobblemon.mod.common.util.adapters.RideControllerAdapter
-import com.cobblemon.mod.common.util.asExpression
-import com.cobblemon.mod.common.util.cobblemonResource
-import com.cobblemon.mod.common.util.getString
-import com.cobblemon.mod.common.util.readString
-import com.cobblemon.mod.common.util.resolveInt
-import com.cobblemon.mod.common.util.writeString
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
@@ -32,24 +25,30 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 
-class RunUpToFlightCompositeController(val entity: PokemonEntity) : RideController {
-    override val key = KEY
-    override val poseProvider = PoseProvider(PoseType.STAND)
-        .with(PoseOption(PoseType.WALK) { it.entityData.get(PokemonEntity.MOVING) })
-
-    override val isActive = true
-
-    override val state = RunUpToFlightCompositeState()
+class RunUpToFlightCompositeController : RideController {
+    companion object {
+        val KEY = cobblemonResource("composite/run_up_to_flight")
+    }
 
     var minimumSpeed: Expression = "0.5".asExpression()
         private set
     var minimumJump: Expression = "0.5".asExpression()
         private set
 
-    var landController: GenericLandController = GenericLandController(entity)
+    var landController: GenericLandController = GenericLandController()
         private set
     var flightController: BirdAirController = BirdAirController()
         private set
+
+    @Transient
+    override val key = KEY
+
+    @Transient
+    override val poseProvider = PoseProvider(PoseType.STAND)
+        .with(PoseOption(PoseType.WALK) { it.entityData.get(PokemonEntity.MOVING) })
+
+    @Transient
+    override val state = RunUpToFlightCompositeState()
 
     private fun shouldTransitionToGround(state: RunUpToFlightCompositeState, entity: PokemonEntity): Boolean {
         return state.activeController == flightController.key
@@ -204,18 +203,24 @@ class RunUpToFlightCompositeController(val entity: PokemonEntity) : RideControll
         minimumJump = buffer.readString().asExpression()
         state.decode(buffer)
         landController = buffer.readResourceLocation().let { key ->
-            val controller = RideControllerFactory.create<GenericLandController>(key, entity)
+            val controller = RideControllerAdapter.types[key]?.getConstructor()?.newInstance() ?: error("Unknown controller key: $key")
             controller.decode(buffer)
-            controller
+            controller as GenericLandController
         }
         flightController = buffer.readResourceLocation().let { key ->
-            val controller = RideControllerFactory.create<BirdAirController>(key, entity)
+            val controller = RideControllerAdapter.types[key]?.getConstructor()?.newInstance() ?: error("Unknown controller key: $key")
             controller.decode(buffer)
-            controller
+            controller as BirdAirController
         }
     }
 
-    companion object {
-        val KEY = cobblemonResource("composite/run_up_to_flight")
+    override fun copy(): RideController {
+        val controller = RunUpToFlightCompositeController()
+        controller.minimumSpeed = minimumSpeed
+        controller.minimumJump = minimumJump
+        controller.landController = landController.copy()
+        controller.flightController = flightController.copy()
+        return controller
     }
+
 }

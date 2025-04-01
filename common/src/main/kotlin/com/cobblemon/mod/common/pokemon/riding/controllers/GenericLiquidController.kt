@@ -33,7 +33,7 @@ import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.phys.shapes.Shapes
 
-class GenericLiquidController(val entity: PokemonEntity) : RideController {
+class GenericLiquidController : RideController {
     companion object {
         val KEY: ResourceLocation = cobblemonResource("swim/generic")
     }
@@ -51,21 +51,25 @@ class GenericLiquidController(val entity: PokemonEntity) : RideController {
     var strafeFactor = "0.2".asExpression()
         private set
 
+    @Transient
     override val key: ResourceLocation = KEY
 
+    @Transient
     override val poseProvider: PoseProvider = PoseProvider(PoseType.FLOAT)
         .with(PoseOption(PoseType.SWIM) { it.isSwimming && it.entityData.get(PokemonEntity.MOVING) })
 
-    override val isActive: Boolean
-        get() = Shapes.create(entity.boundingBox).blockPositionsAsListRounded().any {
+    @Transient
+    override val state = null
+
+    override fun isActive(entity: PokemonEntity): Boolean {
+        return Shapes.create(entity.boundingBox).blockPositionsAsListRounded().any {
             if (entity.isInWater || entity.isUnderWater) {
                 return@any true
             }
             val blockState = entity.level().getBlockState(it)
             return@any !blockState.fluidState.isEmpty
         }
-
-    override val state = null
+    }
 
     override fun speed(entity: PokemonEntity, driver: Player): Float {
         return getRuntime(entity).resolveFloat(speed)
@@ -123,4 +127,16 @@ class GenericLiquidController(val entity: PokemonEntity) : RideController {
         this.reverseDriveFactor = buffer.readString().asExpression()
         this.strafeFactor = buffer.readString().asExpression()
     }
+
+    override fun copy(): GenericLiquidController {
+        val controller = GenericLiquidController()
+        controller.canJump = this.canJump
+        controller.jumpVector = this.jumpVector
+        controller.speed = this.speed
+        controller.driveFactor = this.driveFactor
+        controller.reverseDriveFactor = this.reverseDriveFactor
+        controller.strafeFactor = this.strafeFactor
+        return controller
+    }
+
 }

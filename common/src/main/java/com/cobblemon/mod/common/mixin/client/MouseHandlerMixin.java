@@ -183,7 +183,7 @@ public class MouseHandlerMixin {
         if (playerVehicle == null) return Vec3.ZERO;
         if (!(playerVehicle instanceof PokemonEntity pokemonEntity)) return Vec3.ZERO;
         if (pokemonEntity.getRidingController() == null) return Vec3.ZERO;
-        if (!pokemonEntity.getRidingController().isActive()) return Vec3.ZERO;
+        if (!pokemonEntity.getRidingController().isActive(pokemonEntity)) return Vec3.ZERO;
         return pokemonEntity.getRidingController().angRollVel(pokemonEntity, player, deltaTime);
     }
 
@@ -197,7 +197,7 @@ public class MouseHandlerMixin {
 
         var sensitivity = cobblemon$getRidingSensitivity();
         if (pokemon.getRidingController() == null) return Vec3.ZERO;
-        if (!pokemon.getRidingController().isActive()) return Vec3.ZERO;
+        if (!pokemon.getRidingController().isActive(pokemon)) return Vec3.ZERO;
 
         return pokemon.getRidingController().rotationOnMouseXY(
                 pokemon,
@@ -226,7 +226,7 @@ public class MouseHandlerMixin {
         if (playerVehicle == null) return true;
         if (!(playerVehicle instanceof PokemonEntity pokemonEntity)) return true;
         if (pokemonEntity.getRidingController() == null) return true;
-        if (!pokemonEntity.getRidingController().isActive()) return true;
+        if (!pokemonEntity.getRidingController().isActive(pokemonEntity)) return true;
         return pokemonEntity.getRidingController().useAngVelSmoothing(pokemonEntity);
     }
 

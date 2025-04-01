@@ -41,7 +41,6 @@ import com.cobblemon.mod.common.api.reactive.ObservableSubscription
 import com.cobblemon.mod.common.api.reactive.SimpleObservable
 import com.cobblemon.mod.common.api.riding.*
 import com.cobblemon.mod.common.api.riding.controller.RideController
-import com.cobblemon.mod.common.api.riding.controller.RideControllerFactory
 import com.cobblemon.mod.common.api.riding.events.SelectDriverEvent
 import com.cobblemon.mod.common.api.riding.stats.RidingStat
 import com.cobblemon.mod.common.api.scheduling.Schedulable
@@ -204,7 +203,7 @@ open class PokemonEntity(
             value.isClient = this.level().isClientSide
             field = value
             delegate.changePokemon(value)
-            ridingController = value.riding.controller?.let { RideControllerFactory.create(it, this) }
+            ridingController = value.riding.controller?.copy()
 
             //This used to be referring to this.updateEyeHeight, I think this is the best conversion
             // We need to update this value every time the Pokémon changes, other eye height related things will be dynamic.
@@ -250,7 +249,7 @@ open class PokemonEntity(
 
     var enablePoseTypeRecalculation = true
 
-    override var ridingController: RideController? = pokemon.riding.controller?.let { RideControllerFactory.create(it, this) }
+    override var ridingController: RideController? = pokemon.riding.controller?.copy()
 
     val runtime: MoLangRuntime by lazy {
         MoLangRuntime()
@@ -1744,13 +1743,14 @@ open class PokemonEntity(
 
         val riders = this.passengers.filterIsInstance<LivingEntity>()
 
-        if (ridingController != null && ridingController!!.isActive && ridingController!!.canJump(this, driver)) {
+        val ridingController = this.ridingController ?: return
+        if (ridingController.isActive(this) && ridingController.canJump(this, driver)) {
             if (this.onGround()) {
                 if (this.jumpInputStrength > 0) {
                     //this.jump(this.jumpStrength, movementInput)
                     //this.jump()
                     val f = PI.toFloat() - this.yRot * PI.toFloat() / 180
-                    val jumpVector = ridingController!!.jumpForce(this, driver, this.jumpInputStrength)
+                    val jumpVector = ridingController.jumpForce(this, driver, this.jumpInputStrength)
                     val velocity = jumpVector.yRot(f)
                     // Rotate the jump vector f degrees around the Y axis
                     //val velocity = Vec3d(-sin(f) * jumpVector.x, jumpVector.y, cos(f) * jumpVector.z)
@@ -1803,15 +1803,17 @@ open class PokemonEntity(
 //    }
 
     private fun getControlledRotation(controller: LivingEntity): Vec2 {
-        if (ridingController == null || !ridingController!!.isActive) return rotationVector
+        val ridingController = ridingController ?: return rotationVector
+        if (!ridingController.isActive(this)) return rotationVector
         val previousRotation = rotationVector
-        val rotation = ridingController!!.rotation(this, controller)
+        val rotation = ridingController.rotation(this, controller)
         this.deltaRotation = Vec2(rotation.x - previousRotation.x, rotation.y - previousRotation.y)
         return rotation
     }
 
     override fun onPassengerTurned(entityToUpdate: Entity) {
-        if (ridingController == null || !ridingController!!.isActive) return
+        val ridingController = this.ridingController ?: return
+        if (!ridingController.isActive(this)) return
         if (entityToUpdate !is LivingEntity) return
         ifRidingAvailable(Unit) {
             it.clampPassengerRotation(this, entityToUpdate)
@@ -1943,8 +1945,9 @@ open class PokemonEntity(
     //Having it be able to be turned off by the flying or swimming controllers is the
     //temp solution I have found.
     override fun onGround() : Boolean {
-        if (ridingController == null || !ridingController!!.isActive) return false
-        if (ridingController!!.turnOffOnGround(this)) return false
+        val ridingController = ridingController ?: return false
+        if (!ridingController.isActive(this)) return false
+        if (ridingController.turnOffOnGround(this)) return false
         return super.onGround()
     }
 
@@ -2001,6 +2004,7 @@ open class PokemonEntity(
     }
 
     fun <T> ifRidingAvailable(fallback: T, block: (RideController) -> T): T {
-        return if (ridingController != null && ridingController!!.isActive) block(ridingController!!) else fallback
+        val ridingController = ridingController ?: return fallback
+        return if (ridingController.isActive(this)) block(ridingController) else fallback
     }
 }

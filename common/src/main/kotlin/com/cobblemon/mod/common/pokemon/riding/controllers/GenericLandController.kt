@@ -30,7 +30,7 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
 
-class GenericLandController(val entity: PokemonEntity) : RideController {
+class GenericLandController : RideController {
     companion object {
         val KEY: ResourceLocation = cobblemonResource("land/generic")
     }
@@ -65,14 +65,15 @@ class GenericLandController(val entity: PokemonEntity) : RideController {
     @Transient
     override val key: ResourceLocation = KEY
 
+    @Transient
     override val state = GenericLandState()
 
     @Transient
     override val poseProvider: PoseProvider = PoseProvider(PoseType.STAND)
         .with(PoseOption(PoseType.WALK) { it.entityData.get(PokemonEntity.MOVING) })
 
-    override val isActive: Boolean
-        get() = Shapes.create(entity.boundingBox).blockPositionsAsListRounded().any {
+    override fun isActive(entity: PokemonEntity): Boolean {
+        return Shapes.create(entity.boundingBox).blockPositionsAsListRounded().any {
             //Need to check other fluids
             if (entity.isInWater || entity.isUnderWater) {
                 return@any false
@@ -84,6 +85,7 @@ class GenericLandController(val entity: PokemonEntity) : RideController {
             }
             true
         }
+    }
 
     override fun speed(entity: PokemonEntity, driver: Player): Float {
         return state.rideVel.length().toFloat()
@@ -239,5 +241,16 @@ class GenericLandController(val entity: PokemonEntity) : RideController {
             state.rideVel = Vec3(state.rideVel.x, 0.0 , state.rideVel.z)
         }
 
+    }
+
+    override fun copy(): GenericLandController {
+        val controller = GenericLandController()
+        controller.canJump = this.canJump
+        controller.jumpVector = this.jumpVector
+        controller.speed = this.speed
+        controller.driveFactor = this.driveFactor
+        controller.reverseDriveFactor = this.reverseDriveFactor
+        controller.strafeFactor = this.strafeFactor
+        return controller
     }
 }

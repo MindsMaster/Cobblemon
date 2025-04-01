@@ -26,11 +26,9 @@ import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 
 class GliderAirController : RideController {
-    override val key = KEY
-    override val poseProvider = PoseProvider(PoseType.HOVER)
-        .with(PoseOption(PoseType.FLY) { it.entityData.get(PokemonEntity.MOVING) })
-
-    override val isActive = true
+    companion object {
+        val KEY: ResourceLocation = cobblemonResource("air/glider")
+    }
 
     var glideSpeed: Expression = "0.1".asExpression()
         private set
@@ -39,6 +37,14 @@ class GliderAirController : RideController {
     var canStrafe: Expression = "false".asExpression()
         private set
 
+    @Transient
+    override val key = KEY
+
+    @Transient
+    override val poseProvider = PoseProvider(PoseType.HOVER)
+        .with(PoseOption(PoseType.FLY) { it.entityData.get(PokemonEntity.MOVING) })
+
+    @Transient
     override val state = null
 
     override fun speed(entity: PokemonEntity, driver: Player): Float {
@@ -78,7 +84,11 @@ class GliderAirController : RideController {
         speed = buffer.readExpression()
     }
 
-    companion object {
-        val KEY: ResourceLocation = cobblemonResource("air/glider")
+    override fun copy(): GliderAirController {
+        val controller = GliderAirController()
+        controller.glideSpeed = glideSpeed
+        controller.speed = speed
+        return controller
     }
+
 }

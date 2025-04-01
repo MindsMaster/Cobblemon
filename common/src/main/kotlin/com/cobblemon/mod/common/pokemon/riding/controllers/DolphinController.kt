@@ -30,7 +30,7 @@ import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 
-class DolphinController(val entity: PokemonEntity) : RideController {
+class DolphinController : RideController {
     companion object {
         val KEY: ResourceLocation = cobblemonResource("swim/dolphin")
     }
@@ -48,15 +48,18 @@ class DolphinController(val entity: PokemonEntity) : RideController {
     var strafeFactor = "0.2".asExpression()
         private set
 
-    override val state = DolphinState()
-
+    @Transient
     override val key: ResourceLocation = KEY
 
+    @Transient
+    override val state = DolphinState()
+
+    @Transient
     override val poseProvider: PoseProvider = PoseProvider(PoseType.FLOAT)
         .with(PoseOption(PoseType.SWIM) { it.entityData.get(PokemonEntity.MOVING) })
 
-    override val isActive: Boolean
-        get() = Shapes.create(entity.boundingBox).blockPositionsAsListRounded().any {
+    override fun isActive(entity: PokemonEntity): Boolean {
+        return Shapes.create(entity.boundingBox).blockPositionsAsListRounded().any {
             if (it.y.toDouble() == (entity.position().y)) {
                 val blockState = entity.level().getBlockState(it.below())
                 return@any (blockState.isAir || !blockState.fluidState.isEmpty ) ||
@@ -64,6 +67,7 @@ class DolphinController(val entity: PokemonEntity) : RideController {
             }
             true
         }
+    }
 
     override fun speed(entity: PokemonEntity, driver: Player): Float {
         return getRuntime(entity).resolveFloat(speed)
@@ -189,4 +193,16 @@ class DolphinController(val entity: PokemonEntity) : RideController {
         this.strafeFactor = buffer.readString().asExpression()
         this.strafeFactor = buffer.readString().asExpression()
     }
+
+    override fun copy(): DolphinController {
+        val controller = DolphinController()
+        controller.canJump = this.canJump
+        controller.jumpVector = this.jumpVector
+        controller.speed = this.speed
+        controller.driveFactor = this.driveFactor
+        controller.reverseDriveFactor = this.reverseDriveFactor
+        controller.strafeFactor = this.strafeFactor
+        return controller
+    }
+
 }
