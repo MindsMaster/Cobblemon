@@ -121,9 +121,10 @@ public abstract class CameraMixin {
                     Mth.lerp(instance.getPartialTickTime(), pokemon.zOld, pokemon.getZ())
             );
 
-            Rollable rollable = (Rollable) entity;
+            OrientationControllable rollable = (OrientationControllable) entity;
             float currEyeHeight = Mth.lerp(instance.getPartialTickTime(), eyeHeightOld, eyeHeight);
-            Matrix3f orientation = rollable.shouldRoll() && rollable.getOrientation() != null ? rollable.getOrientation() : new Matrix3f();
+            var controller = rollable.getOrientationController();
+            Matrix3f orientation = controller.isActive() && controller.getOrientation() != null ? controller.getOrientation() : new Matrix3f();
             Vec3 rotatedEyeHeight = new Vec3(orientation.transform(new Vector3f(0f, currEyeHeight, 0f)));
 
             position = locatorOffset.add(entityPos).add(rotatedEyeHeight);

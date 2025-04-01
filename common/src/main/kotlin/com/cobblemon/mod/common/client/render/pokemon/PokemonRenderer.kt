@@ -35,6 +35,7 @@ import com.cobblemon.mod.common.entity.npc.NPCEntity
 import com.cobblemon.mod.common.entity.pokeball.EmptyPokeBallEntity
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity.Companion.SPAWN_DIRECTION
+import com.cobblemon.mod.common.RemotePlayerOrientation
 import com.cobblemon.mod.common.pokeball.PokeBall
 import com.cobblemon.mod.common.util.*
 import com.cobblemon.mod.common.util.math.DoubleRange
@@ -191,7 +192,29 @@ class PokemonRenderer(
             transformationMatrix.translate(center)
 
             val orientation = controller.orientation ?: Matrix3f()
-            transformationMatrix.mul(Matrix4f(orientation))
+            if (driver is RemotePlayerOrientation) {
+                // Attempt 1
+                val lastOrientation = driver.lastOrientation ?: Matrix3f(orientation)
+                val previous = Quaternionf().setFromUnnormalized(lastOrientation)
+                val current  = Quaternionf().setFromUnnormalized(orientation)
+                val slerp = current.slerp(previous, partialTicks, Quaternionf())
+                transformationMatrix.rotate(slerp)
+
+                // Attempt 2
+                val lastOrientation2 = driver.lastOrientation ?: Matrix3f(orientation)
+                val previous2 = Quaternionf().setFromNormalized(lastOrientation)
+                val current2  = Quaternionf().setFromNormalized(orientation)
+                val slerp2 = previous.slerp(current, partialTicks, Quaternionf())
+//                transformationMatrix.rotate(slerp2)
+
+//                 Attempt 3
+                val lastOrientation3 = driver.lastOrientation ?: Matrix3f(orientation)
+                val lerp3 = orientation.lerp(lastOrientation3, partialTicks, Matrix3f())
+//                transformationMatrix.mul(Matrix4f(lerp3))
+            }
+            else {
+                transformationMatrix.mul(Matrix4f(orientation))
+            }
             //Move origin to base of the entity
             transformationMatrix.translate(center.negate(Vector3f()))
 

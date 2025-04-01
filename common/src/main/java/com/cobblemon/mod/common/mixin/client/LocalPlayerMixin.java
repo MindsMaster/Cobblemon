@@ -33,14 +33,14 @@ public abstract class LocalPlayerMixin extends LivingEntity {
         super(entityType, level);
     }
 
-    @Inject(method = "sendPosition", at = @At("TAIL"))
-    private void cobblemon$updateRotationMatrix(CallbackInfo ci) {
-        if (!(this instanceof OrientationControllable controllable)) return;
-        var controller = controllable.getOrientationController();
-        if (!controller.isActive() || controller.getOrientation() == cobblemon$lastOrientation) return;
-        cobblemon$lastOrientation = controller.getOrientation() != null ? new Matrix3f(controller.getOrientation()) : null;
-        CobblemonNetwork.INSTANCE.sendToServer(new ServerboundUpdateOrientationPacket(controller.getOrientation()));
-    }
+//    @Inject(method = "sendPosition", at = @At("TAIL"))
+//    private void cobblemon$updateRotationMatrix(CallbackInfo ci) {
+//        if (!(this instanceof OrientationControllable controllable)) return;
+//        var controller = controllable.getOrientationController();
+//        if (!controller.isActive() || controller.getOrientation() == cobblemon$lastOrientation) return;
+//        cobblemon$lastOrientation = controller.getOrientation() != null ? new Matrix3f(controller.getOrientation()) : null;
+//        CobblemonNetwork.INSTANCE.sendToServer(new ServerboundUpdateOrientationPacket(controller.getOrientation()));
+//    }
 
     @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientPacketListener;send(Lnet/minecraft/network/protocol/Packet;)V"))
     private void cobblemon$updateRotationMatrixPassenger(CallbackInfo ci) {

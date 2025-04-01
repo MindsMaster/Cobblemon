@@ -19,14 +19,6 @@ object OrientationPacketHandler : ServerNetworkPacketHandler<ServerboundUpdateOr
     override fun handle(packet: ServerboundUpdateOrientationPacket, server: MinecraftServer, player: ServerPlayer) {
         if (player is OrientationControllable) {
             player.orientationController.updateOrientation { _ -> packet.orientation }
-
-            println("Packet Received! Roll ${"%.2f".format(player.orientationController.roll)} degrees")
-
-//            val orientation = packet.orientation
-//            val roll = orientation?.let { atan2(it.m10, it.m00) } ?: 0f
-//            val rollDegrees = Math.toDegrees(roll.toDouble())
-//            println("Packet Received! Roll: ${"%.2f".format(rollDegrees)} degrees")
-
         }
     }
 }

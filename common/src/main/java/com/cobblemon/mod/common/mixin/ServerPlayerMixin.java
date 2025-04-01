@@ -32,7 +32,9 @@ public abstract class ServerPlayerMixin {
         var playerVehicle = player.getVehicle();
         if (playerVehicle == null) return false;
         if (!(playerVehicle instanceof PokemonEntity pokemonEntity)) return false;
-        return pokemonEntity.getRiding().shouldRoll(pokemonEntity);
+        return pokemonEntity.ifRidingAvailableSupply(false, (behaviour, settings, state) -> {
+            return behaviour.shouldRoll(settings, state, pokemonEntity);
+        });
     }
 
     @Inject(method = "stopRiding", at = @At("HEAD"))

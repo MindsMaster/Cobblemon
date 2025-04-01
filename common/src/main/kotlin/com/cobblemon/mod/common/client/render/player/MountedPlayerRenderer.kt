@@ -14,6 +14,7 @@ import com.cobblemon.mod.common.api.riding.Rideable
 import com.cobblemon.mod.common.client.entity.PokemonClientDelegate
 import com.cobblemon.mod.common.client.render.models.blockbench.bedrock.animation.BedrockAnimationRepository
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
+import com.cobblemon.mod.common.RemotePlayerOrientation
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
 import net.minecraft.client.model.geom.ModelPart
@@ -22,6 +23,7 @@ import net.minecraft.util.Mth
 import net.minecraft.world.phys.Vec3
 import org.joml.Matrix3f
 import org.joml.Matrix4f
+import org.joml.Quaternionf
 import org.joml.Vector3f
 
 /**
@@ -72,12 +74,36 @@ object MountedPlayerRenderer {
         }
 
         //Rotates player
-        if (player is Rollable && player.shouldRoll() && !disableRollableRenderDebug) {
+        if (player is OrientationControllable && player.orientationController.active && !disableRollableRenderDebug) {
             val center = Vector3f(0f, player.bbHeight / 2, 0f)
             val transformationMatrix = Matrix4f()
             transformationMatrix.translate(center)
 
-            transformationMatrix.mul(Matrix4f(player.orientation))
+            val orientation = player.orientationController.orientation ?: Matrix3f()
+            if (player is RemotePlayerOrientation) {
+
+                // Attempt 1
+                val lastOrientation = player.lastOrientation ?: Matrix3f(orientation)
+                val previous = Quaternionf().setFromUnnormalized(lastOrientation)
+                val current  = Quaternionf().setFromUnnormalized(orientation)
+                val slerp = previous.slerp(current, partialTicks, Quaternionf())
+//                transformationMatrix.rotate(slerp)
+
+                // Attempt 2
+                val lastOrientation2 = player.lastOrientation ?: Matrix3f(orientation)
+                val previous2 = Quaternionf().setFromNormalized(lastOrientation)
+                val current2  = Quaternionf().setFromNormalized(orientation)
+                val slerp2 = previous.slerp(current, partialTicks, Quaternionf())
+//                transformationMatrix.rotate(slerp2)
+
+                // Attempt 3
+                val lastOrientation3 = player.lastOrientation ?: Matrix3f(orientation)
+                val lerp3 = orientation.lerp(lastOrientation3, partialTicks, Matrix3f())
+                transformationMatrix.mul(Matrix4f(lerp3))
+            }
+            else {
+                transformationMatrix.mul(Matrix4f(orientation))
+            }
 
             transformationMatrix.translate(center.negate(Vector3f()))
             //Pre-Undo Yaw
