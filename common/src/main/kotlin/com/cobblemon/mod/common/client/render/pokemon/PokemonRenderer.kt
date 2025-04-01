@@ -189,7 +189,9 @@ class PokemonRenderer(
             val transformationMatrix = Matrix4f()
             //Move origin to center of Pokemon
             transformationMatrix.translate(center)
-            transformationMatrix.mul(Matrix4f(controller.orientation))
+
+            val orientation = controller.orientation ?: Matrix3f()
+            transformationMatrix.mul(Matrix4f(orientation))
             //Move origin to base of the entity
             transformationMatrix.translate(center.negate(Vector3f()))
 
