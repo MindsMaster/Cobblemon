@@ -9,12 +9,6 @@
       "type": "cobblemon:shiny_reroll",
       "chance": 0.2,
       "value": 1.0
-    },
-    {
-      "type": "cobblemon:gender_chance",
-      "subcategory": "female",
-      "chance": 1.0,
-      "value": 0.75
     }
   ]
 }
