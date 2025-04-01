@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.item.crafting
 
 import com.cobblemon.mod.common.CobblemonItemComponents
+import com.cobblemon.mod.common.api.cooking.Seasonings
 import com.cobblemon.mod.common.api.fishing.SpawnBaitEffects
 import com.cobblemon.mod.common.item.components.BaitEffectsComponent
 import net.minecraft.resources.ResourceLocation
@@ -20,6 +21,13 @@ object BaitSeasoningProcessor : SeasoningProcessor {
         val baitIdentifiers = mutableSetOf<ResourceLocation>()
         for (seasoningStack in seasoning) {
             baitIdentifiers.addAll(SpawnBaitEffects.getBaitIdentifiersFromItem(seasoningStack.itemHolder))
+
+            // From seasonings with baitEffects
+            val seasoningData = Seasonings.getFromItemStack(seasoningStack)
+            if (seasoningData != null && seasoningData.baitEffects.isNotEmpty()) {
+                val id = ResourceLocation("seasonings", seasoningStack.item.descriptionId.removePrefix("item."))
+                baitIdentifiers.add(id)
+            }
         }
         result.set(CobblemonItemComponents.BAIT_EFFECTS, BaitEffectsComponent(baitIdentifiers.toList()))
     }
