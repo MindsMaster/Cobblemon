@@ -9,6 +9,8 @@ import com.cobblemon.mod.common.entity.pokemon.PokemonBehaviourFlag
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.asExpression
 import com.cobblemon.mod.common.util.cobblemonResource
+import com.cobblemon.mod.common.util.readExpression
+import com.cobblemon.mod.common.util.writeExpression
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SmoothDouble
@@ -375,6 +377,20 @@ class RunToJetCompositeSettings : RidingBehaviourSettings {
 
     var minimumJump: Expression = "0.5".asExpression()
         private set
+
+    override fun encode(buffer: RegistryFriendlyByteBuf) {
+        jet.encode(buffer)
+        land.encode(buffer)
+        buffer.writeExpression(minimumSpeed)
+        buffer.writeExpression(minimumJump)
+    }
+
+    override fun decode(buffer: RegistryFriendlyByteBuf) {
+        jet.decode(buffer)
+        land.decode(buffer)
+        minimumSpeed = buffer.readExpression()
+        minimumJump = buffer.readExpression()
+    }
 }
 
 class RunToJetCompositeState : RidingBehaviourState {

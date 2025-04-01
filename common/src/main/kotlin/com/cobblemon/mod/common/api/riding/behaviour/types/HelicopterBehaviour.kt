@@ -10,10 +10,8 @@ import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
-import com.cobblemon.mod.common.util.asExpression
-import com.cobblemon.mod.common.util.blockPositionsAsListRounded
-import com.cobblemon.mod.common.util.cobblemonResource
-import com.cobblemon.mod.common.util.resolveDouble
+import com.cobblemon.mod.common.util.*
+import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
@@ -274,4 +272,18 @@ class HelicopterSettings : RidingBehaviourSettings {
 
     var speed: Expression = "1.0".asExpression()
         private set
+
+    override fun encode(buffer: RegistryFriendlyByteBuf) {
+        buffer.writeExpression(gravity)
+        buffer.writeExpression(horizontalAcceleration)
+        buffer.writeExpression(verticalVelocity)
+        buffer.writeExpression(speed)
+    }
+
+    override fun decode(buffer: RegistryFriendlyByteBuf) {
+        gravity = buffer.readExpression()
+        horizontalAcceleration = buffer.readExpression()
+        verticalVelocity = buffer.readExpression()
+        speed = buffer.readExpression()
+    }
 }

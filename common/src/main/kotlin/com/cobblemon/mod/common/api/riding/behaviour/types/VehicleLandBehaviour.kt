@@ -287,6 +287,34 @@ class VehicleLandSettings : RidingBehaviourSettings {
 
     var lookYawLimit = "101".asExpression()
         private set
+
+    override fun encode(buffer: RegistryFriendlyByteBuf) {
+        buffer.writeExpression(canJump)
+        buffer.writeExpression(jumpVector[0])
+        buffer.writeExpression(jumpVector[1])
+        buffer.writeExpression(jumpVector[2])
+        buffer.writeExpression(speed)
+        buffer.writeExpression(driveFactor)
+        buffer.writeExpression(reverseDriveFactor)
+        buffer.writeExpression(minimumSpeedToTurn)
+        buffer.writeExpression(rotationSpeed)
+        buffer.writeExpression(lookYawLimit)
+    }
+
+    override fun decode(buffer: RegistryFriendlyByteBuf) {
+        canJump = buffer.readExpression()
+        jumpVector = listOf(
+            buffer.readExpression(),
+            buffer.readExpression(),
+            buffer.readExpression()
+        )
+        speed = buffer.readExpression()
+        driveFactor = buffer.readExpression()
+        reverseDriveFactor = buffer.readExpression()
+        minimumSpeedToTurn = buffer.readExpression()
+        rotationSpeed = buffer.readExpression()
+        lookYawLimit = buffer.readExpression()
+    }
 }
 
 class VehicleLandState : RidingBehaviourState {

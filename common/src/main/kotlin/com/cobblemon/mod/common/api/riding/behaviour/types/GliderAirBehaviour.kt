@@ -13,6 +13,7 @@ import com.cobblemon.mod.common.api.riding.stats.RidingStat
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.*
+import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
@@ -183,4 +184,16 @@ class GliderAirSettings : RidingBehaviourSettings {
 
     var canStrafe: Expression = "false".asExpression()
         private set
+
+    override fun encode(buffer: RegistryFriendlyByteBuf) {
+        buffer.writeExpression(glideSpeed)
+        buffer.writeExpression(speed)
+        buffer.writeExpression(canStrafe)
+    }
+
+    override fun decode(buffer: RegistryFriendlyByteBuf) {
+        glideSpeed = buffer.readExpression()
+        speed = buffer.readExpression()
+        canStrafe = buffer.readExpression()
+    }
 }

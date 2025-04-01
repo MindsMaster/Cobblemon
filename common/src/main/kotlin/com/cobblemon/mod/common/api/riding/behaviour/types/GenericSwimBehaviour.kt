@@ -11,6 +11,7 @@ import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.*
+import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
@@ -220,4 +221,28 @@ class GenericLiquidSettings : RidingBehaviourSettings {
 
     var strafeFactor = "0.2".asExpression()
         private set
+
+    override fun encode(buffer: RegistryFriendlyByteBuf) {
+        buffer.writeExpression(canJump)
+        buffer.writeExpression(jumpVector[0])
+        buffer.writeExpression(jumpVector[1])
+        buffer.writeExpression(jumpVector[2])
+        buffer.writeExpression(speed)
+        buffer.writeExpression(driveFactor)
+        buffer.writeExpression(reverseDriveFactor)
+        buffer.writeExpression(strafeFactor)
+    }
+
+    override fun decode(buffer: RegistryFriendlyByteBuf) {
+        canJump = buffer.readExpression()
+        jumpVector = listOf(
+            buffer.readExpression(),
+            buffer.readExpression(),
+            buffer.readExpression()
+        )
+        speed = buffer.readExpression()
+        driveFactor = buffer.readExpression()
+        reverseDriveFactor = buffer.readExpression()
+        strafeFactor = buffer.readExpression()
+    }
 }

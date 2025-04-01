@@ -269,6 +269,30 @@ class DolphinSettings : RidingBehaviourSettings {
 
     var strafeFactor = "0.2".asExpression()
         private set
+
+    override fun encode(buffer: RegistryFriendlyByteBuf) {
+        buffer.writeExpression(canJump)
+        buffer.writeExpression(jumpVector[0])
+        buffer.writeExpression(jumpVector[1])
+        buffer.writeExpression(jumpVector[2])
+        buffer.writeExpression(speed)
+        buffer.writeExpression(driveFactor)
+        buffer.writeExpression(reverseDriveFactor)
+        buffer.writeExpression(strafeFactor)
+    }
+
+    override fun decode(buffer: RegistryFriendlyByteBuf) {
+        canJump = buffer.readExpression()
+        jumpVector = listOf(
+            buffer.readExpression(),
+            buffer.readExpression(),
+            buffer.readExpression()
+        )
+        speed = buffer.readExpression()
+        driveFactor = buffer.readExpression()
+        reverseDriveFactor = buffer.readExpression()
+        strafeFactor = buffer.readExpression()
+    }
 }
 
 class DolphinState : RidingBehaviourState {

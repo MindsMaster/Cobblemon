@@ -213,6 +213,14 @@ class SwimDashBehaviour : RidingBehaviour<SwimDashSettings, SwimDashState> {
 class SwimDashSettings : RidingBehaviourSettings {
     var dashSpeed = 1F
         private set
+
+    override fun encode(buffer: RegistryFriendlyByteBuf) {
+        buffer.writeFloat(dashSpeed)
+    }
+
+    override fun decode(buffer: RegistryFriendlyByteBuf) {
+        dashSpeed = buffer.readFloat()
+    }
 }
 
 class SwimDashState : RidingBehaviourState {

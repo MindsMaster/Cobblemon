@@ -11,10 +11,7 @@ import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
-import com.cobblemon.mod.common.util.asExpression
-import com.cobblemon.mod.common.util.cobblemonResource
-import com.cobblemon.mod.common.util.resolveBoolean
-import com.cobblemon.mod.common.util.resolveDouble
+import com.cobblemon.mod.common.util.*
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
@@ -437,6 +434,28 @@ class BirdAirSettings : RidingBehaviourSettings {
     //Seconds self propelled flight (glide is not self propelled in this case)
     var staminaExpr: Expression = "q.get_ride_stats('STAMINA', 'AIR', 120.0, 20.0)".asExpression()
         private set
+
+    override fun encode(buffer: RegistryFriendlyByteBuf) {
+        buffer.writeExpression(altitudeExpr)
+        buffer.writeExpression(infiniteAltitude)
+        buffer.writeExpression(infiniteStamina)
+        buffer.writeExpression(handlingExpr)
+        buffer.writeExpression(topSpeedExpr)
+        buffer.writeExpression(glideTopSpeedExpr)
+        buffer.writeExpression(accelExpr)
+        buffer.writeExpression(staminaExpr)
+    }
+
+    override fun decode(buffer: RegistryFriendlyByteBuf) {
+        altitudeExpr = buffer.readExpression()
+        infiniteAltitude = buffer.readExpression()
+        infiniteStamina = buffer.readExpression()
+        handlingExpr = buffer.readExpression()
+        topSpeedExpr = buffer.readExpression()
+        glideTopSpeedExpr = buffer.readExpression()
+        accelExpr = buffer.readExpression()
+        staminaExpr = buffer.readExpression()
+    }
 }
 
 class BirdAirState : RidingBehaviourState {

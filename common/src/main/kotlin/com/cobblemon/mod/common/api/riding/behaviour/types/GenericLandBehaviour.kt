@@ -337,6 +337,36 @@ class GenericLandSettings : RidingBehaviourSettings {
     var handlingExpr: Expression = "q.get_ride_stats('SKILL', 'LAND', 140.0, 20.0)".asExpression()
         private set
 
+    override fun encode(buffer: RegistryFriendlyByteBuf) {
+        buffer.writeExpression(driveFactor)
+        buffer.writeExpression(strafeFactor)
+        buffer.writeExpression(reverseDriveFactor)
+        buffer.writeExpression(topSpeedExpr)
+        buffer.writeExpression(accelExpr)
+        buffer.writeExpression(jumpVector[0])
+        buffer.writeExpression(jumpVector[1])
+        buffer.writeExpression(jumpVector[2])
+        buffer.writeExpression(staminaExpr)
+        buffer.writeExpression(jumpExpr)
+        buffer.writeExpression(handlingExpr)
+    }
+
+    override fun decode(buffer: RegistryFriendlyByteBuf) {
+        driveFactor = buffer.readExpression()
+        strafeFactor = buffer.readExpression()
+        reverseDriveFactor = buffer.readExpression()
+        topSpeedExpr = buffer.readExpression()
+        accelExpr = buffer.readExpression()
+        jumpVector = listOf(
+            buffer.readExpression(),
+            buffer.readExpression(),
+            buffer.readExpression()
+        )
+        staminaExpr = buffer.readExpression()
+        jumpExpr = buffer.readExpression()
+        handlingExpr = buffer.readExpression()
+    }
+
 }
 
 class GenericLandState : RidingBehaviourState {

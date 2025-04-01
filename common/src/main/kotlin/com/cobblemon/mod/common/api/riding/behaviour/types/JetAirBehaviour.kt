@@ -10,10 +10,7 @@ import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
-import com.cobblemon.mod.common.util.asExpression
-import com.cobblemon.mod.common.util.cobblemonResource
-import com.cobblemon.mod.common.util.resolveBoolean
-import com.cobblemon.mod.common.util.resolveDouble
+import com.cobblemon.mod.common.util.*
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
@@ -361,6 +358,32 @@ class JetAirSettings : RidingBehaviourSettings {
 
     var infiniteAltitude: Expression = "false".asExpression()
         private set
+
+    override fun encode(buffer: RegistryFriendlyByteBuf) {
+        buffer.writeExpression(gravity)
+        buffer.writeExpression(minSpeed)
+        buffer.writeExpression(handlingExpr)
+        buffer.writeExpression(handlingYawExpr)
+        buffer.writeExpression(topSpeedExpr)
+        buffer.writeExpression(accelExpr)
+        buffer.writeExpression(staminaExpr)
+        buffer.writeExpression(jumpExpr)
+        buffer.writeExpression(infiniteStamina)
+        buffer.writeExpression(infiniteAltitude)
+    }
+
+    override fun decode(buffer: RegistryFriendlyByteBuf) {
+        gravity = buffer.readExpression()
+        minSpeed = buffer.readExpression()
+        handlingExpr = buffer.readExpression()
+        handlingYawExpr = buffer.readExpression()
+        topSpeedExpr = buffer.readExpression()
+        accelExpr = buffer.readExpression()
+        staminaExpr = buffer.readExpression()
+        jumpExpr = buffer.readExpression()
+        infiniteStamina = buffer.readExpression()
+        infiniteAltitude = buffer.readExpression()
+    }
 }
 
 class JetAirState : RidingBehaviourState {

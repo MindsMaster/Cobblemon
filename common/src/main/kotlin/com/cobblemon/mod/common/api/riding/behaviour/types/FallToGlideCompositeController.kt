@@ -9,9 +9,7 @@ import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonBehaviourFlag
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.pokemon.riding.controllers.GliderAirController
-import com.cobblemon.mod.common.util.asExpression
-import com.cobblemon.mod.common.util.cobblemonResource
-import com.cobblemon.mod.common.util.resolveFloat
+import com.cobblemon.mod.common.util.*
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SmoothDouble
@@ -372,6 +370,20 @@ class FallToGlideCompositeSettings : RidingBehaviourSettings {
 
     var minimumFallSpeed: Expression = "0.5".asExpression()
         private set
+
+    override fun encode(buffer: RegistryFriendlyByteBuf) {
+        glide.encode(buffer)
+        land.encode(buffer)
+        buffer.writeExpression(minimumForwardSpeed)
+        buffer.writeExpression(minimumFallSpeed)
+    }
+
+    override fun decode(buffer: RegistryFriendlyByteBuf) {
+        glide.decode(buffer)
+        land.decode(buffer)
+        minimumForwardSpeed = buffer.readExpression()
+        minimumFallSpeed = buffer.readExpression()
+    }
 }
 
 class FallToGlideCompositeState : RidingBehaviourState {
