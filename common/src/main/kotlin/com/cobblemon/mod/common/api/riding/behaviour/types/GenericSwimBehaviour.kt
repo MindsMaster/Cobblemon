@@ -12,6 +12,7 @@ import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.*
 import net.minecraft.network.RegistryFriendlyByteBuf
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
@@ -24,8 +25,10 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, NoState> {
         val KEY = cobblemonResource("swim/generic")
     }
 
-    val poseProvider: PoseProvider = PoseProvider(PoseType.FLOAT)
-        .with(PoseOption(PoseType.SWIM) { it.isSwimming && it.entityData.get(PokemonEntity.MOVING) })
+    override val key = KEY
+
+    val poseProvider = PoseProvider<GenericSwimSettings, NoState>(PoseType.FLOAT)
+        .with(PoseOption(PoseType.SWIM) { _, _, entity -> entity.isSwimming && entity.entityData.get(PokemonEntity.MOVING) })
 
     override fun isActive(settings: GenericSwimSettings, state: NoState, vehicle: PokemonEntity): Boolean {
         return Shapes.create(vehicle.boundingBox).blockPositionsAsListRounded().any {
@@ -38,7 +41,7 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, NoState> {
     }
 
     override fun pose(settings: GenericSwimSettings, state: NoState, vehicle: PokemonEntity): PoseType {
-        return poseProvider.select(vehicle)
+        return poseProvider.select(settings, state, vehicle)
     }
 
     override fun speed(settings: GenericSwimSettings, state: NoState, vehicle: PokemonEntity, driver: Player): Float {

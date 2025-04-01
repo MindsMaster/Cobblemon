@@ -12,6 +12,7 @@ import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.*
 import net.minecraft.network.RegistryFriendlyByteBuf
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
@@ -28,8 +29,10 @@ class HelicopterBehaviour : RidingBehaviour<HelicopterSettings, NoState> {
         val ROTATION_LIMIT = 30.0f
     }
 
-    val poseProvider = PoseProvider(PoseType.HOVER)
-        .with(PoseOption(PoseType.FLY) { it.entityData.get(PokemonEntity.MOVING) })
+    override val key = KEY
+
+    val poseProvider = PoseProvider<HelicopterSettings, NoState>(PoseType.HOVER)
+        .with(PoseOption(PoseType.FLY) { _, _, entity -> entity.entityData.get(PokemonEntity.MOVING) })
 
     override fun isActive(settings: HelicopterSettings, state: NoState, vehicle: PokemonEntity): Boolean {
         //If there are only fluid blocks or air block below the ride
@@ -46,7 +49,7 @@ class HelicopterBehaviour : RidingBehaviour<HelicopterSettings, NoState> {
     }
 
     override fun pose(settings: HelicopterSettings, state: NoState, vehicle: PokemonEntity): PoseType {
-        return poseProvider.select(vehicle)
+        return poseProvider.select(settings, state, vehicle)
     }
 
     override fun speed(settings: HelicopterSettings, state: NoState, vehicle: PokemonEntity, driver: Player): Float {

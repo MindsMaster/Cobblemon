@@ -8,8 +8,12 @@
 
 package com.cobblemon.mod.common.api.riding.posing
 
+import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviourSettings
+import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviourState
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
-import java.util.function.Predicate
 
-data class PoseOption(val pose: PoseType, val condition: Predicate<PokemonEntity>)
+data class PoseOption<Settings : RidingBehaviourSettings, State : RidingBehaviourState>(
+    val pose: PoseType,
+    val condition: (Settings, State, PokemonEntity) -> Boolean
+)

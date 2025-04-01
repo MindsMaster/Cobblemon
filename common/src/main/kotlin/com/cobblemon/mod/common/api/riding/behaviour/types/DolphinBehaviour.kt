@@ -12,6 +12,7 @@ import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.*
 import net.minecraft.network.RegistryFriendlyByteBuf
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
@@ -27,8 +28,10 @@ class DolphinBehaviour : RidingBehaviour<DolphinSettings, DolphinState> {
         val KEY = cobblemonResource("swim/dolphin")
     }
 
-    val poseProvider: PoseProvider = PoseProvider(PoseType.FLOAT)
-        .with(PoseOption(PoseType.SWIM) { it.entityData.get(PokemonEntity.MOVING) })
+    override val key = KEY
+
+    val poseProvider = PoseProvider<DolphinSettings, DolphinState>(PoseType.FLOAT)
+        .with(PoseOption(PoseType.SWIM) { _, _, entity -> entity.entityData.get(PokemonEntity.MOVING) })
 
     override fun isActive(settings: DolphinSettings, state: DolphinState, vehicle: PokemonEntity): Boolean {
         return Shapes.create(vehicle.boundingBox).blockPositionsAsListRounded().any {
@@ -42,7 +45,7 @@ class DolphinBehaviour : RidingBehaviour<DolphinSettings, DolphinState> {
     }
 
     override fun pose(settings: DolphinSettings, state: DolphinState, vehicle: PokemonEntity): PoseType {
-        return poseProvider.select(vehicle)
+        return poseProvider.select(settings, state, vehicle)
     }
 
     override fun speed(settings: DolphinSettings, state: DolphinState, vehicle: PokemonEntity, driver: Player): Float {
@@ -310,4 +313,7 @@ class DolphinState : RidingBehaviourState {
         lastVelocity = Vec3.ZERO
     }
 
+    override fun toString(): String {
+        return "DolphinState(lastVelocity=$lastVelocity)"
+    }
 }

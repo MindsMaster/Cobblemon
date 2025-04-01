@@ -22,6 +22,8 @@ class FallToGlideCompositeBehaviour : RidingBehaviour<FallToGlideCompositeSettin
         val KEY = cobblemonResource("composite/fall_to_glide")
     }
 
+    override val key = KEY
+
     val landBehaviour: GenericLandBehaviour = GenericLandBehaviour()
     val glideBehaviour: GliderAirBehaviour = GliderAirBehaviour()
 
@@ -399,8 +401,9 @@ class FallToGlideCompositeState : RidingBehaviourState {
 
     var activeController: ResourceLocation = GenericLandBehaviour.KEY
         set(value) {
+            if (field != value)
+                isDirty = true
             field = value
-            _isDirty = true
         }
 
     var landState: GenericLandState = GenericLandState()
@@ -408,15 +411,22 @@ class FallToGlideCompositeState : RidingBehaviourState {
     var timeTransitioned = -100L
 
     override fun encode(buffer: RegistryFriendlyByteBuf) {
-        TODO("Not yet implemented")
+        buffer.writeResourceLocation(activeController)
+        landState.encode(buffer)
     }
 
     override fun decode(buffer: RegistryFriendlyByteBuf) {
-        TODO("Not yet implemented")
+        activeController = buffer.readResourceLocation()
+        landState.decode(buffer)
     }
 
     override fun reset() {
-        TODO("Not yet implemented")
+        activeController = GenericLandBehaviour.KEY
+        landState.reset()
+        timeTransitioned = -100L
     }
 
+    override fun toString(): String {
+        return "FallToGlideCompositeState(activeController=$activeController, landState=$landState, timeTransitioned=$timeTransitioned)"
+    }
 }

@@ -8,22 +8,24 @@
 
 package com.cobblemon.mod.common.api.riding.posing
 
+import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviourSettings
+import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviourState
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 
-class PoseProvider(private val fallback: PoseType) {
+class PoseProvider<Settings : RidingBehaviourSettings, State : RidingBehaviourState>(private val fallback: PoseType) {
 
-    private val options = mutableListOf<PoseOption>()
+    private val options = mutableListOf<PoseOption<Settings, State>>()
 
-    fun select(entity: PokemonEntity) : PoseType {
+    fun select(settings: Settings, state: State, entity: PokemonEntity) : PoseType {
         return this.options.stream()
-            .filter { it.condition.test(entity) }
+            .filter { it.condition(settings, state, entity) }
             .map { it.pose }
             .findFirst()
             .orElse(this.fallback)
     }
 
-    fun with(option: PoseOption) : PoseProvider {
+    fun with(option: PoseOption<Settings, State>) : PoseProvider<Settings, State> {
         this.options.add(option)
         return this
     }

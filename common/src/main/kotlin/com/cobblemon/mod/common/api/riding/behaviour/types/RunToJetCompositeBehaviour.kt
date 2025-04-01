@@ -24,6 +24,8 @@ class RunToJetCompositeBehaviour : RidingBehaviour<RunToJetCompositeSettings, Ru
         val KEY = cobblemonResource("composite/run_to_jet")
     }
 
+    override val key = KEY
+
     val landBehaviour: GenericLandBehaviour = GenericLandBehaviour()
     val jetBehaviour: JetAirBehaviour = JetAirBehaviour()
 
@@ -408,8 +410,9 @@ class RunToJetCompositeState : RidingBehaviourState {
 
     var activeController: ResourceLocation = GenericLandBehaviour.KEY
         set(value) {
+            if (field != value)
+                isDirty = true
             field = value
-            _isDirty = true
         }
 
     var landState: GenericLandState = GenericLandState()
@@ -437,4 +440,7 @@ class RunToJetCompositeState : RidingBehaviourState {
         currSpeed = 0.0
     }
 
+    override fun toString(): String {
+        return "RunToJetCompositeState(activeController=$activeController, landState=$landState, flightState=$flightState, currSpeed=$currSpeed, timeTransitioned=$timeTransitioned)"
+    }
 }

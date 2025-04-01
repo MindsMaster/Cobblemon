@@ -26,8 +26,12 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
         val KEY = cobblemonResource("land/generic")
     }
 
-    val poseProvider: PoseProvider = PoseProvider(PoseType.STAND)
-        .with(PoseOption(PoseType.WALK) { it.entityData.get(PokemonEntity.MOVING) })
+    override val key = KEY
+
+    val poseProvider = PoseProvider<GenericLandSettings, GenericLandState>(PoseType.STAND)
+        .with(PoseOption(PoseType.WALK) { _, state, _ ->
+            return@PoseOption state.rideVel.z > 0.1
+        })
 
     override fun isActive(
         settings: GenericLandSettings,
@@ -53,7 +57,7 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
         state: GenericLandState,
         vehicle: PokemonEntity
     ): PoseType {
-        return this.poseProvider.select(vehicle)
+        return this.poseProvider.select(settings, state, vehicle)
     }
 
     override fun speed(
@@ -91,11 +95,13 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
         }
         val gravity = -1.0
 
-        calculateRideSpaceVel(settings, state, vehicle, driver)
+        val newVelocity = calculateRideSpaceVel(settings, state, vehicle, driver)
 
         //Jump the thang!
         if (driver.jumping && vehicle.onGround()) {
-            state.rideVel = Vec3(state.rideVel.x, 2.0, state.rideVel.z)
+            state.rideVel = Vec3(newVelocity.x, 2.0, newVelocity.z)
+        } else {
+            state.rideVel = newVelocity
         }
 
         //This is cheap.
@@ -114,34 +120,37 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
         state: GenericLandState,
         vehicle: PokemonEntity,
         driver: Player
-    ) {
+    ): Vec3 {
         val topSpeed = vehicle.runtime.resolveDouble(settings.topSpeedExpr)
         val accel = vehicle.runtime.resolveDouble(settings.accelExpr)
         val speed = state.rideVel.length()
 
         val minSpeed = 0.0
 
+        var newVelocity = Vec3(state.rideVel.x, state.rideVel.y, state.rideVel.z)
+
         //speed up and slow down based on input
         if (driver.zza > 0.0 && speed <= topSpeed && state.stamina > 0.0f) {
             //modify acceleration to be slower when at closer speeds to top speed
             val accelMod = max((normalizeSpeed(speed, minSpeed, topSpeed) - 1).pow(2), 0.1)
-            state.rideVel = Vec3(state.rideVel.x, state.rideVel.y, min(state.rideVel.z + (accel * accelMod), topSpeed))
+            newVelocity = Vec3(newVelocity.x, newVelocity.y, min(newVelocity.z + (accel * accelMod), topSpeed))
         } else if (driver.zza >= 0.0 && state.stamina == 0.0f || speed > topSpeed) {
-            state.rideVel = Vec3(state.rideVel.x, state.rideVel.y, max(state.rideVel.z - ((accel) / 4), minSpeed))
+            newVelocity = Vec3(newVelocity.x, newVelocity.y, max(newVelocity.z - ((accel) / 4), minSpeed))
         } else if (driver.zza < 0.0 && speed > minSpeed) {
             //modify deccel to be slower when at closer speeds to minimum speed
             val deccelMod = max(-(normalizeSpeed(speed, minSpeed, topSpeed)) + 1, 0.0)
 
             //Decelerate currently always a constant half of max acceleration.
-            state.rideVel =
-                Vec3(state.rideVel.x, state.rideVel.y, max(state.rideVel.z - ((accel * deccelMod) / 2), minSpeed))
+            newVelocity =
+                Vec3(newVelocity.x, newVelocity.y, max(newVelocity.z - ((accel * deccelMod) / 2), minSpeed))
         }
-
-        state.rideVel = Vec3(state.rideVel.x, max(state.rideVel.y - 0.2, -1.0), state.rideVel.z)
 
         if (vehicle.onGround()) {
-            state.rideVel = Vec3(state.rideVel.x, 0.0, state.rideVel.z)
+            newVelocity = Vec3(newVelocity.x, 0.0, newVelocity.z)
+        } else {
+            newVelocity = Vec3(newVelocity.x, max(newVelocity.y - 0.2, -1.0), newVelocity.z)
         }
+        return newVelocity
     }
 
     /*
@@ -200,8 +209,8 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
         driver: Player
     ): Float {
         //Retrieve stamina from state and tick up at a rate of 0.1 a second
-        val staminaGain = (1.0 / 20.0)*0.1
-        state.stamina = min(state.stamina + staminaGain,1.0).toFloat()
+        val staminaGain = (1.0 / 20.0) * 0.1
+        state.stamina = min(state.stamina + staminaGain, 1.0).toFloat()
         return (state.stamina / 1.0f)
     }
 
@@ -375,14 +384,18 @@ class GenericLandState : RidingBehaviourState {
 
     var rideVel: Vec3 = Vec3.ZERO
         set(value) {
+            if (field != value) {
+                isDirty = true
+            }
             field = value
-            isDirty = true
         }
 
     var stamina: Float = 1.0f
         set(value) {
+            if (field != value) {
+                isDirty = true
+            }
             field = value
-            isDirty = true
         }
 
     var currSpeed = 0.0
@@ -402,5 +415,9 @@ class GenericLandState : RidingBehaviourState {
         rideVel = Vec3.ZERO
         stamina = 1.0f
         currSpeed = 0.0
+    }
+
+    override fun toString(): String {
+        return "GenericLandState(rideVel=$rideVel, stamina=$stamina, currSpeed=$currSpeed)"
     }
 }

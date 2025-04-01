@@ -12,6 +12,7 @@ import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.*
 import net.minecraft.network.RegistryFriendlyByteBuf
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
@@ -24,15 +25,17 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
         val KEY = cobblemonResource("air/jet")
     }
 
-    val poseProvider = PoseProvider(PoseType.HOVER)
-        .with(PoseOption(PoseType.FLY) { it.entityData.get(PokemonEntity.MOVING) })
+    override val key = KEY
+
+    val poseProvider = PoseProvider<JetAirSettings, JetAirState>(PoseType.HOVER)
+        .with(PoseOption(PoseType.FLY) { _, state, _ -> state.rideVel.z > 0.1 })
 
     override fun isActive(settings: JetAirSettings, state: JetAirState, vehicle: PokemonEntity): Boolean {
         return true
     }
 
     override fun pose(settings: JetAirSettings, state: JetAirState, vehicle: PokemonEntity): PoseType {
-        return poseProvider.select(vehicle)
+        return poseProvider.select(settings, state, vehicle)
     }
 
     override fun speed(settings: JetAirSettings, state: JetAirState, vehicle: PokemonEntity, driver: Player): Float {
@@ -393,20 +396,23 @@ class JetAirState : RidingBehaviourState {
 
     var currSpeed: Double = 0.0
         set(value) {
+            if (field != value)
+                isDirty = true
             field = value
-            isDirty = true
         }
 
     var stamina: Float = 1.0f
         set(value) {
+            if (field != value)
+                isDirty = true
             field = value
-            isDirty = true
         }
 
     var rideVel: Vec3 = Vec3.ZERO
         set(value) {
+            if (field != value)
+                isDirty = true
             field = value
-            isDirty = true
         }
 
     var currMouseXForce: Double = 0.0
@@ -432,5 +438,9 @@ class JetAirState : RidingBehaviourState {
         rideVel = Vec3.ZERO
         currMouseXForce = 0.0
         currMouseYForce = 0.0
+    }
+
+    override fun toString(): String {
+        return "JetAirState(currSpeed=$currSpeed, stamina=$stamina, rideVel=$rideVel, currMouseXForce=$currMouseXForce, currMouseYForce=$currMouseYForce)"
     }
 }

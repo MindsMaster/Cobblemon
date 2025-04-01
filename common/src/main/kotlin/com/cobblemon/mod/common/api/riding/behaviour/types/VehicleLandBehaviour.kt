@@ -14,6 +14,7 @@ import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.*
 import net.minecraft.network.RegistryFriendlyByteBuf
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
@@ -45,8 +46,10 @@ class VehicleLandBehaviour : RidingBehaviour<VehicleLandSettings, VehicleLandSta
         val MIN_YAW_HANDLING = 8.0
     }
 
-    val poseProvider: PoseProvider = PoseProvider(PoseType.STAND)
-        .with(PoseOption(PoseType.WALK) { it.entityData.get(PokemonEntity.MOVING) })
+    override val key = KEY
+
+    val poseProvider = PoseProvider<VehicleLandSettings, VehicleLandState>(PoseType.STAND)
+        .with(PoseOption(PoseType.WALK) { _, _, entity -> entity.entityData.get(PokemonEntity.MOVING) })
 
     override fun isActive(settings: VehicleLandSettings, state: VehicleLandState, vehicle: PokemonEntity): Boolean {
         return Shapes.create(vehicle.boundingBox).blockPositionsAsListRounded().any {
@@ -64,7 +67,7 @@ class VehicleLandBehaviour : RidingBehaviour<VehicleLandSettings, VehicleLandSta
     }
 
     override fun pose(settings: VehicleLandSettings, state: VehicleLandState, vehicle: PokemonEntity): PoseType {
-        return poseProvider.select(vehicle)
+        return poseProvider.select(settings, state, vehicle)
     }
 
     override fun speed(
@@ -325,5 +328,9 @@ class VehicleLandState : RidingBehaviourState {
 
     override fun reset() {
         currSpeed = 0.0
+    }
+
+    override fun toString(): String {
+        return "VehicleLandState(currSpeed=$currSpeed, deltaRotation=$deltaRotation)"
     }
 }

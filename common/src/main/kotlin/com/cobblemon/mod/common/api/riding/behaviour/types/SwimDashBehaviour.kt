@@ -12,6 +12,7 @@ import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.blockPositionsAsListRounded
 import com.cobblemon.mod.common.util.cobblemonResource
 import net.minecraft.network.RegistryFriendlyByteBuf
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
@@ -25,8 +26,10 @@ class SwimDashBehaviour : RidingBehaviour<SwimDashSettings, SwimDashState> {
         const val DASH_TICKS: Int = 60
     }
 
-    val poseProvider: PoseProvider = PoseProvider(PoseType.FLOAT)
-        .with(PoseOption(PoseType.SWIM) { it.isSwimming && it.entityData.get(PokemonEntity.MOVING) })
+    override val key = KEY
+
+    val poseProvider = PoseProvider<SwimDashSettings, SwimDashState>(PoseType.FLOAT)
+        .with(PoseOption(PoseType.SWIM) { _, _, entity -> entity.isSwimming && entity.entityData.get(PokemonEntity.MOVING) })
 
     override fun isActive(settings: SwimDashSettings, state: SwimDashState, vehicle: PokemonEntity): Boolean {
         //This could be kinda weird... what if the top of the mon is in a fluid but the bottom isnt?
@@ -40,7 +43,7 @@ class SwimDashBehaviour : RidingBehaviour<SwimDashSettings, SwimDashState> {
     }
 
     override fun pose(settings: SwimDashSettings, state: SwimDashState, vehicle: PokemonEntity): PoseType {
-        return poseProvider.select(vehicle)
+        return poseProvider.select(settings, state, vehicle)
     }
 
     override fun speed(
@@ -236,5 +239,9 @@ class SwimDashState : RidingBehaviourState {
     override fun reset() {
         dashing = false
         ticks = 0
+    }
+
+    override fun toString(): String {
+        return "SwimDashState(dashing=$dashing, ticks=$ticks)"
     }
 }

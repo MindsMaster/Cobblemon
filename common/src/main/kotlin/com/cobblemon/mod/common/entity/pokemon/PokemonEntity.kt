@@ -1573,8 +1573,14 @@ open class PokemonEntity(
             val inertia = ifRidingAvailableSupply(fallback = 0.5) { behaviour, settings, state ->
                 behaviour.inertia(settings, state,this)
             }
-            this.deltaMovement = this.deltaMovement.lerp(v, inertia);
-            this.move(MoverType.SELF, this.deltaMovement.scale(this.speed.toDouble()))
+
+            // TODO: jackowes look over this so I don't accidentally break anything
+            this.deltaMovement = this.deltaMovement.lerp(v, inertia)
+            var pos = this.deltaMovement.scale(this.speed.toDouble())
+            if (super.onGround() && this.deltaMovement.y == 0.0) {
+                pos = pos.subtract(0.0, 0.0001, 0.0)
+            }
+            this.move(MoverType.SELF, pos)
         }
 
         return this.deltaMovement
@@ -1869,8 +1875,12 @@ open class PokemonEntity(
         ifRidingAvailable { behaviour, settings, state ->
             behaviour.tick(settings, state, this, driver, movementInput)
 
-            val pose = behaviour.pose(settings, state, this)
-            entityData.set(POSE_TYPE, pose)
+            if (!this.level().isClientSide) {
+                val pose = behaviour.pose(settings, state, this)
+                if (pose != this.entityData.get(POSE_TYPE)) {
+                    entityData.set(POSE_TYPE, pose)
+                }
+            }
 
             val rotation = behaviour.rotation(settings, state, this, driver)
             setRot(rotation.y, rotation.x)

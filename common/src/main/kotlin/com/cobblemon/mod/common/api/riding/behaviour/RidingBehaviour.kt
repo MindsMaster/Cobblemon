@@ -2,6 +2,7 @@ package com.cobblemon.mod.common.api.riding.behaviour
 
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
@@ -17,6 +18,7 @@ import net.minecraft.world.phys.Vec3
  * @author landonjw
  */
 interface RidingBehaviour<Settings : RidingBehaviourSettings, State : RidingBehaviourState> {
+    val key: ResourceLocation
 
     fun isActive(settings: Settings, state: State, vehicle: PokemonEntity): Boolean
 

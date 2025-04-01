@@ -13,6 +13,7 @@ import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.*
 import net.minecraft.network.RegistryFriendlyByteBuf
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
@@ -25,15 +26,17 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
         val KEY = cobblemonResource("air/bird")
     }
 
-    val poseProvider = PoseProvider(PoseType.HOVER)
-        .with(PoseOption(PoseType.FLY) { it.entityData.get(PokemonEntity.MOVING) })
+    override val key: ResourceLocation = KEY
+
+    val poseProvider = PoseProvider<BirdAirSettings, BirdAirState>(PoseType.HOVER)
+        .with(PoseOption(PoseType.FLY) { _, state, _ -> state.rideVel.z > 0.1 })
 
     override fun isActive(settings: BirdAirSettings, state: BirdAirState, vehicle: PokemonEntity): Boolean {
         return true
     }
 
     override fun pose(settings: BirdAirSettings, state: BirdAirState, vehicle: PokemonEntity): PoseType {
-        return poseProvider.select(vehicle)
+        return poseProvider.select(settings, state, vehicle)
     }
 
     override fun speed(
@@ -116,19 +119,21 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
         //Flag for determining if player is actively inputting
         var activeInput = false
 
+        var newVelocity = Vec3(state.rideVel.x, state.rideVel.y, state.rideVel.z)
+
         //speed up and slow down based on input
         if (driver.zza != 0.0f && state.stamina > 0.0) {
             //make sure it can't exceed top speed
             val forwardInput = when {
-                driver.zza > 0 && state.rideVel.z > topSpeed -> 0.0
-                driver.zza < 0 && state.rideVel.z < (-topSpeed / 3.0) -> 0.0
+                driver.zza > 0 && newVelocity.z > topSpeed -> 0.0
+                driver.zza < 0 && newVelocity.z < (-topSpeed / 3.0) -> 0.0
                 else -> driver.zza.sign
             }
 
-            state.rideVel = Vec3(
-                state.rideVel.x,
-                state.rideVel.y,
-                (state.rideVel.z + (accel * forwardInput.toDouble())))
+            newVelocity = Vec3(
+                newVelocity.x,
+                newVelocity.y,
+                (newVelocity.z + (accel * forwardInput.toDouble())))
 
             activeInput = true
         }
@@ -146,20 +151,20 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
                 if (driver.zza <= 0) {
                     //speed decrease should be 2x speed increase?
                     //state.currSpeed = max(state.currSpeed + (0.0166) * glideSpeedChange, 0.0 )
-                    state.rideVel = Vec3(
-                        state.rideVel.x,
-                        state.rideVel.y,
-                        lerp( state.rideVel.z, 0.0,glideSpeedChange * -0.0166 * 2 )
+                    newVelocity = Vec3(
+                        newVelocity.x,
+                        newVelocity.y,
+                        lerp( newVelocity.z, 0.0,glideSpeedChange * -0.0166 * 2 )
                     )
                 }
             } else {
                 // only add to the speed if it hasn't exceeded the current
                 //glide angles maximum amount of speed that it can give.
                 //state.currSpeed = min(state.currSpeed + ((0.0166 * 2) * glideSpeedChange), maxGlideSpeed)
-                state.rideVel = Vec3(
-                    state.rideVel.x,
-                    state.rideVel.y,
-                    min(state.rideVel.z + ((0.0166 * 2) * glideSpeedChange), glideTopSpeed)
+                newVelocity = Vec3(
+                    newVelocity.x,
+                    newVelocity.y,
+                    min(newVelocity.z + ((0.0166 * 2) * glideSpeedChange), glideTopSpeed)
                 )
             }
         }
@@ -167,17 +172,17 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
         //Lateral movement based on driver input.
         val latTopSpeed = topSpeed / 2.0
         if (driver.xxa != 0.0f && state.stamina > 0.0) {
-            state.rideVel = Vec3(
-                (state.rideVel.x + (accel * driver.xxa)).coerceIn(-latTopSpeed, latTopSpeed),
-                state.rideVel.y,
-                state.rideVel.z)
+            newVelocity = Vec3(
+                (newVelocity.x + (accel * driver.xxa)).coerceIn(-latTopSpeed, latTopSpeed),
+                newVelocity.y,
+                newVelocity.z)
             activeInput = true
         }
         else {
-            state.rideVel = Vec3(
-                lerp(state.rideVel.x, 0.0, latTopSpeed / 20.0),
-                state.rideVel.y,
-                state.rideVel.z)
+            newVelocity = Vec3(
+                lerp(newVelocity.x, 0.0, latTopSpeed / 20.0),
+                newVelocity.y,
+                newVelocity.z)
         }
 
         //Vertical movement based on driver input.
@@ -189,17 +194,17 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
         }
 
         if (vertInput != 0.0 && state.stamina > 0.0) {
-            state.rideVel = Vec3(
-                state.rideVel.x,
-                (state.rideVel.y + (accel * vertInput)).coerceIn(-vertTopSpeed, vertTopSpeed),
-                state.rideVel.z)
+            newVelocity = Vec3(
+                newVelocity.x,
+                (newVelocity.y + (accel * vertInput)).coerceIn(-vertTopSpeed, vertTopSpeed),
+                newVelocity.z)
             activeInput = true
         }
         else {
-            state.rideVel = Vec3(
-                state.rideVel.x,
-                lerp(state.rideVel.y, 0.0, vertTopSpeed / 20.0),
-                state.rideVel.z)
+            newVelocity = Vec3(
+                newVelocity.x,
+                lerp(newVelocity.y, 0.0, vertTopSpeed / 20.0),
+                newVelocity.z)
         }
 
         //Check if the ride should be gliding
@@ -224,11 +229,12 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
         }
 
         //air resistance
-        state.rideVel = Vec3(
-            state.rideVel.x,
-            state.rideVel.y,
-            lerp( state.rideVel.z,0.0, topSpeed / ( 20.0 * 30.0))
+        newVelocity = Vec3(
+            newVelocity.x,
+            newVelocity.y,
+            lerp( newVelocity.z,0.0, topSpeed / ( 20.0 * 30.0))
         )
+        state.rideVel = newVelocity
     }
 
     override fun angRollVel(
@@ -465,20 +471,26 @@ class BirdAirState : RidingBehaviourState {
 
     var rideVel: Vec3 = Vec3.ZERO
         set(value) {
+            if (field != value) {
+                isDirty = true
+            }
             field = value
-            isDirty = true
         }
 
     var stamina: Float = 1.0f
         set(value) {
+            if (field != value) {
+                isDirty = true
+            }
             field = value
-            isDirty = true
         }
 
     var gliding: Boolean = false
         set(value) {
+            if (field != value) {
+                isDirty = true
+            }
             field = value
-            isDirty = true
         }
 
     override fun encode(buffer: RegistryFriendlyByteBuf) {
@@ -498,5 +510,9 @@ class BirdAirState : RidingBehaviourState {
         rideVel = Vec3.ZERO
         stamina = 1.0f
         gliding = false
+    }
+
+    override fun toString(): String {
+        return "BirdAirState(rideVel=$rideVel, stamina=$stamina, gliding=$gliding)"
     }
 }

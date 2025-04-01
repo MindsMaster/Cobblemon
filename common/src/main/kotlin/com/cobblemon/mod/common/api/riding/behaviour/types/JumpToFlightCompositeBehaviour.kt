@@ -24,6 +24,8 @@ class JumpToFlightCompositeBehaviour : RidingBehaviour<JumpToFlightCompositeSett
         val KEY = cobblemonResource("composite/jump_to_flight")
     }
 
+    override val key = KEY
+
     val landBehaviour: GenericLandBehaviour = GenericLandBehaviour()
     val birdBehaviour: BirdAirBehaviour = BirdAirBehaviour()
 
@@ -427,8 +429,11 @@ class JumpToFlightCompositeState : RidingBehaviourState {
 
     var activeController: ResourceLocation = GenericLandBehaviour.KEY
         set(value) {
+            if (field != value) {
+                println("jtf active controller dirty")
+                isDirty = true
+            }
             field = value
-            _isDirty = true
         }
 
     var landState: GenericLandState = GenericLandState()
@@ -456,4 +461,7 @@ class JumpToFlightCompositeState : RidingBehaviourState {
         currSpeed = 0.0
     }
 
+    override fun toString(): String {
+        return "JumpToFlightCompositeState(activeController=$activeController, landState=$landState, flightState=$flightState, currSpeed=$currSpeed, timeTransitioned=$timeTransitioned)"
+    }
 }

@@ -14,6 +14,7 @@ import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.*
 import net.minecraft.network.RegistryFriendlyByteBuf
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
@@ -25,15 +26,17 @@ class GliderAirBehaviour : RidingBehaviour<GliderAirSettings, NoState> {
         val KEY = cobblemonResource("air/glider")
     }
 
-    val poseProvider = PoseProvider(PoseType.HOVER)
-        .with(PoseOption(PoseType.FLY) { it.entityData.get(PokemonEntity.MOVING) })
+    override val key = KEY
+
+    val poseProvider = PoseProvider<GliderAirSettings, NoState>(PoseType.HOVER)
+        .with(PoseOption(PoseType.FLY) { _, _, entity -> entity.entityData.get(PokemonEntity.MOVING) })
 
     override fun isActive(settings: GliderAirSettings, state: NoState, vehicle: PokemonEntity): Boolean {
         return true
     }
 
     override fun pose(settings: GliderAirSettings, state: NoState, vehicle: PokemonEntity): PoseType {
-        return poseProvider.select(vehicle)
+        return poseProvider.select(settings, state, vehicle)
     }
 
     override fun speed(settings: GliderAirSettings, state: NoState, vehicle: PokemonEntity, driver: Player): Float {
