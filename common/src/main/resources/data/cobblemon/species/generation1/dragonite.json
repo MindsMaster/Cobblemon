@@ -289,5 +289,26 @@
     "special:healbell"
   ],
   "preEvolution": "dragonair",
-  "evolutions": []
+  "evolutions": [],
+  "riding": {
+    "stats": {
+      "SPEED": {
+        "ranges": "30-60"
+      },
+      "ACCELERATION": {
+        "ranges": "30-65"
+      },
+      "SKILL": {
+        "ranges": "30-60"
+      },
+      "JUMP": {
+        "ranges": "30-60"
+      },
+      "STAMINA": {
+        "ranges": "35-75"
+      }
+    },
+    "seats": [],
+    "controller": null
+  }
 }
