@@ -182,9 +182,9 @@ public class MouseHandlerMixin {
         var playerVehicle = player.getVehicle();
         if (playerVehicle == null) return Vec3.ZERO;
         if (!(playerVehicle instanceof PokemonEntity pokemonEntity)) return Vec3.ZERO;
-        if (pokemonEntity.getRidingController() == null) return Vec3.ZERO;
-        if (!pokemonEntity.getRidingController().isActive(pokemonEntity)) return Vec3.ZERO;
-        return pokemonEntity.getRidingController().angRollVel(pokemonEntity, player, deltaTime);
+        return pokemonEntity.ifRidingAvailableSupply(Vec3.ZERO, (behaviour, settings, state) -> {
+            return behaviour.angRollVel(settings, state, pokemonEntity, player, deltaTime);
+        });
     }
 
     @Unique
@@ -193,22 +193,23 @@ public class MouseHandlerMixin {
         if (player == null) return Vec3.ZERO;
         var vehicle = player.getVehicle();
         if (vehicle == null) return Vec3.ZERO;
-        if (!(vehicle instanceof PokemonEntity pokemon)) return Vec3.ZERO;
+        if (!(vehicle instanceof PokemonEntity pokemonEntity)) return Vec3.ZERO;
 
         var sensitivity = cobblemon$getRidingSensitivity();
-        if (pokemon.getRidingController() == null) return Vec3.ZERO;
-        if (!pokemon.getRidingController().isActive(pokemon)) return Vec3.ZERO;
-
-        return pokemon.getRidingController().rotationOnMouseXY(
-                pokemon,
-                player,
-                mouseY,
-                mouseX,
-                yMouseSmoother,
-                xMouseSmoother,
-                sensitivity,
-                deltaTime
-        );
+        return pokemonEntity.ifRidingAvailableSupply(Vec3.ZERO, (behaviour, settings, state) -> {
+            return behaviour.rotationOnMouseXY(
+                    settings,
+                    state,
+                    pokemonEntity,
+                    player,
+                    mouseY,
+                    mouseX,
+                    yMouseSmoother,
+                    xMouseSmoother,
+                    sensitivity,
+                    deltaTime
+            );
+        });
     }
 
     @Unique
@@ -225,9 +226,9 @@ public class MouseHandlerMixin {
         var playerVehicle = player.getVehicle();
         if (playerVehicle == null) return true;
         if (!(playerVehicle instanceof PokemonEntity pokemonEntity)) return true;
-        if (pokemonEntity.getRidingController() == null) return true;
-        if (!pokemonEntity.getRidingController().isActive(pokemonEntity)) return true;
-        return pokemonEntity.getRidingController().useAngVelSmoothing(pokemonEntity);
+        return pokemonEntity.ifRidingAvailableSupply(true, (behaviour, settings, state) -> {
+            return behaviour.useAngVelSmoothing(settings, state, pokemonEntity);
+        });
     }
 
 }

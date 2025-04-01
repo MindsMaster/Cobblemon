@@ -1,4 +1,4 @@
-package com.cobblemon.mod.common.api.riding.behaviour.impls
+package com.cobblemon.mod.common.api.riding.behaviour.types
 
 import com.bedrockk.molang.runtime.value.DoubleValue
 import com.cobblemon.mod.common.Cobblemon
@@ -246,6 +246,8 @@ class DolphinBehaviour : RidingBehaviour<DolphinSettings, DolphinState> {
     ): Boolean {
         return false
     }
+
+    override fun createDefaultState() = DolphinState()
 
 }
 

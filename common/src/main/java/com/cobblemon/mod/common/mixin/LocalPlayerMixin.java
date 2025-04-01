@@ -24,13 +24,14 @@ public abstract class LocalPlayerMixin {
     @Inject(method = "getJumpRidingScale", at = @At("HEAD"), cancellable = true)
     public void modifyJumpRidingScale(CallbackInfoReturnable<Float> cir) {
         LocalPlayer player = (LocalPlayer) (Object) this;
-        if (player.isPassenger() && player.getVehicle() instanceof PokemonEntity pokemon) {
-            var controller = pokemon.getRidingController();
-            if (controller == null) return;
-            if (!controller.isActive(pokemon)) return;
-            if (controller.canJump(pokemon, player)) return;
-            //Use custom jump bar logic if the current ride does not jump using it.
-            cir.setReturnValue(controller.setRideBar(pokemon, player));
+        if (player.isPassenger() && player.getVehicle() instanceof PokemonEntity pokemonEntity) {
+            var rideValue = pokemonEntity.<Float>ifRidingAvailableSupply(null, (behaviour, settings, state) -> {
+                if (behaviour.canJump(settings, state, pokemonEntity, player)) return null;
+                return behaviour.setRideBar(settings, state, pokemonEntity, player);
+            });
+            if (rideValue != null) {
+                cir.setReturnValue(rideValue);
+            }
         }
     }
 }

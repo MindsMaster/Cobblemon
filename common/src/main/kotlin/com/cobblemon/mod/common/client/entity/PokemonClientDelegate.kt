@@ -101,7 +101,7 @@ class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
                 currentEntity.pokemon.species = PokemonSpecies.getByIdentifier(identifier)!! // TODO exception handling
                 // force a model update - handles edge case where the PosableState's tracked PosableModel isn't updated until the LivingEntityRenderer render is run
                 currentModel = VaryingModelRepository.getPoser(identifier, this)
-                currentEntity.ridingController = currentEntity.pokemon.riding.controller?.copy()
+//                currentEntity.ridingController = currentEntity.pokemon.riding.controller?.copy()
             } else if (data == PokemonEntity.ASPECTS) {
                 currentAspects = currentEntity.entityData.get(PokemonEntity.ASPECTS)
                 currentEntity.pokemon.shiny = currentAspects.contains("shiny")
@@ -378,13 +378,13 @@ class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
     }
 
     fun sendRidingChanges(entity: PokemonEntity) {
-        val controller = entity.ridingController ?: return
-        val ridingState = controller.state ?: return
         val player = Minecraft.getInstance().player ?: return
-        if (entity.controllingPassenger != player) return
-        if (ridingState.isDirty) {
-            CobblemonNetwork.sendToServer(ServerboundUpdateRideControllerPacket(entity.id, controller))
-            ridingState.isDirty = false
+        entity.ifRidingAvailable { _, _, state ->
+            if (state.isDirty) {
+                println("Send packet to server")
+//                CobblemonNetwork.sendToServer(ServerboundUpdateRideControllerPacket(entity.id, controller))
+                state.isDirty = false
+            }
         }
     }
 

@@ -1,4 +1,4 @@
-package com.cobblemon.mod.common.api.riding.behaviour.impls
+package com.cobblemon.mod.common.api.riding.behaviour.types
 
 import com.bedrockk.molang.Expression
 import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviour
@@ -360,6 +360,7 @@ class RunToJetCompositeBehaviour : RidingBehaviour<RunToJetCompositeSettings, Ru
         }
     }
 
+    override fun createDefaultState() = RunToJetCompositeState()
 }
 
 class RunToJetCompositeSettings : RidingBehaviourSettings {
@@ -379,8 +380,13 @@ class RunToJetCompositeSettings : RidingBehaviourSettings {
 class RunToJetCompositeState : RidingBehaviourState {
 
     private var _isDirty = false
-    override val isDirty: Boolean
+    override var isDirty: Boolean
         get() = _isDirty || landState.isDirty || flightState.isDirty
+        set(value) {
+            _isDirty = value
+            landState.isDirty = value
+            flightState.isDirty = value
+        }
 
     var activeController: ResourceLocation = GenericLandBehaviour.KEY
         set(value) {

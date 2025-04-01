@@ -21,13 +21,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(PlayerModel.class)
 public class PlayerModelMixin {
     @Inject(method = "setupAnim(Lnet/minecraft/world/entity/LivingEntity;FFFFF)V", at = @At(value = "HEAD"))
-    private void cobblemon$setHeadRotation(LivingEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci){
+    private void cobblemon$setHeadRotation(LivingEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
         if (!(entity instanceof Player)) return;
         Entity vehicle = entity.getVehicle();
 
-        if (!(vehicle instanceof PokemonEntity pokemon)) return;
-        var controller = pokemon.getRidingController();
-        if (controller != null && controller.isActive(pokemon) && controller.shouldRotatePlayerHead()) return;
+        if (!(vehicle instanceof PokemonEntity pokemonEntity)) return;
+
+        var shouldRotatePlayerHead = pokemonEntity.ifRidingAvailableSupply(false, (behaviour, settings, state) -> {
+            return behaviour.shouldRotatePlayerHead(settings, state, pokemonEntity);
+        });
+        if (shouldRotatePlayerHead) return;
 
         netHeadYaw = 0f;
         headPitch = 0f;

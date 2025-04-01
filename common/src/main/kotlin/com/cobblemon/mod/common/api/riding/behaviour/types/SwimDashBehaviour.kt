@@ -1,4 +1,4 @@
-package com.cobblemon.mod.common.api.riding.behaviour.impls
+package com.cobblemon.mod.common.api.riding.behaviour.types
 
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.OrientationControllable
@@ -206,6 +206,8 @@ class SwimDashBehaviour : RidingBehaviour<SwimDashSettings, SwimDashState> {
     ): Boolean {
         return false
     }
+
+    override fun createDefaultState() = SwimDashState()
 }
 
 class SwimDashSettings : RidingBehaviourSettings {
@@ -214,7 +216,7 @@ class SwimDashSettings : RidingBehaviourSettings {
 }
 
 class SwimDashState : RidingBehaviourState {
-    override val isDirty = false
+    override var isDirty = false
     var dashing = false
     var ticks = 0
 

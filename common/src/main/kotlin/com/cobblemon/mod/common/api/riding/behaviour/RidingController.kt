@@ -12,8 +12,7 @@ import net.minecraft.world.phys.Vec3
  *
  * @author landonjw
  */
-class RidingController<Settings : RidingBehaviourSettings, State : RidingBehaviourState>(val behaviour: RidingBehaviour<Settings, State>) :
-    RidingBehaviour<Settings, State> {
+class RidingController<Settings : RidingBehaviourSettings, State : RidingBehaviourState>(val behaviour: RidingBehaviour<Settings, State>) : RidingBehaviour<Settings, State> {
 
     override fun isActive(settings: Settings, state: State, vehicle: PokemonEntity) =
         behaviour.isActive(settings, state, vehicle)
@@ -152,6 +151,10 @@ class RidingController<Settings : RidingBehaviourSettings, State : RidingBehavio
     override fun setRideBar(settings: Settings, state: State, vehicle: PokemonEntity, driver: Player): Float {
         if (!isActive(settings, state, vehicle)) return 0.0F
         return behaviour.setRideBar(settings, state, vehicle, driver)
+    }
+
+    override fun createDefaultState(): State {
+        return behaviour.createDefaultState()
     }
 
 }

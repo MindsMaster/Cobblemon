@@ -1,4 +1,4 @@
-package com.cobblemon.mod.common.api.riding.behaviour.impls
+package com.cobblemon.mod.common.api.riding.behaviour.types
 
 import com.bedrockk.molang.Expression
 import com.cobblemon.mod.common.Cobblemon
@@ -170,6 +170,8 @@ class GliderAirBehaviour : RidingBehaviour<GliderAirSettings, NoState> {
     override fun shouldRotatePlayerHead(settings: GliderAirSettings, state: NoState, vehicle: PokemonEntity): Boolean {
         return false
     }
+
+    override fun createDefaultState() = NoState
 }
 
 class GliderAirSettings : RidingBehaviourSettings {

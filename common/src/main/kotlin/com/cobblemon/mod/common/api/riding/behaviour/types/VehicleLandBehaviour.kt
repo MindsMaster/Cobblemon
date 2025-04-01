@@ -1,4 +1,4 @@
-package com.cobblemon.mod.common.api.riding.behaviour.impls
+package com.cobblemon.mod.common.api.riding.behaviour.types
 
 import com.bedrockk.molang.runtime.value.DoubleValue
 import com.cobblemon.mod.common.Cobblemon
@@ -259,6 +259,8 @@ class VehicleLandBehaviour : RidingBehaviour<VehicleLandSettings, VehicleLandSta
     ): Boolean {
         return false
     }
+
+    override fun createDefaultState() = VehicleLandState()
 }
 
 class VehicleLandSettings : RidingBehaviourSettings {
@@ -288,7 +290,7 @@ class VehicleLandSettings : RidingBehaviourSettings {
 }
 
 class VehicleLandState : RidingBehaviourState {
-    override val isDirty = false
+    override var isDirty = false
     var currSpeed = 0.0
     var deltaRotation = Vec2.ZERO
 

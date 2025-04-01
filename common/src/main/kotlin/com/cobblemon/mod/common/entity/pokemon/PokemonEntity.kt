@@ -40,7 +40,8 @@ import com.cobblemon.mod.common.api.pokemon.status.Statuses
 import com.cobblemon.mod.common.api.reactive.ObservableSubscription
 import com.cobblemon.mod.common.api.reactive.SimpleObservable
 import com.cobblemon.mod.common.api.riding.*
-import com.cobblemon.mod.common.api.riding.controller.RideController
+import com.cobblemon.mod.common.api.riding.behaviour.*
+import com.cobblemon.mod.common.api.riding.behaviour.types.*
 import com.cobblemon.mod.common.api.riding.events.SelectDriverEvent
 import com.cobblemon.mod.common.api.riding.stats.RidingStat
 import com.cobblemon.mod.common.api.scheduling.Schedulable
@@ -142,7 +143,6 @@ import net.minecraft.world.level.gameevent.GameEvent
 import net.minecraft.world.level.material.FluidState
 import net.minecraft.world.level.pathfinder.PathType
 import net.minecraft.world.phys.AABB
-import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import org.joml.Matrix3f
 import org.joml.Vector3f
@@ -154,29 +154,75 @@ open class PokemonEntity(
     type: EntityType<out PokemonEntity> = CobblemonEntities.POKEMON,
 ) : ShoulderRidingEntity(type, world), PosableEntity, Shearable, Schedulable, Rideable, ScannableEntity {
     companion object {
-        @JvmStatic val SPECIES = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.STRING)
-        @JvmStatic val NICKNAME = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.COMPONENT)
-        @JvmStatic val NICKNAME_VISIBLE = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BOOLEAN)
-        @JvmStatic val SHOULD_RENDER_NAME = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BOOLEAN)
-        @JvmStatic val MOVING = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BOOLEAN)
-        @JvmStatic val BEHAVIOUR_FLAGS = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BYTE)
-        @JvmStatic val PHASING_TARGET_ID = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.INT)
-        @JvmStatic val PLATFORM_TYPE = SynchedEntityData.defineId(PokemonEntity::class.java, PlatformTypeDataSerializer)
-        @JvmStatic val BEAM_MODE = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BYTE)
-        @JvmStatic val BATTLE_ID = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.OPTIONAL_UUID)
-        @JvmStatic val ASPECTS = SynchedEntityData.defineId(PokemonEntity::class.java, StringSetDataSerializer)
-        @JvmStatic val DYING_EFFECTS_STARTED = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BOOLEAN)
-        @JvmStatic val POSE_TYPE = SynchedEntityData.defineId(PokemonEntity::class.java, PoseTypeDataSerializer)
-        @JvmStatic val LABEL_LEVEL = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.INT)
-        @JvmStatic val HIDE_LABEL = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BOOLEAN)
-        @JvmStatic val UNBATTLEABLE = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BOOLEAN)
-        @JvmStatic val COUNTS_TOWARDS_SPAWN_CAP = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BOOLEAN)
-        @JvmStatic val SPAWN_DIRECTION = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.FLOAT)
-        @JvmStatic val FRIENDSHIP = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.INT)
-        @JvmStatic val FREEZE_FRAME = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.FLOAT)
-        @JvmStatic val CAUGHT_BALL = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.STRING)
-        @JvmStatic val EVOLUTION_STARTED = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BOOLEAN)
-        @JvmStatic var SHOWN_HELD_ITEM = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.ITEM_STACK)
+        @JvmStatic
+        val SPECIES = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.STRING)
+
+        @JvmStatic
+        val NICKNAME = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.COMPONENT)
+
+        @JvmStatic
+        val NICKNAME_VISIBLE = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BOOLEAN)
+
+        @JvmStatic
+        val SHOULD_RENDER_NAME = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BOOLEAN)
+
+        @JvmStatic
+        val MOVING = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BOOLEAN)
+
+        @JvmStatic
+        val BEHAVIOUR_FLAGS = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BYTE)
+
+        @JvmStatic
+        val PHASING_TARGET_ID = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.INT)
+
+        @JvmStatic
+        val PLATFORM_TYPE = SynchedEntityData.defineId(PokemonEntity::class.java, PlatformTypeDataSerializer)
+
+        @JvmStatic
+        val BEAM_MODE = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BYTE)
+
+        @JvmStatic
+        val BATTLE_ID = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.OPTIONAL_UUID)
+
+        @JvmStatic
+        val ASPECTS = SynchedEntityData.defineId(PokemonEntity::class.java, StringSetDataSerializer)
+
+        @JvmStatic
+        val DYING_EFFECTS_STARTED = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BOOLEAN)
+
+        @JvmStatic
+        val POSE_TYPE = SynchedEntityData.defineId(PokemonEntity::class.java, PoseTypeDataSerializer)
+
+        @JvmStatic
+        val LABEL_LEVEL = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.INT)
+
+        @JvmStatic
+        val HIDE_LABEL = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BOOLEAN)
+
+        @JvmStatic
+        val UNBATTLEABLE = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BOOLEAN)
+
+        @JvmStatic
+        val COUNTS_TOWARDS_SPAWN_CAP =
+            SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BOOLEAN)
+
+        @JvmStatic
+        val SPAWN_DIRECTION = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.FLOAT)
+
+        @JvmStatic
+        val FRIENDSHIP = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.INT)
+
+        @JvmStatic
+        val FREEZE_FRAME = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.FLOAT)
+
+        @JvmStatic
+        val CAUGHT_BALL = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.STRING)
+
+        @JvmStatic
+        val EVOLUTION_STARTED = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BOOLEAN)
+
+        @JvmStatic
+        var SHOWN_HELD_ITEM = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.ITEM_STACK)
 
         const val BATTLE_LOCK = "battle"
         const val EVOLUTION_LOCK = "evolving"
@@ -203,7 +249,7 @@ open class PokemonEntity(
             value.isClient = this.level().isClientSide
             field = value
             delegate.changePokemon(value)
-            ridingController = value.riding.controller?.copy()
+//            ridingController = value.riding.controller?.copy()
 
             //This used to be referring to this.updateEyeHeight, I think this is the best conversion
             // We need to update this value every time the Pokémon changes, other eye height related things will be dynamic.
@@ -249,7 +295,11 @@ open class PokemonEntity(
 
     var enablePoseTypeRecalculation = true
 
-    override var ridingController: RideController? = pokemon.riding.controller?.copy()
+//    override var ridingController: RideController? = null
+
+    var ridingState: RidingBehaviourState? = null
+    var ridingBehaviourSettings: RidingBehaviourSettings? = null
+    override var riding: RidingBehaviour<RidingBehaviourSettings, RidingBehaviourState>? = null
 
     val runtime: MoLangRuntime by lazy {
         MoLangRuntime()
@@ -264,11 +314,18 @@ open class PokemonEntity(
                     val minVal = params.getDouble(3)
                     //TODO: Use the mons actual boost once implemented
                     val normalizedStat = rideProp.calculate(rideStat, rideStyle, 0) / 100.0f
-                    val trueStatVal = (normalizedStat *  (maxVal - minVal)) + minVal
+                    val trueStatVal = (normalizedStat * (maxVal - minVal)) + minVal
 
                     DoubleValue(trueStatVal)
                 }
             }
+    }
+
+    fun initializeRiding() {
+        riding =
+            RidingController(JumpToFlightCompositeBehaviour()) as RidingBehaviour<RidingBehaviourSettings, RidingBehaviourState>
+        ridingState = JumpToFlightCompositeState()
+        ridingBehaviourSettings = JumpToFlightCompositeSettings()
     }
 
     /**
@@ -285,11 +342,15 @@ open class PokemonEntity(
      */
     var beamMode: Int
         get() = entityData.get(BEAM_MODE).toInt()
-        set(value) { entityData.set(BEAM_MODE, value.toByte()) }
+        set(value) {
+            entityData.set(BEAM_MODE, value.toByte())
+        }
 
     var phasingTargetId: Int
         get() = entityData.get(PHASING_TARGET_ID)
-        set(value) { entityData.set(PHASING_TARGET_ID, value) }
+        set(value) {
+            entityData.set(PHASING_TARGET_ID, value)
+        }
 
     /** The [SpawnCause] that created it, if this was the result of the [BestSpawner]. Note: This will be wiped by chunk-unload. */
     var spawnCause: SpawnCause? = null
@@ -312,17 +373,17 @@ open class PokemonEntity(
     val exposedForm: FormData get() = this.effects.mockEffect?.exposedForm ?: this.pokemon.form
 
     /** The aspects exposed to the client */
-    val exposedAspects: Set<String> get() = this.effects.mockEffect?.exposedForm?.aspects?.toSet() ?: this.pokemon.aspects
+    val exposedAspects: Set<String>
+        get() = this.effects.mockEffect?.exposedForm?.aspects?.toSet() ?: this.pokemon.aspects
 
     /** The pokeball exposed to the client. Used for sendout animation. */
     val exposedBall: PokeBall get() = this.effects.mockEffect?.exposedBall ?: this.pokemon.caughtBall
 
-    var deltaRotation = Vec2.ZERO
-        private set
-
-    var platform : PlatformType
+    var platform: PlatformType
         get() = entityData.get(PLATFORM_TYPE)
-        set(value) { entityData.set(PLATFORM_TYPE, value) }
+        set(value) {
+            entityData.set(PLATFORM_TYPE, value)
+        }
 
     override val struct: ObjectValue<PokemonEntity> = ObjectValue(this).also {
         it.addStandardFunctions()
@@ -342,6 +403,7 @@ open class PokemonEntity(
         delegate.changePokemon(pokemon)
         refreshDimensions()
         addPosableFunctions(struct)
+        initializeRiding()
     }
 
     override fun defineSynchedData(builder: SynchedEntityData.Builder) {
@@ -437,7 +499,12 @@ open class PokemonEntity(
         super.sendDebugPackets()
         DebugPackets.sendEntityBrain(this)
         DebugPackets.sendGoalSelector(level(), this, this.goalSelector)
-        DebugPackets.sendPathFindingPacket(level(), this, this.navigation.path, this.navigation.path?.distToTarget ?: 0F)
+        DebugPackets.sendPathFindingPacket(
+            level(),
+            this,
+            this.navigation.path,
+            this.navigation.path?.distToTarget ?: 0F
+        )
     }
 
     override fun tick() {
@@ -465,10 +532,11 @@ open class PokemonEntity(
             // This can't be done in the BattleMovementGoal as the sleep goal will override it.
             // Clients also don't seem to have correct info about behavior
             if (!level().isClientSide && ticksLived > 5 && platform == PlatformType.NONE
-                    && ownerUUID != null
-                    && isInWater && !isUnderWater
-                    && !exposedForm.behaviour.moving.swim.canBreatheUnderwater && !exposedForm.behaviour.moving.swim.canWalkOnWater
-                    && !getBehaviourFlag(PokemonBehaviourFlag.FLYING)) {
+                && ownerUUID != null
+                && isInWater && !isUnderWater
+                && !exposedForm.behaviour.moving.swim.canBreatheUnderwater && !exposedForm.behaviour.moving.swim.canWalkOnWater
+                && !getBehaviourFlag(PokemonBehaviourFlag.FLYING)
+            ) {
                 platform = PlatformType.getPlatformTypeForPokemon((exposedForm))
             }
         } else {
@@ -793,7 +861,7 @@ open class PokemonEntity(
         goalSelector.addGoal(0, PokemonInBattleMovementGoal(this, 10))
         goalSelector.addGoal(0, object : Goal() {
             override fun canUse() =
-                        this@PokemonEntity.entityData.get(PHASING_TARGET_ID) != -1 ||
+                this@PokemonEntity.entityData.get(PHASING_TARGET_ID) != -1 ||
                         pokemon.status?.status == Statuses.SLEEP ||
                         entityData.get(DYING_EFFECTS_STARTED) ||
                         evolutionEntity != null
@@ -908,7 +976,8 @@ open class PokemonEntity(
                         }
                         return InteractionResult.sidedSuccess(level().isClientSide)
                     } else {
-                        val mushroomStew = ItemUtils.createFilledResult(itemStack, player, Items.MUSHROOM_STEW.defaultInstance)
+                        val mushroomStew =
+                            ItemUtils.createFilledResult(itemStack, player, Items.MUSHROOM_STEW.defaultInstance)
                         player.setItemInHand(hand, mushroomStew)
                         return InteractionResult.sidedSuccess(level().isClientSide)
                     }
@@ -977,7 +1046,11 @@ open class PokemonEntity(
         }
 
         if (hand == InteractionHand.MAIN_HAND && player is ServerPlayer && pokemon.getOwnerPlayer() == player) {
-            val cosmeticItemDefinition = CobblemonCosmeticItems.findValidCosmeticForPokemonAndItem(player.level().registryAccess(), pokemon, itemStack)
+            val cosmeticItemDefinition = CobblemonCosmeticItems.findValidCosmeticForPokemonAndItem(
+                player.level().registryAccess(),
+                pokemon,
+                itemStack
+            )
             if (player.isShiftKeyDown) {
                 InteractPokemonUIPacket(
                     this.getUUID(),
@@ -1196,11 +1269,27 @@ open class PokemonEntity(
         }
 
         val text = when {
-            isCosmetic && giving.isEmpty -> lang("cosmetic_item.take", returned.hoverName, this.pokemon.getDisplayName())
-            isCosmetic && returned.isEmpty -> lang("cosmetic_item.give", this.pokemon.getDisplayName(), giving.hoverName)
+            isCosmetic && giving.isEmpty -> lang(
+                "cosmetic_item.take",
+                returned.hoverName,
+                this.pokemon.getDisplayName()
+            )
+
+            isCosmetic && returned.isEmpty -> lang(
+                "cosmetic_item.give",
+                this.pokemon.getDisplayName(),
+                giving.hoverName
+            )
+
             !isCosmetic && giving.isEmpty -> lang("held_item.take", returned.hoverName, this.pokemon.getDisplayName())
             !isCosmetic && returned.isEmpty -> lang("held_item.give", this.pokemon.getDisplayName(), giving.hoverName)
-            isCosmetic -> lang("cosmetic_item.replace", returned.hoverName, this.pokemon.getDisplayName(), returned.hoverName)
+            isCosmetic -> lang(
+                "cosmetic_item.replace",
+                returned.hoverName,
+                this.pokemon.getDisplayName(),
+                returned.hoverName
+            )
+
             else -> lang("held_item.replace", returned.hoverName, this.pokemon.getDisplayName(), returned.hoverName)
         }
 
@@ -1217,11 +1306,11 @@ open class PokemonEntity(
 
     fun isBlacklisted(stack: ItemStack): Boolean =
         BuiltInRegistries.ITEM.getTagOrEmpty(CobblemonItemTags.BLACKLISTED_ITEMS_TO_HOLD).any()
-        && stack.`is`(CobblemonItemTags.BLACKLISTED_ITEMS_TO_HOLD)
+                && stack.`is`(CobblemonItemTags.BLACKLISTED_ITEMS_TO_HOLD)
 
     fun isWhitelisted(stack: ItemStack): Boolean =
         BuiltInRegistries.ITEM.getTagOrEmpty(CobblemonItemTags.WHITELISTED_ITEMS_TO_HOLD).none()
-        || stack.`is`(CobblemonItemTags.WHITELISTED_ITEMS_TO_HOLD)
+                || stack.`is`(CobblemonItemTags.WHITELISTED_ITEMS_TO_HOLD)
 
     fun tryMountingShoulder(player: ServerPlayer): Boolean {
         if (this.pokemon.belongsTo(player) && this.hasRoomToMount(player)) {
@@ -1272,9 +1361,9 @@ open class PokemonEntity(
 
             player.shoulderEntityLeft.isPokemonEntity() && player.shoulderEntityLeft.getCompound(DataKeys.POKEMON)
                 .getUUID(DataKeys.POKEMON_UUID) == this.pokemon.uuid -> {
-                    isLeft = true
-                    player.shoulderEntityLeft.copy()
-                }
+                isLeft = true
+                player.shoulderEntityLeft.copy()
+            }
 
             else -> return true
         }
@@ -1283,7 +1372,10 @@ open class PokemonEntity(
         nbt.putString(DataKeys.SHOULDER_FORM, this.pokemon.form.name)
         nbt.put(DataKeys.SHOULDER_ASPECTS, this.pokemon.aspects.map(StringTag::valueOf).toNbtList())
         nbt.putFloat(DataKeys.SHOULDER_SCALE_MODIFIER, this.pokemon.scaleModifier)
-        nbt.put(DataKeys.SHOULDER_ITEM, this.level().registryAccess().let { if (this.shownItem.isEmpty) CompoundTag() else this.shownItem.saveOptional(it) } as CompoundTag)
+        nbt.put(
+            DataKeys.SHOULDER_ITEM,
+            this.level().registryAccess()
+                .let { if (this.shownItem.isEmpty) CompoundTag() else this.shownItem.saveOptional(it) } as CompoundTag)
         if (isLeft) player.shoulderEntityLeft = nbt else player.shoulderEntityRight = nbt
         return true
     }
@@ -1292,7 +1384,7 @@ open class PokemonEntity(
      * Adjusts a given sent out position based on the local environment.
      * Returns the new position and a PlatformType if the pokemon should be placed on one.
      */
-    fun getAjustedSendoutPosition(pos: Vec3) : Vec3 {
+    fun getAjustedSendoutPosition(pos: Vec3): Vec3 {
         var platform = PlatformType.NONE
         var blockPos = BlockPos(pos.x.toInt(), pos.y.toInt(), pos.z.toInt())
         var blockLookCount = 5
@@ -1317,7 +1409,13 @@ open class PokemonEntity(
                     testPos = testPos.above()
                 }
                 if (foundSurface) {
-                    val hasHeadRoom = !collidesWithBlock(Vec3(blockPos.x.toDouble(), (blockPos.y).toDouble(), (blockPos.z).toDouble()))
+                    val hasHeadRoom = !collidesWithBlock(
+                        Vec3(
+                            blockPos.x.toDouble(),
+                            (blockPos.y).toDouble(),
+                            (blockPos.z).toDouble()
+                        )
+                    )
                     if (hasHeadRoom) {
                         result = Vec3(result.x, testPos.y.toDouble(), result.z)
                     }
@@ -1328,7 +1426,7 @@ open class PokemonEntity(
         } else if (this.level().isEmptyBlock(blockPos)) {
             // look downward for a water surface
             blockLookCount = 64 // Higher because the pokemon can fall down to water below
-            var testPos =  BlockPos(pos.x.toInt(), pos.y.toInt(), pos.z.toInt())
+            var testPos = BlockPos(pos.x.toInt(), pos.y.toInt(), pos.z.toInt())
             for (i in 0..blockLookCount) {
                 // Try to find a surface...
                 val blockState = this.level().getBlockState(testPos)
@@ -1345,7 +1443,8 @@ open class PokemonEntity(
         if (foundSurface) {
             val canFly = form.behaviour.moving.fly.canFly
             if (canFly) {
-                val hasHeadRoom = !collidesWithBlock(Vec3(blockPos.x.toDouble(), (result.y + 1), (blockPos.z).toDouble()))
+                val hasHeadRoom =
+                    !collidesWithBlock(Vec3(blockPos.x.toDouble(), (result.y + 1), (blockPos.z).toDouble()))
                 if (hasHeadRoom) {
                     result = Vec3(result.x, result.y + 1.0, result.z)
                 }
@@ -1354,13 +1453,22 @@ open class PokemonEntity(
                 val halfHeight = getDimensions(this.pose).height / 2.0
                 for (i in 1..halfHeight.toInt()) {
                     blockPos = blockPos.below()
-                    if (!this.level().isWaterAt(blockPos) || !this.level().getBlockState(blockPos).getCollisionShape(this.level(), blockPos).isEmpty) {
+                    if (!this.level().isWaterAt(blockPos) || !this.level().getBlockState(blockPos)
+                            .getCollisionShape(this.level(), blockPos).isEmpty
+                    ) {
                         break
                     }
                 }
                 result = Vec3(result.x, result.y + halfHeight - halfHeight.toInt(), result.z)
             } else {
-                platform = if (form.behaviour.moving.swim.canWalkOnWater || collidesWithBlock(Vec3(result.x, result.y, result.z))) PlatformType.NONE else PlatformType.getPlatformTypeForPokemon(form)
+                platform = if (form.behaviour.moving.swim.canWalkOnWater || collidesWithBlock(
+                        Vec3(
+                            result.x,
+                            result.y,
+                            result.z
+                        )
+                    )
+                ) PlatformType.NONE else PlatformType.getPlatformTypeForPokemon(form)
             }
         }
         this.platform = platform
@@ -1368,7 +1476,7 @@ open class PokemonEntity(
         return result
     }
 
-    private fun Entity.collidesWithBlock(pos: Vec3) : Boolean {
+    private fun Entity.collidesWithBlock(pos: Vec3): Boolean {
         return level().getBlockCollisions(this, boundingBox.move(pos)).iterator().hasNext()
     }
 
@@ -1402,9 +1510,10 @@ open class PokemonEntity(
     fun cry() {
         if (this.isSilent) return
         val pkt = PlayPosableAnimationPacket(id, setOf("cry"), emptyList())
-        level().getEntitiesOfClass(ServerPlayer::class.java, AABB.ofSize(position(), 64.0, 64.0, 64.0)) { true }.forEach {
-            it.sendPacket(pkt)
-        }
+        level().getEntitiesOfClass(ServerPlayer::class.java, AABB.ofSize(position(), 64.0, 64.0, 64.0)) { true }
+            .forEach {
+                it.sendPacket(pkt)
+            }
     }
 
     override fun dropAllDeathLoot(world: ServerLevel, source: DamageSource) {
@@ -1421,8 +1530,9 @@ open class PokemonEntity(
             (isAlwaysExperienceDropper ||
                     lastHurtByPlayerTime > 0 &&
                     shouldDropExperience() &&
-                    level().gameRules.getBoolean(CobblemonGameRules.DO_POKEMON_LOOT
-            ))
+                    level().gameRules.getBoolean(
+                        CobblemonGameRules.DO_POKEMON_LOOT
+                    ))
         ) {
             ExperienceOrb.award(level() as ServerLevel, position(), baseExperienceReward)
         }
@@ -1445,19 +1555,19 @@ open class PokemonEntity(
         }
     }
 
-    override fun handleRelativeFrictionAndCalculateMovement(deltaMovement: Vec3 , friction: Float ): Vec3 {
+    override fun handleRelativeFrictionAndCalculateMovement(deltaMovement: Vec3, friction: Float): Vec3 {
         val riders = this.passengers.filterIsInstance<LivingEntity>()
         if (riders.isEmpty()) {
             super.handleRelativeFrictionAndCalculateMovement(deltaMovement, friction)
         } else {
-            val velocity = ifRidingAvailable(fallback = Vec3.ZERO) {
-                it.velocity(this, this.controllingPassenger as Player, deltaMovement)
+            val velocity = ifRidingAvailableSupply(fallback = Vec3.ZERO) { behaviour, settings, state ->
+                behaviour.velocity(settings, state, this, this.controllingPassenger as Player, deltaMovement)
             }
             //Handle ridden pokemon differently to allow vector lerp instead of simple addition.
             val v = Entity.getInputVector(velocity, 1.0f, this.getYRot());
             //changing this will give the ride more or less inertia/handling/drift
-            val inertia = ifRidingAvailable(fallback = 0.5) {
-                it.inertia(this)
+            val inertia = ifRidingAvailableSupply(fallback = 0.5) { behaviour, settings, state ->
+                behaviour.inertia(settings, state,this)
             }
             this.deltaMovement = this.deltaMovement.lerp(v, inertia);
             this.move(MoverType.SELF, this.deltaMovement.scale(this.speed.toDouble()))
@@ -1527,7 +1637,8 @@ open class PokemonEntity(
 
     fun isFlying() = this.getBehaviourFlag(PokemonBehaviourFlag.FLYING)
 
-    fun isFalling() = this.fallDistance > 0 && this.level().getBlockState(this.blockPosition().below()).isAir && !this.isFlying()
+    fun isFalling() =
+        this.fallDistance > 0 && this.level().getBlockState(this.blockPosition().below()).isAir && !this.isFlying()
 
     fun couldStopFlying() = isFlying() && !behaviour.moving.walk.avoidsLand && behaviour.moving.walk.canWalk
 
@@ -1575,7 +1686,8 @@ open class PokemonEntity(
      *
      * @return If the backing [pokemon] has a non-null [Pokemon.nickname].
      */
-    override fun hasCustomName(): Boolean = pokemon.nickname != null && pokemon.nickname?.contents != PlainTextContents.EMPTY
+    override fun hasCustomName(): Boolean =
+        pokemon.nickname != null && pokemon.nickname?.contents != PlainTextContents.EMPTY
 
     /**
      * This method toggles the visibility of the entity name,
@@ -1695,7 +1807,7 @@ open class PokemonEntity(
 
     override fun setLeashedTo(entity: Entity, bl: Boolean) {
         super.setLeashedTo(entity, bl)
-        if (this.ownerUUID != null && this.ownerUUID != entity.uuid ) {
+        if (this.ownerUUID != null && this.ownerUUID != entity.uuid) {
             dropLeash(true, true)
         }
     }
@@ -1716,9 +1828,9 @@ open class PokemonEntity(
 
     // Takes in a requested stat type with a base minimum and base maximum and returns the interpolated
     // stat based on the boost of that pokemons stat
-    fun getRideStat(stat: RidingStat, style: RidingStyle, baseMin: Double, baseMax: Double ): Double {
+    fun getRideStat(stat: RidingStat, style: RidingStyle, baseMin: Double, baseMax: Double): Double {
         //TODO: Change from static zero boost once aprijuice is implemented.
-        val stat = this.rideProp.calculate(stat, style, 0 )
+        val stat = this.rideProp.calculate(stat, style, 0)
         val statVal = (((baseMax - baseMin) / 100) * stat) + baseMin
         return statVal
     }
@@ -1732,25 +1844,43 @@ open class PokemonEntity(
         jumping = value
     }
 
+    fun ifRidingAvailable(block: (RidingBehaviour<RidingBehaviourSettings, RidingBehaviourState>, RidingBehaviourSettings, RidingBehaviourState) -> Unit) {
+        if (riding == null || ridingBehaviourSettings == null || ridingState == null) return
+        block(riding!!, ridingBehaviourSettings!!, ridingState!!)
+    }
+
+    fun <T> ifRidingAvailableSupply(
+        fallback: T,
+        block: (RidingBehaviour<RidingBehaviourSettings, RidingBehaviourState>, RidingBehaviourSettings, RidingBehaviourState) -> T
+    ): T {
+        var result = fallback
+        ifRidingAvailable { behaviour, settings, state ->
+            result = block(behaviour, settings, state)
+        }
+        return result
+    }
+
     override fun tickRidden(driver: Player, movementInput: Vec3) {
         super.tickRidden(driver, movementInput)
-        this.ridingController?.tick(this, driver, movementInput)
-        val rotation = this.getControlledRotation(driver)
-        setRot(rotation.y, rotation.x)
-        this.yHeadRot = this.yRot
-        this.yBodyRot = this.yRot
-        this.yRotO = this.yRot
+        ifRidingAvailable { behaviour, settings, state ->
+            behaviour.tick(settings, state, this, driver, movementInput)
 
-        val riders = this.passengers.filterIsInstance<LivingEntity>()
+            val pose = behaviour.pose(settings, state, this)
+            entityData.set(POSE_TYPE, pose)
 
-        val ridingController = this.ridingController ?: return
-        if (ridingController.isActive(this) && ridingController.canJump(this, driver)) {
-            if (this.onGround()) {
+            val rotation = behaviour.rotation(settings, state, this, driver)
+            setRot(rotation.y, rotation.x)
+            this.yHeadRot = this.yRot
+            this.yBodyRot = this.yRot
+            this.yRotO = this.yRot
+            val riders = this.passengers.filterIsInstance<LivingEntity>()
+
+            if (behaviour.isActive(settings, state, this) && behaviour.canJump(settings, state, this, driver)) {
                 if (this.jumpInputStrength > 0) {
                     //this.jump(this.jumpStrength, movementInput)
                     //this.jump()
                     val f = PI.toFloat() - this.yRot * PI.toFloat() / 180
-                    val jumpVector = ridingController.jumpForce(this, driver, this.jumpInputStrength)
+                    val jumpVector = behaviour.jumpForce(settings, state, this, driver, this.jumpInputStrength)
                     val velocity = jumpVector.yRot(f)
                     // Rotate the jump vector f degrees around the Y axis
                     //val velocity = Vec3d(-sin(f) * jumpVector.x, jumpVector.y, cos(f) * jumpVector.z)
@@ -1802,21 +1932,10 @@ open class PokemonEntity(
 ////        this.velocityDirty = true
 //    }
 
-    private fun getControlledRotation(controller: LivingEntity): Vec2 {
-        val ridingController = ridingController ?: return rotationVector
-        if (!ridingController.isActive(this)) return rotationVector
-        val previousRotation = rotationVector
-        val rotation = ridingController.rotation(this, controller)
-        this.deltaRotation = Vec2(rotation.x - previousRotation.x, rotation.y - previousRotation.y)
-        return rotation
-    }
-
     override fun onPassengerTurned(entityToUpdate: Entity) {
-        val ridingController = this.ridingController ?: return
-        if (!ridingController.isActive(this)) return
         if (entityToUpdate !is LivingEntity) return
-        ifRidingAvailable(Unit) {
-            it.clampPassengerRotation(this, entityToUpdate)
+        ifRidingAvailable { behaviour, settings, state ->
+            behaviour.clampPassengerRotation(settings, state, this, entityToUpdate)
         }
     }
 
@@ -1825,16 +1944,23 @@ open class PokemonEntity(
             val index = this.passengers.indexOf(passenger).takeIf { it >= 0 && it < this.seats.size } ?: return
             val seat = this.seats[index]
             val seatOffset = seat.getOffset(this.getCurrentPoseType()).toVector3f()
-            val center = Vector3f(0f, this.bbHeight/2, 0f)
+            val center = Vector3f(0f, this.bbHeight / 2, 0f)
 
             val seatToCenter = center.sub(seatOffset, Vector3f())
-            val matrix = (this.passengers.first() as? OrientationControllable)?.orientationController?.orientation ?: Matrix3f().rotate((180f-passenger.yRot).toRadians(), Vector3f(0f, 1f, 0f))
-            val rotatedOffset = matrix.transform(seatToCenter, Vector3f()).add(center).sub(Vector3f(0f, passenger.bbHeight/2, 0f))
+            val matrix = (this.passengers.first() as? OrientationControllable)?.orientationController?.orientation
+                ?: Matrix3f().rotate((180f - passenger.yRot).toRadians(), Vector3f(0f, 1f, 0f))
+            val rotatedOffset =
+                matrix.transform(seatToCenter, Vector3f()).add(center).sub(Vector3f(0f, passenger.bbHeight / 2, 0f))
 
-            positionUpdater.accept(passenger, this.x + rotatedOffset.x, this.y + rotatedOffset.y, this.z + rotatedOffset.z)
+            positionUpdater.accept(
+                passenger,
+                this.x + rotatedOffset.x,
+                this.y + rotatedOffset.y,
+                this.z + rotatedOffset.z
+            )
             if (passenger is LivingEntity) {
-                ifRidingAvailable(Unit) {
-                    it.updatePassengerRotation(this, passenger)
+                ifRidingAvailable { behaviour, settings, state ->
+                    behaviour.updatePassengerRotation(settings, state,this, passenger)
                 }
             }
         }
@@ -1843,7 +1969,7 @@ open class PokemonEntity(
     override fun getControllingPassenger(): LivingEntity? {
         val riders = this.passengers.filterIsInstance<LivingEntity>()
         if (riders.isEmpty()) {
-            ridingController?.state?.reset()
+            ridingState?.reset()
             return null
         }
 
@@ -1864,21 +1990,21 @@ open class PokemonEntity(
     }
 
     override fun getRiddenInput(controller: Player, movementInput: Vec3): Vec3 {
-        return ifRidingAvailable(fallback = Vec3.ZERO) {
-            it.velocity(this, controller, movementInput)
+        return ifRidingAvailableSupply(fallback = Vec3.ZERO) { behaviour, settings, state ->
+            behaviour.velocity(settings, state, this, controller, movementInput)
         }
     }
 
     override fun getRiddenSpeed(controller: Player): Float {
-        return ifRidingAvailable(fallback = 0.05f) {
-            it.speed(this, controller)
+        return ifRidingAvailableSupply(fallback = 0.05f) { behaviour, settings, state ->
+            behaviour.speed(settings, state,this, controller)
         }
     }
 
     fun useRidingAltPose(): Boolean {
         val driver = this.controllingPassenger as? Player ?: return false
-        return ifRidingAvailable(fallback = false) {
-            it.useRidingAltPose(this, driver)
+        return ifRidingAvailableSupply(fallback = false) { behaviour, settings, state ->
+            behaviour.useRidingAltPose(settings, state, this, driver)
         }
     }
 
@@ -1932,7 +2058,7 @@ open class PokemonEntity(
             //Change this so it calls something from the controller to check
             //if the specific controller wants to ignore fluid physics since
             //not every single one will want to
-            fluidAffected =  false
+            fluidAffected = false
         }
 
         return fluidAffected
@@ -1944,14 +2070,15 @@ open class PokemonEntity(
     //flying or swimming but they are touching the ground and this needs to be prevented.
     //Having it be able to be turned off by the flying or swimming controllers is the
     //temp solution I have found.
-    override fun onGround() : Boolean {
-        val ridingController = ridingController ?: return false
-        if (!ridingController.isActive(this)) return false
-        if (ridingController.turnOffOnGround(this)) return false
+    override fun onGround(): Boolean {
+        val result = ifRidingAvailableSupply(fallback = null) { behaviour, settings, state ->
+            behaviour.turnOffOnGround(settings, state, this)
+        }
+        if (result != null && result) return false
         return super.onGround()
     }
 
-	//I think already mentioned but should maybe be riding controller configurable
+    //I think already mentioned but should maybe be riding controller configurable
     override fun dismountsUnderwater(): Boolean {
         return false
     }
@@ -1961,22 +2088,22 @@ open class PokemonEntity(
         if (this.passengers.isEmpty()) {
             return regularGravity
         }
-        return ifRidingAvailable(fallback = regularGravity) {
-            it.gravity(this, regularGravity) ?: regularGravity
+        return ifRidingAvailableSupply(fallback = regularGravity) { behaviour, settings, state ->
+            behaviour.gravity(settings, state, this, regularGravity)
         }
     }
 
     fun setRideBar(): Float {
         val driver = this.controllingPassenger as? Player ?: return 0.0f
-        return ifRidingAvailable(fallback = 0.0f) {
-            it.setRideBar(this, driver)
+        return ifRidingAvailableSupply(fallback = 0.0f) { behaviour, settings, state ->
+            behaviour.setRideBar(settings, state, this, driver)
         }
     }
 
     fun rideFovMult(): Float {
         val driver = this.controllingPassenger as? Player ?: return 1.0f
-        return ifRidingAvailable(fallback = 1.0f) {
-            it.rideFovMult(this, driver)
+        return ifRidingAvailableSupply(fallback = 1.0f) { behaviour, settings, state ->
+            behaviour.rideFovMultiplier(settings, state, this, driver)
         }
     }
 
@@ -2001,10 +2128,5 @@ open class PokemonEntity(
 
     override fun resolveEntityScan(): LivingEntity {
         return this
-    }
-
-    fun <T> ifRidingAvailable(fallback: T, block: (RideController) -> T): T {
-        val ridingController = ridingController ?: return fallback
-        return if (ridingController.isActive(this)) block(ridingController) else fallback
     }
 }

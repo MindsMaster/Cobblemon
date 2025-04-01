@@ -1,4 +1,4 @@
-package com.cobblemon.mod.common.api.riding.behaviour.impls
+package com.cobblemon.mod.common.api.riding.behaviour.types
 
 import com.bedrockk.molang.Expression
 import com.cobblemon.mod.common.Cobblemon
@@ -324,6 +324,8 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
     override fun shouldRotatePlayerHead(settings: JetAirSettings, state: JetAirState, vehicle: PokemonEntity): Boolean {
         return false
     }
+
+    override fun createDefaultState() = JetAirState()
 }
 
 class JetAirSettings : RidingBehaviourSettings {

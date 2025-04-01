@@ -75,4 +75,6 @@ interface RidingBehaviour<Settings : RidingBehaviourSettings, State : RidingBeha
 
     fun shouldRotatePlayerHead(settings: Settings, state: State, vehicle: PokemonEntity): Boolean
 
+    fun createDefaultState(): State
+
 }

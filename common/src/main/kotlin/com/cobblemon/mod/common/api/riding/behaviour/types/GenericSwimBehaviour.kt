@@ -1,4 +1,4 @@
-package com.cobblemon.mod.common.api.riding.behaviour.impls
+package com.cobblemon.mod.common.api.riding.behaviour.types
 
 import com.bedrockk.molang.runtime.value.DoubleValue
 import com.cobblemon.mod.common.Cobblemon
@@ -197,6 +197,8 @@ class GenericLiquidBehaviour : RidingBehaviour<GenericLiquidSettings, NoState> {
     ): Boolean {
         return false
     }
+
+    override fun createDefaultState() = NoState
 
 }
 

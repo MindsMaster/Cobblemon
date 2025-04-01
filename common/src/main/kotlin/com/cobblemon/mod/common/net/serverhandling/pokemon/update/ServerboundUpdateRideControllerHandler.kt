@@ -11,14 +11,14 @@ import net.minecraft.server.level.ServerPlayer
 object ServerboundUpdateRideControllerHandler : ServerNetworkPacketHandler<ServerboundUpdateRideControllerPacket> {
 
     override fun handle(packet: ServerboundUpdateRideControllerPacket, server: MinecraftServer, player: ServerPlayer) {
-        val entity = player.level().getEntity(packet.entity) ?: return
-        if (entity !is PokemonEntity) return
-        if (entity.controllingPassenger != player) return
-        val buffer = packet.data ?: return
-        val controllerId = buffer.readResourceLocation()
-        if (entity.ridingController?.key != controllerId) return
-        entity.ridingController?.decode(buffer)
-        CobblemonNetwork.sendToAllPlayers(ClientboundUpdateRideControllerPacket(packet.entity, entity.ridingController))
+//        val entity = player.level().getEntity(packet.entity) ?: return
+//        if (entity !is PokemonEntity) return
+//        if (entity.controllingPassenger != player) return
+//        val buffer = packet.data ?: return
+//        val controllerId = buffer.readResourceLocation()
+//        if (entity.ridingController?.key != controllerId) return
+//        entity.ridingController?.decode(buffer)
+//        CobblemonNetwork.sendToAllPlayers(ClientboundUpdateRideControllerPacket(packet.entity, entity.ridingController))
     }
 
 }

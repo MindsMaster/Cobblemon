@@ -1,4 +1,4 @@
-package com.cobblemon.mod.common.api.riding.behaviour.impls
+package com.cobblemon.mod.common.api.riding.behaviour.types
 
 import com.bedrockk.molang.Expression
 import com.bedrockk.molang.runtime.MoLangMath.lerp
@@ -405,6 +405,8 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
     ): Boolean {
         return false
     }
+
+    override fun createDefaultState() = BirdAirState()
 
 }
 
