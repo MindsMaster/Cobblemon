@@ -1,12 +1,11 @@
 package com.cobblemon.mod.common.client.net.pokemon.update
 
 import com.cobblemon.mod.common.api.net.ClientNetworkPacketHandler
-import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
-import com.cobblemon.mod.common.net.messages.client.pokemon.update.ClientboundUpdateRideControllerPacket
+import com.cobblemon.mod.common.net.messages.client.pokemon.update.ClientboundUpdateRidingStatePacket
 import net.minecraft.client.Minecraft
 
-object ClientboundUpdateRideControllerHandler : ClientNetworkPacketHandler<ClientboundUpdateRideControllerPacket> {
-    override fun handle(packet: ClientboundUpdateRideControllerPacket, client: Minecraft) {
+object ClientboundUpdateRidingStateHandler : ClientNetworkPacketHandler<ClientboundUpdateRidingStatePacket> {
+    override fun handle(packet: ClientboundUpdateRidingStatePacket, client: Minecraft) {
 //        val level = client.level ?: return
 //        val player = client.player ?: return
 //        val entity = level.getEntity(packet.entity) ?: return

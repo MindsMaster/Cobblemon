@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package com.cobblemon.mod.common.api.riding.controller
+package com.cobblemon.mod.common.api.riding
 
 import com.cobblemon.mod.common.util.readString
 import com.cobblemon.mod.common.util.writeString

@@ -4,20 +4,7 @@ import com.cobblemon.mod.common.api.riding.behaviour.types.*
 import net.minecraft.resources.ResourceLocation
 
 object RidingBehaviours {
-    val behaviours = mutableMapOf<ResourceLocation, RidingBehaviour<*, *>>(
-        BirdAirBehaviour.KEY to BirdAirBehaviour(),
-        DolphinBehaviour.KEY to DolphinBehaviour(),
-        FallToGlideCompositeBehaviour.KEY to FallToGlideCompositeBehaviour(),
-        GenericLandBehaviour.KEY to GenericLandBehaviour(),
-        GenericSwimBehaviour.KEY to GenericSwimBehaviour(),
-        GliderAirBehaviour.KEY to GliderAirBehaviour(),
-        HelicopterBehaviour.KEY to HelicopterBehaviour(),
-        JetAirBehaviour.KEY to JetAirBehaviour(),
-        JumpToFlightCompositeBehaviour.KEY to JumpToFlightCompositeBehaviour(),
-        RunToJetCompositeBehaviour.KEY to RunToJetCompositeBehaviour(),
-        SwimDashBehaviour.KEY to SwimDashBehaviour(),
-        VehicleLandBehaviour.KEY to VehicleLandBehaviour(),
-    )
+    val behaviours = mutableMapOf<ResourceLocation, RidingBehaviour<*, *>>()
 
     init {
         register(BirdAirBehaviour.KEY, BirdAirBehaviour())
