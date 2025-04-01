@@ -52,6 +52,7 @@ import com.cobblemon.mod.common.api.storage.pc.PCStore
 import com.cobblemon.mod.common.api.text.text
 import com.cobblemon.mod.common.battles.BattleRegistry
 import com.cobblemon.mod.common.battles.actor.PlayerBattleActor
+import com.cobblemon.mod.common.battles.actor.PokemonBattleActor
 import com.cobblemon.mod.common.client.particle.BedrockParticleOptionsRepository
 import com.cobblemon.mod.common.client.particle.ParticleStorm
 import com.cobblemon.mod.common.client.render.models.blockbench.wavefunction.WaveFunctions
@@ -740,6 +741,8 @@ object MoLangFunctions {
                 map.put("npc") { battleActor.entity.struct }
             } else if (battleActor is PlayerBattleActor) {
                 map.put("player") { battleActor.entity?.asMoLangValue() ?: DoubleValue.ZERO }
+            } else if (battleActor is PokemonBattleActor) {
+                map.put("pokemon") { battleActor.entity?.asMoLangValue() ?: DoubleValue.ZERO }
             }
             return@mutableListOf map
         }
