@@ -305,6 +305,7 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
 }
 
 class GenericLandSettings : RidingBehaviourSettings {
+    override val key = GenericLandBehaviour.KEY
 
     var driveFactor = "1.0".asExpression()
         private set

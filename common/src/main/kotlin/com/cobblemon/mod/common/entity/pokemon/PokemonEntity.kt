@@ -249,7 +249,7 @@ open class PokemonEntity(
             value.isClient = this.level().isClientSide
             field = value
             delegate.changePokemon(value)
-//            ridingController = value.riding.controller?.copy()
+            refreshRiding()
 
             //This used to be referring to this.updateEyeHeight, I think this is the best conversion
             // We need to update this value every time the Pokémon changes, other eye height related things will be dynamic.
@@ -321,11 +321,15 @@ open class PokemonEntity(
             }
     }
 
-    fun initializeRiding() {
-        riding =
-            RidingController(JumpToFlightCompositeBehaviour()) as RidingBehaviour<RidingBehaviourSettings, RidingBehaviourState>
-        ridingState = JumpToFlightCompositeState()
-        ridingBehaviourSettings = JumpToFlightCompositeSettings()
+    fun refreshRiding() {
+        riding = null
+        ridingState = null
+        ridingBehaviourSettings = null
+        if (pokemon.riding.behaviour == null) return
+
+        riding = RidingBehaviours.get(pokemon.riding.behaviour!!.key) as RidingBehaviour<RidingBehaviourSettings, RidingBehaviourState>?
+        ridingState = riding!!.createDefaultState()
+        ridingBehaviourSettings = pokemon.riding.behaviour!!
     }
 
     /**
@@ -403,7 +407,7 @@ open class PokemonEntity(
         delegate.changePokemon(pokemon)
         refreshDimensions()
         addPosableFunctions(struct)
-        initializeRiding()
+        refreshRiding()
     }
 
     override fun defineSynchedData(builder: SynchedEntityData.Builder) {

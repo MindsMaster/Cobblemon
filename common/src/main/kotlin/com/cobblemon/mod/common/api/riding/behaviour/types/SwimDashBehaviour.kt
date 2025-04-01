@@ -9,10 +9,10 @@ import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
-import com.cobblemon.mod.common.pokemon.riding.controllers.SwimDashController.Companion.DASH_TICKS
 import com.cobblemon.mod.common.util.blockPositionsAsListRounded
 import com.cobblemon.mod.common.util.cobblemonResource
 import net.minecraft.network.RegistryFriendlyByteBuf
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
@@ -23,6 +23,7 @@ import net.minecraft.world.phys.shapes.Shapes
 class SwimDashBehaviour : RidingBehaviour<SwimDashSettings, SwimDashState> {
     companion object {
         val KEY = cobblemonResource("swim/dash")
+        const val DASH_TICKS: Int = 60
     }
 
     val poseProvider: PoseProvider = PoseProvider(PoseType.FLOAT)
@@ -211,6 +212,8 @@ class SwimDashBehaviour : RidingBehaviour<SwimDashSettings, SwimDashState> {
 }
 
 class SwimDashSettings : RidingBehaviourSettings {
+    override val key = SwimDashBehaviour.KEY
+
     var dashSpeed = 1F
         private set
 

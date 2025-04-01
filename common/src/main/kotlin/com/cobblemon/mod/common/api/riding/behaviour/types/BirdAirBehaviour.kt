@@ -13,6 +13,7 @@ import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.*
 import net.minecraft.network.RegistryFriendlyByteBuf
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
@@ -408,6 +409,8 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
 }
 
 class BirdAirSettings : RidingBehaviourSettings {
+    override val key = BirdAirBehaviour.KEY
+
     //max y level for the ride
     var altitudeExpr: Expression = "q.get_ride_stats('JUMP', 'AIR', 200.0, 128.0)".asExpression()
         private set

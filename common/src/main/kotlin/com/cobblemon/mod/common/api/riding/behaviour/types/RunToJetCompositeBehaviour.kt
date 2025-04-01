@@ -366,6 +366,8 @@ class RunToJetCompositeBehaviour : RidingBehaviour<RunToJetCompositeSettings, Ru
 }
 
 class RunToJetCompositeSettings : RidingBehaviourSettings {
+    override val key = RunToJetCompositeBehaviour.KEY
+
     var jet: JetAirSettings = JetAirSettings()
         private set
 

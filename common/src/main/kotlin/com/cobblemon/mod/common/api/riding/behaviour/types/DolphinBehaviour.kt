@@ -252,6 +252,8 @@ class DolphinBehaviour : RidingBehaviour<DolphinSettings, DolphinState> {
 }
 
 class DolphinSettings : RidingBehaviourSettings {
+    override val key = DolphinBehaviour.KEY
+
     var canJump = "true".asExpression()
         private set
 

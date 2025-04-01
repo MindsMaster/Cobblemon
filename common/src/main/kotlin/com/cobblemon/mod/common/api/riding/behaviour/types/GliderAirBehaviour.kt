@@ -14,6 +14,7 @@ import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.*
 import net.minecraft.network.RegistryFriendlyByteBuf
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
@@ -176,6 +177,8 @@ class GliderAirBehaviour : RidingBehaviour<GliderAirSettings, NoState> {
 }
 
 class GliderAirSettings : RidingBehaviourSettings {
+    override val key = GliderAirBehaviour.KEY
+
     var glideSpeed: Expression = "0.1".asExpression()
         private set
 

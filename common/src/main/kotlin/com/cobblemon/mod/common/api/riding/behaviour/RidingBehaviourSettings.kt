@@ -2,6 +2,7 @@ package com.cobblemon.mod.common.api.riding.behaviour
 
 import com.cobblemon.mod.common.api.net.Decodable
 import com.cobblemon.mod.common.api.net.Encodable
+import net.minecraft.resources.ResourceLocation
 
 /**
  * Represents static settings of a riding behaviour.
@@ -11,4 +12,6 @@ import com.cobblemon.mod.common.api.net.Encodable
  *
  * @author landonjw
  */
-interface RidingBehaviourSettings: Encodable, Decodable
+interface RidingBehaviourSettings: Encodable, Decodable {
+    val key: ResourceLocation
+}

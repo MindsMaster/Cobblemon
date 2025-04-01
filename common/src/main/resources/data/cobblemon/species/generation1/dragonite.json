@@ -126,7 +126,7 @@
         }
       }
     },
-    "controller": {
+    "behaviour": {
       "key": "cobblemon:swim/dolphin"
     },
     "seats": [
@@ -337,6 +337,6 @@
       }
     },
     "seats": [],
-    "controller": null
+    "behaviour": null
   }
 }

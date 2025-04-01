@@ -12,12 +12,9 @@ import com.cobblemon.mod.common.api.riding.controller.posing.PoseProvider
 import com.cobblemon.mod.common.api.riding.stats.RidingStat
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
-import com.cobblemon.mod.common.pokemon.riding.controllers.VehicleLandController.Companion.MAXACCEL
-import com.cobblemon.mod.common.pokemon.riding.controllers.VehicleLandController.Companion.MAXTOPSPEED
-import com.cobblemon.mod.common.pokemon.riding.controllers.VehicleLandController.Companion.MINACCEL
-import com.cobblemon.mod.common.pokemon.riding.controllers.VehicleLandController.Companion.MINTOPSPEED
 import com.cobblemon.mod.common.util.*
 import net.minecraft.network.RegistryFriendlyByteBuf
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
@@ -77,15 +74,15 @@ class VehicleLandBehaviour : RidingBehaviour<VehicleLandSettings, VehicleLandSta
         vehicle: PokemonEntity,
         driver: Player
     ): Float {
-        val topSpeed = vehicle.getRideStat(RidingStat.SPEED, RidingStyle.AIR, MINTOPSPEED, MAXTOPSPEED)
-        val accel = vehicle.getRideStat(RidingStat.ACCELERATION, RidingStyle.AIR, MINACCEL, MAXACCEL)
+        val topSpeed = vehicle.getRideStat(RidingStat.SPEED, RidingStyle.AIR, MIN_TOP_SPEED, MAX_TOP_SPEED)
+        val accel = vehicle.getRideStat(RidingStat.ACCELERATION, RidingStyle.AIR, MIN_ACCEL, MAX_ACCEL)
 
         //speed up and slow down based on input
         if (driver.zza > 0.0 && state.currSpeed < topSpeed) {
             state.currSpeed = min(state.currSpeed + accel , topSpeed)
         } else if (driver.zza < 0.0 && state.currSpeed > 0.0) {
             //Decelerate is now always a constant half of max acceleration.
-            state.currSpeed = max(state.currSpeed - (MAXACCEL / 2), 0.0)
+            state.currSpeed = max(state.currSpeed - (MAX_ACCEL / 2), 0.0)
         }
 
         return state.currSpeed.toFloat()
@@ -264,6 +261,8 @@ class VehicleLandBehaviour : RidingBehaviour<VehicleLandSettings, VehicleLandSta
 }
 
 class VehicleLandSettings : RidingBehaviourSettings {
+    override val key = VehicleLandBehaviour.KEY
+
     var canJump = "true".asExpression()
         private set
 

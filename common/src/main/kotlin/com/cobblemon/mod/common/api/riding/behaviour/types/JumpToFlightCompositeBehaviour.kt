@@ -385,6 +385,8 @@ class JumpToFlightCompositeBehaviour : RidingBehaviour<JumpToFlightCompositeSett
 }
 
 class JumpToFlightCompositeSettings : RidingBehaviourSettings {
+    override val key = JumpToFlightCompositeBehaviour.KEY
+
     var bird: BirdAirSettings = BirdAirSettings()
         private set
 
