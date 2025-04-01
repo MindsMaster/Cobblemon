@@ -41,10 +41,6 @@ class SpawnBaitInfluence(val effects: List<SpawnBait.Effect>, val baitPos: Block
         if (entity is PokemonEntity) {
             effects.forEach { it ->
                 if (Math.random() <= it.chance) {
-                    // TODO clean this test IF up later once we know it works
-                    if (entity.pokemon.species.name == "Larvitar") {
-                        val test = 1
-                    }
                     markUsed()
                     Effects.getEffectFunction(it.type)?.invoke(entity, it)
                 }
@@ -65,18 +61,10 @@ class SpawnBaitInfluence(val effects: List<SpawnBait.Effect>, val baitPos: Block
                     return when {
                         evYieldValue > 0 -> {
                             markUsed()
-                            // TODO clean this test IF up later once we know it works
-                            if (detailSpecies.name == "Larvitar") {
-                                val test = 1
-                            }
                             super.affectWeight(detail, ctx, weight)
                         }
                         else -> {
                             markUsed()
-                            // TODO clean this test IF up later once we know it works
-                            if (detailSpecies.name == "Larvitar") {
-                                val test = 1
-                            }
                             super.affectWeight(detail, ctx, 0f)
                         }
                     }
@@ -94,10 +82,6 @@ class SpawnBaitInfluence(val effects: List<SpawnBait.Effect>, val baitPos: Block
                     val isMatchingType = detailSpecies.types.contains(baitTypingEffect)
                     return when {
                         isMatchingType -> {
-                            // TODO clean this test IF up later once we know it works
-                            if (detailSpecies.name == "Larvitar") {
-                                val test = 1
-                            }
                             markUsed()
                             super.affectWeight(detail, ctx, weight * baitEffect.value.toFloat())
                         }

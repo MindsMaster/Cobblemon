@@ -67,6 +67,7 @@ class PokerodItem(val pokeRodId: ResourceLocation, settings: Properties) : Fishi
             CobblemonEvents.BAIT_CONSUMED.postThen(BaitConsumedEvent(stack)) {
                 val baitStack = getBaitStackOnRod(stack)
                 val baitCount = baitStack.count
+                //val newBaitStack = ItemStack(baitStack.item, baitCount - 1).set<RodBaitComponent>(CobblemonItemComponents.BAIT, RodBaitComponent(baitStack))
 
                 if (baitCount == 1) {
                     stack.set<RodBaitComponent>(CobblemonItemComponents.BAIT, null)
@@ -74,9 +75,8 @@ class PokerodItem(val pokeRodId: ResourceLocation, settings: Properties) : Fishi
                 }
 
                 if (baitCount > 1) {
-                    stack.set(
-                        CobblemonItemComponents.BAIT,
-                        RodBaitComponent(ItemStack(baitStack.item, baitCount - 1))
+                    baitStack.count = baitCount - 1
+                    stack.set(CobblemonItemComponents.BAIT, RodBaitComponent(baitStack)
                     )
                 }
             }
