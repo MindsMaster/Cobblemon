@@ -244,7 +244,23 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
         driver: Player,
         deltaTime: Double
     ): Vec3 {
-        return Vec3.ZERO
+        if (driver !is OrientationControllable) return Vec3.ZERO
+        val controller = (driver as OrientationControllable).orientationController
+
+        //TODO: Tie into handling
+        val handling = vehicle.runtime.resolveDouble(settings.handlingExpr)
+        val topSpeed = vehicle.runtime.resolveDouble(settings.topSpeedExpr)
+         val rotationChangeRate = 10.0
+
+        var yawForce =  rotationChangeRate * sin(Math.toRadians(controller.roll.toDouble()))
+        //for a bit of correction on the rolls limit it to a quarter the amount
+        var pitchForce = -0.35 * rotationChangeRate * abs(sin(Math.toRadians(controller.roll.toDouble())))
+
+        //limit rotation modulation when pitched up heavily or pitched down heavily
+        yawForce *= abs(cos(Math.toRadians(controller.pitch.toDouble())))
+        pitchForce *= abs(cos(Math.toRadians(controller.pitch.toDouble()))) * 1.5
+
+        return Vec3(yawForce, pitchForce, 0.0)
     }
 
     override fun rotationOnMouseXY(
