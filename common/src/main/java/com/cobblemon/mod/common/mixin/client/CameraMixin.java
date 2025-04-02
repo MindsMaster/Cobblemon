@@ -48,6 +48,8 @@ public abstract class CameraMixin {
     @Shadow private float eyeHeight;
     @Shadow private float eyeHeightOld;
 
+    @Shadow protected abstract void setPosition(Vec3 pos);
+
     @Unique private float returnTimer = 0;
     @Unique private float rollAngleStart = 0;
     @Unique Minecraft minecraft = Minecraft.getInstance();
@@ -127,7 +129,8 @@ public abstract class CameraMixin {
             Matrix3f orientation = controller.isActive() && controller.getOrientation() != null ? controller.getOrientation() : new Matrix3f();
             Vec3 rotatedEyeHeight = new Vec3(orientation.transform(new Vector3f(0f, currEyeHeight, 0f)));
 
-            position = locatorOffset.add(entityPos).add(rotatedEyeHeight);
+            var position = locatorOffset.add(entityPos).add(rotatedEyeHeight);
+            setPosition(position);
         } else {
             original.call(instance, x, y, z);
         }
