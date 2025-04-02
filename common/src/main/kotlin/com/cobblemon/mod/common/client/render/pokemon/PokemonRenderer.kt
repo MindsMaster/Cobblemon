@@ -35,7 +35,6 @@ import com.cobblemon.mod.common.entity.npc.NPCEntity
 import com.cobblemon.mod.common.entity.pokeball.EmptyPokeBallEntity
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity.Companion.SPAWN_DIRECTION
-import com.cobblemon.mod.common.RemotePlayerOrientation
 import com.cobblemon.mod.common.pokeball.PokeBall
 import com.cobblemon.mod.common.util.*
 import com.cobblemon.mod.common.util.math.DoubleRange
@@ -46,6 +45,7 @@ import com.mojang.math.Axis
 import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.Font.DisplayMode
+import net.minecraft.client.player.RemotePlayer
 import net.minecraft.client.renderer.*
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.entity.ItemRenderer
@@ -192,38 +192,8 @@ class PokemonRenderer(
             transformationMatrix.translate(center)
 
             val orientation = controller.orientation ?: Matrix3f()
-            if (driver is RemotePlayerOrientation) {
-                // Attempt 1
-//                val lastOrientation = driver.lastOrientation ?: Matrix3f(orientation)
-//                val previous = Quaternionf().setFromUnnormalized(lastOrientation)
-//                val current  = Quaternionf().setFromUnnormalized(orientation)
-//                val slerp = current.slerp(previous, partialTicks, Quaternionf())
-//                transformationMatrix.rotate(slerp)
-//
-//                // Attempt 2
-//                val lastOrientation2 = driver.lastOrientation ?: Matrix3f(orientation)
-//                val previous2 = Quaternionf().setFromNormalized(lastOrientation)
-//                val current2  = Quaternionf().setFromNormalized(orientation)
-//                val slerp2 = previous.slerp(current, partialTicks, Quaternionf())
-////                transformationMatrix.rotate(slerp2)
-//
-////                 Attempt 3
-//                val lastOrientation3 = driver.lastOrientation ?: Matrix3f(orientation)
-//                val lerp3 = orientation.lerp(lastOrientation3, partialTicks, Matrix3f())
-////                transformationMatrix.mul(Matrix4f(lerp3))
-
-                // Attempt 4
-                val renderOrientation = driver.renderOrientation ?: Matrix3f(orientation)
-                val render = Quaternionf().setFromUnnormalized(renderOrientation)
-                val target  = Quaternionf().setFromUnnormalized(orientation)
-                val dampingFactor = 0.15f
-                render.slerp(target, dampingFactor)
-                transformationMatrix.rotate(render)
-
-                // Now store rslerp back as a Matrix3f
-                val newRenderOrientation = Matrix3f()
-                render.get(newRenderOrientation)
-                driver.renderOrientation = newRenderOrientation
+            if (driver is RemotePlayer) {
+                transformationMatrix.rotate(controller.getRenderOrientation(cobblemonResource("pokemon")))
             }
             else {
                 transformationMatrix.mul(Matrix4f(orientation))

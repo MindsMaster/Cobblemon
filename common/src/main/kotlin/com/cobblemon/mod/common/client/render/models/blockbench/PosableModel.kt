@@ -40,6 +40,7 @@ import com.cobblemon.mod.common.entity.npc.NPCEntity
 import com.cobblemon.mod.common.entity.pokeball.EmptyPokeBallEntity
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.asExpressionLike
+import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.common.util.plus
 import com.cobblemon.mod.common.util.toRGBA
 import com.mojang.blaze3d.systems.RenderSystem
@@ -722,11 +723,12 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
         if (entity is PokemonEntity) {
             if(entity.passengers.isNotEmpty() && entity.controllingPassenger is OrientationControllable
                 && (entity.controllingPassenger as OrientationControllable).orientationController.orientation != null){
-                val controllingPassenger = entity.controllingPassenger
+                val controllingPassenger = entity.controllingPassenger as OrientationControllable
+                val controller = controllingPassenger.orientationController
                 val transformationMatrix = Matrix4f()
                 val center = Vector3f(0f, entity.bbHeight/2, 0f)
                 transformationMatrix.translate(center)
-                transformationMatrix.mul(Matrix4f((controllingPassenger as OrientationControllable).orientationController.orientation!!))
+                transformationMatrix.rotate(controller.getRenderOrientation(cobblemonResource("model")))
                 transformationMatrix.translate(center.negate())
                 matrixStack.mulPose(transformationMatrix)
             } else {

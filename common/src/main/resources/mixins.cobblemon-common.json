@@ -28,8 +28,7 @@
     "client.PlayerModelMixin",
     "client.CameraMixin",
     "invoker.ClientPlayNetworkHandlerInvoker",
-    "riding.JetMixin",
-    "client.RemotePlayerMixin"
+    "riding.JetMixin"
   ],
   "mixins": [
     "ChunkStorageMixin",

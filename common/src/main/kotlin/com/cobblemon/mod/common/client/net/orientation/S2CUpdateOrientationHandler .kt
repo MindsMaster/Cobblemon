@@ -9,7 +9,6 @@
 package com.cobblemon.mod.common.client.net.orientation
 
 import com.cobblemon.mod.common.OrientationControllable
-import com.cobblemon.mod.common.RemotePlayerOrientation
 import com.cobblemon.mod.common.api.net.ClientNetworkPacketHandler
 import com.cobblemon.mod.common.net.messages.client.orientation.S2CUpdateOrientationPacket
 import net.minecraft.client.Minecraft
@@ -22,9 +21,6 @@ object S2CUpdateOrientationHandler : ClientNetworkPacketHandler<S2CUpdateOrienta
             if (entity is OrientationControllable) {
                 packet.active?.let {
                     entity.orientationController.active = it
-                    if (entity is RemotePlayerOrientation) {
-                        entity.lastOrientation = if (it) entity.orientationController.orientation else null
-                    }
                 }
                 entity.orientationController.updateOrientation { _ -> packet.orientation }
             }
