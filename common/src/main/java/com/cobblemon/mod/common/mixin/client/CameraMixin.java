@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.mixin.client;
 
 import com.cobblemon.mod.common.OrientationControllable;
+import com.cobblemon.mod.common.api.orientation.OrientationController;
 import com.cobblemon.mod.common.api.riding.Rideable;
 import com.cobblemon.mod.common.api.riding.Seat;
 import com.cobblemon.mod.common.client.entity.PokemonClientDelegate;
@@ -31,6 +32,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Camera.class)
 public abstract class CameraMixin {
@@ -100,11 +102,10 @@ public abstract class CameraMixin {
 
         if(vehicle instanceof Rideable){
             //RidingCameraDelagate.INSTANCE.positionCamera(instance, x, y, z, original);
-            if(!(vehicle instanceof PokemonEntity)){
+            if (!(vehicle instanceof PokemonEntity pokemon)) {
                 original.call(instance, x, y, z);
                 return;
             }
-            PokemonEntity pokemon = (PokemonEntity) vehicle;
 
             int seatIndex = pokemon.getPassengers().indexOf(entity);
             Seat seat = pokemon.getSeats().get(seatIndex);
@@ -150,5 +151,13 @@ public abstract class CameraMixin {
         this.forwards.set(controller.getForwardVector());
         this.up.set(controller.getUpVector());
         this.left.set(controller.getLeftVector());
+    }
+
+    @Inject(method = "rotation", at = @At("HEAD"), cancellable = true)
+    public void modifyRotation(CallbackInfoReturnable<Quaternionf> cir) {
+        if (!(this.entity instanceof OrientationControllable controllable) || disableRollableCameraDebug) return;
+        OrientationController controller = controllable.getOrientationController();
+        if (!controller.isActive()) return;
+        cir.setReturnValue(new Quaternionf().setFromUnnormalized(controller.getOrientation()));
     }
 }
