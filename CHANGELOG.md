@@ -12,6 +12,7 @@
   - Added the various log blocks as cosmetic items for Timburr and Komala.
 - Added `visibility/hidden`, `visibility/hat` and `visibility/face` tags to control where and how certain items are rendered.
 - Added `/boxcount` command to change PC boxes amount
+- Added cosmetics for Gurdurr, Conkeldurr, Squirtle Line, Sneasler, Sandle line, Treecko line, Braixen, Delphox, and Dragonite.
 
 ### Pokémon Added
 
@@ -68,6 +69,8 @@
 - When using the `cobblemon` or `generation_9` capture calculators a critical capture with a single shake will always play for successful captures when you've already registered the Pokémon as caught in your Pokédex.
 - Improved the performance of saving Pokédex and player data.
 - Pokémon hitbox now scales with entity attribute `generic.scale`.
+- Removed Shulker aspect and replaced it with cosmetic_item-shulker_shell.
+- Shulker shell Forretress is now a cosmetic rather than a special evo and thus all shulker Forretress will revert back to normal until a shulker shell is put in their cosmetic slot.
 
 ### Fixes
 - Fixed Particles sometimes facing the wrong direction (looking at you, Swords Dance)
