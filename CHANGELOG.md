@@ -15,8 +15,17 @@
 
 ### Pokémon Added
 
+#### Gen 3
+- Spoink
+- Grumpig
+- Snorunt
+- Glalie
+
 #### Gen 4
+- Bronzor
+- Bronzong
 - Croagunk
+- Froslass
 
 #### Gen 5
 - Pansage
@@ -25,6 +34,25 @@
 - Simisear
 - Panpour
 - Simipour
+- Munna
+- Musharna
+- Blitzle
+- Zebstrika
+- Trubbish
+- Garbodor
+
+#### Gen 7
+- Drampa
+
+#### Gen 8
+- Silicobra
+- Sandaconda
+
+#### Gen 9
+- Smoliv
+- Dolliv
+- Arboliva
+- Orthworm
 
 ### Animation updates for the following Pokémon
 - Soon
