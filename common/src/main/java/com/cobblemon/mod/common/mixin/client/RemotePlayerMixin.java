@@ -12,6 +12,9 @@ public class RemotePlayerMixin implements RemotePlayerOrientation {
     @Unique
     Matrix3f cobblemon$lastOrientation;
 
+    @Unique
+    Matrix3f cobblemon$renderOrientation;
+
 
     @Override
     public Matrix3f getLastOrientation() {
@@ -21,6 +24,17 @@ public class RemotePlayerMixin implements RemotePlayerOrientation {
     @Override
     public void setLastOrientation(Matrix3f orientation) {
         cobblemon$lastOrientation = orientation;
+    }
+
+
+    @Override
+    public Matrix3f getRenderOrientation() {
+        return cobblemon$renderOrientation;
+    }
+
+    @Override
+    public void setRenderOrientation(Matrix3f orientation) {
+        cobblemon$renderOrientation = orientation;
     }
 
 }

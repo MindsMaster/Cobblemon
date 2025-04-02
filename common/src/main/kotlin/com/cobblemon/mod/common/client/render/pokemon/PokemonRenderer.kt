@@ -194,23 +194,36 @@ class PokemonRenderer(
             val orientation = controller.orientation ?: Matrix3f()
             if (driver is RemotePlayerOrientation) {
                 // Attempt 1
-                val lastOrientation = driver.lastOrientation ?: Matrix3f(orientation)
-                val previous = Quaternionf().setFromUnnormalized(lastOrientation)
-                val current  = Quaternionf().setFromUnnormalized(orientation)
-                val slerp = current.slerp(previous, partialTicks, Quaternionf())
-                transformationMatrix.rotate(slerp)
+//                val lastOrientation = driver.lastOrientation ?: Matrix3f(orientation)
+//                val previous = Quaternionf().setFromUnnormalized(lastOrientation)
+//                val current  = Quaternionf().setFromUnnormalized(orientation)
+//                val slerp = current.slerp(previous, partialTicks, Quaternionf())
+//                transformationMatrix.rotate(slerp)
+//
+//                // Attempt 2
+//                val lastOrientation2 = driver.lastOrientation ?: Matrix3f(orientation)
+//                val previous2 = Quaternionf().setFromNormalized(lastOrientation)
+//                val current2  = Quaternionf().setFromNormalized(orientation)
+//                val slerp2 = previous.slerp(current, partialTicks, Quaternionf())
+////                transformationMatrix.rotate(slerp2)
+//
+////                 Attempt 3
+//                val lastOrientation3 = driver.lastOrientation ?: Matrix3f(orientation)
+//                val lerp3 = orientation.lerp(lastOrientation3, partialTicks, Matrix3f())
+////                transformationMatrix.mul(Matrix4f(lerp3))
 
-                // Attempt 2
-                val lastOrientation2 = driver.lastOrientation ?: Matrix3f(orientation)
-                val previous2 = Quaternionf().setFromNormalized(lastOrientation)
-                val current2  = Quaternionf().setFromNormalized(orientation)
-                val slerp2 = previous.slerp(current, partialTicks, Quaternionf())
-//                transformationMatrix.rotate(slerp2)
+                // Attempt 4
+                val renderOrientation = driver.renderOrientation ?: Matrix3f(orientation)
+                val render = Quaternionf().setFromUnnormalized(renderOrientation)
+                val target  = Quaternionf().setFromUnnormalized(orientation)
+                val dampingFactor = 0.15f
+                render.slerp(target, dampingFactor)
+                transformationMatrix.rotate(render)
 
-//                 Attempt 3
-                val lastOrientation3 = driver.lastOrientation ?: Matrix3f(orientation)
-                val lerp3 = orientation.lerp(lastOrientation3, partialTicks, Matrix3f())
-//                transformationMatrix.mul(Matrix4f(lerp3))
+                // Now store rslerp back as a Matrix3f
+                val newRenderOrientation = Matrix3f()
+                render.get(newRenderOrientation)
+                driver.renderOrientation = newRenderOrientation
             }
             else {
                 transformationMatrix.mul(Matrix4f(orientation))
