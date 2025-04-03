@@ -10,11 +10,11 @@ package com.cobblemon.mod.common.client.net.orientation
 
 import com.cobblemon.mod.common.OrientationControllable
 import com.cobblemon.mod.common.api.net.ClientNetworkPacketHandler
-import com.cobblemon.mod.common.net.messages.client.orientation.S2CUpdateOrientationPacket
+import com.cobblemon.mod.common.net.messages.client.orientation.ClientboundUpdateOrientationPacket
 import net.minecraft.client.Minecraft
 
-object S2CUpdateOrientationHandler : ClientNetworkPacketHandler<S2CUpdateOrientationPacket> {
-    override fun handle(packet: S2CUpdateOrientationPacket, client: Minecraft) {
+object S2CUpdateOrientationHandler : ClientNetworkPacketHandler<ClientboundUpdateOrientationPacket> {
+    override fun handle(packet: ClientboundUpdateOrientationPacket, client: Minecraft) {
         client.executeIfPossible {
             val level = client.level ?: return@executeIfPossible
             val entity = level.getEntity(packet.entityId)

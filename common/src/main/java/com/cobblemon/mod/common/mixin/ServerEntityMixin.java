@@ -10,10 +10,13 @@ package com.cobblemon.mod.common.mixin;
 
 import com.cobblemon.mod.common.CobblemonNetwork;
 import com.cobblemon.mod.common.OrientationControllable;
+import com.cobblemon.mod.common.api.net.NetworkPacket;
 import com.cobblemon.mod.common.api.orientation.OrientationController;
+import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.mixin.accessor.ChunkMapAccessor;
 import com.cobblemon.mod.common.mixin.accessor.TrackedEntityAccessor;
-import com.cobblemon.mod.common.net.messages.client.orientation.S2CUpdateOrientationPacket;
+import com.cobblemon.mod.common.net.messages.client.orientation.ClientboundUpdateOrientationPacket;
+import com.cobblemon.mod.common.net.messages.client.pokemon.update.ClientboundUpdateRidingStatePacket;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.level.ChunkMap;
@@ -37,28 +40,48 @@ import java.util.function.Consumer;
 @Mixin(ServerEntity.class)
 public abstract class ServerEntityMixin {
 
-    @Shadow @Final private Consumer<Packet<?>> broadcast;
-    @Shadow @Final private Entity entity;
+    @Shadow
+    @Final
+    private Consumer<Packet<?>> broadcast;
+    @Shadow
+    @Final
+    private Entity entity;
     @Unique
     private Matrix3f cobblemon$lastSentOrientation;
+    @Unique
     private boolean cobblemon$lastSentActive;
 
     @Inject(method = "sendChanges", at = @At("TAIL"))
-    private void cobblemon$sendOrientationChanges(CallbackInfo ci) {
+    private void cobblemon$sendChanges(CallbackInfo ci) {
+        cobblemon$sendOrientationChanges();
+        cobblemon$sendRidingStateChanges();
+    }
+
+    private void cobblemon$sendRidingStateChanges() {
+        if (!(this.entity instanceof PokemonEntity pokemonEntity)) return;
+        if (pokemonEntity.getRidingState() == null) return;
+        if (pokemonEntity.getRiding() == null) return;
+        var ridingBehaviour = pokemonEntity.getRiding();
+        if (!pokemonEntity.getRidingState().isDirty()) return;
+        cobblemon$broadcast(new ClientboundUpdateRidingStatePacket(pokemonEntity.getId(), ridingBehaviour.getKey(), pokemonEntity.getRidingState(), null));
+    }
+
+    private void cobblemon$sendOrientationChanges() {
         if (!(this.entity instanceof OrientationControllable controllable)) return;
-
-
         OrientationController controller = controllable.getOrientationController();
         Matrix3f currOrientation = controller.getOrientation();
         boolean currActive = controller.getActive();
 
-        if (currOrientation == null || currOrientation.equals(cobblemon$lastSentOrientation) && (currActive == cobblemon$lastSentActive)) return;
+        if (currOrientation == null || currOrientation.equals(cobblemon$lastSentOrientation) && (currActive == cobblemon$lastSentActive))
+            return;
         cobblemon$lastSentOrientation = new Matrix3f(currOrientation);
         cobblemon$lastSentActive = currActive;
 
+        cobblemon$broadcast(new ClientboundUpdateOrientationPacket(currOrientation, currActive, entity.getId()));
+    }
 
+    private void cobblemon$broadcast(NetworkPacket<?> packet) {
         if (!(entity.level() instanceof ServerLevel level)) return;
-
         ChunkMap chunkMap = level.getChunkSource().chunkMap;
         Int2ObjectMap<?> entityMap = ((ChunkMapAccessor) chunkMap).getEntityMap();
         Object tracked = entityMap.get(entity.getId());
@@ -68,35 +91,8 @@ public abstract class ServerEntityMixin {
         for (ServerPlayerConnection conn : seenBy) {
             ServerPlayer player = conn.getPlayer();
             if (player == entity) continue;
-            CobblemonNetwork.INSTANCE.sendPacketToPlayer(player, new S2CUpdateOrientationPacket(currOrientation, currActive, entity.getId()));
+            CobblemonNetwork.INSTANCE.sendPacketToPlayer(player, packet);
         }
-
-
-        /*
-        OrientationController controller = controllable.getOrientationController();
-        Matrix3f currOrientation = controller.getOrientation();
-
-        if(currOrientation != cobblemon$lastSentOrientation) {
-            cobblemon$lastSentOrientation = new Matrix3f(currOrientation);
-
-            //this.broadcast.accept(new S2CUpdateOrientationPacket(currOrientation,this.entity.getId()))
-
-            if (!(entity.level() instanceof ServerLevel level)) return;
-
-            ChunkMap chunkMap = level.getChunkSource().chunkMap;
-            Long2ObjectMap<ChunkMap.TrackedEntity> entityMap = ((ChunkMapAccessor) chunkMap).getEntityMap();
-            TrackedEntity trackedEntity = entityMap.get(entity.getId());
-            if (trackedEntity == null) return;
-            Set<ServerPlayerConnection> seenBy = ((TrackedEntityAccessor) trackedEntity).getSeenBy();
-            for (ServerPlayerConnection conn : seenBy) {
-                ServerPlayer player = conn.getPlayer();
-                if (player == entity) continue; // optional safety filter
-                CobblemonNetwork.sendPacketToPlayer(player, new S2CUpdateOrientationPacket(orientation, entity.getId()));
-
-
-        }
-
-         */
     }
 
 
