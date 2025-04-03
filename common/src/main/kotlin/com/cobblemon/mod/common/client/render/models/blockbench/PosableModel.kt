@@ -49,7 +49,9 @@ import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
 import com.mojang.blaze3d.vertex.VertexFormat
 import com.mojang.math.Axis
+import net.minecraft.client.Minecraft
 import net.minecraft.client.model.geom.ModelPart
+import net.minecraft.client.player.RemotePlayer
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderStateShard
 import net.minecraft.client.renderer.RenderType
@@ -728,7 +730,12 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
                 val transformationMatrix = Matrix4f()
                 val center = Vector3f(0f, entity.bbHeight/2, 0f)
                 transformationMatrix.translate(center)
-                transformationMatrix.rotate(controller.getRenderOrientation(cobblemonResource("model")))
+                if (controllingPassenger == Minecraft.getInstance().player) {
+                    transformationMatrix.mul(Matrix4f(controller.orientation))
+                }
+                else {
+                    transformationMatrix.rotate(controller.getRenderOrientation(cobblemonResource("model")))
+                }
                 transformationMatrix.translate(center.negate())
                 matrixStack.mulPose(transformationMatrix)
             } else {
