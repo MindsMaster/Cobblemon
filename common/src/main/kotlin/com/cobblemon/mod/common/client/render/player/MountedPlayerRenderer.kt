@@ -78,6 +78,7 @@ object MountedPlayerRenderer {
             val center = Vector3f(0f, player.bbHeight / 2, 0f)
             val transformationMatrix = Matrix4f()
             transformationMatrix.translate(center)
+            transformationMatrix.rotate(player.orientationController.getRenderOrientation(cobblemonResource("player")))
             transformationMatrix.translate(center.negate(Vector3f()))
             //Pre-Undo Yaw
             transformationMatrix.rotate(Axis.YP.rotationDegrees(yBodyRot+180f))
