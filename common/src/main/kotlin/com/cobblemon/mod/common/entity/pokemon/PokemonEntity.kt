@@ -1563,7 +1563,7 @@ open class PokemonEntity(
 
     override fun handleRelativeFrictionAndCalculateMovement(deltaMovement: Vec3, friction: Float): Vec3 {
         val riders = this.passengers.filterIsInstance<LivingEntity>()
-        if (riders.isEmpty()) {
+        if (riders.isEmpty() || this.controllingPassenger == null) {
             super.handleRelativeFrictionAndCalculateMovement(deltaMovement, friction)
         } else {
             val velocity = ifRidingAvailableSupply(fallback = Vec3.ZERO) { behaviour, settings, state ->
