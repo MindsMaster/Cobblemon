@@ -207,12 +207,10 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
 
         //Check if the ride should be gliding
         if (driver.isLocalPlayer) {
-            if (state.lastGlide.get() + 10 < vehicle.level().gameTime) {
-                if (activeInput && state.stamina.get() > 0.0) {
-                    state.gliding.set(false)
-                } else {
-                    state.gliding.set(true)
-                }
+            if (activeInput && state.stamina.get() > 0.0) {
+                state.gliding.set(false)
+            } else {
+                state.gliding.set(true)
             }
         }
 

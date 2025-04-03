@@ -152,12 +152,4 @@ public abstract class CameraMixin {
         this.up.set(controller.getUpVector());
         this.left.set(controller.getLeftVector());
     }
-
-    @Inject(method = "rotation", at = @At("HEAD"), cancellable = true)
-    public void modifyRotation(CallbackInfoReturnable<Quaternionf> cir) {
-        if (!(this.entity instanceof OrientationControllable controllable) || disableRollableCameraDebug) return;
-        OrientationController controller = controllable.getOrientationController();
-        if (!controller.isActive()) return;
-        cir.setReturnValue(new Quaternionf().setFromUnnormalized(controller.getOrientation()));
-    }
 }
