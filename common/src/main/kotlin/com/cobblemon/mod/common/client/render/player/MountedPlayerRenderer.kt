@@ -92,7 +92,7 @@ object MountedPlayerRenderer {
             transformationMatrix.rotate(Axis.YP.rotationDegrees(yBodyRot+180f))
             matrix.mul(transformationMatrix)
         }
-        matrix.translate(0f, 0.5f, 0f)
+        matrix.translate(0f, 0.25f, 0f)
     }
 
     fun animate(
