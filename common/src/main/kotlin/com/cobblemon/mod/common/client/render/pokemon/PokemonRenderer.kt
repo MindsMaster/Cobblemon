@@ -191,13 +191,7 @@ class PokemonRenderer(
             //Move origin to center of Pokemon
             transformationMatrix.translate(center)
 
-            val orientation = controller.orientation ?: Matrix3f()
-            if (driver is RemotePlayer) {
-                transformationMatrix.rotate(controller.getRenderOrientation(cobblemonResource("pokemon")))
-            }
-            else {
-                transformationMatrix.mul(Matrix4f(orientation))
-            }
+            transformationMatrix.rotate(controller.getRenderOrientation(cobblemonResource("pokemon")))
             //Move origin to base of the entity
             transformationMatrix.translate(center.negate(Vector3f()))
 
