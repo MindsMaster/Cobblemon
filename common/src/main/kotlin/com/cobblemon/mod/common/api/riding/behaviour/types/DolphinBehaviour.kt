@@ -3,9 +3,7 @@ package com.cobblemon.mod.common.api.riding.behaviour.types
 import com.bedrockk.molang.runtime.value.DoubleValue
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.OrientationControllable
-import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviour
-import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviourSettings
-import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviourState
+import com.cobblemon.mod.common.api.riding.behaviour.*
 import com.cobblemon.mod.common.api.riding.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.posing.PoseProvider
 import com.cobblemon.mod.common.entity.PoseType
@@ -72,8 +70,8 @@ class DolphinBehaviour : RidingBehaviour<DolphinSettings, DolphinState> {
 
         if (!vehicle.isInWater && !vehicle.isUnderWater)
         {
-            state.lastVelocity = Vec3(state.lastVelocity.x, state.lastVelocity.y - 0.035, state.lastVelocity.z)
-            return state.lastVelocity
+            state.lastVelocity.set(Vec3(state.lastVelocity.get().x, state.lastVelocity.get().y - 0.035, state.lastVelocity.get().z))
+            return state.lastVelocity.get()
         }
 
         val driveFactor = runtime.resolveFloat(settings.driveFactor)
@@ -99,7 +97,7 @@ class DolphinBehaviour : RidingBehaviour<DolphinSettings, DolphinState> {
         }
 
         val currVelocity = Vec3(0.0, yComp , g.toDouble())
-        state.lastVelocity = currVelocity
+        state.lastVelocity.set(currVelocity)
         return currVelocity
     }
 
@@ -301,21 +299,21 @@ class DolphinSettings : RidingBehaviourSettings {
 }
 
 class DolphinState : RidingBehaviourState {
-    var lastVelocity = Vec3.ZERO
+    var lastVelocity = ridingState(Vec3.ZERO, Side.BOTH)
 
     override fun encode(buffer: RegistryFriendlyByteBuf) = Unit
     override fun decode(buffer: RegistryFriendlyByteBuf) = Unit
 
     override fun reset() {
-        lastVelocity = Vec3.ZERO
+        lastVelocity.set(Vec3.ZERO, forced = true)
     }
 
     override fun toString(): String {
-        return "DolphinState(lastVelocity=$lastVelocity)"
+        return "DolphinState(lastVelocity=${lastVelocity.get()})"
     }
 
     override fun copy() = DolphinState().also {
-        it.lastVelocity = lastVelocity
+        it.lastVelocity.set(lastVelocity.get(), forced = true)
     }
 
     override fun shouldSync(previous: RidingBehaviourState) = false

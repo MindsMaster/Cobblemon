@@ -2,9 +2,7 @@ package com.cobblemon.mod.common.api.riding.behaviour.types
 
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.OrientationControllable
-import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviour
-import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviourSettings
-import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviourState
+import com.cobblemon.mod.common.api.riding.behaviour.*
 import com.cobblemon.mod.common.api.riding.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.posing.PoseProvider
 import com.cobblemon.mod.common.entity.PoseType
@@ -52,15 +50,16 @@ class SwimDashBehaviour : RidingBehaviour<SwimDashSettings, SwimDashState> {
         vehicle: PokemonEntity,
         driver: Player
     ): Float {
-        if(state.dashing) {
-            if(state.ticks++ >= DASH_TICKS) {
-                state.dashing = false
+        if(state.dashing.get()) {
+            state.ticks.set(state.ticks.get() + 1)
+            if(state.ticks.get() >= DASH_TICKS) {
+                state.dashing.set(false)
             }
 
             return 0.0F
         }
 
-        state.dashing = true
+        state.dashing.set(true)
         return settings.dashSpeed
     }
 
@@ -229,24 +228,24 @@ class SwimDashSettings : RidingBehaviourSettings {
 }
 
 class SwimDashState : RidingBehaviourState {
-    var dashing = false
-    var ticks = 0
+    var dashing = ridingState(false, Side.BOTH)
+    var ticks = ridingState(0, Side.BOTH)
 
     override fun encode(buffer: RegistryFriendlyByteBuf) = Unit
     override fun decode(buffer: RegistryFriendlyByteBuf) = Unit
 
     override fun reset() {
-        dashing = false
-        ticks = 0
+        dashing.set(false, forced = true)
+        ticks.set(0, forced = true)
     }
 
     override fun toString(): String {
-        return "SwimDashState(dashing=$dashing, ticks=$ticks)"
+        return "SwimDashState(dashing=${dashing.get()}, ticks=${ticks.get()})"
     }
 
     override fun copy() = SwimDashState().also {
-        it.dashing = dashing
-        it.ticks = ticks
+        it.dashing.set(dashing.get(), forced = true)
+        it.ticks.set(ticks. get(), forced = true)
     }
 
     override fun shouldSync(previous: RidingBehaviourState) = false

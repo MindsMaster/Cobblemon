@@ -4,9 +4,7 @@ import com.bedrockk.molang.Expression
 import com.bedrockk.molang.runtime.MoLangMath.lerp
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.OrientationControllable
-import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviour
-import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviourSettings
-import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviourState
+import com.cobblemon.mod.common.api.riding.behaviour.*
 import com.cobblemon.mod.common.api.riding.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.posing.PoseProvider
 import com.cobblemon.mod.common.entity.PoseType
@@ -29,7 +27,7 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
     override val key: ResourceLocation = KEY
 
     val poseProvider = PoseProvider<BirdAirSettings, BirdAirState>(PoseType.HOVER)
-        .with(PoseOption(PoseType.FLY) { _, state, _ -> state.rideVel.z > 0.1 })
+        .with(PoseOption(PoseType.FLY) { _, state, _ -> state.rideVel.get().z > 0.1 })
 
     override fun isActive(settings: BirdAirSettings, state: BirdAirState, vehicle: PokemonEntity): Boolean {
         return true
@@ -45,7 +43,7 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
         vehicle: PokemonEntity,
         driver: Player
     ): Float {
-        return state.rideVel.length().toFloat()
+        return state.rideVel.get().length().toFloat()
     }
 
     override fun rotation(
@@ -77,16 +75,16 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
         if (controller != null) {
             //Need to deadzone this when straight up or down
 
-            upForce += -1.0 * sin(Math.toRadians(controller.pitch.toDouble())) * state.rideVel.z
-            forwardForce += cos(Math.toRadians(controller.pitch.toDouble())) * state.rideVel.z
+            upForce += -1.0 * sin(Math.toRadians(controller.pitch.toDouble())) * state.rideVel.get().z
+            forwardForce += cos(Math.toRadians(controller.pitch.toDouble())) * state.rideVel.get().z
 
-            upForce += cos(Math.toRadians(controller.pitch.toDouble())) * state.rideVel.y
-            forwardForce += sin(Math.toRadians(controller.pitch.toDouble())) * state.rideVel.y
+            upForce += cos(Math.toRadians(controller.pitch.toDouble())) * state.rideVel.get().y
+            forwardForce += sin(Math.toRadians(controller.pitch.toDouble())) * state.rideVel.get().y
         }
 
 
         //Bring the ride out of the sky when stamina is depleted.
-        if (state.stamina <= 0.0) {
+        if (state.stamina.get() <= 0.0) {
             upForce -= 0.3
         }
 
@@ -98,7 +96,7 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
             upForce = if (vehicle.y >= altitudeLimit && upForce > 0) 0.0 else upForce
         }
 
-        val velocity = Vec3(state.rideVel.x , upForce, forwardForce)
+        val velocity = Vec3(state.rideVel.get().x , upForce, forwardForce)
         return velocity
     }
 
@@ -114,15 +112,15 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
 
         var glideSpeedChange = 0.0
 
-        val currSpeed = state.rideVel.length()
+        val currSpeed = state.rideVel.get().length()
 
         //Flag for determining if player is actively inputting
         var activeInput = false
 
-        var newVelocity = Vec3(state.rideVel.x, state.rideVel.y, state.rideVel.z)
+        var newVelocity = Vec3(state.rideVel.get().x, state.rideVel.get().y, state.rideVel.get().z)
 
         //speed up and slow down based on input
-        if (driver.zza != 0.0f && state.stamina > 0.0) {
+        if (driver.zza != 0.0f && state.stamina.get() > 0.0) {
             //make sure it can't exceed top speed
             val forwardInput = when {
                 driver.zza > 0 && newVelocity.z > topSpeed -> 0.0
@@ -171,7 +169,7 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
 
         //Lateral movement based on driver input.
         val latTopSpeed = topSpeed / 2.0
-        if (driver.xxa != 0.0f && state.stamina > 0.0) {
+        if (driver.xxa != 0.0f && state.stamina.get() > 0.0) {
             newVelocity = Vec3(
                 (newVelocity.x + (accel * driver.xxa)).coerceIn(-latTopSpeed, latTopSpeed),
                 newVelocity.y,
@@ -193,7 +191,7 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
             else -> 0.0
         }
 
-        if (vertInput != 0.0 && state.stamina > 0.0) {
+        if (vertInput != 0.0 && state.stamina.get() > 0.0) {
             newVelocity = Vec3(
                 newVelocity.x,
                 (newVelocity.y + (accel * vertInput)).coerceIn(-vertTopSpeed, vertTopSpeed),
@@ -208,24 +206,28 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
         }
 
         //Check if the ride should be gliding
-        if (activeInput && state.stamina > 0.0) {
-            state.gliding = false
-        }else {
-            state.gliding = true
+        if (driver.isLocalPlayer) {
+            if (state.lastGlide.get() + 10 < vehicle.level().gameTime) {
+                if (activeInput && state.stamina.get() > 0.0) {
+                    state.gliding.set(false)
+                } else {
+                    state.gliding.set(true)
+                }
+            }
         }
 
         //Only perform stamina logic if the ride does not have infinite stamina
         if (!vehicle.runtime.resolveBoolean(settings.infiniteStamina)) {
             if (activeInput) {
-                state.stamina -= (0.05 / staminaStat).toFloat()
+                state.stamina.set(state.stamina.get() - (0.05 / staminaStat).toFloat())
             }
 
             //Lose a base amount of stamina just for being airborne
-            state.stamina -= (0.01 / staminaStat).toFloat()
+            state.stamina.set(state.stamina.get() - (0.01 / staminaStat).toFloat())
         }
         else
         {
-            state.stamina = 1.0f
+            state.stamina.set(1.0f)
         }
 
         //air resistance
@@ -234,7 +236,7 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
             newVelocity.y,
             lerp( newVelocity.z,0.0, topSpeed / ( 20.0 * 30.0))
         )
-        state.rideVel = newVelocity
+        state.rideVel.set(newVelocity)
     }
 
     override fun angRollVel(
@@ -292,7 +294,7 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
         //modulated by speed so that when flapping idle in air you are ont wobbling around to look around
         val rotMin = 15.0
         var rollForce = xInput
-        val rotLimit = max(handling * normalizeVal(state.rideVel.length(), 0.0, topSpeed).pow(3), rotMin)
+        val rotLimit = max(handling * normalizeVal(state.rideVel.get().length(), 0.0, topSpeed).pow(3), rotMin)
 
         //Limit roll by non linearly decreasing inputs towards
         // a rotation limit based on the current distance from
@@ -307,7 +309,7 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
         }
 
         //Give the ability to yaw with x mouse input when at low speeds.
-        val yawForce = xInput * ( 1.0 - normalizeVal(state.rideVel.length(), 0.0, topSpeed).pow(3))
+        val yawForce = xInput * ( 1.0 - normalizeVal(state.rideVel.get().length(), 0.0, topSpeed).pow(3))
 
         //yaw, pitch, roll
         return Vec3(yawForce, yInput, rollForce)
@@ -338,7 +340,7 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
         vehicle: PokemonEntity,
         driver: Player
     ): Float {
-        return (state.stamina / 1.0f)
+        return (state.stamina.get() / 1.0f)
     }
 
     override fun jumpForce(
@@ -370,7 +372,7 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
         val glideTopSpeed = vehicle.runtime.resolveDouble(settings.glideTopSpeedExpr)
 
         //Must I ensure that topspeed is greater than minimum?
-        val normalizedGlideSpeed = normalizeVal(state.rideVel.length(), topSpeed, glideTopSpeed)
+        val normalizedGlideSpeed = normalizeVal(state.rideVel.get().length(), topSpeed, glideTopSpeed)
 
         //Only ever want the fov change to be a max of 0.2 and for it to have non linear scaling.
         return 1.0f + normalizedGlideSpeed.pow(2).toFloat() * 0.2f
@@ -390,7 +392,7 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
         vehicle: PokemonEntity,
         driver: Player
     ): Boolean {
-        return state.gliding
+        return state.gliding.get()
     }
 
     override fun inertia(settings: BirdAirSettings, state: BirdAirState, vehicle: PokemonEntity): Double {
@@ -483,36 +485,39 @@ class BirdAirSettings : RidingBehaviourSettings {
 }
 
 class BirdAirState : RidingBehaviourState {
-    var rideVel: Vec3 = Vec3.ZERO
-    var stamina: Float = 1.0f
-    var gliding: Boolean = false
+    var rideVel = ridingState(Vec3.ZERO, Side.CLIENT)
+    var stamina = ridingState(1.0f, Side.CLIENT)
+    var gliding = ridingState(false, Side.CLIENT)
+    var lastGlide = ridingState(-100L, Side.CLIENT)
 
     override fun encode(buffer: RegistryFriendlyByteBuf) {
-        buffer.writeVec3(rideVel)
-        buffer.writeFloat(stamina)
-        buffer.writeBoolean(gliding)
+        buffer.writeVec3(rideVel.get())
+        buffer.writeFloat(stamina.get())
+        buffer.writeBoolean(gliding.get())
     }
 
     override fun decode(buffer: RegistryFriendlyByteBuf) {
-        rideVel = buffer.readVec3()
-        stamina = buffer.readFloat()
-        gliding = buffer.readBoolean()
+        rideVel.set(buffer.readVec3(), forced = true)
+        stamina.set(buffer.readFloat(), forced = true)
+        gliding.set(buffer.readBoolean(), forced = true)
     }
 
     override fun reset() {
-        rideVel = Vec3.ZERO
-        stamina = 1.0f
-        gliding = false
+        rideVel.set(Vec3.ZERO, forced = true)
+        stamina.set(1.0f, forced = true)
+        gliding.set(false, forced = true)
+        lastGlide.set(-100L, forced = true)
     }
 
     override fun toString(): String {
-        return "BirdAirState(rideVel=$rideVel, stamina=$stamina, gliding=$gliding)"
+        return "BirdAirState(rideVel=${rideVel.get()}, stamina=${stamina.get()}, gliding=${gliding.get()})"
     }
 
     override fun copy() = BirdAirState().also {
-        it.rideVel = this.rideVel
-        it.stamina = this.stamina
-        it.gliding = this.gliding
+        it.rideVel.set(this.rideVel.get(), forced = true)
+        it.stamina.set(this.stamina.get(), forced = true)
+        it.gliding.set(this.gliding.get(), forced = true)
+        it.lastGlide.set(this.lastGlide.get(), forced = true)
     }
 
     override fun shouldSync(previous: RidingBehaviourState): Boolean {

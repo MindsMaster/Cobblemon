@@ -4,9 +4,7 @@ import com.bedrockk.molang.runtime.value.DoubleValue
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.OrientationControllable
 import com.cobblemon.mod.common.api.riding.RidingStyle
-import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviour
-import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviourSettings
-import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviourState
+import com.cobblemon.mod.common.api.riding.behaviour.*
 import com.cobblemon.mod.common.api.riding.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.posing.PoseProvider
 import com.cobblemon.mod.common.api.riding.stats.RidingStat
@@ -80,14 +78,14 @@ class VehicleLandBehaviour : RidingBehaviour<VehicleLandSettings, VehicleLandSta
         val accel = vehicle.getRideStat(RidingStat.ACCELERATION, RidingStyle.AIR, MIN_ACCEL, MAX_ACCEL)
 
         //speed up and slow down based on input
-        if (driver.zza > 0.0 && state.currSpeed < topSpeed) {
-            state.currSpeed = min(state.currSpeed + accel , topSpeed)
-        } else if (driver.zza < 0.0 && state.currSpeed > 0.0) {
+        if (driver.zza > 0.0 && state.currSpeed.get() < topSpeed) {
+            state.currSpeed.set(min(state.currSpeed.get() + accel , topSpeed))
+        } else if (driver.zza < 0.0 && state.currSpeed.get() > 0.0) {
             //Decelerate is now always a constant half of max acceleration.
-            state.currSpeed = max(state.currSpeed - (MAX_ACCEL / 2), 0.0)
+            state.currSpeed.set(max(state.currSpeed.get() - (MAX_ACCEL / 2), 0.0))
         }
 
-        return state.currSpeed.toFloat()
+        return state.currSpeed.get().toFloat()
     }
 
     override fun rotation(
@@ -98,7 +96,7 @@ class VehicleLandBehaviour : RidingBehaviour<VehicleLandSettings, VehicleLandSta
     ): Vec2 {
         val rotationDegrees = driver.xxa * vehicle.runtime.resolveFloat(settings.rotationSpeed)
         val rotation = Vec2(driver.xRot, vehicle.yRot - rotationDegrees)
-        state.deltaRotation = Vec2(rotation.x - driver.rotationVector.x, rotation.y - vehicle.rotationVector.y)
+        state.deltaRotation.set(Vec2(rotation.x - driver.rotationVector.x, rotation.y - vehicle.rotationVector.y))
         return rotation
     }
 
@@ -118,7 +116,7 @@ class VehicleLandBehaviour : RidingBehaviour<VehicleLandSettings, VehicleLandSta
         if (driver.xxa != 0F && g.absoluteValue < runtime.resolveFloat(settings.minimumSpeedToTurn)) {
             driver.xxa = 0F
         }
-        val velocity = Vec3(0.0 /* Maybe do drifting here later */, 0.0, g.toDouble() * state.currSpeed)
+        val velocity = Vec3(0.0 /* Maybe do drifting here later */, 0.0, g.toDouble() * state.currSpeed.get())
 
         return velocity
     }
@@ -319,23 +317,24 @@ class VehicleLandSettings : RidingBehaviourSettings {
 }
 
 class VehicleLandState : RidingBehaviourState {
-    var currSpeed = 0.0
-    var deltaRotation = Vec2.ZERO
+    var currSpeed = ridingState(0.0, Side.BOTH)
+    var deltaRotation = ridingState(Vec2.ZERO, Side.BOTH)
 
     override fun encode(buffer: RegistryFriendlyByteBuf) = Unit
     override fun decode(buffer: RegistryFriendlyByteBuf) = Unit
 
     override fun reset() {
-        currSpeed = 0.0
+        currSpeed.set(0.0, forced = true)
+        deltaRotation.set(Vec2.ZERO, forced = true)
     }
 
     override fun toString(): String {
-        return "VehicleLandState(currSpeed=$currSpeed, deltaRotation=$deltaRotation)"
+        return "VehicleLandState(currSpeed=${currSpeed.get()}, deltaRotation=${deltaRotation.get()})"
     }
 
     override fun copy() = VehicleLandState().also {
-        it.currSpeed = currSpeed
-        it.deltaRotation = deltaRotation
+        it.currSpeed.set(currSpeed.get(), forced = true)
+        it.deltaRotation.set(deltaRotation.get(), forced = true)
     }
 
     override fun shouldSync(previous: RidingBehaviourState) = false
