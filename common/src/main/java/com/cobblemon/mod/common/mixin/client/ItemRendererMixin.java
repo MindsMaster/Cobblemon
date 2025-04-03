@@ -68,7 +68,7 @@ public abstract class ItemRendererMixin {
             if (stack.getItem() instanceof PokeBallItem pokeBallItem) resourceLocation = pokeBallItem.getPokeBall().getModel2d();
             else if (stack.getItem() instanceof PokedexItem pokedexItem) resourceLocation = pokedexItem.getType().getItemSpritePath();
         }
-        if ((stack.is(WEARABLE_HAT_ITEMS) || stack.is(WEARABLE_FACE_ITEMS)) && renderMode != ItemDisplayContext.HEAD) resourceLocation = WearableItemModels.Companion.getWearableModel2d(stack.getItem().toString());
+        if ((stack.is(WEARABLE_HAT_ITEMS) || stack.is(WEARABLE_FACE_ITEMS)) && renderMode != ItemDisplayContext.HEAD) resourceLocation = WearableItemModels.Companion.getWearableModel2d(stack);
 
         if (resourceLocation != null) {
             BakedModel replacementModel = this.itemModelShaper.getModelManager().getModel(new ModelResourceLocation(resourceLocation, "inventory"));
@@ -88,7 +88,7 @@ public abstract class ItemRendererMixin {
             boolean canOpenScreen = entity != null && ((entity.getOffhandItem() == stack && !(entity.getMainHandItem().getItem() instanceof PokedexItem)) || entity.getMainHandItem() == stack);
             resourceLocation = pokedexItem.getType().getItemModelPath(isScanModel ? "scanning" : (canOpenScreen ? null : "off"));
         }
-        else if ((stack.is(WEARABLE_HAT_ITEMS) || stack.is(WEARABLE_FACE_ITEMS))) resourceLocation = WearableItemModels.Companion.getWearableModel3d(stack.getItem().toString());
+        else if ((stack.is(WEARABLE_HAT_ITEMS) || stack.is(WEARABLE_FACE_ITEMS))) resourceLocation = WearableItemModels.Companion.getWearableModel3d(stack);
 
         if (resourceLocation != null) {
             BakedModel model = this.itemModelShaper.getModelManager().getModel(new ModelResourceLocation(resourceLocation, MODEL_PATH));
