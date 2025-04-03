@@ -390,24 +390,8 @@ class FallToGlideCompositeSettings : RidingBehaviourSettings {
 }
 
 class FallToGlideCompositeState : RidingBehaviourState {
-
-    private var _isDirty = false
-    override var isDirty: Boolean
-        get() = _isDirty || landState.isDirty
-        set(value) {
-            _isDirty = value
-            landState.isDirty = value
-        }
-
     var activeController: ResourceLocation = GenericLandBehaviour.KEY
-        set(value) {
-            if (field != value)
-                isDirty = true
-            field = value
-        }
-
     var landState: GenericLandState = GenericLandState()
-
     var timeTransitioned = -100L
 
     override fun encode(buffer: RegistryFriendlyByteBuf) {
@@ -428,5 +412,18 @@ class FallToGlideCompositeState : RidingBehaviourState {
 
     override fun toString(): String {
         return "FallToGlideCompositeState(activeController=$activeController, landState=$landState, timeTransitioned=$timeTransitioned)"
+    }
+
+    override fun copy() = FallToGlideCompositeState().also {
+        it.activeController = activeController
+        it.landState = landState.copy()
+        it.timeTransitioned = timeTransitioned
+    }
+
+    override fun shouldSync(previous: RidingBehaviourState): Boolean {
+        if (previous !is FallToGlideCompositeState) return false
+        if (activeController != previous.activeController) return true
+        if (landState.shouldSync(previous.landState)) return true
+        return false
     }
 }

@@ -390,7 +390,7 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
         vehicle: PokemonEntity,
         driver: Player
     ): Boolean {
-        return false
+        return state.gliding
     }
 
     override fun inertia(settings: BirdAirSettings, state: BirdAirState, vehicle: PokemonEntity): Double {
@@ -483,31 +483,9 @@ class BirdAirSettings : RidingBehaviourSettings {
 }
 
 class BirdAirState : RidingBehaviourState {
-    override var isDirty = false
-
     var rideVel: Vec3 = Vec3.ZERO
-        set(value) {
-            if (field != value) {
-                isDirty = true
-            }
-            field = value
-        }
-
     var stamina: Float = 1.0f
-        set(value) {
-            if (field != value) {
-                isDirty = true
-            }
-            field = value
-        }
-
     var gliding: Boolean = false
-        set(value) {
-            if (field != value) {
-                isDirty = true
-            }
-            field = value
-        }
 
     override fun encode(buffer: RegistryFriendlyByteBuf) {
         buffer.writeVec3(rideVel)
@@ -519,7 +497,6 @@ class BirdAirState : RidingBehaviourState {
         rideVel = buffer.readVec3()
         stamina = buffer.readFloat()
         gliding = buffer.readBoolean()
-        isDirty = false
     }
 
     override fun reset() {
@@ -530,5 +507,19 @@ class BirdAirState : RidingBehaviourState {
 
     override fun toString(): String {
         return "BirdAirState(rideVel=$rideVel, stamina=$stamina, gliding=$gliding)"
+    }
+
+    override fun copy() = BirdAirState().also {
+        it.rideVel = this.rideVel
+        it.stamina = this.stamina
+        it.gliding = this.gliding
+    }
+
+    override fun shouldSync(previous: RidingBehaviourState): Boolean {
+        if (previous !is BirdAirState) return false
+        if (previous.rideVel != rideVel) return true
+        if (previous.stamina != stamina) return true
+        if (previous.gliding != gliding) return true
+        return false
     }
 }

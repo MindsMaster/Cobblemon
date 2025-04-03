@@ -378,14 +378,14 @@ class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
         sendRidingChanges(entity)
     }
 
-    fun sendRidingChanges(entity: PokemonEntity) {
+    private fun sendRidingChanges(entity: PokemonEntity) {
         val player = Minecraft.getInstance().player ?: return
         if (entity.controllingPassenger != player) return
         entity.ifRidingAvailable { behaviour, _, state ->
-            if (state.isDirty) {
-                CobblemonNetwork.sendToServer(ServerboundUpdateRidingStatePacket(entity.id, behaviour.key, state))
-                state.isDirty = false
+            if (entity.previousRidingState != null && !state.shouldSync(entity.previousRidingState!!)) {
+                return@ifRidingAvailable
             }
+            CobblemonNetwork.sendToServer(ServerboundUpdateRidingStatePacket(entity.id, behaviour.key, state))
         }
     }
 

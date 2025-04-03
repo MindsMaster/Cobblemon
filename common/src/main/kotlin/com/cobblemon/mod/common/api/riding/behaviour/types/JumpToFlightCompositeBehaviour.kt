@@ -417,28 +417,9 @@ class JumpToFlightCompositeSettings : RidingBehaviourSettings {
 }
 
 class JumpToFlightCompositeState : RidingBehaviourState {
-
-    private var _isDirty = false
-    override var isDirty: Boolean
-        get() = _isDirty || landState.isDirty || flightState.isDirty
-        set(value) {
-            _isDirty = value
-            landState.isDirty = value
-            flightState.isDirty = value
-        }
-
     var activeController: ResourceLocation = GenericLandBehaviour.KEY
-        set(value) {
-            if (field != value) {
-                println("jtf active controller dirty")
-                isDirty = true
-            }
-            field = value
-        }
-
     var landState: GenericLandState = GenericLandState()
     var flightState: BirdAirState = BirdAirState()
-
     var currSpeed = 0.0
     var timeTransitioned = -100L
 
@@ -452,7 +433,6 @@ class JumpToFlightCompositeState : RidingBehaviourState {
         activeController = buffer.readResourceLocation()
         landState.decode(buffer)
         flightState.decode(buffer)
-        _isDirty = false
     }
 
     override fun reset() {
@@ -463,5 +443,21 @@ class JumpToFlightCompositeState : RidingBehaviourState {
 
     override fun toString(): String {
         return "JumpToFlightCompositeState(activeController=$activeController, landState=$landState, flightState=$flightState, currSpeed=$currSpeed, timeTransitioned=$timeTransitioned)"
+    }
+
+    override fun copy() = JumpToFlightCompositeState().also {
+        it.activeController = activeController
+        it.landState = landState.copy()
+        it.flightState = flightState.copy()
+        it.currSpeed = currSpeed
+        it.timeTransitioned = timeTransitioned
+    }
+
+    override fun shouldSync(previous: RidingBehaviourState): Boolean {
+        if (previous !is JumpToFlightCompositeState) return false
+        if (activeController != previous.activeController) return true
+        if (landState.shouldSync(previous.landState)) return true
+        if (flightState.shouldSync(previous.flightState)) return true
+        return false
     }
 }

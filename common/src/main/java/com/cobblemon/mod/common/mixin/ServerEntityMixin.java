@@ -62,7 +62,9 @@ public abstract class ServerEntityMixin {
         if (pokemonEntity.getRidingState() == null) return;
         if (pokemonEntity.getRiding() == null) return;
         var ridingBehaviour = pokemonEntity.getRiding();
-        if (!pokemonEntity.getRidingState().isDirty()) return;
+        var ridingState = pokemonEntity.getRidingState();
+        var previousRidingState = pokemonEntity.getPreviousRidingState();
+        if (previousRidingState != null && !ridingState.shouldSync(previousRidingState)) return;
         cobblemon$broadcast(new ClientboundUpdateRidingStatePacket(pokemonEntity.getId(), ridingBehaviour.getKey(), pokemonEntity.getRidingState(), null));
     }
 

@@ -301,9 +301,6 @@ class DolphinSettings : RidingBehaviourSettings {
 }
 
 class DolphinState : RidingBehaviourState {
-
-    override var isDirty = false
-
     var lastVelocity = Vec3.ZERO
 
     override fun encode(buffer: RegistryFriendlyByteBuf) = Unit
@@ -316,4 +313,10 @@ class DolphinState : RidingBehaviourState {
     override fun toString(): String {
         return "DolphinState(lastVelocity=$lastVelocity)"
     }
+
+    override fun copy() = DolphinState().also {
+        it.lastVelocity = lastVelocity
+    }
+
+    override fun shouldSync(previous: RidingBehaviourState) = false
 }

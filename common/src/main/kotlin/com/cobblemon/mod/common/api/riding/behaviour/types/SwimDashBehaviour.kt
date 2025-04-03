@@ -229,7 +229,6 @@ class SwimDashSettings : RidingBehaviourSettings {
 }
 
 class SwimDashState : RidingBehaviourState {
-    override var isDirty = false
     var dashing = false
     var ticks = 0
 
@@ -244,4 +243,11 @@ class SwimDashState : RidingBehaviourState {
     override fun toString(): String {
         return "SwimDashState(dashing=$dashing, ticks=$ticks)"
     }
+
+    override fun copy() = SwimDashState().also {
+        it.dashing = dashing
+        it.ticks = ticks
+    }
+
+    override fun shouldSync(previous: RidingBehaviourState) = false
 }

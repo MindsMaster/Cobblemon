@@ -15,7 +15,6 @@ object ServerboundUpdateRidingStateHandler : ServerNetworkPacketHandler<Serverbo
         val buffer = packet.data ?: return
         if (entity.riding?.key != packet.behaviour) return
         entity.ridingState?.decode(buffer)
-        entity.ridingState?.isDirty = true
     }
 
 }

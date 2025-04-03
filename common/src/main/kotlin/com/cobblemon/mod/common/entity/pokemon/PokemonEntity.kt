@@ -297,6 +297,7 @@ open class PokemonEntity(
 
 //    override var ridingController: RideController? = null
 
+    var previousRidingState: RidingBehaviourState? = null
     var ridingState: RidingBehaviourState? = null
     var ridingBehaviourSettings: RidingBehaviourSettings? = null
     override var riding: RidingBehaviour<RidingBehaviourSettings, RidingBehaviourState>? = null
@@ -593,6 +594,7 @@ open class PokemonEntity(
             }
         }
 
+        previousRidingState = ridingState?.copy()
         schedulingTracker.update(1 / 20F)
     }
 

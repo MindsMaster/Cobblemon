@@ -380,24 +380,8 @@ class GenericLandSettings : RidingBehaviourSettings {
 }
 
 class GenericLandState : RidingBehaviourState {
-    override var isDirty = false
-
     var rideVel: Vec3 = Vec3.ZERO
-        set(value) {
-            if (field != value) {
-                isDirty = true
-            }
-            field = value
-        }
-
     var stamina: Float = 1.0f
-        set(value) {
-            if (field != value) {
-                isDirty = true
-            }
-            field = value
-        }
-
     var currSpeed = 0.0
 
     override fun encode(buffer: RegistryFriendlyByteBuf) {
@@ -408,7 +392,6 @@ class GenericLandState : RidingBehaviourState {
     override fun decode(buffer: RegistryFriendlyByteBuf) {
         rideVel = buffer.readVec3()
         stamina = buffer.readFloat()
-        isDirty = false
     }
 
     override fun reset() {
@@ -419,5 +402,18 @@ class GenericLandState : RidingBehaviourState {
 
     override fun toString(): String {
         return "GenericLandState(rideVel=$rideVel, stamina=$stamina, currSpeed=$currSpeed)"
+    }
+
+    override fun copy() = GenericLandState().also {
+        it.rideVel = this.rideVel
+        it.stamina = this.stamina
+        it.currSpeed = this.currSpeed
+    }
+
+    override fun shouldSync(previous: RidingBehaviourState): Boolean {
+        if (previous !is GenericLandState) return false
+        if (rideVel != previous.rideVel) return true
+        if (stamina != previous.stamina) return true
+        return false
     }
 }

@@ -319,7 +319,6 @@ class VehicleLandSettings : RidingBehaviourSettings {
 }
 
 class VehicleLandState : RidingBehaviourState {
-    override var isDirty = false
     var currSpeed = 0.0
     var deltaRotation = Vec2.ZERO
 
@@ -333,4 +332,11 @@ class VehicleLandState : RidingBehaviourState {
     override fun toString(): String {
         return "VehicleLandState(currSpeed=$currSpeed, deltaRotation=$deltaRotation)"
     }
+
+    override fun copy() = VehicleLandState().also {
+        it.currSpeed = currSpeed
+        it.deltaRotation = deltaRotation
+    }
+
+    override fun shouldSync(previous: RidingBehaviourState) = false
 }

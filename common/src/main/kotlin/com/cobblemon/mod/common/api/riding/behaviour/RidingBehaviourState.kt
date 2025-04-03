@@ -15,14 +15,15 @@ import net.minecraft.network.RegistryFriendlyByteBuf
  * @author landonjw
  */
 interface RidingBehaviourState : Encodable, Decodable {
-    var isDirty: Boolean
     fun reset()
+    fun copy(): RidingBehaviourState
+    fun shouldSync(previous: RidingBehaviourState): Boolean
 }
 
 object NoState : RidingBehaviourState {
-    override var isDirty = false
-        set(value) = Unit // Just so nobody accidentally sets this to true
     override fun encode(buffer: RegistryFriendlyByteBuf) = Unit
     override fun decode(buffer: RegistryFriendlyByteBuf) = Unit
+    override fun copy() = NoState
     override fun reset() = Unit
+    override fun shouldSync(previous: RidingBehaviourState) = false
 }

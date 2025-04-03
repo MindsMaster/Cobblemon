@@ -392,31 +392,10 @@ class JetAirSettings : RidingBehaviourSettings {
 }
 
 class JetAirState : RidingBehaviourState {
-    override var isDirty = false
-
     var currSpeed: Double = 0.0
-        set(value) {
-            if (field != value)
-                isDirty = true
-            field = value
-        }
-
     var stamina: Float = 1.0f
-        set(value) {
-            if (field != value)
-                isDirty = true
-            field = value
-        }
-
     var rideVel: Vec3 = Vec3.ZERO
-        set(value) {
-            if (field != value)
-                isDirty = true
-            field = value
-        }
-
     var currMouseXForce: Double = 0.0
-
     var currMouseYForce: Double = 0.0
 
     override fun encode(buffer: RegistryFriendlyByteBuf) {
@@ -429,7 +408,6 @@ class JetAirState : RidingBehaviourState {
         currSpeed = buffer.readDouble()
         stamina = buffer.readFloat()
         rideVel = buffer.readVec3()
-        isDirty = false
     }
 
     override fun reset() {
@@ -442,5 +420,21 @@ class JetAirState : RidingBehaviourState {
 
     override fun toString(): String {
         return "JetAirState(currSpeed=$currSpeed, stamina=$stamina, rideVel=$rideVel, currMouseXForce=$currMouseXForce, currMouseYForce=$currMouseYForce)"
+    }
+
+    override fun copy() = JetAirState().also {
+        it.currSpeed = currSpeed
+        it.stamina = stamina
+        it.rideVel = rideVel
+        it.currMouseXForce = currMouseXForce
+        it.currMouseYForce = currMouseYForce
+    }
+
+    override fun shouldSync(previous: RidingBehaviourState): Boolean {
+        if (previous !is JetAirState) return false
+        if (previous.currSpeed != currSpeed) return true
+        if (previous.stamina != stamina) return true
+        if (previous.rideVel != rideVel) return true
+        return false
     }
 }
