@@ -21,6 +21,9 @@ object S2CUpdateOrientationHandler : ClientNetworkPacketHandler<ClientboundUpdat
             if (entity is OrientationControllable) {
                 packet.active?.let {
                     entity.orientationController.active = it
+                    if (!it) {
+                        entity.orientationController.reset()
+                    }
                 }
                 entity.orientationController.updateOrientation { _ -> packet.orientation }
             }

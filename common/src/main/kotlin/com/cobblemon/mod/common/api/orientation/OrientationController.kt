@@ -41,6 +41,7 @@ open class OrientationController(val entity: LivingEntity) {
 
     fun reset() {
         orientation = null
+        renderOrientations.clear()
         active = false
     }
 
