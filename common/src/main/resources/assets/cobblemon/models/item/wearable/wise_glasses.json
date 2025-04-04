@@ -22,7 +22,7 @@
 	"gui_light": "front",
 	"display": {
 		"head": {
-			"translation": [0, 0.0, -7.25]
+			"translation": [0, -1, -7.25]
 		}
 	},
 	"groups": [
