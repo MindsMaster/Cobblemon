@@ -21,6 +21,7 @@ import com.cobblemon.mod.common.api.events.entity.PokemonEntitySaveEvent
 import com.cobblemon.mod.common.api.events.entity.PokemonEntitySaveToWorldEvent
 import com.cobblemon.mod.common.api.events.pokemon.ShoulderMountEvent
 import com.cobblemon.mod.common.api.interaction.PokemonEntityInteraction
+import com.cobblemon.mod.common.api.mark.Marks
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addEntityFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addLivingEntityFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addPokemonEntityFunctions
@@ -99,6 +100,7 @@ import net.minecraft.nbt.NbtOps
 import net.minecraft.nbt.NbtUtils
 import net.minecraft.nbt.StringTag
 import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.MutableComponent
 import net.minecraft.network.chat.contents.PlainTextContents
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket
@@ -154,6 +156,7 @@ open class PokemonEntity(
         @JvmStatic val SPECIES = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.STRING)
         @JvmStatic val NICKNAME = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.COMPONENT)
         @JvmStatic val NICKNAME_VISIBLE = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BOOLEAN)
+        @JvmStatic val MARK = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.STRING)
         @JvmStatic val SHOULD_RENDER_NAME = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BOOLEAN)
         @JvmStatic val MOVING = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BOOLEAN)
         @JvmStatic val BEHAVIOUR_FLAGS = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BYTE)
@@ -317,6 +320,7 @@ open class PokemonEntity(
         builder.define(SPECIES, "")
         builder.define(NICKNAME, Component.empty())
         builder.define(NICKNAME_VISIBLE, true)
+        builder.define(MARK, "")
         builder.define(SHOULD_RENDER_NAME, true)
         builder.define(MOVING, false)
         builder.define(BEHAVIOUR_FLAGS, 0)
@@ -694,6 +698,7 @@ open class PokemonEntity(
         // init SynchedEntityData
         entityData.set(SPECIES, effects.mockEffect?.mock?.species ?: pokemon.species.resourceIdentifier.toString())
         entityData.set(NICKNAME, pokemon.nickname ?: Component.empty())
+        entityData.set(MARK, pokemon.activeMark?.identifier.toString())
         entityData.set(LABEL_LEVEL, pokemon.level)
         entityData.set(POSE_TYPE, PoseType.valueOf(nbt.getString(DataKeys.POKEMON_POSE_TYPE)))
         entityData.set(BEHAVIOUR_FLAGS, nbt.getByte(DataKeys.POKEMON_BEHAVIOUR_FLAGS))
@@ -1504,6 +1509,17 @@ open class PokemonEntity(
         if (!entityData.get(NICKNAME_VISIBLE)) return typeName
         return entityData.get(NICKNAME).takeIf { it.contents != PlainTextContents.EMPTY }
             ?: pokemon.getDisplayName()
+    }
+
+    /**
+     * If this Pokémon has an active mark that has an applicable title, then the name with the title is returned.
+     * Otherwise, [getName] is returned
+     *
+     * @return The current display name with title of this entity.
+     */
+    fun getTitledName(): MutableComponent {
+        val mark = entityData.get(MARK).let { Marks.getByIdentifier(it.asResource()) } ?: pokemon.activeMark
+        return mark?.getTitle(getName().copy()) ?: getName().copy()
     }
 
     /**
