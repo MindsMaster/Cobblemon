@@ -82,7 +82,7 @@ def main(print_missing_models=True, print_missing_animations=True):
             audio_file_path = f"../common/src/main/resources/assets/cobblemon/sounds/pokemon/{sanitized_pokemon_name_lower}/{sanitized_pokemon_name_lower}_cry.ogg"
 
         checks = {
-            'in_repo': False,
+            'on_repo': False,
             'uses_poser': False,
             'poser_correct': False,
             'import_correct': False,
@@ -231,7 +231,7 @@ def main(print_missing_models=True, print_missing_animations=True):
             checks["sound_effects_and_keyframes"] = True
 
         # Check the condition
-        if this_pokemon_in_game == "✔" and this_cry_on_repo == "✔" and cry_in_game != "✔":
+        if this_pokemon_in_game == "✔" and this_cry_on_repo == "✔":
             # check if all checks are true
             if not all(checks.values()):
                 pokemon_ready_to_be_added_list.append(pokemon_name)
@@ -273,8 +273,8 @@ def main(print_missing_models=True, print_missing_animations=True):
                 all_warnings_combined.append((pokemon_name, "⚠️ Warning: Model.kt import not correct"))
 
         # If any of the remaining checks failed, add the Pokemon to the all_warnings_combined list
-        if not checks["sound_effects_and_keyframes"]:
-            invalid_animation_files.append((pokemon_name, " [Problem with Sound Effects in animation.json]"))
+        if not checks["sound_effects_and_keyframes"] and this_cry_on_repo == "✔":
+            invalid_animation_files.append((pokemon_name, " [Sound effect keyframe missing or incorrect in animation.json]"))
             all_warnings_combined.append((pokemon_name, "⚠️ Warning: Sound effect in animation.json not correct"))
 
     # Check if lists are empty
