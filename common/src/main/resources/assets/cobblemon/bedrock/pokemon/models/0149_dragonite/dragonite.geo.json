@@ -74,7 +74,7 @@
 					"parent": "chest",
 					"pivot": [0, 21, 6],
 					"locators": {
-						"seat2": [0, 21, 6]
+						"seat_2": [0, 21, 6]
 					}
 				},
 				{
@@ -100,7 +100,7 @@
 					"parent": "chest2",
 					"pivot": [0, 32, 6],
 					"locators": {
-						"seat1": [0, 32, 6]
+						"seat_1": [0, 32, 6]
 					}
 				},
 				{
