@@ -191,7 +191,7 @@ class PokemonRenderer(
             //Move origin to center of Pokemon
             transformationMatrix.translate(center)
 
-            transformationMatrix.rotate(controller.getRenderOrientation(cobblemonResource("pokemon")))
+            transformationMatrix.rotate(controller.getRenderOrientation(partialTicks))
             //Move origin to base of the entity
             transformationMatrix.translate(center.negate(Vector3f()))
 

@@ -110,6 +110,11 @@ public abstract class PlayerMixin extends LivingEntity implements ScannableEntit
         }
     }
 
+    @Inject(method = "tick", at = @At("HEAD"))
+    private void cobblemon$updateRenderOrientation(CallbackInfo ci) {
+        this.cobblemon$orientationController.tick();
+    }
+
     @Override
     public EntityDimensions getDefaultDimensions(Pose pose) {
         if (this.getVehicle() instanceof PokemonEntity) {

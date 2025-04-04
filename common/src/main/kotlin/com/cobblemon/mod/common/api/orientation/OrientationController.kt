@@ -31,7 +31,8 @@ open class OrientationController(val entity: LivingEntity) {
     var orientation: Matrix3f? = null
         private set
 
-    var renderOrientations = mutableMapOf<ResourceLocation, Matrix3f>()
+    private var renderOrientationO: Matrix3f? = null
+    private var renderOrientation: Matrix3f? = null
 
     /** Adding this simply because it irritates me seeing `getActive` when most of this is Java. */
     fun isActive() = active
@@ -49,7 +50,8 @@ open class OrientationController(val entity: LivingEntity) {
 
     fun reset() {
         orientation = null
-        renderOrientations.clear()
+        renderOrientationO = null
+        renderOrientation = null
         active = false
     }
 
@@ -59,19 +61,27 @@ open class OrientationController(val entity: LivingEntity) {
         rotateRoll(roll)
     }
 
-    fun getRenderOrientation(resourceLocation: ResourceLocation): Quaternionf {
+    fun getRenderOrientation(delta: Float): Quaternionf {
+        val old = renderOrientationO ?: renderOrientation ?: Matrix3f()
+        val new = renderOrientation ?: old
+        val oldQuat = Quaternionf().setFromUnnormalized(old)
+        val newQuat  = Quaternionf().setFromUnnormalized(new)
+        oldQuat.slerp(newQuat, delta)
+        return oldQuat
+    }
+
+    fun tick() {
+        renderOrientationO = renderOrientation
         val current = orientation ?: Matrix3f()
-        val renderOrientation = renderOrientations[resourceLocation] ?: current
-        renderOrientations[resourceLocation] = renderOrientation
-        val renderQuat = Quaternionf().setFromUnnormalized(renderOrientation)
-        val targetQuat  = Quaternionf().setFromUnnormalized(orientation)
-        val dampingFactor = 0.15f
+        val renderMatrix = this.renderOrientation ?: current
+        val renderQuat = Quaternionf().setFromUnnormalized(renderMatrix)
+        val targetQuat  = Quaternionf().setFromUnnormalized(current)
+        val dampingFactor = 0.66f // We can change this factor for faster transitions
         renderQuat.slerp(targetQuat, dampingFactor)
 
         val newRenderOrientation = Matrix3f()
         renderQuat.get(newRenderOrientation)
-        renderOrientations[resourceLocation] = newRenderOrientation
-        return renderQuat
+        renderOrientation = newRenderOrientation
     }
 
     val forwardVector: Vector3f

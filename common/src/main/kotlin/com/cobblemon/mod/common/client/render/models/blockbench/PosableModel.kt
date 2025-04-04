@@ -730,7 +730,7 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
                 val transformationMatrix = Matrix4f()
                 val center = Vector3f(0f, entity.bbHeight/2, 0f)
                 transformationMatrix.translate(center)
-                transformationMatrix.rotate(controller.getRenderOrientation(cobblemonResource("model")))
+                transformationMatrix.rotate(controller.getRenderOrientation(state.getPartialTicks()))
                 transformationMatrix.translate(center.negate())
                 matrixStack.mulPose(transformationMatrix)
             } else {
