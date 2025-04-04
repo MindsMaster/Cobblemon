@@ -724,7 +724,7 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
         // We could improve this to be generalized for other entities. First we'd have to figure out wtf is going on, though.
         if (entity is PokemonEntity) {
             if(entity.passengers.isNotEmpty() && entity.controllingPassenger is OrientationControllable
-                && (entity.controllingPassenger as OrientationControllable).orientationController.orientation != null){
+                && (entity.controllingPassenger as OrientationControllable).orientationController.active){
                 val controllingPassenger = entity.controllingPassenger as OrientationControllable
                 val controller = controllingPassenger.orientationController
                 val transformationMatrix = Matrix4f()
