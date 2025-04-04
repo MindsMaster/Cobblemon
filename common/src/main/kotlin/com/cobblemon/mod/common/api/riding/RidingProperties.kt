@@ -31,7 +31,7 @@ class RidingProperties(
             val seats: List<Seat> = buffer.readList { _ -> Seat.decode(buffer) }
             val conditions = buffer.readList { buffer.readString().asExpression() }
             val behaviour = buffer.readNullable { _ ->
-                val key = buffer.readIdentifier()
+                val key = buffer.readResourceLocation()
                 val settings = RidingBehaviourSettingsAdapter.types[key]?.getConstructor()?.newInstance() ?: error("Unknown controller key: $key")
                 settings.decode(buffer)
                 return@readNullable settings
@@ -52,7 +52,10 @@ class RidingProperties(
         )
         buffer.writeCollection(seats) { _, seat -> seat.encode(buffer) }
         buffer.writeCollection(conditions) { _, condition -> buffer.writeString(condition.getString()) }
-        buffer.writeNullable(behaviour) { _, behaviour -> behaviour.encode(buffer) }
+        buffer.writeNullable(behaviour) { _, behaviour ->
+            buffer.writeResourceLocation(behaviour.key)
+            behaviour.encode(buffer)
+        }
     }
 
     fun calculate(stat: RidingStat, style: RidingStyle, boosts: Int): Float {
