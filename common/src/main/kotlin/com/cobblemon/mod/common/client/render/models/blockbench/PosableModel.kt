@@ -606,7 +606,7 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
 
         val primaryAnimation = state.primaryAnimation
         val shouldRotateHead = if (entity is PokemonEntity) {
-            entity.ifRidingAvailableSupply(false) { behaviour, settings, ridingState ->
+            entity.ifRidingAvailableSupply(true) { behaviour, settings, ridingState ->
                 behaviour.shouldRotatePokemonHead(settings, ridingState, entity)
             }
         } else true
