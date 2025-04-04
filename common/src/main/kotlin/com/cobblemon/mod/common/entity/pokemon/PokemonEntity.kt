@@ -1144,7 +1144,7 @@ open class PokemonEntity(
         val possibleReturn = if (isCosmetic) this.pokemon.cosmeticItem.copy() else this.pokemon.heldItemNoCopy()
         val giving = stack.copy().apply { count = 1 }
 
-        if (ItemStack.isSameItem(giving, possibleReturn)) {
+        if (ItemStack.isSameItemSameComponents(giving, possibleReturn)) {
             val message = if (isCosmetic) {
                 lang("cosmetic_item.already_wearing", this.pokemon.getDisplayName(), stack.hoverName)
             } else {
