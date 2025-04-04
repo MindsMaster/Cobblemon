@@ -2756,7 +2756,10 @@
   "cobblemon.entity.variable.script.name": "Script",
   "cobblemon.entity.variable.script.desc": "The script to run every tick as part of AI logic.",
 
-  "cobblemon.ui.entity.behaviour_editor": "Behavior",
+  "cobblemon.ui.entity.behaviour_editor": "Behaviors",
+  "cobblemon.ui.entity.behaviour_editor.label": "Behaviors - %1$s",
+  "cobblemon.ui.entity.behaviour_editor.label.active": "Active Behaviors",
+  "cobblemon.ui.entity.behaviour_editor.label.inactive": "Inactive Behaviors",
 
   "cobblemon.brain_preset.battle_scripts.name": "Battle Script Hooks",
   "cobblemon.brain_preset.battle_scripts.desc": "Runs MoLang scripts when battles end.",
