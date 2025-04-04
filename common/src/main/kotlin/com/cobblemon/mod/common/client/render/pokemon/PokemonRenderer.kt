@@ -453,7 +453,7 @@ class PokemonRenderer(
     private fun resolveBaseLabel(entity: PokemonEntity): MutableComponent {
         return when {
             !ServerSettings.displayEntityNameLabel -> Component.empty()
-            Cobblemon.config.displayNameForUnknownPokemon || CobblemonClient.clientPokedexData.getKnowledgeForSpecies(entity.pokemon.species.resourceIdentifier) != PokedexEntryProgress.NONE -> entity.name.copy()
+            Cobblemon.config.displayNameForUnknownPokemon || CobblemonClient.clientPokedexData.getKnowledgeForSpecies(entity.pokemon.species.resourceIdentifier) != PokedexEntryProgress.NONE -> entity.getTitledName()
             else -> Component.literal(HIDDEN_NAME)
         }
     }

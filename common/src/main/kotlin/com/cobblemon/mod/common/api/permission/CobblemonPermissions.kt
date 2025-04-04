@@ -91,6 +91,9 @@ object CobblemonPermissions {
     val HELD_ITEM = this.create("${COMMAND_PREFIX}helditem", PermissionLevel.CHEAT_COMMANDS_AND_COMMAND_BLOCKS)
 
     @JvmStatic
+    val CHANGE_MARK = this.create("${COMMAND_PREFIX}changemark", PermissionLevel.CHEAT_COMMANDS_AND_COMMAND_BLOCKS)
+
+    @JvmStatic
     val PC = this.create("${COMMAND_PREFIX}pc", PermissionLevel.CHEAT_COMMANDS_AND_COMMAND_BLOCKS)
     @JvmStatic
     val POKEBOX = this.create("${COMMAND_PREFIX}pokebox", PermissionLevel.CHEAT_COMMANDS_AND_COMMAND_BLOCKS)

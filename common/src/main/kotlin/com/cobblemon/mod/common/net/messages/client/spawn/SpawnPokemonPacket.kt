@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.net.messages.client.spawn
 
 import com.cobblemon.mod.common.Cobblemon
+import com.cobblemon.mod.common.api.mark.Marks
 import com.cobblemon.mod.common.api.pokeball.PokeBalls
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.entity.PlatformType
@@ -37,6 +38,7 @@ class SpawnPokemonPacket(
     var beamMode: Byte,
     var platform: PlatformType,
     var nickname: MutableComponent?,
+    var mark: ResourceLocation?,
     var labelLevel: Int,
     var poseType: PoseType,
     var unbattlable: Boolean,
@@ -64,6 +66,7 @@ class SpawnPokemonPacket(
         entity.beamMode.toByte(),
         entity.platform,
         entity.pokemon.nickname,
+        entity.pokemon.activeMark?.identifier,
         if (Cobblemon.config.displayEntityLevelLabel) entity.entityData.get(PokemonEntity.LABEL_LEVEL) else -1,
         entity.entityData.get(PokemonEntity.POSE_TYPE),
         entity.entityData.get(PokemonEntity.UNBATTLEABLE),
@@ -89,6 +92,7 @@ class SpawnPokemonPacket(
         buffer.writeByte(this.beamMode.toInt())
         buffer.writeEnumConstant(this.platform)
         buffer.writeNullable(this.nickname) { _, v -> buffer.writeText(v) }
+        buffer.writeNullable(this.mark) { _, v -> buffer.writeResourceLocation(v) }
         buffer.writeInt(this.labelLevel)
         buffer.writeEnumConstant(this.poseType)
         buffer.writeBoolean(this.unbattlable)
@@ -110,6 +114,7 @@ class SpawnPokemonPacket(
             form = this@SpawnPokemonPacket.formName.let { formName -> species.forms.find { it.formOnlyShowdownId() == formName }} ?: species.standardForm
             forcedAspects = this@SpawnPokemonPacket.aspects
             nickname = this@SpawnPokemonPacket.nickname
+            this@SpawnPokemonPacket.mark?.let {activeMark = Marks.getByIdentifier(it) }
             PokeBalls.getPokeBall(this@SpawnPokemonPacket.caughtBall)?.let { caughtBall = it }
         }
         entity.phasingTargetId = this.phasingTargetId
@@ -150,6 +155,7 @@ class SpawnPokemonPacket(
             val beamModeEmitter = buffer.readByte()
             val platform = buffer.readEnumConstant(PlatformType::class.java)
             val nickname = buffer.readNullable { buffer.readText().copy() }
+            val mark = buffer.readNullable { buffer.readResourceLocation() }
             val labelLevel = buffer.readInt()
             val poseType = buffer.readEnumConstant(PoseType::class.java)
             val unbattlable = buffer.readBoolean()
@@ -161,7 +167,7 @@ class SpawnPokemonPacket(
             val passengers = buffer.readVarIntArray()
             val vanillaPacket = decodeVanillaPacket(buffer)
 
-            return SpawnPokemonPacket(ownerId, scaleModifier, speciesId, gender, shiny, formName, aspects, battleId, phasingTargetId, beamModeEmitter, platform, nickname, labelLevel, poseType, unbattlable, hideLabel, caughtBall, spawnAngle, friendship, freezeFrame, passengers, vanillaPacket)
+            return SpawnPokemonPacket(ownerId, scaleModifier, speciesId, gender, shiny, formName, aspects, battleId, phasingTargetId, beamModeEmitter, platform, nickname, mark, labelLevel, poseType, unbattlable, hideLabel, caughtBall, spawnAngle, friendship, freezeFrame, passengers, vanillaPacket)
         }
     }
 

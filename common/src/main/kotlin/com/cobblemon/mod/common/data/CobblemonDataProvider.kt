@@ -27,6 +27,7 @@ import com.cobblemon.mod.common.api.fishing.FishingBaits
 import com.cobblemon.mod.common.api.fishing.PokeRods
 import com.cobblemon.mod.common.api.fossil.Fossils
 import com.cobblemon.mod.common.api.fossil.NaturalMaterials
+import com.cobblemon.mod.common.api.mark.Marks
 import com.cobblemon.mod.common.api.moves.Moves
 import com.cobblemon.mod.common.api.moves.animations.ActionEffects
 import com.cobblemon.mod.common.api.npc.NPCClasses
@@ -96,6 +97,7 @@ object CobblemonDataProvider : DataProvider {
         this.register(CobblemonCosmeticItems)
         this.register(CobblemonFlows)
         this.register(CobblemonUnlockableWallpapers)
+        this.register(Marks)
 
         CobblemonSpawnPools.load()
         this.register(PokeRods)
