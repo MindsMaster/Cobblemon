@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.pokemon.riding.controllers
 
 import com.bedrockk.molang.Expression
+import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.Rollable
 import com.cobblemon.mod.common.api.riding.controller.RideController
 import com.cobblemon.mod.common.api.riding.controller.posing.PoseOption
@@ -23,8 +24,9 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.phys.shapes.Shapes
-import java.lang.Math.pow
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.pow
+import kotlin.math.sin
 
 /**
  * Allows for flight like a bird controller, except you don't have to do any "flapping" motion,
@@ -45,7 +47,7 @@ class HelicopterAirController : RideController {
         Shapes.create(entity.boundingBox).blockPositionsAsListRounded().any {
             if (it.y.toDouble() == (entity.position().y)) {
                 val blockState = entity.level().getBlockState(it.below())
-                return@any (blockState.isAir || !blockState.fluidState.isEmpty )
+                return@any (blockState.isAir || !blockState.fluidState.isEmpty)
             }
             true
 
@@ -132,10 +134,10 @@ class HelicopterAirController : RideController {
             if (rollable.roll <= -ROTATION_LIMIT && rollForce < 0.0) {
                 rollForce = 0.0;
             }
-            if (rollable.pitch  >= ROTATION_LIMIT && pitchForce > 0.0) {
+            if (rollable.pitch >= ROTATION_LIMIT && pitchForce > 0.0) {
                 pitchForce = 0.0;
             }
-            if (rollable.pitch  <= -ROTATION_LIMIT && pitchForce < 0.0) {
+            if (rollable.pitch <= -ROTATION_LIMIT && pitchForce < 0.0) {
                 pitchForce = 0.0;
             }
 
@@ -150,7 +152,7 @@ class HelicopterAirController : RideController {
     override fun useAngVelSmoothing(entity: PokemonEntity): Boolean = true
 
 
-    override fun inertia(entity: PokemonEntity ): Double = 0.1
+    override fun inertia(entity: PokemonEntity): Double = 0.1
 
     override fun canJump(
         entity: PokemonEntity,
@@ -179,11 +181,12 @@ class HelicopterAirController : RideController {
         sensitivity: Double,
         deltaTime: Double
     ): Vec3 {
-        if(driver !is Rollable) return Vec3.ZERO
+        if (driver !is Rollable) return Vec3.ZERO
 
         val rollable = driver as Rollable
+        val invertYaw = if (Cobblemon.config.invertYaw) -1 else 1
         //yaw, pitch, roll
-        return Vec3(xMouse, 0.0, 0.0 )
+        return Vec3(xMouse * invertYaw, 0.0, 0.0)
     }
 
     override fun gravity(entity: PokemonEntity, regularGravity: Double): Double {

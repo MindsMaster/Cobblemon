@@ -17,6 +17,7 @@ import com.cobblemon.mod.common.api.molang.MoLangFunctions.addFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.setup
 import com.cobblemon.mod.common.client.ClientMoLangFunctions.animationFunctions
 import com.cobblemon.mod.common.client.ClientMoLangFunctions.setupClient
+import com.cobblemon.mod.common.client.entity.NPCClientDelegate
 import com.cobblemon.mod.common.client.entity.PokemonClientDelegate
 import com.cobblemon.mod.common.client.render.AnimatedModelTextureSupplier
 import com.cobblemon.mod.common.client.render.ModelLayer
@@ -56,6 +57,8 @@ import net.minecraft.client.renderer.texture.DynamicTexture
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.item.ItemDisplayContext
 import net.minecraft.world.phys.Vec3
 import org.joml.Matrix4f
 import org.joml.Vector3f
@@ -78,7 +81,6 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
     @Transient
     lateinit var context: RenderContext
 
-
     var poses = mutableMapOf<String, Pose>()
 
     /** A way to view the definition of all the different locators that are registered for the model. */
@@ -91,6 +93,14 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
     open var portraitTranslation = Vec3(0.0, 0.0, 0.0)
 
     open var profileScale = 1F
+
+    /**
+     * These are open-ended properties that can be used to store miscellaneous properties about the model.
+     *
+     * The internal use currently is to name locators and what display context should be used when rendering
+     * held items at that position.
+     */
+    open var properties = mutableMapOf<String, String>()
 
     /*
      * Hello future Hiro, this is past Hiro. You've gotten forgetful in your old age.
@@ -163,7 +173,6 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
      * Generates an active animation by name. This can be legacy-backed cry or faint animations, a prepared builder
      * for an animation in the [animations] mapping, a product of MoLang in the name parameter, or a highly specific
      * format used in [extractAnimation].
-     *
      * First priority is given to any named animations inside of [Pose], and then to the [animations] mapping, before
      * resorting to legacy, MoLang resolution, and finally the [extractAnimation] hail-Mary.
      */
@@ -464,6 +473,12 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
         }
     }
 
+    /** Checks for whether a property has been set to configure how an item would render on this locator. */
+    fun getLocatorDisplayContext(locator: String): ItemDisplayContext? {
+        val displayContextString = properties["${locator}_display_context"] ?: return null
+        return ItemDisplayContext.valueOf(displayContextString)
+    }
+
     /** Generates a [RenderType] by the power of god and anime. Only possible thanks to 100 access wideners. */
     fun makeLayer(texture: RenderStateShard.EmptyTextureStateShard, emissive: Boolean, translucent: Boolean): RenderType {
         val multiPhaseParameters: RenderType.CompositeState = RenderType.CompositeState.builder()
@@ -477,6 +492,7 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
             )
             .setTextureState(texture)
             .setTransparencyState(if (translucent) RenderStateShard.TRANSLUCENT_TRANSPARENCY else RenderStateShard.NO_TRANSPARENCY)
+            .setLightmapState(if (!emissive) RenderStateShard.LIGHTMAP else RenderStateShard.LightmapStateShard(false))
             .setCullState(RenderStateShard.CULL)
             .setWriteMaskState(RenderStateShard.COLOR_DEPTH_WRITE)
             .setOverlayState(RenderStateShard.OVERLAY)
@@ -506,13 +522,16 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
 
 
     /** Applies the given pose's [ModelPartTransformation]s to the model, if there is a matching pose. */
-    fun applyPose(state: PosableState, pose: Pose, intensity: Float) = (pose.transformedParts + transformedParts).forEach { it.apply(state, intensity) }
+    fun applyPose(state: PosableState, pose: Pose, intensity: Float) = pose.transformedParts.forEach { it.apply(state, intensity) }
     /** Gets the first pose of this model that matches the given [PoseType]. */
     fun getPose(pose: PoseType) = poses.values.firstOrNull { pose in it.poseTypes }
     fun getPose(name: String) = poses[name]
 
     /** Puts the model back to its original location and rotations. */
-    fun setDefault() = defaultPositions.forEach { it.set() }
+    fun setDefault() {
+        defaultPositions.forEach { it.set() }
+        transformedParts.forEach { it.set() }
+    }
 
     /**
      * Finds the first of the model's poses that the given state and optional [PoseType] is appropriate for.
