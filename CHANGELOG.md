@@ -42,6 +42,10 @@
 - Trubbish
 - Garbodor
 
+#### Gen 6
+- Noibat
+- Noivern
+
 #### Gen 7
 - Drampa
 
@@ -61,6 +65,15 @@
 ### Model updates for the following Pokémon
 - Gyarados
 - Dragonite
+- Eevee
+- Vaporeon
+- Jolteon
+- Flareon
+- Espeon
+- Umbreon
+- Leafeon
+- Glaceon
+- Sylveon
 
 ### Changes
 - Renamed `chargeGainedPerTick` config to `secondsToChargeHealingMachine`.
