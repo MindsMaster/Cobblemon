@@ -109,6 +109,7 @@ class PokemonServerDelegate : PokemonSideDelegate {
     fun updateTrackedValues() {
         val trackedSpecies = mock?.species ?: entity.pokemon.species.resourceIdentifier.toString()
         val trackedNickname =  mock?.nickname ?: entity.pokemon.nickname ?: Component.empty()
+        val trackedMark = entity.pokemon.activeMark?.identifier.toString()
         val trackedAspects = mock?.aspects ?: entity.pokemon.aspects
         val trackedBall = mock?.pokeball ?: entity.pokemon.caughtBall.name.toString()
 
@@ -116,6 +117,9 @@ class PokemonServerDelegate : PokemonSideDelegate {
         entity.entityData.set(PokemonEntity.SPECIES, trackedSpecies)
         if (entity.entityData.get(PokemonEntity.NICKNAME) != trackedNickname) {
             entity.entityData.set(PokemonEntity.NICKNAME, trackedNickname)
+        }
+        if (entity.entityData.get(PokemonEntity.MARK) !=trackedMark) {
+            entity.entityData.set(PokemonEntity.MARK, trackedMark)
         }
         entity.entityData.set(PokemonEntity.ASPECTS, trackedAspects)
         entity.entityData.set(PokemonEntity.LABEL_LEVEL, entity.pokemon.level)

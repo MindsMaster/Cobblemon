@@ -213,8 +213,8 @@ class SwitchInstruction(val instructionSet: InstructionSet, val battleActor: Bat
             val publicPokemon = (illusion ?: newPokemon).effectedPokemon
             val publicLang = publicPokemon.nickname?.let { nickname ->
                 battleLang("switch.other.nickname", actor.getName(), nickname, publicPokemon.species.translatedName)
-            } ?: battleLang("switch.other", actor.getName(), publicPokemon.getDisplayName())
-            actor.sendMessage(battleLang("switch.self", publicPokemon.getDisplayName()))
+            } ?: battleLang("switch.other", actor.getName(), publicPokemon.getDisplayName(true))
+            actor.sendMessage(battleLang("switch.self", publicPokemon.getDisplayName(true)))
             battle.actors.filter { it != actor }.forEach {
                 it.sendMessage(publicLang)
             }
