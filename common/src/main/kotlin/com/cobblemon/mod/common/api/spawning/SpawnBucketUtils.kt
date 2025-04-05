@@ -5,8 +5,8 @@ import com.cobblemon.mod.common.util.weightedSelection
 
 object SpawnBucketUtils {
     fun chooseAdjustedSpawnBucket(buckets: List<SpawnBucket>, bucketLureStrength: Int): SpawnBucket {
-        val baseValues = listOf(94.3F, 5.0F, 0.5F, 0.2F)
-        val adjustments = listOf(-4.1F, 2.5F, 1.0F, 0.6F)
+        val baseValues = listOf(91.6F, 7.0F, 1.0F, 0.4F)
+        val adjustments = listOf(-5.5F, 3.5F, 1.2F, 0.8F)
 
         val adjustedWeights = buckets.mapIndexed { index, bucket ->
             if (index >= baseValues.size) {
