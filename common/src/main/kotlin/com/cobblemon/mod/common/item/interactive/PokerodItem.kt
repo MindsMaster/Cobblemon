@@ -74,9 +74,8 @@ class PokerodItem(val pokeRodId: ResourceLocation, settings: Properties) : Fishi
                 }
 
                 if (baitCount > 1) {
-                    stack.set(
-                        CobblemonItemComponents.BAIT,
-                        RodBaitComponent(ItemStack(baitStack.item, baitCount - 1))
+                    baitStack.count = baitCount - 1
+                    stack.set(CobblemonItemComponents.BAIT, RodBaitComponent(baitStack)
                     )
                 }
             }

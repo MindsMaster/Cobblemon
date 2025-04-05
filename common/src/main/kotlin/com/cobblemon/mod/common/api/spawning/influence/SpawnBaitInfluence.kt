@@ -11,6 +11,7 @@ package com.cobblemon.mod.common.api.spawning.influence
 import com.cobblemon.mod.common.Cobblemon.LOGGER
 import com.cobblemon.mod.common.api.fishing.SpawnBait
 import com.cobblemon.mod.common.api.fishing.SpawnBait.Effects
+import com.cobblemon.mod.common.api.fishing.SpawnBaitUtils
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.api.pokemon.egg.EggGroup
 import com.cobblemon.mod.common.api.pokemon.stats.Stats
@@ -39,10 +40,11 @@ class SpawnBaitInfluence(val effects: List<SpawnBait.Effect>, val baitPos: Block
     override fun affectSpawn(entity: Entity) {
         super.affectSpawn(entity)
         if (entity is PokemonEntity) {
-            effects.forEach { it ->
-                if (Math.random() <= it.chance) {
+            val merged = SpawnBaitUtils.mergeEffects(effects)
+            merged.forEach { effect ->
+                if (Math.random() <= effect.chance) {
                     markUsed()
-                    Effects.getEffectFunction(it.type)?.invoke(entity, it)
+                    Effects.getEffectFunction(effect.type)?.invoke(entity, effect)
                 }
             }
         }
@@ -50,8 +52,10 @@ class SpawnBaitInfluence(val effects: List<SpawnBait.Effect>, val baitPos: Block
 
     // EV related bait effects
     override fun affectWeight(detail: SpawnDetail, ctx: SpawningContext, weight: Float): Float {
+        val merged = SpawnBaitUtils.mergeEffects(effects)
+
         // if bait exists and any effects are related to EV yields
-        if (effects.any { it.type == Effects.EV }){
+        if (merged.any { it.type == Effects.EV }){
             if (detail is PokemonSpawnDetail) {
                 val detailSpecies = detail.pokemon.species?.let { PokemonSpecies.getByName(it) }
                 val baitEVStat = effects.firstOrNull { it.type == Effects.EV }?.subcategory?.path?.let { Stats.getStat(it) }
@@ -72,7 +76,7 @@ class SpawnBaitInfluence(val effects: List<SpawnBait.Effect>, val baitPos: Block
             }
         }
         // if bait exists and any effects are related to Typing
-        if (effects.any { it.type == Effects.TYPING }){
+        if (merged.any { it.type == Effects.TYPING }){
             if (detail is PokemonSpawnDetail) {
                 val detailSpecies = detail.pokemon.species?.let { PokemonSpecies.getByName(it) }
                 val baitEffect = effects.firstOrNull { it.type == Effects.TYPING }
@@ -91,7 +95,7 @@ class SpawnBaitInfluence(val effects: List<SpawnBait.Effect>, val baitPos: Block
             }
         }
         // if bait exists and any effects are related to Egg Groups
-        if (effects.any { it.type == Effects.EGG_GROUP }) {
+        if (merged.any { it.type == Effects.EGG_GROUP }) {
             if (detail is PokemonSpawnDetail) {
                 val detailSpecies = detail.pokemon.species?.let { PokemonSpecies.getByName(it) }
 

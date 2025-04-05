@@ -11,6 +11,7 @@ package com.cobblemon.mod.common.client.tooltips
 import com.cobblemon.mod.common.api.cooking.Seasonings
 import com.cobblemon.mod.common.api.fishing.SpawnBait
 import com.cobblemon.mod.common.api.fishing.SpawnBaitEffects
+import com.cobblemon.mod.common.api.fishing.SpawnBaitUtils
 import com.cobblemon.mod.common.api.pokemon.egg.EggGroup
 import com.cobblemon.mod.common.api.text.blue
 import com.cobblemon.mod.common.api.text.gold
@@ -53,7 +54,7 @@ object FishingBaitTooltipGenerator : TooltipGenerator() {
         val resultLines = mutableListOf<Component>()
 
         // Determine the FishingBait or combined effects from poke_bait
-        val baitEffects = mutableListOf<SpawnBait.Effect>().apply {
+        val rawEffects = mutableListOf<SpawnBait.Effect>().apply {
             if (stack.item is PokerodItem) {
                 addAll(SpawnBaitEffects.getEffectsFromRodItemStack(stack))
             } else {
@@ -68,6 +69,8 @@ object FishingBaitTooltipGenerator : TooltipGenerator() {
                 }
             }
         }
+
+        val baitEffects = SpawnBaitUtils.mergeEffects(rawEffects)
 
         if (baitEffects.isEmpty()) return null
 
