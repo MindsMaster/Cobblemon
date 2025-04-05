@@ -16,6 +16,7 @@ import com.cobblemon.mod.common.util.ifServer
 import net.minecraft.client.player.RemotePlayer
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.RegistryFriendlyByteBuf
+import net.minecraft.world.phys.Vec3
 import kotlin.reflect.KProperty
 
 /**
@@ -27,18 +28,38 @@ import kotlin.reflect.KProperty
  *
  * @author landonjw
  */
-interface RidingBehaviourState : Encodable, Decodable {
-    fun reset()
-    fun copy(): RidingBehaviourState
-    fun shouldSync(previous: RidingBehaviourState): Boolean
-}
+open class RidingBehaviourState : Encodable, Decodable {
+    open val rideVelocity: SidedRidingState<Vec3> = ridingState(Vec3.ZERO, Side.BOTH)
+    open val stamina: SidedRidingState<Float> = ridingState(0F, Side.BOTH)
 
-object NoState : RidingBehaviourState {
-    override fun encode(buffer: RegistryFriendlyByteBuf) = Unit
-    override fun decode(buffer: RegistryFriendlyByteBuf) = Unit
-    override fun copy() = NoState
-    override fun reset() = Unit
-    override fun shouldSync(previous: RidingBehaviourState) = false
+    open fun reset() {
+        rideVelocity.set(Vec3.ZERO, true)
+        stamina.set(0F, true)
+    }
+
+    open fun copy(): RidingBehaviourState {
+        val copy = RidingBehaviourState()
+        copy.rideVelocity.set(rideVelocity.get(), true)
+        copy.stamina.set(stamina.get(), true)
+        return copy
+    }
+
+    open fun shouldSync(previous: RidingBehaviourState): Boolean {
+        if (previous.rideVelocity.get() != rideVelocity.get()) return true
+        if (previous.stamina.get() != stamina.get()) return true
+        return false
+    }
+
+    override fun encode(buffer: RegistryFriendlyByteBuf) {
+        buffer.writeVec3(rideVelocity.get())
+        buffer.writeFloat(stamina.get())
+    }
+
+    override fun decode(buffer: RegistryFriendlyByteBuf) {
+        rideVelocity.set(buffer.readVec3(), true)
+        stamina.set(buffer.readFloat(), true)
+    }
+
 }
 
 fun <T> ridingState(value: T, side: Side) = SidedRidingState(value, side)

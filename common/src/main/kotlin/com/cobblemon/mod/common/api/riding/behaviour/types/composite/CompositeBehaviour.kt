@@ -1,0 +1,456 @@
+package com.cobblemon.mod.common.api.riding.behaviour.types.composite
+
+import com.cobblemon.mod.common.api.riding.RidingStyle
+import com.cobblemon.mod.common.api.riding.behaviour.*
+import com.cobblemon.mod.common.api.riding.behaviour.types.composite.strategies.JumpStrategy
+import com.cobblemon.mod.common.api.riding.behaviour.types.composite.strategies.RunStrategy
+import com.cobblemon.mod.common.entity.PoseType
+import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
+import com.cobblemon.mod.common.util.adapters.RidingBehaviourSettingsAdapter
+import com.cobblemon.mod.common.util.cobblemonResource
+import net.minecraft.network.RegistryFriendlyByteBuf
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.util.SmoothDouble
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.phys.Vec2
+import net.minecraft.world.phys.Vec3
+
+class CompositeBehaviour : RidingBehaviour<CompositeBehaviourSettings, CompositeState> {
+    companion object {
+        val KEY = cobblemonResource("composite")
+    }
+
+    override val key = KEY
+    override val style = null
+
+    override fun createDefaultState(settings: CompositeBehaviourSettings): CompositeState {
+        val defaultBehaviour =
+            RidingBehaviours.get(settings.defaultBehaviour.key) as RidingBehaviour<RidingBehaviourSettings, RidingBehaviourState>
+        val defaultState = defaultBehaviour.createDefaultState(settings.defaultBehaviour)
+        val alternativeBehaviour =
+            RidingBehaviours.get(settings.defaultBehaviour.key) as RidingBehaviour<RidingBehaviourSettings, RidingBehaviourState>
+        val alternativeState = alternativeBehaviour.createDefaultState(settings.alternativeBehaviour)
+        return CompositeState(
+            defaultBehaviour = settings.defaultBehaviour.key,
+            defaultBehaviourState = defaultState,
+            alternativeBehaviourState = alternativeState
+        )
+    }
+
+    fun <T> chooseBehaviour(
+        settings: CompositeBehaviourSettings,
+        state: CompositeState,
+        action: (behaviour: RidingBehaviour<RidingBehaviourSettings, RidingBehaviourState>, settings: RidingBehaviourSettings, state: RidingBehaviourState) -> T
+    ): T {
+        val defaultBehaviour =
+            RidingBehaviours.get(settings.defaultBehaviour.key) as RidingBehaviour<RidingBehaviourSettings, RidingBehaviourState>
+        val alternativeBehaviour =
+            RidingBehaviours.get(settings.defaultBehaviour.key) as RidingBehaviour<RidingBehaviourSettings, RidingBehaviourState>
+        return when (state.activeController.get()) {
+            settings.defaultBehaviour.key -> action(
+                defaultBehaviour,
+                settings.defaultBehaviour,
+                state.defaultBehaviourState
+            )
+
+            settings.alternativeBehaviour.key -> action(
+                alternativeBehaviour,
+                settings.alternativeBehaviour,
+                state.alternativeBehaviourState
+            )
+
+            else -> error("Invalid controller: ${state.activeController.get()}")
+        }
+    }
+
+    override fun tick(
+        settings: CompositeBehaviourSettings,
+        state: CompositeState,
+        vehicle: PokemonEntity,
+        driver: Player,
+        input: Vec3
+    ) {
+        val strategy = CompositeBehaviourTransitionStrategies.get(settings.transitionStrategy)
+        strategy(
+            RideTransitionStrategyParams(
+                settings,
+                state,
+                state.defaultBehaviourState,
+                state.alternativeBehaviourState,
+                vehicle,
+                driver,
+                input
+            )
+        )
+    }
+
+    override fun clampPassengerRotation(
+        settings: CompositeBehaviourSettings,
+        state: CompositeState,
+        entity: PokemonEntity,
+        driver: LivingEntity
+    ) {
+        return chooseBehaviour(settings, state) { behaviour, behaviourSettings, behaviourState ->
+            behaviour.clampPassengerRotation(behaviourSettings, behaviourState, entity, driver)
+        }
+    }
+
+    override fun updatePassengerRotation(
+        settings: CompositeBehaviourSettings,
+        state: CompositeState,
+        entity: PokemonEntity,
+        driver: LivingEntity
+    ) {
+        return chooseBehaviour(settings, state) { behaviour, behaviourSettings, behaviourState ->
+            behaviour.updatePassengerRotation(behaviourSettings, behaviourState, entity, driver)
+        }
+    }
+
+    override fun shouldRotatePlayerHead(
+        settings: CompositeBehaviourSettings,
+        state: CompositeState,
+        vehicle: PokemonEntity
+    ): Boolean {
+        return chooseBehaviour(settings, state) { behaviour, behaviourSettings, behaviourState ->
+            behaviour.shouldRotatePlayerHead(behaviourSettings, behaviourState, vehicle)
+        }
+    }
+
+    override fun shouldRotatePokemonHead(
+        settings: CompositeBehaviourSettings,
+        state: CompositeState,
+        vehicle: PokemonEntity
+    ): Boolean {
+        return chooseBehaviour(settings, state) { behaviour, behaviourSettings, behaviourState ->
+            behaviour.shouldRotatePokemonHead(behaviourSettings, behaviourState, vehicle)
+        }
+    }
+
+    override fun dismountOnShift(
+        settings: CompositeBehaviourSettings,
+        state: CompositeState,
+        vehicle: PokemonEntity
+    ): Boolean {
+        return chooseBehaviour(settings, state) { behaviour, behaviourSettings, behaviourState ->
+            behaviour.dismountOnShift(behaviourSettings, behaviourState, vehicle)
+        }
+    }
+
+    override fun turnOffOnGround(
+        settings: CompositeBehaviourSettings,
+        state: CompositeState,
+        vehicle: PokemonEntity
+    ): Boolean {
+        return chooseBehaviour(settings, state) { behaviour, behaviourSettings, behaviourState ->
+            behaviour.turnOffOnGround(behaviourSettings, behaviourState, vehicle)
+        }
+    }
+
+    override fun shouldRoll(
+        settings: CompositeBehaviourSettings,
+        state: CompositeState,
+        vehicle: PokemonEntity
+    ): Boolean {
+        return chooseBehaviour(settings, state) { behaviour, behaviourSettings, behaviourState ->
+            behaviour.shouldRoll(behaviourSettings, behaviourState, vehicle)
+        }
+    }
+
+    override fun inertia(
+        settings: CompositeBehaviourSettings,
+        state: CompositeState,
+        vehicle: PokemonEntity
+    ): Double {
+        return chooseBehaviour(settings, state) { behaviour, behaviourSettings, behaviourState ->
+            behaviour.inertia(behaviourSettings, behaviourState, vehicle)
+        }
+    }
+
+    override fun useRidingAltPose(
+        settings: CompositeBehaviourSettings,
+        state: CompositeState,
+        vehicle: PokemonEntity,
+        driver: Player
+    ): Boolean {
+        return chooseBehaviour(settings, state) { behaviour, behaviourSettings, behaviourState ->
+            behaviour.useRidingAltPose(behaviourSettings, behaviourState, vehicle, driver)
+        }
+    }
+
+    override fun useAngVelSmoothing(
+        settings: CompositeBehaviourSettings,
+        state: CompositeState,
+        vehicle: PokemonEntity
+    ): Boolean {
+        return chooseBehaviour(settings, state) { behaviour, behaviourSettings, behaviourState ->
+            behaviour.useAngVelSmoothing(behaviourSettings, behaviourState, vehicle)
+        }
+    }
+
+    override fun rideFovMultiplier(
+        settings: CompositeBehaviourSettings,
+        state: CompositeState,
+        vehicle: PokemonEntity,
+        driver: Player
+    ): Float {
+        return chooseBehaviour(settings, state) { behaviour, behaviourSettings, behaviourState ->
+            behaviour.rideFovMultiplier(behaviourSettings, behaviourState, vehicle, driver)
+        }
+    }
+
+    override fun gravity(
+        settings: CompositeBehaviourSettings,
+        state: CompositeState,
+        vehicle: PokemonEntity,
+        regularGravity: Double
+    ): Double {
+        return chooseBehaviour(settings, state) { behaviour, behaviourSettings, behaviourState ->
+            behaviour.gravity(behaviourSettings, behaviourState, vehicle, regularGravity)
+        }
+    }
+
+    override fun jumpForce(
+        settings: CompositeBehaviourSettings,
+        state: CompositeState,
+        vehicle: PokemonEntity,
+        driver: Player,
+        jumpStrength: Int
+    ): Vec3 {
+        return chooseBehaviour(settings, state) { behaviour, behaviourSettings, behaviourState ->
+            behaviour.jumpForce(behaviourSettings, behaviourState, vehicle, driver, jumpStrength)
+        }
+    }
+
+    override fun setRideBar(
+        settings: CompositeBehaviourSettings,
+        state: CompositeState,
+        vehicle: PokemonEntity,
+        driver: Player
+    ): Float {
+        return chooseBehaviour(settings, state) { behaviour, behaviourSettings, behaviourState ->
+            behaviour.setRideBar(behaviourSettings, behaviourState, vehicle, driver)
+        }
+    }
+
+    override fun canJump(
+        settings: CompositeBehaviourSettings,
+        state: CompositeState,
+        vehicle: PokemonEntity,
+        driver: Player
+    ): Boolean {
+        return chooseBehaviour(settings, state) { behaviour, behaviourSettings, behaviourState ->
+            behaviour.canJump(behaviourSettings, behaviourState, vehicle, driver)
+        }
+    }
+
+    override fun rotationOnMouseXY(
+        settings: CompositeBehaviourSettings,
+        state: CompositeState,
+        vehicle: PokemonEntity,
+        driver: Player,
+        mouseY: Double,
+        mouseX: Double,
+        mouseYSmoother: SmoothDouble,
+        mouseXSmoother: SmoothDouble,
+        sensitivity: Double,
+        deltaTime: Double
+    ): Vec3 {
+        return chooseBehaviour(settings, state) { behaviour, behaviourSettings, behaviourState ->
+            behaviour.rotationOnMouseXY(
+                behaviourSettings,
+                behaviourState,
+                vehicle,
+                driver,
+                mouseY,
+                mouseX,
+                mouseYSmoother,
+                mouseXSmoother,
+                sensitivity,
+                deltaTime
+            )
+        }
+    }
+
+    override fun angRollVel(
+        settings: CompositeBehaviourSettings,
+        state: CompositeState,
+        vehicle: PokemonEntity,
+        driver: Player,
+        deltaTime: Double
+    ): Vec3 {
+        return chooseBehaviour(settings, state) { behaviour, behaviourSettings, behaviourState ->
+            behaviour.angRollVel(behaviourSettings, behaviourState, vehicle, driver, deltaTime)
+        }
+    }
+
+    override fun velocity(
+        settings: CompositeBehaviourSettings,
+        state: CompositeState,
+        vehicle: PokemonEntity,
+        driver: Player,
+        input: Vec3
+    ): Vec3 {
+        return chooseBehaviour(settings, state) { behaviour, behaviourSettings, behaviourState ->
+            behaviour.velocity(behaviourSettings, behaviourState, vehicle, driver, input)
+        }
+    }
+
+    override fun rotation(
+        settings: CompositeBehaviourSettings,
+        state: CompositeState,
+        vehicle: PokemonEntity,
+        driver: LivingEntity
+    ): Vec2 {
+        return chooseBehaviour(settings, state) { behaviour, behaviourSettings, behaviourState ->
+            behaviour.rotation(behaviourSettings, behaviourState, vehicle, driver)
+        }
+    }
+
+    override fun speed(
+        settings: CompositeBehaviourSettings,
+        state: CompositeState,
+        vehicle: PokemonEntity,
+        driver: Player
+    ): Float {
+        return chooseBehaviour(settings, state) { behaviour, behaviourSettings, behaviourState ->
+            behaviour.speed(behaviourSettings, behaviourState, vehicle, driver)
+        }
+    }
+
+    override fun pose(
+        settings: CompositeBehaviourSettings,
+        state: CompositeState,
+        vehicle: PokemonEntity
+    ): PoseType {
+        return chooseBehaviour(settings, state) { behaviour, behaviourSettings, behaviourState ->
+            behaviour.pose(behaviourSettings, behaviourState, vehicle)
+        }
+    }
+
+    override fun isActive(
+        settings: CompositeBehaviourSettings,
+        state: CompositeState,
+        vehicle: PokemonEntity
+    ): Boolean {
+        return chooseBehaviour(settings, state) { behaviour, behaviourSettings, behaviourState ->
+            behaviour.isActive(behaviourSettings, behaviourState, vehicle)
+        }
+    }
+}
+
+class CompositeBehaviourSettings : RidingBehaviourSettings {
+    lateinit var transitionStrategy: ResourceLocation
+        private set
+    lateinit var defaultBehaviour: RidingBehaviourSettings
+        private set
+    lateinit var alternativeBehaviour: RidingBehaviourSettings
+        private set
+
+    override val key: ResourceLocation = CompositeBehaviour.KEY
+
+    override fun encode(buffer: RegistryFriendlyByteBuf) {
+        buffer.writeResourceLocation(key)
+        buffer.writeResourceLocation(transitionStrategy)
+        defaultBehaviour.encode(buffer)
+        alternativeBehaviour.encode(buffer)
+    }
+
+    override fun decode(buffer: RegistryFriendlyByteBuf) {
+        transitionStrategy = buffer.readResourceLocation()
+        val defaultBehaviourKey = buffer.readResourceLocation()
+        defaultBehaviour = RidingBehaviourSettingsAdapter.types[defaultBehaviourKey]?.getConstructor()?.newInstance()
+            ?: error("Unknown controller key: $key")
+        defaultBehaviour.decode(buffer)
+        val alternativeBehaviourKey = buffer.readResourceLocation()
+        alternativeBehaviour =
+            RidingBehaviourSettingsAdapter.types[alternativeBehaviourKey]?.getConstructor()?.newInstance()
+                ?: error("Unknown controller key: $key")
+        alternativeBehaviour.decode(buffer)
+    }
+}
+
+class CompositeState(
+    private val defaultBehaviour: ResourceLocation,
+    val defaultBehaviourState: RidingBehaviourState,
+    val alternativeBehaviourState: RidingBehaviourState
+) : RidingBehaviourState() {
+    var activeController = ridingState(defaultBehaviour, Side.CLIENT)
+    var lastTransition = ridingState(-100L, Side.BOTH)
+
+    override val rideVelocity: SidedRidingState<Vec3>
+        get() = when (activeController.get()) {
+            defaultBehaviour -> defaultBehaviourState.rideVelocity
+            else -> alternativeBehaviourState.rideVelocity
+        }
+
+    override val stamina: SidedRidingState<Float>
+        get() = when (activeController.get()) {
+            defaultBehaviour -> defaultBehaviourState.stamina
+            else -> alternativeBehaviourState.stamina
+        }
+
+    override fun reset() {
+        super.reset()
+        activeController.set(defaultBehaviour, forced = true)
+        lastTransition.set(-100L, forced = true)
+    }
+
+    override fun copy(): CompositeState {
+        val state =
+            CompositeState(defaultBehaviour, defaultBehaviourState.copy(), alternativeBehaviourState.copy())
+        state.activeController.set(activeController.get(), forced = true)
+        state.lastTransition.set(lastTransition.get(), forced = true)
+        state.rideVelocity.set(rideVelocity.get(), forced = true)
+        state.stamina.set(stamina.get(), forced = true)
+        return state
+    }
+
+    override fun shouldSync(previous: RidingBehaviourState): Boolean {
+        if (previous !is CompositeState) return false
+        if (previous.activeController.get() != activeController.get()) return true
+        return super.shouldSync(previous)
+    }
+
+    override fun encode(buffer: RegistryFriendlyByteBuf) {
+        super.encode(buffer)
+        buffer.writeResourceLocation(activeController.get())
+    }
+
+    override fun decode(buffer: RegistryFriendlyByteBuf) {
+        super.decode(buffer)
+        activeController.set(buffer.readResourceLocation(), forced = true)
+    }
+
+}
+
+data class RideTransitionStrategyParams(
+    val settings: CompositeBehaviourSettings,
+    val state: CompositeState,
+    val defaultState: RidingBehaviourState,
+    val alternativeState: RidingBehaviourState,
+    val vehicle: PokemonEntity,
+    val driver: Player,
+    val input: Vec3
+)
+
+typealias RidingTransitionStrategy = (params: RideTransitionStrategyParams) -> Unit
+
+object CompositeBehaviourTransitionStrategies {
+    val strategies = mutableMapOf<ResourceLocation, RidingTransitionStrategy>()
+
+    init {
+        register(cobblemonResource("strategy/run"), RunStrategy::strategy)
+        register(cobblemonResource("strategy/jump"), JumpStrategy::strategy)
+    }
+
+    fun register(key: ResourceLocation, strategy: RidingTransitionStrategy) {
+        if (strategies.contains(key)) error("Strategy already registered to key $key")
+        strategies[key] = strategy
+    }
+
+    fun get(key: ResourceLocation): RidingTransitionStrategy {
+        if (!strategies.contains(key)) error("Strategy not registered to key $key")
+        return strategies[key]!!
+    }
+}

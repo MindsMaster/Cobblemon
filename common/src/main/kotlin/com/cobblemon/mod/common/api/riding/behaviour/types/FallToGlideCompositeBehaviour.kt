@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.api.riding.behaviour.types
 
 import com.bedrockk.molang.Expression
+import com.cobblemon.mod.common.api.riding.RidingStyle
 import com.cobblemon.mod.common.api.riding.behaviour.*
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonBehaviourFlag
@@ -28,6 +29,7 @@ class FallToGlideCompositeBehaviour : RidingBehaviour<FallToGlideCompositeSettin
     }
 
     override val key = KEY
+    override val style = RidingStyle.MISC
 
     val landBehaviour: GenericLandBehaviour = GenericLandBehaviour()
     val glideBehaviour: GliderAirBehaviour = GliderAirBehaviour()
@@ -80,7 +82,7 @@ class FallToGlideCompositeBehaviour : RidingBehaviour<FallToGlideCompositeSettin
     ): PoseType {
         return when (state.activeController.get()) {
             GenericLandBehaviour.KEY -> landBehaviour.pose(settings.land, state.landState, vehicle)
-            GliderAirBehaviour.KEY -> glideBehaviour.pose(settings.glide, NoState, vehicle)
+            GliderAirBehaviour.KEY -> glideBehaviour.pose(settings.glide, state.glideState, vehicle)
             else -> error("Invalid controller: ${state.activeController.get()}")
         }
     }
@@ -93,7 +95,7 @@ class FallToGlideCompositeBehaviour : RidingBehaviour<FallToGlideCompositeSettin
     ): Float {
         return when (state.activeController.get()) {
             GenericLandBehaviour.KEY -> landBehaviour.speed(settings.land, state.landState, vehicle, driver)
-            GliderAirBehaviour.KEY -> glideBehaviour.speed(settings.glide, NoState, vehicle, driver)
+            GliderAirBehaviour.KEY -> glideBehaviour.speed(settings.glide, state.glideState, vehicle, driver)
             else -> error("Invalid controller: ${state.activeController.get()}")
         }
     }
@@ -106,7 +108,7 @@ class FallToGlideCompositeBehaviour : RidingBehaviour<FallToGlideCompositeSettin
     ): Vec2 {
         return when (state.activeController.get()) {
             GenericLandBehaviour.KEY -> landBehaviour.rotation(settings.land, state.landState, vehicle, driver)
-            GliderAirBehaviour.KEY -> glideBehaviour.rotation(settings.glide, NoState, vehicle, driver)
+            GliderAirBehaviour.KEY -> glideBehaviour.rotation(settings.glide, state.glideState, vehicle, driver)
             else -> error("Invalid controller: ${state.activeController.get()}")
         }
     }
@@ -120,7 +122,7 @@ class FallToGlideCompositeBehaviour : RidingBehaviour<FallToGlideCompositeSettin
     ): Vec3 {
         return when (state.activeController.get()) {
             GenericLandBehaviour.KEY -> landBehaviour.velocity(settings.land, state.landState, vehicle, driver, input)
-            GliderAirBehaviour.KEY -> glideBehaviour.velocity(settings.glide, NoState, vehicle, driver, input)
+            GliderAirBehaviour.KEY -> glideBehaviour.velocity(settings.glide, state.glideState, vehicle, driver, input)
             else -> error("Invalid controller: ${state.activeController.get()}")
         }
     }
@@ -141,7 +143,7 @@ class FallToGlideCompositeBehaviour : RidingBehaviour<FallToGlideCompositeSettin
                 deltaTime
             )
 
-            GliderAirBehaviour.KEY -> glideBehaviour.angRollVel(settings.glide, NoState, vehicle, driver, deltaTime)
+            GliderAirBehaviour.KEY -> glideBehaviour.angRollVel(settings.glide, state.glideState, vehicle, driver, deltaTime)
             else -> error("Invalid controller: ${state.activeController.get()}")
         }
     }
@@ -174,7 +176,7 @@ class FallToGlideCompositeBehaviour : RidingBehaviour<FallToGlideCompositeSettin
 
             GliderAirBehaviour.KEY -> glideBehaviour.rotationOnMouseXY(
                 settings.glide,
-                NoState,
+                state.glideState,
                 vehicle,
                 driver,
                 mouseY,
@@ -197,7 +199,7 @@ class FallToGlideCompositeBehaviour : RidingBehaviour<FallToGlideCompositeSettin
     ): Boolean {
         return when (state.activeController.get()) {
             GenericLandBehaviour.KEY -> landBehaviour.canJump(settings.land, state.landState, vehicle, driver)
-            GliderAirBehaviour.KEY -> glideBehaviour.canJump(settings.glide, NoState, vehicle, driver)
+            GliderAirBehaviour.KEY -> glideBehaviour.canJump(settings.glide, state.glideState, vehicle, driver)
             else -> error("Invalid controller: ${state.activeController.get()}")
         }
     }
@@ -210,7 +212,7 @@ class FallToGlideCompositeBehaviour : RidingBehaviour<FallToGlideCompositeSettin
     ): Float {
         return when (state.activeController.get()) {
             GenericLandBehaviour.KEY -> landBehaviour.setRideBar(settings.land, state.landState, vehicle, driver)
-            GliderAirBehaviour.KEY -> glideBehaviour.setRideBar(settings.glide, NoState, vehicle, driver)
+            GliderAirBehaviour.KEY -> glideBehaviour.setRideBar(settings.glide, state.glideState, vehicle, driver)
             else -> error("Invalid controller: ${state.activeController.get()}")
         }
     }
@@ -231,7 +233,7 @@ class FallToGlideCompositeBehaviour : RidingBehaviour<FallToGlideCompositeSettin
                 jumpStrength
             )
 
-            GliderAirBehaviour.KEY -> glideBehaviour.jumpForce(settings.glide, NoState, vehicle, driver, jumpStrength)
+            GliderAirBehaviour.KEY -> glideBehaviour.jumpForce(settings.glide, state.glideState, vehicle, driver, jumpStrength)
             else -> error("Invalid controller: ${state.activeController.get()}")
         }
     }
@@ -244,7 +246,7 @@ class FallToGlideCompositeBehaviour : RidingBehaviour<FallToGlideCompositeSettin
     ): Double {
         return when (state.activeController.get()) {
             GenericLandBehaviour.KEY -> landBehaviour.gravity(settings.land, state.landState, vehicle, regularGravity)
-            GliderAirBehaviour.KEY -> glideBehaviour.gravity(settings.glide, NoState, vehicle, regularGravity)
+            GliderAirBehaviour.KEY -> glideBehaviour.gravity(settings.glide, state.glideState, vehicle, regularGravity)
             else -> error("Invalid controller: ${state.activeController.get()}")
         }
     }
@@ -257,7 +259,7 @@ class FallToGlideCompositeBehaviour : RidingBehaviour<FallToGlideCompositeSettin
     ): Float {
         return when (state.activeController.get()) {
             GenericLandBehaviour.KEY -> landBehaviour.rideFovMultiplier(settings.land, state.landState, vehicle, driver)
-            GliderAirBehaviour.KEY -> glideBehaviour.rideFovMultiplier(settings.glide, NoState, vehicle, driver)
+            GliderAirBehaviour.KEY -> glideBehaviour.rideFovMultiplier(settings.glide, state.glideState, vehicle, driver)
             else -> error("Invalid controller: ${state.activeController.get()}")
         }
     }
@@ -269,7 +271,7 @@ class FallToGlideCompositeBehaviour : RidingBehaviour<FallToGlideCompositeSettin
     ): Boolean {
         return when (state.activeController.get()) {
             GenericLandBehaviour.KEY -> landBehaviour.useAngVelSmoothing(settings.land, state.landState, vehicle)
-            GliderAirBehaviour.KEY -> glideBehaviour.useAngVelSmoothing(settings.glide, NoState, vehicle)
+            GliderAirBehaviour.KEY -> glideBehaviour.useAngVelSmoothing(settings.glide, state.glideState, vehicle)
             else -> error("Invalid controller: ${state.activeController.get()}")
         }
     }
@@ -282,7 +284,7 @@ class FallToGlideCompositeBehaviour : RidingBehaviour<FallToGlideCompositeSettin
     ): Boolean {
         return when (state.activeController.get()) {
             GenericLandBehaviour.KEY -> landBehaviour.useRidingAltPose(settings.land, state.landState, vehicle, driver)
-            GliderAirBehaviour.KEY -> glideBehaviour.useRidingAltPose(settings.glide, NoState, vehicle, driver)
+            GliderAirBehaviour.KEY -> glideBehaviour.useRidingAltPose(settings.glide, state.glideState, vehicle, driver)
             else -> error("Invalid controller: ${state.activeController.get()}")
         }
     }
@@ -294,7 +296,7 @@ class FallToGlideCompositeBehaviour : RidingBehaviour<FallToGlideCompositeSettin
     ): Double {
         return when (state.activeController.get()) {
             GenericLandBehaviour.KEY -> landBehaviour.inertia(settings.land, state.landState, vehicle)
-            GliderAirBehaviour.KEY -> glideBehaviour.inertia(settings.glide, NoState, vehicle)
+            GliderAirBehaviour.KEY -> glideBehaviour.inertia(settings.glide, state.glideState, vehicle)
             else -> error("Invalid controller: ${state.activeController.get()}")
         }
     }
@@ -306,7 +308,7 @@ class FallToGlideCompositeBehaviour : RidingBehaviour<FallToGlideCompositeSettin
     ): Boolean {
         return when (state.activeController.get()) {
             GenericLandBehaviour.KEY -> landBehaviour.shouldRoll(settings.land, state.landState, vehicle)
-            GliderAirBehaviour.KEY -> glideBehaviour.shouldRoll(settings.glide, NoState, vehicle)
+            GliderAirBehaviour.KEY -> glideBehaviour.shouldRoll(settings.glide, state.glideState, vehicle)
             else -> error("Invalid controller: ${state.activeController.get()}")
         }
     }
@@ -318,7 +320,7 @@ class FallToGlideCompositeBehaviour : RidingBehaviour<FallToGlideCompositeSettin
     ): Boolean {
         return when (state.activeController.get()) {
             GenericLandBehaviour.KEY -> landBehaviour.turnOffOnGround(settings.land, state.landState, vehicle)
-            GliderAirBehaviour.KEY -> glideBehaviour.turnOffOnGround(settings.glide, NoState, vehicle)
+            GliderAirBehaviour.KEY -> glideBehaviour.turnOffOnGround(settings.glide, state.glideState, vehicle)
             else -> error("Invalid controller: ${state.activeController.get()}")
         }
     }
@@ -330,7 +332,7 @@ class FallToGlideCompositeBehaviour : RidingBehaviour<FallToGlideCompositeSettin
     ): Boolean {
         return when (state.activeController.get()) {
             GenericLandBehaviour.KEY -> landBehaviour.dismountOnShift(settings.land, state.landState, vehicle)
-            GliderAirBehaviour.KEY -> glideBehaviour.dismountOnShift(settings.glide, NoState, vehicle)
+            GliderAirBehaviour.KEY -> glideBehaviour.dismountOnShift(settings.glide, state.glideState, vehicle)
             else -> error("Invalid controller: ${state.activeController.get()}")
         }
     }
@@ -342,7 +344,7 @@ class FallToGlideCompositeBehaviour : RidingBehaviour<FallToGlideCompositeSettin
     ): Boolean {
         return when (state.activeController.get()) {
             GenericLandBehaviour.KEY -> landBehaviour.shouldRotatePokemonHead(settings.land, state.landState, vehicle)
-            GliderAirBehaviour.KEY -> glideBehaviour.shouldRotatePokemonHead(settings.glide, NoState, vehicle)
+            GliderAirBehaviour.KEY -> glideBehaviour.shouldRotatePokemonHead(settings.glide, state.glideState, vehicle)
             else -> error("Invalid controller: ${state.activeController.get()}")
         }
     }
@@ -354,12 +356,12 @@ class FallToGlideCompositeBehaviour : RidingBehaviour<FallToGlideCompositeSettin
     ): Boolean {
         return when (state.activeController.get()) {
             GenericLandBehaviour.KEY -> landBehaviour.shouldRotatePlayerHead(settings.land, state.landState, vehicle)
-            GliderAirBehaviour.KEY -> glideBehaviour.shouldRotatePlayerHead(settings.glide, NoState, vehicle)
+            GliderAirBehaviour.KEY -> glideBehaviour.shouldRotatePlayerHead(settings.glide, state.glideState, vehicle)
             else -> error("Invalid controller: ${state.activeController.get()}")
         }
     }
 
-    override fun createDefaultState() = FallToGlideCompositeState()
+    override fun createDefaultState(settings: FallToGlideCompositeSettings) = FallToGlideCompositeState()
 
 
 }
@@ -394,34 +396,53 @@ class FallToGlideCompositeSettings : RidingBehaviourSettings {
     }
 }
 
-class FallToGlideCompositeState : RidingBehaviourState {
+class FallToGlideCompositeState : RidingBehaviourState() {
     var activeController = ridingState(GenericLandBehaviour.KEY, Side.CLIENT)
     var landState: GenericLandState = GenericLandState()
+    var glideState = RidingBehaviourState()
     var timeTransitioned = ridingState(-100L, Side.BOTH)
+
+    override val rideVelocity: SidedRidingState<Vec3>
+        get() = when (activeController.get()) {
+            GenericLandBehaviour.KEY -> landState.rideVelocity
+            GliderAirBehaviour.KEY -> glideState.rideVelocity
+            else -> error("Invalid controller: ${activeController.get()}")
+        }
+
+    override val stamina: SidedRidingState<Float>
+        get() = when (activeController.get()) {
+            GenericLandBehaviour.KEY -> landState.stamina
+            GliderAirBehaviour.KEY -> glideState.stamina
+            else -> error("Invalid controller: ${activeController.get()}")
+        }
 
     override fun encode(buffer: RegistryFriendlyByteBuf) {
         buffer.writeResourceLocation(activeController.get())
         landState.encode(buffer)
+        glideState.encode(buffer)
     }
 
     override fun decode(buffer: RegistryFriendlyByteBuf) {
         activeController.set(buffer.readResourceLocation(), forced = true)
         landState.decode(buffer)
+        glideState.decode(buffer)
     }
 
     override fun reset() {
         activeController.set(GenericLandBehaviour.KEY, forced = true)
         landState.reset()
+        glideState.reset()
         timeTransitioned.set(-100L, forced = true)
     }
 
     override fun toString(): String {
-        return "FallToGlideCompositeState(activeController=$activeController, landState=$landState, timeTransitioned=$timeTransitioned)"
+        return "FallToGlideCompositeState(activeController=$activeController, landState=$landState, glidestate=$glideState, timeTransitioned=$timeTransitioned)"
     }
 
     override fun copy() = FallToGlideCompositeState().also {
         it.activeController.set(activeController.get(), forced = true)
         it.landState = landState.copy()
+        it.glideState = glideState.copy()
         it.timeTransitioned.set(timeTransitioned.get(), forced = true)
     }
 
@@ -429,6 +450,7 @@ class FallToGlideCompositeState : RidingBehaviourState {
         if (previous !is FallToGlideCompositeState) return false
         if (activeController != previous.activeController) return true
         if (landState.shouldSync(previous.landState)) return true
+        if (glideState.shouldSync(previous.glideState)) return true
         return false
     }
 }

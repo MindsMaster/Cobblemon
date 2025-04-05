@@ -1018,12 +1018,15 @@ open class PokemonEntity(
                 itemStack
             )
             if (player.isShiftKeyDown) {
+                val canRide = ifRidingAvailableSupply(false) { behaviour, settings, state ->
+                    this.canRide(player) && seats.isNotEmpty() && behaviour.isActive(settings, state, this)
+                }
                 InteractPokemonUIPacket(
                     this.getUUID(),
                     canSitOnShoulder() && pokemon in player.party(),
                     !(pokemon.heldItemNoCopy().isEmpty && itemStack.isEmpty),
                     (!pokemon.cosmeticItem.isEmpty && itemStack.isEmpty) || cosmeticItemDefinition != null,
-                    this.canRide(player) && pokemon.riding.canRide
+                    true
                 ).sendToPlayer(player)
             } else {
                 // TODO #105
