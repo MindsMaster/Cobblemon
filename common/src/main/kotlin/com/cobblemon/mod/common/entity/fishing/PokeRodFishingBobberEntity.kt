@@ -22,6 +22,7 @@ import com.cobblemon.mod.common.api.fishing.SpawnBaitEffects
 import com.cobblemon.mod.common.api.scheduling.afterOnServer
 import com.cobblemon.mod.common.api.spawning.BestSpawner
 import com.cobblemon.mod.common.api.spawning.SpawnBucket
+import com.cobblemon.mod.common.api.spawning.SpawnBucketUtils
 import com.cobblemon.mod.common.api.spawning.detail.EntitySpawnResult
 import com.cobblemon.mod.common.api.spawning.fishing.FishingSpawnCause
 import com.cobblemon.mod.common.api.spawning.influence.PlayerLevelRangeInfluence
@@ -183,22 +184,6 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
         return Pair(min, max)
     }
 
-    fun chooseAdjustedSpawnBucket(buckets: List<SpawnBucket>, luckOfTheSeaLevel: Int): SpawnBucket {
-        val baseValues = listOf(94.3F, 5.0F, 0.5F, 0.2F)
-        val adjustments = listOf(-4.1F, 2.5F, 1.0F, 0.6F)
-
-        val adjustedWeights = buckets.mapIndexed { index, bucket ->
-            if (index >= baseValues.size) {
-                return@mapIndexed bucket to bucket.weight
-            }
-            val base = baseValues[index]
-            val adjustment = adjustments[index]
-            bucket to (base + adjustment * luckOfTheSeaLevel)
-        }.toMap()
-
-        return buckets.weightedSelection { adjustedWeights[it]!! }!!
-    }
-
     fun isOpenOrWaterAround(pos: BlockPos): Boolean {
         var positionType = PositionType.INVALID
         for (i in -1..2) {
@@ -323,7 +308,7 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
                     val buckets = Cobblemon.bestSpawner.config.buckets
 
                     // choose a spawn bucket according to weights and luck of the sea
-                    chosenBucket = chooseAdjustedSpawnBucket(buckets, luckOfTheSeaLevel)
+                    chosenBucket = SpawnBucketUtils.chooseAdjustedSpawnBucket(buckets, luckOfTheSeaLevel)
                     CobblemonEvents.BOBBER_BUCKET_CHOSEN.post(BobberBucketChosenEvent(chosenBucket, buckets, luckOfTheSeaLevel)) { event ->
                         chosenBucket = event.chosenBucket
                     }

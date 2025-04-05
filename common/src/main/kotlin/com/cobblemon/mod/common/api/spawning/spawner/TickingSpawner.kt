@@ -8,6 +8,9 @@
 
 package com.cobblemon.mod.common.api.spawning.spawner
 
+import com.cobblemon.mod.common.Cobblemon
+import com.cobblemon.mod.common.api.spawning.SpawnBucket
+import com.cobblemon.mod.common.api.spawning.SpawnBucketUtils
 import com.cobblemon.mod.common.api.spawning.SpawnCause
 import com.cobblemon.mod.common.api.spawning.SpawnerManager
 import com.cobblemon.mod.common.api.spawning.context.AreaSpawningContext
@@ -73,6 +76,62 @@ abstract class TickingSpawner(
 
         ticksUntilNextSpawn -= tickTimerMultiplier
         if (ticksUntilNextSpawn <= 0) {
+
+            val defaultBucket = chooseBucket()
+            val defaultCause = SpawnCause(spawner = this, bucket = defaultBucket, entity = getCauseEntity())
+
+            // Try getting spawn with a dummy cause first
+            val preSpawn = run(defaultCause)
+
+            if (preSpawn != null) {
+                val (ctx, detail) = preSpawn
+                val influence = ctx.influences.filterIsInstance<SpawnBaitInfluence>().firstOrNull()
+
+                val bucket = if (influence != null && influence.used) {
+                    // todo Get bucket effect from bait influence and use it in the new method
+                    val baitRarityLevel = 3 // I am using this for testing atm
+
+                    SpawnBucketUtils.chooseAdjustedSpawnBucket(Cobblemon.bestSpawner.config.buckets, baitRarityLevel)
+                } else {
+                    defaultBucket // todo Maybe end it quicker if it is this
+                }
+
+                // todo maybe only do this stuff if there is a rarity bucket bait effect present in the influence
+                // Rerun with the new bucket
+                val cause = SpawnCause(spawner = this, bucket = bucket, entity = getCauseEntity())
+                val finalSpawn = run(cause) ?: return
+                val (finalCtx, finalDetail) = finalSpawn
+
+                val spawnAction = finalDetail.doSpawn(ctx = finalCtx)
+
+                if (finalCtx is AreaSpawningContext && influence != null && influence.used) {
+                    val baitPos = influence.baitPos
+                    val level = finalCtx.world.level
+                    val blockEntity = baitPos?.let { level.getBlockEntity(it) }
+
+                    if (blockEntity is LureCakeBlockEntity) {
+                        blockEntity.bites++
+
+                        if (blockEntity.bites >= CakeBlockEntity.MAX_NUMBER_OF_BITES) {
+                            level.removeBlock(baitPos, false)
+                        } else {
+                            blockEntity.setChanged()
+                            level.sendBlockUpdated(baitPos, blockEntity.blockState, blockEntity.blockState, 3)
+                        }
+                    }
+                }
+
+                spawnAction.complete()
+
+                finalCtx.influences.filterIsInstance<SpawnBaitInfluence>().forEach {
+                    it.used = false
+                }
+            }
+
+/*
+
+
+
             val spawn = run(SpawnCause(spawner = this, bucket = chooseBucket(), entity = getCauseEntity()))
             ticksUntilNextSpawn = ticksBetweenSpawns
             if (spawn != null) {
@@ -107,7 +166,7 @@ abstract class TickingSpawner(
                 ctx.influences.filterIsInstance<SpawnBaitInfluence>().forEach {
                     it.used = false
                 }
-            }
+            }*/
         }
     }
 
