@@ -6,9 +6,9 @@
   "colour": "yellow",
   "baitEffects": [
     {
-      "type": "cobblemon:shiny_reroll",
-      "chance": 0.2,
-      "value": 1.0
+      "type": "cobblemon:rarity_bucket",
+      "chance": 1.0,
+      "value": 4
     }
   ]
 }

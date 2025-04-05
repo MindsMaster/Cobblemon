@@ -944,6 +944,7 @@
   "cobblemon.fishing_bait_effects.ha_chance.tooltip": "%1$s%% - Attract Hidden Ability",
   "cobblemon.fishing_bait_effects.pokemon_chance.tooltip": "%1$s%% - Reel in a Pokémon",
   "cobblemon.fishing_bait_effects.friendship.tooltip": "%1$s%% - Boost Friendship +%3$s",
+  "cobblemon.fishing_bait_effects.rarity_bucket.tooltip": "%1$s%% - Boost Rarity Bucket +%3$s Tiers",
   "cobblemon.fishing_bait_effects.inert.tooltip": "No known effect",
 
   "cobblemon.egg_group.monster": "Monster",

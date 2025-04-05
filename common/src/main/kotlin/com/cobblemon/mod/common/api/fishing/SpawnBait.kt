@@ -71,6 +71,7 @@ class SpawnBait(
         val HIDDEN_ABILITY_CHANCE = cobblemonResource("ha_chance")
         val POKEMON_CHANCE = cobblemonResource("pokemon_chance")
         val FRIENDSHIP = cobblemonResource("friendship")
+        val RARITY_BUCKET = cobblemonResource("rarity_bucket")
 
         fun registerEffect(type: ResourceLocation, effect: (PokemonEntity, Effect) -> Unit) {
             EFFECT_FUNCTIONS[type] = effect

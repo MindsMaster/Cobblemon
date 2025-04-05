@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.api.spawning.spawner
 
 import com.cobblemon.mod.common.Cobblemon
+import com.cobblemon.mod.common.api.fishing.SpawnBait
 import com.cobblemon.mod.common.api.spawning.SpawnBucket
 import com.cobblemon.mod.common.api.spawning.SpawnBucketUtils
 import com.cobblemon.mod.common.api.spawning.SpawnCause
@@ -86,10 +87,11 @@ abstract class TickingSpawner(
             if (preSpawn != null) {
                 val (ctx, detail) = preSpawn
                 val influence = ctx.influences.filterIsInstance<SpawnBaitInfluence>().firstOrNull()
+                val rarityInfluenceValue = influence?.effects?.firstOrNull { it.type == SpawnBait.Effects.RARITY_BUCKET}
 
-                val bucket = if (influence != null && influence.used) {
+                val bucket = if (influence != null && influence.used && rarityInfluenceValue != null) {
                     // todo Get bucket effect from bait influence and use it in the new method
-                    val baitRarityLevel = 3 // I am using this for testing atm
+                    val baitRarityLevel = rarityInfluenceValue.value.toInt()
 
                     SpawnBucketUtils.chooseAdjustedSpawnBucket(Cobblemon.bestSpawner.config.buckets, baitRarityLevel)
                 } else {
