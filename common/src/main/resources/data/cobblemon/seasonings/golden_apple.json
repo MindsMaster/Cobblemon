@@ -8,7 +8,7 @@
     {
       "type": "cobblemon:rarity_bucket",
       "chance": 1.0,
-      "value": 4
+      "value": 3
     }
   ]
 }
