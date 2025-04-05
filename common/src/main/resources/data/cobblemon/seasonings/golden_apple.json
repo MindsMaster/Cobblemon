@@ -1,0 +1,14 @@
+{
+  "ingredient": "minecraft:golden_apple",
+  "flavours": {
+    "SWEET": 10
+  },
+  "colour": "yellow",
+  "baitEffects": [
+    {
+      "type": "cobblemon:shiny_reroll",
+      "chance": 0.2,
+      "value": 1.0
+    }
+  ]
+}

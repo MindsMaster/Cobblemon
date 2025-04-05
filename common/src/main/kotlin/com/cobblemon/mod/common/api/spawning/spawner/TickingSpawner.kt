@@ -132,6 +132,8 @@ abstract class TickingSpawner(
 
 
 
+            // TODO maybe around here we would check for a way to check for a SpawnBaitInfluence so we could increase odds of a different rarity bucket?
+            //      Although you need to have a spawn to get a context to then have an influence..... Not sure the best way to go about this
             val spawn = run(SpawnCause(spawner = this, bucket = chooseBucket(), entity = getCauseEntity()))
             ticksUntilNextSpawn = ticksBetweenSpawns
             if (spawn != null) {

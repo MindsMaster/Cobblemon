@@ -25,7 +25,8 @@ object BaitSeasoningProcessor : SeasoningProcessor {
             // From seasonings with baitEffects
             val seasoningData = Seasonings.getFromItemStack(seasoningStack)
             if (seasoningData != null && seasoningData.baitEffects.isNotEmpty()) {
-                val id = ResourceLocation("seasonings", seasoningStack.item.descriptionId.removePrefix("item."))
+                val itemId = seasoningStack.item.builtInRegistryHolder().key().location()
+                val id = ResourceLocation("seasonings", itemId.path)
                 baitIdentifiers.add(id)
             }
         }
