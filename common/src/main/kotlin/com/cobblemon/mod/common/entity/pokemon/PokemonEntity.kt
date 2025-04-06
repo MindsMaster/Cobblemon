@@ -1218,7 +1218,7 @@ open class PokemonEntity(
         val possibleReturn = if (isCosmetic) this.pokemon.cosmeticItem.copy() else this.pokemon.heldItemNoCopy()
         val giving = stack.copy().apply { count = 1 }
 
-        if (ItemStack.isSameItem(giving, possibleReturn)) {
+        if (ItemStack.isSameItemSameComponents(giving, possibleReturn)) {
             val message = if (isCosmetic) {
                 lang("cosmetic_item.already_wearing", this.pokemon.getDisplayName(), stack.hoverName)
             } else {
@@ -1235,28 +1235,12 @@ open class PokemonEntity(
         }
 
         val text = when {
-            isCosmetic && giving.isEmpty -> lang(
-                "cosmetic_item.take",
-                returned.hoverName,
-                this.pokemon.getDisplayName()
-            )
-
-            isCosmetic && returned.isEmpty -> lang(
-                "cosmetic_item.give",
-                this.pokemon.getDisplayName(),
-                giving.hoverName
-            )
-
-            !isCosmetic && giving.isEmpty -> lang("held_item.take", returned.hoverName, this.pokemon.getDisplayName())
-            !isCosmetic && returned.isEmpty -> lang("held_item.give", this.pokemon.getDisplayName(), giving.hoverName)
-            isCosmetic -> lang(
-                "cosmetic_item.replace",
-                returned.hoverName,
-                this.pokemon.getDisplayName(),
-                returned.hoverName
-            )
-
-            else -> lang("held_item.replace", returned.hoverName, this.pokemon.getDisplayName(), returned.hoverName)
+            isCosmetic && giving.isEmpty -> lang("cosmetic_item.take", returned.displayName, this.pokemon.getDisplayName())
+            isCosmetic && returned.isEmpty -> lang("cosmetic_item.give", this.pokemon.getDisplayName(), giving.displayName)
+            !isCosmetic && giving.isEmpty -> lang("held_item.take", returned.displayName, this.pokemon.getDisplayName())
+            !isCosmetic && returned.isEmpty -> lang("held_item.give", this.pokemon.getDisplayName(), giving.displayName)
+            isCosmetic -> lang("cosmetic_item.replace", returned.displayName, this.pokemon.getDisplayName(), giving.displayName)
+            else -> lang("held_item.replace", returned.displayName, this.pokemon.getDisplayName(), giving.displayName)
         }
 
         player.sendSystemMessage(text)
