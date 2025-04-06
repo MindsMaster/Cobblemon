@@ -23,16 +23,14 @@ class CompositeBehaviour : RidingBehaviour<CompositeSettings, CompositeState> {
     override val style = null
 
     override fun createDefaultState(settings: CompositeSettings): CompositeState {
-        val defaultBehaviour =
-            RidingBehaviours.get(settings.defaultBehaviour.key)
+        val defaultBehaviour = RidingBehaviours.get(settings.defaultBehaviour.key)
         val defaultState = defaultBehaviour.createDefaultState(settings.defaultBehaviour)
-        val alternativeBehaviour =
-            RidingBehaviours.get(settings.defaultBehaviour.key)
-        val alternativeState = alternativeBehaviour.createDefaultState(settings.alternativeBehaviour)
+        val alternateBehaviour = RidingBehaviours.get(settings.alternateBehaviour.key)
+        val alternativeState = alternateBehaviour.createDefaultState(settings.alternateBehaviour)
         return CompositeState(
             defaultBehaviour = settings.defaultBehaviour.key,
             defaultBehaviourState = defaultState,
-            alternativeBehaviourState = alternativeState
+            alternateBehaviourState = alternativeState
         )
     }
 
@@ -41,21 +39,18 @@ class CompositeBehaviour : RidingBehaviour<CompositeSettings, CompositeState> {
         state: CompositeState,
         action: (behaviour: RidingBehaviour<RidingBehaviourSettings, RidingBehaviourState>, settings: RidingBehaviourSettings, state: RidingBehaviourState) -> T
     ): T {
-        val defaultBehaviour =
-            RidingBehaviours.get(settings.defaultBehaviour.key)
-        val alternativeBehaviour =
-            RidingBehaviours.get(settings.defaultBehaviour.key)
+        val defaultBehaviour = RidingBehaviours.get(settings.defaultBehaviour.key)
+        val alternativeBehaviour = RidingBehaviours.get(settings.alternateBehaviour.key)
         return when (state.activeController.get()) {
             settings.defaultBehaviour.key -> action(
                 defaultBehaviour,
                 settings.defaultBehaviour,
                 state.defaultBehaviourState
             )
-
-            settings.alternativeBehaviour.key -> action(
+            settings.alternateBehaviour.key -> action(
                 alternativeBehaviour,
-                settings.alternativeBehaviour,
-                state.alternativeBehaviourState
+                settings.alternateBehaviour,
+                state.alternateBehaviourState
             )
 
             else -> error("Invalid controller: ${state.activeController.get()}")
@@ -70,7 +65,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeSettings, CompositeState> {
         input: Vec3
     ) {
         val strategy = CompositeRidingStrategies.get(settings.transitionStrategy)
-        strategy.tick(settings, state, state.defaultBehaviourState, state.alternativeBehaviourState, vehicle, driver, input)
+        strategy.tick(settings, state, state.defaultBehaviourState, state.alternateBehaviourState, vehicle, driver, input)
     }
 
     override fun clampPassengerRotation(
@@ -332,7 +327,7 @@ open class CompositeSettings : RidingBehaviourSettings {
         private set
     lateinit var defaultBehaviour: RidingBehaviourSettings
         private set
-    lateinit var alternativeBehaviour: RidingBehaviourSettings
+    lateinit var alternateBehaviour: RidingBehaviourSettings
         private set
 
     override val key: ResourceLocation = CompositeBehaviour.KEY
@@ -341,7 +336,7 @@ open class CompositeSettings : RidingBehaviourSettings {
         buffer.writeResourceLocation(key)
         buffer.writeResourceLocation(transitionStrategy)
         defaultBehaviour.encode(buffer)
-        alternativeBehaviour.encode(buffer)
+        alternateBehaviour.encode(buffer)
     }
 
     override fun decode(buffer: RegistryFriendlyByteBuf) {
@@ -351,17 +346,17 @@ open class CompositeSettings : RidingBehaviourSettings {
             ?: error("Unknown controller key: $key")
         defaultBehaviour.decode(buffer)
         val alternativeBehaviourKey = buffer.readResourceLocation()
-        alternativeBehaviour =
+        alternateBehaviour =
             RidingBehaviourSettingsAdapter.types[alternativeBehaviourKey]?.getConstructor()?.newInstance()
                 ?: error("Unknown controller key: $key")
-        alternativeBehaviour.decode(buffer)
+        alternateBehaviour.decode(buffer)
     }
 }
 
 class CompositeState(
     private val defaultBehaviour: ResourceLocation,
     val defaultBehaviourState: RidingBehaviourState,
-    val alternativeBehaviourState: RidingBehaviourState
+    val alternateBehaviourState: RidingBehaviourState
 ) : RidingBehaviourState() {
     var activeController = ridingState(defaultBehaviour, Side.CLIENT)
     var lastTransition = ridingState(-100L, Side.BOTH)
@@ -369,13 +364,13 @@ class CompositeState(
     override val rideVelocity: SidedRidingState<Vec3>
         get() = when (activeController.get()) {
             defaultBehaviour -> defaultBehaviourState.rideVelocity
-            else -> alternativeBehaviourState.rideVelocity
+            else -> alternateBehaviourState.rideVelocity
         }
 
     override val stamina: SidedRidingState<Float>
         get() = when (activeController.get()) {
             defaultBehaviour -> defaultBehaviourState.stamina
-            else -> alternativeBehaviourState.stamina
+            else -> alternateBehaviourState.stamina
         }
 
     override fun reset() {
@@ -386,7 +381,7 @@ class CompositeState(
 
     override fun copy(): CompositeState {
         val state =
-            CompositeState(defaultBehaviour, defaultBehaviourState.copy(), alternativeBehaviourState.copy())
+            CompositeState(defaultBehaviour, defaultBehaviourState.copy(), alternateBehaviourState.copy())
         state.activeController.set(activeController.get(), forced = true)
         state.lastTransition.set(lastTransition.get(), forced = true)
         state.rideVelocity.set(rideVelocity.get(), forced = true)

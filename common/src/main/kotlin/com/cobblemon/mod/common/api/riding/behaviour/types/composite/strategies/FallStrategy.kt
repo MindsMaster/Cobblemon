@@ -9,10 +9,7 @@ import com.cobblemon.mod.common.api.riding.behaviour.types.composite.CompositeSe
 import com.cobblemon.mod.common.api.riding.behaviour.types.composite.CompositeState
 import com.cobblemon.mod.common.entity.pokemon.PokemonBehaviourFlag
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
-import com.cobblemon.mod.common.util.asExpression
-import com.cobblemon.mod.common.util.cobblemonResource
-import com.cobblemon.mod.common.util.readExpression
-import com.cobblemon.mod.common.util.writeExpression
+import com.cobblemon.mod.common.util.*
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.Vec3
@@ -25,47 +22,48 @@ object FallStrategy : CompositeRidingStrategy<FallCompositeSettings> {
         settings: FallCompositeSettings,
         state: CompositeState,
         defaultState: RidingBehaviourState,
-        alternativeState: RidingBehaviourState,
+        alternateState: RidingBehaviourState,
         vehicle: PokemonEntity,
         driver: Player,
         input: Vec3
     ) {
         if (shouldTransitionToDefault(state, settings.defaultBehaviour, vehicle)) {
-            defaultState.stamina.set(alternativeState.stamina.get())
-            defaultState.rideVelocity.set(alternativeState.rideVelocity.get())
-            val defaultBehaviour = RidingBehaviours.get(settings.defaultBehaviour.key)
-            vehicle.setBehaviourFlag(PokemonBehaviourFlag.FLYING, defaultBehaviour.style == RidingStyle.AIR)
-        } else if (shouldTransitionToAlternative(state, settings.alternativeBehaviour, vehicle, driver)) {
-            alternativeState.stamina.set(defaultState.stamina.get())
-            alternativeState.rideVelocity.set(defaultState.rideVelocity.get())
-            val alternativeBehaviour = RidingBehaviours.get(settings.alternativeBehaviour.key)
-            vehicle.setBehaviourFlag(PokemonBehaviourFlag.FLYING, alternativeBehaviour.style == RidingStyle.AIR)
+            transition(vehicle, settings, state, alternateState, defaultState, settings.defaultBehaviour)
+        } else if (shouldTransitionToAlternate(settings, state, settings.alternateBehaviour, vehicle, driver)) {
+            transition(vehicle, settings, state, defaultState, alternateState, settings.alternateBehaviour)
         }
     }
 
     private fun shouldTransitionToDefault(
         state: CompositeState,
         defaultSettings: RidingBehaviourSettings,
-        entity: PokemonEntity
+        vehicle: PokemonEntity
     ): Boolean {
         if (state.activeController.get() == defaultSettings.key) return false
-        if (!entity.onGround()) return false
-        if (state.lastTransition.get() + 20 >= entity.level().gameTime) return false
+        if (state.lastTransition.get() + 20 >= vehicle.level().gameTime) return false
+        if (!vehicle.onGround()) return false
         val defaultBehaviour = RidingBehaviours.get(defaultSettings.key)
-        return defaultBehaviour.isActive(defaultSettings, state.defaultBehaviourState, entity)
+        return defaultBehaviour.isActive(defaultSettings, state.defaultBehaviourState, vehicle)
     }
 
-    private fun shouldTransitionToAlternative(
+    private fun shouldTransitionToAlternate(
+        settings: FallCompositeSettings,
         state: CompositeState,
-        alternativeSettings: RidingBehaviourSettings,
-        entity: PokemonEntity,
+        alternateSettings: RidingBehaviourSettings,
+        vehicle: PokemonEntity,
         driver: Player
     ): Boolean {
-        if (state.activeController.get() == alternativeSettings.key) return false
+        if (state.activeController.get() == alternateSettings.key) return false
         if (!driver.jumping) return false
-        if (state.lastTransition.get() + 20 >= entity.level().gameTime) return false
-        val alternativeBehaviour = RidingBehaviours.get(alternativeSettings.key)
-        return alternativeBehaviour.isActive(alternativeSettings, state.alternativeBehaviourState, entity)
+        if (state.lastTransition.get() + 20 >= vehicle.level().gameTime) return false
+
+        val runtime = vehicle.runtime
+        val minFallingSpeed = runtime.resolveFloat(settings.minimumFallSpeed)
+        val minForwardSpeed = runtime.resolveFloat(settings.minimumForwardSpeed)
+        if (vehicle.deltaMovement.y < -minFallingSpeed) return false
+        if (vehicle.deltaMovement.horizontalDistance() < minForwardSpeed) return false
+        val alternativeBehaviour = RidingBehaviours.get(alternateSettings.key)
+        return alternativeBehaviour.isActive(alternateSettings, state.alternateBehaviourState, vehicle)
     }
 
 }

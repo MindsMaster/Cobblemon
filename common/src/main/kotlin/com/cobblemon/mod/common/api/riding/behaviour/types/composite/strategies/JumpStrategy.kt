@@ -20,47 +20,41 @@ object JumpStrategy : CompositeRidingStrategy<CompositeSettings> {
         settings: CompositeSettings,
         state: CompositeState,
         defaultState: RidingBehaviourState,
-        alternativeState: RidingBehaviourState,
+        alternateState: RidingBehaviourState,
         vehicle: PokemonEntity,
         driver: Player,
         input: Vec3
     ) {
         if (shouldTransitionToDefault(state, settings.defaultBehaviour, vehicle)) {
-            defaultState.stamina.set(alternativeState.stamina.get())
-            defaultState.rideVelocity.set(alternativeState.rideVelocity.get())
-            val defaultBehaviour = RidingBehaviours.get(settings.defaultBehaviour.key)
-            vehicle.setBehaviourFlag(PokemonBehaviourFlag.FLYING, defaultBehaviour.style == RidingStyle.AIR)
-        } else if (shouldTransitionToAlternative(state, settings.alternativeBehaviour, vehicle, driver)) {
-            alternativeState.stamina.set(defaultState.stamina.get())
-            alternativeState.rideVelocity.set(defaultState.rideVelocity.get())
-            val alternativeBehaviour = RidingBehaviours.get(settings.alternativeBehaviour.key)
-            vehicle.setBehaviourFlag(PokemonBehaviourFlag.FLYING, alternativeBehaviour.style == RidingStyle.AIR)
+            transition(vehicle, settings, state, alternateState, defaultState, settings.defaultBehaviour)
+        } else if (shouldTransitionToAlternative(state, settings.alternateBehaviour, vehicle, driver)) {
+            transition(vehicle, settings, state, defaultState, alternateState, settings.alternateBehaviour)
         }
     }
 
     private fun shouldTransitionToDefault(
         state: CompositeState,
         defaultSettings: RidingBehaviourSettings,
-        entity: PokemonEntity
+        vehicle: PokemonEntity
     ): Boolean {
         if (state.activeController.get() == defaultSettings.key) return false
-        if (!entity.onGround()) return false
-        if (state.lastTransition.get() + 20 >= entity.level().gameTime) return false
+        if (!vehicle.onGround()) return false
+        if (state.lastTransition.get() + 20 >= vehicle.level().gameTime) return false
         val defaultBehaviour = RidingBehaviours.get(defaultSettings.key)
-        return defaultBehaviour.isActive(defaultSettings, state.defaultBehaviourState, entity)
+        return defaultBehaviour.isActive(defaultSettings, state.defaultBehaviourState, vehicle)
     }
 
     private fun shouldTransitionToAlternative(
         state: CompositeState,
         alternativeSettings: RidingBehaviourSettings,
-        entity: PokemonEntity,
+        vehicle: PokemonEntity,
         driver: Player
     ): Boolean {
         if (state.activeController.get() == alternativeSettings.key) return false
         if (!driver.jumping) return false
-        if (state.lastTransition.get() + 20 >= entity.level().gameTime) return false
+        if (state.lastTransition.get() + 20 >= vehicle.level().gameTime) return false
         val alternativeBehaviour = RidingBehaviours.get(alternativeSettings.key)
-        return alternativeBehaviour.isActive(alternativeSettings, state.alternativeBehaviourState, entity)
+        return alternativeBehaviour.isActive(alternativeSettings, state.alternateBehaviourState, vehicle)
     }
 
 }

@@ -1,8 +1,12 @@
 package com.cobblemon.mod.common.api.riding.behaviour.types.composite.strategies
 
+import com.cobblemon.mod.common.api.riding.RidingStyle
+import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviourSettings
 import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviourState
+import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviours
 import com.cobblemon.mod.common.api.riding.behaviour.types.composite.CompositeSettings
 import com.cobblemon.mod.common.api.riding.behaviour.types.composite.CompositeState
+import com.cobblemon.mod.common.entity.pokemon.PokemonBehaviourFlag
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Player
@@ -15,9 +19,26 @@ interface CompositeRidingStrategy<T : CompositeSettings> {
         settings: T,
         state: CompositeState,
         defaultState: RidingBehaviourState,
-        alternativeState: RidingBehaviourState,
+        alternateState: RidingBehaviourState,
         vehicle: PokemonEntity,
         driver: Player,
         input: Vec3
     )
+
+    fun transition(
+        vehicle: PokemonEntity,
+        settings: CompositeSettings,
+        state: CompositeState,
+        fromState: RidingBehaviourState,
+        toState: RidingBehaviourState,
+        toSettings: RidingBehaviourSettings
+    ) {
+        toState.stamina.set(fromState.stamina.get())
+        toState.rideVelocity.set(fromState.rideVelocity.get())
+        state.activeController.set(toSettings.key)
+        state.lastTransition.set(vehicle.level().gameTime)
+        val behaviour = RidingBehaviours.get(toSettings.key)
+        vehicle.setBehaviourFlag(PokemonBehaviourFlag.FLYING, behaviour.style == RidingStyle.AIR)
+    }
+
 }

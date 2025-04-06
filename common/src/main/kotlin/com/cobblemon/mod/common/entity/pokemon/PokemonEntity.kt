@@ -286,9 +286,9 @@ open class PokemonEntity(
         ridingBehaviourSettings = null
         if (pokemon.riding.behaviour == null) return
 
-        riding = RidingBehaviours.get(pokemon.riding.behaviour!!.key) as RidingBehaviour<RidingBehaviourSettings, RidingBehaviourState>?
-        ridingState = riding!!.createDefaultState()
+        riding = RidingBehaviours.get(pokemon.riding.behaviour!!.key)
         ridingBehaviourSettings = pokemon.riding.behaviour!!
+        ridingState = riding!!.createDefaultState(ridingBehaviourSettings!!)
     }
 
     /**

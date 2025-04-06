@@ -14,6 +14,8 @@ import com.cobblemon.mod.common.api.riding.behaviour.types.composite.CompositeBe
 import com.cobblemon.mod.common.api.riding.behaviour.types.composite.CompositeSettings
 import com.cobblemon.mod.common.api.riding.behaviour.types.composite.strategies.FallCompositeSettings
 import com.cobblemon.mod.common.api.riding.behaviour.types.composite.strategies.FallStrategy
+import com.cobblemon.mod.common.api.riding.behaviour.types.composite.strategies.JumpStrategy
+import com.cobblemon.mod.common.api.riding.behaviour.types.composite.strategies.RunStrategy
 import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
@@ -39,14 +41,31 @@ object RidingBehaviourSettingsAdapter : JsonDeserializer<RidingBehaviourSettings
         SwimDashBehaviour.KEY to SwimDashSettings::class.java,
         VehicleLandBehaviour.KEY to VehicleLandSettings::class.java,
         CompositeBehaviour.KEY to CompositeSettings::class.java,
+
+        /*
+         Strategy registration. if you do not register a strategy here, it will not be deserialized.
+         Register to CompositeSettings if you do not need to define a subclass.
+         */
         FallStrategy.key to FallCompositeSettings::class.java,
+        JumpStrategy.key to CompositeSettings::class.java,
+        RunStrategy.key to CompositeSettings::class.java,
     )
 
     override fun deserialize(element: JsonElement, type: Type, context: JsonDeserializationContext): RidingBehaviourSettings {
         val root = element.asJsonObject
         val key = root.get("key").asString
-        val behaviourType = types[key.asIdentifierDefaultingNamespace()] ?: throw IllegalArgumentException("Unknown controller: $key")
-        val settings: RidingBehaviourSettings = context.deserialize(element, behaviourType)
-        return settings
+        val keyIdentifier = key.asIdentifierDefaultingNamespace()
+        if (keyIdentifier == CompositeBehaviour.KEY) {
+            val strategy = root.get("transitionStrategy").asString
+            val strategyIdentifier = strategy.asIdentifierDefaultingNamespace()
+            val behaviourType = types[strategyIdentifier] ?: throw IllegalArgumentException("Unknown strategy for composite behaviour: $strategy")
+            val settings: RidingBehaviourSettings = context.deserialize(root, behaviourType)
+            return settings
+        }
+        else {
+            val behaviourType = types[keyIdentifier] ?: throw IllegalArgumentException("Unknown behaviour: $key")
+            val settings: RidingBehaviourSettings = context.deserialize(element, behaviourType)
+            return settings
+        }
     }
 }
