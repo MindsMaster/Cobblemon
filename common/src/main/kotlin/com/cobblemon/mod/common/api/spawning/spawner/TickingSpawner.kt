@@ -90,6 +90,8 @@ abstract class TickingSpawner(
                 val rarityInfluenceValue = influence?.effects?.firstOrNull { it.type == SpawnBait.Effects.RARITY_BUCKET}
 
                 val bucket = if (influence != null && influence.used && rarityInfluenceValue != null) {
+                    // todo if we want fishing and lure cakes to default to having better rates we can maybe call a new bucket value of SpawnBucketUtils.chooseAdjustedSpawnBucket but with a value of 0
+
                     // todo Get bucket effect from bait influence and use it in the new method
                     val baitRarityLevel = rarityInfluenceValue.value.toInt()
 
