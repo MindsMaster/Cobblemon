@@ -532,7 +532,7 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
     /** Puts the model back to its original location and rotations. */
     fun setDefault() {
         defaultPositions.forEach { it.set() }
-        transformedParts.forEach { it.set() }
+        transformedParts.forEach { it.apply() }
     }
 
     /**
