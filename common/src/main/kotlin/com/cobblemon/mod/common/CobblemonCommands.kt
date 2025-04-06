@@ -23,7 +23,7 @@ object CobblemonCommands {
         ChangeEyeHeight.register(dispatcher)
         ChangeScaleAndSize.register(dispatcher)
         ChangeWalkSpeed.register(dispatcher)
-        ChangeJointScaleCommand.register(dispatcher)
+        TransformPartCommand.register(dispatcher)
         TestCommand.register(dispatcher)
         ReloadShowdownCommand.register(dispatcher)
         ClickTextCommand.register(dispatcher)
