@@ -1,8 +1,7 @@
 package com.cobblemon.mod.common.api.riding.behaviour.types.composite
 
 import com.cobblemon.mod.common.api.riding.behaviour.*
-import com.cobblemon.mod.common.api.riding.behaviour.types.composite.strategies.JumpStrategy
-import com.cobblemon.mod.common.api.riding.behaviour.types.composite.strategies.RunStrategy
+import com.cobblemon.mod.common.api.riding.behaviour.types.composite.strategies.CompositeRidingStrategies
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.adapters.RidingBehaviourSettingsAdapter
@@ -70,18 +69,8 @@ class CompositeBehaviour : RidingBehaviour<CompositeSettings, CompositeState> {
         driver: Player,
         input: Vec3
     ) {
-        val strategy = CompositeBehaviourTransitionStrategies.get(settings.transitionStrategy)
-        strategy(
-            RideTransitionStrategyParams(
-                settings,
-                state,
-                state.defaultBehaviourState,
-                state.alternativeBehaviourState,
-                vehicle,
-                driver,
-                input
-            )
-        )
+        val strategy = CompositeRidingStrategies.get(settings.transitionStrategy)
+        strategy.tick(settings, state, state.defaultBehaviourState, state.alternativeBehaviourState, vehicle, driver, input)
     }
 
     override fun clampPassengerRotation(
@@ -421,35 +410,4 @@ class CompositeState(
         activeController.set(buffer.readResourceLocation(), forced = true)
     }
 
-}
-
-data class RideTransitionStrategyParams<T : CompositeSettings>(
-    val settings: T,
-    val state: CompositeState,
-    val defaultState: RidingBehaviourState,
-    val alternativeState: RidingBehaviourState,
-    val vehicle: PokemonEntity,
-    val driver: Player,
-    val input: Vec3
-)
-
-typealias RidingTransitionStrategy<T> = (params: RideTransitionStrategyParams<T>) -> Unit
-
-object CompositeBehaviourTransitionStrategies {
-    val strategies = mutableMapOf<ResourceLocation, RidingTransitionStrategy<CompositeSettings>>()
-
-    init {
-        register(cobblemonResource("strategy/run"), RunStrategy::strategy)
-        register(cobblemonResource("strategy/jump"), JumpStrategy::strategy)
-    }
-
-    fun register(key: ResourceLocation, strategy: RidingTransitionStrategy<CompositeSettings>) {
-        if (strategies.contains(key)) error("Strategy already registered to key $key")
-        strategies[key] = strategy
-    }
-
-    fun get(key: ResourceLocation): RidingTransitionStrategy<CompositeSettings> {
-        if (!strategies.contains(key)) error("Strategy not registered to key $key")
-        return strategies[key]!!
-    }
 }
