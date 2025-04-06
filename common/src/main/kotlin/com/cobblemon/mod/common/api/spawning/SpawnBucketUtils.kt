@@ -14,7 +14,8 @@ object SpawnBucketUtils {
             } else {
                 val base = baseValues[index]
                 val adjustment = adjustments[index]
-                bucket to (base + adjustment * bucketLureStrength)
+                val adjusted = base + adjustment * bucketLureStrength
+                bucket to adjusted.coerceAtLeast(0f) // we do not want the weights to be negative
             }
         }.toMap()
 

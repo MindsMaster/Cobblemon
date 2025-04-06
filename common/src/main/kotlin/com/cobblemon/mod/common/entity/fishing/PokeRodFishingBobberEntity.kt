@@ -10,6 +10,7 @@ package com.cobblemon.mod.common.entity.fishing
 
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.CobblemonEntities
+import com.cobblemon.mod.common.CobblemonItemComponents
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.ModAPI
 import com.cobblemon.mod.common.advancement.CobblemonCriteria
@@ -40,6 +41,7 @@ import com.cobblemon.mod.common.util.weightedSelection
 import net.minecraft.advancements.CriteriaTriggers
 import net.minecraft.client.resources.sounds.EntityBoundSoundInstance
 import net.minecraft.core.BlockPos
+import com.cobblemon.mod.common.api.fishing.SpawnBaitUtils
 import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
@@ -304,11 +306,12 @@ class PokeRodFishingBobberEntity(type: EntityType<out PokeRodFishingBobberEntity
                 // check for chance to catch pokemon based on the bait
                 if (Mth.nextInt(random, 0, 100) < getPokemonSpawnChance(this.rodStack ?: bobberBait)) {
                     this.typeCaught = TypeCaught.POKEMON
-
                     val buckets = Cobblemon.bestSpawner.config.buckets
+                    val bucketEffects = SpawnBaitEffects.getEffectsFromItemStack(bobberBait).filter { it.type == SpawnBait.Effects.RARITY_BUCKET }
+                    val mergedBucketEffects = SpawnBaitUtils.mergeEffects(bucketEffects)
 
                     // choose a spawn bucket according to weights and luck of the sea
-                    chosenBucket = SpawnBucketUtils.chooseAdjustedSpawnBucket(buckets, luckOfTheSeaLevel)
+                    chosenBucket = SpawnBucketUtils.chooseAdjustedSpawnBucket(buckets, luckOfTheSeaLevel + (mergedBucketEffects.firstOrNull()?.value?.toInt() ?: 0))
                     CobblemonEvents.BOBBER_BUCKET_CHOSEN.post(BobberBucketChosenEvent(chosenBucket, buckets, luckOfTheSeaLevel)) { event ->
                         chosenBucket = event.chosenBucket
                     }

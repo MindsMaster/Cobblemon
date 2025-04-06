@@ -1,7 +1,7 @@
 {
   "ingredient": "minecraft:enchanted_golden_apple",
   "flavours": {
-    "SWEET": 10
+    "SOUR": 10
   },
   "colour": "yellow",
   "baitEffects": [
