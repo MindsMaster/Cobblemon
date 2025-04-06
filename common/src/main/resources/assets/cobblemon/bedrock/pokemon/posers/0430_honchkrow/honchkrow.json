@@ -1,9 +1,9 @@
 {
   "rootBone": "honchkrow",
-  "portraitScale": 3.4,
-  "portraitTranslation": [ -0.35, -1.2, 0],
-  "profileScale": 1.2,
-  "profileTranslation": [0, -0.05, 0],
+  "portraitScale": 2.34,
+  "portraitTranslation": [ -0.55, 0.61, 0],
+  "profileScale": 0.63,
+  "profileTranslation": [0, 0.83, 0],
   "poses": {
     "standing": {
       "poseName": "standing",
