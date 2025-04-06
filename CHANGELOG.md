@@ -61,7 +61,7 @@
 - Orthworm
 
 ### Animation updates for the following Pokémon
-- Soon
+- Garchomp
 
 ### Model updates for the following Pokémon
 - Gyarados
@@ -75,6 +75,8 @@
 - Leafeon
 - Glaceon
 - Sylveon
+- Honchkrow
+- Garchomp
 
 ### Changes
 - Renamed `chargeGainedPerTick` config to `secondsToChargeHealingMachine`.
