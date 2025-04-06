@@ -22,11 +22,11 @@ import com.mojang.brigadier.context.CommandContext
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 
-object TransformPartCommand {
+object TransformModelPartCommand {
 
     fun register(dispatcher : CommandDispatcher<CommandSourceStack>) {
-        val command = Commands.literal("transformpart")
-            .permission(CobblemonPermissions.TRANSFORM_PART)
+        val command = Commands.literal("transformmodelpart")
+            .permission(CobblemonPermissions.TRANSFORM_MODEL_PART)
             .then(Commands.argument("transform", TransformTypeArgumentType.transformType())
                 .then(Commands.argument("part", ModelPartArgumentType.modelPart())
                     .then(Commands.argument("x", FloatArgumentType.floatArg())
