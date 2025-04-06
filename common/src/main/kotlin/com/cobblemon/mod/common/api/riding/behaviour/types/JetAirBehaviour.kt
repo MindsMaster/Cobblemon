@@ -369,6 +369,7 @@ class JetAirSettings : RidingBehaviourSettings {
         private set
 
     override fun encode(buffer: RegistryFriendlyByteBuf) {
+        buffer.writeResourceLocation(key)
         buffer.writeExpression(gravity)
         buffer.writeExpression(minSpeed)
         buffer.writeExpression(handlingYawExpr)

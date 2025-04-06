@@ -229,6 +229,7 @@ class SwimDashSettings : RidingBehaviourSettings {
         private set
 
     override fun encode(buffer: RegistryFriendlyByteBuf) {
+        buffer.writeResourceLocation(key)
         buffer.writeFloat(dashSpeed)
     }
 

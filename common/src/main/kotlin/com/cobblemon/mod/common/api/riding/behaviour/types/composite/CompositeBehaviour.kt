@@ -1,6 +1,5 @@
 package com.cobblemon.mod.common.api.riding.behaviour.types.composite
 
-import com.cobblemon.mod.common.api.riding.RidingStyle
 import com.cobblemon.mod.common.api.riding.behaviour.*
 import com.cobblemon.mod.common.api.riding.behaviour.types.composite.strategies.JumpStrategy
 import com.cobblemon.mod.common.api.riding.behaviour.types.composite.strategies.RunStrategy
@@ -16,7 +15,7 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 
-class CompositeBehaviour : RidingBehaviour<CompositeBehaviourSettings, CompositeState> {
+class CompositeBehaviour : RidingBehaviour<CompositeSettings, CompositeState> {
     companion object {
         val KEY = cobblemonResource("composite")
     }
@@ -24,7 +23,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeBehaviourSettings, Composite
     override val key = KEY
     override val style = null
 
-    override fun createDefaultState(settings: CompositeBehaviourSettings): CompositeState {
+    override fun createDefaultState(settings: CompositeSettings): CompositeState {
         val defaultBehaviour =
             RidingBehaviours.get(settings.defaultBehaviour.key) as RidingBehaviour<RidingBehaviourSettings, RidingBehaviourState>
         val defaultState = defaultBehaviour.createDefaultState(settings.defaultBehaviour)
@@ -39,7 +38,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeBehaviourSettings, Composite
     }
 
     fun <T> chooseBehaviour(
-        settings: CompositeBehaviourSettings,
+        settings: CompositeSettings,
         state: CompositeState,
         action: (behaviour: RidingBehaviour<RidingBehaviourSettings, RidingBehaviourState>, settings: RidingBehaviourSettings, state: RidingBehaviourState) -> T
     ): T {
@@ -65,7 +64,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeBehaviourSettings, Composite
     }
 
     override fun tick(
-        settings: CompositeBehaviourSettings,
+        settings: CompositeSettings,
         state: CompositeState,
         vehicle: PokemonEntity,
         driver: Player,
@@ -86,7 +85,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeBehaviourSettings, Composite
     }
 
     override fun clampPassengerRotation(
-        settings: CompositeBehaviourSettings,
+        settings: CompositeSettings,
         state: CompositeState,
         entity: PokemonEntity,
         driver: LivingEntity
@@ -97,7 +96,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeBehaviourSettings, Composite
     }
 
     override fun updatePassengerRotation(
-        settings: CompositeBehaviourSettings,
+        settings: CompositeSettings,
         state: CompositeState,
         entity: PokemonEntity,
         driver: LivingEntity
@@ -108,7 +107,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeBehaviourSettings, Composite
     }
 
     override fun shouldRotatePlayerHead(
-        settings: CompositeBehaviourSettings,
+        settings: CompositeSettings,
         state: CompositeState,
         vehicle: PokemonEntity
     ): Boolean {
@@ -118,7 +117,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeBehaviourSettings, Composite
     }
 
     override fun shouldRotatePokemonHead(
-        settings: CompositeBehaviourSettings,
+        settings: CompositeSettings,
         state: CompositeState,
         vehicle: PokemonEntity
     ): Boolean {
@@ -128,7 +127,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeBehaviourSettings, Composite
     }
 
     override fun dismountOnShift(
-        settings: CompositeBehaviourSettings,
+        settings: CompositeSettings,
         state: CompositeState,
         vehicle: PokemonEntity
     ): Boolean {
@@ -138,7 +137,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeBehaviourSettings, Composite
     }
 
     override fun turnOffOnGround(
-        settings: CompositeBehaviourSettings,
+        settings: CompositeSettings,
         state: CompositeState,
         vehicle: PokemonEntity
     ): Boolean {
@@ -148,7 +147,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeBehaviourSettings, Composite
     }
 
     override fun shouldRoll(
-        settings: CompositeBehaviourSettings,
+        settings: CompositeSettings,
         state: CompositeState,
         vehicle: PokemonEntity
     ): Boolean {
@@ -158,7 +157,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeBehaviourSettings, Composite
     }
 
     override fun inertia(
-        settings: CompositeBehaviourSettings,
+        settings: CompositeSettings,
         state: CompositeState,
         vehicle: PokemonEntity
     ): Double {
@@ -168,7 +167,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeBehaviourSettings, Composite
     }
 
     override fun useRidingAltPose(
-        settings: CompositeBehaviourSettings,
+        settings: CompositeSettings,
         state: CompositeState,
         vehicle: PokemonEntity,
         driver: Player
@@ -179,7 +178,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeBehaviourSettings, Composite
     }
 
     override fun useAngVelSmoothing(
-        settings: CompositeBehaviourSettings,
+        settings: CompositeSettings,
         state: CompositeState,
         vehicle: PokemonEntity
     ): Boolean {
@@ -189,7 +188,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeBehaviourSettings, Composite
     }
 
     override fun rideFovMultiplier(
-        settings: CompositeBehaviourSettings,
+        settings: CompositeSettings,
         state: CompositeState,
         vehicle: PokemonEntity,
         driver: Player
@@ -200,7 +199,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeBehaviourSettings, Composite
     }
 
     override fun gravity(
-        settings: CompositeBehaviourSettings,
+        settings: CompositeSettings,
         state: CompositeState,
         vehicle: PokemonEntity,
         regularGravity: Double
@@ -211,7 +210,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeBehaviourSettings, Composite
     }
 
     override fun jumpForce(
-        settings: CompositeBehaviourSettings,
+        settings: CompositeSettings,
         state: CompositeState,
         vehicle: PokemonEntity,
         driver: Player,
@@ -223,7 +222,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeBehaviourSettings, Composite
     }
 
     override fun setRideBar(
-        settings: CompositeBehaviourSettings,
+        settings: CompositeSettings,
         state: CompositeState,
         vehicle: PokemonEntity,
         driver: Player
@@ -234,7 +233,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeBehaviourSettings, Composite
     }
 
     override fun canJump(
-        settings: CompositeBehaviourSettings,
+        settings: CompositeSettings,
         state: CompositeState,
         vehicle: PokemonEntity,
         driver: Player
@@ -245,7 +244,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeBehaviourSettings, Composite
     }
 
     override fun rotationOnMouseXY(
-        settings: CompositeBehaviourSettings,
+        settings: CompositeSettings,
         state: CompositeState,
         vehicle: PokemonEntity,
         driver: Player,
@@ -273,7 +272,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeBehaviourSettings, Composite
     }
 
     override fun angRollVel(
-        settings: CompositeBehaviourSettings,
+        settings: CompositeSettings,
         state: CompositeState,
         vehicle: PokemonEntity,
         driver: Player,
@@ -285,7 +284,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeBehaviourSettings, Composite
     }
 
     override fun velocity(
-        settings: CompositeBehaviourSettings,
+        settings: CompositeSettings,
         state: CompositeState,
         vehicle: PokemonEntity,
         driver: Player,
@@ -297,7 +296,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeBehaviourSettings, Composite
     }
 
     override fun rotation(
-        settings: CompositeBehaviourSettings,
+        settings: CompositeSettings,
         state: CompositeState,
         vehicle: PokemonEntity,
         driver: LivingEntity
@@ -308,7 +307,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeBehaviourSettings, Composite
     }
 
     override fun speed(
-        settings: CompositeBehaviourSettings,
+        settings: CompositeSettings,
         state: CompositeState,
         vehicle: PokemonEntity,
         driver: Player
@@ -319,7 +318,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeBehaviourSettings, Composite
     }
 
     override fun pose(
-        settings: CompositeBehaviourSettings,
+        settings: CompositeSettings,
         state: CompositeState,
         vehicle: PokemonEntity
     ): PoseType {
@@ -329,7 +328,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeBehaviourSettings, Composite
     }
 
     override fun isActive(
-        settings: CompositeBehaviourSettings,
+        settings: CompositeSettings,
         state: CompositeState,
         vehicle: PokemonEntity
     ): Boolean {
@@ -339,7 +338,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeBehaviourSettings, Composite
     }
 }
 
-class CompositeBehaviourSettings : RidingBehaviourSettings {
+open class CompositeSettings : RidingBehaviourSettings {
     lateinit var transitionStrategy: ResourceLocation
         private set
     lateinit var defaultBehaviour: RidingBehaviourSettings
@@ -424,8 +423,8 @@ class CompositeState(
 
 }
 
-data class RideTransitionStrategyParams(
-    val settings: CompositeBehaviourSettings,
+data class RideTransitionStrategyParams<T : CompositeSettings>(
+    val settings: T,
     val state: CompositeState,
     val defaultState: RidingBehaviourState,
     val alternativeState: RidingBehaviourState,
@@ -434,22 +433,22 @@ data class RideTransitionStrategyParams(
     val input: Vec3
 )
 
-typealias RidingTransitionStrategy = (params: RideTransitionStrategyParams) -> Unit
+typealias RidingTransitionStrategy<T> = (params: RideTransitionStrategyParams<T>) -> Unit
 
 object CompositeBehaviourTransitionStrategies {
-    val strategies = mutableMapOf<ResourceLocation, RidingTransitionStrategy>()
+    val strategies = mutableMapOf<ResourceLocation, RidingTransitionStrategy<CompositeSettings>>()
 
     init {
         register(cobblemonResource("strategy/run"), RunStrategy::strategy)
         register(cobblemonResource("strategy/jump"), JumpStrategy::strategy)
     }
 
-    fun register(key: ResourceLocation, strategy: RidingTransitionStrategy) {
+    fun register(key: ResourceLocation, strategy: RidingTransitionStrategy<CompositeSettings>) {
         if (strategies.contains(key)) error("Strategy already registered to key $key")
         strategies[key] = strategy
     }
 
-    fun get(key: ResourceLocation): RidingTransitionStrategy {
+    fun get(key: ResourceLocation): RidingTransitionStrategy<CompositeSettings> {
         if (!strategies.contains(key)) error("Strategy not registered to key $key")
         return strategies[key]!!
     }

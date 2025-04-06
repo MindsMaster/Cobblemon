@@ -1,5 +1,6 @@
 package com.cobblemon.mod.common.api.riding.behaviour.types.composite.strategies
 
+import com.bedrockk.molang.Expression
 import com.cobblemon.mod.common.api.riding.RidingStyle
 import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviourSettings
 import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviourState
@@ -8,16 +9,20 @@ import com.cobblemon.mod.common.api.riding.behaviour.types.composite.CompositeSe
 import com.cobblemon.mod.common.api.riding.behaviour.types.composite.CompositeState
 import com.cobblemon.mod.common.entity.pokemon.PokemonBehaviourFlag
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
+import com.cobblemon.mod.common.util.asExpression
 import com.cobblemon.mod.common.util.cobblemonResource
+import com.cobblemon.mod.common.util.readExpression
+import com.cobblemon.mod.common.util.writeExpression
+import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.Vec3
 
-object JumpStrategy : CompositeRidingStrategy<CompositeSettings> {
+object FallStrategy : CompositeRidingStrategy<FallCompositeSettings> {
 
-    override val key = cobblemonResource("strategy/jump")
+    override val key = cobblemonResource("strategy/fall")
 
     override fun tick(
-        settings: CompositeSettings,
+        settings: FallCompositeSettings,
         state: CompositeState,
         defaultState: RidingBehaviourState,
         alternativeState: RidingBehaviourState,
@@ -63,4 +68,26 @@ object JumpStrategy : CompositeRidingStrategy<CompositeSettings> {
         return alternativeBehaviour.isActive(alternativeSettings, state.alternativeBehaviourState, entity)
     }
 
+}
+
+class FallCompositeSettings : CompositeSettings() {
+    override val key = FallStrategy.key
+
+    var minimumForwardSpeed: Expression = "0.0".asExpression()
+        private set
+
+    var minimumFallSpeed: Expression = "0.5".asExpression()
+        private set
+
+    override fun encode(buffer: RegistryFriendlyByteBuf) {
+        super.encode(buffer)
+        buffer.writeExpression(minimumForwardSpeed)
+        buffer.writeExpression(minimumFallSpeed)
+    }
+
+    override fun decode(buffer: RegistryFriendlyByteBuf) {
+        super.decode(buffer)
+        minimumForwardSpeed = buffer.readExpression()
+        minimumFallSpeed = buffer.readExpression()
+    }
 }

@@ -10,6 +10,10 @@ package com.cobblemon.mod.common.util.adapters
 
 import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviourSettings
 import com.cobblemon.mod.common.api.riding.behaviour.types.*
+import com.cobblemon.mod.common.api.riding.behaviour.types.composite.CompositeBehaviour
+import com.cobblemon.mod.common.api.riding.behaviour.types.composite.CompositeSettings
+import com.cobblemon.mod.common.api.riding.behaviour.types.composite.strategies.FallCompositeSettings
+import com.cobblemon.mod.common.api.riding.behaviour.types.composite.strategies.FallStrategy
 import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
@@ -32,10 +36,10 @@ object RidingBehaviourSettingsAdapter : JsonDeserializer<RidingBehaviourSettings
         GliderAirBehaviour.KEY to GliderAirSettings::class.java,
         HelicopterBehaviour.KEY to HelicopterSettings::class.java,
         JetAirBehaviour.KEY to JetAirSettings::class.java,
-        JumpToFlightCompositeBehaviour.KEY to JumpToFlightCompositeSettings::class.java,
-        RunToJetCompositeBehaviour.KEY to RunToJetCompositeSettings::class.java,
         SwimDashBehaviour.KEY to SwimDashSettings::class.java,
-        VehicleLandBehaviour.KEY to VehicleLandSettings::class.java
+        VehicleLandBehaviour.KEY to VehicleLandSettings::class.java,
+        CompositeBehaviour.KEY to CompositeSettings::class.java,
+        FallStrategy.key to FallCompositeSettings::class.java,
     )
 
     override fun deserialize(element: JsonElement, type: Type, context: JsonDeserializationContext): RidingBehaviourSettings {

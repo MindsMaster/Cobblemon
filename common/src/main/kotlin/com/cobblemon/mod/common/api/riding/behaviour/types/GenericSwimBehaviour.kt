@@ -238,6 +238,7 @@ class GenericSwimSettings : RidingBehaviourSettings {
         private set
 
     override fun encode(buffer: RegistryFriendlyByteBuf) {
+        buffer.writeResourceLocation(key)
         buffer.writeExpression(canJump)
         buffer.writeExpression(jumpVector[0])
         buffer.writeExpression(jumpVector[1])

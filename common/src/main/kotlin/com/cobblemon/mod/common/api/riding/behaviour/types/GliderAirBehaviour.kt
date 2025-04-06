@@ -200,6 +200,7 @@ class GliderAirSettings : RidingBehaviourSettings {
         private set
 
     override fun encode(buffer: RegistryFriendlyByteBuf) {
+        buffer.writeResourceLocation(key)
         buffer.writeExpression(glideSpeed)
         buffer.writeExpression(speed)
         buffer.writeExpression(canStrafe)

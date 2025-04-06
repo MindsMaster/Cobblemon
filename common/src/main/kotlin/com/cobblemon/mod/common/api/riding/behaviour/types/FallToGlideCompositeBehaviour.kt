@@ -382,6 +382,7 @@ class FallToGlideCompositeSettings : RidingBehaviourSettings {
         private set
 
     override fun encode(buffer: RegistryFriendlyByteBuf) {
+        buffer.writeResourceLocation(key)
         glide.encode(buffer)
         land.encode(buffer)
         buffer.writeExpression(minimumForwardSpeed)

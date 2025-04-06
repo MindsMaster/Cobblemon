@@ -356,6 +356,7 @@ class GenericLandSettings : RidingBehaviourSettings {
         private set
 
     override fun encode(buffer: RegistryFriendlyByteBuf) {
+        buffer.writeResourceLocation(key)
         buffer.writeExpression(driveFactor)
         buffer.writeExpression(strafeFactor)
         buffer.writeExpression(reverseDriveFactor)

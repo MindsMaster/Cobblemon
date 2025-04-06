@@ -459,6 +459,7 @@ class BirdAirSettings : RidingBehaviourSettings {
         private set
 
     override fun encode(buffer: RegistryFriendlyByteBuf) {
+        buffer.writeResourceLocation(key)
         buffer.writeExpression(infiniteAltitude)
         buffer.writeExpression(infiniteStamina)
         buffer.writeExpression(glidespeedExpr)

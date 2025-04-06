@@ -289,6 +289,7 @@ class HelicopterSettings : RidingBehaviourSettings {
         private set
 
     override fun encode(buffer: RegistryFriendlyByteBuf) {
+        buffer.writeResourceLocation(key)
         buffer.writeExpression(gravity)
         buffer.writeExpression(horizontalAcceleration)
         buffer.writeExpression(verticalVelocity)
