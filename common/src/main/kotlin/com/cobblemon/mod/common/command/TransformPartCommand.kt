@@ -66,7 +66,7 @@ object TransformPartCommand {
             }
         }
 
-        context.source.playerOrException.sendSystemMessage("Changed $transformType of $targetModelPart to $x, $y, $z".text())
+        context.source.playerOrException.sendSystemMessage("Changed ${transformType.name.lowercase()} of ${context.getArgument("part", String::class.java )} to $x, $y, $z".text())
         return Command.SINGLE_SUCCESS
     }
 }
