@@ -146,7 +146,9 @@ import net.minecraft.world.level.material.FluidState
 import net.minecraft.world.level.pathfinder.PathType
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
+import org.joml.AxisAngle4f
 import org.joml.Matrix3f
+import org.joml.Quaternionf
 import org.joml.Vector3f
 
 @Suppress("unused")
@@ -252,7 +254,6 @@ open class PokemonEntity(
 
     var enablePoseTypeRecalculation = true
 
-//    override var ridingController: RideController? = null
 
     var previousRidingState: RidingBehaviourState? = null
     var ridingState: RidingBehaviourState? = null
@@ -1217,7 +1218,7 @@ open class PokemonEntity(
         val possibleReturn = if (isCosmetic) this.pokemon.cosmeticItem.copy() else this.pokemon.heldItemNoCopy()
         val giving = stack.copy().apply { count = 1 }
 
-        if (ItemStack.isSameItem(giving, possibleReturn)) {
+        if (ItemStack.isSameItemSameComponents(giving, possibleReturn)) {
             val message = if (isCosmetic) {
                 lang("cosmetic_item.already_wearing", this.pokemon.getDisplayName(), stack.hoverName)
             } else {
@@ -1234,28 +1235,12 @@ open class PokemonEntity(
         }
 
         val text = when {
-            isCosmetic && giving.isEmpty -> lang(
-                "cosmetic_item.take",
-                returned.hoverName,
-                this.pokemon.getDisplayName()
-            )
-
-            isCosmetic && returned.isEmpty -> lang(
-                "cosmetic_item.give",
-                this.pokemon.getDisplayName(),
-                giving.hoverName
-            )
-
-            !isCosmetic && giving.isEmpty -> lang("held_item.take", returned.hoverName, this.pokemon.getDisplayName())
-            !isCosmetic && returned.isEmpty -> lang("held_item.give", this.pokemon.getDisplayName(), giving.hoverName)
-            isCosmetic -> lang(
-                "cosmetic_item.replace",
-                returned.hoverName,
-                this.pokemon.getDisplayName(),
-                returned.hoverName
-            )
-
-            else -> lang("held_item.replace", returned.hoverName, this.pokemon.getDisplayName(), returned.hoverName)
+            isCosmetic && giving.isEmpty -> lang("cosmetic_item.take", returned.displayName, this.pokemon.getDisplayName())
+            isCosmetic && returned.isEmpty -> lang("cosmetic_item.give", this.pokemon.getDisplayName(), giving.displayName)
+            !isCosmetic && giving.isEmpty -> lang("held_item.take", returned.displayName, this.pokemon.getDisplayName())
+            !isCosmetic && returned.isEmpty -> lang("held_item.give", this.pokemon.getDisplayName(), giving.displayName)
+            isCosmetic -> lang("cosmetic_item.replace", returned.displayName, this.pokemon.getDisplayName(), giving.displayName)
+            else -> lang("held_item.replace", returned.displayName, this.pokemon.getDisplayName(), giving.displayName)
         }
 
         player.sendSystemMessage(text)
@@ -1536,6 +1521,7 @@ open class PokemonEntity(
             }
 
             // TODO: jackowes look over this so I don't accidentally break anything
+            // TODO: Talk to landon about why this was needed
             this.deltaMovement = this.deltaMovement.lerp(v, inertia)
             var pos = this.deltaMovement.scale(this.speed.toDouble())
             if (super.onGround() && this.deltaMovement.y == 0.0) {
@@ -1563,14 +1549,35 @@ open class PokemonEntity(
         if (beamMode != 3) { // Don't let Pokémon move during recall
 
             //Prevent current travel logic when riding a pokemon.
-            /*
             val riders = this.passengers.filterIsInstance<LivingEntity>()
-            if ( riders.isEmpty() ) {
+            if ( riders.isEmpty() || this.controllingPassenger == null) {
                 super.travel(movementInput)
             }
-             */
+            else {
+                val inp = ifRidingAvailableSupply(fallback = Vec3.ZERO) { behaviour, settings, state ->
+                    behaviour.velocity(settings, state, this, this.controllingPassenger as Player, deltaMovement)
+                }
 
-            super.travel(movementInput)
+                // Rotate velocity vector to face the current y rotation
+                val f = Mth.sin(this.getYRot() * 0.017453292f)
+                val g = Mth.cos(this.getYRot() * 0.017453292f)
+                val v = Vec3(
+                    inp.x * g.toDouble() - inp.z * f.toDouble(),
+                    inp.y,
+                    inp.z * g.toDouble() + inp.x * f.toDouble()
+                )
+
+                val diff = v.subtract(this.deltaMovement)
+
+                val inertia = ifRidingAvailableSupply(fallback = 0.5) { behaviour, settings, state ->
+                    behaviour.inertia(settings, state,this)
+                }
+
+                this.deltaMovement = this.deltaMovement.add( diff.scale(inertia) )
+
+                this.move(MoverType.SELF, this.deltaMovement)
+            }
+
 
             this.updateBlocksTraveled(prevBlockPos)
         }
@@ -1855,10 +1862,10 @@ open class PokemonEntity(
             }
 
             val rotation = behaviour.rotation(settings, state, this, driver)
+            this.yRotO = this.yRot
             setRot(rotation.y, rotation.x)
             this.yHeadRot = this.yRot
             this.yBodyRot = this.yRot
-            this.yRotO = this.yRot
             val riders = this.passengers.filterIsInstance<LivingEntity>()
 
             if (behaviour.isActive(settings, state, this) && behaviour.canJump(settings, state, this, driver)) {
