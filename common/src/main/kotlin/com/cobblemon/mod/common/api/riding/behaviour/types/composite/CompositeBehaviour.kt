@@ -24,10 +24,10 @@ class CompositeBehaviour : RidingBehaviour<CompositeSettings, CompositeState> {
 
     override fun createDefaultState(settings: CompositeSettings): CompositeState {
         val defaultBehaviour =
-            RidingBehaviours.get(settings.defaultBehaviour.key) as RidingBehaviour<RidingBehaviourSettings, RidingBehaviourState>
+            RidingBehaviours.get(settings.defaultBehaviour.key)
         val defaultState = defaultBehaviour.createDefaultState(settings.defaultBehaviour)
         val alternativeBehaviour =
-            RidingBehaviours.get(settings.defaultBehaviour.key) as RidingBehaviour<RidingBehaviourSettings, RidingBehaviourState>
+            RidingBehaviours.get(settings.defaultBehaviour.key)
         val alternativeState = alternativeBehaviour.createDefaultState(settings.alternativeBehaviour)
         return CompositeState(
             defaultBehaviour = settings.defaultBehaviour.key,
@@ -42,9 +42,9 @@ class CompositeBehaviour : RidingBehaviour<CompositeSettings, CompositeState> {
         action: (behaviour: RidingBehaviour<RidingBehaviourSettings, RidingBehaviourState>, settings: RidingBehaviourSettings, state: RidingBehaviourState) -> T
     ): T {
         val defaultBehaviour =
-            RidingBehaviours.get(settings.defaultBehaviour.key) as RidingBehaviour<RidingBehaviourSettings, RidingBehaviourState>
+            RidingBehaviours.get(settings.defaultBehaviour.key)
         val alternativeBehaviour =
-            RidingBehaviours.get(settings.defaultBehaviour.key) as RidingBehaviour<RidingBehaviourSettings, RidingBehaviourState>
+            RidingBehaviours.get(settings.defaultBehaviour.key)
         return when (state.activeController.get()) {
             settings.defaultBehaviour.key -> action(
                 defaultBehaviour,
