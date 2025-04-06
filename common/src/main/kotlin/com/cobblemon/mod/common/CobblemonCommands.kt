@@ -60,9 +60,14 @@ object CobblemonCommands {
         RenameBoxCommand.register(dispatcher)
         ChangeBoxWallpaperCommand.register(dispatcher)
         RunMolangScriptCommand.register(dispatcher)
+        SpectateBattleCommand.register(dispatcher)
         CobblemonConfigCommand.register(dispatcher)
         UnlockPCBoxWallpaperCommand.register(dispatcher)
         BrainEditCommand.register(dispatcher)
+        ChangePCBoxesCommand.register(dispatcher)
+        MarkGiveCommand.register(dispatcher)
+        MarkTakeCommand.register(dispatcher)
+        MarkGiveAllCommand.register(dispatcher)
 
         // Possibly lock down registration if and only if under dev environment or running in an environment
         // with a certain system environment variable set

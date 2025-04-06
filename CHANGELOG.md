@@ -2,6 +2,7 @@
 ## [1.7.0 (Month xth, 2025)](#1-7-0)
 
 ### Additions
+- Added `/spectateBattle <player>` command to spectate battles without having to manually walk up to the target.
 - Added an in-game configuration screen, allowing all settings from `main.json` to be edited directly in-game.
 - Added `/cobblemonconfig reload` command to reload `main.json` configuration. **Note:** Some settings require a server restart to take effect; use this command cautiously.
 - Added `blacklisted_items_to_hold` and `whitelisted_items_to_hold` tags to allow for controlling which items players can give to their Pokémon. If the whitelist is empty, it will consider all item as allowed (unless they are in the blacklist).
@@ -10,6 +11,8 @@
 - Added cosmetic item functionality for Pokémon. Certain cosmetic items can be given to applicable Pokémon via the interact menu.
   - Added the various log blocks as cosmetic items for Timburr and Komala.
 - Added `visibility/hidden`, `visibility/hat` and `visibility/face` tags to control where and how certain items are rendered.
+- Added Pokémon markings, toggleable within the summary.
+- Added `/boxcount` command to change PC boxes amount
 
 ### Changes
 - Renamed `chargeGainedPerTick` config to `secondsToChargeHealingMachine`.
@@ -73,6 +76,8 @@
 - Fixed species additions not being capable of changing implemented status.
 - Added support for action effects that are triggered by `|-activate|` Showdown instructions. `activate_{effect_id}` is the syntax.
 - Added Molang functions for rendering items `render_item(item_id, locator_name)` and `clear_items()`.
+- Fixed location spawn filter components causing crashes
+- Added `pokemon` as an available Molang function for the `battleActor` functions.
 
 ## [1.6.1 (January 26th, 2025)](#1-6-1)
 
