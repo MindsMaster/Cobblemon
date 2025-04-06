@@ -43,6 +43,7 @@
 - Fixed field name in evolution requirements for Spewpa Pokeball.
 - Fixed LevelUpCriterion logic to correctly check that the Pokémon is a preEvo.
 - Fixed `hide_additional_tooltip` vanilla flag not properly hiding tooltips on pokerod and bait items
+- Removed a number of scenarios in which a Pokémon battle may send out a Pokémon into collision geometry.
 - Fixed NPCs using Pokémon outside of their pool when a Pokémon name had a typo.
 - Fixed an issue with datapacked species features not being applied properly when relogging.
 - Fixed Pokémon marked as silent still playing shiny sounds and effects.
