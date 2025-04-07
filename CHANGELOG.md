@@ -15,6 +15,8 @@
 - Added `/boxcount` command to change PC boxes amount
 - Added cosmetics for Gurdurr, Conkeldurr, Squirtle Line, Sneasler, Sandile line, Treecko line, Braixen, Delphox, and Dragonite.
 - Added cosmetics for Gurdurr, Conkeldurr, Squirtle Line, Sneasler, Sandle line, Treecko line, Braixen, Delphox, and Dragonite.
+- Added `/transformmodelpart (position|rotation|scale) <modelPart> <transform: x y z>` command that can add transformations to a pokemon's model part.
+  - The player executing the command must be facing the target pokemon entity. Transformations are not persistent and will revert when resources are reloaded.
 
 ### Pokémon Added
 
@@ -71,6 +73,9 @@
 - Torpius
 - Nosepass
 - Probopass
+- Sneasler
+- Braixen
+- Delphox
 
 ### Model updates for the following Pokémon
 - Gyarados
@@ -84,13 +89,14 @@
 - Leafeon
 - Glaceon
 - Sylveon
+- Treecko
+- Grovyle
+- Sceptile
 - Honchkrow
 - Garchomp
 - Pidgeot
 - Nosepass
 - Probopass
-- Added `/transformmodelpart (position|rotation|scale) <modelPart> <transform: x y z>` command that can add transformations to a pokemon's model part.
-  - The player executing the command must be facing the target pokemon entity. Transformations are not persistent and will revert when resources are reloaded.
 
 ### Changes
 - Renamed `chargeGainedPerTick` config to `secondsToChargeHealingMachine`.
