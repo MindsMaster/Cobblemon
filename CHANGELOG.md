@@ -66,7 +66,7 @@
 
 ### Animation updates for the following Pokémon
 - Garchomp
-- Torpius
+- Tropius
 - Nosepass
 - Probopass
 
