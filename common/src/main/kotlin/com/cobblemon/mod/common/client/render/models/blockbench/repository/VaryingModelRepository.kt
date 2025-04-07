@@ -406,7 +406,6 @@ object VaryingModelRepository {
         inbuilt("shiinotic", :: ShiinoticModel)
         inbuilt("treecko", :: TreeckoModel)
         inbuilt("grovyle", :: GrovyleModel)
-        inbuilt("sceptile", :: SceptileModel)
         inbuilt("honedge", :: HonedgeModel)
         inbuilt("spiritomb", :: SpiritombModel)
         inbuilt("chespin", :: ChespinModel)
