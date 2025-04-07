@@ -699,7 +699,6 @@ object VaryingModelRepository {
         inbuilt("qwilfish_hisuian", ::QwilfishHisuianModel)
         inbuilt("overqwil", ::OverqwilModel)
         inbuilt("sneasel_hisuian", ::SneaselHisuianModel)
-        inbuilt("sneasler", ::SneaslerModel)
         inbuilt("petilil", ::PetililModel)
         inbuilt("lilligant", ::LilligantModel)
         inbuilt("petilil_hisui_bias", ::PetililHisuiBiasModel)
