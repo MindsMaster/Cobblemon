@@ -40,7 +40,6 @@ import com.cobblemon.mod.common.entity.npc.NPCEntity
 import com.cobblemon.mod.common.entity.pokeball.EmptyPokeBallEntity
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.asExpressionLike
-import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.common.util.plus
 import com.cobblemon.mod.common.util.toRGBA
 import com.mojang.blaze3d.systems.RenderSystem
@@ -49,9 +48,7 @@ import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
 import com.mojang.blaze3d.vertex.VertexFormat
 import com.mojang.math.Axis
-import net.minecraft.client.Minecraft
 import net.minecraft.client.model.geom.ModelPart
-import net.minecraft.client.player.RemotePlayer
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderStateShard
 import net.minecraft.client.renderer.RenderType
@@ -59,7 +56,6 @@ import net.minecraft.client.renderer.texture.DynamicTexture
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.Entity
-import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.ItemDisplayContext
 import net.minecraft.world.phys.Vec3
 import org.joml.Matrix4f
@@ -95,6 +91,9 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
     open var portraitTranslation = Vec3(0.0, 0.0, 0.0)
 
     open var profileScale = 1F
+
+    /** Used for third person riding camera */
+    open var seatToCameraOffset = mutableMapOf<String, Vec3>()
 
     /**
      * These are open-ended properties that can be used to store miscellaneous properties about the model.
