@@ -17,6 +17,9 @@
 
 ### Pokémon Added
 
+#### Gen 2
+- Dunsparce
+
 #### Gen 3
 - Spoink
 - Grumpig
@@ -59,9 +62,13 @@
 - Dolliv
 - Arboliva
 - Orthworm
+- Dudunsparce
 
 ### Animation updates for the following Pokémon
 - Garchomp
+- Torpius
+- Nosepass
+- Probopass
 
 ### Model updates for the following Pokémon
 - Gyarados
@@ -77,6 +84,9 @@
 - Sylveon
 - Honchkrow
 - Garchomp
+- Pidgeot
+- Nosepass
+- Probopass
 
 ### Changes
 - Renamed `chargeGainedPerTick` config to `secondsToChargeHealingMachine`.
