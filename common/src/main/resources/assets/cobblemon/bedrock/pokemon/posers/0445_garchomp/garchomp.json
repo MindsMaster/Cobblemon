@@ -1,8 +1,8 @@
 {
-  "portraitScale": 1.71,
-  "portraitTranslation": [-0.94, 1.93, 0],
+  "portraitScale": 1.92,
+  "portraitTranslation": [-0.59, 2.71, 0],
   "profileScale": 0.54,
-  "profileTranslation": [0.0, 0.94, 0.0],
+  "profileTranslation": [0.02, 1, 0.0],
   "rootBone": "garchomp",
   "animations": {
     "cry": "q.bedrock_stateful('garchomp', 'cry')",
@@ -13,22 +13,6 @@
     "blunt": "q.bedrock_primary('garchomp', 'blunt', q.curve('symmetrical_wide'))"
   },
   "poses": {
-    "battle-idle": {
-      "poseName": "battle-idle",
-      "poseTypes": ["STAND"],
-      "isBattle": true,
-      "isTouchingWater": false,
-      "condition": "!q.is_standing_on_blocks(2, 'minecraft:sand', 'minecraft:red_sand')",
-      "animations": [
-        "q.look('head')", 
-        "q.bedrock('garchomp', 'battle_idle')",
-        {
-          "condition": "q.is_holding_item",
-          "animation": "q.bedrock('garchomp', 'hold_item')"
-        }
-      ],
-      "quirks": ["q.bedrock_quirk('garchomp', 'blink')"]
-    },
     "standing": {
       "poseName": "standing",
       "poseTypes": ["STAND", "NONE", "PORTRAIT", "PROFILE"],
@@ -47,6 +31,22 @@
       "transitions": {
         "battle-idle": "q.bedrock_primary('garchomp', 'battle_intro')"
       }
+    },
+    "battle-idle": {
+      "poseName": "battle-idle",
+      "poseTypes": ["STAND"],
+      "isBattle": true,
+      "isTouchingWater": false,
+      "condition": "!q.is_standing_on_blocks(2, 'minecraft:sand', 'minecraft:red_sand')",
+      "animations": [
+        "q.look('head')", 
+        "q.bedrock('garchomp', 'battle_idle')",
+        {
+          "condition": "q.is_holding_item",
+          "animation": "q.bedrock('garchomp', 'hold_item')"
+        }
+      ],
+      "quirks": ["q.bedrock_quirk('garchomp', 'blink')"]
     },
     "sand-idle": {
       "poseName": "sand-idle",
