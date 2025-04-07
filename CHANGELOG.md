@@ -87,6 +87,8 @@
 - Pidgeot
 - Nosepass
 - Probopass
+- Added `/transformmodelpart (position|rotation|scale) <modelPart> <transform: x y z>` command that can add transformations to a pokemon's model part.
+  - The player executing the command must be facing the target pokemon entity. Transformations are not persistent and will revert when resources are reloaded.
 
 ### Changes
 - Renamed `chargeGainedPerTick` config to `secondsToChargeHealingMachine`.
