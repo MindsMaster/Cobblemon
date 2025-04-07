@@ -191,8 +191,8 @@
 	"gui_light": "front",
 	"display": {
 		"head": {
-			"translation": [0, 6, 0],
-			"scale": [1.7, 1.7, 1.7]
+			"translation": [0, 4.75, 0],
+			"scale": [1.82, 1.82, 1.82]
 		}
 	},
 	"groups": [

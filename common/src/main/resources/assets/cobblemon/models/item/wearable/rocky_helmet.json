@@ -87,8 +87,8 @@
 	"gui_light": "front",
 	"display": {
 		"head": {
-			"translation": [0, 6.5, 0],
-			"scale": [1.7, 1.7, 1.7]
+			"translation": [0, 5.5, 0],
+			"scale": [1.82, 1.82, 1.82]
 		}
 	},
 	"groups": [
