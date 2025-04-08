@@ -117,8 +117,6 @@ public abstract class CameraMixin {
 
             int seatIndex = pokemon.getPassengers().indexOf(entity);
             Seat seat = pokemon.getSeats().get(seatIndex);
-            PokemonClientDelegate delegate = (PokemonClientDelegate) pokemon.getDelegate();
-            MatrixWrapper locator = delegate.getLocatorStates().get(seat.getLocator());
 
             Vec3 entityPos = new Vec3(
                     Mth.lerp(instance.getPartialTickTime(), pokemon.xOld, pokemon.getX()),
@@ -130,6 +128,9 @@ public abstract class CameraMixin {
             OrientationController controller = rollable.getOrientationController();
 
             if (!instance.isDetached() || Cobblemon.config.getThirdPartyViewBobbing()) {
+                PokemonClientDelegate delegate = (PokemonClientDelegate) pokemon.getDelegate();
+                MatrixWrapper locator = delegate.getLocatorStates().get(seat.getLocator());
+
                 if (locator == null) {
                     original.call(instance, x, y, z);
                     return;
@@ -139,7 +140,7 @@ public abstract class CameraMixin {
 
                 float currEyeHeight = Mth.lerp(instance.getPartialTickTime(), eyeHeightOld, eyeHeight);
                 Matrix3f orientation = controller.isActive() && controller.getOrientation() != null ? controller.getOrientation() : new Matrix3f();
-                Vec3 rotatedEyeHeight = new Vec3(orientation.transform(new Vector3f(0f, currEyeHeight, 0f)));
+                Vec3 rotatedEyeHeight = new Vec3(orientation.transform(new Vector3f(0f, currEyeHeight - (entity.getBbHeight() / 2), 0f)));
 
                 Vec3 position = locatorOffset.add(entityPos).add(rotatedEyeHeight);
                 setPosition(position);

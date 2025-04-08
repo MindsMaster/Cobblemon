@@ -8,8 +8,8 @@
 
 package com.cobblemon.mod.common.entity.pokemon
 
-import com.cobblemon.mod.common.CobblemonNetwork
 import com.cobblemon.mod.common.CobblemonSounds
+import com.cobblemon.mod.common.OrientationControllable
 import com.cobblemon.mod.common.api.entity.PokemonSender
 import com.cobblemon.mod.common.api.entity.PokemonSideDelegate
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties
@@ -17,17 +17,15 @@ import com.cobblemon.mod.common.api.pokemon.stats.Stats
 import com.cobblemon.mod.common.api.pokemon.status.Statuses
 import com.cobblemon.mod.common.api.tags.CobblemonItemTags
 import com.cobblemon.mod.common.battles.BattleRegistry
-import com.cobblemon.mod.common.entity.PlatformType
 import com.cobblemon.mod.common.entity.PoseType
-import com.cobblemon.mod.common.net.messages.server.pokemon.update.ServerboundUpdateRidingStatePacket
 import com.cobblemon.mod.common.pokemon.Pokemon
 import com.cobblemon.mod.common.pokemon.activestate.ActivePokemonState
 import com.cobblemon.mod.common.pokemon.activestate.SentOutState
 import com.cobblemon.mod.common.util.getIsSubmerged
+import com.cobblemon.mod.common.util.math.geometry.toRadians
 import com.cobblemon.mod.common.util.playSoundServer
 import com.cobblemon.mod.common.util.update
 import com.cobblemon.mod.common.world.gamerules.CobblemonGameRules
-import net.minecraft.client.Minecraft
 import net.minecraft.network.chat.Component
 import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.server.level.ServerLevel
@@ -37,6 +35,8 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.ai.attributes.Attributes
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.pathfinder.PathType
+import org.joml.Matrix3f
+import org.joml.Vector3f
 import java.util.*
 
 /** Handles purely server logic for a Pokémon */
@@ -231,7 +231,7 @@ class PokemonServerDelegate : PokemonSideDelegate {
 
         val isSleeping = entity.pokemon.status?.status == Statuses.SLEEP && entity.behaviour.resting.canSleep
         val isMoving = entity.entityData.get(PokemonEntity.MOVING)
-        val isPassenger = entity.isPassenger()
+        val isPassenger = entity.isPassenger
         val isUnderwater = entity.getIsSubmerged()
         val isFlying = entity.getBehaviourFlag(PokemonBehaviourFlag.FLYING)
 
@@ -296,5 +296,29 @@ class PokemonServerDelegate : PokemonSideDelegate {
 
             entity.remove(Entity.RemovalReason.KILLED)
         }
+    }
+
+    override fun positionRider(
+        passenger: Entity,
+        positionUpdater: Entity.MoveFunction
+    ) {
+        val index =
+            this.entity.passengers.indexOf(passenger).takeIf { it >= 0 && it < this.entity.seats.size } ?: return
+        val seat = this.entity.seats[index]
+        val seatOffset = seat.getOffset(this.entity.getCurrentPoseType()).toVector3f()
+        val center = Vector3f(0f, this.entity.bbHeight / 2, 0f)
+
+        val seatToCenter = center.sub(seatOffset, Vector3f())
+        val matrix = (this.entity.passengers.first() as? OrientationControllable)?.orientationController?.orientation
+            ?: Matrix3f().rotate((180f - passenger.yRot).toRadians(), Vector3f(0f, 1f, 0f))
+        val offset =
+            matrix.transform(seatToCenter, Vector3f()).add(center).sub(Vector3f(0f, passenger.bbHeight / 2, 0f))
+
+        positionUpdater.accept(
+            passenger,
+            this.entity.x + offset.x,
+            this.entity.y + offset.y,
+            this.entity.z + offset.z
+        )
     }
 }
