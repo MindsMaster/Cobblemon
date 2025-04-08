@@ -92,7 +92,6 @@ import com.cobblemon.mod.common.pokemon.evolution.variants.ItemInteractionEvolut
 import com.cobblemon.mod.common.pokemon.feature.StashHandler
 import com.cobblemon.mod.common.pokemon.properties.UncatchableProperty
 import com.cobblemon.mod.common.util.*
-import com.cobblemon.mod.common.util.math.geometry.toRadians
 import com.cobblemon.mod.common.world.gamerules.CobblemonGameRules
 import com.mojang.serialization.Codec
 import net.minecraft.core.BlockPos
@@ -145,8 +144,6 @@ import net.minecraft.world.level.material.FluidState
 import net.minecraft.world.level.pathfinder.PathType
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
-import org.joml.Matrix3f
-import org.joml.Vector3f
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import kotlin.math.PI
@@ -409,11 +406,7 @@ open class PokemonEntity(
             SPECIES -> refreshDimensions()
             POSE_TYPE -> {
                 val value = entityData.get(data) as PoseType
-                if ((value == PoseType.FLY || value == PoseType.HOVER) && passengers.isEmpty()) {
-                    isNoGravity = true
-                } else {
-                    isNoGravity = false
-                }
+                isNoGravity = (value == PoseType.FLY || value == PoseType.HOVER) && passengers.isEmpty()
             }
 
             BATTLE_ID -> {
@@ -1934,40 +1927,8 @@ open class PokemonEntity(
 
     override fun positionRider(passenger: Entity, positionUpdater: MoveFunction) {
         if (this.hasPassenger(passenger)) {
-            val index = this.passengers.indexOf(passenger).takeIf { it >= 0 && it < this.seats.size } ?: return
-            val seat = this.seats[index]
+            this.delegate.positionRider(passenger, positionUpdater)
 
-            var offset = Vector3f()
-            if (level().isClientSide) {
-                val delegate = this.delegate as PokemonClientDelegate
-                val locator = delegate.locatorStates[seat.locator]
-                if (locator != null) {
-                    offset = locator.matrix.getTranslation(Vector3f())
-                        .sub(
-                            Vector3f(
-                                0f,
-                                passenger.eyeHeight - (passenger.bbHeight / 2),
-                                0f
-                            )
-                        ) // This is close but not exact
-                }
-            } else {
-                val seatOffset = seat.getOffset(this.getCurrentPoseType()).toVector3f()
-                val center = Vector3f(0f, this.bbHeight / 2, 0f)
-
-                val seatToCenter = center.sub(seatOffset, Vector3f())
-                val matrix = (this.passengers.first() as? OrientationControllable)?.orientationController?.orientation
-                    ?: Matrix3f().rotate((180f - passenger.yRot).toRadians(), Vector3f(0f, 1f, 0f))
-                offset =
-                    matrix.transform(seatToCenter, Vector3f()).add(center).sub(Vector3f(0f, passenger.bbHeight / 2, 0f))
-            }
-
-            positionUpdater.accept(
-                passenger,
-                this.x + offset.x,
-                this.y + offset.y,
-                this.z + offset.z
-            )
             if (passenger is LivingEntity) {
                 ifRidingAvailable { behaviour, settings, state ->
                     behaviour.updatePassengerRotation(settings, state,this, passenger)
