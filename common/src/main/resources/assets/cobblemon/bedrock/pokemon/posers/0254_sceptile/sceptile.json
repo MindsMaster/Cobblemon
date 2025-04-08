@@ -4,6 +4,9 @@
   "profileScale": 0.63,
   "profileTranslation": [0.06, 0.91, 0],
   "rootBone": "sceptile",
+  "animations": {
+    "cry": "q.bedrock_stateful('sceptile', 'cry')"
+  },
   "poses": {
     "standing": {
       "poseName": "standing",

@@ -4,6 +4,9 @@
   "profileScale": 0.66,
   "profileTranslation": [0, 0.81, 0],
   "rootBone": "grovyle",
+  "animations": {
+    "cry": "q.bedrock_stateful('grovyle', 'cry')"
+  },
   "poses": {
     "standing": {
       "poseName": "standing",
