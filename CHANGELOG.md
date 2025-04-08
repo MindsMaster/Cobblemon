@@ -158,6 +158,7 @@
 - Added Molang functions for rendering items `render_item(item_id, locator_name)` and `clear_items()`.
 - Fixed location spawn filter components causing crashes
 - Added `pokemon` as an available Molang function for the `battleActor` functions.
+- Fixed `heldItem` property inside spawn files not working and causing crashes
 
 ## [1.6.1 (January 26th, 2025)](#1-6-1)
 
