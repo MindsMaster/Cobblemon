@@ -37,6 +37,7 @@ import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
 import com.mojang.brigadier.StringReader
+import com.mojang.brigadier.exceptions.CommandSyntaxException
 import net.minecraft.client.Minecraft
 import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
@@ -157,10 +158,16 @@ abstract class PosableState : Schedulable {
         .addFunction("render_item") { params ->
             if (params.get<MoValue>(0) !is StringValue) return@addFunction Unit
 
-            val client = Minecraft.getInstance().connection ?: return@addFunction Unit
-            val result = ItemParser(client.registryAccess()).parse(StringReader(params.getString(0)))
-            val item = ItemStack(result.item)
-            item.applyComponents(result.components)
+            val item: ItemStack
+            try {
+                val client = Minecraft.getInstance().connection ?: return@addFunction Unit
+                val result = ItemParser(client.registryAccess()).parse(StringReader(params.getString(0)))
+                item = ItemStack(result.item)
+                item.applyComponents(result.components)
+            }
+            catch (_: CommandSyntaxException) {
+                return@addFunction Unit
+            }
 
             val renderLocation = if (params.contains(1)) params.getString(1) else "item"
 
