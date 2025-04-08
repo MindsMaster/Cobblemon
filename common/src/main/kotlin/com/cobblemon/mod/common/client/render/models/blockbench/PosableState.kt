@@ -46,7 +46,6 @@ import net.minecraft.sounds.SoundSource
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.Vec3
-import org.joml.Matrix4f
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 
@@ -128,9 +127,8 @@ abstract class PosableState : Schedulable {
     /** This gets called 500 million times so use a mutable value for runtime */
     private val reusableAnimTime = DoubleValue(0.0)
 
-    val itemRenderingLocations = mutableMapOf<String, ItemStack>()
-//    var itemRenderingLocation = ""
-//    var animationItem : ItemStack? = null
+    /** A list of items to be rendered on a PosableModel during an animation */
+    val animationItems = mutableMapOf<String, ItemStack>()
 
     /** All of the MoLang functions that can be applied to something with this state. */
     val functions = QueryStruct(hashMapOf())
@@ -167,13 +165,13 @@ abstract class PosableState : Schedulable {
             val renderLocation = if (params.contains(1)) params.getString(1) else "item"
 
             if (!item.isEmpty && locatorStates.containsKey(renderLocation)) {
-                itemRenderingLocations.put(renderLocation, item)
+                animationItems.put(renderLocation, item)
             } else {
-                if (itemRenderingLocations.containsKey(renderLocation)) itemRenderingLocations.remove(renderLocation)
+                if (animationItems.containsKey(renderLocation)) animationItems.remove(renderLocation)
                 return@addFunction Unit
             }
         }
-        .addFunction("clear_items") { itemRenderingLocations.clear() }
+        .addFunction("clear_items") { animationItems.clear() }
         .addFunction("play_animation") { params ->
             val animationParameter = params.get<MoValue>(0)
             val animation = if (animationParameter is ObjectValue<*>) {
