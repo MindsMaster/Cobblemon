@@ -38,6 +38,7 @@ import com.cobblemon.mod.common.api.storage.party.PartyStore
 import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore
 import com.cobblemon.mod.common.api.storage.pc.PCPosition
 import com.cobblemon.mod.common.api.storage.pc.PCStore
+import com.cobblemon.mod.common.api.tags.CobblemonItemTags
 import com.cobblemon.mod.common.api.text.text
 import com.cobblemon.mod.common.battles.BattleRegistry
 import com.cobblemon.mod.common.battles.actor.PlayerBattleActor
@@ -812,7 +813,11 @@ object MoLangFunctions {
             map.put("is_gliding") { DoubleValue(pokemonEntity.useRidingAltPose()) }
             map.put("has_aspect") { DoubleValue(it.getString(0) in pokemonEntity.aspects) }
             map.put("is_pokemon") { DoubleValue.ONE }
-            map.put("is_holding_item") { DoubleValue(!pokemonEntity.entityData.get(PokemonEntity.SHOWN_HELD_ITEM).isEmpty) }
+            map.put("is_holding_item") { DoubleValue(!pokemonEntity.entityData.get(PokemonEntity.SHOWN_HELD_ITEM).let {
+                it.isEmpty || it.`is`(CobblemonItemTags.WEARABLE_HAT_ITEMS) || it.`is`(CobblemonItemTags.WEARABLE_FACE_ITEMS)
+            }) }
+            map.put("is_wearing_hat") { DoubleValue(pokemonEntity.entityData.get(PokemonEntity.SHOWN_HELD_ITEM).`is`(CobblemonItemTags.WEARABLE_HAT_ITEMS)) }
+            map.put("is_wearing_face") { DoubleValue(pokemonEntity.entityData.get(PokemonEntity.SHOWN_HELD_ITEM).`is`(CobblemonItemTags.WEARABLE_FACE_ITEMS)) }
             map
         }
     )
