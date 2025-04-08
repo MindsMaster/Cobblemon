@@ -60,7 +60,7 @@ public abstract class ItemRendererMixin {
             if (stack.getItem() instanceof PokeBallItem pokeBallItem) resourceLocation = pokeBallItem.getPokeBall().getModel2d();
             else if (stack.getItem() instanceof PokedexItem pokedexItem) resourceLocation = pokedexItem.getType().getItemSpritePath();
         }
-        else if (renderMode != ItemDisplayContext.HEAD && stack.getItem() instanceof WearableItem wearableItem) resourceLocation = wearableItem.getModel2d();
+        if (renderMode != ItemDisplayContext.HEAD && stack.getItem() instanceof WearableItem wearableItem) resourceLocation = wearableItem.getModel2d();
 
         if (resourceLocation != null) {
             BakedModel replacementModel = this.itemModelShaper.getModelManager().getModel(new ModelResourceLocation(resourceLocation, "inventory"));

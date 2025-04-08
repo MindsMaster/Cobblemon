@@ -661,16 +661,16 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
 
     val wearables = mutableListOf<WearableItem>()
     //Wearable items (these items should have a corresponding 3D model)
-    @JvmField val BLACK_GLASSES = wearableHeldItem("black_glasses")
-    @JvmField val CHOICE_BAND = wearableHeldItem("choice_band")
-    @JvmField val CHOICE_SPECS = wearableHeldItem("choice_specs")
-    @JvmField val EXP_SHARE = wearableHeldItem("exp_share")
-    @JvmField val FOCUS_BAND = wearableHeldItem("focus_band")
-    @JvmField val KINGS_ROCK = wearableHeldItem("kings_rock")
-    @JvmField val MUSCLE_BAND = wearableHeldItem("muscle_band")
-    @JvmField val ROCKY_HELMET = wearableHeldItem("rocky_helmet")
-    @JvmField val SAFETY_GOGGLES = wearableHeldItem("safety_goggles")
-    @JvmField val WISE_GLASSES = wearableHeldItem("wise_glasses")
+    @JvmField val BLACK_GLASSES = wearableItem("black_glasses")
+    @JvmField val CHOICE_BAND = wearableItem("choice_band")
+    @JvmField val CHOICE_SPECS = wearableItem("choice_specs")
+    @JvmField val EXP_SHARE = wearableItem("exp_share")
+    @JvmField val FOCUS_BAND = wearableItem("focus_band")
+    @JvmField val KINGS_ROCK = wearableItem("kings_rock")
+    @JvmField val MUSCLE_BAND = wearableItem("muscle_band")
+    @JvmField val ROCKY_HELMET = wearableItem("rocky_helmet")
+    @JvmField val SAFETY_GOGGLES = wearableItem("safety_goggles")
+    @JvmField val WISE_GLASSES = wearableItem("wise_glasses")
 
     // Held Items
     @JvmField
@@ -1257,12 +1257,15 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
         return item
     }
 
-    private fun wearableItem(name: String): WearableItem {
-        val item = WearableItem(name)
-        wearables.add(item)
-        return item
-    }
-    private fun wearableHeldItem(name: String, remappedName: String? = null) = heldItem(name, wearableItem(name), remappedName)
+    private fun wearableItem(name: String, heldItemRemappedName: String? = null): CobblemonItem = create(
+        name,
+        WearableItem(name).also {
+            wearables.add(it)
+            if (heldItemRemappedName != null) {
+                CobblemonHeldItemManager.registerRemap(it, heldItemRemappedName)
+            }
+        }
+    )
 
     private fun heldItem(name: String, remappedName: String? = null): CobblemonItem = create(
         name,
