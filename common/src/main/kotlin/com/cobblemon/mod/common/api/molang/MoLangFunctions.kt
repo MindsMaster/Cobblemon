@@ -42,8 +42,6 @@ import com.cobblemon.mod.common.api.text.text
 import com.cobblemon.mod.common.battles.BattleRegistry
 import com.cobblemon.mod.common.battles.actor.PlayerBattleActor
 import com.cobblemon.mod.common.battles.actor.PokemonBattleActor
-import com.cobblemon.mod.common.client.particle.BedrockParticleOptionsRepository
-import com.cobblemon.mod.common.client.particle.ParticleStorm
 import com.cobblemon.mod.common.client.render.models.blockbench.wavefunction.WaveFunctions
 import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.entity.npc.NPCBattleActor
@@ -63,7 +61,6 @@ import com.cobblemon.mod.common.pokemon.evolution.variants.LevelUpEvolution
 import com.cobblemon.mod.common.pokemon.evolution.variants.TradeEvolution
 import com.cobblemon.mod.common.util.*
 import com.mojang.datafixers.util.Either
-import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.commands.arguments.EntityAnchorArgument
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Holder
@@ -289,16 +286,11 @@ object MoLangFunctions {
                 } as? ServerPlayer
                 val pos = Vec3(x, y, z)
 
-                if (world !is ClientLevel) {
-                    val packet = SpawnSnowstormParticlePacket(particle, pos)
-                    if (player != null) {
-                        packet.sendToPlayer(player)
-                    } else {
-                        packet.sendToPlayersAround(x, y, z, 64.0, world.dimension())
-                    }
+                val packet = SpawnSnowstormParticlePacket(particle, pos)
+                if (player != null) {
+                    packet.sendToPlayer(player)
                 } else {
-                    val effect = BedrockParticleOptionsRepository.getEffect(particle) ?: return@put DoubleValue.ZERO
-                    ParticleStorm.createAtPosition(world, effect, pos).spawn()
+                    packet.sendToPlayersAround(x, y, z, 64.0, world.dimension())
                 }
             }
             map.put("get_entities_around") { params ->
