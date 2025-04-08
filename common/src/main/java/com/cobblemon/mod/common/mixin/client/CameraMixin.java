@@ -9,7 +9,6 @@
 package com.cobblemon.mod.common.mixin.client;
 
 import com.cobblemon.mod.common.OrientationControllable;
-import com.cobblemon.mod.common.api.orientation.OrientationController;
 import com.cobblemon.mod.common.api.riding.Rideable;
 import com.cobblemon.mod.common.api.riding.Seat;
 import com.cobblemon.mod.common.client.entity.PokemonClientDelegate;
@@ -32,12 +31,9 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Camera.class)
 public abstract class CameraMixin {
-    @Shadow @Final private static float DEFAULT_CAMERA_DISTANCE;
-
     @Shadow private Entity entity;
     @Shadow @Final private Quaternionf rotation;
     @Shadow @Final private Vector3f forwards;
@@ -59,7 +55,7 @@ public abstract class CameraMixin {
     @Unique boolean disableRollableCameraDebug = false;
 
     @Inject(method = "setRotation", at = @At("HEAD"), cancellable = true)
-    public void open_camera$setRotation(float f, float g, CallbackInfo ci) {
+    public void cobblemon$setRotation(float f, float g, CallbackInfo ci) {
         if (!(this.entity instanceof OrientationControllable controllable) || disableRollableCameraDebug) return;
         var controller = controllable.getOrientationController();
         if (!controller.isActive() && controller.getOrientation() != null) {
@@ -77,7 +73,7 @@ public abstract class CameraMixin {
                     return;
                 }
                 controller.getOrientation().rotateZ((float) Math.toRadians(-rollAngleStart*(1-returnTimer)));
-                applyRotation();
+                cobblemon$applyRotation();
                 this.returnTimer += .05F;
                 ci.cancel();
             } else {
@@ -87,7 +83,7 @@ public abstract class CameraMixin {
             return;
         }
         if (controller.getOrientation() == null) return;
-        applyRotation();
+        cobblemon$applyRotation();
 
         this.returnTimer = 0;
         this.rollAngleStart = controller.getRoll();
@@ -96,7 +92,7 @@ public abstract class CameraMixin {
 
     //If you want to move this to a delagate you need an AW for position
     @WrapOperation(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setPosition(DDD)V"))
-    public void positionCamera(Camera instance, double x, double y, double z, Operation<Void> original){
+    public void cobblemon$positionCamera(Camera instance, double x, double y, double z, Operation<Void> original){
         Entity entity = instance.getEntity();
         Entity vehicle = entity.getVehicle();
 
@@ -138,7 +134,7 @@ public abstract class CameraMixin {
     }
 
     @Unique
-    private void applyRotation(){
+    private void cobblemon$applyRotation(){
         if (!(this.entity instanceof OrientationControllable controllable) || controllable.getOrientationController().getOrientation() == null) return;
         var controller = controllable.getOrientationController();
         var newRotation = controller.getOrientation().normal(new Matrix3f()).getNormalizedRotation(new Quaternionf());
