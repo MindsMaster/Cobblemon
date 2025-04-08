@@ -19,7 +19,11 @@
       "isBattle": false,
       "animations": [
         "q.look('head', 1, 1, 70, -45, 45, -45)",
-        "q.bedrock('jolteon', 'ground_idle')"
+        "q.bedrock('jolteon', 'ground_idle')",
+        {
+          "condition": "q.is_holding_item",
+          "animation": "q.bedrock('jolteon', 'hold_item')"
+        }
       ],
       "quirks": [
         "q.bedrock_quirk('jolteon', 'blink')"
@@ -33,7 +37,11 @@
       "animations": [
         "q.look('head', 1, 1, 70, -45, 45, -45)",
         "q.bedrock('jolteon', 'ground_idle')",
-        "q.quadruped_walk(0.66, 1.4, 'front_leg_left', 'front_leg_right', 'backleg_left', 'backleg_right')"
+        "q.quadruped_walk(0.66, 1.4, 'front_leg_left', 'front_leg_right', 'backleg_left', 'backleg_right')",
+        {
+          "condition": "q.is_holding_item",
+          "animation": "q.bedrock('jolteon', 'hold_item')"
+        }
       ],
       "quirks": [
         "q.bedrock_quirk('jolteon', 'blink')"
