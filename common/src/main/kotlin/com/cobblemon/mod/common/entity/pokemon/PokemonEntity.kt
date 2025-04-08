@@ -1236,6 +1236,7 @@ open class PokemonEntity(
             else -> lang("held_item.replace", returned.displayName, this.pokemon.getDisplayName(), giving.displayName)
         }
 
+        player.giveOrDropItemStack(returned, false)
         player.sendSystemMessage(text)
         this.level().playSoundServer(
             position = this.position(),
