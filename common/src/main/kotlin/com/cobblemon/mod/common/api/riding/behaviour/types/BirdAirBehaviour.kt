@@ -19,6 +19,7 @@ import com.cobblemon.mod.common.api.riding.posing.PoseProvider
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.*
+import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SmoothDouble
@@ -486,13 +487,13 @@ class BirdAirState : RidingBehaviourState() {
     var gliding = ridingState(false, Side.CLIENT)
     var lastGlide = ridingState(-100L, Side.CLIENT)
 
-    override fun encode(buffer: RegistryFriendlyByteBuf) {
+    override fun encode(buffer: FriendlyByteBuf) {
         super.encode(buffer)
         buffer.writeFloat(stamina.get())
         buffer.writeBoolean(gliding.get())
     }
 
-    override fun decode(buffer: RegistryFriendlyByteBuf) {
+    override fun decode(buffer: FriendlyByteBuf) {
         super.decode(buffer)
         gliding.set(buffer.readBoolean(), forced = true)
     }

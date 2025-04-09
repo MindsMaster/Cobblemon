@@ -8,16 +8,10 @@
 
 package com.cobblemon.mod.common.api.riding.behaviour
 
-import com.cobblemon.mod.common.api.net.Decodable
-import com.cobblemon.mod.common.api.net.Encodable
-import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.ifClient
 import com.cobblemon.mod.common.util.ifServer
-import net.minecraft.client.player.RemotePlayer
 import net.minecraft.network.FriendlyByteBuf
-import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.world.phys.Vec3
-import kotlin.reflect.KProperty
 
 /**
  * Represents the state of a Pokemon when being ridden.
@@ -28,7 +22,7 @@ import kotlin.reflect.KProperty
  *
  * @author landonjw
  */
-open class RidingBehaviourState : Encodable, Decodable {
+open class RidingBehaviourState {
     open val rideVelocity: SidedRidingState<Vec3> = ridingState(Vec3.ZERO, Side.BOTH)
     open val stamina: SidedRidingState<Float> = ridingState(0F, Side.BOTH)
 
@@ -50,12 +44,12 @@ open class RidingBehaviourState : Encodable, Decodable {
         return false
     }
 
-    override fun encode(buffer: RegistryFriendlyByteBuf) {
+    open fun encode(buffer: FriendlyByteBuf) {
         buffer.writeVec3(rideVelocity.get())
         buffer.writeFloat(stamina.get())
     }
 
-    override fun decode(buffer: RegistryFriendlyByteBuf) {
+    open fun decode(buffer: FriendlyByteBuf) {
         rideVelocity.set(buffer.readVec3(), true)
         stamina.set(buffer.readFloat(), true)
     }

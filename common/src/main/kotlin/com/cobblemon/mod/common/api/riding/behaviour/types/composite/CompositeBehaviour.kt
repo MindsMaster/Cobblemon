@@ -15,6 +15,7 @@ import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.adapters.RidingBehaviourSettingsAdapter
 import com.cobblemon.mod.common.util.cobblemonResource
+import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SmoothDouble
@@ -404,12 +405,12 @@ class CompositeState(
         return super.shouldSync(previous)
     }
 
-    override fun encode(buffer: RegistryFriendlyByteBuf) {
+    override fun encode(buffer: FriendlyByteBuf) {
         super.encode(buffer)
         buffer.writeResourceLocation(activeController.get())
     }
 
-    override fun decode(buffer: RegistryFriendlyByteBuf) {
+    override fun decode(buffer: FriendlyByteBuf) {
         super.decode(buffer)
         activeController.set(buffer.readResourceLocation(), forced = true)
     }

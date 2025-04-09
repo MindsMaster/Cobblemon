@@ -19,7 +19,6 @@ import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.*
 import net.minecraft.network.RegistryFriendlyByteBuf
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
@@ -311,9 +310,6 @@ class DolphinSettings : RidingBehaviourSettings {
 
 class DolphinState : RidingBehaviourState() {
     var lastVelocity = ridingState(Vec3.ZERO, Side.BOTH)
-
-    override fun encode(buffer: RegistryFriendlyByteBuf) = Unit
-    override fun decode(buffer: RegistryFriendlyByteBuf) = Unit
 
     override fun reset() {
         super.reset()
