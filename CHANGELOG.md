@@ -155,8 +155,11 @@
 - Added `interpolate` boolean property to animated textures to allow gradual colour changes between frames.
 - Fixed species additions not being capable of changing implemented status.
 - Added support for action effects that are triggered by `|-activate|` Showdown instructions. `activate_{effect_id}` is the syntax.
-- Added Molang functions for rendering items `render_item(item_id, locator_name)` and `clear_items()`.
+- Added MoLang functions for rendering items `render_item(item_id, locator_name)` and `clear_items()`.
 - Fixed location spawn filter components causing crashes
+- Added `pokemon` as an available MoLang function for the `battleActor` functions.
+- Added `spawn_pokemon` as an available MoLang function for the `worldHolder` functions.
+- Added `attempt_wild_battle` as an available MoLang function.
 - Added `pokemon` as an available Molang function for the `battleActor` functions.
 - Fixed `heldItem` property inside spawn files not working and causing crashes
 - Fixed `spawn_bedrock_particles` MoLang causing crashes when used in a server environment

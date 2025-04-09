@@ -294,6 +294,27 @@ object MoLangFunctions {
                     packet.sendToPlayersAround(x, y, z, 64.0, world.dimension())
                 }
             }
+            map.put("spawn_pokemon") { params ->
+                val x = params.getInt(0)
+                val y = params.getInt(1)
+                val z = params.getInt(2)
+                val props = params.getString(3).toProperties()
+
+                val pos = BlockPos(x, y, z)
+
+                if (!Level.isInSpawnableBounds(pos)) {
+                    return@put DoubleValue.ZERO
+                }
+
+                val pokemon = props.createEntity(world)
+                pokemon.moveTo(pos, pokemon.yRot, pokemon.xRot)
+
+                if (world.addFreshEntity(pokemon)) {
+                    return@put pokemon.struct
+                } else {
+                    return@put DoubleValue.ZERO
+                }
+            }
             map.put("get_entities_around") { params ->
                 val x = params.getDouble(0)
                 val y = params.getDouble(1)
