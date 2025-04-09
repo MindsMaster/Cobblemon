@@ -283,9 +283,9 @@ open class PokemonEntity(
         ridingBehaviourSettings = null
         if (pokemon.riding.behaviour == null) return
 
-        riding = RidingBehaviours.get(pokemon.riding.behaviour!!.key) as RidingBehaviour<RidingBehaviourSettings, RidingBehaviourState>?
-        ridingState = riding!!.createDefaultState()
+        riding = RidingBehaviours.get(pokemon.riding.behaviour!!.key)
         ridingBehaviourSettings = pokemon.riding.behaviour!!
+        ridingState = riding!!.createDefaultState(ridingBehaviourSettings!!)
     }
 
     /**
@@ -1011,12 +1011,15 @@ open class PokemonEntity(
                 itemStack
             )
             if (player.isShiftKeyDown) {
+                val canRide = ifRidingAvailableSupply(false) { behaviour, settings, state ->
+                    this.canRide(player) && seats.isNotEmpty() && behaviour.isActive(settings, state, this)
+                }
                 InteractPokemonUIPacket(
                     this.getUUID(),
                     canSitOnShoulder() && pokemon in player.party(),
                     !(pokemon.heldItemNoCopy().isEmpty && itemStack.isEmpty),
                     (!pokemon.cosmeticItem.isEmpty && itemStack.isEmpty) || cosmeticItemDefinition != null,
-                    this.canRide(player) && pokemon.riding.canRide
+                    canRide
                 ).sendToPlayer(player)
             } else {
                 // TODO #105
