@@ -28,7 +28,7 @@ import net.minecraft.world.phys.Vec3
  */
 interface RidingBehaviour<Settings : RidingBehaviourSettings, State : RidingBehaviourState> {
     val key: ResourceLocation
-    val style: RidingStyle?
+    val style: RidingStyle
 
     fun isActive(settings: Settings, state: State, vehicle: PokemonEntity): Boolean
 

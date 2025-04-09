@@ -8,6 +8,7 @@
 
 package com.cobblemon.mod.common.api.riding.behaviour.types.composite
 
+import com.cobblemon.mod.common.api.riding.RidingStyle
 import com.cobblemon.mod.common.api.riding.behaviour.*
 import com.cobblemon.mod.common.api.riding.behaviour.types.composite.strategies.CompositeRidingStrategies
 import com.cobblemon.mod.common.entity.PoseType
@@ -28,7 +29,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeSettings, CompositeState> {
     }
 
     override val key = KEY
-    override val style = null
+    override val style = RidingStyle.COMPOSITE
 
     override fun createDefaultState(settings: CompositeSettings): CompositeState {
         val defaultBehaviour = RidingBehaviours.get(settings.defaultBehaviour.key)

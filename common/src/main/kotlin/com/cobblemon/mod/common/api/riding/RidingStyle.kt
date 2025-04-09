@@ -19,5 +19,5 @@ enum class RidingStyle {
     LAND,
     LIQUID,
     AIR,
-    MISC
+    COMPOSITE
 }

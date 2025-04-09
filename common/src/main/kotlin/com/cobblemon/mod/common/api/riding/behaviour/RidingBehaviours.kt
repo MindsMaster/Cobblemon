@@ -18,7 +18,6 @@ object RidingBehaviours {
     init {
         register(BirdAirBehaviour.KEY, BirdAirBehaviour())
         register(DolphinBehaviour.KEY, DolphinBehaviour())
-        register(FallToGlideCompositeBehaviour.KEY, FallToGlideCompositeBehaviour())
         register(GenericLandBehaviour.KEY, GenericLandBehaviour())
         register(GenericSwimBehaviour.KEY, GenericSwimBehaviour())
         register(GliderAirBehaviour.KEY, GliderAirBehaviour())
