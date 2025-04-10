@@ -276,6 +276,7 @@
 - Geodude
 - Graveler
 - Golem
+- Magnezone
 
 ### Cry updates for the following Pokémon
 - Sceptile
