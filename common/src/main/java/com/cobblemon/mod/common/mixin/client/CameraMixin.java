@@ -64,11 +64,9 @@ public abstract class CameraMixin {
     @Unique private float rollAngleStart = 0;
     @Unique Minecraft minecraft = Minecraft.getInstance();
 
-    @Unique boolean disableRollableCameraDebug = false;
-
     @Inject(method = "setRotation", at = @At("HEAD"), cancellable = true)
     public void open_camera$setRotation(float f, float g, CallbackInfo ci) {
-        if (!(this.entity instanceof OrientationControllable controllable) || disableRollableCameraDebug) return;
+        if (!(this.entity instanceof OrientationControllable controllable) || Cobblemon.config.getDisableRoll()) return;
         var controller = controllable.getOrientationController();
         if (!controller.isActive() && controller.getOrientation() != null) {
             if(this.returnTimer < 1) {
@@ -102,7 +100,6 @@ public abstract class CameraMixin {
         ci.cancel();
     }
 
-    //If you want to move this to a delagate you need an AW for position
     @WrapOperation(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setPosition(DDD)V"))
     public void positionCamera(Camera instance, double x, double y, double z, Operation<Void> original, @Local(ordinal = 1, argsOnly = true) boolean thirdPersonReverse) {
         Entity entity = instance.getEntity();
@@ -188,9 +185,9 @@ public abstract class CameraMixin {
         this.rotation.set(newRotation);
         this.xRot = controller.getPitch();
         this.yRot = controller.getYaw();
-        this.forwards.set(controller.getForwardVector());
-        this.up.set(controller.getUpVector());
-        this.left.set(controller.getLeftVector());
+        OrientationController.Companion.getFORWARDS().rotate(this.rotation, this.forwards);
+        OrientationController.Companion.getUP().rotate(this.rotation, this.up);
+        OrientationController.Companion.getLEFT().rotate(this.rotation, this.left);
     }
 
     @WrapOperation(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;move(FFF)V", ordinal = 0))
