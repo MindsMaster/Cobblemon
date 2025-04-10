@@ -50,7 +50,9 @@ object CobblemonWorldSpawnerManager : SpawnerManager() {
     }
 
     fun onDimensionChange(player: ServerPlayer, origin: ServerLevel?, destination: ServerLevel?) {
-        if (!Cobblemon.config.enableSpawning) {
+        fun getSpawnRule(level: ServerLevel?) = level?.gameRules?.getBoolean(CobblemonGameRules.DO_POKEMON_SPAWNING)
+
+        if (!Cobblemon.config.enableSpawning || getSpawnRule(origin) == getSpawnRule(destination)) {
             return
         }
 
