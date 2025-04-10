@@ -36,7 +36,7 @@ object CobblemonWorldSpawnerManager : SpawnerManager() {
 
     fun onPlayerLogin(player: ServerPlayer) {
         // Disables spawning
-        if (!Cobblemon.config.enableSpawning || server()?.gameRules?.getBoolean(CobblemonGameRules.DO_POKEMON_SPAWNING) == false) {
+        if (!Cobblemon.config.enableSpawning || player.level().gameRules.getBoolean(CobblemonGameRules.DO_POKEMON_SPAWNING) == false) {
             return;
         }
 
