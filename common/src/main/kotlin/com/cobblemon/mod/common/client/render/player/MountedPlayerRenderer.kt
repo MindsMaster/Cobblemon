@@ -11,6 +11,7 @@ package com.cobblemon.mod.common.client.render.player
 import com.bedrockk.molang.runtime.value.DoubleValue
 import com.cobblemon.mod.common.OrientationControllable
 import com.cobblemon.mod.common.api.riding.Rideable
+import com.cobblemon.mod.common.client.MountedPokemonAnimationRenderController
 import com.cobblemon.mod.common.client.entity.PokemonClientDelegate
 import com.cobblemon.mod.common.client.render.models.blockbench.bedrock.animation.BedrockAnimationRepository
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
@@ -40,6 +41,7 @@ object MountedPlayerRenderer {
 
         //Positions player
         if (locator != null) {
+            MountedPokemonAnimationRenderController.setup(entity, partialTicks)
             val locatorOffset = locator.matrix.getTranslation(Vector3f())
 
             val center = Vector3f(0f, entity.bbHeight/2, 0f)
