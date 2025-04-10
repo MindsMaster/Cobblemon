@@ -40,16 +40,23 @@ object CobblemonWorldSpawnerManager : SpawnerManager() {
             return;
         }
 
-        val spawner = PlayerSpawnerFactory.create(this, player)
-        spawnersForPlayers[player.uuid] = spawner
-        registerSpawner(spawner)
+        registerPlayerSpawner(player)
     }
 
     fun onPlayerLogout(player: ServerPlayer) {
-        val spawner = spawnersForPlayers[player.uuid]
-        if (spawner != null) {
-            spawnersForPlayers.remove(player.uuid)
-            unregisterSpawner(spawner)
+        unregisterPlayerSpawner(player)
+    }
+
+    private fun unregisterPlayerSpawner(player: ServerPlayer) {
+        spawnersForPlayers.remove(player.uuid)?.let { unregisterSpawner(it) }
+    }
+
+    private fun registerPlayerSpawner(player: ServerPlayer) {
+        spawnersForPlayers[player.uuid]?.let { return }
+
+        PlayerSpawnerFactory.create(this, player).also {
+            spawnersForPlayers[player.uuid] = it
+            registerSpawner(it)
         }
     }
 }
