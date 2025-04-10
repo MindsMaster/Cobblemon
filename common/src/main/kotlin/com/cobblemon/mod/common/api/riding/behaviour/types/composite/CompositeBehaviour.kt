@@ -1,11 +1,21 @@
+/*
+ * Copyright (C) 2023 Cobblemon Contributors
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package com.cobblemon.mod.common.api.riding.behaviour.types.composite
 
+import com.cobblemon.mod.common.api.riding.RidingStyle
 import com.cobblemon.mod.common.api.riding.behaviour.*
 import com.cobblemon.mod.common.api.riding.behaviour.types.composite.strategies.CompositeRidingStrategies
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.adapters.RidingBehaviourSettingsAdapter
 import com.cobblemon.mod.common.util.cobblemonResource
+import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SmoothDouble
@@ -20,7 +30,7 @@ class CompositeBehaviour : RidingBehaviour<CompositeSettings, CompositeState> {
     }
 
     override val key = KEY
-    override val style = null
+    override val style = RidingStyle.COMPOSITE
 
     override fun createDefaultState(settings: CompositeSettings): CompositeState {
         val defaultBehaviour = RidingBehaviours.get(settings.defaultBehaviour.key)
@@ -395,12 +405,12 @@ class CompositeState(
         return super.shouldSync(previous)
     }
 
-    override fun encode(buffer: RegistryFriendlyByteBuf) {
+    override fun encode(buffer: FriendlyByteBuf) {
         super.encode(buffer)
         buffer.writeResourceLocation(activeController.get())
     }
 
-    override fun decode(buffer: RegistryFriendlyByteBuf) {
+    override fun decode(buffer: FriendlyByteBuf) {
         super.decode(buffer)
         activeController.set(buffer.readResourceLocation(), forced = true)
     }

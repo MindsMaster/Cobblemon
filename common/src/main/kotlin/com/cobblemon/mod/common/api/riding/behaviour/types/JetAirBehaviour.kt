@@ -18,6 +18,7 @@ import com.cobblemon.mod.common.api.riding.posing.PoseProvider
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.*
+import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SmoothDouble
@@ -401,13 +402,13 @@ class JetAirState : RidingBehaviourState() {
     var currMouseXForce = ridingState(0.0, Side.BOTH)
     var currMouseYForce = ridingState(0.0, Side.BOTH)
 
-    override fun encode(buffer: RegistryFriendlyByteBuf) {
+    override fun encode(buffer: FriendlyByteBuf) {
         super.encode(buffer)
         buffer.writeDouble(currSpeed.get())
         buffer.writeFloat(stamina.get())
     }
 
-    override fun decode(buffer: RegistryFriendlyByteBuf) {
+    override fun decode(buffer: FriendlyByteBuf) {
         super.decode(buffer)
         currSpeed.set(buffer.readDouble(), forced = true)
     }
