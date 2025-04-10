@@ -8,10 +8,14 @@
 
 package com.cobblemon.mod.common.entity.pokemon
 
+import com.bedrockk.molang.runtime.struct.QueryStruct
+import com.bedrockk.molang.runtime.value.DoubleValue
+import com.bedrockk.molang.runtime.value.MoValue
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.OrientationControllable
 import com.cobblemon.mod.common.api.entity.PokemonSender
 import com.cobblemon.mod.common.api.entity.PokemonSideDelegate
+import com.cobblemon.mod.common.api.molang.ObjectValue
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties
 import com.cobblemon.mod.common.api.pokemon.stats.Stats
 import com.cobblemon.mod.common.api.pokemon.status.Statuses
@@ -21,6 +25,7 @@ import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.pokemon.Pokemon
 import com.cobblemon.mod.common.pokemon.activestate.ActivePokemonState
 import com.cobblemon.mod.common.pokemon.activestate.SentOutState
+import com.cobblemon.mod.common.util.asUUID
 import com.cobblemon.mod.common.util.getIsSubmerged
 import com.cobblemon.mod.common.util.math.geometry.toRadians
 import com.cobblemon.mod.common.util.playSoundServer
@@ -100,6 +105,32 @@ class PokemonServerDelegate : PokemonSideDelegate {
             entity.despawner.beginTracking(this)
         }
         updateTrackedValues()
+    }
+
+    override fun addToStruct(struct: QueryStruct) {
+        super.addToStruct(struct)
+        if (entity.pokemon.isWild()) {
+            struct
+                    .addFunction("attempt_wild_battle") { params ->
+                        val opponentValue = params.get<MoValue>(0)
+                        val opponent = if (opponentValue is ObjectValue<*>) {
+                            opponentValue.obj as ServerPlayer
+                        } else {
+                            val paramString = opponentValue.asString()
+                            val playerUUID = paramString.asUUID
+                            if (playerUUID != null) {
+                                entity.server!!.playerList.getPlayer(playerUUID) ?: return@addFunction DoubleValue.ZERO
+                            } else {
+                                entity.server!!.playerList.getPlayerByName(paramString) ?: return@addFunction DoubleValue.ZERO
+                            }
+                        }
+
+                        // Need to wait to ensure any entity info gets grabbed properly before battle attempt.
+                        return@addFunction entity.after(0.01F) {
+                            DoubleValue(entity.forceBattle(opponent))
+                        }
+                    }
+        }
     }
 
     fun getBattle() = entity.battleId?.let(BattleRegistry::getBattle)
