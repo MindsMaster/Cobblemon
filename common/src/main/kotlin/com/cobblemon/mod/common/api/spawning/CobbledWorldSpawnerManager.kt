@@ -69,8 +69,6 @@ object CobblemonWorldSpawnerManager : SpawnerManager() {
     }
 
     private fun registerPlayerSpawner(player: ServerPlayer) {
-        spawnersForPlayers[player.uuid]?.let { return }
-
         PlayerSpawnerFactory.create(this, player).also {
             spawnersForPlayers[player.uuid] = it
             registerSpawner(it)
