@@ -97,6 +97,8 @@
 - Pidgeot
 - Nosepass
 - Probopass
+- Magnezone
+- Metagross
 
 ### Changes
 - Renamed `chargeGainedPerTick` config to `secondsToChargeHealingMachine`.
