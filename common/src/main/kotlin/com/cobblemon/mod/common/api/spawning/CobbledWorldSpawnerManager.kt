@@ -14,6 +14,7 @@ import com.cobblemon.mod.common.api.spawning.spawner.PlayerSpawnerFactory
 import com.cobblemon.mod.common.platform.events.PlatformEvents
 import com.cobblemon.mod.common.util.server
 import com.cobblemon.mod.common.world.gamerules.CobblemonGameRules
+import net.minecraft.server.level.ServerLevel
 import java.util.UUID
 import net.minecraft.server.level.ServerPlayer
 
@@ -32,6 +33,7 @@ object CobblemonWorldSpawnerManager : SpawnerManager() {
     init {
         PlatformEvents.SERVER_PLAYER_LOGIN.subscribe { this.onPlayerLogin(it.player) }
         PlatformEvents.SERVER_PLAYER_LOGOUT.subscribe { this.onPlayerLogout(it.player) }
+        PlatformEvents.CHANGE_DIMENSION.subscribe { this.onDimensionChange(it.player, it.origin, it.destination) }
     }
 
     fun onPlayerLogin(player: ServerPlayer) {
@@ -45,6 +47,19 @@ object CobblemonWorldSpawnerManager : SpawnerManager() {
 
     fun onPlayerLogout(player: ServerPlayer) {
         unregisterPlayerSpawner(player)
+    }
+
+    fun onDimensionChange(player: ServerPlayer, origin: ServerLevel?, destination: ServerLevel?) {
+        if (!Cobblemon.config.enableSpawning) {
+            return
+        }
+
+        val spawnerAction = if (destination?.gameRules?.getBoolean(CobblemonGameRules.DO_POKEMON_SPAWNING) == false) {
+            ::unregisterPlayerSpawner
+        } else {
+            ::registerPlayerSpawner
+        }
+        spawnerAction(player)
     }
 
     private fun unregisterPlayerSpawner(player: ServerPlayer) {
