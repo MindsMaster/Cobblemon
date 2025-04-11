@@ -268,7 +268,7 @@
       "id": "jigglypuff_wigglytuff",
       "variant": "item_interact",
       "result": "wigglytuff",
-      "consumeHeldItem": true,
+      "consumeHeldItem": false,
       "learnableMoves": [],
       "requirements": [],
       "requiredContext": "cobblemon:moon_stone"
@@ -293,7 +293,7 @@
       }
     },
     "seats": [],
-    "controller": {
+    "behaviour": {
       "key": "cobblemon:air/glider"
     }
   }

@@ -9,8 +9,9 @@
 package com.cobblemon.mod.common.client.render.player
 
 import com.bedrockk.molang.runtime.value.DoubleValue
-import com.cobblemon.mod.common.Rollable
+import com.cobblemon.mod.common.OrientationControllable
 import com.cobblemon.mod.common.api.riding.Rideable
+import com.cobblemon.mod.common.client.MountedPokemonAnimationRenderController
 import com.cobblemon.mod.common.client.entity.PokemonClientDelegate
 import com.cobblemon.mod.common.client.render.models.blockbench.bedrock.animation.BedrockAnimationRepository
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
@@ -33,8 +34,6 @@ object MountedPlayerRenderer {
         if(player.vehicle !is Rideable) return
         val matrix = stack.last().pose()
 
-        val vehicle = player.vehicle as Rideable?
-        val entity = vehicle!!.riding.entity
         val seatIndex = entity.passengers.indexOf(player)
         val seat = entity.seats[seatIndex]
         val delegate = entity.delegate as PokemonClientDelegate
@@ -42,19 +41,13 @@ object MountedPlayerRenderer {
 
         //Positions player
         if (locator != null) {
+            MountedPokemonAnimationRenderController.setup(entity, partialTicks)
             val locatorOffset = locator.matrix.getTranslation(Vector3f())
 
             val center = Vector3f(0f, entity.bbHeight/2, 0f)
             val locatorOffsetToCenter = locatorOffset.sub(center, Vector3f())
-
-            val transformationMatrix = Matrix4f()
-            if (player is Rollable && player.shouldRoll()){
-                //transformationMatrix.rotate(Axis.YP.rotationDegrees(-yBodyRot))
-                //transformationMatrix.mulLocal(player.orientation)
-            }
-
-            val rotatedOffset = transformationMatrix.transformPosition(locatorOffsetToCenter, Vector3f()).add(center).sub(Vector3f(0f, player.bbHeight/2, 0f))
-            matrix.translate(rotatedOffset)
+            val offset = locatorOffsetToCenter.add(center, Vector3f()).sub(Vector3f(0f, player.bbHeight / 2, 0f))
+            matrix.translate(offset)
 
             //Undo seat position
             val playerPos = Vec3(
@@ -73,19 +66,17 @@ object MountedPlayerRenderer {
         }
 
         //Rotates player
-        if (player is Rollable && player.shouldRoll() && !disableRollableRenderDebug) {
+        if (player is OrientationControllable && player.orientationController.active && !disableRollableRenderDebug) {
             val center = Vector3f(0f, player.bbHeight / 2, 0f)
             val transformationMatrix = Matrix4f()
             transformationMatrix.translate(center)
-
-            transformationMatrix.mul(Matrix4f(player.orientation))
-
+            transformationMatrix.rotate(player.orientationController.getRenderOrientation(partialTicks))
             transformationMatrix.translate(center.negate(Vector3f()))
             //Pre-Undo Yaw
             transformationMatrix.rotate(Axis.YP.rotationDegrees(yBodyRot+180f))
             matrix.mul(transformationMatrix)
         }
-        matrix.translate(0f, 0.5f, 0f)
+        matrix.translate(0f, 0.25f, 0f)
     }
 
     fun animate(

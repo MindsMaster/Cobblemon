@@ -36,14 +36,20 @@ import com.cobblemon.mod.common.client.render.models.blockbench.quirk.QuirkData
 import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
+import com.mojang.brigadier.StringReader
+import com.mojang.brigadier.exceptions.CommandSyntaxException
 import java.util.concurrent.ConcurrentLinkedQueue
 import net.minecraft.client.Minecraft
 import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
+import net.minecraft.commands.arguments.item.ItemParser
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.Vec3
+import java.util.*
+import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
  * Represents some kind of animation state for an entity or GUI element or other renderable component in the game.
@@ -123,6 +129,9 @@ abstract class PosableState : Schedulable {
     /** This gets called 500 million times so use a mutable value for runtime */
     private val reusableAnimTime = DoubleValue(0.0)
 
+    /** A list of items to be rendered on a PosableModel during an animation */
+    val animationItems = mutableMapOf<String, ItemStack>()
+
     /** All of the MoLang functions that can be applied to something with this state. */
     val functions = QueryStruct(hashMapOf())
         .addFunction("anim_time") {
@@ -147,6 +156,30 @@ abstract class PosableState : Schedulable {
                 )
             }
         }
+        .addFunction("render_item") { params ->
+            if (params.get<MoValue>(0) !is StringValue) return@addFunction Unit
+
+            val item: ItemStack
+            try {
+                val client = Minecraft.getInstance().connection ?: return@addFunction Unit
+                val result = ItemParser(client.registryAccess()).parse(StringReader(params.getString(0)))
+                item = ItemStack(result.item)
+                item.applyComponents(result.components)
+            }
+            catch (_: CommandSyntaxException) {
+                return@addFunction Unit
+            }
+
+            val renderLocation = if (params.contains(1)) params.getString(1) else "item"
+
+            if (!item.isEmpty && locatorStates.containsKey(renderLocation)) {
+                animationItems.put(renderLocation, item)
+            } else {
+                if (animationItems.containsKey(renderLocation)) animationItems.remove(renderLocation)
+                return@addFunction Unit
+            }
+        }
+        .addFunction("clear_items") { animationItems.clear() }
         .addFunction("play_animation") { params ->
             val animationParameter = params.get<MoValue>(0)
             val animation = if (animationParameter is ObjectValue<*>) {
