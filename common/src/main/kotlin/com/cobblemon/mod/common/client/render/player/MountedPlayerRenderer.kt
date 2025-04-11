@@ -68,18 +68,6 @@ object MountedPlayerRenderer {
 
             matrix.translate(Vector3f(0f, 0.35f, 0f))
         }
-
-        //Rotates player
-        if (player is OrientationControllable && player.orientationController.active && !disableRollableRenderDebug) {
-            val center = Vector3f(0f, player.bbHeight / 2, 0f)
-            val transformationMatrix = Matrix4f()
-            transformationMatrix.translate(center)
-            transformationMatrix.rotate(player.orientationController.getRenderOrientation(partialTicks))
-            transformationMatrix.translate(center.negate(Vector3f()))
-            //Pre-Undo Yaw
-            transformationMatrix.rotate(Axis.YP.rotationDegrees(yBodyRot+180f))
-            matrix.mul(transformationMatrix)
-        }
     }
 
     fun animate(
