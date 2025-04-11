@@ -77,7 +77,7 @@ class BehaviourOptionsList(
 
         val children = mutableListOf<GuiEventListener>()
 
-        val tooltip = Tooltip.create(brainPreset.name.copy())
+        val tooltip = Tooltip.create(brainPreset.description.copy())
         val tooltipHolder = WidgetTooltipHolder().also { it.set(tooltip) }
 
         val applyButton = NPCEditorButton(
