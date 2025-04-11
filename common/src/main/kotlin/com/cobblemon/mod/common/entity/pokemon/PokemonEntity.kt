@@ -271,7 +271,7 @@ open class PokemonEntity(
                     val maxVal = params.getDouble(2)
                     val minVal = params.getDouble(3)
                     //TODO: Use the mons actual boost once implemented
-                    val normalizedStat = rideProp.calculate(rideStat, rideStyle, 0) / 100.0f
+                    val normalizedStat = rideProp.calculate(rideStat, rideStyle, getRideBoost(rideStat)) / 100.0f
                     val trueStatVal = (normalizedStat * (maxVal - minVal)) + minVal
 
                     DoubleValue(trueStatVal)
