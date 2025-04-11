@@ -21,6 +21,8 @@ import net.minecraft.client.model.EntityModel
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.util.Mth
+import net.minecraft.world.phys.Vec3
 
 /**
  * A wrapping around a [PosableModel] that presents as an [EntityModel]. This is used to continue using
@@ -78,17 +80,36 @@ abstract class PosableEntityModel<T : Entity>(
         headPitch: Float
     ) {
         setupEntityTypeContext(entity)
-        if (entity is PosableEntity && !isPreAnimatedPokemon(entity)) {
+        if (entity is PosableEntity) {
             val state = entity.delegate as PosableState
+            if (checkForForcedPokemonAnimation(entity, limbSwing, limbSwingAmount, headYaw, headPitch)) {
+                return
+            }
             posableModel.applyAnimations(entity, state, limbSwing, limbSwingAmount, ageInTicks, headYaw, headPitch)
         }
     }
 
     // TODO: This is a bit of a hack, but it works for now. We should find a better way to do this.
-    private fun isPreAnimatedPokemon(entity: T): Boolean {
+    private fun checkForForcedPokemonAnimation(
+        entity: T,
+        limbSwing: Float,
+        limbSwingAmount: Float,
+        headYaw: Float,
+        headPitch: Float
+    ): Boolean {
         if (entity !is PokemonEntity) return false
         if (entity.passengers.isEmpty()) return false
-        return MountedPokemonAnimationRenderController.isPreAnimated(entity)
+        val delegate = entity.delegate as? PosableState ?: return false
+        val forcedTick = MountedPokemonAnimationRenderController.getPartialTick(entity) ?: return false
+        delegate.updatePartialTicks(forcedTick)
+        val entityPos = Vec3(
+            Mth.lerp(forcedTick.toDouble(), entity.xOld, entity.x),
+            Mth.lerp(forcedTick.toDouble(), entity.yOld, entity.y),
+            Mth.lerp(forcedTick.toDouble(), entity.zOld, entity.z)
+        )
+        delegate.updateLocatorPosition(entityPos)
+        posableModel.applyAnimations(entity, delegate, limbSwing, limbSwingAmount, forcedTick, headYaw, headPitch)
+        return true
     }
 
     open fun setupEntityTypeContext(entity: Entity?) {
