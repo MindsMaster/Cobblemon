@@ -21,6 +21,7 @@ import net.minecraft.client.model.geom.ModelPart
 import net.minecraft.client.player.AbstractClientPlayer
 import net.minecraft.util.Mth
 import net.minecraft.world.phys.Vec3
+import org.joml.AxisAngle4f
 import org.joml.Matrix4f
 import org.joml.Vector3f
 
@@ -42,12 +43,6 @@ object MountedPlayerRenderer {
         //Positions player
         if (locator != null) {
             MountedPokemonAnimationRenderController.setup(entity, partialTicks)
-            val locatorOffset = locator.matrix.getTranslation(Vector3f())
-
-            val center = Vector3f(0f, entity.bbHeight/2, 0f)
-            val locatorOffsetToCenter = locatorOffset.sub(center, Vector3f())
-            val offset = locatorOffsetToCenter.add(center, Vector3f()).sub(Vector3f(0f, player.bbHeight / 2, 0f))
-            matrix.translate(offset)
 
             //Undo seat position
             val playerPos = Vec3(
@@ -63,6 +58,15 @@ object MountedPlayerRenderer {
             )
 
             matrix.translate(playerPos.subtract(entityPos).toVector3f().negate())
+            matrix.translate(locator.matrix.getTranslation(Vector3f()))
+
+            val offset = Vector3f(0f, player.bbHeight / 2, 0f).mul(-1f)
+
+            matrix.rotate(locator.matrix.getRotation(AxisAngle4f()))
+            matrix.rotate(Axis.YP.rotationDegrees(180 + yBodyRot))
+            matrix.translate(offset)
+
+            matrix.translate(Vector3f(0f, 0.35f, 0f))
         }
 
         //Rotates player
@@ -76,7 +80,6 @@ object MountedPlayerRenderer {
             transformationMatrix.rotate(Axis.YP.rotationDegrees(yBodyRot+180f))
             matrix.mul(transformationMatrix)
         }
-        matrix.translate(0f, 0.25f, 0f)
     }
 
     fun animate(
