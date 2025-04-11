@@ -47,7 +47,6 @@
     "PiglinEntityMixin",
     "PlayerAdvancementsMixin",
     "PlayerMixin",
-    "PointedDripstoneBlockMixin",
     "ServerPlayerMixin",
     "ServerEntityMixin",
     "ShearsDispenserBehaviorMixin",

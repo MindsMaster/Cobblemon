@@ -30,6 +30,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(MouseHandler.class)
 public abstract class MouseHandlerMixin {
@@ -55,6 +56,8 @@ public abstract class MouseHandlerMixin {
     @Shadow public abstract boolean isMouseGrabbed();
 
     @Shadow protected abstract void turnPlayer(double movementTime);
+
+    @Unique private double cobblemon$timeDelta;
 
     @Inject(
             method = "onScroll",
@@ -168,17 +171,21 @@ public abstract class MouseHandlerMixin {
         return false;
     }
 
-    @Inject(method = "handleAccumulatedMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MouseHandler;isMouseGrabbed()Z", ordinal = 0))
-    private void cobblemon$maintainMovementWhenInScreens(CallbackInfo ci, @Local(ordinal = 1) double e) {
+    @Inject(method = "handleAccumulatedMovement", at = @At("HEAD"))
+    private void cobblemon$maintainMovementWhenInScreens2(CallbackInfo ci) {
+        double time = Blaze3D.getTime();
+        cobblemon$timeDelta = time - this.lastHandleMovementTime;
+    }
+
+    @Inject(method = "handleAccumulatedMovement", at = @At("TAIL"))
+    private void cobblemon$maintainMovementWhenInScreens(CallbackInfo ci) {
         if (minecraft.player == null) return;
         if (!(minecraft.player instanceof OrientationControllable controllable)) return;
         if (!controllable.getOrientationController().isActive()) return;
         if (minecraft.isPaused()) return;
         if (isMouseGrabbed()) return;
 
-        this.accumulatedDX = 0f;
-        this.accumulatedDY = 0f;
-        this.turnPlayer(e);
+        this.turnPlayer(cobblemon$timeDelta);
     }
 
     @Unique
