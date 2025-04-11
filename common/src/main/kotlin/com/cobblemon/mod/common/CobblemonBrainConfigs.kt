@@ -14,6 +14,7 @@ import com.cobblemon.mod.common.api.ai.BrainPreset
 import com.cobblemon.mod.common.api.ai.config.BrainConfig
 import com.cobblemon.mod.common.api.ai.config.task.TaskConfig
 import com.cobblemon.mod.common.api.data.JsonDataRegistry
+import com.cobblemon.mod.common.api.data.JsonDataRegistry.Companion.JSON_EXTENSION
 import com.cobblemon.mod.common.api.molang.ExpressionLike
 import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
 import com.cobblemon.mod.common.api.reactive.SimpleObservable
@@ -27,14 +28,17 @@ import com.cobblemon.mod.common.util.adapters.IdentifierAdapter
 import com.cobblemon.mod.common.util.adapters.TaskConfigAdapter
 import com.cobblemon.mod.common.util.adapters.TranslatedTextAdapter
 import com.cobblemon.mod.common.util.cobblemonResource
+import com.cobblemon.mod.common.util.endsWith
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.mojang.datafixers.util.Either
+import java.io.File
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.packs.PackType
+import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.world.entity.schedule.Activity
 
 object CobblemonBrainConfigs : JsonDataRegistry<BrainPreset> {
@@ -59,10 +63,40 @@ object CobblemonBrainConfigs : JsonDataRegistry<BrainPreset> {
     override val type = PackType.SERVER_DATA
     override val observable = SimpleObservable<CobblemonBrainConfigs>()
 
+    /**
+     * Any brain presets that are put into /pokemon/auto will be automatically
+     * applied to all Pokémon species/forms that don't define a baseAI list of
+     * brain configurations. This is an addon-friendly way of defining the general
+     * rules of Pokémon AI without it being unavoidable for specific
+     * species.
+     */
+    val autoPokemonPresets = mutableListOf<BrainPreset>()
+
     val presets = mutableMapOf<ResourceLocation, BrainPreset>()
 
     override fun sync(player: ServerPlayer) {
-        player.sendPacket(BrainPresetSyncPacket(presets))
+        player.sendPacket(BrainPresetSyncPacket(presets.filter { it.value.visible }))
+    }
+
+    override fun reload(manager: ResourceManager) {
+        autoPokemonPresets.clear()
+        val data = mutableMapOf<ResourceLocation, BrainPreset>()
+        manager.listResources(resourcePath) { path -> path.endsWith(JSON_EXTENSION) }.forEach { (identifier, resource) ->
+            resource.open().use { stream ->
+                stream.bufferedReader().use { reader ->
+                    val resolvedIdentifier = ResourceLocation.fromNamespaceAndPath(identifier.namespace, File(identifier.path).nameWithoutExtension)
+                    val brainPreset = parse(reader, resolvedIdentifier)
+                    if ("pokemon/auto/" in identifier.path) {
+                        autoPokemonPresets.add(brainPreset)
+                    }
+                    data[resolvedIdentifier] = brainPreset
+                }
+            }
+        }
+
+        reload(data)
+        Cobblemon.LOGGER.info("Loaded ${presets.size} brain presets")
+        observable.emit(this)
     }
 
     override fun reload(data: Map<ResourceLocation, BrainPreset>) {

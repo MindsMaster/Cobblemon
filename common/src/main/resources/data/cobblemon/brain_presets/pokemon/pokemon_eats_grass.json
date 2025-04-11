@@ -1,6 +1,7 @@
 {
   "name": "cobblemon.brain_preset.pokemon_eats_grass.name",
   "description": "cobblemon.brain_preset.pokemon_eats_grass.desc",
+  "entityType": "cobblemon:pokemon",
   "configurations": [
     {
       "type": "add_tasks_to_activity",

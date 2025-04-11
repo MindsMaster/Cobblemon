@@ -114,49 +114,16 @@ class Species : ClientDataSynchronizer<Species>, ShowdownIdentifiable {
         private set
     var dynamaxBlocked = false
     var implemented = false
-    var baseAI = mutableListOf<BrainConfig>(
-        ApplyPresets().apply {
-            presets.addAll(
-                listOf(
-                    cobblemonResource("core"),
-                    cobblemonResource("looks_around"),
-                    cobblemonResource("pokemon_battles")
-                )
-            )
-        },
-        ApplyPresets().apply {
-            presets.addAll(listOf(cobblemonResource("floats"), cobblemonResource("avoids_water")))
-            condition = Either.left("!q.entity.behaviour.moving.swim.can_breathe_underwater".asExpression())
-        },
-        ApplyPresets().apply {
-            condition = Either.left("!q.entity.is_in_party".asExpression())
-            presets.add(cobblemonResource("pokemon_sleeps"))
-        },
-        ApplyPresets().apply {
-            condition = Either.left("!q.entity.is_in_party && q.entity.behaviour.moving.walk.can_walk".asExpression())
-            presets.add(cobblemonResource("wanders"))
-        },
+    var baseAI: MutableList<BrainConfig>? = null // = mutableListOf<BrainConfig>(
 //        ApplyPresets().apply {
 //            condition = Either.left("!q.entity.is_in_party && q.entity.behaviour.moving.fly.can_fly && q.entity.behaviour.moving.walk.avoids_land".asExpression())
 //            presets.add(cobblemonResource("wanders_air"))
 //        },
-        ApplyPresets().apply {
-            condition = Either.left("!q.entity.is_in_party && q.entity.behaviour.moving.walk.avoids_land && q.entity.behaviour.moving.swim.can_swim_in_water && !q.entity.behaviour.moving.swim.avoids_water".asExpression())
-            presets.add(cobblemonResource("wanders_water"))
-        },
-        ApplyPresets().apply {
-            condition = Either.left("q.entity.is_wild".asExpression())
-            // presets like aggression to players
-        },
-        ApplyPresets().apply {
-            condition = Either.left("!q.entity.is_wild".asExpression())
-            presets.add(cobblemonResource("pokemon_follows_owner"))
-        },
-        ApplyPresets().apply {
-            condition = Either.left("!q.entity.is_wild && q.entity.behaviour.resting.will_sleep_on_bed".asExpression())
-            presets.add(cobblemonResource("pokemon_sleeps_on_trainer_bed"))
-        }
-    )
+//        ApplyPresets().apply {
+//            condition = Either.left("q.entity.is_wild".asExpression())
+//            // presets like aggression to players
+//        },
+//    )
     var ai = mutableListOf<BrainConfig>()
 
     /**

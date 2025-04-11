@@ -1,6 +1,7 @@
 {
   "name": "cobblemon.brain_preset.pokemon_battles.name",
   "description": "cobblemon.brain_preset.pokemon_battles.desc",
+  "entityType": "cobblemon:pokemon",
   "configurations": [
     {
       "type": "add_tasks_to_activity",

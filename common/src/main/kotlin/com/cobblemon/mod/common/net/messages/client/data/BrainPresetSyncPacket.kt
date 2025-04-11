@@ -27,10 +27,14 @@ class BrainPresetSyncPacket(entries: Map<ResourceLocation, BrainPreset>) : DataR
     override val id = ID
     override fun decodeEntry(buffer: RegistryFriendlyByteBuf): Map.Entry<ResourceLocation, BrainPreset>? {
         val identifier = buffer.readIdentifier()
+        val name = buffer.readText()
+        val description = buffer.readText()
+        val entityType = buffer.readNullable { buffer.readIdentifier() }
         val brainPreset = BrainPreset(
-            name = buffer.readText(),
-            description = buffer.readText(),
-            configurations = emptyList()
+            name = name,
+            description = description,
+            configurations = emptyList(),
+            entityType = entityType
         )
         return object : Map.Entry<ResourceLocation, BrainPreset> {
             override val key = identifier
@@ -42,6 +46,7 @@ class BrainPresetSyncPacket(entries: Map<ResourceLocation, BrainPreset>) : DataR
         buffer.writeIdentifier(entry.key)
         buffer.writeText(entry.value.name)
         buffer.writeText(entry.value.description)
+        buffer.writeNullable(entry.value.entityType) { _, it -> buffer.writeIdentifier(it) }
     }
 
     override fun synchronizeDecoded(entries: Collection<Map.Entry<ResourceLocation, BrainPreset>>) {

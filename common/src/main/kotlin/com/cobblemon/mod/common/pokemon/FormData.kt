@@ -231,7 +231,7 @@ class FormData(
             }
         }
 
-    val baseAI: List<BrainConfig>
+    val baseAI: List<BrainConfig>?
         get() = _baseAI ?: species.baseAI
     val ai: List<BrainConfig>
         get() = _ai ?: species.ai

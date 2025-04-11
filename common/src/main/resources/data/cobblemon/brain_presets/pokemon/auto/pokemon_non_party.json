@@ -1,0 +1,26 @@
+{
+  "visible": false,
+  "configurations": [
+    {
+      "type": "apply_presets",
+      "condition": "!q.entity.is_in_party",
+      "presets": [
+        "cobblemon:pokemon_sleeps"
+      ]
+    },
+    {
+      "type": "apply_presets",
+      "condition": "!q.entity.is_in_party && q.entity.behaviour.moving.walk.can_walk",
+      "presets": [
+        "cobblemon:wanders"
+      ]
+    },
+    {
+      "type": "apply_presets",
+      "condition": "!q.entity.is_in_party && q.entity.behaviour.moving.walk.avoids_land && q.entity.behaviour.moving.swim.can_swim_in_water && !q.entity.behaviour.moving.swim.avoids_water",
+      "presets": [
+          "cobblemon:wanders_water"
+      ]
+    }
+  ]
+}
