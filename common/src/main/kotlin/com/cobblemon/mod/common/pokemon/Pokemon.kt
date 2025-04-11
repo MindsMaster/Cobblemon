@@ -640,11 +640,7 @@ open class Pokemon : ShowdownIdentifiable {
             val entity = PokemonEntity(level, this)
             illusion?.start(entity)
             val adjustedPosition = entity.getAdjustedSendoutPosition(position)
-            val sentOut = entity.setPositionSafely(adjustedPosition)
-            //If sendout failed, fall back
-            if (!sentOut) {
-                entity.setPos(adjustedPosition.x, adjustedPosition.y, adjustedPosition.z)
-            }
+            entity.setPositionSafely(adjustedPosition)
             mutation(entity)
             level.addFreshEntity(entity)
             state = SentOutState(entity)
@@ -695,7 +691,7 @@ open class Pokemon : ShowdownIdentifiable {
                                 battleActor is EntityBackedBattleActor<*> && battleActor.entity != null && battleActor.entity?.uuid !== owner.uuid
                             } as EntityBackedBattleActor<*>
                             if (activeBattlePokemon != null) {
-                                opposingEntityPos = ShowdownInterpreter.getSendoutPosition(battle, activeBattlePokemon, opposingEntityBattleActor as BattleActor)
+                                opposingEntityPos = activeBattlePokemon.getSendOutPosition()
                             }
                             if (opposingEntityPos == null) {
                                 // Sendout calculation failed, fallback to using the opposing actor's position
