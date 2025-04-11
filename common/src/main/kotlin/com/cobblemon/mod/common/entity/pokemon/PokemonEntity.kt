@@ -18,7 +18,6 @@ import com.cobblemon.mod.common.CobblemonItems
 import com.cobblemon.mod.common.CobblemonMemories
 import com.cobblemon.mod.common.CobblemonNetwork.sendPacket
 import com.cobblemon.mod.common.CobblemonSounds
-import com.cobblemon.mod.common.OrientationControllable
 import com.cobblemon.mod.common.api.battles.model.PokemonBattle
 import com.cobblemon.mod.common.api.drop.DropTable
 import com.cobblemon.mod.common.api.entity.Despawner
@@ -107,6 +106,7 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.Dynamic
 import java.util.Optional
 import java.util.UUID
+import java.util.concurrent.CompletableFuture
 import kotlin.math.PI
 import kotlin.math.ceil
 import net.minecraft.core.BlockPos
@@ -159,11 +159,6 @@ import net.minecraft.world.level.material.FluidState
 import net.minecraft.world.level.pathfinder.PathType
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
-import java.util.*
-import java.util.concurrent.CompletableFuture
-import kotlin.math.PI
-import org.joml.Matrix3f
-import org.joml.Vector3f
 
 @Suppress("unused")
 open class PokemonEntity(
