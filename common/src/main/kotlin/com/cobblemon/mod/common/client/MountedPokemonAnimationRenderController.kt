@@ -22,12 +22,15 @@ import net.minecraft.world.phys.Vec3
  * @author landonjw
  */
 object MountedPokemonAnimationRenderController {
-    private val preAnimated = mutableSetOf<Int>()
+    private val forcedDeltas = mutableMapOf<Int, Float>()
 
     fun setup(pokemon: PokemonEntity, partialTickTime: Float) {
-        if (preAnimated.contains(pokemon.id)) return
+        if (forcedDeltas.contains(pokemon.id)) return
+
         val delegate = pokemon.delegate as? PokemonClientDelegate ?: return
-        if (delegate.currentModel == null) return
+        val model = delegate.currentModel ?: return
+        if (!model.isReadyForAnimation()) return
+
         val entityPos = Vec3(
             Mth.lerp(partialTickTime.toDouble(), pokemon.xOld, pokemon.x),
             Mth.lerp(partialTickTime.toDouble(), pokemon.yOld, pokemon.y),
@@ -54,21 +57,21 @@ object MountedPokemonAnimationRenderController {
             }
         }
 
-        preAnimated.add(pokemon.id)
         delegate.updatePartialTicks(partialTickTime)
         delegate.updateLocatorPosition(entityPos)
         delegate.currentModel?.applyAnimations(pokemon, delegate, l, m, partialTickTime, j, h)
-        preAnimated.add(pokemon.id)
+
+        forcedDeltas[pokemon.id] = partialTickTime
     }
 
-    fun isPreAnimated(pokemon: PokemonEntity): Boolean {
-        return preAnimated.contains(pokemon.id)
+    fun getPartialTick(pokemon: PokemonEntity) : Float? {
+        return forcedDeltas[pokemon.id]
     }
 
     /**
      * Resets the prerendered list. This should be called in the render loop before we begin setting up any pokemon with `setup`.
      */
     fun reset() {
-        preAnimated.clear()
+        forcedDeltas.clear()
     }
 }

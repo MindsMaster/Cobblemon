@@ -354,9 +354,10 @@ open class PokemonEntity(
     }
 
     var flyDistO = 0F
-
     var isPokemonWalking = false
     var isPokemonFlying = false
+
+    var tickSpawned = 0
 
     init {
         delegate.initialize(this)

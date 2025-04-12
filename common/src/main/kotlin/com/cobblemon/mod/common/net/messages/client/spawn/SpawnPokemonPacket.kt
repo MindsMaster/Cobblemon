@@ -48,6 +48,7 @@ class SpawnPokemonPacket(
     var friendship: Int,
     var freezeFrame: Float,
     var passengers: IntArray,
+    var tickSpawned: Int,
     vanillaSpawnPacket: ClientboundAddEntityPacket,
 ) : SpawnExtraDataEntityPacket<SpawnPokemonPacket, PokemonEntity>(vanillaSpawnPacket) {
 
@@ -76,6 +77,7 @@ class SpawnPokemonPacket(
         entity.entityData.get(PokemonEntity.FRIENDSHIP),
         entity.entityData.get(PokemonEntity.FREEZE_FRAME),
         entity.passengers.map { it.id }.toIntArray(),
+        entity.tickCount,
         vanillaSpawnPacket
     )
 
@@ -102,6 +104,7 @@ class SpawnPokemonPacket(
         buffer.writeInt(this.friendship)
         buffer.writeFloat(this.freezeFrame)
         buffer.writeVarIntArray(this.passengers)
+        buffer.writeInt(this.tickSpawned)
     }
 
     override fun applyData(entity: PokemonEntity, level: ClientLevel) {
@@ -136,6 +139,8 @@ class SpawnPokemonPacket(
             val passenger = level.getEntity(it) ?: return@forEach
             passenger.startRiding(entity)
         }
+        entity.tickSpawned = this.tickSpawned
+        entity.delegate.updateAge(this.tickSpawned)
     }
 
     override fun checkType(entity: Entity): Boolean = entity is PokemonEntity
@@ -165,9 +170,10 @@ class SpawnPokemonPacket(
             val friendship = buffer.readInt()
             val freezeFrame = buffer.readFloat()
             val passengers = buffer.readVarIntArray()
+            val tickSpawned = buffer.readInt()
             val vanillaPacket = decodeVanillaPacket(buffer)
 
-            return SpawnPokemonPacket(ownerId, scaleModifier, speciesId, gender, shiny, formName, aspects, battleId, phasingTargetId, beamModeEmitter, platform, nickname, mark, labelLevel, poseType, unbattlable, hideLabel, caughtBall, spawnAngle, friendship, freezeFrame, passengers, vanillaPacket)
+            return SpawnPokemonPacket(ownerId, scaleModifier, speciesId, gender, shiny, formName, aspects, battleId, phasingTargetId, beamModeEmitter, platform, nickname, mark, labelLevel, poseType, unbattlable, hideLabel, caughtBall, spawnAngle, friendship, freezeFrame, passengers, tickSpawned, vanillaPacket)
         }
     }
 
