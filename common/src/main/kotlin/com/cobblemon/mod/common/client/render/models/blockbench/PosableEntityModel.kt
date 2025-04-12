@@ -8,10 +8,8 @@
 
 package com.cobblemon.mod.common.client.render.models.blockbench
 
-import com.cobblemon.mod.common.client.MountedPokemonAnimationRenderController
 import com.cobblemon.mod.common.client.render.models.blockbench.repository.RenderContext
 import com.cobblemon.mod.common.entity.PosableEntity
-import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.client.renderer.RenderType
 import com.mojang.blaze3d.vertex.VertexConsumer
@@ -21,8 +19,6 @@ import net.minecraft.client.model.EntityModel
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.resources.ResourceLocation
-import net.minecraft.util.Mth
-import net.minecraft.world.phys.Vec3
 
 /**
  * A wrapping around a [PosableModel] that presents as an [EntityModel]. This is used to continue using
@@ -38,7 +34,6 @@ abstract class PosableEntityModel<T : Entity>(
     val context: RenderContext = RenderContext().also {
         it.put(RenderContext.RENDER_STATE, RenderContext.RenderState.WORLD)
     }
-
     lateinit var posableModel: PosableModel
 
     override fun renderToBuffer(
@@ -81,36 +76,24 @@ abstract class PosableEntityModel<T : Entity>(
     ) {
         setupEntityTypeContext(entity)
         if (entity is PosableEntity) {
-            val state = entity.delegate as PosableState
-            if (checkForForcedPokemonAnimation(entity, limbSwing, limbSwingAmount, headYaw, headPitch)) {
-                return
-            }
-            posableModel.applyAnimations(entity, state, limbSwing, limbSwingAmount, ageInTicks, headYaw, headPitch)
+            val ticks = getTicksForAnimation(entity, limbSwing, limbSwingAmount, ageInTicks, headYaw, headPitch)
+            posableModel.applyAnimations(entity, entity.delegate as PosableState, limbSwing, limbSwingAmount, ticks, headYaw, headPitch)
         }
     }
 
-    // TODO: This is a bit of a hack, but it works for now. We should find a better way to do this.
-    private fun checkForForcedPokemonAnimation(
+    /**
+     * This is to support cases where the ageInTicks value that should go to the animator is not the same as the entity's
+     * normal value. This can happen in the case of riding where it has been rendered in a different part of the pipeline
+     * and we want to prevent stuttering / re-render it for a specific moment.
+     */
+    open fun getTicksForAnimation(
         entity: T,
         limbSwing: Float,
         limbSwingAmount: Float,
+        ageInTicks: Float,
         headYaw: Float,
         headPitch: Float
-    ): Boolean {
-        if (entity !is PokemonEntity) return false
-        if (entity.passengers.isEmpty()) return false
-        val delegate = entity.delegate as? PosableState ?: return false
-        val forcedTick = MountedPokemonAnimationRenderController.getPartialTick(entity) ?: return false
-        delegate.updatePartialTicks(forcedTick)
-        val entityPos = Vec3(
-            Mth.lerp(forcedTick.toDouble(), entity.xOld, entity.x),
-            Mth.lerp(forcedTick.toDouble(), entity.yOld, entity.y),
-            Mth.lerp(forcedTick.toDouble(), entity.zOld, entity.z)
-        )
-        delegate.updateLocatorPosition(entityPos)
-        posableModel.applyAnimations(entity, delegate, limbSwing, limbSwingAmount, forcedTick, headYaw, headPitch)
-        return true
-    }
+    ): Float = ageInTicks
 
     open fun setupEntityTypeContext(entity: Entity?) {
         entity?.let {
