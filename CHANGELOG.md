@@ -13,7 +13,10 @@
 - Added `visibility/hidden`, `visibility/hat` and `visibility/face` tags to control where and how certain items are rendered.
 - Added Pokémon markings, toggleable within the summary.
 - Added `/boxcount` command to change PC boxes amount
+- Added cosmetics for Gurdurr, Conkeldurr, Squirtle Line, Sneasler, Sandile line, Treecko line, Braixen, Delphox, and Dragonite.
 - Added cosmetics for Gurdurr, Conkeldurr, Squirtle Line, Sneasler, Sandle line, Treecko line, Braixen, Delphox, and Dragonite.
+- Added `/transformmodelpart (position|rotation|scale) <modelPart> <transform: x y z>` command that can add transformations to a pokemon's model part.
+  - The player executing the command must be facing the target pokemon entity. Transformations are not persistent and will revert when resources are reloaded.
 
 ### Pokémon Added
 
@@ -66,9 +69,13 @@
 
 ### Animation updates for the following Pokémon
 - Garchomp
+- Tropius
 - Torpius
 - Nosepass
 - Probopass
+- Sneasler
+- Braixen
+- Delphox
 
 ### Model updates for the following Pokémon
 - Gyarados
@@ -82,13 +89,16 @@
 - Leafeon
 - Glaceon
 - Sylveon
+- Treecko
+- Grovyle
+- Sceptile
 - Honchkrow
 - Garchomp
 - Pidgeot
 - Nosepass
 - Probopass
-- Added `/transformmodelpart (position|rotation|scale) <modelPart> <transform: x y z>` command that can add transformations to a pokemon's model part.
-  - The player executing the command must be facing the target pokemon entity. Transformations are not persistent and will revert when resources are reloaded.
+- Magnezone
+- Metagross
 
 ### Changes
 - Renamed `chargeGainedPerTick` config to `secondsToChargeHealingMachine`.
@@ -144,6 +154,7 @@
 - Updated NPCEntity beam positioning to properly account for the baseScale property.
 - Updated NPCEntity pokeball throw positioning to properly account for the baseScale property.
 - Fixed `[Pokemon].copyFrom` error causing forms, IVs, and EVs to not be applied properly when using `[Pokemon].loadFromJSON` or `[Pokemon].loadFromNBT`
+- Added new item class, `WearableItem`. Instances of this class should have a corresponding 3D model. These models render when the items display context is `HEAD`.
 
 ### MoLang & Datapacks
 - The following usages for item predicates can now use item conditions like advancements do, you can learn about them in the [Minecraft wiki](https://minecraft.wiki/w/Advancement_definition#minecraft:filled_bucket)
@@ -154,9 +165,14 @@
 - Added `interpolate` boolean property to animated textures to allow gradual colour changes between frames.
 - Fixed species additions not being capable of changing implemented status.
 - Added support for action effects that are triggered by `|-activate|` Showdown instructions. `activate_{effect_id}` is the syntax.
-- Added Molang functions for rendering items `render_item(item_id, locator_name)` and `clear_items()`.
+- Added MoLang functions for rendering items `render_item(item_id, locator_name)` and `clear_items()`.
 - Fixed location spawn filter components causing crashes
+- Added `pokemon` as an available MoLang function for the `battleActor` functions.
+- Added `spawn_pokemon` as an available MoLang function for the `worldHolder` functions.
+- Added `attempt_wild_battle` as an available MoLang function.
 - Added `pokemon` as an available Molang function for the `battleActor` functions.
+- Fixed `heldItem` property inside spawn files not working and causing crashes
+- Fixed `spawn_bedrock_particles` MoLang causing crashes when used in a server environment
 
 ## [1.6.1 (January 26th, 2025)](#1-6-1)
 
@@ -262,6 +278,7 @@
 - Geodude
 - Graveler
 - Golem
+- Magnezone
 
 ### Cry updates for the following Pokémon
 - Sceptile
