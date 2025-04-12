@@ -43,6 +43,7 @@ interface CompositeRidingStrategy<T : CompositeSettings> {
     ) {
         toState.stamina.set(fromState.stamina.get())
         toState.rideVelocity.set(fromState.rideVelocity.get())
+        fromState.reset()
         state.activeController.set(toSettings.key)
         state.lastTransition.set(vehicle.level().gameTime)
         val behaviour = RidingBehaviours.get(toSettings.key)
