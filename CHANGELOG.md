@@ -76,6 +76,8 @@
 - Sneasler
 - Braixen
 - Delphox
+- Cinderace
+- Kangaskhan
 
 ### Model updates for the following Pokémon
 - Gyarados
@@ -97,6 +99,8 @@
 - Pidgeot
 - Nosepass
 - Probopass
+- Kangaskhan
+- Cinderace
 
 ### Changes
 - Renamed `chargeGainedPerTick` config to `secondsToChargeHealingMachine`.
