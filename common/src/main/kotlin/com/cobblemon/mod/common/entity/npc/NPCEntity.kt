@@ -244,7 +244,8 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
             MemoryModuleType.ATTACK_COOLING_DOWN,
             CobblemonMemories.DIALOGUES,
             CobblemonMemories.ACTIVE_ACTION_EFFECT,
-            MemoryModuleType.NEAREST_HOSTILE
+            MemoryModuleType.NEAREST_HOSTILE,
+            CobblemonMemories.PATH_COOLDOWN
         )
 
         const val SEND_OUT_ANIMATION = "send_out"
@@ -447,6 +448,7 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
             null
         }
         updateAspects()
+        remakeBrain()
     }
 
     fun loadTextureFromGameProfileName(username: String) {

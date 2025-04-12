@@ -840,6 +840,8 @@ open class PokemonEntity(
             this.brain = this.makeBrain(Dynamic(NbtOps.INSTANCE, nbt.get("Brain")))
         }
 
+        remakeBrain()
+
         CobblemonEvents.POKEMON_ENTITY_LOAD.postThen(
             event = PokemonEntityLoadEvent(this, nbt),
             ifSucceeded = {},
