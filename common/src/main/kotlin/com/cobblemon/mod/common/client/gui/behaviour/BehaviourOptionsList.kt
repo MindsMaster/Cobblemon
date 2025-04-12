@@ -43,10 +43,10 @@ class BehaviourOptionsList(
     init {
         x = left
         if (addingMenu) {
-            val unaddedPresets = CobblemonBrainConfigs.presets.filter { it.value.canBeApplied(entity) && it.key !in appliedPresets }
+            val unaddedPresets = CobblemonBrainConfigs.presets.filter { it.value.visible && it.value.canBeApplied(entity) && it.key !in appliedPresets }
             unaddedPresets.forEach { (key, value) -> addEntry(BehaviourOptionSlot(this, key, value, addingMenu)) }
         } else {
-            val addedPresets = appliedPresets.mapNotNull { it to (CobblemonBrainConfigs.presets[it]?.takeIf { it.canBeApplied(entity) } ?: return@mapNotNull null) }
+            val addedPresets = appliedPresets.mapNotNull { it to (CobblemonBrainConfigs.presets[it]?.takeIf { it.visible && it.canBeApplied(entity) } ?: return@mapNotNull null) }
             addedPresets.forEach { (key, value) -> addEntry(BehaviourOptionSlot(this, key, value, addingMenu)) }
         }
     }
