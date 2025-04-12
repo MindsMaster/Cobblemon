@@ -638,7 +638,6 @@ object VaryingModelRepository {
         inbuilt("gallade", ::GalladeModel)
         inbuilt("beldum", ::BeldumModel)
         inbuilt("metang", ::MetangModel)
-        inbuilt("metagross", ::MetagrossModel)
         inbuilt("ursaluna", ::UrsalunaModel)
         inbuilt("lechonk", ::LechonkModel)
         inbuilt("oinkologne_male", ::OinkologneMaleModel)
