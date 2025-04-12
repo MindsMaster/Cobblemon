@@ -10,6 +10,13 @@
           "stay_afloat"
         ]
       }
+    },
+    {
+      "type": "custom_script",
+      "script": [
+        "q.entity.set_can_float(true);",
+        "q.entity.set_pathfinding_malus('WATER', 16.0);"
+      ]
     }
   ]
 }

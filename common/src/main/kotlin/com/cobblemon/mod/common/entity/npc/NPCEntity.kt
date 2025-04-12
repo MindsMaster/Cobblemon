@@ -82,6 +82,7 @@ import net.minecraft.world.entity.ai.sensing.SensorType
 import net.minecraft.world.entity.npc.Npc
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.pathfinder.PathType
 
 class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, PosableEntity, PokemonSender, Schedulable, MoLangScriptingEntity {
     override val schedulingTracker = SchedulingTracker()
@@ -196,7 +197,8 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
         addPosableFunctions(struct)
         runtime.environment.query.addFunctions(struct.functions)
         refreshDimensions()
-        navigation.setCanFloat(true)
+        navigation.setCanFloat(false)
+        setPathfindingMalus(PathType.WATER, -1.0F)
         if (!world.isClientSide) {
             remakeBrain()
         }

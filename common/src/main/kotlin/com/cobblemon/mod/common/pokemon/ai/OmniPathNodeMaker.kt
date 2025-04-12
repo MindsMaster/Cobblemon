@@ -89,7 +89,7 @@ class OmniPathNodeMaker : NodeEvaluator() {
         val upIsOpen = mob.canFit(node.asBlockPos().above())
 
         // Non-diagonal surroundings in 3d space
-        for (direction in Direction.values()) {
+        for (direction in Direction.entries) {
             val pathNode = this.getNode(node.x + direction.stepX, node.y + direction.stepY, node.z + direction.stepZ) ?: continue
             map[direction] = pathNode
             if (!hasNotVisited(pathNode)) {
@@ -212,7 +212,7 @@ class OmniPathNodeMaker : NodeEvaluator() {
             super.getNode(x, y, z).also { pathNode = it } != null
         ) {
             pathNode!!.type = type
-            pathNode!!.costMalus = pathNode!!.costMalus.coerceAtLeast(nodePenalty)
+            pathNode.costMalus = pathNode.costMalus.coerceAtLeast(nodePenalty)
         }
         return pathNode
     }
@@ -256,7 +256,7 @@ class OmniPathNodeMaker : NodeEvaluator() {
 //            PathType.OPEN
         } else if (!solid && belowSolid) {
             PathType.WALKABLE
-        } else if (!solid && !belowSolid) {
+        } else if (!solid) {
             PathType.OPEN
             // This breaks walking up slabs
 //        } else if (blockState.canPathfindThrough(world, pos, NavigationType.LAND) && blockStateBelow.isSideSolid(world, below, Direction.UP, SideShapeType.FULL)) {
@@ -359,7 +359,7 @@ class OmniPathNodeMaker : NodeEvaluator() {
             return PathType.DANGER_OTHER
         }
 
-        if (WalkNodeEvaluator.isBurningBlock(blockState) && !this.canPathThroughFire) {
+        if (isBurningBlock(blockState) && !this.canPathThroughFire) {
             return PathType.DANGER_FIRE
         }
 

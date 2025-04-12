@@ -97,6 +97,7 @@ import net.minecraft.world.phys.Vec3
 import java.util.*
 import kotlin.math.sqrt
 import kotlin.random.Random
+import net.minecraft.world.level.pathfinder.PathType
 
 /**
  * Holds a bunch of useful MoLang trickery that can be used or extended in API
@@ -493,12 +494,13 @@ object MoLangFunctions {
                 val owner = entity.owner
                 return@put owner?.asMostSpecificMoLangValue() ?: DoubleValue.ZERO
             }
-            map.put("walk_to") { params ->
-                val x = params.getDouble(0)
-                val y = params.getDouble(1)
-                val z = params.getDouble(2)
-                val speedMultiplier = params.getDoubleOrNull(3) ?: 0.35
-                if (entity is PathfinderMob) {
+
+            if (entity is PathfinderMob) {
+                map.put("walk_to") { params ->
+                    val x = params.getDouble(0)
+                    val y = params.getDouble(1)
+                    val z = params.getDouble(2)
+                    val speedMultiplier = params.getDoubleOrNull(3) ?: 0.35
                     if (entity.brain.checkMemory(MemoryModuleType.WALK_TARGET, MemoryStatus.REGISTERED)) {
                         entity.brain.setMemory(MemoryModuleType.WALK_TARGET, WalkTarget(Vec3(x, y, z), speedMultiplier.toFloat(), 1))
                         entity.brain.setMemory(MemoryModuleType.LOOK_TARGET, BlockPosTracker(Vec3(x, y + entity.eyeHeight, z)))
@@ -507,14 +509,30 @@ object MoLangFunctions {
                         entity.lookControl.setLookAt(Vec3(x, y + entity.eyeHeight, z))
                     }
                 }
-            }
-            map.put("has_walk_target") { _ ->
-                if (entity is PathfinderMob) {
+
+                map.put("has_walk_target") { _ ->
                     DoubleValue(entity.brain.getMemory(MemoryModuleType.WALK_TARGET).isPresent || entity.isPathFinding)
-                } else {
-                    DoubleValue.ZERO
+                }
+
+                map.put("set_can_float") { params ->
+                    val canFloat = params.getBooleanOrNull(0) != false
+                    entity.navigation.setCanFloat(canFloat)
+                    DoubleValue.ONE
+                }
+
+                map.put("set_pathfinding_malus") { params ->
+                    val type = PathType.entries.find { it.name == params.getString(0).uppercase() }
+                    val malus = params.getDouble(1).toFloat()
+                    if (type != null) {
+                        entity.setPathfindingMalus(type, malus)
+                        return@put DoubleValue.ONE
+                    } else {
+                        Cobblemon.LOGGER.error("Unknown pathfinding type: ${params.getString(0)}")
+                        return@put DoubleValue.ZERO
+                    }
                 }
             }
+
             map.put("is_sneaking") { _ -> DoubleValue(entity.isShiftKeyDown) }
             map.put("is_sprinting") { _ -> DoubleValue(entity.isSprinting) }
             map.put("is_in_water") { _ -> DoubleValue(entity.isUnderWater) }
