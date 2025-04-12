@@ -48,7 +48,6 @@ import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
 import com.mojang.blaze3d.vertex.VertexFormat
 import com.mojang.math.Axis
-import net.minecraft.client.Minecraft
 import net.minecraft.client.model.geom.ModelPart
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderStateShard
@@ -94,7 +93,10 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
     open var profileScale = 1F
 
     /** Used for third person riding camera */
-    open var seatToCameraOffset = mutableMapOf<String, Vec3>()
+    open var thirdPersonCameraOffset = mutableMapOf<String, Vec3>()
+
+    /** Used for first person riding camera */
+    open var firstPersonCameraOffset = mutableMapOf<String, Vec3>()
 
     /**
      * These are open-ended properties that can be used to store miscellaneous properties about the model.

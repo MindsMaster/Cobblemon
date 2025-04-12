@@ -31,6 +31,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix3f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -67,11 +68,9 @@ public abstract class CameraMixin {
     @Unique private float rollAngleStart = 0;
     @Unique Minecraft minecraft = Minecraft.getInstance();
 
-    @Unique boolean disableRollableCameraDebug = false;
-
     @Inject(method = "setRotation", at = @At("HEAD"), cancellable = true)
     public void cobblemon$setRotation(float f, float g, CallbackInfo ci) {
-        if (!(this.entity instanceof OrientationControllable controllable) || disableRollableCameraDebug) return;
+        if (!(this.entity instanceof OrientationControllable controllable) || Cobblemon.config.getDisableRoll()) return;
         var controller = controllable.getOrientationController();
         if (!controller.isActive() && controller.getOrientation() != null) {
             if(this.returnTimer < 1) {
@@ -132,6 +131,8 @@ public abstract class CameraMixin {
             OrientationControllable rollable = (OrientationControllable) entity;
             OrientationController controller = rollable.getOrientationController();
 
+            PosableModel model = VaryingModelRepository.INSTANCE.getPoser(pokemon.getPokemon().getSpecies().getResourceIdentifier(), new FloatingState());
+
             if (!instance.isDetached() || Cobblemon.config.getThirdPartyViewBobbing()) {
                 MatrixWrapper locator = delegate.getLocatorStates().get(seat.getLocator());
 
@@ -142,30 +143,22 @@ public abstract class CameraMixin {
 
                 Vec3 locatorOffset = new Vec3(locator.getMatrix().getTranslation(new Vector3f()));
 
+                // Eye height
                 float currEyeHeight = Mth.lerp(instance.getPartialTickTime(), eyeHeightOld, eyeHeight);
-                var rotatedEyeHeight = new Vector3f(0f, currEyeHeight - (entity.getBbHeight() / 2), 0f);
+                Vector3f offset = new Vector3f(0f, currEyeHeight - (entity.getBbHeight() / 2), 0f);
+                offset.add(cobblemon$getFirstPersonOffset(model, seat));
+
                 if (controller.isActive()) {
-                    rotatedEyeHeight = controller.getRenderOrientation(partialTickTime).transform(rotatedEyeHeight);
+                    //Rotate Offset
+                    offset = controller.getRenderOrientation(partialTickTime).transform(offset);
                 }
 
-                Vec3 position = locatorOffset.add(entityPos).add(new Vec3(rotatedEyeHeight));
+                Vec3 position = locatorOffset.add(entityPos).add(new Vec3(offset));
                 setPosition(position);
             } else {
                 Vector3f pos = entityPos.add(new Vec3(0, pokemon.getBbHeight() / 2, 0)).toVector3f();
 
-                PosableModel model = VaryingModelRepository.INSTANCE.getPoser(pokemon.getPokemon().getSpecies().getResourceIdentifier(), new FloatingState());
-                Map<String, Vec3> cameraOffsets = model.getSeatToCameraOffset();
-
-                Vec3 cameraOffset;
-                if (thirdPersonReverse && cameraOffsets.containsKey(seat.getLocator() + "_reverse")) {
-                    cameraOffset = cameraOffsets.get(seat.getLocator() + "_reverse");
-                } else if (cameraOffsets.containsKey(seat.getLocator())) {
-                    cameraOffset = cameraOffsets.get(seat.getLocator());
-                } else {
-                    cameraOffset = new Vec3(0f, 2f, 4f);
-                }
-
-                Vector3f offset = cameraOffset.toVector3f();
+                Vector3f offset = cobblemon$getThirdPersonOffset(thirdPersonReverse, model, seat);
 
                 if (thirdPersonReverse) offset.z *= -1;
                 float xRot = (float) (-1 * Math.toRadians(instance.getXRot()));
@@ -181,6 +174,30 @@ public abstract class CameraMixin {
             }
         } else {
             original.call(instance, x, y, z);
+        }
+    }
+
+    @Unique
+    private static @NotNull Vector3f cobblemon$getThirdPersonOffset(boolean thirdPersonReverse, PosableModel model, Seat seat) {
+        Map<String, Vec3> cameraOffsets = model.getThirdPersonCameraOffset();
+
+        if (thirdPersonReverse && cameraOffsets.containsKey(seat.getLocator() + "_reverse")) {
+            return cameraOffsets.get(seat.getLocator() + "_reverse").toVector3f();
+        } else if (cameraOffsets.containsKey(seat.getLocator())) {
+            return cameraOffsets.get(seat.getLocator()).toVector3f();
+        } else {
+            return new Vector3f(0f, 2f, 4f);
+        }
+    }
+
+    @Unique
+    private static @NotNull Vector3f cobblemon$getFirstPersonOffset(PosableModel model, Seat seat) {
+        Map<String, Vec3> cameraOffsets = model.getFirstPersonCameraOffset();
+
+        if (cameraOffsets.containsKey(seat.getLocator())) {
+            return cameraOffsets.get(seat.getLocator()).toVector3f();
+        } else {
+            return new Vector3f(0f, 0f, 0f);
         }
     }
 
