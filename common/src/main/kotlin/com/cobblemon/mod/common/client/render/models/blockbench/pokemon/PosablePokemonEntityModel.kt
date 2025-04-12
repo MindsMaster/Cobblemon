@@ -52,7 +52,6 @@ class PosablePokemonEntityModel : PosableEntityModel<PokemonEntity>() {
             Mth.lerp(forcedTick.toDouble(), entity.zOld, entity.z)
         )
         delegate.updateLocatorPosition(entityPos)
-        posableModel.applyAnimations(entity, delegate, limbSwing, limbSwingAmount, forcedTick, headYaw, headPitch)
         return forcedTick
     }
 }
