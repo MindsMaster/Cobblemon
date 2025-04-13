@@ -63,6 +63,69 @@
       }
     }
   },
+  "riding": {
+    "stats": {
+      "SPEED": {
+        "displayName": "Speed",
+        "description": "Its top speed",
+        "ranges": {
+          "AIR": "100-101"
+        }
+      },
+      "ACCELERATION": {
+        "displayName": "Acceleration",
+        "description": "How fast it can speed up",
+        "ranges": {
+          "AIR": "100-101"
+        }
+      },
+      "SKILL": {
+        "displayName": "Handling",
+        "description": "How fast it can turn",
+        "ranges": {
+          "AIR": "100-101"
+        }
+      },
+      "JUMP": {
+        "displayName": "Altitude",
+        "description": "How high it can jump",
+        "ranges": {
+          "AIR": "100-101"
+        }
+      },
+      "STAMINA": {
+        "displayName": "Fuel/Stamina",
+        "description": "How long it can sprint",
+        "ranges": {
+          "AIR": "100-101"
+        }
+      }
+    },
+    "behaviour": {
+      "key": "cobblemon:air/dragon"
+    },
+    "seats": [
+      {
+        "offset": {
+          "x": 0,
+          "y": 0.4,
+          "z": 0
+        },
+        "poseOffsets": [
+          {
+            "poseTypes": [
+              "FLY"
+            ],
+            "offset": {
+              "x": 0,
+              "y": 0.0,
+              "z": 0
+            }
+          }
+        ]
+      }
+    ]
+},
   "drops": {
     "amount": 3,
     "entries": [
@@ -248,41 +311,5 @@
       "evolutions": [],
       "battleOnly": true
     }
-  ],
-  "riding": {
-    "stats": {
-      "SPEED": {
-        "ranges": {
-          "LIQUID": "35-70",
-          "AIR": "10-70"
-        }
-      },
-      "ACCELERATION": {
-        "ranges": {
-          "LIQUID": "35-75",
-          "AIR": "10-75"
-        }
-      },
-      "SKILL": {
-        "ranges": {
-          "LIQUID": "40-80",
-          "AIR": "10-80"
-        }
-      },
-      "JUMP": {
-        "ranges": {
-          "LIQUID": "50-100",
-          "AIR": "10-60"
-        }
-      },
-      "STAMINA": {
-        "ranges": {
-          "LIQUID": "40-85",
-          "AIR": "10-85"
-        }
-      }
-    },
-    "seats": [],
-    "behaviour": null
-  }
+  ]
 }

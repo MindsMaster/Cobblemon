@@ -45,6 +45,16 @@
       "isTouchingWater": false,
       "animations": ["q.bedrock('gyarados', 'sleep')"]
     },
+    "fly": {
+      "poseTypes": ["FLY", "HOVER"],
+      "isBattle": false,
+      "animations": [
+        "q.look('head_ai')",
+        "q.bedrock('gyarados', 'air_fly')",
+        "q.bedrock('gyarados', 'ride_body')"
+      ],
+      "quirks": ["q.bedrock_quirk('charizard', 'blink')"]
+    },
     "surface_idle": {
       "poseTypes": ["STAND"],
       "isTouchingWater": true,

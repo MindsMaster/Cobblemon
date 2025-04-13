@@ -21,7 +21,6 @@ import com.cobblemon.mod.common.util.*
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.resources.ResourceLocation
-import com.bedrockk.molang.runtime.MoLangMath.lerp
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
@@ -30,18 +29,18 @@ import net.minecraft.world.phys.Vec3
 import net.minecraft.world.phys.shapes.Shapes
 import kotlin.math.*
 
-class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
+class DragonBehaviour : RidingBehaviour<DragonSettings, DragonState> {
     companion object {
-        val KEY = cobblemonResource("air/jet")
+        val KEY = cobblemonResource("air/dragon")
     }
 
     override val key = KEY
     override val style = RidingStyle.AIR
 
-    val poseProvider = PoseProvider<JetAirSettings, JetAirState>(PoseType.HOVER)
+    val poseProvider = PoseProvider<DragonSettings, DragonState>(PoseType.HOVER)
         .with(PoseOption(PoseType.FLY) { _, state, _ -> state.rideVelocity.get().z > 0.1 })
 
-    override fun isActive(settings: JetAirSettings, state: JetAirState, vehicle: PokemonEntity): Boolean {
+    override fun isActive(settings: DragonSettings, state: DragonState, vehicle: PokemonEntity): Boolean {
         return Shapes.create(vehicle.boundingBox).blockPositionsAsListRounded().any {
             //Need to check other fluids
             if (vehicle.isInWater || vehicle.isUnderWater) {
@@ -56,11 +55,11 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
         }
     }
 
-    override fun pose(settings: JetAirSettings, state: JetAirState, vehicle: PokemonEntity): PoseType {
+    override fun pose(settings: DragonSettings, state: DragonState, vehicle: PokemonEntity): PoseType {
         return poseProvider.select(settings, state, vehicle)
     }
 
-    override fun speed(settings: JetAirSettings, state: JetAirState, vehicle: PokemonEntity, driver: Player): Float {
+    override fun speed(settings: DragonSettings, state: DragonState, vehicle: PokemonEntity, driver: Player): Float {
         //retrieve stats
         val topSpeed = vehicle.runtime.resolveDouble(settings.speedExpr)
         val staminaStat = vehicle.runtime.resolveDouble(settings.staminaExpr)
@@ -101,8 +100,8 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
     }
 
     override fun rotation(
-        settings: JetAirSettings,
-        state: JetAirState,
+        settings: DragonSettings,
+        state: DragonState,
         vehicle: PokemonEntity,
         driver: LivingEntity
     ): Vec2 {
@@ -110,8 +109,8 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
     }
 
     override fun velocity(
-        settings: JetAirSettings,
-        state: JetAirState,
+        settings: DragonSettings,
+        state: DragonState,
         vehicle: PokemonEntity,
         driver: Player,
         input: Vec3
@@ -150,8 +149,8 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
     *  Calculates the change in the ride space vector due to player input and ride state
     */
     private fun calculateRideSpaceVel(
-        settings: JetAirSettings,
-        state: JetAirState,
+        settings: DragonSettings,
+        state: DragonState,
         vehicle: PokemonEntity,
         driver: Player
     ) {
@@ -183,33 +182,18 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
     }
 
     override fun angRollVel(
-        settings: JetAirSettings,
-        state: JetAirState,
+        settings: DragonSettings,
+        state: DragonState,
         vehicle: PokemonEntity,
         driver: Player,
         deltaTime: Double
     ): Vec3 {
-        //Cap at a rate of 5fps so frame skips dont lead to huge jumps
-        val cappedDeltaTime = min(deltaTime, 0.2)
-
-        //Get handling in degrees per second
-        val yawRotRate = vehicle.runtime.resolveDouble(settings.handlingYawExpr)
-
-        //Base the change off of deltatime.
-        var handlingYaw = yawRotRate * (cappedDeltaTime)
-
-        //apply stamina debuff if applicable
-        handlingYaw *= if (state.stamina.get() > 0.0) 1.0 else 0.5
-
-        //A+D to yaw
-        val yawForce = driver.xxa * handlingYaw * -1
-
-        return Vec3(yawForce, 0.0, 0.0)
+        return Vec3(0.0, 0.0, 0.0)
     }
 
     override fun rotationOnMouseXY(
-        settings: JetAirSettings,
-        state: JetAirState,
+        settings: DragonSettings,
+        state: DragonState,
         vehicle: PokemonEntity,
         driver: Player,
         mouseY: Double,
@@ -220,58 +204,37 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
         deltaTime: Double
     ): Vec3 {
         if (driver !is OrientationControllable) return Vec3.ZERO
-        //TODO: figure out a cleaner solution to this issue of large jumps when skipping frames or lagging
-        //Cap at a rate of 5fps so frame skips dont lead to huge jumps
-        val cappedDeltaTime = min(deltaTime, 0.2)
+        val controller = (driver as OrientationControllable).orientationController
 
+        val handling = vehicle.runtime.resolveDouble(settings.handlingExpr)
+        val topSpeed = vehicle.runtime.resolveDouble(settings.speedExpr)
+
+        //Smooth out mouse input.
+        val smoothingSpeed = 4.0
         val invertRoll = if (Cobblemon.config.invertRoll) -1 else 1
         val invertPitch = if (Cobblemon.config.invertPitch) -1 else 1
+        //TODO: tie this to handling.
+        val mouseXc = (mouseX).coerceIn(-60.0, 60.0)
+        val mouseYc = (mouseY).coerceIn(-60.0, 60.0)
+        val xInput = mouseXSmoother.getNewDeltaValue(mouseXc * 0.1 * invertRoll, deltaTime * smoothingSpeed);
+        val yInput = mouseYSmoother.getNewDeltaValue(mouseYc * 0.1 * invertPitch, deltaTime * smoothingSpeed);
 
-        // Accumulate the mouse input
-        state.currMouseXForce.set((state.currMouseXForce.get() + (0.0015 * mouseX * invertRoll)).coerceIn(-1.0, 1.0))
-        state.currMouseYForce.set((state.currMouseYForce.get() + (0.0015 * mouseY * invertPitch)).coerceIn(-1.0, 1.0))
-
-        //Get handling in degrees per second
-        var handling = vehicle.runtime.resolveDouble(settings.handlingExpr)
-
+        //TODO: Figure out where and how I actually have to be using this.
         //convert it to delta time
-        handling *= (cappedDeltaTime)
+        //handling *= (cappedDeltaTime)
 
-        //apply stamina debuff if applicable
-        handling *= if (state.stamina.get() > 0.0) 1.0 else 0.5
+        val pitchDelta = yInput
+        val yawDelta = xInput
 
-        val poke = driver.vehicle as? PokemonEntity
+        //Apply yaw globally as we don't want roll or pitch changes due to local yaw when looking up or down.
+        controller.applyGlobalYaw(yawDelta.toFloat())
 
-        //TODO: reevaluate if deadzones are needed and if they are still causing issues.
-        //create deadzones for the constant input values.
-        //val xInput = remapWithDeadzone(state.currMouseXForce, 0.025, 1.0)
-        //val yInput = remapWithDeadzone(state.currMouseYForce, 0.025, 1.0)
-
-        val pitchRot = handling * state.currMouseYForce.get()
-
-        // Roll
-        val rollRot = handling * 2 * state.currMouseXForce.get()
-
-        val mouseRotation = Vec3(0.0, pitchRot, rollRot)
-
-        // Have accumulated input begin decay when no input detected
-        if(abs(mouseX) <= 1) {
-            // Have decay on roll be much stronger.
-            state.currMouseXForce.set(lerp( state.currMouseXForce.get(), 0.0, 0.02 ))
-        }
-        if(mouseY == 0.0) {
-            state.currMouseYForce.set(lerp(state.currMouseYForce.get(), 0.0, 0.005 ))
-        }
-
-
-
-        //yaw, pitch, roll
-        return mouseRotation
+        return Vec3(0.0, pitchDelta, 0.0)
     }
 
     override fun canJump(
-        settings: JetAirSettings,
-        state: JetAirState,
+        settings: DragonSettings,
+        state: DragonState,
         vehicle: PokemonEntity,
         driver: Player
     ): Boolean {
@@ -279,8 +242,8 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
     }
 
     override fun setRideBar(
-        settings: JetAirSettings,
-        state: JetAirState,
+        settings: DragonSettings,
+        state: DragonState,
         vehicle: PokemonEntity,
         driver: Player
     ): Float {
@@ -288,8 +251,8 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
     }
 
     override fun jumpForce(
-        settings: JetAirSettings,
-        state: JetAirState,
+        settings: DragonSettings,
+        state: DragonState,
         vehicle: PokemonEntity,
         driver: Player,
         jumpStrength: Int
@@ -298,8 +261,8 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
     }
 
     override fun gravity(
-        settings: JetAirSettings,
-        state: JetAirState,
+        settings: DragonSettings,
+        state: DragonState,
         vehicle: PokemonEntity,
         regularGravity: Double
     ): Double {
@@ -307,8 +270,8 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
     }
 
     override fun rideFovMultiplier(
-        settings: JetAirSettings,
-        state: JetAirState,
+        settings: DragonSettings,
+        state: DragonState,
         vehicle: PokemonEntity,
         driver: Player
     ): Float {
@@ -323,57 +286,58 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
         return 1.0f + normalizedSpeed.pow(2).toFloat() * 0.2f
     }
 
-    override fun useAngVelSmoothing(settings: JetAirSettings, state: JetAirState, vehicle: PokemonEntity): Boolean {
+    override fun useAngVelSmoothing(settings: DragonSettings, state: DragonState, vehicle: PokemonEntity): Boolean {
         return true
     }
 
     override fun useRidingAltPose(
-        settings: JetAirSettings,
-        state: JetAirState,
+        settings: DragonSettings,
+        state: DragonState,
         vehicle: PokemonEntity,
         driver: Player
     ): Boolean {
         return false
     }
 
-    override fun inertia(settings: JetAirSettings, state: JetAirState, vehicle: PokemonEntity): Double {
-        return 1.0
+    override fun inertia(settings: DragonSettings, state: DragonState, vehicle: PokemonEntity): Double {
+        return 0.5
     }
 
-    override fun shouldRoll(settings: JetAirSettings, state: JetAirState, vehicle: PokemonEntity): Boolean {
+    override fun shouldRoll(settings: DragonSettings, state: DragonState, vehicle: PokemonEntity): Boolean {
         return true
     }
 
-    override fun turnOffOnGround(settings: JetAirSettings, state: JetAirState, vehicle: PokemonEntity): Boolean {
+    override fun turnOffOnGround(settings: DragonSettings, state: DragonState, vehicle: PokemonEntity): Boolean {
         return false
     }
 
-    override fun dismountOnShift(settings: JetAirSettings, state: JetAirState, vehicle: PokemonEntity): Boolean {
+    override fun dismountOnShift(settings: DragonSettings, state: DragonState, vehicle: PokemonEntity): Boolean {
         return false
     }
 
     override fun shouldRotatePokemonHead(
-        settings: JetAirSettings,
-        state: JetAirState,
+        settings: DragonSettings,
+        state: DragonState,
         vehicle: PokemonEntity
     ): Boolean {
         return false
     }
 
-    override fun shouldRotatePlayerHead(settings: JetAirSettings, state: JetAirState, vehicle: PokemonEntity): Boolean {
+    override fun shouldRotatePlayerHead(settings: DragonSettings, state: DragonState, vehicle: PokemonEntity): Boolean {
         return false
     }
 
-    override fun createDefaultState(settings: JetAirSettings) = JetAirState()
+    override fun createDefaultState(settings: DragonSettings) = DragonState()
 }
 
-class JetAirSettings : RidingBehaviourSettings {
-    override val key = JetAirBehaviour.KEY
+class DragonSettings : RidingBehaviourSettings {
+    override val key = DragonBehaviour.KEY
 
     var gravity: Expression = "0".asExpression()
         private set
 
-    var minSpeed: Expression = "0.8".asExpression()
+    //TODO: get rid of this in as the behaviour should not have a minimum speed other than zero.
+    var minSpeed: Expression = "0.0".asExpression()
         private set
 
     var handlingYawExpr: Expression = "q.get_ride_stats('SKILL', 'AIR', 50.0, 25.0)".asExpression()
@@ -425,40 +389,28 @@ class JetAirSettings : RidingBehaviourSettings {
     }
 }
 
-class JetAirState : RidingBehaviourState() {
-    var currSpeed = ridingState(0.0, Side.CLIENT)
-    var currMouseXForce = ridingState(0.0, Side.CLIENT)
-    var currMouseYForce = ridingState(0.0, Side.CLIENT)
+class DragonState : RidingBehaviourState() {
 
     override fun encode(buffer: FriendlyByteBuf) {
         super.encode(buffer)
-        buffer.writeDouble(currSpeed.get())
         buffer.writeFloat(stamina.get())
     }
 
     override fun decode(buffer: FriendlyByteBuf) {
         super.decode(buffer)
-        currSpeed.set(buffer.readDouble(), forced = true)
     }
 
     override fun reset() {
         super.reset()
-        currSpeed.set(0.0, forced = true)
-        currMouseXForce.set(0.0, forced = true)
-        currMouseYForce.set(0.0, forced = true)
     }
 
-    override fun copy() = JetAirState().also {
-        it.currSpeed.set(currSpeed.get(), forced = true)
+    override fun copy() = DragonState().also {
         it.stamina.set(stamina.get(), forced = true)
         it.rideVelocity.set(rideVelocity.get(), forced = true)
-//        it.currMouseXForce.set(currMouseXForce.get(), forced = true)
-//        it.currMouseYForce.set(currMouseYForce.get(), forced = true)
     }
 
     override fun shouldSync(previous: RidingBehaviourState): Boolean {
-        if (previous !is JetAirState) return false
-        if (previous.currSpeed != currSpeed) return true
+        if (previous !is DragonState) return false
         return super.shouldSync(previous)
     }
 }
