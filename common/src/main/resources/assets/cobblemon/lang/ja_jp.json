@@ -5949,7 +5949,7 @@
     "cobblemon.ui.interact.failed": "ターゲットが遮られているか、遠すぎます。",
     "cobblemon.ui.interact.team_leave": "チームを離れる",
     "cobblemon.ui.interact.team_request": "チームを組む",
-    "cobblemon.ui.interact.too_far": "ターゲットが遠すぎます",
+    "cobblemon.ui.interact.too_far": "ターゲットが遠すぎます！",
     "cobblemon.ui.pokedex.scan.registered_suffix": "%1$s が新しく図鑑に登録されます！",
     "cobblemon.ui.pokenav.narrator.backbutton": "ポケナビのボタンが押されました",
     "cobblemon.ui.interact.unavailable": "現在、ターゲットはその行動を行うことができません。",
@@ -6264,5 +6264,11 @@
     "item.cobblemon.x_special_defence.tooltip": "戦闘中の ポケモンの 特防を 2段階 あげる 道具。ひっこめると 元に 戻る。",
     "item.cobblemon.x_special_attack.tooltip": "戦闘中の ポケモンの 特攻を 2段階 あげる 道具。ひっこめると 元に 戻る。",
     "item.cobblemon.dire_hit.tooltip": "戦闘中のポケモンが 急所に当てる確率を 2段階 あげる 道具。ひっこめると 元に 戻る。",
-    "item.cobblemon.guard_spec.tooltip": "戦闘中 5ターンの あいだ 味方の 能力を さげられなくする 道具。"
+    "item.cobblemon.guard_spec.tooltip": "戦闘中 5ターンの あいだ 味方の 能力を さげられなくする 道具。",
+    "cobblemon.trade.error.pending": "既に%1$sからの保留中の交換リクエストがあります！",
+    "cobblemon.trade.error.duplicate": "あなたは既に%1$sに交換リクエストを送信しました！",
+    "cobblemon.ui.pc.search": "検索",
+    "cobblemon.ui.wallpapers": "壁紙",
+    "cobblemon.ui.interact.ride": "騎乗",
+    "cobblemon.ui.interact.give.cosmetic_item": "コスメティックアイテムの変更"
 }
