@@ -3441,6 +3441,9 @@
 				}
 			}
 		},
+		"animation.gyarados.ride_air_move": {
+			"loop": true
+		},
 		"animation.gyarados.walk_test": {
 			"loop": true,
 			"bones": {

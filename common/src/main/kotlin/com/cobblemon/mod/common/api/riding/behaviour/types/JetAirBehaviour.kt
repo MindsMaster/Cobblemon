@@ -175,7 +175,7 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
             state.rideVelocity.set(Vec3(state.rideVelocity.get().x, state.rideVelocity.get().y, max(state.rideVelocity.get().z - ((accel) / 4), minSpeed)))
         } else if (driver.zza < 0.0 && speed > minSpeed) {
             //modify deccel to be slower when at closer speeds to minimum speed
-            val deccelMod = max((normalizeSpeed(speed, minSpeed, topSpeed) - 1).pow(2) * 8, 0.1)
+            val deccelMod = max((normalizeSpeed(speed, minSpeed, topSpeed) - 1).pow(2) * 4, 0.1)
 
             //Decelerate currently always a constant half of max acceleration.
             state.rideVelocity.set(Vec3(state.rideVelocity.get().x, state.rideVelocity.get().y, max(state.rideVelocity.get().z - ((accel * deccelMod) / 2), minSpeed)))
@@ -250,12 +250,12 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
         val pitchRot = handling * state.currMouseYForce.get()
 
         // Roll
-        val rollRot = handling * 2 * state.currMouseXForce.get()
+        val rollRot = handling * 1.5 * state.currMouseXForce.get()
 
         val mouseRotation = Vec3(0.0, pitchRot, rollRot)
 
         // Have accumulated input begin decay when no input detected
-        if(abs(mouseX) <= 1) {
+        if(abs(mouseX) == 0.0) {
             // Have decay on roll be much stronger.
             state.currMouseXForce.set(lerp( state.currMouseXForce.get(), 0.0, 0.02 ))
         }
@@ -373,7 +373,7 @@ class JetAirSettings : RidingBehaviourSettings {
     var gravity: Expression = "0".asExpression()
         private set
 
-    var minSpeed: Expression = "0.8".asExpression()
+    var minSpeed: Expression = "1.2".asExpression()
         private set
 
     var handlingYawExpr: Expression = "q.get_ride_stats('SKILL', 'AIR', 50.0, 25.0)".asExpression()
