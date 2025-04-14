@@ -11,7 +11,7 @@ package com.cobblemon.mod.common.client.render.models.blockbench
 import com.bedrockk.molang.runtime.MoLangRuntime
 import com.bedrockk.molang.runtime.struct.QueryStruct
 import com.cobblemon.mod.common.Cobblemon
-import com.cobblemon.mod.common.Rollable
+import com.cobblemon.mod.common.OrientationControllable
 import com.cobblemon.mod.common.api.molang.ExpressionLike
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.setup
@@ -48,6 +48,7 @@ import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
 import com.mojang.blaze3d.vertex.VertexFormat
 import com.mojang.math.Axis
+import net.minecraft.client.Minecraft
 import net.minecraft.client.model.geom.ModelPart
 import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.client.renderer.RenderStateShard
@@ -56,6 +57,7 @@ import net.minecraft.client.renderer.texture.DynamicTexture
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.item.ItemDisplayContext
 import net.minecraft.world.phys.Vec3
 import org.joml.Matrix4f
 import org.joml.Vector3f
@@ -78,7 +80,6 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
     @Transient
     lateinit var context: RenderContext
 
-
     var poses = mutableMapOf<String, Pose>()
 
     /** A way to view the definition of all the different locators that are registered for the model. */
@@ -91,6 +92,17 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
     open var portraitTranslation = Vec3(0.0, 0.0, 0.0)
 
     open var profileScale = 1F
+
+    /** Used for third person riding camera */
+    open var seatToCameraOffset = mutableMapOf<String, Vec3>()
+
+    /**
+     * These are open-ended properties that can be used to store miscellaneous properties about the model.
+     *
+     * The internal use currently is to name locators and what display context should be used when rendering
+     * held items at that position.
+     */
+    open var properties = mutableMapOf<String, String>()
 
     /*
      * Hello future Hiro, this is past Hiro. You've gotten forgetful in your old age.
@@ -163,7 +175,6 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
      * Generates an active animation by name. This can be legacy-backed cry or faint animations, a prepared builder
      * for an animation in the [animations] mapping, a product of MoLang in the name parameter, or a highly specific
      * format used in [extractAnimation].
-     *
      * First priority is given to any named animations inside of [Pose], and then to the [animations] mapping, before
      * resorting to legacy, MoLang resolution, and finally the [extractAnimation] hail-Mary.
      */
@@ -464,6 +475,12 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
         }
     }
 
+    /** Checks for whether a property has been set to configure how an item would render on this locator. */
+    fun getLocatorDisplayContext(locator: String): ItemDisplayContext? {
+        val displayContextString = properties["${locator}_display_context"] ?: return null
+        return ItemDisplayContext.valueOf(displayContextString)
+    }
+
     /** Generates a [RenderType] by the power of god and anime. Only possible thanks to 100 access wideners. */
     fun makeLayer(texture: RenderStateShard.EmptyTextureStateShard, emissive: Boolean, translucent: Boolean): RenderType {
         val multiPhaseParameters: RenderType.CompositeState = RenderType.CompositeState.builder()
@@ -507,13 +524,16 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
 
 
     /** Applies the given pose's [ModelPartTransformation]s to the model, if there is a matching pose. */
-    fun applyPose(state: PosableState, pose: Pose, intensity: Float) = (pose.transformedParts + transformedParts).forEach { it.apply(state, intensity) }
+    fun applyPose(state: PosableState, pose: Pose, intensity: Float) = pose.transformedParts.forEach { it.apply(state, intensity) }
     /** Gets the first pose of this model that matches the given [PoseType]. */
     fun getPose(pose: PoseType) = poses.values.firstOrNull { pose in it.poseTypes }
     fun getPose(name: String) = poses[name]
 
     /** Puts the model back to its original location and rotations. */
-    fun setDefault() = defaultPositions.forEach { it.set() }
+    fun setDefault() {
+        defaultPositions.forEach { it.set() }
+        transformedParts.forEach { it.apply() }
+    }
 
     /**
      * Finds the first of the model's poses that the given state and optional [PoseType] is appropriate for.
@@ -585,7 +605,11 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
         applyPose(state, pose, 1F)
 
         val primaryAnimation = state.primaryAnimation
-        val shouldRotateHead = if(entity is PokemonEntity) entity.riding.shouldRotatePokemonHead(entity) else true
+        val shouldRotateHead = if (entity is PokemonEntity) {
+            entity.ifRidingAvailableSupply(true) { behaviour, settings, ridingState ->
+                behaviour.shouldRotatePokemonHead(settings, ridingState, entity)
+            }
+        } else true
 
         // Quirks will run if there is no primary animation running and quirks are enabled for this context.
         if (primaryAnimation == null && context.request(RenderContext.DO_QUIRKS) != false) {
@@ -699,12 +723,14 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
         var scale = 1F
         // We could improve this to be generalized for other entities. First we'd have to figure out wtf is going on, though.
         if (entity is PokemonEntity) {
-            if(entity.passengers.isNotEmpty() && entity.controllingPassenger is Rollable && (entity.controllingPassenger as Rollable).orientation != null){
-                val controllingPassenger = entity.controllingPassenger
+            if(entity.passengers.isNotEmpty() && entity.controllingPassenger is OrientationControllable
+                && (entity.controllingPassenger as OrientationControllable).orientationController.active){
+                val controllingPassenger = entity.controllingPassenger as OrientationControllable
+                val controller = controllingPassenger.orientationController
                 val transformationMatrix = Matrix4f()
                 val center = Vector3f(0f, entity.bbHeight/2, 0f)
                 transformationMatrix.translate(center)
-                transformationMatrix.mul(Matrix4f((controllingPassenger as Rollable).orientation!!))
+                transformationMatrix.rotate(controller.getRenderOrientation(state.getPartialTicks()))
                 transformationMatrix.translate(center.negate())
                 matrixStack.mulPose(transformationMatrix)
             } else {
@@ -801,4 +827,6 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
         condition = condition,
         animations = { animations(it) }
     )
+
+    fun isReadyForAnimation() = ::context.isInitialized
 }

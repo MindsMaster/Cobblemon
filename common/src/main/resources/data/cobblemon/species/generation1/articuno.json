@@ -366,7 +366,7 @@
           }
         },
         "seats": [],
-        "controller": {
+        "behaviour": {
           "key": "cobblemon:air/bird"
         }
       }
@@ -406,7 +406,7 @@
       }
     },
     "seats": [],
-    "controller": {
+    "behaviour": {
       "key": "cobblemon:land/generic"
     }
   }

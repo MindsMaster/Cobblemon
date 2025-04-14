@@ -35,7 +35,7 @@ enum class PoseType {
     PROFILE,
     /** A pose for rendering in the party overlay and in minor spaces like the battle tiles. */
     PORTRAIT,
-    /** For guilded chest */
+    /** For gilded chest */
     OPEN,
     /** A simple type for non-living entities or errant cases. */
     NONE;
