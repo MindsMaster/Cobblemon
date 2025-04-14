@@ -8,10 +8,8 @@
 
 package com.cobblemon.mod.common.client.render.models.blockbench
 
-import com.cobblemon.mod.common.client.MountedPokemonAnimationRenderController
 import com.cobblemon.mod.common.client.render.models.blockbench.repository.RenderContext
 import com.cobblemon.mod.common.entity.PosableEntity
-import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.client.renderer.RenderType
 import com.mojang.blaze3d.vertex.VertexConsumer
@@ -36,7 +34,6 @@ abstract class PosableEntityModel<T : Entity>(
     val context: RenderContext = RenderContext().also {
         it.put(RenderContext.RENDER_STATE, RenderContext.RenderState.WORLD)
     }
-
     lateinit var posableModel: PosableModel
 
     override fun renderToBuffer(
@@ -78,18 +75,25 @@ abstract class PosableEntityModel<T : Entity>(
         headPitch: Float
     ) {
         setupEntityTypeContext(entity)
-        if (entity is PosableEntity && !isPreAnimatedPokemon(entity)) {
-            val state = entity.delegate as PosableState
-            posableModel.applyAnimations(entity, state, limbSwing, limbSwingAmount, ageInTicks, headYaw, headPitch)
+        if (entity is PosableEntity) {
+            val ticks = getTicksForAnimation(entity, limbSwing, limbSwingAmount, ageInTicks, headYaw, headPitch)
+            posableModel.applyAnimations(entity, entity.delegate as PosableState, limbSwing, limbSwingAmount, ticks, headYaw, headPitch)
         }
     }
 
-    // TODO: This is a bit of a hack, but it works for now. We should find a better way to do this.
-    private fun isPreAnimatedPokemon(entity: T): Boolean {
-        if (entity !is PokemonEntity) return false
-        if (entity.passengers.isEmpty()) return false
-        return MountedPokemonAnimationRenderController.isPreAnimated(entity)
-    }
+    /**
+     * This is to support cases where the ageInTicks value that should go to the animator is not the same as the entity's
+     * normal value. This can happen in the case of riding where it has been rendered in a different part of the pipeline
+     * and we want to prevent stuttering / re-render it for a specific moment.
+     */
+    open fun getTicksForAnimation(
+        entity: T,
+        limbSwing: Float,
+        limbSwingAmount: Float,
+        ageInTicks: Float,
+        headYaw: Float,
+        headPitch: Float
+    ): Float = ageInTicks
 
     open fun setupEntityTypeContext(entity: Entity?) {
         entity?.let {
