@@ -1,4 +1,183 @@
 # Changelog
+## [1.7.0 (Month xth, 2025)](#1-7-0)
+
+### Additions
+- Added `/spectateBattle <player>` command to spectate battles without having to manually walk up to the target.
+- Added an in-game configuration screen, allowing all settings from `main.json` to be edited directly in-game.
+- Added `/cobblemonconfig reload` command to reload `main.json` configuration. **Note:** Some settings require a server restart to take effect; use this command cautiously.
+- Added `blacklisted_items_to_hold` and `whitelisted_items_to_hold` tags to allow for controlling which items players can give to their Pokémon. If the whitelist is empty, it will consider all item as allowed (unless they are in the blacklist).
+- Pokémon now follow the mouse cursor on the Summary screen, with an option to disable this in the settings.
+- Pokémon's held items can now be rendered, with a visibility toggle in the Summary screen.
+- Added cosmetic item functionality for Pokémon. Certain cosmetic items can be given to applicable Pokémon via the interact menu.
+  - Added the various log blocks as cosmetic items for Timburr and Komala.
+- Added `visibility/hidden`, `visibility/hat` and `visibility/face` tags to control where and how certain items are rendered.
+- Added Pokémon markings, toggleable within the summary.
+- Added `/boxcount` command to change PC boxes amount
+- Added cosmetics for Gurdurr, Conkeldurr, Squirtle Line, Sneasler, Sandile line, Treecko line, Braixen, Delphox, and Dragonite.
+- Added cosmetics for Gurdurr, Conkeldurr, Squirtle Line, Sneasler, Sandle line, Treecko line, Braixen, Delphox, and Dragonite.
+- Added `/transformmodelpart (position|rotation|scale) <modelPart> <transform: x y z>` command that can add transformations to a pokemon's model part.
+  - The player executing the command must be facing the target pokemon entity. Transformations are not persistent and will revert when resources are reloaded.
+
+### Pokémon Added
+
+#### Gen 2
+- Dunsparce
+
+#### Gen 3
+- Spoink
+- Grumpig
+- Snorunt
+- Glalie
+
+#### Gen 4
+- Bronzor
+- Bronzong
+- Croagunk
+- Froslass
+
+#### Gen 5
+- Pansage
+- Simisage
+- Pansear
+- Simisear
+- Panpour
+- Simipour
+- Munna
+- Musharna
+- Blitzle
+- Zebstrika
+- Trubbish
+- Garbodor
+
+#### Gen 6
+- Noibat
+- Noivern
+
+#### Gen 7
+- Drampa
+
+#### Gen 8
+- Silicobra
+- Sandaconda
+
+#### Gen 9
+- Smoliv
+- Dolliv
+- Arboliva
+- Orthworm
+- Dudunsparce
+
+### Animation updates for the following Pokémon
+- Garchomp
+- Tropius
+- Torpius
+- Nosepass
+- Probopass
+- Sneasler
+- Braixen
+- Delphox
+- Cinderace
+- Kangaskhan
+
+### Model updates for the following Pokémon
+- Gyarados
+- Dragonite
+- Eevee
+- Vaporeon
+- Jolteon
+- Flareon
+- Espeon
+- Umbreon
+- Leafeon
+- Glaceon
+- Sylveon
+- Treecko
+- Grovyle
+- Sceptile
+- Honchkrow
+- Garchomp
+- Pidgeot
+- Nosepass
+- Probopass
+- Kangaskhan
+- Cinderace
+- Magnezone
+- Metagross
+
+### Changes
+- Renamed `chargeGainedPerTick` config to `secondsToChargeHealingMachine`.
+- Made Blocks of Gold count as Big Nuggets when held by a Pokémon (for Fling functionality)
+- Substantially optimised spawning checks mainly by front-loading biome filtering.
+- When using the `cobblemon` or `generation_9` capture calculators a critical capture with a single shake will always play for successful captures when you've already registered the Pokémon as caught in your Pokédex.
+- Improved the performance of saving Pokédex and player data.
+- Pokémon hitbox now scales with entity attribute `generic.scale`.
+- Removed Shulker aspect and replaced it with cosmetic_item-shulker_shell.
+- Shulker shell Forretress is now a cosmetic rather than a special evo and thus all shulker Forretress will revert back to normal until a shulker shell is put in their cosmetic slot.
+
+### Fixes
+- Fixed Particles sometimes facing the wrong direction (looking at you, Swords Dance)
+- Fixed PCs always opening at box 2 instead of box 1.
+- Fixed not being able to do complex item requirements aside from just NBT with evolution conditions, requirements and fossil items.
+- Fixed the usage `hiddenability` in `pokegive` or other spawn commands resulting in a forced hidden ability
+- Fixed the consumption of friendship berries (or EV berries) not making any noise
+- Fixed Instantly breaking and replacing a fossil analyzer with any block entity crashing the game in a complete multi-structure
+- Fixed players getting disconnected when sidemods update a Pokémon's teratype
+- Fixed fling not using Item Names for minecraft held items that substitute Pokémon items
+- Fixed evolutions sometimes preventing players from logging in to servers
+- Fixed rendering of shoulder-mounted Pokémon desyncing between clients
+- Fixed apricorn chest boats forgetting their inventories when being unloaded
+- Fixed moves not updating correctly between form changes resulting in illegal movesets
+- Fixed crash sometimes occurring with the "Oritech" mod
+- Fixed crashes due to an incorrect Java version handing out an obscure crash.
+- Fixed some berries being able to rarely get too many berries and cause a crash.
+- Fixed status curing berries not playing the berry eating sound, same for healing berries used mid-battle.
+- Fixed owned Pokémon sometimes being un-interactable after the player relogs fast
+- Fixed field name in evolution requirements for Spewpa Pokeball.
+- Fixed LevelUpCriterion logic to correctly check that the Pokémon is a preEvo.
+- Fixed `hide_additional_tooltip` vanilla flag not properly hiding tooltips on pokerod and bait items
+- Removed a number of scenarios in which a Pokémon battle may send out a Pokémon into collision geometry.
+- Fixed NPCs using Pokémon outside of their pool when a Pokémon name had a typo.
+- Fixed an issue with datapacked species features not being applied properly when relogging.
+- Fixed Pokémon marked as silent still playing shiny sounds and effects.
+- Fixed an issue with newer versions of Fabric API where underground Pokémon were spawning in The End.
+- Fixed spawning not working well when you're at high points surrounded by lower altitude spawning areas, such as flying.
+
+### Developer
+- A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
+- Dialogues are correctly removed from memory when they are stopped.
+- Dialogues with variably-set initial pages now properly start timeout tracking.
+- Added `EvGainedEvent.Pre` and `EvGainedEvent.Post`.
+- Deprecated `EVs#add(Stat, Int)`, you will not be able to compile against this code please migrate to the `EVs#add(Stat, Int, EvSource)` you most likely want to use `SidemodEvSource` but please check other implementations or make your own.
+- Removed the NbtItemPredicate class, all the mod usages now use the vanilla item predicate solution, this causes breaking changes on Fossil, HeldItemRequirement & ItemInteractionEvolution
+- Renamed Cobblemon's creative tabs to start with "Cobblemon: " to distinguish Cobblemon's tabs from tabs for other mods.
+- Various items now have a rarity value.
+- Reworked observable handling in `Pokemon.kt` to cut down on RAM usage and clarify the file.
+  - Note: This will break mods that used our observable functionality there or in MoveSet, IVs, EVs, or BenchedMoves. 
+  - Using `Pokemon#onChange()` is now the way to mark a Pokémon as needing a save.
+  - Using `[Pokemon].changeObservable` is now the way to get an `Observable` for any save-worthy changes.
+- Updated NPCEntity beam positioning to properly account for the baseScale property.
+- Updated NPCEntity pokeball throw positioning to properly account for the baseScale property.
+- Fixed `[Pokemon].copyFrom` error causing forms, IVs, and EVs to not be applied properly when using `[Pokemon].loadFromJSON` or `[Pokemon].loadFromNBT`
+- Added new item class, `WearableItem`. Instances of this class should have a corresponding 3D model. These models render when the items display context is `HEAD`.
+
+### MoLang & Datapacks
+- The following usages for item predicates can now use item conditions like advancements do, you can learn about them in the [Minecraft wiki](https://minecraft.wiki/w/Advancement_definition#minecraft:filled_bucket)
+  - The `requiredContext` for an item interaction evolution
+  - The `itemCondition` for a held item evolution requirement
+  - The `fossils` for a fossil entry
+- Added MoLang flows for `poke_ball_capture_calculated`, `evolution_tested`, `evolution_accepted`, `evolution_completed`
+- Added `interpolate` boolean property to animated textures to allow gradual colour changes between frames.
+- Fixed species additions not being capable of changing implemented status.
+- Added support for action effects that are triggered by `|-activate|` Showdown instructions. `activate_{effect_id}` is the syntax.
+- Added MoLang functions for rendering items `render_item(item_id, locator_name)` and `clear_items()`.
+- Fixed location spawn filter components causing crashes
+- Added `pokemon` as an available MoLang function for the `battleActor` functions.
+- Added `spawn_pokemon` as an available MoLang function for the `worldHolder` functions.
+- Added `attempt_wild_battle` as an available MoLang function.
+- Added `pokemon` as an available Molang function for the `battleActor` functions.
+- Fixed `heldItem` property inside spawn files not working and causing crashes
+- Fixed `spawn_bedrock_particles` MoLang causing crashes when used in a server environment
+
 ## [1.6.1 (January 26th, 2025)](#1-6-1)
 
 ### Additions
@@ -12,6 +191,22 @@
 - Added config setting `maxPokedexScanningDetectionRange` to control from what distance the player can scan Pokémon using the Pokédex.
 - Added config setting `hideUnimplementedPokemonInThePokedex` which hides unimplemented Pokémon from the Pokédex when set to true. 
 - Added debug renderer for posable entity locators.
+- Added crossover paintings from Close Combat, Premonition, Altar, Slumber, and Nomad.
+- Added optional box argument to the /pc command
+
+### Changes
+- Pokémon will now be dynamically revealed to the Pokédex as they're seen instead of revealing entire parties at the end of battle regardless.
+- Unseen wild Pokémon will update their name from '???' to their real name as soon as a battle starts to reflect the battle UI showing the actual species name.
+- Pokémon under the illusion effect will reveal their disguise to the Pokédex first and then the base Pokémon once the disguise is broken.
+- Added more support for a variety of Fabric/NeoForge Convention tags.
+- Reformatted some tags to be more consistent.
+- Edited some recipes to utilize tags instead of direct item ids, for greater mod compatibility.
+- Berries will drop if broken at age 0
+- Improved Fortune drops on Mint Seeds
+- New Slowpoke shiny texture.
+- Updated drops for many Pokémon.
+- Completely resynced Pokémon move and stat data based on later games. Learnsets have changed considerably to maximise available moves.
+- Cobblemon save data now saves .old files where applicable as a means to recover from file corruption due to crashes or similar abrupt stops
 
 ### Pokémon Added
 
@@ -87,6 +282,7 @@
 - Geodude
 - Graveler
 - Golem
+- Magnezone
 
 ### Cry updates for the following Pokémon
 - Sceptile
@@ -175,7 +371,7 @@
 - Added `hideNameTag` field and `HideNPCNameTag` nbt tag to `NPCEntity` to allow hiding the name tag of the NPC.
 - Added the player to `PokerodReelEvent` so you know who is doing the reeling.
 
-### MoLang & Datapacks  
+### MoLang & Datapacks
 - Added flows for:
   - `forme_change`: Triggered when a Pokémon changes form in battle.
   - `mega_evolution`: Triggered when a Pokémon mega evolves in battle. (Note: Third-party mods are required for this feature currently)
