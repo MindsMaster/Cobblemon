@@ -99,6 +99,7 @@
 - Pokémon hitbox now scales with entity attribute `generic.scale`.
 - Removed Shulker aspect and replaced it with cosmetic_item-shulker_shell.
 - Shulker shell Forretress is now a cosmetic rather than a special evo and thus all shulker Forretress will revert back to normal until a shulker shell is put in their cosmetic slot.
+- Updated `doPokemonSpawning` gamerule to support per-dimension configurations.
 
 ### Fixes
 - Fixed Particles sometimes facing the wrong direction (looking at you, Swords Dance)
