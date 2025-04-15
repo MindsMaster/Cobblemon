@@ -3290,7 +3290,6 @@
   "npc.variable.pitch.name": "Pitch",
   "npc.variable.pitch.desc": "Pitch rotation (degrees) of the NPC.",
 
-
   "cobblemon.move.pound": "Pound",
   "cobblemon.move.pound.desc": "The target is physically pounded with a long tail, a foreleg, or the like.",
   "cobblemon.move.karatechop": "Karate Chop",
@@ -8198,7 +8197,6 @@
   "cobblemon.species.rowlet-hisuibias.desc": "It feels relaxed in tight, dark places and has been known to use its Trainer's pocket or bag as a nest.",
   "cobblemon.ui.pokedex.info.form.dartrix-hisuibias": "Hisui-Bias",
   "cobblemon.species.dartrix-hisuibias.desc": "Supremely sensitive to the presence of others, it can detect opponents standing behind it, flinging its sharp feathers to take them out.",
-
 
   "cobblemon.ability.stench": "Stench",
   "cobblemon.ability.stench.desc": "By releasing a stench when attacking, the Pokémon may cause the target to flinch.",
