@@ -46,9 +46,11 @@ object RunStrategy : CompositeRidingStrategy<CompositeSettings> {
         driver: Player
     ): Boolean {
         if (state.activeController.get() == defaultSettings.key) return false
+        if (!entity.onGround()) return false
         if (state.lastTransition.get() + 20 >= entity.level().gameTime) return false
         val defaultBehaviour = RidingBehaviours.get(defaultSettings.key)
-        return !driver.isSprinting || defaultBehaviour.isActive(defaultSettings, state.defaultBehaviourState, entity)
+        val ret = defaultBehaviour.isActive(defaultSettings, state.defaultBehaviourState, entity)
+        return ret
     }
 
     private fun shouldTransitionToAlternate(

@@ -24,11 +24,11 @@ import net.minecraft.world.phys.Vec3
  */
 open class RidingBehaviourState {
     open val rideVelocity: SidedRidingState<Vec3> = ridingState(Vec3.ZERO, Side.BOTH)
-    open val stamina: SidedRidingState<Float> = ridingState(0F, Side.BOTH)
+    open val stamina: SidedRidingState<Float> = ridingState(1.0F, Side.BOTH)
 
     open fun reset() {
         rideVelocity.set(Vec3.ZERO, true)
-        stamina.set(0F, true)
+        stamina.set(1.0F, true)
     }
 
     open fun copy(): RidingBehaviourState {

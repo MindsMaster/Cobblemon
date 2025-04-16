@@ -38,6 +38,7 @@ object RidingBehaviourSettingsAdapter : JsonDeserializer<RidingBehaviourSettings
         JetAirBehaviour.KEY to JetAirSettings::class.java,
         SwimDashBehaviour.KEY to SwimDashSettings::class.java,
         VehicleLandBehaviour.KEY to VehicleLandSettings::class.java,
+        HoverBehaviour.KEY to HoverSettings::class.java,
         CompositeBehaviour.KEY to CompositeSettings::class.java,
 
         /*
