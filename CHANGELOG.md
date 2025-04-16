@@ -78,6 +78,12 @@
 - Delphox
 - Cinderace
 - Kangaskhan
+- Gossifleur
+- Eldegoss
+- Stonjourner
+- Wailmer
+- Lechonk
+- Oinkologne
 
 ### Model updates for the following Pokémon
 - Gyarados
