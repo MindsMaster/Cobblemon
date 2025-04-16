@@ -183,8 +183,8 @@ class SwimDashBehaviour : RidingBehaviour<SwimDashSettings, SwimDashState> {
         state: SwimDashState,
         vehicle: PokemonEntity,
         driver: Player
-    ): Boolean {
-        return false
+    ): ResourceLocation {
+        return ResourceLocation.fromNamespaceAndPath("cobblemon", "no_pose")
     }
 
     override fun inertia(settings: SwimDashSettings, state: SwimDashState, vehicle: PokemonEntity): Double {

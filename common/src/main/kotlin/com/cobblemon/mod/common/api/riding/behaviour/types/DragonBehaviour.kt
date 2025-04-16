@@ -295,8 +295,8 @@ class DragonBehaviour : RidingBehaviour<DragonSettings, DragonState> {
         state: DragonState,
         vehicle: PokemonEntity,
         driver: Player
-    ): Boolean {
-        return false
+    ): ResourceLocation {
+        return ResourceLocation.fromNamespaceAndPath("cobblemon", "no_pose")
     }
 
     override fun inertia(settings: DragonSettings, state: DragonState, vehicle: PokemonEntity): Double {

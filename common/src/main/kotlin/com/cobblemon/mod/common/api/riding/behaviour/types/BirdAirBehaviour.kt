@@ -27,9 +27,6 @@ import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
-import org.joml.Matrix3f
-import org.joml.Quaternionf
-import org.joml.Vector3f
 import kotlin.math.*
 
 class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
@@ -441,8 +438,11 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
         state: BirdAirState,
         vehicle: PokemonEntity,
         driver: Player
-    ): Boolean {
-        return state.gliding.get()
+    ): ResourceLocation {
+        if (state.gliding.get()) {
+            return ResourceLocation.fromNamespaceAndPath("cobblemon", "gliding")
+        }
+        return ResourceLocation.fromNamespaceAndPath("cobblemon", "no_pose")
     }
 
     override fun inertia(settings: BirdAirSettings, state: BirdAirState, vehicle: PokemonEntity): Double {

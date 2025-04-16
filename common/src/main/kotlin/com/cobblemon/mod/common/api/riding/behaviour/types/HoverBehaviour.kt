@@ -9,7 +9,6 @@
 package com.cobblemon.mod.common.api.riding.behaviour.types
 
 import com.bedrockk.molang.Expression
-import com.bedrockk.molang.runtime.MoLangMath.lerp
 import com.cobblemon.mod.common.api.riding.RidingStyle
 import com.cobblemon.mod.common.api.riding.behaviour.*
 import com.cobblemon.mod.common.api.riding.posing.PoseOption
@@ -18,6 +17,7 @@ import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.*
 import net.minecraft.network.RegistryFriendlyByteBuf
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.Mth
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
@@ -366,8 +366,8 @@ class HoverBehaviour : RidingBehaviour<HoverSettings, HoverState> {
         state: HoverState,
         vehicle: PokemonEntity,
         driver: Player
-    ): Boolean {
-        return false
+    ): ResourceLocation {
+        return ResourceLocation.fromNamespaceAndPath("cobblemon", "no_pose")
     }
 
     override fun inertia(

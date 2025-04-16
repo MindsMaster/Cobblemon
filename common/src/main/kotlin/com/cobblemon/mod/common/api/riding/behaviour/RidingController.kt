@@ -8,7 +8,6 @@
 
 package com.cobblemon.mod.common.api.riding.behaviour
 
-import com.cobblemon.mod.common.api.riding.RidingStyle
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SmoothDouble
@@ -135,8 +134,8 @@ class RidingController<Settings : RidingBehaviourSettings, State : RidingBehavio
         return behaviour.inertia(settings, state, vehicle)
     }
 
-    override fun useRidingAltPose(settings: Settings, state: State, vehicle: PokemonEntity, driver: Player): Boolean {
-        if (!isActive(settings, state, vehicle)) return false
+    override fun useRidingAltPose(settings: Settings, state: State, vehicle: PokemonEntity, driver: Player): ResourceLocation {
+        if (!isActive(settings, state, vehicle)) return ResourceLocation.withDefaultNamespace("nullPose")
         return behaviour.useRidingAltPose(settings, state, vehicle, driver)
     }
 

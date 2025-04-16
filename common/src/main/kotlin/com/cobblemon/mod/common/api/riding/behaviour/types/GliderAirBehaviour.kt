@@ -156,8 +156,8 @@ class GliderAirBehaviour : RidingBehaviour<GliderAirSettings, RidingBehaviourSta
         state: RidingBehaviourState,
         vehicle: PokemonEntity,
         driver: Player
-    ): Boolean {
-        return false
+    ): ResourceLocation {
+        return ResourceLocation.fromNamespaceAndPath("cobblemon", "no_pose")
     }
 
     override fun inertia(settings: GliderAirSettings, state: RidingBehaviourState, vehicle: PokemonEntity): Double {

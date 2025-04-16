@@ -9,7 +9,6 @@
 package com.cobblemon.mod.common.api.riding.behaviour.types
 
 import com.bedrockk.molang.Expression
-import com.bedrockk.molang.runtime.MoLangMath.lerp
 import com.cobblemon.mod.common.api.riding.RidingStyle
 import com.cobblemon.mod.common.api.riding.behaviour.*
 import com.cobblemon.mod.common.api.riding.posing.PoseOption
@@ -17,7 +16,10 @@ import com.cobblemon.mod.common.api.riding.posing.PoseProvider
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.*
+import net.minecraft.core.Direction
+import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.RegistryFriendlyByteBuf
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.Mth
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
@@ -73,6 +75,17 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
         vehicle: PokemonEntity,
         driver: Player
     ): Float {
+
+        // Use this as a "tick" function and calculate sprinting and inAir state here
+        state.sprinting.set(driver.isSprinting)
+
+        // Check both vertical movement and if there are blocks below.
+        val posBelow = vehicle.blockPosition().below()
+        val blockStateBelow = vehicle.level().getBlockState(posBelow)
+        val standingOnSolid = blockStateBelow.isFaceSturdy(vehicle.level(), posBelow, Direction.UP)
+        val inAir = (vehicle.deltaMovement.y != 0.0 || !standingOnSolid)
+        state.inAir.set(inAir)
+
         return state.rideVelocity.get().length().toFloat()
     }
 
@@ -360,8 +373,12 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
         state: GenericLandState,
         vehicle: PokemonEntity,
         driver: Player
-    ): Boolean {
-        return false
+    ): ResourceLocation {
+        when {
+            state.inAir.get() -> return ResourceLocation.fromNamespaceAndPath("cobblemon", "in_air")
+            state.sprinting.get() -> return ResourceLocation.fromNamespaceAndPath("cobblemon", "sprinting")
+        }
+        return ResourceLocation.fromNamespaceAndPath("cobblemon", "no_pose")
     }
 
     override fun inertia(
@@ -460,15 +477,38 @@ class GenericLandSettings : RidingBehaviourSettings {
 }
 
 class GenericLandState : RidingBehaviourState() {
-    var currSpeed = ridingState(0.0, Side.BOTH)
+    var sprinting = ridingState(false, Side.CLIENT)
+    var inAir = ridingState(false, Side.CLIENT)
+
+    override fun encode(buffer: FriendlyByteBuf) {
+        super.encode(buffer)
+        buffer.writeBoolean(sprinting.get())
+        buffer.writeBoolean(inAir.get())
+    }
+
+    override fun decode(buffer: FriendlyByteBuf) {
+        super.decode(buffer)
+        sprinting.set(buffer.readBoolean(), forced = true)
+        inAir.set(buffer.readBoolean(), forced = true)
+    }
+
+    override fun reset() {
+        super.reset()
+        sprinting.set(false, forced = true)
+        inAir.set(false, forced = true)
+    }
 
     override fun copy() = GenericLandState().also {
         it.rideVelocity.set(this.rideVelocity.get(), forced = true)
         it.stamina.set(this.stamina.get(), forced = true)
+        it.sprinting.set(this.sprinting.get(), forced = true)
+        it.inAir.set(this.inAir.get(), forced = true)
     }
 
     override fun shouldSync(previous: RidingBehaviourState): Boolean {
         if (previous !is GenericLandState) return false
+        if (previous.sprinting.get() != sprinting.get()) return true
+        if (previous.inAir.get() != inAir.get()) return true
         return super.shouldSync(previous)
     }
 }

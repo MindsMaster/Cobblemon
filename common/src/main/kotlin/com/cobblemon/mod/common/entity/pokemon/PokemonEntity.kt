@@ -50,7 +50,6 @@ import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviours
 import com.cobblemon.mod.common.api.riding.events.SelectDriverEvent
 import com.cobblemon.mod.common.api.riding.stats.RidingStat
 import com.cobblemon.mod.common.api.riding.util.RidingAnimationData
-import com.cobblemon.mod.common.api.riding.util.Vec3Spring
 import com.cobblemon.mod.common.api.scheduling.Schedulable
 import com.cobblemon.mod.common.api.scheduling.SchedulingTracker
 import com.cobblemon.mod.common.api.scheduling.afterOnServer
@@ -2003,11 +2002,12 @@ open class PokemonEntity(
         }
     }
 
-    fun useRidingAltPose(): Boolean {
+    fun isUsingAltPose( resourceLocation: ResourceLocation): Boolean {
         val driver = this.controllingPassenger as? Player ?: return false
-        return ifRidingAvailableSupply(fallback = false) { behaviour, settings, state ->
+        val loc =  ifRidingAvailableSupply(fallback = ResourceLocation.withDefaultNamespace("no_pose")) { behaviour, settings, state ->
             behaviour.useRidingAltPose(settings, state, this, driver)
         }
+        return loc.compareTo(resourceLocation) == 0
     }
 
     var jumpInputStrength: Int = 0 // move this
@@ -2072,13 +2072,13 @@ open class PokemonEntity(
     //flying or swimming but they are touching the ground and this needs to be prevented.
     //Having it be able to be turned off by the flying or swimming controllers is the
     //temp solution I have found.
-    override fun onGround(): Boolean {
-        val result = ifRidingAvailableSupply(fallback = null) { behaviour, settings, state ->
-            behaviour.turnOffOnGround(settings, state, this)
-        }
-        if (result != null && result) return false
-        return super.onGround()
-    }
+//    override fun onGround(): Boolean {
+//        val result = ifRidingAvailableSupply(fallback = null) { behaviour, settings, state ->
+//            behaviour.turnOffOnGround(settings, state, this)
+//        }
+//        if (result != null && result) return false
+//        return super.onGround()
+//    }
 
     //I think already mentioned but should maybe be riding controller configurable
     override fun dismountsUnderwater(): Boolean {

@@ -20,8 +20,8 @@ import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.*
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.RegistryFriendlyByteBuf
-import net.minecraft.resources.ResourceLocation
 import com.bedrockk.molang.runtime.MoLangMath.lerp
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
@@ -332,8 +332,8 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
         state: JetAirState,
         vehicle: PokemonEntity,
         driver: Player
-    ): Boolean {
-        return false
+    ): ResourceLocation {
+        return ResourceLocation.fromNamespaceAndPath("cobblemon", "no_pose")
     }
 
     override fun inertia(settings: JetAirSettings, state: JetAirState, vehicle: PokemonEntity): Double {

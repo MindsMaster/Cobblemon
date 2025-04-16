@@ -176,8 +176,8 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, RidingBehaviou
         state: RidingBehaviourState,
         vehicle: PokemonEntity,
         driver: Player
-    ): Boolean {
-        return false
+    ): ResourceLocation {
+        return ResourceLocation.fromNamespaceAndPath("cobblemon", "no_pose")
     }
 
     override fun inertia(settings: GenericSwimSettings, state: RidingBehaviourState, vehicle: PokemonEntity): Double {
