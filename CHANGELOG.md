@@ -18,6 +18,7 @@
 - Added `/transformmodelpart (position|rotation|scale) <modelPart> <transform: x y z>` command that can add transformations to a pokemon's model part.
   - The player executing the command must be facing the target pokemon entity. Transformations are not persistent and will revert when resources are reloaded.
 - Added lang keys for all moves and abilities up to Generation 9.
+- Fixed Moon Ball moon phase logic to actually work correctly
 
 ### Pokémon Added
 
