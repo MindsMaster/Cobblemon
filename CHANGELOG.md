@@ -17,6 +17,7 @@
 - Added cosmetics for Gurdurr, Conkeldurr, Squirtle Line, Sneasler, Sandle line, Treecko line, Braixen, Delphox, and Dragonite.
 - Added `/transformmodelpart (position|rotation|scale) <modelPart> <transform: x y z>` command that can add transformations to a pokemon's model part.
   - The player executing the command must be facing the target pokemon entity. Transformations are not persistent and will revert when resources are reloaded.
+- Added lang keys for all moves and abilities up to Generation 9.
 
 ### Pokémon Added
 
@@ -76,6 +77,8 @@
 - Sneasler
 - Braixen
 - Delphox
+- Cinderace
+- Kangaskhan
 
 ### Model updates for the following Pokémon
 - Gyarados
@@ -97,6 +100,8 @@
 - Pidgeot
 - Nosepass
 - Probopass
+- Kangaskhan
+- Cinderace
 - Magnezone
 - Metagross
 - Added Syrupy Apples.
@@ -120,6 +125,7 @@
 - Removed Shulker aspect and replaced it with cosmetic_item-shulker_shell.
 - Shulker shell Forretress is now a cosmetic rather than a special evo and thus all shulker Forretress will revert back to normal until a shulker shell is put in their cosmetic slot.
 - Updated `doPokemonSpawning` gamerule to support per-dimension configurations.
+- The Pokedex now displays a form name of a "normal" Pokémon for when the base form is still a named form.
 
 ### Fixes
 - Fixed Particles sometimes facing the wrong direction (looking at you, Swords Dance)
@@ -148,6 +154,7 @@
 - Fixed Pokémon marked as silent still playing shiny sounds and effects.
 - Fixed an issue with newer versions of Fabric API where underground Pokémon were spawning in The End.
 - Fixed spawning not working well when you're at high points surrounded by lower altitude spawning areas, such as flying.
+- Fixed certain Pokémon with forms not having appropriate stock Pokédex entries.
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
@@ -184,6 +191,7 @@
 - Added `pokemon` as an available Molang function for the `battleActor` functions.
 - Fixed `heldItem` property inside spawn files not working and causing crashes
 - Fixed `spawn_bedrock_particles` MoLang causing crashes when used in a server environment
+- The Pokédex form lang key definition now follows `cobblemon.ui.pokedex.info.form.{species}-{formname}` instead of `cobblemon.ui.pokedex.info.form.{formname}`.
 
 ## [1.6.1 (January 26th, 2025)](#1-6-1)
 
