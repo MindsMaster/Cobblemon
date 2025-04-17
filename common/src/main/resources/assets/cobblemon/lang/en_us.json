@@ -2224,6 +2224,8 @@
   "cobblemon.config.ui.default_drop_item_method.on_player.tooltip": "Drops the item on the player that caused the drop, if they exist. If not, drops at the position parsed into drops.",
   "cobblemon.config.ui.default_drop_item_method.to_inventory": "To Inventory",
   "cobblemon.config.ui.default_drop_item_method.to_inventory.tooltip": "Puts the item in the player's inventory or drops it on the ground if the inventory is full. If the player that caused the drop doesn't exist, it drops at the position parsed into drops.",
+  "cobblemon.config.ui.drops_after_death_animation": "Drops After Death Animation",
+  "cobblemon.config.ui.drops_after_death_animation.tooltip": "Whether Pokémon drop loot and Minecraft XP after their death animations are finished playing, or instantly upon death like vanilla mobs.",
   "cobblemon.config.ui.ambient_pokemon_cry_ticks": "Ambient Pokémon Cry Ticks",
   "cobblemon.config.ui.ambient_pokemon_cry_ticks.tooltip": "Ticks between Pokémon cries. (Currently unused)",
   "cobblemon.config.ui.default_box_count": "Default Box Count",
