@@ -111,6 +111,8 @@
 - Cinderace
 - Magnezone
 - Metagross
+- Hoothoot
+- Noctowl
 - Added Syrupy Apples.
 
 ### Changes
