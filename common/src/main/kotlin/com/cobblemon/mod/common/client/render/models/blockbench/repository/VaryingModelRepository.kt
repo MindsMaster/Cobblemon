@@ -544,7 +544,6 @@ object VaryingModelRepository {
         inbuilt("aipom", ::AipomModel)
         inbuilt("ambipom", ::AmbipomModel)
         inbuilt("hoothoot", ::HoothootModel)
-        inbuilt("noctowl", ::NoctowlModel)
         inbuilt("wingull", ::WingullModel)
         inbuilt("pelipper", ::PelipperModel)
         inbuilt("shinx", ::ShinxModel)
