@@ -156,6 +156,7 @@
 - Fixed an issue with newer versions of Fabric API where underground Pokémon were spawning in The End.
 - Fixed spawning not working well when you're at high points surrounded by lower altitude spawning areas, such as flying.
 - Fixed certain Pokémon with forms not having appropriate stock Pokédex entries.
+- Fixed dragon's breath not being usable on the restoration tank when it should be
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
