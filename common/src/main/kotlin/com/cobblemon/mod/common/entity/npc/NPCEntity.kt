@@ -10,8 +10,13 @@ package com.cobblemon.mod.common.entity.npc
 
 import com.bedrockk.molang.runtime.MoLangRuntime
 import com.bedrockk.molang.runtime.struct.VariableStruct
-import com.cobblemon.mod.common.*
+import com.cobblemon.mod.common.Cobblemon
+import com.cobblemon.mod.common.CobblemonEntities
+import com.cobblemon.mod.common.CobblemonItems
+import com.cobblemon.mod.common.CobblemonMemories
 import com.cobblemon.mod.common.CobblemonNetwork.sendPacket
+import com.cobblemon.mod.common.CobblemonSensors
+import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.entity.PokemonSender
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMoLangValue
@@ -31,16 +36,20 @@ import com.cobblemon.mod.common.api.scheduling.Schedulable
 import com.cobblemon.mod.common.api.scheduling.SchedulingTracker
 import com.cobblemon.mod.common.api.storage.party.NPCPartyStore
 import com.cobblemon.mod.common.api.text.text
+import com.cobblemon.mod.common.entity.BehaviourEditingTracker
 import com.cobblemon.mod.common.entity.MoLangScriptingEntity
 import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
-import com.cobblemon.mod.common.net.messages.client.animation.PlayPosableAnimationPacket
 import com.cobblemon.mod.common.net.messages.client.npc.CloseNPCEditorPacket
 import com.cobblemon.mod.common.net.messages.client.npc.OpenNPCEditorPacket
 import com.cobblemon.mod.common.net.messages.client.spawn.SpawnNPCPacket
 import com.cobblemon.mod.common.pokemon.Pokemon
-import com.cobblemon.mod.common.util.*
+import com.cobblemon.mod.common.util.DataKeys
+import com.cobblemon.mod.common.util.getBattleState
+import com.cobblemon.mod.common.util.getPlayer
+import com.cobblemon.mod.common.util.makeEmptyBrainDynamic
+import com.cobblemon.mod.common.util.withNPCValue
 import com.google.common.collect.ImmutableList
 import com.mojang.authlib.GameProfile
 import com.mojang.authlib.ProfileLookupCallback
@@ -90,8 +99,6 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
     override val struct = this.asMoLangValue()
 
     val runtime = MoLangRuntime().setup().withNPCValue(value = this)
-
-    var editingPlayer: UUID? = null
 
     var npc = NPCClasses.dummy()
         set(value) {
@@ -198,7 +205,7 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
         runtime.environment.query.addFunctions(struct.functions)
         refreshDimensions()
         navigation.setCanFloat(false)
-        setPathfindingMalus(PathType.WATER, -1.0F)
+        setPathfindingMalus(PathType.BLOCKED, -1.0F)
         if (!world.isClientSide) {
             remakeBrain()
         }
@@ -290,13 +297,6 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
             NPCBrain.configure(this, npc, brain)
         }
         return brain
-    }
-
-    override fun updateBehaviours(brainPresets: Collection<ResourceLocation>) {
-        behaviours.clear()
-        behaviours.addAll(brainPresets)
-        behavioursAreCustom = true
-        remakeBrain()
     }
 
     override fun doHurtTarget(target: Entity): Boolean {
@@ -580,11 +580,12 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
     }
 
     fun edit(player: ServerPlayer) {
-        val lastEditing = editingPlayer?.getPlayer()
+        val lastEditing = BehaviourEditingTracker.getPlayerIdEditing(this)?.getPlayer()
         if (lastEditing != null) {
+            BehaviourEditingTracker.stopEditing(lastEditing.uuid)
             lastEditing.sendPacket(CloseNPCEditorPacket())
         }
         player.sendPacket(OpenNPCEditorPacket(this))
-        editingPlayer = player.uuid
+        BehaviourEditingTracker.startEditing(player, this)
     }
 }

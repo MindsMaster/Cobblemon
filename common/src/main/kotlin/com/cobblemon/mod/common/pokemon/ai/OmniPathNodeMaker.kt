@@ -29,6 +29,7 @@ import net.minecraft.world.level.pathfinder.*
 import net.minecraft.world.level.pathfinder.Target
 import net.minecraft.world.phys.Vec3
 import java.util.*
+import java.util.function.Predicate
 
 /**
  * A path node maker that constructs paths knowing that the entity might be capable of
@@ -43,7 +44,7 @@ class OmniPathNodeMaker : NodeEvaluator() {
 
     var canPathThroughFire: Boolean = false
 
-    var nodeFilter: (PathType) -> Boolean = { true }
+    var nodeFilter: Predicate<PathType> = Predicate { true }
 
     override fun prepare(cachedWorld: PathNavigationRegion, entity: Mob) {
         super.prepare(cachedWorld, entity)
@@ -190,7 +191,7 @@ class OmniPathNodeMaker : NodeEvaluator() {
     }
 
     fun isValidPathType(type: PathType): Boolean {
-        if (!nodeFilter(type)) {
+        if (!nodeFilter.test(type)) {
             return false
         }
 

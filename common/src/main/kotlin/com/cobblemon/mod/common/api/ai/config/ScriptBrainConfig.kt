@@ -20,7 +20,6 @@ import com.cobblemon.mod.common.api.molang.MoLangFunctions.setup
 import com.cobblemon.mod.common.api.molang.ObjectValue
 import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
 import com.cobblemon.mod.common.api.scripting.CobblemonScripts
-import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.util.activityRegistry
 import com.cobblemon.mod.common.util.asExpressionLike
 import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace

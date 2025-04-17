@@ -11,7 +11,7 @@ package com.cobblemon.mod.common.entity
 import com.bedrockk.molang.runtime.struct.QueryStruct
 import com.bedrockk.molang.runtime.struct.VariableStruct
 import com.bedrockk.molang.runtime.value.DoubleValue
-import com.cobblemon.mod.common.api.ai.BrainPreset
+import com.cobblemon.mod.common.CobblemonBrainConfigs
 import com.cobblemon.mod.common.api.molang.MoLangFunctions
 import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
 import com.cobblemon.mod.common.entity.npc.NPCEntity
@@ -20,6 +20,7 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.nbt.StringTag
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.entity.LivingEntity
 
 /**
  * An interface representing an entity that can have MoLang variables and data. Originally was part of [NPCEntity]
@@ -70,5 +71,16 @@ interface MoLangScriptingEntity {
         struct.addFunction("has_variable") { params -> DoubleValue(registeredVariables.any { it.variableName == params.getString(0) }) }
     }
 
-    fun updateBehaviours(brainPresets: Collection<ResourceLocation>)
+
+    fun updateBehaviours(brainPresets: Collection<ResourceLocation>) {
+        val removingBehaviours = behaviours.filterNot(brainPresets::contains).mapNotNull(CobblemonBrainConfigs.presets::get)
+        removingBehaviours.forEach { behaviour ->
+            behaviour.undo(this as LivingEntity)
+        }
+        behaviours.clear()
+        behaviours.addAll(brainPresets)
+        behavioursAreCustom = true
+        remakeBrain()
+    }
+
 }

@@ -11,10 +11,10 @@ package com.cobblemon.mod.common.command
 import com.cobblemon.mod.common.CobblemonNetwork.sendPacket
 import com.cobblemon.mod.common.api.permission.CobblemonPermissions
 import com.cobblemon.mod.common.api.text.red
+import com.cobblemon.mod.common.entity.BehaviourEditingTracker
 import com.cobblemon.mod.common.entity.MoLangScriptingEntity
 import com.cobblemon.mod.common.entity.npc.NPCEntity
 import com.cobblemon.mod.common.net.messages.client.OpenBehaviourEditorPacket
-import com.cobblemon.mod.common.net.messages.client.npc.OpenNPCEditorPacket
 import com.cobblemon.mod.common.util.commandLang
 import com.cobblemon.mod.common.util.requiresWithPermission
 import com.cobblemon.mod.common.util.traceFirstEntityCollision
@@ -42,8 +42,9 @@ object BrainEditCommand {
         }
 
         if (targetEntity is NPCEntity) {
-            player.sendPacket(OpenNPCEditorPacket(targetEntity))
+            targetEntity.edit(player)
         } else {
+            BehaviourEditingTracker.startEditing(player, targetEntity)
             player.sendPacket(OpenBehaviourEditorPacket(targetEntity.id, (targetEntity as MoLangScriptingEntity).behaviours.toSet()))
         }
 

@@ -17,7 +17,11 @@ import com.bedrockk.molang.runtime.struct.VariableStruct
 import com.bedrockk.molang.runtime.value.DoubleValue
 import com.bedrockk.molang.runtime.value.MoValue
 import com.bedrockk.molang.runtime.value.StringValue
-import com.cobblemon.mod.common.*
+import com.cobblemon.mod.common.Cobblemon
+import com.cobblemon.mod.common.CobblemonActivities
+import com.cobblemon.mod.common.CobblemonBlockEntities
+import com.cobblemon.mod.common.CobblemonMemories
+import com.cobblemon.mod.common.CobblemonUnlockableWallpapers
 import com.cobblemon.mod.common.api.battles.model.PokemonBattle
 import com.cobblemon.mod.common.api.battles.model.actor.ActorType
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor
@@ -27,13 +31,22 @@ import com.cobblemon.mod.common.api.mark.Marks
 import com.cobblemon.mod.common.api.moves.animations.ActionEffectContext
 import com.cobblemon.mod.common.api.moves.animations.ActionEffects
 import com.cobblemon.mod.common.api.moves.animations.NPCProvider
-import com.cobblemon.mod.common.api.pokedex.*
+import com.cobblemon.mod.common.api.npc.configuration.interaction.ScriptNPCInteractionConfiguration
+import com.cobblemon.mod.common.api.npc.partyproviders.SimplePartyProvider
+import com.cobblemon.mod.common.api.pokedex.AbstractPokedexManager
+import com.cobblemon.mod.common.api.pokedex.CaughtCount
+import com.cobblemon.mod.common.api.pokedex.CaughtPercent
+import com.cobblemon.mod.common.api.pokedex.PokedexEntryProgress
+import com.cobblemon.mod.common.api.pokedex.PokedexManager
+import com.cobblemon.mod.common.api.pokedex.SeenCount
+import com.cobblemon.mod.common.api.pokedex.SeenPercent
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties
 import com.cobblemon.mod.common.api.pokemon.evolution.Evolution
 import com.cobblemon.mod.common.api.pokemon.stats.Stats
 import com.cobblemon.mod.common.api.scripting.CobblemonScripts
 import com.cobblemon.mod.common.api.spawning.context.SpawningContext
 import com.cobblemon.mod.common.api.storage.PokemonStore
+import com.cobblemon.mod.common.api.storage.party.NPCPartyStore
 import com.cobblemon.mod.common.api.storage.party.PartyStore
 import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore
 import com.cobblemon.mod.common.api.storage.pc.PCPosition
@@ -62,6 +75,9 @@ import com.cobblemon.mod.common.pokemon.evolution.variants.LevelUpEvolution
 import com.cobblemon.mod.common.pokemon.evolution.variants.TradeEvolution
 import com.cobblemon.mod.common.util.*
 import com.mojang.datafixers.util.Either
+import java.util.UUID
+import kotlin.math.sqrt
+import kotlin.random.Random
 import net.minecraft.commands.arguments.EntityAnchorArgument
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Holder
@@ -69,7 +85,11 @@ import net.minecraft.core.Registry
 import net.minecraft.core.RegistryAccess
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
-import net.minecraft.nbt.*
+import net.minecraft.nbt.CompoundTag
+import net.minecraft.nbt.DoubleTag
+import net.minecraft.nbt.ListTag
+import net.minecraft.nbt.StringTag
+import net.minecraft.nbt.Tag
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
@@ -78,7 +98,12 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.tags.TagKey
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.damagesource.DamageTypes
-import net.minecraft.world.entity.*
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.LightningBolt
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.PathfinderMob
+import net.minecraft.world.entity.TamableAnimal
 import net.minecraft.world.entity.ai.behavior.BlockPosTracker
 import net.minecraft.world.entity.ai.memory.MemoryModuleType
 import net.minecraft.world.entity.ai.memory.MemoryStatus
@@ -92,12 +117,9 @@ import net.minecraft.world.level.biome.Biome
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.dimension.DimensionType
 import net.minecraft.world.level.levelgen.Heightmap
+import net.minecraft.world.level.pathfinder.PathType
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
-import java.util.*
-import kotlin.math.sqrt
-import kotlin.random.Random
-import net.minecraft.world.level.pathfinder.PathType
 
 /**
  * Holds a bunch of useful MoLang trickery that can be used or extended in API
@@ -199,6 +221,10 @@ object MoLangFunctions {
             val a = format.parse(dateA)
             val b = format.parse(dateB)
             DoubleValue(a.after(b))
+        },
+        "create_simple_party_provider" to java.util.function.Function { params ->
+            val partyProvider = SimplePartyProvider()
+            return@Function partyProvider.struct
         }
     )
     val biomeFunctions = mutableListOf<(Holder<Biome>) -> HashMap<String, java.util.function.Function<MoParams, Any>>>()
@@ -475,6 +501,11 @@ object MoLangFunctions {
         { entity ->
             val map = hashMapOf<String, java.util.function.Function<MoParams, Any>>()
             map.put("uuid") { _ -> StringValue(entity.uuid.toString()) }
+            map.put("set_name") { params ->
+                val name = params.getString(0)
+                entity.customName = name.text()
+                return@put DoubleValue.ONE
+            }
             map.put("damage") { params ->
                 val amount = params.getDouble(0)
                 val source = DamageSource(entity.level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolder(DamageTypes.GENERIC).get())
@@ -745,6 +776,54 @@ object MoLangFunctions {
                 runtime.environment.cloneFrom(params.environment)
                 CobblemonScripts.run(script, runtime) ?: DoubleValue(0)
             }
+            map.put("set_movable") { params ->
+                val movable = params.getBooleanOrNull(0) != false
+                npc.isMovable = movable
+                return@put DoubleValue.ONE
+            }
+            map.put("set_invulnerable") { params ->
+                val invulnerable = params.getBooleanOrNull(0) != false
+                npc.isInvulnerable = invulnerable
+                return@put DoubleValue.ONE
+            }
+            map.put("set_leashable") { params ->
+                val leashable = params.getBooleanOrNull(0) != false
+                npc.isLeashable = leashable
+                return@put DoubleValue.ONE
+            }
+            map.put("set_allow_projectile_hits") { params ->
+                val allowProjectileHits = params.getBooleanOrNull(0) != false
+                npc.allowProjectileHits = allowProjectileHits
+                return@put DoubleValue.ONE
+            }
+            map.put("set_name_tag_visible") { params ->
+                val nameTagVisible = params.getBooleanOrNull(0) != false
+                npc.hideNameTag = !nameTagVisible
+                return@put DoubleValue.ONE
+            }
+            map.put("set_script_interaction") { params ->
+                val script = params.getString(0).asIdentifierDefaultingNamespace()
+                npc.interaction = ScriptNPCInteractionConfiguration().also {
+                    it.script = script
+                }
+            }
+            map.put("party") { params ->
+                val party = npc.party ?: return@put DoubleValue.ZERO
+                return@put party.asMoLangValue()
+            }
+            map.put("create_npc_party") { params ->
+                val party = NPCPartyStore(npc)
+                return@put party.asMoLangValue()
+            }
+            map.put("set_npc_party") { params ->
+                val party = params.get<MoValue>(0)
+                if (party is ObjectValue<*>) {
+                    npc.party = party.obj as NPCPartyStore
+                } else {
+                    npc.party = null
+                }
+                DoubleValue.ONE
+            }
             map.put("run_action_effect") { params ->
                 val runtime = MoLangRuntime().setup()
                 runtime.environment.cloneFrom(params.environment)
@@ -991,6 +1070,9 @@ object MoLangFunctions {
                 DoubleValue(totalPercent)
             }
             map.put("has_usable_pokemon") { _ -> DoubleValue(store.any { !it.isFainted() }) }
+            map.put("pokemon") {
+                return@put store.map { it.asStruct() }.asArrayValue()
+            }
             map
         }
     )
@@ -1242,7 +1324,10 @@ object MoLangFunctions {
                 val pokemon = props.create()
                 return@put pokemon.struct
             }
-
+            map.put("to_string") { params ->
+                val separator = params.getStringOrNull(0) ?: " "
+                return@put StringValue(props.asString(separator = separator))
+            }
             map
         }
     )

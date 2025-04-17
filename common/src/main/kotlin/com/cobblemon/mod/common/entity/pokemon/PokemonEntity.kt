@@ -392,6 +392,7 @@ open class PokemonEntity(
         moveControl = PokemonMoveControl(this)
         remakeBrain()
         refreshDimensions()
+        refreshRiding()
     }
 
     override fun updateBehaviours(brainPresets: Collection<ResourceLocation>) {
@@ -399,7 +400,6 @@ open class PokemonEntity(
         behaviours.addAll(brainPresets)
         behavioursAreCustom = true
         remakeBrain()
-        refreshRiding()
     }
 
     override fun defineSynchedData(builder: SynchedEntityData.Builder) {

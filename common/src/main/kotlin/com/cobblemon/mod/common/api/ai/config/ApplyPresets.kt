@@ -35,7 +35,7 @@ class ApplyPresets : BrainConfig {
     override fun configure(entity: LivingEntity, brainConfigurationContext: BrainConfigurationContext) {
         if (!checkCondition(entity, condition)) return
 
-        val presetConfigs = presets.flatMap { CobblemonBrainConfigs.presets[it]?.takeIf { it.canBeApplied(entity) }?.configurations ?: return Cobblemon.LOGGER.warn("Preset $it not found") }
+        val presetConfigs = presets.map { CobblemonBrainConfigs.presets[it]?.takeIf { it.canBeApplied(entity) } ?: return Cobblemon.LOGGER.warn("Preset $it not found") }
         // Why not just add the presets to the context directly?
         // Nested preset application is a thing, and I only want to track the top level presets.
         // i.e. if a preset applies another preset, I don't want to track the inner preset, since it's redundant if we track the top one.
