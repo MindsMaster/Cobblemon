@@ -83,8 +83,16 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
         // Check both vertical movement and if there are blocks below.
         val posBelow = vehicle.blockPosition().below()
         val blockStateBelow = vehicle.level().getBlockState(posBelow)
-        val standingOnSolid = blockStateBelow.isFaceSturdy(vehicle.level(), posBelow, Direction.UP)
-        val inAir = (vehicle.deltaMovement.y != 0.0 || !standingOnSolid)
+        val isAirOrLiquid = blockStateBelow.isAir || !blockStateBelow.fluidState.isEmpty
+
+        val canSupportEntity = blockStateBelow.isFaceSturdy(vehicle.level(), posBelow, Direction.UP)
+        val standingOnSolid = canSupportEntity && !isAirOrLiquid
+
+//        val level = vehicle.level()
+//        val toesBox = vehicle.boundingBox.move(0.0, -0.1, 0.0)
+
+        // inAir if not on the ground
+        val inAir = !(vehicle.deltaMovement.y == 0.0 || standingOnSolid)
         state.inAir.set(inAir)
 
         return state.rideVelocity.get().length().toFloat()
