@@ -188,9 +188,7 @@ class RidingStatsDebugGUI(val vehicle: PokemonEntity) : Screen(lang("ui.debug.ri
     }
 
     fun getRidingStat(ridingStat: RidingStat): Int {
-        val min = vehicle.rideProp.stats[ridingStat]?.ranges?.get(ridingStyle)?.first ?: 0
-        val max = vehicle.rideProp.stats[ridingStat]?.ranges?.get(ridingStyle)?.last ?: 0
-        return vehicle.getRideStat(ridingStat, ridingStyle, min.toDouble(), max.toDouble()).toInt()
+        return vehicle.getRawRideStat(ridingStat, ridingStyle).toInt()
     }
 
     fun getRidingStatRange(ridingStat: RidingStat): IntRange {

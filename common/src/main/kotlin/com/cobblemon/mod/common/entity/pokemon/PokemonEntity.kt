@@ -1826,11 +1826,18 @@ open class PokemonEntity(
     fun getRideStat(stat: RidingStat, style: RidingStyle, baseMin: Double, baseMax: Double): Double {
         //TODO: Change from static zero boost once aprijuice is implemented.
         if (rideStatOverrides[style] != null && rideStatOverrides[style]!![stat] != null) {
-            return rideStatOverrides[style]!![stat]!!
+            return (((baseMax - baseMin) / 100) * rideStatOverrides[style]!![stat]!!) + baseMin
         }
         val stat = this.rideProp.calculate(stat, style, 0)
         val statVal = (((baseMax - baseMin) / 100) * stat) + baseMin
         return statVal
+    }
+
+    fun getRawRideStat(stat: RidingStat, style: RidingStyle): Double {
+        if (rideStatOverrides[style] != null && rideStatOverrides[style]!![stat] != null) {
+            return rideStatOverrides[style]!![stat]!!
+        }
+        return this.rideProp.calculate(stat, style, 0).toDouble()
     }
 
     fun overrideRideStat(style: RidingStyle, stat: RidingStat, value: Double) {
