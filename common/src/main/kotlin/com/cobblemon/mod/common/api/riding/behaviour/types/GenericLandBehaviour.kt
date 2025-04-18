@@ -23,6 +23,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.Mth
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.ai.attributes.Attributes
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
@@ -39,7 +40,7 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
 
     val poseProvider = PoseProvider<GenericLandSettings, GenericLandState>(PoseType.STAND)
         .with(PoseOption(PoseType.WALK) { _, state, _ ->
-            return@PoseOption abs(state.rideVelocity.get().z) > 0.2
+            return@PoseOption abs(state.rideVelocity.get().z) > 0.0
         })
 
     override fun isActive(
@@ -155,8 +156,11 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
         driver: LivingEntity
     ): Float {
         val topSpeed = vehicle.runtime.resolveDouble(settings.speedExpr)
+
         //In degrees per second
-        val handling = vehicle.runtime.resolveDouble(settings.handlingExpr)
+        val walkHandling = 140.0 * 2
+        val handling = vehicle.runtime.resolveDouble(settings.handlingExpr) * 2
+
         val maxYawDiff = 90.0f
 
         //Normalize the current rotation diff
@@ -171,8 +175,8 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
         //Take the inverse so that you turn less at higher speeds
         val normSpeed = 1.0f // = 1.0f - 0.5f*normalizeVal(state.rideVelocityocity.length(), 0.0, topSpeed).toFloat()
 
-        // TODO: This needs to be tweaked with in game results and testing
-        val turnRate = (handling.toFloat() / 20.0f) * 2
+        // TurnRate should always be quick if not sprinting
+        val turnRate = if(state.sprinting.get()) (handling.toFloat() / 20.0f) else (walkHandling.toFloat() / 20.0f)
 
         //Ensure you only ever rotate as much difference as there is between the angles.
         val turnSpeed = turnRate  * rotDiffMod * normSpeed
@@ -189,26 +193,8 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
         driver: Player,
         input: Vec3
     ): Vec3 {
-        //Limit horizontal velocity that may have accumulated through alternate behaviour
-        val topSpeed = vehicle.runtime.resolveDouble(settings.speedExpr)
-        val currVel = state.rideVelocity.get()
-//        state.rideVelocity.set(Vec3(
-//            max(currVel.x, topSpeed),
-//            currVel.y,
-//            max(currVel.z, topSpeed)
-//        ))
-
-        state.rideVelocity.set(calculateRideSpaceVel(settings, state, vehicle, driver))
-
-        //This is cheap.
-        //Also make it stop quicker the slower it is.
-        val maxSpeed = 1.0
-        //state.currVel = state.currVel.lerp( Vec3(0.0, state.currVel.y, 0.0), 1.0/20.0 )
-
-
-        //entity.deltaMovement = entity.deltaMovement.lerp(velocity, 1.0)
-        //state.currVel = state.currVel.add( f.toDouble() / 20.0, gravity / 20.0 , g.toDouble() / 20.0)
-        return state.rideVelocity.get()
+            state.rideVelocity.set(calculateRideSpaceVel(settings, state, vehicle, driver))
+            return state.rideVelocity.get()
     }
 
     private fun calculateRideSpaceVel(
@@ -217,9 +203,13 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
         vehicle: PokemonEntity,
         driver: Player
     ): Vec3 {
-        val topSpeed = vehicle.runtime.resolveDouble(settings.speedExpr)
+
+        // Check to see if the ride should be walking or sprinting
+        val walkSpeed = getWalkSpeed(vehicle)
+        val rideTopSpeed = vehicle.runtime.resolveDouble(settings.speedExpr)
+        val topSpeed = if(state.sprinting.get()) rideTopSpeed else walkSpeed
+
         val accel = vehicle.runtime.resolveDouble(settings.accelerationExpr)
-        val speed = state.rideVelocity.get().length()
 
         //Flag for determining if player is actively inputting
         var activeInput = false
@@ -256,17 +246,17 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
         }
 
         //ground Friction
-        if( abs(newVelocity.z) > 0 && vehicle.onGround() && !activeInput) {
+        if( (newVelocity.horizontalDistance() > 0 && vehicle.onGround() && !activeInput) || newVelocity.horizontalDistance() > topSpeed) {
             newVelocity = newVelocity.subtract(0.0, 0.0, min(0.03 * newVelocity.z.sign, newVelocity.z))
         }
 
         //Jump the thang!
         if (driver.jumping && vehicle.onGround()) {
-            val jumpVel = 1.0
-            newVelocity = newVelocity.add(0.0, 1.0, 0.0)
+            val jumpForce = 1.0
+            newVelocity = newVelocity.add(0.0, jumpForce, 0.0)
 
             //Ensure this doesn't add unwanted forward velocity
-            val mag = if(newVelocity.length() < topSpeed) newVelocity.length() else topSpeed
+            val mag = if(newVelocity.length() < rideTopSpeed) newVelocity.length() else rideTopSpeed
             newVelocity = newVelocity.normalize().scale(mag)
         }
 
@@ -280,6 +270,14 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
     private fun normalizeVal(currSpeed: Double, minSpeed: Double, maxSpeed: Double): Double {
         require(maxSpeed > minSpeed) { "maxSpeed must be greater than minSpeed" }
         return ((currSpeed - minSpeed) / (maxSpeed - minSpeed)).coerceIn(0.0, 1.0)
+    }
+
+    private fun getWalkSpeed( vehicle: PokemonEntity ): Double {
+        val walkspeed = vehicle.runtime.resolveDouble(vehicle.behaviour.moving.walk.walkSpeed)
+        val movementSpeed = vehicle.attributes.getValue(Attributes.MOVEMENT_SPEED)
+        val speedModifier = 1.2 * 0.30
+        return walkspeed * movementSpeed * speedModifier
+
     }
 
     override fun angRollVel(
@@ -386,7 +384,7 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
         state: GenericLandState,
         vehicle: PokemonEntity
     ): Double {
-        return 0.5
+            return 0.5
     }
 
     override fun shouldRoll(
