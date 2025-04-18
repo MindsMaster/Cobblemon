@@ -16,7 +16,7 @@ import net.minecraft.world.entity.ai.Brain
 
 object NPCBrain {
     fun configure(npcEntity: NPCEntity, npcClass: NPCClass, brain: Brain<out NPCEntity>) {
-        var behaviourConfigurations: List<BehaviourConfig> = npcClass.ai
+        var behaviourConfigurations: List<BehaviourConfig> = npcClass.behaviours
         if (npcEntity.behavioursAreCustom) {
             behaviourConfigurations = listOf(ApplyBehaviours().apply { behaviours.addAll(npcEntity.behaviours) })
         }
