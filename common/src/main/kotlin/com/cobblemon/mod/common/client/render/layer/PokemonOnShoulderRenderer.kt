@@ -162,9 +162,11 @@ class PokemonOnShoulderRenderer<T : Player>(renderLayerParent: RenderLayerParent
 
             heldItemRenderer.renderOnModel(
                 shoulderData.shownItem,
-                state.locatorStates,
+                model,
+                state,
                 matrixStack,
-                buffer
+                buffer,
+                packedLight
             )
 
             model.setDefault()
