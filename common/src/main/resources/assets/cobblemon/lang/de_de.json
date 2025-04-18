@@ -6360,7 +6360,6 @@
     "cobblemon.config.ui.battle_wild_max_distance.tooltip": "Ab welcher Distanz wilde Kämpfe nicht mehr möglich sind.",
     "cobblemon.config.ui.pasture_max_wander_distance.tooltip": "Wie weit Pokémon von ihrem Weidenblock wandern können.",
     "cobblemon.config.ui.apple_leftovers_chance": "Apfel Überreste Chance",
-    "cobblemon.config.ui.pasture_block_update_ticks.tooltip": "",
     "cobblemon.ui.pokedex.info.form.noice-face": "Wohlfühlkopf",
     "cobblemon.cosmetic.held_logs.jungle": "Tropenbaumstamm"
 }
