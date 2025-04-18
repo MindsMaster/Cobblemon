@@ -941,7 +941,7 @@
   "cobblemon.command.dialogue.invalid-dialogue": "Invalid dialogue identifier",
   "cobblemon.command.pc.invalid-box": "Box number %1$s exceeds max boxes of %2$s.",
   "cobblemon.command.unlockablepcboxwallpaper.invalid-wallpaper": "Invalid wallpaper identifier",
-  "cobblemon.command.brainedit.non_scriptable": "You are not looking at a MoLang scriptable entity.",
+  "cobblemon.command.behaviouredit.non_scriptable": "You are not looking at a MoLang scriptable entity.",
 
   "cobblemon.ui.generic.yes": "Yes",
   "cobblemon.ui.generic.no": "No",
@@ -3390,79 +3390,86 @@
   "cobblemon.entity.variable.script.name": "Script",
   "cobblemon.entity.variable.script.desc": "The script to run every tick as part of AI logic.",
 
+  "cobblemon.entity.variable.player_texture.name": "Player Texture Username",
+  "cobblemon.entity.variable.player_texture.desc": "The username of the player to texture the entity as.",
+
   "cobblemon.ui.entity.behaviour_editor": "Behaviors",
   "cobblemon.ui.entity.behaviour_editor.label": "Behaviors - %1$s",
   "cobblemon.ui.entity.behaviour_editor.label.active": "Active Behaviors",
   "cobblemon.ui.entity.behaviour_editor.label.inactive": "Inactive Behaviors",
 
-  "cobblemon.brain_preset.battle_scripts.name": "Battle Script Hooks",
-  "cobblemon.brain_preset.battle_scripts.desc": "Runs MoLang scripts when battles end.",
+  "cobblemon.behaviour.battle_scripts.name": "Battle Script Hooks",
+  "cobblemon.behaviour.battle_scripts.desc": "Runs MoLang scripts when battles end.",
 
-  "cobblemon.brain_preset.battle_commands.name": "Battle Commands",
-  "cobblemon.brain_preset.battle_commands.desc": "Runs commands when battles end.",
+  "cobblemon.behaviour.battle_commands.name": "Battle Commands",
+  "cobblemon.behaviour.battle_commands.desc": "Runs commands when battles end.",
 
-  "cobblemon.brain_preset.core.name": "Core Movement & Looking",
-  "cobblemon.brain_preset.core.desc": "Necessary for movement and looking at targets.",
+  "cobblemon.behaviour.core.name": "Core Movement & Looking",
+  "cobblemon.behaviour.core.desc": "Necessary for movement and looking at targets.",
 
-  "cobblemon.brain_preset.wanders.name": "Wanders",
-  "cobblemon.brain_preset.wanders.desc": "Randomly wanders around.",
+  "cobblemon.behaviour.wanders.name": "Wanders",
+  "cobblemon.behaviour.wanders.desc": "Randomly wanders around.",
 
-  "cobblemon.brain_preset.wanders_water.name": "Wanders Water",
-  "cobblemon.brain_preset.wanders_water.desc": "Randomly swims around in water.",
+  "cobblemon.behaviour.wanders_water.name": "Wanders Water",
+  "cobblemon.behaviour.wanders_water.desc": "Randomly swims around in water.",
 
-  "cobblemon.brain_preset.wanders_air.name": "Wanders Air",
-  "cobblemon.brain_preset.wanders_air.desc": "Randomly flies around in the air.",
+  "cobblemon.behaviour.wanders_air.name": "Wanders Air",
+  "cobblemon.behaviour.wanders_air.desc": "Randomly flies around in the air.",
 
-  "cobblemon.brain_preset.chats.name": "Stops During Chat",
-  "cobblemon.brain_preset.chats.desc": "Stops to look at the speaker during dialogue.",
+  "cobblemon.behaviour.chats.name": "Stops During Chat",
+  "cobblemon.behaviour.chats.desc": "Stops to look at the speaker during dialogue.",
 
-  "cobblemon.brain_preset.fights_melee.name": "Fights Melee",
-  "cobblemon.brain_preset.fights_melee.desc": "Can move to and attack a target with melee.",
+  "cobblemon.behaviour.fights_melee.name": "Fights Melee",
+  "cobblemon.behaviour.fights_melee.desc": "Can move to and attack a target with melee.",
 
-  "cobblemon.brain_preset.floats.name": "Stays Afloat",
-  "cobblemon.brain_preset.floats.desc": "Keeps itself above water when submerged.",
+  "cobblemon.behaviour.floats.name": "Stays Afloat",
+  "cobblemon.behaviour.floats.desc": "Keeps itself above water when submerged.",
 
-  "cobblemon.brain_preset.does_action_effects.name": "Action Effect Support",
-  "cobblemon.brain_preset.does_action_effects.desc": "Pauses idle activity when running action effects.",
+  "cobblemon.behaviour.does_action_effects.name": "Action Effect Support",
+  "cobblemon.behaviour.does_action_effects.desc": "Pauses idle activity when running action effects.",
 
-  "cobblemon.brain_preset.panics.name": "Panics",
-  "cobblemon.brain_preset.panics.desc": "Panics when hurt or near hostiles.",
+  "cobblemon.behaviour.panics.name": "Panics",
+  "cobblemon.behaviour.panics.desc": "Panics when hurt or near hostiles.",
 
-  "cobblemon.brain_preset.retaliates.name": "Retaliates",
-  "cobblemon.brain_preset.retaliates.desc": "Attacks back when hurt. Still needs a way to attack.",
+  "cobblemon.behaviour.retaliates.name": "Retaliates",
+  "cobblemon.behaviour.retaliates.desc": "Attacks back when hurt. Still needs a way to attack.",
 
-  "cobblemon.brain_preset.stationary.name": "Stays at Position",
-  "cobblemon.brain_preset.stationary.desc": "Does not move from a specific position.",
+  "cobblemon.behaviour.stationary.name": "Stays at Position",
+  "cobblemon.behaviour.stationary.desc": "Does not move from a specific position.",
 
-  "cobblemon.brain_preset.uses_healing_machine.name": "Uses Healing Machines",
-  "cobblemon.brain_preset.uses_healing_machine.desc": "Heals at a healing machine when hurt.",
+  "cobblemon.behaviour.uses_healing_machine.name": "Uses Healing Machines",
+  "cobblemon.behaviour.uses_healing_machine.desc": "Heals at a healing machine when hurt.",
 
-  "cobblemon.brain_preset.battler.name": "Pokémon Battler",
-  "cobblemon.brain_preset.battler.desc": "Stops and watches during battles.",
+  "cobblemon.behaviour.battler.name": "Pokémon Battler",
+  "cobblemon.behaviour.battler.desc": "Stops and watches during battles.",
 
-  "cobblemon.brain_preset.looks_in_one_direction.name": "Looks in One Direction",
-  "cobblemon.brain_preset.looks_in_one_direction.desc": "Looks in a fixed direction at all times.",
+  "cobblemon.behaviour.looks_in_one_direction.name": "Looks in One Direction",
+  "cobblemon.behaviour.looks_in_one_direction.desc": "Looks in a fixed direction at all times.",
 
-  "cobblemon.brain_preset.looks_around.name": "Looks Around",
-  "cobblemon.brain_preset.looks_around.desc": "Looks around at nearby entities.",
+  "cobblemon.behaviour.looks_around.name": "Looks Around",
+  "cobblemon.behaviour.looks_around.desc": "Looks around at nearby entities.",
 
-  "cobblemon.brain_preset.pokemon_battles.name": "Pokémon Battles",
-  "cobblemon.brain_preset.pokemon_battles.desc": "Stops moving and looks at opponents during Pokémon battles.",
+  "cobblemon.behaviour.pokemon_battles.name": "Pokémon Battles",
+  "cobblemon.behaviour.pokemon_battles.desc": "Stops moving and looks at opponents during Pokémon battles.",
 
-  "cobblemon.brain_preset.pokemon_follows_owner.name": "Pokémon Follows Owner",
-  "cobblemon.brain_preset.pokemon_follows_owner.desc": "Follows the owner around, more rarely if in a pasture.",
+  "cobblemon.behaviour.pokemon_follows_owner.name": "Pokémon Follows Owner",
+  "cobblemon.behaviour.pokemon_follows_owner.desc": "Follows the owner around, more rarely if in a pasture.",
 
-  "cobblemon.brain_preset.pokemon_sleeps.name": "Pokémon Sleeps",
-  "cobblemon.brain_preset.pokemon_sleeps.desc": "Pokémon can get drowsy and go to sleep if they aren't in battle or in a party.",
+  "cobblemon.behaviour.pokemon_sleeps.name": "Pokémon Sleeps",
+  "cobblemon.behaviour.pokemon_sleeps.desc": "Pokémon can get drowsy and go to sleep if they aren't in battle or in a party.",
 
-  "cobblemon.brain_preset.pokemon_sleeps_on_trainer_bed.name": "Pokémon Sleeps on Trainer Bed",
-  "cobblemon.brain_preset.pokemon_sleeps_on_trainer_bed.desc": "Pokémon that can sleep will rest on the trainer if the trainer gets into bed.",
+  "cobblemon.behaviour.pokemon_sleeps_on_trainer_bed.name": "Pokémon Sleeps on Trainer Bed",
+  "cobblemon.behaviour.pokemon_sleeps_on_trainer_bed.desc": "Pokémon that can sleep will rest on the trainer if the trainer gets into bed.",
 
-  "cobblemon.brain_preset.avoids_water.name": "Avoids Water",
-  "cobblemon.brain_preset.avoids_water.desc": "Tries to find air and then gets away from water.",
+  "cobblemon.behaviour.avoids_water.name": "Avoids Water",
+  "cobblemon.behaviour.avoids_water.desc": "Tries to find air and then gets away from water.",
 
-  "cobblemon.brain_preset.pokemon_eats_grass.name": "Eats Grass",
-  "cobblemon.brain_preset.pokemon_eats_grass.desc": "The Pokémon occasionally eats grass underfoot.",
+  "cobblemon.behaviour.pokemon_eats_grass.name": "Eats Grass",
+  "cobblemon.behaviour.pokemon_eats_grass.desc": "The Pokémon occasionally eats grass underfoot.",
+
+  "cobblemon.behaviour.player_textured.name": "Player Textured",
+  "cobblemon.behaviour.player_textured.desc": "The NPC will be textured based on a specific player username.",
+
   "cobblemon.move.pound": "Pound",
   "cobblemon.move.pound.desc": "The target is physically pounded with a long tail, a foreleg, or the like.",
   "cobblemon.move.karatechop": "Karate Chop",

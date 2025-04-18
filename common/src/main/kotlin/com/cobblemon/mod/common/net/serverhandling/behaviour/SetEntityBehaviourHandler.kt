@@ -30,7 +30,7 @@ object SetEntityBehaviourHandler : ServerNetworkPacketHandler<SetEntityBehaviour
             return // Someone hacking maybe, or someone else got in and started editing while they were in here.
         }
 
-        entity.updateBehaviours(packet.brainPresets)
+        entity.updateBehaviours(packet.behaviours)
 
         if (entity is NPCEntity) {
             player.sendPacket(OpenNPCEditorPacket(entity))

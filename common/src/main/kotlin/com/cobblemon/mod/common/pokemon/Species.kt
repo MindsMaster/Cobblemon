@@ -15,8 +15,7 @@ import com.cobblemon.mod.common.api.abilities.Abilities
 import com.cobblemon.mod.common.api.abilities.AbilityPool
 import com.cobblemon.mod.common.api.abilities.CommonAbility
 import com.cobblemon.mod.common.api.abilities.PotentialAbility
-import com.cobblemon.mod.common.api.ai.config.ApplyPresets
-import com.cobblemon.mod.common.api.ai.config.BrainConfig
+import com.cobblemon.mod.common.api.ai.config.BehaviourConfig
 import com.cobblemon.mod.common.api.data.ClientDataSynchronizer
 import com.cobblemon.mod.common.api.data.ShowdownIdentifiable
 import com.cobblemon.mod.common.api.drop.DropTable
@@ -43,9 +42,6 @@ import com.cobblemon.mod.common.net.IntSize
 import com.cobblemon.mod.common.pokemon.abilities.HiddenAbility
 import com.cobblemon.mod.common.pokemon.ai.PokemonBehaviour
 import com.cobblemon.mod.common.pokemon.lighthing.LightingData
-import com.cobblemon.mod.common.util.asExpression
-import com.cobblemon.mod.common.util.cobblemonResource
-import com.cobblemon.mod.common.util.codec.CodecUtils
 import com.cobblemon.mod.common.util.readEntityDimensions
 import com.cobblemon.mod.common.util.readEnumConstant
 import com.cobblemon.mod.common.util.readIdentifier
@@ -55,7 +51,6 @@ import com.cobblemon.mod.common.util.writeEnumConstant
 import com.cobblemon.mod.common.util.writeIdentifier
 import com.cobblemon.mod.common.util.writeSizedInt
 import com.cobblemon.mod.common.util.writeString
-import com.mojang.datafixers.util.Either
 import com.mojang.serialization.Codec
 import com.mojang.serialization.DataResult
 import net.minecraft.network.RegistryFriendlyByteBuf
@@ -114,17 +109,8 @@ class Species : ClientDataSynchronizer<Species>, ShowdownIdentifiable {
         private set
     var dynamaxBlocked = false
     var implemented = false
-    var baseAI: MutableList<BrainConfig>? = null // = mutableListOf<BrainConfig>(
-//        ApplyPresets().apply {
-//            condition = Either.left("!q.entity.is_in_party && q.entity.behaviour.moving.fly.can_fly && q.entity.behaviour.moving.walk.avoids_land".asExpression())
-//            presets.add(cobblemonResource("wanders_air"))
-//        },
-//        ApplyPresets().apply {
-//            condition = Either.left("q.entity.is_wild".asExpression())
-//            // presets like aggression to players
-//        },
-//    )
-    var ai = mutableListOf<BrainConfig>()
+    var baseAI: MutableList<BehaviourConfig>? = null
+    var ai = mutableListOf<BehaviourConfig>()
 
     /**
      * The height in decimeters

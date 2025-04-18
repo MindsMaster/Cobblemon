@@ -377,7 +377,7 @@ object CobblemonNetwork {
         list.add(PacketRegisterInfo(FishingBaitRegistrySyncPacket.ID, FishingBaitRegistrySyncPacket::decode, DataRegistrySyncPacketHandler()))
         list.add(PacketRegisterInfo(FlowRegistrySyncPacket.ID, FlowRegistrySyncPacket::decode, DataRegistrySyncPacketHandler()))
         list.add(PacketRegisterInfo(CosmeticItemAssignmentSyncPacket.ID, CosmeticItemAssignmentSyncPacket::decode, DataRegistrySyncPacketHandler()))
-        list.add(PacketRegisterInfo(BrainPresetSyncPacket.ID, BrainPresetSyncPacket::decode, DataRegistrySyncPacketHandler()))
+        list.add(PacketRegisterInfo(BehaviourSyncPacket.ID, BehaviourSyncPacket::decode, DataRegistrySyncPacketHandler()))
         list.add(PacketRegisterInfo(MarkRegistrySyncPacket.ID, MarkRegistrySyncPacket::decode, DataRegistrySyncPacketHandler()))
 
         // Effects

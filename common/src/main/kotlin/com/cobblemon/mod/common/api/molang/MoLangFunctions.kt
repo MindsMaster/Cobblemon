@@ -31,6 +31,7 @@ import com.cobblemon.mod.common.api.mark.Marks
 import com.cobblemon.mod.common.api.moves.animations.ActionEffectContext
 import com.cobblemon.mod.common.api.moves.animations.ActionEffects
 import com.cobblemon.mod.common.api.moves.animations.NPCProvider
+import com.cobblemon.mod.common.api.npc.NPCClasses
 import com.cobblemon.mod.common.api.npc.configuration.interaction.ScriptNPCInteractionConfiguration
 import com.cobblemon.mod.common.api.npc.partyproviders.SimplePartyProvider
 import com.cobblemon.mod.common.api.pokedex.AbstractPokedexManager
@@ -551,6 +552,15 @@ object MoLangFunctions {
                     DoubleValue.ONE
                 }
 
+                map.put("get_pathfinding_malus") { params ->
+                    val type = PathType.entries.find { it.name == params.getString(0).uppercase() }
+                    if (type != null) {
+                        return@put DoubleValue(entity.getPathfindingMalus(type))
+                    } else {
+                        Cobblemon.LOGGER.error("Unknown pathfinding type: ${params.getString(0)}")
+                        return@put DoubleValue.ZERO
+                    }
+                }
                 map.put("set_pathfinding_malus") { params ->
                     val type = PathType.entries.find { it.name == params.getString(0).uppercase() }
                     val malus = params.getDouble(1).toFloat()
@@ -806,6 +816,56 @@ object MoLangFunctions {
                 npc.interaction = ScriptNPCInteractionConfiguration().also {
                     it.script = script
                 }
+                return@put DoubleValue.ONE
+            }
+            map.put("set_player_texture") { params ->
+                val username = params.getString(0)
+                // Re-applying it would be unnecessarily laggy.
+                if (username == npc.data.map["player_texture_username"]?.asString()) {
+                    return@put DoubleValue.ZERO
+                }
+                npc.loadTextureFromGameProfileName(username)
+                return@put DoubleValue.ONE
+            }
+            map.put("unset_player_texture") { params ->
+                npc.unloadTexture()
+                return@put DoubleValue.ONE
+            }
+            map.put("set_resource_identifier") { params ->
+                val identifier = params.getStringOrNull(0)?.asIdentifierDefaultingNamespace()
+                npc.forcedResourceIdentifier = identifier
+                return@put DoubleValue.ONE
+            }
+            map.put("unset_resource_identifier") {
+                npc.forcedResourceIdentifier = null
+                return@put DoubleValue.ONE
+            }
+            map.put("set_class") { params ->
+                val identifier = params.getString(0).asIdentifierDefaultingNamespace()
+                val npcClass = NPCClasses.getByIdentifier(identifier)
+                if (npcClass != null) {
+                    npc.npc = npcClass
+                    return@put DoubleValue.ONE
+                } else {
+                    Cobblemon.LOGGER.error("Unknown NPC class: $identifier")
+                    return@put DoubleValue.ZERO
+                }
+            }
+            map.put("aspects") {
+                val aspects = npc.aspects
+                return@put aspects.asArrayValue { StringValue(it) }
+            }
+            map.put("add_aspect") { params ->
+                val aspects = params.params.map { it.asString() }
+                npc.appliedAspects.addAll(aspects)
+                npc.updateAspects()
+                return@put DoubleValue.ONE
+            }
+            map.put("remove_aspect") { params ->
+                val aspects = params.params.map { it.asString() }
+                npc.appliedAspects.removeAll(aspects)
+                npc.updateAspects()
+                return@put DoubleValue.ONE
             }
             map.put("party") { params ->
                 val party = npc.party ?: return@put DoubleValue.ZERO

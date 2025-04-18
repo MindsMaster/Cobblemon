@@ -8,8 +8,8 @@
 
 package com.cobblemon.mod.common.client.gui.behaviour
 
-import com.cobblemon.mod.common.CobblemonBrainConfigs
-import com.cobblemon.mod.common.api.ai.BrainPreset
+import com.cobblemon.mod.common.CobblemonBehaviours
+import com.cobblemon.mod.common.api.ai.CobblemonBehaviour
 import com.cobblemon.mod.common.api.gui.blitk
 import com.cobblemon.mod.common.client.gui.behaviour.BehaviourOptionsList.BehaviourOptionSlot
 import com.cobblemon.mod.common.client.gui.npc.NPCEditorButton
@@ -43,10 +43,10 @@ class BehaviourOptionsList(
     init {
         x = left
         if (addingMenu) {
-            val unaddedPresets = CobblemonBrainConfigs.presets.filter { it.value.visible && it.value.canBeApplied(entity) && it.key !in appliedPresets }
+            val unaddedPresets = CobblemonBehaviours.behaviours.filter { it.value.visible && it.value.canBeApplied(entity) && it.key !in appliedPresets }
             unaddedPresets.forEach { (key, value) -> addEntry(BehaviourOptionSlot(this, key, value, addingMenu)) }
         } else {
-            val addedPresets = appliedPresets.mapNotNull { it to (CobblemonBrainConfigs.presets[it]?.takeIf { it.visible && it.canBeApplied(entity) } ?: return@mapNotNull null) }
+            val addedPresets = appliedPresets.mapNotNull { it to (CobblemonBehaviours.behaviours[it]?.takeIf { it.visible && it.canBeApplied(entity) } ?: return@mapNotNull null) }
             addedPresets.forEach { (key, value) -> addEntry(BehaviourOptionSlot(this, key, value, addingMenu)) }
         }
     }
@@ -64,11 +64,11 @@ class BehaviourOptionsList(
     }
 
     fun addEntry(entry: ResourceLocation, alignButtonRight: Boolean) {
-        val brainPreset = CobblemonBrainConfigs.presets[entry] ?: return
-        addEntry(BehaviourOptionSlot(this, entry, brainPreset, alignButtonRight))
+        val behaviour = CobblemonBehaviours.behaviours[entry] ?: return
+        addEntry(BehaviourOptionSlot(this, entry, behaviour, alignButtonRight))
     }
 
-    class BehaviourOptionSlot(val parent: BehaviourOptionsList, val resourceLocation: ResourceLocation, val brainPreset: BrainPreset, val alignButtonRight: Boolean = true) : Entry<BehaviourOptionSlot>() {
+    class BehaviourOptionSlot(val parent: BehaviourOptionsList, val resourceLocation: ResourceLocation, val behaviour: CobblemonBehaviour, val alignButtonRight: Boolean = true) : Entry<BehaviourOptionSlot>() {
         companion object {
             val SLOT_WIDTH = 140
             val BUTTON_WIDTH = 16
@@ -77,7 +77,7 @@ class BehaviourOptionsList(
 
         val children = mutableListOf<GuiEventListener>()
 
-        val tooltip = Tooltip.create(brainPreset.description.copy())
+        val tooltip = Tooltip.create(behaviour.description.copy())
         val tooltipHolder = WidgetTooltipHolder().also { it.set(tooltip) }
 
         val applyButton = NPCEditorButton(
@@ -95,7 +95,7 @@ class BehaviourOptionsList(
         val slotRow = NPCEditorButton(
             0F,
             0F,
-            brainPreset.name.copy(),
+            behaviour.name.copy(),
             buttonWidth = SLOT_WIDTH,
             buttonResource = cobblemonResource("textures/gui/npc/button_base_${ if (alignButtonRight) "disabled" else "inactive" }.png"),
             buttonBorderResource = cobblemonResource("textures/gui/npc/button_border_${ if (alignButtonRight) "disabled" else "inactive" }.png")

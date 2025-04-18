@@ -8,7 +8,7 @@
 
 package com.cobblemon.mod.common.api.npc
 
-import com.cobblemon.mod.common.api.ai.config.BrainConfig
+import com.cobblemon.mod.common.api.ai.config.BehaviourConfig
 import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
 import com.cobblemon.mod.common.api.npc.configuration.NPCInteractConfiguration
 import com.cobblemon.mod.common.api.npc.variation.NPCVariationProvider
@@ -28,7 +28,7 @@ class NPCPreset {
     var names: MutableSet<Component>? = null
     var baseScale: Float? = null
     var hitbox: EntityDimensions? = null
-    var ai: List<BrainConfig>? = null
+    var ai: List<BehaviourConfig>? = null
     var skill: Int? = null
     var autoHealParty: Boolean? = null
     var randomizePartyOrder: Boolean? = null

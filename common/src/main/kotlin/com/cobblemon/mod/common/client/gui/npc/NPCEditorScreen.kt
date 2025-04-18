@@ -48,7 +48,7 @@ class NPCEditorScreen(
 
     override fun init() {
         super.init()
-        addRenderableOnly(NPCRenderWidget(leftX + 12, topY + 35, dto.npcClass, dto.aspects))
+        addRenderableOnly(NPCRenderWidget(leftX + 12, topY + 35, dto.npcUUID, dto.resourceIdentifier, dto.aspects))
         addRenderableWidget(SimpleNPCTextInputWidget(
             getter = { dto.npcName.string },
             setter = { dto.npcName = it.text() },
@@ -92,7 +92,7 @@ class NPCEditorScreen(
                 label = lang("ui.entity.behaviour_editor"),
             ) {
                 val entity = this.minecraft!!.level!!.getEntity(npcId) as? LivingEntity ?: return@NPCEditorButton // Unlikely
-                minecraft!!.setScreen(BehaviourEditorScreen(entity = entity, appliedPresets = dto.brainPresets))
+                minecraft!!.setScreen(BehaviourEditorScreen(entity = entity, appliedBehaviours = dto.behaviours))
             }
         )
 

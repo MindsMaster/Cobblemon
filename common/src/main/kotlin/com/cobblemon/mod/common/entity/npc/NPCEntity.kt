@@ -10,6 +10,7 @@ package com.cobblemon.mod.common.entity.npc
 
 import com.bedrockk.molang.runtime.MoLangRuntime
 import com.bedrockk.molang.runtime.struct.VariableStruct
+import com.bedrockk.molang.runtime.value.StringValue
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.CobblemonEntities
 import com.cobblemon.mod.common.CobblemonItems
@@ -111,6 +112,7 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
             if (valueChanged) {
                 customName = value.names.randomOrNull() ?: "NPC".text()
                 if (!level().isClientSide) {
+                    entityData.set(RESOURCE_IDENTIFIER, forcedResourceIdentifier ?: value.resourceIdentifier)
                     remakeBrain()
                 }
             }
@@ -125,6 +127,22 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
         get() = entityData.get(HIDE_NAME_TAG)
         set(value) {
             entityData.set(HIDE_NAME_TAG, value)
+        }
+
+    var resourceIdentifier: ResourceLocation
+        get() = entityData.get(RESOURCE_IDENTIFIER)
+        private set(value) {
+            entityData.set(RESOURCE_IDENTIFIER, value)
+        }
+
+    var forcedResourceIdentifier: ResourceLocation? = null
+        set(value) {
+            field = value
+            if (value != null) {
+                entityData.set(RESOURCE_IDENTIFIER, value)
+            } else {
+                entityData.set(RESOURCE_IDENTIFIER, npc.resourceIdentifier)
+            }
         }
 
     var skill: Int? = null // range from 0 - 5
@@ -208,7 +226,6 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
         runtime.environment.query.addFunctions(struct.functions)
         refreshDimensions()
         navigation.setCanFloat(false)
-        setPathfindingMalus(PathType.BLOCKED, -1.0F)
         if (!world.isClientSide) {
             remakeBrain()
         }
@@ -221,6 +238,7 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
             .add(Attributes.ATTACK_KNOCKBACK)
 
         val NPC_CLASS = SynchedEntityData.defineId(NPCEntity::class.java, IdentifierDataSerializer)
+        val RESOURCE_IDENTIFIER = SynchedEntityData.defineId(NPCEntity::class.java, IdentifierDataSerializer)
         val ASPECTS = SynchedEntityData.defineId(NPCEntity::class.java, StringSetDataSerializer)
         val POSE_TYPE = SynchedEntityData.defineId(NPCEntity::class.java, PoseTypeDataSerializer)
         val BATTLE_IDS = SynchedEntityData.defineId(NPCEntity::class.java, UUIDSetDataSerializer)
@@ -273,6 +291,7 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
     override fun defineSynchedData(builder: SynchedEntityData.Builder) {
         super.defineSynchedData(builder)
         builder.define(NPC_CLASS, NPCClasses.classes.first().id)
+        builder.define(RESOURCE_IDENTIFIER, NPCClasses.classes.first().resourceIdentifier)
         builder.define(ASPECTS, emptySet())
         builder.define(POSE_TYPE, PoseType.STAND)
         builder.define(BATTLE_IDS, setOf())
@@ -347,6 +366,9 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
         nbt.put(DataKeys.NPC_LEVEL, IntTag.valueOf(level))
         nbt.putBoolean(DataKeys.NPC_HIDE_NAME_TAG, hideNameTag)
         nbt.putString(DataKeys.NPC_CLASS, npc.id.toString())
+        if (forcedResourceIdentifier != null) {
+            nbt.putString(DataKeys.NPC_FORCED_RESOURCE_IDENTIFIER, forcedResourceIdentifier.toString())
+        }
         nbt.put(DataKeys.NPC_ASPECTS, ListTag().also { list -> appliedAspects.forEach { list.add(StringTag.valueOf(it)) } })
         nbt.put(DataKeys.NPC_VARIATION_ASPECTS, ListTag().also { list -> variationAspects.forEach { list.add(StringTag.valueOf(it)) } })
         interaction?.let {
@@ -410,6 +432,11 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
 
     override fun load(nbt: CompoundTag) {
         npc = NPCClasses.getByIdentifier(ResourceLocation.parse(nbt.getString(DataKeys.NPC_CLASS))) ?: NPCClasses.classes.first()
+        forcedResourceIdentifier = if (nbt.contains(DataKeys.NPC_FORCED_RESOURCE_IDENTIFIER)) {
+            ResourceLocation.parse(nbt.getString(DataKeys.NPC_FORCED_RESOURCE_IDENTIFIER))
+        } else {
+            null
+        }
         entityData.set(LEVEL, nbt.getInt(DataKeys.NPC_LEVEL).takeIf { it != 0 } ?: 1)
         entityData.set(HIDE_NAME_TAG, nbt.getBoolean(DataKeys.NPC_HIDE_NAME_TAG))
         super.load(nbt)
@@ -466,6 +493,7 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
                 val url = skin.url
                 val model = NPCPlayerModelType.valueOf((skin.getMetadata("model") ?: "default").uppercase())
                 loadTexture(URI(url), model)
+                data.setDirectly("player_texture_username", StringValue(username))
             }
 
             override fun onProfileLookupFailed(profileName: String, exception: Exception) {
@@ -479,6 +507,14 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
         appliedAspects -= "model-slim"
         appliedAspects += "model-${model.name.lowercase()}"
         entityData.set(NPC_PLAYER_TEXTURE, NPCPlayerTexture(uri.toURL().openStream().readBytes(), model))
+        updateAspects()
+    }
+
+    fun unloadTexture() {
+        appliedAspects -= "model-default"
+        appliedAspects -= "model-slim"
+        entityData.set(NPC_PLAYER_TEXTURE, NPCPlayerTexture(ByteArray(1), NPCPlayerModelType.NONE))
+        data.map.remove("player_texture_username")
         updateAspects()
     }
 

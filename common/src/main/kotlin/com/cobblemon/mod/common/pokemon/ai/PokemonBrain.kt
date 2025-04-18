@@ -9,12 +9,12 @@
 package com.cobblemon.mod.common.pokemon.ai
 
 import com.cobblemon.mod.common.CobblemonActivities
-import com.cobblemon.mod.common.CobblemonBrainConfigs
+import com.cobblemon.mod.common.CobblemonBehaviours
 import com.cobblemon.mod.common.CobblemonMemories
 import com.cobblemon.mod.common.CobblemonSensors
-import com.cobblemon.mod.common.api.ai.BrainConfigurationContext
-import com.cobblemon.mod.common.api.ai.config.ApplyPresets
-import com.cobblemon.mod.common.api.ai.config.BrainConfig
+import com.cobblemon.mod.common.api.ai.BehaviourConfigurationContext
+import com.cobblemon.mod.common.api.ai.config.ApplyBehaviours
+import com.cobblemon.mod.common.api.ai.config.BehaviourConfig
 import com.cobblemon.mod.common.entity.ai.*
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.entity.pokemon.ai.tasks.*
@@ -74,17 +74,17 @@ object PokemonBrain {
          * auto configurations typically aren't visible on the client since the contained presets already are.
          * I realize that this doesn't make a great deal of sense, but I am here in case of future Hiro amnesia.
          */
-        var brainConfigurations: List<BrainConfig> = (pokemon.form.baseAI ?: CobblemonBrainConfigs.autoPokemonPresets.flatMap { it.configurations }) + pokemon.form.ai
+        var behaviourConfigurations: List<BehaviourConfig> = (pokemon.form.baseAI ?: CobblemonBehaviours.autoPokemonBehaviours.flatMap { it.configurations }) + pokemon.form.ai
         if (entity.behavioursAreCustom) {
-            brainConfigurations = listOf(ApplyPresets().apply { presets.addAll(entity.behaviours) })
+            behaviourConfigurations = listOf(ApplyBehaviours().apply { behaviours.addAll(entity.behaviours) })
         }
 
-        val ctx = BrainConfigurationContext()
-        ctx.apply(entity, brainConfigurations)
+        val ctx = BehaviourConfigurationContext()
+        ctx.apply(entity, behaviourConfigurations)
         entity.behaviours.clear()
-        entity.behaviours.addAll(ctx.appliedBrainPresets)
+        entity.behaviours.addAll(ctx.appliedBehaviours)
 
-        if (brainConfigurations.isNotEmpty()) {
+        if (behaviourConfigurations.isNotEmpty()) {
             return brain
         }
 

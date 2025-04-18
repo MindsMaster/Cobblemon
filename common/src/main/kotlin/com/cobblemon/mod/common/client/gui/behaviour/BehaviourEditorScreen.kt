@@ -9,10 +9,8 @@
 package com.cobblemon.mod.common.client.gui.behaviour
 
 import com.cobblemon.mod.common.api.gui.blitk
-import com.cobblemon.mod.common.api.text.bold
 import com.cobblemon.mod.common.client.gui.npc.NPCEditorButton
 import com.cobblemon.mod.common.client.render.drawScaledText
-import com.cobblemon.mod.common.entity.npc.NPCEntity
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.net.messages.server.behaviour.SetEntityBehaviourPacket
 import com.cobblemon.mod.common.util.cobblemonResource
@@ -26,7 +24,7 @@ import net.minecraft.world.entity.LivingEntity
 
 class BehaviourEditorScreen(
     val entity: LivingEntity,
-    val appliedPresets: MutableSet<ResourceLocation>,
+    val appliedBehaviours: MutableSet<ResourceLocation>,
 ) : Screen(Component.literal("Behaviour Editor")) {
     companion object {
         const val BASE_WIDTH = 360
@@ -52,7 +50,7 @@ class BehaviourEditorScreen(
                 left = x + 12,
                 top = y + 52,
                 entity = entity,
-                appliedPresets = appliedPresets,
+                appliedPresets = appliedBehaviours,
                 addingMenu = true
             )
         )
@@ -63,7 +61,7 @@ class BehaviourEditorScreen(
                 left = x + 183,
                 top = y + 52,
                 entity = entity,
-                appliedPresets = appliedPresets,
+                appliedPresets = appliedBehaviours,
                 addingMenu = false
             )
         )
@@ -77,7 +75,7 @@ class BehaviourEditorScreen(
             ) {
                 // Send packet for updating behaviours of the entity
                 // expect that it will reopen whichever GUI makes sense afterwards
-                SetEntityBehaviourPacket(entity.id, appliedPresets.toSet()).sendToServer()
+                SetEntityBehaviourPacket(entity.id, appliedBehaviours.toSet()).sendToServer()
             }
         )
     }
@@ -130,13 +128,13 @@ class BehaviourEditorScreen(
     }
 
     fun add(resourceLocation: ResourceLocation, alignButtonRight: Boolean) {
-        appliedPresets.add(resourceLocation)
+        appliedBehaviours.add(resourceLocation)
         unadded.removeEntry(resourceLocation)
         added.addEntry(resourceLocation, !alignButtonRight)
     }
 
     fun remove(resourceLocation: ResourceLocation, alignButtonRight: Boolean) {
-        appliedPresets.remove(resourceLocation)
+        appliedBehaviours.remove(resourceLocation)
         added.removeEntry(resourceLocation)
         unadded.addEntry(resourceLocation, !alignButtonRight)
     }

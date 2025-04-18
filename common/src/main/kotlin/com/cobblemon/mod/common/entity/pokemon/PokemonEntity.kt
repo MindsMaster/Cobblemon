@@ -57,7 +57,6 @@ import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviours
 import com.cobblemon.mod.common.api.riding.events.SelectDriverEvent
 import com.cobblemon.mod.common.api.riding.stats.RidingStat
 import com.cobblemon.mod.common.api.riding.util.RidingAnimationData
-import com.cobblemon.mod.common.api.riding.util.Vec3Spring
 import com.cobblemon.mod.common.api.scheduling.Schedulable
 import com.cobblemon.mod.common.api.scheduling.SchedulingTracker
 import com.cobblemon.mod.common.api.scheduling.afterOnServer
@@ -398,13 +397,6 @@ open class PokemonEntity(
         remakeBrain()
         refreshDimensions()
         refreshRiding()
-    }
-
-    override fun updateBehaviours(brainPresets: Collection<ResourceLocation>) {
-        behaviours.clear()
-        behaviours.addAll(brainPresets)
-        behavioursAreCustom = true
-        remakeBrain()
     }
 
     override fun defineSynchedData(builder: SynchedEntityData.Builder) {
