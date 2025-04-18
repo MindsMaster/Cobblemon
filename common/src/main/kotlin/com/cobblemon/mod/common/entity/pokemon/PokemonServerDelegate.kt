@@ -289,12 +289,10 @@ class PokemonServerDelegate : PokemonSideDelegate {
     }
 
     fun doDeathDrops() {
-        if (entity.ownerUUID == null && entity.owner == null) {
-            if(entity.level().gameRules.getBoolean(CobblemonGameRules.DO_POKEMON_LOOT)) {
-                val heldItem = (entity as PokemonEntity?)?.pokemon?.heldItemNoCopy() ?: ItemStack.EMPTY
-                if (!heldItem.isEmpty) entity.spawnAtLocation(heldItem.item)
-                (entity.drops ?: entity.pokemon.form.drops).drop(entity, entity.level() as ServerLevel, entity.position(), entity.killer)
-            }
+        if (entity.ownerUUID == null && entity.owner == null && entity.level().gameRules.getBoolean(CobblemonGameRules.DO_POKEMON_LOOT)) {
+            val heldItem = (entity as PokemonEntity?)?.pokemon?.heldItemNoCopy() ?: ItemStack.EMPTY
+            if (!heldItem.isEmpty) entity.spawnAtLocation(heldItem.item)
+            (entity.drops ?: entity.pokemon.form.drops).drop(entity, entity.level() as ServerLevel, entity.position(), entity.killer)
         }
     }
 
