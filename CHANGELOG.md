@@ -129,6 +129,7 @@
 - The Pokedex now displays a form name of a "normal" Pokémon for when the base form is still a named form.
 - Improved the zoom functionality of the Pokédex Scanner by giving the levels logarithmic scaling.
 - Added a subtle rotation effect to the Pokédex Scanner's wheel when zooming.
+- Improved parity with vanilla mobs' drop behavior; loot and XP drop on death instead of after the entire death sequence finishes.
 
 ### Fixes
 - Fixed Particles sometimes facing the wrong direction (looking at you, Swords Dance)
