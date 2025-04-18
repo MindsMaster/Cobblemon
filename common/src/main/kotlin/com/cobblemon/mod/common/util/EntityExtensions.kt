@@ -8,11 +8,12 @@
 
 package com.cobblemon.mod.common.util
 
-import com.cobblemon.mod.common.api.ai.PathfindingMedium
-import com.cobblemon.mod.common.api.text.yellow
-import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.google.common.collect.ImmutableMap
 import com.mojang.serialization.Dynamic
+import java.util.ArrayDeque
+import kotlin.math.ceil
+import kotlin.math.floor
+import kotlin.math.min
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.nbt.NbtOps
@@ -21,20 +22,13 @@ import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.level.Level
-import net.minecraft.world.entity.PathfinderMob
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
-import net.minecraft.world.level.pathfinder.PathType.WALKABLE
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.phys.shapes.BooleanOp
 import net.minecraft.world.phys.shapes.CollisionContext
 import net.minecraft.world.phys.shapes.Shapes
-import java.util.*
-import kotlin.math.ceil
-import kotlin.math.floor
-import kotlin.math.min
-import kotlin.time.measureTime
 
 
 fun Entity.makeEmptyBrainDynamic() = Dynamic(
@@ -187,15 +181,6 @@ fun Entity.isDusk(): Boolean {
 
 fun Entity.isStandingOnSand(): Boolean {
     return isStandingOn(setOf(Blocks.SAND))
-}
-
-fun PathfinderMob.getPathfindingMedium(): PathfindingMedium {
-    return when {
-        this.isUnderWater -> PathfindingMedium.WATER
-        this.isInLava -> PathfindingMedium.LAVA
-        navigation.nodeEvaluator.getPathType(this, blockPosition()) == WALKABLE -> PathfindingMedium.LAND
-        else -> PathfindingMedium.AIR
-    }
 }
 
 fun Entity.isStandingOnRedSand(): Boolean {
