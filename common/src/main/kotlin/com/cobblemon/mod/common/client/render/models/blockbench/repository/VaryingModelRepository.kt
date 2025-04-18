@@ -643,7 +643,6 @@ object VaryingModelRepository {
         inbuilt("gurdurr", ::GurdurrModel)
         inbuilt("conkeldurr", ::ConkeldurrModel)
         inbuilt("clodsire", ::ClodsireModel)
-        inbuilt("ursaring", ::UrsaringModel)
         inbuilt("litwick", ::LitwickModel)
         inbuilt("lampent", ::LampentModel)
         inbuilt("chandelure", ::ChandelureModel)
