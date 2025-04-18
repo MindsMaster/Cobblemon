@@ -344,14 +344,17 @@ class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
 
     override fun addToStruct(struct: QueryStruct) {
         super.addToStruct(struct)
-        struct.addFunctions(functions.functions)
         struct.addFunctions(ClientMoLangFunctions.clientFunctions)
+        struct.addFunctions(functions.functions)
         runtime.environment.query = struct
+    }
+
+    override fun updateAge(age: Int) {
+        this.age = age
     }
 
     override fun initialize(entity: PokemonEntity) {
         this.currentEntity = entity
-        this.age = entity.tickCount
 
         this.runtime.environment.query.addFunctions(mapOf(
             "in_battle" to java.util.function.Function {

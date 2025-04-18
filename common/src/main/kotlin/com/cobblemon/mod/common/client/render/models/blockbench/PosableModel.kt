@@ -830,4 +830,6 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
         condition = condition,
         animations = { animations(it) }
     )
+
+    fun isReadyForAnimation() = ::context.isInitialized
 }

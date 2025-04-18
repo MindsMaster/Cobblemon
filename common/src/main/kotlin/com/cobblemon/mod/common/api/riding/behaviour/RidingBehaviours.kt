@@ -25,6 +25,7 @@ object RidingBehaviours {
         register(JetAirBehaviour.KEY, JetAirBehaviour())
         register(SwimDashBehaviour.KEY, SwimDashBehaviour())
         register(VehicleLandBehaviour.KEY, VehicleLandBehaviour())
+        register(HoverBehaviour.KEY, HoverBehaviour())
         register(CompositeBehaviour.KEY, CompositeBehaviour())
     }
 

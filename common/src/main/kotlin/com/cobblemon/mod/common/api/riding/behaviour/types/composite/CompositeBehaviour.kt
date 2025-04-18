@@ -387,6 +387,8 @@ class CompositeState(
         super.reset()
         activeController.set(defaultBehaviour, forced = true)
         lastTransition.set(-100L, forced = true)
+        defaultBehaviourState.reset()
+        alternateBehaviourState.reset()
     }
 
     override fun copy(): CompositeState {
@@ -402,17 +404,23 @@ class CompositeState(
     override fun shouldSync(previous: RidingBehaviourState): Boolean {
         if (previous !is CompositeState) return false
         if (previous.activeController.get() != activeController.get()) return true
+        if (defaultBehaviourState.shouldSync(previous.defaultBehaviourState)) return true
+        if (alternateBehaviourState.shouldSync(previous.alternateBehaviourState)) return true
         return super.shouldSync(previous)
     }
 
     override fun encode(buffer: FriendlyByteBuf) {
         super.encode(buffer)
         buffer.writeResourceLocation(activeController.get())
+        defaultBehaviourState.encode(buffer)
+        alternateBehaviourState.encode(buffer)
     }
 
     override fun decode(buffer: FriendlyByteBuf) {
         super.decode(buffer)
         activeController.set(buffer.readResourceLocation(), forced = true)
+        defaultBehaviourState.decode(buffer)
+        alternateBehaviourState.decode(buffer)
     }
 
 }
