@@ -25,7 +25,6 @@
     "client.ModelLoaderMixin",
     "client.ModelPartMixin",
     "client.MouseHandlerMixin",
-    "client.PlayerModelMixin",
     "client.PlayerRendererMixin",
     "invoker.ClientPlayNetworkHandlerInvoker",
     "riding.JetMixin"
