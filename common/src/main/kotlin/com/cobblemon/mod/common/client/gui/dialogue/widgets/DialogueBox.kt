@@ -10,6 +10,7 @@ package com.cobblemon.mod.common.client.gui.dialogue.widgets
 
 import com.cobblemon.mod.common.api.gui.blitk
 import com.cobblemon.mod.common.api.text.text
+import com.cobblemon.mod.common.client.CobblemonClient
 import com.cobblemon.mod.common.client.gui.ScrollingWidget
 import com.cobblemon.mod.common.client.gui.dialogue.DialogueScreen
 import com.cobblemon.mod.common.client.render.drawScaledText
@@ -53,6 +54,8 @@ class DialogueBox(
     }
 
     val dialogue = dialogueScreen.dialogueDTO
+
+    var ticksPassed = 0F
 
     init {
         correctSize()
@@ -127,6 +130,8 @@ class DialogueBox(
     }
 
     override fun renderWidget(context: GuiGraphics, mouseX: Int, mouseY: Int, partialTicks: Float) {
+        ticksPassed += partialTicks
+        CobblemonClient.acceptableRenderCount = (ticksPassed / 0.75).toInt()
         correctSize()
         blitk(
             matrixStack = context.pose(),
@@ -139,6 +144,7 @@ class DialogueBox(
         )
 
         super.renderWidget(context, mouseX, mouseY, partialTicks)
+        CobblemonClient.acceptableRenderCount = -1 // Don't forgetti this
     }
 
     override fun enableScissor(context: GuiGraphics) {

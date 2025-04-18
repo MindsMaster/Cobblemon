@@ -98,6 +98,16 @@ object CobblemonClient {
     val battleOverlay: BattleOverlay by lazy { BattleOverlay() }
     val pokedexUsageContext: PokedexUsageContext by lazy { PokedexUsageContext() }
 
+    @JvmStatic
+    var acceptableRenderCount = -1
+        set(value) {
+            field = value
+            renderedCount = 0
+        }
+
+    @JvmStatic
+    var renderedCount = 0
+
     fun onLogin() {
         clientPlayerData = ClientGeneralPlayerData()
         requests = ClientPlayerActionRequests()
