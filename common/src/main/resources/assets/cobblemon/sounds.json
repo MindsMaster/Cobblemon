@@ -11,6 +11,15 @@
   "entity.villager.work_nurse": {
     "sounds": [ { "name":  "cobblemon:entity/villager/work_nurse", "volume":  0.8 } ]
   },
+  "entity.villager.npc1": {
+    "sounds": [ "cobblemon:entity/villager/npc1" ]
+  },
+  "entity.villager.npc2": {
+    "sounds": [ "cobblemon:entity/villager/npc2" ]
+  },
+  "entity.villager.npc3": {
+    "sounds": [ { "name":  "cobblemon:entity/villager/npc3", "volume": 0.7 } ]
+  },
   "pc.on": {
     "sounds": [ "cobblemon:pc/pc_on" ]
   },

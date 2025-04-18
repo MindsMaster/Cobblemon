@@ -46,6 +46,12 @@ object CobblemonSounds : PlatformRegistry<Registry<SoundEvent>, ResourceKey<Regi
     @JvmField
     val VILLAGER_WORK_NURSE = this.create("entity.villager.work_nurse")
     @JvmField
+    val VILLAGER_NPC_1 = this.create("entity.villager.npc1")
+    @JvmField
+    val VILLAGER_NPC_2 = this.create("entity.villager.npc2")
+    @JvmField
+    val VILLAGER_NPC_3 = this.create("entity.villager.npc3")
+    @JvmField
     val HEALING_MACHINE_ACTIVE = this.create("block.healing_machine.active")
 
     @JvmField

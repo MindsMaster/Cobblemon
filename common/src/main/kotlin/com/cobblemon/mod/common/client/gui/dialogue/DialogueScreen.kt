@@ -10,6 +10,7 @@ package com.cobblemon.mod.common.client.gui.dialogue
 
 import com.bedrockk.molang.runtime.MoLangRuntime
 import com.bedrockk.molang.runtime.MoParams
+import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.dialogue.ArtificialDialogueFaceProvider
 import com.cobblemon.mod.common.api.dialogue.PlayerDialogueFaceProvider
 import com.cobblemon.mod.common.api.dialogue.ReferenceDialogueFaceProvider
@@ -18,12 +19,7 @@ import com.cobblemon.mod.common.api.molang.MoLangFunctions.setup
 import com.cobblemon.mod.common.api.net.NetworkPacket
 import com.cobblemon.mod.common.client.ClientMoLangFunctions.setupClient
 import com.cobblemon.mod.common.client.gui.CobblemonRenderable
-import com.cobblemon.mod.common.client.gui.dialogue.widgets.DialogueBox
-import com.cobblemon.mod.common.client.gui.dialogue.widgets.DialoguePortraitWidget
-import com.cobblemon.mod.common.client.gui.dialogue.widgets.DialogueNameWidget
-import com.cobblemon.mod.common.client.gui.dialogue.widgets.DialogueOptionWidget
-import com.cobblemon.mod.common.client.gui.dialogue.widgets.DialogueTextInputWidget
-import com.cobblemon.mod.common.client.gui.dialogue.widgets.DialogueTimerWidget
+import com.cobblemon.mod.common.client.gui.dialogue.widgets.*
 import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.net.messages.client.dialogue.dto.DialogueDTO
 import com.cobblemon.mod.common.net.messages.client.dialogue.dto.DialogueInputDTO
@@ -33,6 +29,10 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.EditBox
 import net.minecraft.client.gui.screens.Screen
+import net.minecraft.client.resources.sounds.SimpleSoundInstance
+import net.minecraft.sounds.SoundEvent
+import kotlin.math.max
+import kotlin.random.Random
 
 class DialogueScreen(var dialogueDTO: DialogueDTO) : Screen("gui.dialogue".asTranslated()), CobblemonRenderable {
     val speakers = dialogueDTO.speakers?.mapNotNull { (key, value) ->
@@ -62,6 +62,8 @@ class DialogueScreen(var dialogueDTO: DialogueDTO) : Screen("gui.dialogue".asTra
     lateinit var dialogueOptionWidgets: List<DialogueOptionWidget>
     lateinit var dialogueNameWidget: DialogueNameWidget
     lateinit var dialoguePortraitWidget: DialoguePortraitWidget
+
+    var dialogueStartTick = 0
 
     val scaledWidth
         get() = this.minecraft!!.window.guiScaledWidth
@@ -201,10 +203,46 @@ class DialogueScreen(var dialogueDTO: DialogueDTO) : Screen("gui.dialogue".asTra
             setInitialFocus(dialogueTextInputWidget)
         }
 
+        this.dialogueStartTick = minecraft!!.player!!.tickCount
         dialogueDTO.currentPageDTO.clientActions.flatMap(String::asExpressions).resolve(runtime)
     }
 
+    val pitchRandom = Random(0)
+    var gibberIndex = 0
+    var timeElapsedSinceGibber = 0.0
+
+    fun playGibberSpeak(delta: Float, text: String, gibberFrequency: Int, characterDelay: Double, minPitch: Float, maxPitch: Float, minVolume: Float, maxVolume: Float, sounds: List<SoundEvent>) {
+        timeElapsedSinceGibber += delta / 20
+
+        if (timeElapsedSinceGibber < characterDelay) return
+
+        timeElapsedSinceGibber = 0.0
+
+        if (gibberIndex >= text.length) return
+
+        val gibberChar = text[gibberIndex]
+
+        val pitchRange = maxPitch * 100 - minPitch * 100
+        val gibberPitch = (gibberChar.hashCode() % pitchRange + minPitch * 100) / 100
+        val gibberSound = sounds[gibberChar.hashCode() % sounds.size]
+
+        val volume = Random.nextBetween(minVolume, maxVolume)
+        minecraft?.soundManager?.play(SimpleSoundInstance.forUI(gibberSound, gibberPitch, volume))
+        gibberIndex += gibberFrequency
+    }
+
     override fun render(GuiGraphics: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {
+        playGibberSpeak(
+            delta = delta,
+            text = dialogueDTO.currentPageDTO.lines.joinToString { it.string },
+            gibberFrequency = 3,
+            characterDelay = 0.1,
+            minPitch = 0.8f,
+            maxPitch = 1.2f,
+            minVolume = 0.75f,
+            maxVolume = 1.1f,
+            sounds = listOf(CobblemonSounds.VILLAGER_NPC_1, CobblemonSounds.VILLAGER_NPC_2, CobblemonSounds.VILLAGER_NPC_3)
+        )
         remainingSeconds -= delta / 20F
         dialogueTimerWidget.ratio = if (remainingSeconds <= 0) -1F else remainingSeconds / dialogueDTO.dialogueInput.deadline
         super.render(GuiGraphics, mouseX, mouseY, delta)
@@ -213,6 +251,7 @@ class DialogueScreen(var dialogueDTO: DialogueDTO) : Screen("gui.dialogue".asTra
     override fun isPauseScreen() = false
 
     fun update(dialogueDTO: DialogueDTO) {
+        gibberIndex = 0
         this.dialogueDTO = dialogueDTO
         this.remainingSeconds = dialogueDTO.dialogueInput.deadline
         waitingForServerUpdate = false
