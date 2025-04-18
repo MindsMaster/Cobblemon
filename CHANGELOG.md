@@ -113,6 +113,9 @@
 - Metagross
 - Hoothoot
 - Noctowl
+- Teddiursa
+- Ursaring
+- Ursaluna
 - Added Syrupy Apples.
 
 ### Changes
