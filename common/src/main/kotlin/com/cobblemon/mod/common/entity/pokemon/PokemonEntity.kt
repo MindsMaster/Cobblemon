@@ -70,14 +70,15 @@ import com.cobblemon.mod.common.battles.SuccessfulBattleStart
 import com.cobblemon.mod.common.block.entity.PokemonPastureBlockEntity
 import com.cobblemon.mod.common.client.entity.PokemonClientDelegate
 import com.cobblemon.mod.common.entity.MoLangScriptingEntity
+import com.cobblemon.mod.common.entity.OmniPathingEntity
 import com.cobblemon.mod.common.entity.PlatformType
 import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.entity.PoseType
+import com.cobblemon.mod.common.entity.ai.OmniPathNavigation
 import com.cobblemon.mod.common.entity.generic.GenericBedrockEntity
 import com.cobblemon.mod.common.entity.npc.NPCEntity
 import com.cobblemon.mod.common.entity.pokeball.EmptyPokeBallEntity
 import com.cobblemon.mod.common.entity.pokemon.ai.PokemonMoveControl
-import com.cobblemon.mod.common.entity.pokemon.ai.PokemonNavigation
 import com.cobblemon.mod.common.entity.pokemon.effects.EffectTracker
 import com.cobblemon.mod.common.entity.pokemon.effects.IllusionEffect
 import com.cobblemon.mod.common.net.messages.client.OpenBehaviourEditorPacket
@@ -165,7 +166,7 @@ open class PokemonEntity(
     world: Level,
     pokemon: Pokemon = Pokemon().apply { isClient = world.isClientSide },
     type: EntityType<out PokemonEntity> = CobblemonEntities.POKEMON,
-) : ShoulderRidingEntity(type, world), PosableEntity, Shearable, Schedulable, Rideable, ScannableEntity, MoLangScriptingEntity {
+) : ShoulderRidingEntity(type, world), PosableEntity, Shearable, Schedulable, Rideable, ScannableEntity, MoLangScriptingEntity, OmniPathingEntity {
     companion object {
         @JvmStatic val SPECIES = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.STRING)
         @JvmStatic val NICKNAME = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.COMPONENT)
@@ -863,8 +864,8 @@ open class PokemonEntity(
         return if (nodeType == PathType.OPEN) 0F else super.getPathfindingMalus(nodeType)
     }
 
-    override fun getNavigation() = navigation as PokemonNavigation
-    override fun createNavigation(world: Level) = PokemonNavigation(world, this)
+    override fun getNavigation() = navigation as OmniPathNavigation
+    override fun createNavigation(world: Level) = OmniPathNavigation(world, this)
 
     override fun makeBrain(dynamic: Dynamic<*>): Brain<out PokemonEntity> {
         this.brainDynamic = dynamic
@@ -1695,12 +1696,8 @@ open class PokemonEntity(
 
     */
 
-    fun isFlying() = this.getBehaviourFlag(PokemonBehaviourFlag.FLYING)
-
     fun isFalling() =
         this.fallDistance > 0 && this.level().getBlockState(this.blockPosition().below()).isAir && !this.isFlying()
-
-    fun couldStopFlying() = isFlying() && !behaviour.moving.walk.avoidsLand && behaviour.moving.walk.canWalk
 
     override fun getCurrentPoseType(): PoseType = this.entityData.get(POSE_TYPE)
 
@@ -2188,5 +2185,26 @@ open class PokemonEntity(
 
     override fun resolveEntityScan(): LivingEntity {
         return this
+    }
+
+    override fun canWalk() = behaviour.moving.walk.canWalk
+    override fun canSwimInWater() = behaviour.moving.swim.canSwimInWater
+    override fun canFly() = behaviour.moving.fly.canFly
+    override fun canSwimInLava() = behaviour.moving.swim.canSwimInLava
+
+    override fun canSwimUnderFluid(fluidState: FluidState): Boolean {
+        return if (fluidState.`is`(FluidTags.LAVA)) {
+            behaviour.moving.swim.canBreatheUnderlava
+        } else if (fluidState.`is`(FluidTags.WATER)) {
+            behaviour.moving.swim.canBreatheUnderwater
+        } else {
+            false
+        }
+    }
+
+    override fun isFlying() = this.getBehaviourFlag(PokemonBehaviourFlag.FLYING)
+    override fun couldStopFlying() = isFlying() && !behaviour.moving.walk.avoidsLand && behaviour.moving.walk.canWalk
+    override fun setFlying(state: Boolean) {
+        setBehaviourFlag(PokemonBehaviourFlag.FLYING, state)
     }
 }

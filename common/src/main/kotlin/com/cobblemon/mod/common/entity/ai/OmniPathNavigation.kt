@@ -6,11 +6,9 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package com.cobblemon.mod.common.entity.pokemon.ai
+package com.cobblemon.mod.common.entity.ai
 
-import com.cobblemon.mod.common.entity.pokemon.PokemonBehaviourFlag
-import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
-import com.cobblemon.mod.common.pokemon.ai.MoveBehaviour
+import com.cobblemon.mod.common.entity.OmniPathingEntity
 import com.cobblemon.mod.common.pokemon.ai.OmniPathNodeMaker
 import com.cobblemon.mod.common.util.getWaterAndLavaIn
 import com.cobblemon.mod.common.util.toVec3d
@@ -23,6 +21,7 @@ import net.minecraft.tags.FluidTags
 import net.minecraft.util.Mth
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.Mob
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.pathfinder.Node
@@ -32,12 +31,16 @@ import net.minecraft.world.level.pathfinder.PathFinder
 import net.minecraft.world.level.pathfinder.PathType
 import net.minecraft.world.phys.Vec3
 
-@Deprecated("This should be deleted once Jazz no longer feels like it would ruin his life with conflicts")
-class PokemonNavigation(val world: Level, val pokemonEntity: PokemonEntity) : GroundPathNavigation(pokemonEntity, world) {
-    // Lazy init because navigation is instantiated during entity construction and pokemonEntity.form isn't set yet.
-    // (pokemonEntity.behaviour is a shortcut to pokemonEntity.form.behaviour)
-    // It's JVM field instantiation order stuff, too niche to explain further.
-    val moving: MoveBehaviour by lazy { pokemonEntity.exposedSpecies.behaviour.moving }
+/**
+ * A navigator designed to work with the [OmniPathNodeMaker], allowing a path that can cross land, water, and air
+ * for entities that can do so. This is built on entities implementing the [OmniPathingEntity] interface. It doesn't
+ * work fantastically.
+ *
+ * @author Hiroku
+ * @since April 18th, 2025
+ */
+class OmniPathNavigation(val world: Level, val entity: Mob) : GroundPathNavigation(entity, world) {
+    val pather = entity as OmniPathingEntity
 
     var cachedCurrentNode: Node? = null
     var currentNodeDistance = 0F
@@ -48,19 +51,19 @@ class PokemonNavigation(val world: Level, val pokemonEntity: PokemonEntity) : Gr
         val onArrival: () -> Unit = {},
         val onCannotReach: () -> Unit = {},
         val sprinting: Boolean = false,
-        val destinationProximity: Float = 0.5F
+        val destinationProximity: Float = 0.01F
     )
 
     var navigationContext = NavigationContext()
 
     override fun createPathFinder(range: Int): PathFinder {
         this.nodeEvaluator = OmniPathNodeMaker()
-        nodeEvaluator.setCanOpenDoors(true)
+        nodeEvaluator.setCanOpenDoors(false)
         return PathFinder(nodeEvaluator, range)
     }
 
-    override fun isStableDestination(pos: BlockPos?): Boolean {
-        return if (pokemonEntity.behaviour.moving.swim.canSwimInWater) {
+    override fun isStableDestination(pos: BlockPos): Boolean {
+        return if (pather.canSwimInWater()) {
             !super.isStableDestination(pos)
         } else {
             super.isStableDestination(pos)
@@ -68,7 +71,7 @@ class PokemonNavigation(val world: Level, val pokemonEntity: PokemonEntity) : Gr
     }
 
     override fun canMoveDirectly(origin: Vec3, target: Vec3): Boolean {
-        return if (pokemonEntity.behaviour.moving.swim.canSwimInWater) {
+        return if (pather.canSwimInWater()) {
             isClearForMovementBetween(this.mob, origin, target, false)
         } else {
             super.canMoveDirectly(origin, target)
@@ -78,17 +81,17 @@ class PokemonNavigation(val world: Level, val pokemonEntity: PokemonEntity) : Gr
     override fun canUpdatePath(): Boolean {
         val (isInLiquid, isTouchingLava) = mob.level().getWaterAndLavaIn(mob.boundingBox)
         val isAtValidPosition = (!mob.isInLava && !mob.isEyeInFluid(FluidTags.LAVA)) ||
-                (isTouchingLava && moving.swim.canSwimInLava) ||
+                (isTouchingLava && pather.canSwimInLava()) ||
                 this.mob.isPassenger
-        if (pokemonEntity.behaviour.moving.swim.canSwimInWater) {
-            return isInLiquid || ((this.mob.onGround() || this.pokemonEntity.isFlying()) || this.mob.isInLiquid() || this.mob.isPassenger())
+        return if (pather.canSwimInWater()) {
+            isInLiquid || ((this.mob.onGround() || pather.isFlying()) || this.mob.isInLiquid || this.mob.isPassenger)
         } else {
-            return isAtValidPosition
+            isAtValidPosition
         }
     }
 
     override fun canFloat(): Boolean {
-        return moving.swim.canSwimInWater
+        return pather.canSwimInWater()
     }
 
     fun setCanPathThroughFire(canPathThroughFire: Boolean) {
@@ -110,8 +113,8 @@ class PokemonNavigation(val world: Level, val pokemonEntity: PokemonEntity) : Gr
             navigationContext.onArrival()
             // If we arrived at a not-flying destination
             val node = path?.nextNode?.type
-            if (node != null && node != PathType.OPEN && pokemonEntity.couldStopFlying()) {
-                pokemonEntity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, false)
+            if (node != null && node != PathType.OPEN && pather.couldStopFlying()) {
+                pather.setFlying(false)
             }
             return
         }
@@ -121,8 +124,8 @@ class PokemonNavigation(val world: Level, val pokemonEntity: PokemonEntity) : Gr
         val currentNode = path!!.nextNode
         if (currentNode != cachedCurrentNode) {
             cachedCurrentNode = currentNode
-            currentNodeDistance = currentNode.asVec3().distanceTo(pokemonEntity.position()).toFloat()
-        } else if (cachedCurrentNode != null && cachedCurrentNode!!.asVec3().distanceTo(pokemonEntity.position()) > currentNodeDistance + 1) {
+            currentNodeDistance = currentNode.asVec3().distanceTo(entity.position()).toFloat()
+        } else if (cachedCurrentNode != null && cachedCurrentNode!!.asVec3().distanceTo(entity.position()) > currentNodeDistance + 1) {
             recomputePath()
             navigationContext.onRecalculate(true)
             return
@@ -138,22 +141,23 @@ class PokemonNavigation(val world: Level, val pokemonEntity: PokemonEntity) : Gr
         val f = abs(mob.z - targetVec3d.z)
         val closeEnough = d < maxDistanceToWaypoint.toDouble() && f < this.maxDistanceToWaypoint.toDouble() && e < 1.0
 
-        if (closeEnough || mob.navigation.canCutCorner(path!!.nextNode.type) && shouldTargetNextNodeInDirection(vec3d)) {
+        // Corner cutting is commented out because it makes pokemon and NPCs 'cut' the corner and fall into water or lava
+        if (closeEnough) {// || mob.navigation.canCutCorner(path!!.nextNode.type) && shouldTargetNextNodeInDirection(vec3d)) {
             path!!.advance()
             if (path!!.isDone) {
                 path = null
                 navigationContext.onArrival()
                 // If we arrived at a not-flying destination
-                if (currentNode.type != PathType.OPEN && pokemonEntity.couldStopFlying()) {
-                    pokemonEntity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, false)
+                if (currentNode.type != PathType.OPEN && pather.couldStopFlying()) {
+                    pather.setFlying(false)
                 }
             } else {
                 val newNode = path!!.nextNode
                 if (currentNode.type != newNode.type) {
                     if (newNode.type == PathType.OPEN) {
-                        pokemonEntity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, true)
-                    } else if (currentNode.type != PathType.OPEN && pokemonEntity.couldStopFlying()) { // if we just reached a non-flying node and the next node isn't a flying node, stop flying
-                        pokemonEntity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, false)
+                        pather.setFlying(true)
+                    } else if (currentNode.type != PathType.OPEN && pather.couldStopFlying()) { // if we just reached a non-flying node and the next node isn't a flying node, stop flying
+                        pather.setFlying(false)
                     }
                 }
             }
@@ -197,7 +201,7 @@ class PokemonNavigation(val world: Level, val pokemonEntity: PokemonEntity) : Gr
         var target = target
 
         var blockPos: BlockPos
-        if (this.world.getBlockState(target).isAir && !pokemonEntity.exposedSpecies.behaviour.moving.fly.canFly) {
+        if (this.world.getBlockState(target).isAir && !pather.canFly()) {
             blockPos = target.below()
             while (blockPos.y > this.world.minBuildHeight && this.world.getBlockState(blockPos).isAir) {
                 blockPos = blockPos.below()
@@ -258,8 +262,8 @@ class PokemonNavigation(val world: Level, val pokemonEntity: PokemonEntity) : Gr
 //            pokemonEntity.discard()
 //            return false
             // If we just started moving and it's to an open node, fly
-            if (node.type == PathType.OPEN && pokemonEntity.exposedForm.behaviour.moving.fly.canFly && !pokemonEntity.isFlying()) {
-                pokemonEntity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, true)
+            if (node.type == PathType.OPEN && pather.canFly() && !pather.isFlying()) {
+                pather.setFlying(true)
             }
         }
 
@@ -339,8 +343,8 @@ class PokemonNavigation(val world: Level, val pokemonEntity: PokemonEntity) : Gr
     }
 
     fun getPathfindingY(): Int {
-        val inSwimmableFluid = (mob.isEyeInFluid(FluidTags.WATER) && moving.swim.canSwimInWater) ||
-                (mob.isEyeInFluid(FluidTags.LAVA) && moving.swim.canSwimInLava)
+        val inSwimmableFluid = (mob.isEyeInFluid(FluidTags.WATER) && pather.canSwimInWater()) ||
+                (mob.isEyeInFluid(FluidTags.LAVA) && pather.canSwimInLava())
         if (!inSwimmableFluid) {
             return Mth.floor(mob.y + 0.5)
         }
@@ -355,8 +359,8 @@ class PokemonNavigation(val world: Level, val pokemonEntity: PokemonEntity) : Gr
         path = null
         nodeEvaluator.done()
         // In case a path is cancelled instead of completed, check if we should stop flying
-        if (pokemonEntity.couldStopFlying() && !isAirborne(pokemonEntity.level(), pokemonEntity.blockPosition())) {
-            pokemonEntity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, false)
+        if (pather.couldStopFlying() && !isAirborne(entity.level(), entity.blockPosition())) {
+            pather.setFlying(false)
         }
     }
 }

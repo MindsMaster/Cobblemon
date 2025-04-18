@@ -38,8 +38,10 @@ import com.cobblemon.mod.common.api.storage.party.NPCPartyStore
 import com.cobblemon.mod.common.api.text.text
 import com.cobblemon.mod.common.entity.BehaviourEditingTracker
 import com.cobblemon.mod.common.entity.MoLangScriptingEntity
+import com.cobblemon.mod.common.entity.OmniPathingEntity
 import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.entity.PoseType
+import com.cobblemon.mod.common.entity.ai.OmniPathNavigation
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.net.messages.client.npc.CloseNPCEditorPacket
 import com.cobblemon.mod.common.net.messages.client.npc.OpenNPCEditorPacket
@@ -91,9 +93,10 @@ import net.minecraft.world.entity.ai.sensing.SensorType
 import net.minecraft.world.entity.npc.Npc
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.material.FluidState
 import net.minecraft.world.level.pathfinder.PathType
 
-class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, PosableEntity, PokemonSender, Schedulable, MoLangScriptingEntity {
+class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, PosableEntity, PokemonSender, Schedulable, MoLangScriptingEntity, OmniPathingEntity {
     override val schedulingTracker = SchedulingTracker()
 
     override val struct = this.asMoLangValue()
@@ -587,5 +590,41 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
         }
         player.sendPacket(OpenNPCEditorPacket(this))
         BehaviourEditingTracker.startEditing(player, this)
+    }
+
+    override fun getNavigation() = navigation as OmniPathNavigation
+    override fun createNavigation(level: Level) = OmniPathNavigation(level, this)
+
+    // At some point these need to be changeable from MoLang or something.
+    override fun canWalk(): Boolean {
+        return true
+    }
+
+    override fun canSwimInWater(): Boolean {
+        return true
+    }
+
+    override fun canSwimInLava(): Boolean {
+        return false
+    }
+
+    override fun canSwimUnderFluid(fluidState: FluidState): Boolean {
+        return false
+    }
+
+    override fun canFly(): Boolean {
+        return false
+    }
+
+    override fun couldStopFlying(): Boolean {
+        return false
+    }
+
+    override fun isFlying(): Boolean {
+        return false
+    }
+
+    override fun setFlying(state: Boolean) {
+        // NPCs cannot fly (yet)
     }
 }

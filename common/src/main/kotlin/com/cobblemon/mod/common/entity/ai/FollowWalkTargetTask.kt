@@ -112,13 +112,6 @@ class FollowWalkTargetTask(
             nodeEvaluator.nodeFilter = nodeFilter
             block()
             nodeEvaluator.nodeFilter = Predicate { true }
-        } else if (nodeEvaluator is WalkNodeEvaluator) {
-            // if only we could make it set a node filter...
-            block()
-//            nodeEvaluator.`cobblemon$setNodeFilter`(nodeFilter)
-//            nodeEvaluator.`cobblemon$getPathTypesByPosCacheByMob`().clear()
-//            block()
-//            nodeEvaluator.`cobblemon$setNodeFilter` { true }
         } else {
             block()
         }
