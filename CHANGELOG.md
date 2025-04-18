@@ -127,6 +127,8 @@
 - Shulker shell Forretress is now a cosmetic rather than a special evo and thus all shulker Forretress will revert back to normal until a shulker shell is put in their cosmetic slot.
 - Updated `doPokemonSpawning` gamerule to support per-dimension configurations.
 - The Pokedex now displays a form name of a "normal" Pokémon for when the base form is still a named form.
+- Improved the zoom functionality of the Pokédex Scanner by giving the levels logarithmic scaling.
+- Added a subtle rotation effect to the Pokédex Scanner's wheel when zooming.
 
 ### Fixes
 - Fixed Particles sometimes facing the wrong direction (looking at you, Swords Dance)
@@ -156,6 +158,7 @@
 - Fixed an issue with newer versions of Fabric API where underground Pokémon were spawning in The End.
 - Fixed spawning not working well when you're at high points surrounded by lower altitude spawning areas, such as flying.
 - Fixed certain Pokémon with forms not having appropriate stock Pokédex entries.
+- Fixed issue with Pokédex Scanner that caused the open/close overlay to have the wrong opacity values
 - Fixed dragon's breath not being usable on the restoration tank when it should be
 
 ### Developer
