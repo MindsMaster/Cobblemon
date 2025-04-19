@@ -12,7 +12,9 @@ import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.CobblemonBlocks
 import com.cobblemon.mod.common.api.tags.CobblemonBiomeTags
 import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
 import net.minecraft.core.Direction.UP
+import net.minecraft.core.Direction8
 import net.minecraft.tags.BlockTags
 import net.minecraft.util.RandomSource
 import net.minecraft.world.level.WorldGenLevel
@@ -58,6 +60,7 @@ class SaccharineTreeFeature : Feature<BlockStateConfiguration>(BlockStateConfigu
         }
 
         val potentialBeehivePositions = mutableListOf<BlockPos>()
+        val flowerPositions = isFlowerNearby(worldGenLevel, origin)
 
         // Create trunk (1 or 2 blocks tall)
         val logState = CobblemonBlocks.SACCHARINE_LOG.defaultBlockState()
@@ -66,8 +69,7 @@ class SaccharineTreeFeature : Feature<BlockStateConfiguration>(BlockStateConfigu
             val logPos = origin.relative(UP, y)
             worldGenLevel.setBlock(logPos, logState, UPDATE_CLIENTS)
         }
-
-        val saccharineLeaf = CobblemonBlocks.SACCHARINE_LEAVES.defaultBlockState() // SaccharineLeafBlock
+        
         var currentHeight = trunkHeight
 
         // Top Trunk Pattern
@@ -75,15 +77,29 @@ class SaccharineTreeFeature : Feature<BlockStateConfiguration>(BlockStateConfigu
         currentHeight++
 
         // Leaf Start Pattern
-        placeLeafStartPattern(worldGenLevel, origin.relative(UP, currentHeight), logState, CobblemonBlocks.SACCHARINE_LEAVES.defaultBlockState(), potentialBeehivePositions, random)
+        placeLeafStartPattern(
+            worldGenLevel,
+            origin.relative(UP, currentHeight),
+            logState,
+            CobblemonBlocks.SACCHARINE_LEAVES.defaultBlockState(),
+            potentialBeehivePositions,
+            random
+        )
         currentHeight++
 
         // Big Leaf Pattern
         placeBigLeafPattern(worldGenLevel, origin.relative(UP, currentHeight), logState, CobblemonBlocks.SACCHARINE_LEAVES.defaultBlockState())
         currentHeight++
 
-        // Small Leaf Pattern
-        placeSmallLeafPattern(worldGenLevel, origin.relative(UP, currentHeight), logState, CobblemonBlocks.SACCHARINE_LEAVES.defaultBlockState(), Blocks.AIR.defaultBlockState(), random)
+        // Other patterns (small, big, topper)
+        placeSmallLeafPattern(
+            worldGenLevel,
+            origin.relative(UP, currentHeight),
+            logState,
+            CobblemonBlocks.SACCHARINE_LEAVES.defaultBlockState(),
+            Blocks.AIR.defaultBlockState(),
+            random
+        )
         currentHeight++
 
         // Big Leaf Pattern
@@ -92,10 +108,23 @@ class SaccharineTreeFeature : Feature<BlockStateConfiguration>(BlockStateConfigu
 
         // Random extension or Leaf Topper Pattern
         if (random.nextBoolean()) {
-            placeLeafTopperPattern(worldGenLevel, origin.relative(UP, currentHeight), CobblemonBlocks.SACCHARINE_LEAVES.defaultBlockState(), CobblemonBlocks.SACCHARINE_LEAVES.defaultBlockState(), random)
+            placeLeafTopperPattern(
+                worldGenLevel,
+                origin.relative(UP, currentHeight),
+                CobblemonBlocks.SACCHARINE_LEAVES.defaultBlockState(),
+                CobblemonBlocks.SACCHARINE_LEAVES.defaultBlockState(),
+                random
+            )
         } else {
             // Small Leaf Pattern
-            placeSmallLeafPattern(worldGenLevel, origin.relative(UP, currentHeight), logState, CobblemonBlocks.SACCHARINE_LEAVES.defaultBlockState(), Blocks.AIR.defaultBlockState(), random)
+            placeSmallLeafPattern(
+                worldGenLevel,
+                origin.relative(UP, currentHeight),
+                logState,
+                CobblemonBlocks.SACCHARINE_LEAVES.defaultBlockState(),
+                Blocks.AIR.defaultBlockState(),
+                random
+            )
             currentHeight++
 
             // Big Leaf Pattern
@@ -103,16 +132,44 @@ class SaccharineTreeFeature : Feature<BlockStateConfiguration>(BlockStateConfigu
             currentHeight++
 
             // Leaf Topper Pattern
-            placeLeafTopperPattern(worldGenLevel, origin.relative(UP, currentHeight), CobblemonBlocks.SACCHARINE_LEAVES.defaultBlockState(), CobblemonBlocks.SACCHARINE_LEAVES.defaultBlockState(), random)
+            placeLeafTopperPattern(
+                worldGenLevel,
+                origin.relative(UP, currentHeight),
+                CobblemonBlocks.SACCHARINE_LEAVES.defaultBlockState(),
+                CobblemonBlocks.SACCHARINE_LEAVES.defaultBlockState(),
+                random
+            )
         }
 
-        // Check for flowers within a 5-block radius to place a beehive
-        if (isFlowerNearby(worldGenLevel, origin)) {
-            placeBeehive(worldGenLevel, random, potentialBeehivePositions)
+        // Place beehive only if flowers are nearby
+        if (flowerPositions.isNotEmpty()) {
+            placeBeehive(worldGenLevel, potentialBeehivePositions, flowerPositions)
         }
 
         return true
     }
+    
+    private fun placeBeehive(worldGenLevel: WorldGenLevel, potentialBeehivePositions: MutableList<BlockPos>, flowerPositions: List<BlockPos>) {
+        if (flowerPositions.isNotEmpty()) {
+            val hivePos = potentialBeehivePositions.firstOrNull { pos ->
+                flowerPositions.any { flowerPos -> flowerPos.closerThan(pos, 1.5) }
+            } ?: potentialBeehivePositions.random()
+
+            val nearbyFlower = flowerPositions.firstOrNull { flowerPos ->
+                hivePos.closerThan(flowerPos, 1.5)
+            }
+
+            val directions = listOf(Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST)
+            val validHivePos = directions
+                .map { dir -> nearbyFlower?.relative(dir) }
+                .firstOrNull { pos ->
+                    pos != null && pos in potentialBeehivePositions && worldGenLevel.isEmptyBlock(pos)
+                } ?: hivePos
+
+            setBlockIfClear(worldGenLevel, validHivePos, Blocks.BEE_NEST.defaultBlockState())
+        }
+    }
+
 
     private fun placeBigLeafPattern(worldGenLevel: WorldGenLevel, origin: BlockPos, logBlock: BlockState, leafBlock: BlockState) {
         val positions = listOf(
@@ -243,25 +300,17 @@ class SaccharineTreeFeature : Feature<BlockStateConfiguration>(BlockStateConfigu
         worldGenLevel.setBlock(origin, logBlock, UPDATE_CLIENTS)
     }
 
-    private fun isFlowerNearby(worldGenLevel: WorldGenLevel, origin: BlockPos): Boolean {
-        for (dx in -5..5) {
-            for (dz in -5..5) {
-                for (dy in -5..5) {
-                    val pos = origin.offset(dx, dy, dz)
-                    if (worldGenLevel.getBlockState(pos).`is`(BlockTags.FLOWERS)) {
-                        return true
-                    }
+    private fun isFlowerNearby(worldGenLevel: WorldGenLevel, origin: BlockPos): List<BlockPos> {
+        val flowerPositions = mutableListOf<BlockPos>()
+        for (dx in -1..1) {
+            for (dz in -1..1) {
+                val pos = origin.offset(dx, 0, dz)
+                if (worldGenLevel.getBlockState(pos).`is`(BlockTags.FLOWERS)) {
+                    flowerPositions.add(pos)
                 }
             }
         }
-        return false
-    }
-
-    private fun placeBeehive(worldGenLevel: WorldGenLevel, random: RandomSource, potentialBeehivePositions: MutableList<BlockPos>) {
-        if (potentialBeehivePositions.isNotEmpty()) {
-            val hivePos = potentialBeehivePositions[random.nextInt(potentialBeehivePositions.size)]
-            setBlockIfClear(worldGenLevel, hivePos, Blocks.BEE_NEST.defaultBlockState())
-        }
+        return flowerPositions
     }
 
     private fun setBlockIfClear(worldGenLevel: WorldGenLevel, blockPos: BlockPos, blockState: BlockState) {
