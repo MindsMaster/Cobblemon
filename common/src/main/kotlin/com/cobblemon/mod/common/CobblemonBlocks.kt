@@ -170,7 +170,7 @@ object CobblemonBlocks : PlatformRegistry<Registry<Block>, ResourceKey<Registry<
 
     // Saccharines
     @JvmField
-    val SACCHARINE_LOG = log("saccharine_log", arg2 = MapColor.COLOR_BLUE)
+    val SACCHARINE_LOG = this.create("saccharine_log", SaccharineLogBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLUE).instrument(NoteBlockInstrument.BASS).strength(2.0F).sound(SoundType.WOOD).ignitedByLava()))
     @JvmField
     val STRIPPED_SACCHARINE_LOG = this.create("stripped_saccharine_log", SaccharineStrippedLogBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_LIGHT_BLUE).instrument(NoteBlockInstrument.BASS).strength(2.0F).sound(SoundType.WOOD).ignitedByLava())) //log("stripped_saccharine_log")
     @JvmField
