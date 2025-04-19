@@ -2131,4 +2131,10 @@ open class PokemonEntity(
     override fun resolveEntityScan(): LivingEntity {
         return this
     }
+
+    fun canStopRiding(pokemon: PokemonEntity, player: ServerPlayer): Boolean {
+        if (pokemon.passengers.isEmpty()) return false
+        if (pokemon.controllingPassenger != player) return false
+        return true
+    }
 }
