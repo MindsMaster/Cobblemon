@@ -7229,6 +7229,15 @@
   "pokemon.ceruledge.cry": {
     "sounds": [ { "name": "cobblemon:pokemon/ceruledge/ceruledge_cry", "volume": 0.8 } ]
   },
+  "pokemon.ceruledge.battle_cry": {
+    "sounds": [ { "name": "cobblemon:pokemon/ceruledge/ceruledge_battle_cry", "volume": 0.9 } ]
+  },
+  "pokemon.ceruledge.quirk1": {
+    "sounds": [ { "name": "cobblemon:pokemon/ceruledge/ceruledge_quirk1", "volume": 0.5 } ]
+  },
+  "pokemon.ceruledge.quirk2": {
+    "sounds": [ { "name": "cobblemon:pokemon/ceruledge/ceruledge_quirk2", "volume": 0.4 } ]
+  },
   "pokemon.toedscool.cry": {
     "sounds": [ { "name": "cobblemon:pokemon/toedscool/toedscool_cry", "volume": 0.8 } ]
   },

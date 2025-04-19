@@ -8,19 +8,17 @@
 					"rotation": [-5, 0, 0]
 				},
 				"shoulder_left": {
-					"rotation": [0, -22.5, 52.5]
+					"rotation": [0, -22.5, 52.5],
+					"position": [0, "math.sin(q.anim_time*90*0.3)*0.5", 0]
 				},
 				"arm_left": {
 					"rotation": [10, 0, 20]
-				},
-				"spikes_torso_main": {
-					"rotation": [-7.5, 0, 0]
 				},
 				"tail": {
 					"rotation": [12.5, 0, 0]
 				},
 				"arm_left2": {
-					"rotation": [3.20462, 33.83204, 15.47261]
+					"rotation": [0, 33.83204, 0]
 				},
 				"hand_left": {
 					"rotation": [-0.33692, -17.49026, 0.17248]
@@ -35,16 +33,17 @@
 					"rotation": [-67.5, 0, 0]
 				},
 				"shoulder_right": {
-					"rotation": [0, 22.5, -55]
+					"rotation": [0, 22.5, -52.5],
+					"position": [0, "math.sin(q.anim_time*90*0.3)*0.5", 0]
 				},
 				"arm_right": {
 					"rotation": [10, 0, -20]
 				},
 				"arm_right2": {
-					"rotation": [3.2046, -33.832, -15.4726]
+					"rotation": [0, -33.832, 0]
 				},
 				"hand_right": {
-					"rotation": [-0.3369, 17.4903, -0.1725]
+					"rotation": [-0.33692, 17.4903, -0.1725]
 				},
 				"thumb_right": {
 					"rotation": [-67.5, 0, 0]
@@ -70,16 +69,25 @@
 				"head": {
 					"rotation": [10, 0, 0]
 				},
-				"spike_bottom_main": {
-					"rotation": [10, 0, 0]
-				},
 				"eye_left": {
 					"position": [0, 0, 0]
+				},
+				"eye_right": {
+					"position": [0, 0, 0]
+				},
+				"arm_left3": {
+					"rotation": [3.2046, 0, 15.4726]
+				},
+				"arm_right3": {
+					"rotation": [3.2046, 0, -15.4726]
+				},
+				"hip": {
+					"position": [0, "-math.sin(q.anim_time*90*0.3)*0.5", 0]
 				}
 			}
 		},
 		"animation.ursaluna.blink": {
-			"animation_length": 0.16667,
+			"animation_length": 0.1667,
 			"bones": {
 				"eyelid_left": {
 					"position": {
