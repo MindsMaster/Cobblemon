@@ -15,7 +15,6 @@ import com.cobblemon.mod.common.CobblemonClientImplementation
 import com.cobblemon.mod.common.CobblemonEntities
 import com.cobblemon.mod.common.CobblemonItems
 import com.cobblemon.mod.common.api.berry.Berries
-import com.cobblemon.mod.common.api.molang.ObjectValue
 import com.cobblemon.mod.common.api.scheduling.ClientTaskTracker
 import com.cobblemon.mod.common.api.storage.player.client.ClientGeneralPlayerData
 import com.cobblemon.mod.common.api.storage.player.client.ClientPokedexManager
@@ -73,14 +72,10 @@ import net.minecraft.client.renderer.blockentity.SignRenderer
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.LivingEntityRenderer
 import net.minecraft.client.resources.PlayerSkin
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.AABB
-import java.util.UUID
-import net.minecraft.client.player.AbstractClientPlayer
-import net.minecraft.server.level.ServerPlayer
 
 object CobblemonClient {
 
@@ -97,16 +92,6 @@ object CobblemonClient {
     val overlay: PartyOverlay by lazy { PartyOverlay() }
     val battleOverlay: BattleOverlay by lazy { BattleOverlay() }
     val pokedexUsageContext: PokedexUsageContext by lazy { PokedexUsageContext() }
-
-    @JvmStatic
-    var acceptableRenderCount = -1
-        set(value) {
-            field = value
-            renderedCount = 0
-        }
-
-    @JvmStatic
-    var renderedCount = 0
 
     fun onLogin() {
         clientPlayerData = ClientGeneralPlayerData()

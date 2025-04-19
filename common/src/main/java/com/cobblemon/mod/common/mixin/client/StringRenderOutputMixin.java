@@ -8,10 +8,10 @@
 
 package com.cobblemon.mod.common.mixin.client;
 
-import com.cobblemon.mod.common.client.CobblemonClient;
+import com.cobblemon.mod.common.client.render.TextClipping;
+import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Style;
 import org.spongepowered.asm.mixin.Mixin;
-import net.minecraft.client.gui.Font;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -39,11 +39,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class StringRenderOutputMixin {
     @Inject(method = "accept", at = @At(value = "HEAD"), cancellable = true)
     public void onAccept(int i, Style style, int j, CallbackInfoReturnable<Boolean> cir) {
-        if (CobblemonClient.getRenderedCount() >= CobblemonClient.getAcceptableRenderCount() && CobblemonClient.getAcceptableRenderCount() >= 0) {
-            // We've reached the character cap, so we don't want to draw any more characters.
+        if (!TextClipping.canDrawAnotherCharacter()) {
             cir.setReturnValue(true);
         }
-        // We've drawn another character! (Well, we're about to)
-        CobblemonClient.setRenderedCount(CobblemonClient.getRenderedCount() + 1);
     }
 }
