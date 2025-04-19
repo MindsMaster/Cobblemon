@@ -130,6 +130,7 @@
 - Improved the zoom functionality of the Pokédex Scanner by giving the levels logarithmic scaling.
 - Added a subtle rotation effect to the Pokédex Scanner's wheel when zooming.
 - Improved parity with vanilla mobs' drop behavior; loot and XP drop on death instead of after the entire death sequence finishes.
+- Quirk animations no longer play in the battle GUI since they were pretty distracting.
 
 ### Fixes
 - Fixed Particles sometimes facing the wrong direction (looking at you, Swords Dance)
