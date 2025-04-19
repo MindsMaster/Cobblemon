@@ -47,7 +47,6 @@ class SaccharineStrippedLogBlock(properties: Properties) : RotatedPillarBlock(pr
     init {
         this.registerDefaultState(
                 this.stateDefinition.any()
-                        .setValue(AGE, MIN_AGE)
                         .setValue(AXIS, Direction.Axis.Y)
         )
     }
@@ -61,20 +60,6 @@ class SaccharineStrippedLogBlock(properties: Properties) : RotatedPillarBlock(pr
     ) {
         owner = placer
         super.setPlacedBy(level, pos, state, placer, itemStack)
-    }
-
-    override fun isRandomlyTicking(state: BlockState): Boolean {
-        return state.getValue(AGE) < MAX_AGE
-    }
-
-
-    override fun randomTick(state: BlockState, level: ServerLevel, pos: BlockPos, random: RandomSource) {
-        if (random.nextInt(5) == 0 && owner == null) {
-            val currentAge = state.getValue(AGE)
-            if (currentAge < MAX_AGE) {
-                level.setBlock(pos, state.setValue(AGE, currentAge + 1), 2)
-            }
-        }
     }
 
     override fun getShape(
@@ -114,7 +99,7 @@ class SaccharineStrippedLogBlock(properties: Properties) : RotatedPillarBlock(pr
     }
 
     override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
-        builder.add(AGE, AXIS)
+        builder.add(AXIS)
     }
 
     override fun isPathfindable(
@@ -122,35 +107,8 @@ class SaccharineStrippedLogBlock(properties: Properties) : RotatedPillarBlock(pr
             type: PathComputationType
     ): Boolean = false
 
-
-    override fun useItemOn(
-            stack: ItemStack,
-            state: BlockState,
-            level: Level,
-            pos: BlockPos,
-            player: Player,
-            hand: InteractionHand,
-            hit: BlockHitResult
-    ): ItemInteractionResult {
-        val itemStack = player.getItemInHand(hand)
-        if (itemStack.`is`(Items.GLASS_BOTTLE) && state.getValue(AGE) == 1) {
-            if (!player.isCreative) {
-                itemStack.shrink(1)
-            }
-            player.addItem(CobblemonItems.SWEET_SAP.defaultInstance)
-            level.setBlock(pos, state.setValue(AGE, 0), 2)
-        }
-        if (state.getValue(AGE) != MAX_AGE) {
-            return super.useItemOn(stack, state, level, pos, player, hand, hit)
-        }
-        return ItemInteractionResult.SUCCESS
-    }
-
     companion object {
-        val AGE: IntegerProperty = BlockStateProperties.AGE_1
         val AXIS: EnumProperty<Direction.Axis> = BlockStateProperties.AXIS
-        const val MAX_AGE = 1
-        const val MIN_AGE = 0
 
         private val SHAPE: VoxelShape = Shapes.block()
     }
