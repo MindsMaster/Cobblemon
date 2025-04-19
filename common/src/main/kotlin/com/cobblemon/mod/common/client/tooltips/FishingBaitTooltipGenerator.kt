@@ -8,6 +8,8 @@
 
 package com.cobblemon.mod.common.client.tooltips
 
+import com.cobblemon.mod.common.api.cooking.Seasonings
+import com.cobblemon.mod.common.api.fishing.SpawnBait
 import com.cobblemon.mod.common.api.fishing.SpawnBaitEffects
 import com.cobblemon.mod.common.api.fishing.SpawnBaitUtils
 import com.cobblemon.mod.common.api.pokemon.egg.EggGroup
@@ -52,9 +54,20 @@ object FishingBaitTooltipGenerator : TooltipGenerator() {
         val resultLines = mutableListOf<Component>()
 
         // Determine the FishingBait or combined effects from poke_bait
-        val rawEffects = when {
-            stack.item is PokerodItem -> SpawnBaitEffects.getEffectsFromRodItemStack(stack)
-            else -> SpawnBaitEffects.getEffectsFromItemStack(stack)
+        val rawEffects = mutableListOf<SpawnBait.Effect>().apply {
+            if (stack.item is PokerodItem) {
+                addAll(SpawnBaitEffects.getEffectsFromRodItemStack(stack))
+            } else {
+                addAll(SpawnBaitEffects.getEffectsFromItemStack(stack))
+            }
+
+            // Check for Seasoning-based Bait effects
+            if (Seasonings.isSeasoning(stack)) {
+                val seasoningEffects = Seasonings.getBaitEffectsFromItemStack(stack)
+                if (seasoningEffects.isNotEmpty()) {
+                    addAll(seasoningEffects)
+                }
+            }
         }
 
         val baitEffects = SpawnBaitUtils.mergeEffects(rawEffects)

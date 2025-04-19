@@ -13,6 +13,7 @@ import com.cobblemon.mod.common.api.berry.Berries
 import com.cobblemon.mod.common.api.conditional.RegistryLikeCondition
 import com.cobblemon.mod.common.api.conditional.RegistryLikeIdentifierCondition
 import com.cobblemon.mod.common.api.data.JsonDataRegistry
+import com.cobblemon.mod.common.api.fishing.SpawnBait
 import com.cobblemon.mod.common.api.reactive.SimpleObservable
 import com.cobblemon.mod.common.net.messages.client.cooking.SeasoningRegistrySyncPacket
 import com.cobblemon.mod.common.util.adapters.IdentifierAdapter
@@ -76,6 +77,10 @@ object Seasonings : JsonDataRegistry<Seasoning> {
         val inherentFlavours = stack.get(CobblemonItemComponents.FLAVOUR)?.flavours ?: emptyMap()
 
         return seasoning.flavours.mapValues { (flavour, value) -> inherentFlavours.getOrDefault(flavour, 0) + value }
+    }
+
+    fun getBaitEffectsFromItemStack(stack: ItemStack): List<SpawnBait.Effect> {
+        return getFromItemStack(stack)?.baitEffects ?: emptyList()
     }
 
     fun getFromItemStack(stack: ItemStack): Seasoning? {
