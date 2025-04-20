@@ -335,8 +335,6 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     val SACCHARINE_SAPLING = saccharineSaplingItem("saccharine_sapling", SaccharineSaplingItem(CobblemonBlocks.SACCHARINE_SAPLING))
 
     @JvmField
-    val SWEET_SAP = noSettingsItem("sweet_sap")
-    @JvmField
     val BUGWORT = bugwortItem("bugwort", BugwortItem(CobblemonBlocks.BUGWORT))
     @JvmField
     val POKE_BAIT = noSettingsItem("poke_bait")

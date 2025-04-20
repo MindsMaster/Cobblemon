@@ -110,8 +110,6 @@ object CobblemonItemGroups {
         entries.accept(CobblemonItems.Hearty_Grains)
         entries.accept(CobblemonItems.BUGWORT)
 
-        entries.accept(CobblemonItems.SWEET_SAP)
-
         entries.accept(CobblemonItems.RED_APRICORN)
         entries.accept(CobblemonItems.YELLOW_APRICORN)
         entries.accept(CobblemonItems.GREEN_APRICORN)

@@ -16,7 +16,7 @@ import io.netty.buffer.ByteBuf
 import net.minecraft.network.codec.ByteBufCodecs
 import net.minecraft.network.codec.StreamCodec
 
-class FlavourComponent(
+data class FlavourComponent(
     val flavours: Map<Flavour, Int>
 ) {
     companion object {

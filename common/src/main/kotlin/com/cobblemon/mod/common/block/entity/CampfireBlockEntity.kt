@@ -58,6 +58,7 @@ import net.minecraft.world.level.block.entity.BaseContainerBlockEntity
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.Vec3
 import org.joml.Vector4f
+import kotlin.compareTo
 
 class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlockEntity(
     CobblemonBlockEntities.CAMPFIRE,
@@ -268,8 +269,11 @@ class CampfireBlockEntity(pos: BlockPos, state: BlockState) : BaseContainerBlock
                         setItem(i, ItemStack(Items.BUCKET))
                     }
                     Items.HONEY_BOTTLE -> {
-                        // Replace with empty glass bottle
-                        setItem(i, ItemStack(Items.GLASS_BOTTLE))
+                        // TODO: Currently eats the empty bottles until the honey bottle stack is empty, replace with better system later.
+                        itemInSlot.shrink(1)
+                        if (itemInSlot.count <= 0) {
+                            setItem(i, ItemStack.EMPTY)
+                        }
                     }
                     else -> {
                         // Decrease the stack size by 1
