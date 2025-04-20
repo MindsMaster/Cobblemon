@@ -1,0 +1,40 @@
+{
+  "parent": "cobblemon:resurrect_pokemon",
+  "display": {
+    "icon": {
+      "id": "cobblemon:restoration_tank"
+    },
+    "title": {
+      "translate": "advancements.cobblemon.resurrect_galar_fossil"
+    },
+    "description": {
+      "translate": "advancements.cobblemon.resurrect_galar_fossil.description"
+    }
+  },
+  "criteria": {
+    "resurrected_dracozolt": {
+      "trigger": "cobblemon:resurrect_pokemon",
+			"conditions": {
+				"pokemon": "cobblemon:dracozolt"
+			}
+    },
+    "resurrected_dracovish": {
+      "trigger": "cobblemon:resurrect_pokemon",
+			"conditions": {
+				"pokemon": "cobblemon:dracovish"
+			}
+    },
+	"resurrected_arctozolt": {
+      "trigger": "cobblemon:resurrect_pokemon",
+			"conditions": {
+				"pokemon": "cobblemon:arctozolt"
+			}
+    },
+    "resurrected_arctovish": {
+      "trigger": "cobblemon:resurrect_pokemon",
+			"conditions": {
+				"pokemon": "cobblemon:arctovish"
+			}
+    }
+  }
+}
