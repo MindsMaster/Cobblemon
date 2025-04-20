@@ -6396,7 +6396,7 @@
     "cobblemon.pokedex.variation.wood": "树种",
     "cobblemon.challenge.rule.anything_goes": "无限制",
     "cobblemon.challenge.rule.level": "等级调至%1$s",
-    "cobblemon.pokerod.apply": "按下右键来使用鱼饵",
+    "cobblemon.pokerod.apply": "右键使用鱼饵",
     "cobblemon.pokerod.remove": "按下右键来移除鱼饵",
     "item.cobblemon.galarica_nuts": "伽勒豆蔻果",
     "item.cobblemon.npc_editor": "NPC的训练家证",
@@ -7072,5 +7072,7 @@
     "npc.variable.player_win_command.desc": "当玩家战胜NPC后执行的指令。使用{{player}}代替玩家的名字。",
     "cobblemon.species.vivillon-fancy.desc": "这些色彩斑斓的宝可梦能适应多种环境，体表覆盖的细密鳞粉可抵御外界侵蚀。彩粉蝶的翅翼图案因进化地点不同而产生差异，形成高度特化的拟态伪装。该特殊形态由粉蝶蛹在粉色花丛中进化而来，最终演化出独一无二的蝶纹。",
     "cobblemon.battle.block.aromaveil": "%1$s正受到芳香幕的保护！",
-    "cobblemon.species.mimikyu-busted.desc": "在战斗中，攻击的力道可能会导致谜拟丘伪装的颈部断裂。在一些不幸的情况下，这还可能导致布料撕裂，让周围的人瞥见其下不可知的阴影团块。这种宝可梦的真实形态仍然是个谜，因为每一个尝试研究它的学者要么直接被谜拟Q所杀，要么在精神痛苦中度过余生，直至过早地死亡。"
+    "cobblemon.species.mimikyu-busted.desc": "在战斗中，攻击的力道可能会导致谜拟丘伪装的颈部断裂。在一些不幸的情况下，这还可能导致布料撕裂，让周围的人瞥见其下不可知的阴影团块。这种宝可梦的真实形态仍然是个谜，因为每一个尝试研究它的学者要么直接被谜拟Q所杀，要么在精神痛苦中度过余生，直至过早地死亡。",
+    "item.cobblemon.syrupy_apple": "蜜汁苹果",
+    "item.cobblemon.syrupy_apple.tooltip": "当啃果虫使用时，会使其进化为裹蜜虫"
 }
