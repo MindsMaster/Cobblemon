@@ -39,9 +39,9 @@ interface RidingBehaviour<Settings : RidingBehaviourSettings, State : RidingBeha
 
     fun speed(settings: Settings, state: State, vehicle: PokemonEntity, driver: Player): Float
 
-    fun clampPassengerRotation(settings: Settings, state: State, entity: PokemonEntity, driver: LivingEntity) {}
+    fun clampPassengerRotation(settings: Settings, state: State, vehicle: PokemonEntity, driver: LivingEntity) {}
 
-    fun updatePassengerRotation(settings: Settings, state: State, entity: PokemonEntity, driver: LivingEntity) {}
+    fun updatePassengerRotation(settings: Settings, state: State, vehicle: PokemonEntity, driver: LivingEntity) {}
 
     fun rotation(settings: Settings, state: State, vehicle: PokemonEntity, driver: LivingEntity): Vec2
 
