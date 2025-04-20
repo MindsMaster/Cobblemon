@@ -20,6 +20,7 @@
 - Added lang keys for all moves and abilities up to Generation 9.
 - Fixed Moon Ball moon phase logic to actually work correctly
 - Added `translucent_cull` boolean option into resolver's layer to allow for translucent textures with culling
+- Added [LambDynamicLights](https://modrinth.com/mod/lambdynamiclights) support for items held by Pokémon.
 
 ### Pokémon Added
 
