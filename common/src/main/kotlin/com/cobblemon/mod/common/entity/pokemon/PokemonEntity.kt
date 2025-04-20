@@ -1570,8 +1570,6 @@ open class PokemonEntity(
                     inp.z * g.toDouble() + inp.x * f.toDouble()
                 )
 
-
-
                 val diff = v.subtract(this.deltaMovement)
 
                 val inertia = ifRidingAvailableSupply(fallback = 0.5) { behaviour, settings, state ->

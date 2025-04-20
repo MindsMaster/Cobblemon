@@ -261,11 +261,12 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
         //Jump the thang!
         if (driver.jumping && vehicle.onGround()) {
             val jumpForce = 1.0
+            val horz = state.rideVelocity.get().horizontalDistance()
             newVelocity = newVelocity.add(0.0, jumpForce, 0.0)
 
             //Ensure this doesn't add unwanted forward velocity
-            val mag = if(newVelocity.length() < rideTopSpeed) newVelocity.length() else rideTopSpeed
-            newVelocity = newVelocity.normalize().scale(mag)
+            //val mag = if(newVelocity.length() < rideTopSpeed) newVelocity.length() else rideTopSpeed
+            //newVelocity = newVelocity.normalize().scale(mag)
         }
 
         return newVelocity
@@ -283,7 +284,7 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
     private fun getWalkSpeed( vehicle: PokemonEntity ): Double {
         val walkspeed = vehicle.runtime.resolveDouble(vehicle.behaviour.moving.walk.walkSpeed)
         val movementSpeed = vehicle.attributes.getValue(Attributes.MOVEMENT_SPEED)
-        val speedModifier = 1.2 * 0.30
+        val speedModifier = 1.2 * 0.35
         return walkspeed * movementSpeed * speedModifier
 
     }
@@ -392,7 +393,7 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
         state: GenericLandState,
         vehicle: PokemonEntity
     ): Double {
-            return 0.5
+            return 1.0
     }
 
     override fun shouldRoll(
