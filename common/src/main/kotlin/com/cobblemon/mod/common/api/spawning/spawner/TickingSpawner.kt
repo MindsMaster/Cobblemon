@@ -90,7 +90,7 @@ abstract class TickingSpawner(
             if (preSpawn != null) {
                 val (ctx, detail) = preSpawn
                 val spawnBaitInfluence = ctx.influences.filterIsInstance<SpawnBaitInfluence>().firstOrNull()
-                val saccharineInfluence= ctx.influences.filterIsInstance<SaccharineHoneyLogInfluence>().firstOrNull()
+                val saccharineInfluence = ctx.influences.filterIsInstance<SaccharineHoneyLogInfluence>().firstOrNull()
                 val rarityInfluenceValue = spawnBaitInfluence?.effects?.firstOrNull { it.type == SpawnBait.Effects.RARITY_BUCKET}
 
                 val bucket = if (spawnBaitInfluence != null && spawnBaitInfluence.used && rarityInfluenceValue != null) {
@@ -106,9 +106,12 @@ abstract class TickingSpawner(
 
                 // todo maybe only do this stuff if there is a rarity bucket bait effect present in the influence
                 // Rerun with the new bucket
-                val cause = SpawnCause(spawner = this, bucket = bucket, entity = getCauseEntity())
-                val finalSpawn = run(cause) ?: return
-                val (finalCtx, finalDetail) = finalSpawn
+                val (finalCtx, finalDetail) = if (spawnBaitInfluence != null) {
+                    val cause = SpawnCause(spawner = this, bucket = bucket, entity = getCauseEntity())
+                    run(cause) ?: return
+                } else {
+                    preSpawn
+                }
 
                 val spawnAction = finalDetail.doSpawn(ctx = finalCtx)
 
@@ -127,7 +130,7 @@ abstract class TickingSpawner(
                             level.sendBlockUpdated(baitPos, blockEntity.blockState, blockEntity.blockState, 3)
                         }
                     }
-                } else if (saccharineInfluence != null && saccharineInfluence.used) {
+                } else if (saccharineInfluence != null) { /*saccharineInfluence.wasUsed()*/ // todo for some reason used is never true.... even though it works for the Lure Cakes)
                     val logPos = saccharineInfluence.pos
                     val level = finalCtx.world.level
                     if (logPos != null) {
