@@ -53,9 +53,8 @@ class RidingStatsDebugGUI(val vehicle: PokemonEntity) : Screen(lang("ui.debug.ri
     val maxStaminaInput: RidingStatInputWidget
 
     init {
-        ridingStyle = vehicle.riding?.style ?: RidingStyle.LAND
-        if (ridingStyle == RidingStyle.COMPOSITE) {
-            ridingStyle = RidingStyle.LAND
+        ridingStyle = vehicle.ifRidingAvailableSupply(RidingStyle.LAND) { behaviour, settings, state ->
+            behaviour.getRidingStyle(settings, state)
         }
         changeRidingStyle = addRenderableWidget(
             Button.builder("Riding Style: $ridingStyle".text()) { button ->
@@ -63,7 +62,6 @@ class RidingStatsDebugGUI(val vehicle: PokemonEntity) : Screen(lang("ui.debug.ri
                     RidingStyle.LAND -> RidingStyle.LIQUID
                     RidingStyle.LIQUID -> RidingStyle.AIR
                     RidingStyle.AIR -> RidingStyle.LAND
-                    else -> RidingStyle.LAND
                 }
                 refresh()
             }.bounds(10, 10, getScaledWidth() - 20, 20).build()
