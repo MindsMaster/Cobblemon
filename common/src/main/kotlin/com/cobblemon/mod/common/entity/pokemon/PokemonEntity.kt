@@ -1840,7 +1840,7 @@ open class PokemonEntity(
         return this.rideProp.calculate(stat, style, 0).toDouble()
     }
 
-    fun overrideRideStat(style: RidingStyle, stat: RidingStat, value: Double) {
+    internal fun overrideRideStat(style: RidingStyle, stat: RidingStat, value: Double) {
         if (rideStatOverrides[style] == null) {
             rideStatOverrides[style] = mutableMapOf()
         }
