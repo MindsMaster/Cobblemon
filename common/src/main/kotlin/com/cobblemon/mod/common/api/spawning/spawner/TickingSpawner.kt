@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.api.spawning.spawner
 
 import com.cobblemon.mod.common.Cobblemon
+import com.cobblemon.mod.common.CobblemonBlocks
 import com.cobblemon.mod.common.api.fishing.SpawnBait
 import com.cobblemon.mod.common.api.spawning.SpawnBucket
 import com.cobblemon.mod.common.api.spawning.SpawnBucketUtils
@@ -21,6 +22,7 @@ import com.cobblemon.mod.common.api.spawning.detail.EntitySpawnResult
 import com.cobblemon.mod.common.api.spawning.detail.SpawnAction
 import com.cobblemon.mod.common.api.spawning.detail.SpawnDetail
 import com.cobblemon.mod.common.api.spawning.detail.SpawnPool
+import com.cobblemon.mod.common.api.spawning.influence.SaccharineHoneyLogInfluence
 import com.cobblemon.mod.common.api.spawning.influence.SpawnBaitInfluence
 import com.cobblemon.mod.common.api.spawning.influence.SpawningInfluence
 import com.cobblemon.mod.common.api.spawning.selection.FlatContextWeightedSelector
@@ -28,6 +30,7 @@ import com.cobblemon.mod.common.api.spawning.selection.SpawningSelector
 import com.cobblemon.mod.common.block.entity.CakeBlockEntity
 import com.cobblemon.mod.common.block.entity.LureCakeBlockEntity
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.level.block.RotatedPillarBlock
 
 /**
  * A spawner that regularly attempts spawning entities. It has timing utilities,
@@ -86,10 +89,11 @@ abstract class TickingSpawner(
 
             if (preSpawn != null) {
                 val (ctx, detail) = preSpawn
-                val influence = ctx.influences.filterIsInstance<SpawnBaitInfluence>().firstOrNull()
-                val rarityInfluenceValue = influence?.effects?.firstOrNull { it.type == SpawnBait.Effects.RARITY_BUCKET}
+                val spawnBaitInfluence = ctx.influences.filterIsInstance<SpawnBaitInfluence>().firstOrNull()
+                val saccharineInfluence= ctx.influences.filterIsInstance<SaccharineHoneyLogInfluence>().firstOrNull()
+                val rarityInfluenceValue = spawnBaitInfluence?.effects?.firstOrNull { it.type == SpawnBait.Effects.RARITY_BUCKET}
 
-                val bucket = if (influence != null && influence.used && rarityInfluenceValue != null) {
+                val bucket = if (spawnBaitInfluence != null && spawnBaitInfluence.used && rarityInfluenceValue != null) {
                     // todo if we want fishing and lure cakes to default to having better rates we can maybe call a new bucket value of SpawnBucketUtils.chooseAdjustedSpawnBucket but with a value of 0
 
                     // todo Get bucket effect from bait influence and use it in the new method
@@ -108,19 +112,30 @@ abstract class TickingSpawner(
 
                 val spawnAction = finalDetail.doSpawn(ctx = finalCtx)
 
-                if (finalCtx is AreaSpawningContext && influence != null && influence.used) {
-                    val baitPos = influence.baitPos
+                if (finalCtx is AreaSpawningContext && spawnBaitInfluence != null && spawnBaitInfluence.used) {
+                    val baitPos = spawnBaitInfluence.baitPos
                     val level = finalCtx.world.level
                     val blockEntity = baitPos?.let { level.getBlockEntity(it) }
 
                     if (blockEntity is LureCakeBlockEntity) {
                         blockEntity.bites++
 
-                        if (blockEntity.bites >= CakeBlockEntity.MAX_NUMBER_OF_BITES) {
+                        if (blockEntity.bites >= blockEntity.maxBites) {
                             level.removeBlock(baitPos, false)
                         } else {
                             blockEntity.setChanged()
                             level.sendBlockUpdated(baitPos, blockEntity.blockState, blockEntity.blockState, 3)
+                        }
+                    }
+                } else if (saccharineInfluence != null && saccharineInfluence.used) {
+                    val logPos = saccharineInfluence.pos
+                    val level = finalCtx.world.level
+                    if (logPos != null) {
+                        val blockState = level.getBlockState(logPos)
+                        if (blockState.block == CobblemonBlocks.SACCHARINE_HONEY_LOG) {
+                            val axis = blockState.getValue(RotatedPillarBlock.AXIS)
+                            val newState = CobblemonBlocks.SACCHARINE_LOG.defaultBlockState().setValue(RotatedPillarBlock.AXIS, axis)
+                            level.setBlock(logPos, newState, 3)
                         }
                     }
                 }

@@ -9,8 +9,8 @@
 package com.cobblemon.mod.common.client.render.block
 
 import com.cobblemon.mod.common.block.entity.CakeBlockEntity
-import com.cobblemon.mod.common.block.entity.CakeBlockEntity.Companion.MAX_NUMBER_OF_BITES
 import com.cobblemon.mod.common.item.components.FoodColourComponent
+import com.cobblemon.mod.common.util.cobblemonResource
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
 import com.mojang.math.Axis
@@ -80,7 +80,7 @@ open class CakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : B
         val CAKE_LAYOUTS = listOf(DefaultCakeLayout, HeartCakeLayout)
 
         fun loadTexture(textureName: String): TextureAtlasSprite {
-            return Minecraft.getInstance().getTextureAtlas(BLOCK_ATLAS).apply(ResourceLocation("cobblemon", textureName))
+            return Minecraft.getInstance().getTextureAtlas(BLOCK_ATLAS).apply(cobblemonResource(textureName))
         }
     }
 
@@ -117,10 +117,11 @@ open class CakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : B
         packedOverlay: Int
     ) {
         val foodColourComponent = blockEntity.foodColourComponent
-        renderCake(foodColourComponent, poseStack, bufferSource, packedLight, blockEntity.bites)
+        renderCake(blockEntity, foodColourComponent, poseStack, bufferSource, packedLight, blockEntity.bites)
     }
 
     fun renderCake(
+        blockEntity: CakeBlockEntity,
         foodColourComponent: FoodColourComponent?,
         poseStack: PoseStack,
         multiBufferSource: MultiBufferSource,
@@ -131,9 +132,11 @@ open class CakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : B
         val random = Random(seedString.hashCode())
         val cakeLayout: CakeLayout = CAKE_LAYOUTS[random.nextInt(CAKE_LAYOUTS.size)]
 
-        val maxBites = MAX_NUMBER_OF_BITES + 1f
-        val cakeIsFull = bites.toFloat() == 0f
-        val percentageToRender = if (cakeIsFull) 1.0f else PIXEL_SHIFT.toFloat() + (PIXEL_SHIFT.toFloat() * 2f * (maxBites - bites).toFloat())
+        val visualSegments = 7f
+        val segmentIndex = (bites.toFloat() / blockEntity.maxBites.toFloat()) * visualSegments
+        val segmentsRemaining = visualSegments - segmentIndex
+        val percentageToRender = segmentsRemaining / visualSegments
+
         val clippedWidth = (ATLAS_END - ATLAS_START) * percentageToRender
         val topLayer = cakeLayout.topLayers.first().texture
         val uClipped = topLayer.u0 + (topLayer.u1 - topLayer.u0) * percentageToRender
@@ -173,6 +176,8 @@ open class CakeBlockEntityRenderer(ctx: BlockEntityRendererProvider.Context) : B
             Axis.YP.rotationDegrees(-90f),
             Axis.YP.rotationDegrees(-180f)
         )
+
+        val cakeIsFull = bites == 0
 
         for (i in translations.indices) {
             poseStack.pushPose()

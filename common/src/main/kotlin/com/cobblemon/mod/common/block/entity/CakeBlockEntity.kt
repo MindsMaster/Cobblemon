@@ -31,9 +31,8 @@ open class CakeBlockEntity(
     pos: BlockPos,
     state: BlockState
 ) : BlockEntity(type, pos, state) {
-    companion object {
-        const val MAX_NUMBER_OF_BITES = 6
-    }
+    open val maxBites: Int
+        get() = 6
 
     var flavourComponent: FlavourComponent? = null
     var baitEffectsComponent: BaitEffectsComponent? = null

@@ -27,7 +27,8 @@ interface SpawningInfluenceProspector {
     companion object {
         @JvmStatic
         val prospectors = mutableSetOf<SpawningInfluenceProspector>(
-            LureCakeProspector
+            LureCakeProspector,
+            SaccharineHoneyLogProspector
         )
     }
 

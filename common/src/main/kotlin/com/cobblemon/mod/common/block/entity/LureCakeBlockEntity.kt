@@ -18,6 +18,8 @@ class LureCakeBlockEntity(
     pos: BlockPos,
     state: BlockState
 ) : CakeBlockEntity(CobblemonBlockEntities.LURE_CAKE, pos, state) {
+    override val maxBites: Int
+        get() = 20
 
     /**
      * Combine all the [SpawnBait.Effect] values from the [baitEffectsComponent] data.

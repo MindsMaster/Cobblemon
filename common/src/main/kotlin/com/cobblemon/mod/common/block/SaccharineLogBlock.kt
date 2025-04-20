@@ -8,6 +8,7 @@
 
 package com.cobblemon.mod.common.block
 
+import com.cobblemon.mod.common.CobblemonBlocks
 import com.cobblemon.mod.common.CobblemonItems
 import com.cobblemon.mod.common.api.tags.CobblemonItemTags
 import net.minecraft.core.BlockPos
@@ -42,24 +43,11 @@ import net.minecraft.world.phys.shapes.VoxelShape
 
 class SaccharineLogBlock(properties: Properties) : RotatedPillarBlock(properties) {
 
-    private var owner: LivingEntity? = null
-
     init {
         this.registerDefaultState(
                 this.stateDefinition.any()
                         .setValue(AXIS, Direction.Axis.Y)
         )
-    }
-
-    override fun setPlacedBy(
-            level: Level,
-            pos: BlockPos,
-            state: BlockState,
-            placer: LivingEntity?,
-            itemStack: ItemStack
-    ) {
-        owner = placer
-        super.setPlacedBy(level, pos, state, placer, itemStack)
     }
 
     override fun getShape(
@@ -113,11 +101,28 @@ class SaccharineLogBlock(properties: Properties) : RotatedPillarBlock(properties
     ): ItemInteractionResult? {
         val itemStack = player.getItemInHand(hand)
         if (itemStack.`is`(Items.HONEY_BOTTLE)) {
-            // Do something
+            if (!level.isClientSide) {
+                // Replace the block with the honey variant
+                val newState = CobblemonBlocks.SACCHARINE_HONEY_LOG.defaultBlockState()
+                    .setValue(RotatedPillarBlock.AXIS, state.getValue(RotatedPillarBlock.AXIS))
+                level.setBlock(pos, newState, 3)
+
+                // Consume honey bottle
+                if (!player.isCreative) {
+                    itemStack.shrink(1)
+
+                    // Give glass bottle
+                    val glassBottle = ItemStack(Items.GLASS_BOTTLE)
+                    if (!player.addItem(glassBottle)) {
+                        player.drop(glassBottle, false)
+                    }
+                }
+            }
             return ItemInteractionResult.SUCCESS
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult)
     }
+
 
     override fun isPathfindable(
             state: BlockState,

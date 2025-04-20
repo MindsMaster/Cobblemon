@@ -172,6 +172,9 @@ object CobblemonBlocks : PlatformRegistry<Registry<Block>, ResourceKey<Registry<
     @JvmField
     val SACCHARINE_LOG = this.create("saccharine_log", SaccharineLogBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLUE).instrument(NoteBlockInstrument.BASS).strength(2.0F).sound(SoundType.WOOD).ignitedByLava()))
     @JvmField
+    val SACCHARINE_HONEY_LOG = this.create("saccharine_honey_log", SaccharineHoneyLogBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLUE).instrument(NoteBlockInstrument.BASS).strength(2.0F).sound(SoundType.WOOD).ignitedByLava()))
+
+    @JvmField
     val STRIPPED_SACCHARINE_LOG = this.create("stripped_saccharine_log", SaccharineStrippedLogBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_LIGHT_BLUE).instrument(NoteBlockInstrument.BASS).strength(2.0F).sound(SoundType.WOOD).ignitedByLava())) //log("stripped_saccharine_log")
     @JvmField
     val SACCHARINE_WOOD = log("saccharine_wood")
@@ -521,7 +524,8 @@ object CobblemonBlocks : PlatformRegistry<Registry<Block>, ResourceKey<Registry<
         APRICORN_WOOD to STRIPPED_APRICORN_WOOD,
         APRICORN_LOG to STRIPPED_APRICORN_LOG,
         SACCHARINE_WOOD to STRIPPED_SACCHARINE_WOOD,
-        SACCHARINE_LOG to STRIPPED_SACCHARINE_LOG
+        SACCHARINE_LOG to STRIPPED_SACCHARINE_LOG,
+        SACCHARINE_HONEY_LOG to STRIPPED_SACCHARINE_LOG
     )
 
 

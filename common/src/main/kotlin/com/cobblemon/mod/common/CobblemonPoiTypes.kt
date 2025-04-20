@@ -31,6 +31,10 @@ object CobblemonPoiTypes: PlatformRegistry<Registry<PoiType>, ResourceKey<Regist
     val LURE_CAKE_KEY: ResourceKey<PoiType> = createKey("lure_cake")
     @JvmField
     val LURE_CAKE = create(LURE_CAKE_KEY.location().path, PoiType(getBlockStates(CobblemonBlocks.LURE_CAKE), 0, 1))
+    @JvmField
+    val SACCHARINE_HONEY_LOG_KEY: ResourceKey<PoiType> = createKey("saccharine_honey_log")
+    @JvmField
+    val SACCHARINE_HONEY_LOG = create(SACCHARINE_HONEY_LOG_KEY.location().path, PoiType(getBlockStates(CobblemonBlocks.SACCHARINE_HONEY_LOG), 0, 1))
 
     private fun createKey(string: String): ResourceKey<PoiType> = ResourceKey.create(Registries.POINT_OF_INTEREST_TYPE, cobblemonResource(string))
 
