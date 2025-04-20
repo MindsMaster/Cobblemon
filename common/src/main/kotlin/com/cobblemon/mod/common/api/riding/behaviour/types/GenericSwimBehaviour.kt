@@ -39,7 +39,7 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimSta
 
     override val key = KEY
 
-    override fun getRidingStyle(settings: GenericSwimSettings, state: RidingBehaviourState): RidingStyle {
+    override fun getRidingStyle(settings: GenericSwimSettings, state: GenericSwimState): RidingStyle {
         return RidingStyle.LIQUID
     }
 
