@@ -8,13 +8,13 @@
 
 package com.cobblemon.mod.common.api.riding.behaviour.types
 
-import com.bedrockk.molang.runtime.value.DoubleValue
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.OrientationControllable
 import com.cobblemon.mod.common.api.riding.RidingStyle
 import com.cobblemon.mod.common.api.riding.behaviour.*
 import com.cobblemon.mod.common.api.riding.posing.PoseOption
 import com.cobblemon.mod.common.api.riding.posing.PoseProvider
+import com.cobblemon.mod.common.api.riding.stats.RidingStat
 import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.*
@@ -101,11 +101,11 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimSta
         driver: Player,
         input: Vec3
     ): Vec3 {
-        val runtime = vehicle.runtime
-        val driveFactor = runtime.resolveFloat(settings.driveFactor)
-        val strafeFactor = runtime.resolveFloat(settings.strafeFactor)
-        val f = driver.xxa * strafeFactor
-        var g = driver.zza * driveFactor
+        val speed = vehicle.getRideStat(RidingStat.SPEED, RidingStyle.LIQUID, 0.8, 1.5)
+        val acceleration = vehicle.getRideStat(RidingStat.ACCELERATION, RidingStyle.LIQUID, 0.8, 1.5)
+
+        val f = driver.xxa
+        var g = driver.zza * speed.toFloat()
 
         if (!vehicle.isInWater && !vehicle.isUnderWater) {
             val gravity = (9.8 / ( 20.0)) * 0.2
@@ -117,7 +117,7 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimSta
         }
 
         if (g < 0.0f) {
-            g *= runtime.resolveFloat(settings.reverseDriveFactor)
+            g = g * 0.25f
         }
         else if (g == 0.0f) {
             val lastForwardVelocity = state.rideVelocity.get().z
@@ -138,7 +138,8 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimSta
 
         var v = state.rideVelocity.get().y
         if (driver.jumping && state.jumpBuffer.get() == -1) {
-            v += 2 * (1 - g * .4)
+            val jumpStrength = vehicle.getRideStat(RidingStat.JUMP, RidingStyle.LIQUID, 1.0, 3.0)
+            v += jumpStrength * (1 - g * .4)
             state.jumpBuffer.set(0)
         }
 
@@ -249,6 +250,10 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimSta
         vehicle: PokemonEntity,
         driver: Player
     ): Float {
+        val speed = vehicle.getRideStat(RidingStat.SPEED, RidingStyle.LIQUID, 0.8, 1.5)
+        if (state.rideVelocity.get().z > 1) {
+            return Mth.lerp((state.rideVelocity.get().z - 1) / (speed.toFloat() - 1), 1.0, 1.1).toFloat()
+        }
         return 1.0f
     }
 
@@ -304,47 +309,16 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimSta
 class GenericSwimSettings : RidingBehaviourSettings {
     override val key = GenericSwimBehaviour.KEY
 
-    var canJump = "true".asExpression()
-        private set
-
-    var jumpVector = listOf("0".asExpression(), "0.3".asExpression(), "0".asExpression())
-        private set
-
-    var speed = "1.0".asExpression()
-        private set
-
-    var driveFactor = "1.0".asExpression()
-        private set
-
-    var reverseDriveFactor = "0.25".asExpression()
-        private set
-
-    var strafeFactor = "0.2".asExpression()
+    var terminalVelocity = "-2.0".asExpression()
         private set
 
     override fun encode(buffer: RegistryFriendlyByteBuf) {
         buffer.writeResourceLocation(key)
-        buffer.writeExpression(canJump)
-        buffer.writeExpression(jumpVector[0])
-        buffer.writeExpression(jumpVector[1])
-        buffer.writeExpression(jumpVector[2])
-        buffer.writeExpression(speed)
-        buffer.writeExpression(driveFactor)
-        buffer.writeExpression(reverseDriveFactor)
-        buffer.writeExpression(strafeFactor)
+        buffer.writeExpression(terminalVelocity)
     }
 
     override fun decode(buffer: RegistryFriendlyByteBuf) {
-        canJump = buffer.readExpression()
-        jumpVector = listOf(
-            buffer.readExpression(),
-            buffer.readExpression(),
-            buffer.readExpression()
-        )
-        speed = buffer.readExpression()
-        driveFactor = buffer.readExpression()
-        reverseDriveFactor = buffer.readExpression()
-        strafeFactor = buffer.readExpression()
+        terminalVelocity = buffer.readExpression()
     }
 }
 
