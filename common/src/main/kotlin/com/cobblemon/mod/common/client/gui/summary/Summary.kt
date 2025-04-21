@@ -13,9 +13,6 @@ import com.cobblemon.mod.common.CobblemonNetwork.sendToServer
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.gui.blitk
 import com.cobblemon.mod.common.api.moves.Move
-import com.cobblemon.mod.common.api.moves.MoveSet
-import com.cobblemon.mod.common.api.reactive.Observable.Companion.emitWhile
-import com.cobblemon.mod.common.api.reactive.ObservableSubscription
 import com.cobblemon.mod.common.api.scheduling.Schedulable
 import com.cobblemon.mod.common.api.scheduling.SchedulingTracker
 import com.cobblemon.mod.common.api.storage.party.PartyPosition
@@ -26,12 +23,10 @@ import com.cobblemon.mod.common.client.CobblemonResources
 import com.cobblemon.mod.common.client.gui.CobblemonRenderable
 import com.cobblemon.mod.common.client.gui.ExitButton
 import com.cobblemon.mod.common.client.gui.TypeIcon
-import com.cobblemon.mod.common.client.gui.summary.widgets.EvolutionSelectScreen
-import com.cobblemon.mod.common.client.gui.summary.widgets.ModelWidget
-import com.cobblemon.mod.common.client.gui.summary.widgets.NicknameEntryWidget
-import com.cobblemon.mod.common.client.gui.summary.widgets.PartyWidget
+import com.cobblemon.mod.common.client.gui.summary.widgets.*
 import com.cobblemon.mod.common.client.gui.summary.widgets.screens.SummaryTab
 import com.cobblemon.mod.common.client.gui.summary.widgets.screens.info.InfoWidget
+import com.cobblemon.mod.common.client.gui.summary.widgets.screens.marks.MarksWidget
 import com.cobblemon.mod.common.client.gui.summary.widgets.screens.moves.MoveSwapScreen
 import com.cobblemon.mod.common.client.gui.summary.widgets.screens.moves.MovesWidget
 import com.cobblemon.mod.common.client.gui.summary.widgets.screens.stats.StatWidget
@@ -78,6 +73,7 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
         private const val INFO = 0
         private const val MOVES = 1
         private const val STATS = 2
+        private const val MARKS = 3
 
         // Side Screen Index
         const val PARTY = 0
@@ -96,7 +92,10 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
         private val tabIconInfo = cobblemonResource("textures/gui/summary/summary_tab_icon_info.png")
         private val tabIconMoves = cobblemonResource("textures/gui/summary/summary_tab_icon_moves.png")
         private val tabIconStats = cobblemonResource("textures/gui/summary/summary_tab_icon_stats.png")
+        private val tabIconMarks = cobblemonResource("textures/gui/summary/summary_tab_icon_marks.png")
         val iconShinyResource = cobblemonResource("textures/gui/summary/icon_shiny.png")
+        val iconHeldItemResource = cobblemonResource("textures/gui/summary/icon_item_held.png")
+        val iconCosmeticItemResource = cobblemonResource("textures/gui/summary/icon_item_cosmetic.png")
 
         /**
          * Attempts to open this screen for a client.
@@ -123,7 +122,10 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
     lateinit var sideScreen: GuiEventListener
     private lateinit var modelWidget: ModelWidget
     private lateinit var nicknameEntryWidget: NicknameEntryWidget
+    private lateinit var markingsWidget: MarkingsWidget
     private val summaryTabs = mutableListOf<SummaryTab>()
+    private var showCosmeticItem = false
+    private lateinit var heldItemVisibilityButton: SummaryButton
     private var mainScreenIndex = INFO
     var sideScreenIndex = PARTY
     private val party = ArrayList(party)
@@ -155,6 +157,13 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
         displayMainScreen(mainScreenIndex)
         displaySideScreen(PARTY)
 
+        markingsWidget = MarkingsWidget(
+            x + 29,
+            y + 102,
+            selectedPokemon
+        )
+        addRenderableWidget(markingsWidget)
+
         // Evolve Button
         addRenderableWidget(
             SummaryButton(
@@ -173,65 +182,67 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
         )
 
         //Item Visibility Button
-        val hideHeldItemBtn = SummaryButton(
-            buttonX = x + 22f,
-            buttonY = y + 101f,
-            buttonWidth = 13,
-            buttonHeight = 9,
+        heldItemVisibilityButton = SummaryButton(
+            buttonX = x + 3F,
+            buttonY = y + 104F,
+            buttonWidth = 32,
+            buttonHeight = 32,
+            scale = 0.5F,
+            resource = itemVisibleResource,
+            activeResource = itemHiddenResource,
             clickAction = {
-                selectedPokemon.heldItemVisible=!selectedPokemon.heldItemVisible
+                selectedPokemon.heldItemVisible = !selectedPokemon.heldItemVisible
+                heldItemVisibilityButton.buttonActive = !selectedPokemon.heldItemVisible
                 modelWidget.heldItem = if (selectedPokemon.heldItemVisible) selectedPokemon.heldItem else null
                 // Send item visibility update to server
-                sendToServer(
-                    SetItemHiddenPacket(
-                        selectedPokemon.uuid,
-                        selectedPokemon.heldItemVisible
-                    )
-                )
+                sendToServer(SetItemHiddenPacket(selectedPokemon.uuid, selectedPokemon.heldItemVisible))
             },
-            resource = itemVisibleResource,
-            renderRequirement = { selectedPokemon.heldItemVisible },
-            clickRequirement = { true },
+            renderRequirement = { !selectedPokemon.heldItemNoCopy().isEmpty && !showCosmeticItem },
+            clickRequirement = { !selectedPokemon.heldItemNoCopy().isEmpty && !showCosmeticItem }
         )
-        val showHeldItemBtn = SummaryButton(
-            buttonX = x + 22f,
-            buttonY = y + 101f,
-            buttonWidth = 13,
-            buttonHeight = 9,
-            clickAction = { },
-            resource = itemHiddenResource,
-            renderRequirement = { !selectedPokemon.heldItemVisible },
-            clickRequirement = { false },
+        heldItemVisibilityButton.buttonActive = !selectedPokemon.heldItemVisible
+        addRenderableWidget(heldItemVisibilityButton)
+
+        // Held/Cosmetic Item Button
+        addRenderableWidget(
+            SummaryButton(
+                buttonX = x + 67F,
+                buttonY = y + 113F,
+                buttonWidth = 12,
+                buttonHeight = 12,
+                scale = 0.5F,
+                resource = iconCosmeticItemResource,
+                activeResource = iconHeldItemResource,
+                clickAction = {
+                    showCosmeticItem = !showCosmeticItem
+                    (it as SummaryButton).buttonActive = showCosmeticItem
+                }
+            )
         )
-        addRenderableWidget(showHeldItemBtn)
-        addRenderableWidget(hideHeldItemBtn)
 
         // Init Tabs
         summaryTabs.clear()
         summaryTabs.add(
             SummaryTab(pX = x + 78, pY = y - 1, icon = tabIconInfo) {
-                if (mainScreenIndex != INFO) {
-                    displayMainScreen(INFO)
-                    playSound(CobblemonSounds.GUI_CLICK)
-                }
+                if (mainScreenIndex != INFO) displayMainScreen(INFO)
             }
         )
 
         summaryTabs.add(
-            SummaryTab(pX = x + 119, pY = y - 1, icon = tabIconMoves) {
-                if (mainScreenIndex != MOVES) {
-                    displayMainScreen(MOVES)
-                    playSound(CobblemonSounds.GUI_CLICK)
-                }
+            SummaryTab(pX = x + 109, pY = y - 1, icon = tabIconMoves) {
+                if (mainScreenIndex != MOVES) displayMainScreen(MOVES)
             }
         )
 
         summaryTabs.add(
-            SummaryTab(pX = x + 160, pY = y - 1, icon = tabIconStats) {
-                if (mainScreenIndex != STATS) {
-                    displayMainScreen(STATS)
-                    playSound(CobblemonSounds.GUI_CLICK)
-                }
+            SummaryTab(pX = x + 140, pY = y - 1, icon = tabIconStats) {
+                if (mainScreenIndex != STATS) displayMainScreen(STATS)
+            }
+        )
+
+        summaryTabs.add(
+            SummaryTab(pX = x + 171, pY = y - 1, icon = tabIconMarks) {
+                if (mainScreenIndex != MARKS) displayMainScreen(MARKS)
             }
         )
 
@@ -245,6 +256,8 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
                 if (sideScreenIndex != PARTY) {
                     displaySideScreen(PARTY)
                 } else {
+                    saveActiveMark()
+                    saveMarkings()
                     Minecraft.getInstance().setScreen(null)
                 }
             }
@@ -309,8 +322,9 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
      * Switches the selected PKM
      */
     fun switchSelection(newSelection: Int) {
+        saveMarkings()
+        this.selectedPokemon.moveSet.changeFunction = {}
         this.party.getOrNull(newSelection)?.let { this.selectedPokemon = it }
-        moveSetSubscription?.unsubscribe()
         listenToMoveSet()
         displayMainScreen(mainScreenIndex)
         children().find { it is EvolutionSelectScreen }?.let(this::removeWidget)
@@ -318,25 +332,31 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
         if (::modelWidget.isInitialized) {
             modelWidget.pokemon = selectedPokemon.asRenderablePokemon()
             modelWidget.heldItem = if (selectedPokemon.heldItemVisible) selectedPokemon.heldItem else null
+            heldItemVisibilityButton.buttonActive = !selectedPokemon.heldItemVisible
         }
 
-        if (this::nicknameEntryWidget.isInitialized) {
-            this.nicknameEntryWidget.setSelectedPokemon(selectedPokemon)
-        }
+        if (::nicknameEntryWidget.isInitialized) nicknameEntryWidget.setSelectedPokemon(selectedPokemon)
+
+        if (::markingsWidget.isInitialized) markingsWidget.setActivePokemon(selectedPokemon)
     }
-
-    private var moveSetSubscription: ObservableSubscription<MoveSet>? = null
 
     /**
      * Start observing the MoveSet of the current PKM for changes
      */
     private fun listenToMoveSet() {
-        moveSetSubscription = selectedPokemon.moveSet.observable
-                .pipe(emitWhile { isOpen() })
-                .subscribe {
-                    if (mainScreen is MovesWidget)
-                        displayMainScreen(MOVES)
-                }
+        selectedPokemon.moveSet.changeFunction = {
+            if (mainScreen is MovesWidget) {
+                displayMainScreen(MOVES)
+            }
+        }
+    }
+
+    private fun saveMarkings() {
+        if (::markingsWidget.isInitialized) markingsWidget.saveMarkingsToPokemon()
+    }
+
+    private fun saveActiveMark() {
+        if (mainScreenIndex == MARKS && mainScreen is MarksWidget) (mainScreen as MarksWidget).saveActiveMarkToPokemon()
     }
 
     /**
@@ -348,6 +368,9 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
      * Switch center screen
      */
     private fun displayMainScreen(screen: Int) {
+        // Save mark to Pokémon if any changes when switching out of marks screen
+        saveActiveMark()
+
         // Get stat tab index if currently displaying stat screen
         val subIndex = if (mainScreenIndex == STATS && mainScreen is StatWidget) (mainScreen as StatWidget).statTabIndex else 0
 
@@ -385,6 +408,14 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
                     pY = y + 12,
                     pokemon = this.selectedPokemon,
                     tabIndex = subIndex
+                )
+            }
+
+            MARKS -> {
+                mainScreen = MarksWidget(
+                    pX = x + 77,
+                    pY = y + 12,
+                    pokemon = this.selectedPokemon
                 )
             }
         }
@@ -436,6 +467,8 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
             }
 
             EVOLVE -> {
+                saveActiveMark()
+                saveMarkings()
                 sideScreen = EvolutionSelectScreen(
                         x + 216,
                         y + 23,
@@ -581,19 +614,19 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
             scale = SCALE
         )
 
-        // Held Item
-        val heldItem = selectedPokemon.heldItemNoCopy()
+        // Held/Cosmetic Item
+        val displayedItem = if (showCosmeticItem) selectedPokemon.cosmeticItem else selectedPokemon.heldItemNoCopy()
         val itemX = x + 3
         val itemY = y + 104
-        if (!heldItem.isEmpty) {
-            context.renderItem(heldItem, itemX, itemY)
-            context.renderItemDecorations(Minecraft.getInstance().font, heldItem, itemX, itemY)
+        if (!displayedItem.isEmpty) {
+            context.renderItem(displayedItem, itemX, itemY)
+            context.renderItemDecorations(Minecraft.getInstance().font, displayedItem, itemX, itemY)
         }
 
         drawScaledText(
             context = context,
-            text = lang("held_item"),
-            x = x + 27,
+            text = lang("${if (showCosmeticItem) "cosmetic" else "held"}_item"),
+            x = x + 24,
             y = y + 114.5,
             scale = SCALE
         )
@@ -616,14 +649,19 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
             scale = SCALE
         )
 
+        matrices.pushPose()
+        // Prevent widgets from being overlapped by other components
+        matrices.translate(0.0, 0.0, 1000.0)
+
         // Render all added Widgets
         super.render(context, mouseX, mouseY, delta)
 
         // Render Item Tooltip
-        if (!heldItem.isEmpty) {
+        if (!displayedItem.isEmpty) {
             val itemHovered = mouseX.toFloat() in (itemX.toFloat()..(itemX.toFloat() + 16)) && mouseY.toFloat() in (itemY.toFloat()..(itemY.toFloat() + 16))
-            if (itemHovered) context.renderTooltip(Minecraft.getInstance().font, heldItem, mouseX, mouseY)
+            if (itemHovered) context.renderTooltip(Minecraft.getInstance().font, displayedItem, mouseX, mouseY)
         }
+        matrices.popPose()
     }
 
     /**
@@ -644,7 +682,15 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
     override fun keyPressed(keyCode: Int, scanCode: Int, modifiers: Int): Boolean {
         val nicknameSelected = this::nicknameEntryWidget.isInitialized && nicknameEntryWidget.isFocused
 
+        if (keyCode == InputConstants.KEY_ESCAPE) {
+            saveActiveMark()
+            saveMarkings()
+        }
+
+
         if (isInventoryKeyPressed(minecraft, keyCode, scanCode) && !nicknameSelected) {
+            saveActiveMark()
+            saveMarkings()
             Minecraft.getInstance().setScreen(null)
             return true
         }

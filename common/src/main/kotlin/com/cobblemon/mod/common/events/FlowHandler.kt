@@ -8,8 +8,12 @@
 
 package com.cobblemon.mod.common.events
 
+import com.bedrockk.molang.runtime.value.MoValue
 import com.cobblemon.mod.common.CobblemonFlows
+import com.cobblemon.mod.common.api.Priority
 import com.cobblemon.mod.common.api.events.CobblemonEvents
+import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMoLangValue
+import com.cobblemon.mod.common.platform.events.PlatformEvents
 import com.cobblemon.mod.common.util.cobblemonResource
 
 /**
@@ -18,6 +22,7 @@ import com.cobblemon.mod.common.util.cobblemonResource
 object FlowHandler {
     fun setup() {
         CobblemonEvents.POKEMON_CAPTURED.subscribe { CobblemonFlows.run(cobblemonResource("pokemon_captured"), it.context) }
+        CobblemonEvents.POKEMON_ENTITY_SPAWN.subscribe { CobblemonFlows.run(cobblemonResource("pokemon_entity_spawn"), mutableMapOf<String, MoValue>("pokemon_entity" to it.entity.asMoLangValue())) }
         CobblemonEvents.BATTLE_VICTORY.subscribe { CobblemonFlows.run(cobblemonResource("battle_victory"), it.context) }
         CobblemonEvents.POKEDEX_DATA_CHANGED_PRE.subscribe { CobblemonFlows.run(cobblemonResource("pokedex_data_changed_pre"), it.getContext(), it.functions) }
         CobblemonEvents.POKEDEX_DATA_CHANGED_POST.subscribe { CobblemonFlows.run(cobblemonResource("pokedex_data_changed_post"), it.getContext()) }
@@ -38,7 +43,19 @@ object FlowHandler {
         CobblemonEvents.EVOLUTION_TESTED.subscribe { CobblemonFlows.run(cobblemonResource("evolution_tested"), it.context, it.functions) }
         CobblemonEvents.EVOLUTION_ACCEPTED.subscribe { CobblemonFlows.run(cobblemonResource("evolution_accepted"), it.context, it.functions) }
         CobblemonEvents.EVOLUTION_COMPLETE.subscribe { CobblemonFlows.run(cobblemonResource("evolution_completed"), it.context) }
+        CobblemonEvents.FOSSIL_REVIVED.subscribe { CobblemonFlows.run(cobblemonResource("fossil_revived"), it.context) }
+        CobblemonEvents.BOBBER_SPAWN_POKEMON_POST.subscribe { CobblemonFlows.run(cobblemonResource("bobber_spawn_pokemon_post"), it.context) }
+        CobblemonEvents.WALLPAPER_UNLOCKED_EVENT.subscribe { CobblemonFlows.run(cobblemonResource("wallpaper_unlocked"), it.context, it.functions) }
+
+        PlatformEvents.SERVER_PLAYER_LOGIN.subscribe(priority = Priority.LOW) { CobblemonFlows.run(cobblemonResource("player_logged_in"), it.context) }
+        PlatformEvents.SERVER_PLAYER_LOGOUT.subscribe(priority = Priority.HIGH) { CobblemonFlows.run(cobblemonResource("player_logged_out"), it.context) }
+
+        PlatformEvents.SERVER_PLAYER_TICK_PRE.subscribe { CobblemonFlows.run(cobblemonResource("player_tick_pre"), it.context) }
+        PlatformEvents.SERVER_PLAYER_TICK_POST.subscribe { CobblemonFlows.run(cobblemonResource("player_tick_post"), it.context) }
+
+        PlatformEvents.SERVER_PLAYER_ADVANCEMENT_EARNED.subscribe { CobblemonFlows.run(cobblemonResource("advancement_earned"), it.context) }
+        PlatformEvents.RIGHT_CLICK_BLOCK.subscribe { CobblemonFlows.run(cobblemonResource("right_clicked_block"), it.context, it.functions) }
+        PlatformEvents.RIGHT_CLICK_ENTITY.subscribe { CobblemonFlows.run(cobblemonResource("right_clicked_entity"), it.context, it.functions) }
+        PlatformEvents.PLAYER_DEATH.subscribe { CobblemonFlows.run(cobblemonResource("player_died"), it.context) }
     }
 }
-
-

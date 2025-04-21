@@ -114,9 +114,12 @@ class ModelWidget(
 
         heldItemRenderer.renderOnModel(
             heldItem?: ItemStack.EMPTY,
-            state.locatorStates,
+            state.currentModel!!,
+            state,
             matrices,
-            context.bufferSource()
+            context.bufferSource(),
+            light = 0xF000F0,
+            true
         )
 
         matrices.popPose()
