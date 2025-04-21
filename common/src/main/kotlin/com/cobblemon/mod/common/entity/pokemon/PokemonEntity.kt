@@ -2092,6 +2092,9 @@ open class PokemonEntity(
             behaviour.turnOffOnGround(settings, state, this)
         }
         if (result != null && result) return false
+        if (!this.behaviour.moving.walk.canWalk && this.behaviour.moving.fly.canFly) {
+            return false
+        }
         return super.onGround()
     }
 
