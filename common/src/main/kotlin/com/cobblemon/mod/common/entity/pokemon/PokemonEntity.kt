@@ -1837,7 +1837,7 @@ open class PokemonEntity(
         return this.rideProp.calculate(stat, style, 0).toDouble()
     }
 
-    fun overrideRideStat(style: RidingStyle, stat: RidingStat, value: Double) {
+    internal fun overrideRideStat(style: RidingStyle, stat: RidingStat, value: Double) {
         if (rideStatOverrides[style] == null) {
             rideStatOverrides[style] = mutableMapOf()
         }
@@ -2085,13 +2085,16 @@ open class PokemonEntity(
     //flying or swimming but they are touching the ground and this needs to be prevented.
     //Having it be able to be turned off by the flying or swimming controllers is the
     //temp solution I have found.
-//    override fun onGround(): Boolean {
-//        val result = ifRidingAvailableSupply(fallback = null) { behaviour, settings, state ->
-//            behaviour.turnOffOnGround(settings, state, this)
-//        }
-//        if (result != null && result) return false
-//        return super.onGround()
-//    }
+    override fun onGround(): Boolean {
+        val result = ifRidingAvailableSupply(fallback = null) { behaviour, settings, state ->
+            behaviour.turnOffOnGround(settings, state, this)
+        }
+        if (result != null && result) return false
+        if (!this.behaviour.moving.walk.canWalk && this.behaviour.moving.fly.canFly) {
+            return false
+        }
+        return super.onGround()
+    }
 
     //I think already mentioned but should maybe be riding controller configurable
     override fun dismountsUnderwater(): Boolean {
@@ -2143,5 +2146,11 @@ open class PokemonEntity(
 
     override fun resolveEntityScan(): LivingEntity {
         return this
+    }
+
+    fun canStopRiding(pokemon: PokemonEntity, player: ServerPlayer): Boolean {
+        if (pokemon.passengers.isEmpty()) return false
+        if (pokemon.controllingPassenger != player) return false
+        return true
     }
 }

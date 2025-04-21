@@ -35,10 +35,13 @@ class DragonBehaviour : RidingBehaviour<DragonSettings, DragonState> {
     }
 
     override val key = KEY
-    override val style = RidingStyle.AIR
 
     val poseProvider = PoseProvider<DragonSettings, DragonState>(PoseType.HOVER)
         .with(PoseOption(PoseType.FLY) { _, state, _ -> state.rideVelocity.get().z > 0.1 })
+
+    override fun getRidingStyle(settings: DragonSettings, state: DragonState): RidingStyle {
+        return RidingStyle.AIR
+    }
 
     override fun isActive(settings: DragonSettings, state: DragonState, vehicle: PokemonEntity): Boolean {
         return Shapes.create(vehicle.boundingBox).blockPositionsAsListRounded().any {

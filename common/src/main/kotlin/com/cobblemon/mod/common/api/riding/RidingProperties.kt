@@ -43,7 +43,7 @@ class RidingProperties(
         }
     }
 
-    fun updateStatRange(stat: RidingStat, style: RidingStyle, min: Int, max: Int) {
+    internal fun updateStatRange(stat: RidingStat, style: RidingStyle, min: Int, max: Int) {
         if (!Cobblemon.config.enableDebugKeys) return
         if (stats[stat] == null) {
             stats[stat] = RidingStatDefinition()
