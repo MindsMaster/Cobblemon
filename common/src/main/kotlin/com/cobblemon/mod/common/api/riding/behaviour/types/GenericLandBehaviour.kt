@@ -433,7 +433,7 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
         state: GenericLandState,
         vehicle: PokemonEntity
     ): Boolean {
-        return false
+        return true
     }
 
     override fun createDefaultState(settings: GenericLandSettings) = GenericLandState()

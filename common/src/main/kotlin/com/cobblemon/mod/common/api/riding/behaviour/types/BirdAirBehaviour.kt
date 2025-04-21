@@ -20,6 +20,7 @@ import com.cobblemon.mod.common.entity.PoseType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.pokemon.Pokemon
 import com.cobblemon.mod.common.util.*
+import com.cobblemon.mod.common.util.math.geometry.toRadians
 import net.minecraft.client.Minecraft
 import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.RegistryFriendlyByteBuf
@@ -262,24 +263,19 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
 
         //Calculate correcting roll force.
         val correctionRate = 5.0
-        if (state.rideVelocity.get().length() < 0.2) {
-            if(abs(controller.roll) > rotLimit) {
-                state.currRollCorrectionForce.set(
-                    state.currRollCorrectionForce.get() + ((abs(controller.roll) - rotLimit) / 180 - rotLimit) * controller.roll.sign * correctionRate * deltaTime * 0.01
-                )
-            } else {
-                state.currRollCorrectionForce.set(
-                    //reduce rollCorrection gradually and make sure to
-                    //state.currRollCorrectionForce.get() - max(correctionRate * deltaTime * 0.04, abs(state.currRollCorrectionForce.get())) * state.currRollCorrectionForce.get().sign
-                    lerp(state.currRollCorrectionForce.get(), 0.0, deltaTime * 0.98)
-                )
-            }
+        if(abs(controller.roll) > rotLimit && state.rideVelocity.get().length() < 0.2) {
+            state.currRollCorrectionForce.set(
+                state.currRollCorrectionForce.get() + ((abs(controller.roll) - rotLimit) / 180 - rotLimit) * controller.roll.sign * correctionRate * deltaTime * 0.01
+            )
         } else {
-            state.currRollCorrectionForce.set(0.0)
+            state.currRollCorrectionForce.set(
+                //reduce rollCorrection gradually
+                lerp(state.currRollCorrectionForce.get(), 0.0, deltaTime * 0.98)
+            )
         }
 
         //yaw, pitch, roll
-        return Vec3(0.0, 0.0, 0.0)
+        return Vec3(0.0, 0.0, state.currRollCorrectionForce.get())
     }
 
     override fun rotationOnMouseXY(
@@ -324,8 +320,8 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
                 val d = abs(abs(controller.roll) - rotLimit)
                 rollForce *= (d.pow(2)) / (rotLimit.pow(2))
             }
-        } else if (sign(rollForce) == sign(controller.roll).toDouble()) {
-            rollForce = 0.0
+        } else { //if (sign(rollForce) == sign(controller.roll).toDouble()) {
+            rollForce *= max(abs(sin(controller.pitch.toRadians())),0.1f)
         }
 
         //Give the ability to yaw with x mouse input when at low speeds.
@@ -344,9 +340,13 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
 
         // Pitch up globally
         controller.applyGlobalPitch(-1 * yInput.toFloat())
-        // roll to 0 if pitching
+        // roll to 0 if pitching and not upside down. This is to prevent odd back and forth wobbling when
+        // pitching globally and experiencing axis changes
         if (controller.upVector.dot(Vector3f(0f,1f,0f)) > 0) {
-            rollForce += controller.roll * -0.01 * yInput
+            // correct roll equal to the amount the ride is pitching (yInput)
+            // correct roll only when near to horizontal (cos(pitch))
+            // correct roll proportional to how rolled the ride currently is
+            rollForce += controller.roll * -0.01 * abs(yInput) * abs(cos(controller.pitch.toRadians())) * abs(sin(controller.roll.toRadians()))
         }
 
         //yaw, pitch, roll
@@ -465,7 +465,7 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
         state: BirdAirState,
         vehicle: PokemonEntity
     ): Boolean {
-        return false
+        return true
     }
 
     override fun createDefaultState(settings: BirdAirSettings) = BirdAirState()
