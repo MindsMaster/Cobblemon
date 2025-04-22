@@ -74,6 +74,17 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimSta
         else if (state.jumpBuffer.get() > -1) {
             state.jumpBuffer.set(state.jumpBuffer.get() + 1)
         }
+
+        if (driver.zza == 0f && (vehicle.isInWater || vehicle.isUnderWater)) {
+            if (state.staminaBuffer.get() >= 20) {
+                val staminaIncrease = vehicle.getRideStat(RidingStat.STAMINA, RidingStyle.LIQUID, 1.0, 2.0)
+                state.stamina.set(min(1.0f, state.stamina.get() + 0.01f * staminaIncrease.toFloat()))
+            }
+        }
+        else if (abs(state.rideVelocity.get().z) > 0.1) {
+            consumeStamina(vehicle, state, 0.01f)
+        }
+        state.staminaBuffer.set(state.staminaBuffer.get() + 1)
         super.tick(settings, state, vehicle, driver, input)
     }
 
@@ -102,17 +113,13 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimSta
         driver: Player,
         input: Vec3
     ): Vec3 {
+        applyStrafeRotation(vehicle, driver, state)
+
         var velocity = state.rideVelocity.get()
         velocity = applyVelocityFromInput(velocity, vehicle, driver, state)
         velocity = applyGravity(velocity, vehicle, settings, state)
         velocity = applyJump(velocity, vehicle, driver, state)
         state.rideVelocity.set(velocity)
-
-        val strafe = driver.xxa
-        if (abs(strafe) > 0) {
-            val increase = if (strafe > 0) -1 else 1
-            state.deltaRotation.set(state.deltaRotation.get() + increase)
-        }
         return state.rideVelocity.get()
     }
 
@@ -126,7 +133,7 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimSta
 
         val forwardInput = driver.zza.toDouble()
         val delta = when {
-            forwardInput == 0.0 -> -velocity.z * 0.04
+            !hasStamina(state) || forwardInput == 0.0 -> -velocity.z * 0.04
             forwardInput < 0.0 -> when {
                 velocity.z < 0.0 -> forwardInput * acceleration * 0.5
                 else -> min(forwardInput * acceleration * 0.5, -velocity.z * 0.04) // We never want it to be slower to reverse than no input
@@ -142,9 +149,13 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimSta
     }
 
     private fun applyJump(velocity: Vec3, vehicle: PokemonEntity, driver: Player, state: GenericSwimState): Vec3 {
-        if (!driver.jumping || state.jumpBuffer.get() != -1) return velocity
+        if (!driver.jumping) return velocity // Not jumping
+        if (state.jumpBuffer.get() != -1) return velocity // Already jumped very recently
+        if (!hasStamina(state)) return velocity // Has no stamina
+
         val jumpStrength = vehicle.getRideStat(RidingStat.JUMP, RidingStyle.LIQUID, 1.0, 2.5)
         state.jumpBuffer.set(0)
+        consumeStamina(vehicle, state, 0.05f)
         return Vec3(velocity.x, velocity.y + jumpStrength, velocity.z)
     }
 
@@ -155,6 +166,25 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimSta
         val terminalVelocity = vehicle.runtime.resolveDouble(settings.terminalVelocity)
         val gravity = (9.8 / ( 20.0)) * 0.2
         return Vec3(velocity.x, max(velocity.y - gravity, terminalVelocity), velocity.z)
+    }
+
+    private fun applyStrafeRotation(vehicle: PokemonEntity, driver: Player, state: GenericSwimState) {
+        val skill = vehicle.getRideStat(RidingStat.SKILL, RidingStyle.LIQUID, 0.5, 1.5)
+        val strafe = driver.xxa
+        if (abs(strafe) > 0) {
+            val increase = if (strafe > 0) -1 else 1
+            state.deltaRotation.set(state.deltaRotation.get() + increase * skill)
+        }
+    }
+
+    private fun hasStamina(state: GenericSwimState): Boolean {
+        return state.stamina.get() != 0f
+    }
+
+    private fun consumeStamina(vehicle: PokemonEntity, state: GenericSwimState, drain: Float) {
+        val stamina = vehicle.getRideStat(RidingStat.STAMINA, RidingStyle.LIQUID, 1.0, 5.0)
+        state.stamina.set(max(0f, state.stamina.get() - drain / stamina.toFloat()))
+        state.staminaBuffer.set(0)
     }
 
     override fun updatePassengerRotation(
@@ -333,17 +363,18 @@ class GenericSwimSettings : RidingBehaviourSettings {
 class GenericSwimState : RidingBehaviourState() {
     val deltaRotation = ridingState(0.0, Side.CLIENT)
     val jumpBuffer = ridingState(-1, Side.CLIENT)
+    val staminaBuffer = ridingState(0, Side.CLIENT)
 
     override fun copy() = GenericSwimState().also {
         it.deltaRotation.set(deltaRotation.get(), true)
         it.rideVelocity.set(rideVelocity.get(), true)
         it.stamina.set(stamina.get(), true)
         it.jumpBuffer.set(jumpBuffer.get(), true)
+        it.staminaBuffer.set(staminaBuffer.get(), true)
     }
 
     override fun shouldSync(previous: RidingBehaviourState): Boolean {
         if (previous !is GenericSwimState) return false
-        if (previous.jumpBuffer.get() != jumpBuffer.get()) return true
         return super.shouldSync(previous)
     }
 
