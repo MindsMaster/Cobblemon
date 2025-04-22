@@ -32,7 +32,7 @@ object RidingBehaviourSettingsAdapter : JsonDeserializer<RidingBehaviourSettings
     val types: MutableMap<ResourceLocation, Class<out RidingBehaviourSettings>> = mutableMapOf(BirdAirBehaviour.KEY to BirdAirSettings::class.java,
         DolphinBehaviour.KEY to DolphinSettings::class.java,
         GenericLandBehaviour.KEY to GenericLandSettings::class.java,
-        GenericSwimBehaviour.KEY to GenericSwimSettings::class.java,
+        BoatBehaviour.KEY to BoatSettings::class.java,
         GliderAirBehaviour.KEY to GliderAirSettings::class.java,
         HelicopterBehaviour.KEY to HelicopterSettings::class.java,
         JetAirBehaviour.KEY to JetAirSettings::class.java,

@@ -29,24 +29,23 @@ import net.minecraft.world.phys.shapes.Shapes
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.sign
 
-class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimState> {
+class BoatBehaviour : RidingBehaviour<BoatSettings, BoatState> {
     companion object {
-        val KEY = cobblemonResource("swim/generic")
+        val KEY = cobblemonResource("liquid/boat")
         val TOP_SPEED = 2.0
     }
 
     override val key = KEY
 
-    override fun getRidingStyle(settings: GenericSwimSettings, state: GenericSwimState): RidingStyle {
+    override fun getRidingStyle(settings: BoatSettings, state: BoatState): RidingStyle {
         return RidingStyle.LIQUID
     }
 
-    val poseProvider = PoseProvider<GenericSwimSettings, GenericSwimState>(PoseType.FLOAT)
+    val poseProvider = PoseProvider<BoatSettings, BoatState>(PoseType.FLOAT)
         .with(PoseOption(PoseType.SWIM) { _, _, entity -> entity.isSwimming && entity.entityData.get(PokemonEntity.MOVING) })
 
-    override fun isActive(settings: GenericSwimSettings, state: GenericSwimState, vehicle: PokemonEntity): Boolean {
+    override fun isActive(settings: BoatSettings, state: BoatState, vehicle: PokemonEntity): Boolean {
         if (state.jumpBuffer.get() != -1) {
             return true
         }
@@ -60,8 +59,8 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimSta
     }
 
     override fun tick(
-        settings: GenericSwimSettings,
-        state: GenericSwimState,
+        settings: BoatSettings,
+        state: BoatState,
         vehicle: PokemonEntity,
         driver: Player,
         input: Vec3
@@ -88,17 +87,17 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimSta
         super.tick(settings, state, vehicle, driver, input)
     }
 
-    override fun pose(settings: GenericSwimSettings, state: GenericSwimState, vehicle: PokemonEntity): PoseType {
+    override fun pose(settings: BoatSettings, state: BoatState, vehicle: PokemonEntity): PoseType {
         return poseProvider.select(settings, state, vehicle)
     }
 
-    override fun speed(settings: GenericSwimSettings, state: GenericSwimState, vehicle: PokemonEntity, driver: Player): Float {
+    override fun speed(settings: BoatSettings, state: BoatState, vehicle: PokemonEntity, driver: Player): Float {
         return state.rideVelocity.get().length().toFloat()
     }
 
     override fun rotation(
-        settings: GenericSwimSettings,
-        state: GenericSwimState,
+        settings: BoatSettings,
+        state: BoatState,
         vehicle: PokemonEntity,
         driver: LivingEntity
     ): Vec2 {
@@ -107,8 +106,8 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimSta
     }
 
     override fun velocity(
-        settings: GenericSwimSettings,
-        state: GenericSwimState,
+        settings: BoatSettings,
+        state: BoatState,
         vehicle: PokemonEntity,
         driver: Player,
         input: Vec3
@@ -123,7 +122,7 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimSta
         return state.rideVelocity.get()
     }
 
-    private fun applyVelocityFromInput(velocity: Vec3, vehicle: PokemonEntity, driver: Player, state: GenericSwimState): Vec3 {
+    private fun applyVelocityFromInput(velocity: Vec3, vehicle: PokemonEntity, driver: Player, state: BoatState): Vec3 {
         val speed = vehicle.getRideStat(RidingStat.SPEED, RidingStyle.LIQUID, 0.8, TOP_SPEED)
         val acceleration = vehicle.getRideStat(RidingStat.ACCELERATION, RidingStyle.LIQUID, 0.05, 0.5)
 
@@ -148,7 +147,7 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimSta
         )
     }
 
-    private fun applyJump(velocity: Vec3, vehicle: PokemonEntity, driver: Player, state: GenericSwimState): Vec3 {
+    private fun applyJump(velocity: Vec3, vehicle: PokemonEntity, driver: Player, state: BoatState): Vec3 {
         if (!driver.jumping) return velocity // Not jumping
         if (state.jumpBuffer.get() != -1) return velocity // Already jumped very recently
         if (!hasStamina(state)) return velocity // Has no stamina
@@ -159,7 +158,7 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimSta
         return Vec3(velocity.x, velocity.y + jumpStrength, velocity.z)
     }
 
-    private fun applyGravity(velocity: Vec3, vehicle: PokemonEntity, settings: GenericSwimSettings, state: GenericSwimState): Vec3 {
+    private fun applyGravity(velocity: Vec3, vehicle: PokemonEntity, settings: BoatSettings, state: BoatState): Vec3 {
         if (state.jumpBuffer.get() == -1 && vehicle.isInWater || vehicle.isUnderWater) {
             return Vec3(velocity.x, -0.05, velocity.z)
         }
@@ -168,7 +167,7 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimSta
         return Vec3(velocity.x, max(velocity.y - gravity, terminalVelocity), velocity.z)
     }
 
-    private fun applyStrafeRotation(vehicle: PokemonEntity, driver: Player, state: GenericSwimState) {
+    private fun applyStrafeRotation(vehicle: PokemonEntity, driver: Player, state: BoatState) {
         val skill = vehicle.getRideStat(RidingStat.SKILL, RidingStyle.LIQUID, 0.5, 1.5)
         val strafe = driver.xxa
         if (abs(strafe) > 0) {
@@ -177,19 +176,19 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimSta
         }
     }
 
-    private fun hasStamina(state: GenericSwimState): Boolean {
+    private fun hasStamina(state: BoatState): Boolean {
         return state.stamina.get() != 0f
     }
 
-    private fun consumeStamina(vehicle: PokemonEntity, state: GenericSwimState, drain: Float) {
+    private fun consumeStamina(vehicle: PokemonEntity, state: BoatState, drain: Float) {
         val stamina = vehicle.getRideStat(RidingStat.STAMINA, RidingStyle.LIQUID, 1.0, 5.0)
         state.stamina.set(max(0f, state.stamina.get() - drain / stamina.toFloat()))
         state.staminaBuffer.set(0)
     }
 
     override fun updatePassengerRotation(
-        settings: GenericSwimSettings,
-        state: GenericSwimState,
+        settings: BoatSettings,
+        state: BoatState,
         vehicle: PokemonEntity,
         driver: LivingEntity
     ) {
@@ -199,8 +198,8 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimSta
     }
 
     override fun clampPassengerRotation(
-        settings: GenericSwimSettings,
-        state: GenericSwimState,
+        settings: BoatSettings,
+        state: BoatState,
         vehicle: PokemonEntity,
         driver: LivingEntity
     ) {
@@ -214,8 +213,8 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimSta
     }
 
     override fun angRollVel(
-        settings: GenericSwimSettings,
-        state: GenericSwimState,
+        settings: BoatSettings,
+        state: BoatState,
         vehicle: PokemonEntity,
         driver: Player,
         deltaTime: Double
@@ -224,8 +223,8 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimSta
     }
 
     override fun rotationOnMouseXY(
-        settings: GenericSwimSettings,
-        state: GenericSwimState,
+        settings: BoatSettings,
+        state: BoatState,
         vehicle: PokemonEntity,
         driver: Player,
         mouseY: Double,
@@ -244,8 +243,8 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimSta
     }
 
     override fun canJump(
-        settings: GenericSwimSettings,
-        state: GenericSwimState,
+        settings: BoatSettings,
+        state: BoatState,
         vehicle: PokemonEntity,
         driver: Player
     ): Boolean {
@@ -253,8 +252,8 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimSta
     }
 
     override fun setRideBar(
-        settings: GenericSwimSettings,
-        state: GenericSwimState,
+        settings: BoatSettings,
+        state: BoatState,
         vehicle: PokemonEntity,
         driver: Player
     ): Float {
@@ -262,8 +261,8 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimSta
     }
 
     override fun jumpForce(
-        settings: GenericSwimSettings,
-        state: GenericSwimState,
+        settings: BoatSettings,
+        state: BoatState,
         vehicle: PokemonEntity,
         driver: Player,
         jumpStrength: Int
@@ -272,8 +271,8 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimSta
     }
 
     override fun gravity(
-        settings: GenericSwimSettings,
-        state: GenericSwimState,
+        settings: BoatSettings,
+        state: BoatState,
         vehicle: PokemonEntity,
         regularGravity: Double
     ): Double {
@@ -281,8 +280,8 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimSta
     }
 
     override fun rideFovMultiplier(
-        settings: GenericSwimSettings,
-        state: GenericSwimState,
+        settings: BoatSettings,
+        state: BoatState,
         vehicle: PokemonEntity,
         driver: Player
     ): Float {
@@ -292,57 +291,57 @@ class GenericSwimBehaviour : RidingBehaviour<GenericSwimSettings, GenericSwimSta
         return 1.0f
     }
 
-    override fun useAngVelSmoothing(settings: GenericSwimSettings, state: GenericSwimState, vehicle: PokemonEntity): Boolean {
+    override fun useAngVelSmoothing(settings: BoatSettings, state: BoatState, vehicle: PokemonEntity): Boolean {
         return false
     }
 
     override fun useRidingAltPose(
-        settings: GenericSwimSettings,
-        state: GenericSwimState,
+        settings: BoatSettings,
+        state: BoatState,
         vehicle: PokemonEntity,
         driver: Player
     ): Boolean {
         return false
     }
 
-    override fun inertia(settings: GenericSwimSettings, state: GenericSwimState, vehicle: PokemonEntity): Double {
+    override fun inertia(settings: BoatSettings, state: BoatState, vehicle: PokemonEntity): Double {
         return 0.5
     }
 
-    override fun shouldRoll(settings: GenericSwimSettings, state: GenericSwimState, vehicle: PokemonEntity): Boolean {
+    override fun shouldRoll(settings: BoatSettings, state: BoatState, vehicle: PokemonEntity): Boolean {
         return false
     }
 
-    override fun turnOffOnGround(settings: GenericSwimSettings, state: GenericSwimState, vehicle: PokemonEntity): Boolean {
+    override fun turnOffOnGround(settings: BoatSettings, state: BoatState, vehicle: PokemonEntity): Boolean {
         return false
     }
 
-    override fun dismountOnShift(settings: GenericSwimSettings, state: GenericSwimState, vehicle: PokemonEntity): Boolean {
+    override fun dismountOnShift(settings: BoatSettings, state: BoatState, vehicle: PokemonEntity): Boolean {
         return false
     }
 
     override fun shouldRotatePokemonHead(
-        settings: GenericSwimSettings,
-        state: GenericSwimState,
+        settings: BoatSettings,
+        state: BoatState,
         vehicle: PokemonEntity
     ): Boolean {
         return vehicle.runtime.resolveBoolean(settings.rotatePokemonHead)
     }
 
     override fun shouldRotatePlayerHead(
-        settings: GenericSwimSettings,
-        state: GenericSwimState,
+        settings: BoatSettings,
+        state: BoatState,
         vehicle: PokemonEntity
     ): Boolean {
         return true
     }
 
-    override fun createDefaultState(settings: GenericSwimSettings) = GenericSwimState()
+    override fun createDefaultState(settings: BoatSettings) = BoatState()
 
 }
 
-class GenericSwimSettings : RidingBehaviourSettings {
-    override val key = GenericSwimBehaviour.KEY
+class BoatSettings : RidingBehaviourSettings {
+    override val key = BoatBehaviour.KEY
 
     var terminalVelocity = "-2.0".asExpression()
         private set
@@ -360,12 +359,12 @@ class GenericSwimSettings : RidingBehaviourSettings {
     }
 }
 
-class GenericSwimState : RidingBehaviourState() {
+class BoatState : RidingBehaviourState() {
     val deltaRotation = ridingState(0.0, Side.CLIENT)
     val jumpBuffer = ridingState(-1, Side.CLIENT)
     val staminaBuffer = ridingState(0, Side.CLIENT)
 
-    override fun copy() = GenericSwimState().also {
+    override fun copy() = BoatState().also {
         it.deltaRotation.set(deltaRotation.get(), true)
         it.rideVelocity.set(rideVelocity.get(), true)
         it.stamina.set(stamina.get(), true)
@@ -374,7 +373,7 @@ class GenericSwimState : RidingBehaviourState() {
     }
 
     override fun shouldSync(previous: RidingBehaviourState): Boolean {
-        if (previous !is GenericSwimState) return false
+        if (previous !is BoatState) return false
         return super.shouldSync(previous)
     }
 
