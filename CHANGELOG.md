@@ -38,6 +38,8 @@
 - Bronzong
 - Croagunk
 - Froslass
+- Glameow
+- Purugly
 
 #### Gen 5
 - Pansage
@@ -52,6 +54,9 @@
 - Zebstrika
 - Trubbish
 - Garbodor
+- Gothita
+- Gothorita
+- Gothitelle
 
 #### Gen 6
 - Noibat
@@ -70,6 +75,7 @@
 - Arboliva
 - Orthworm
 - Dudunsparce
+- Cyclizar
 
 ### Animation updates for the following Pokémon
 - Garchomp
