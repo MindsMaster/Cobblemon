@@ -88,6 +88,8 @@ interface RidingBehaviour<Settings : RidingBehaviourSettings, State : RidingBeha
 
     fun shouldRotatePlayerHead(settings: Settings, state: State, vehicle: PokemonEntity): Boolean
 
+    fun maxUpStep(settings: Settings, state: State, vehicle: PokemonEntity): Float? = null
+
     fun createDefaultState(settings: Settings): State
 
 }

@@ -336,6 +336,8 @@ class BoatBehaviour : RidingBehaviour<BoatSettings, BoatState> {
         return true
     }
 
+    override fun maxUpStep(settings: BoatSettings, state: BoatState, vehicle: PokemonEntity) = 0f
+
     override fun createDefaultState(settings: BoatSettings) = BoatState()
 
 }
