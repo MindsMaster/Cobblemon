@@ -39,7 +39,6 @@
     "client.AbstractClientPlayerMixin",
     "client.EntryListWidgetMixin",
     "client.LocalPlayerMixin",
-    "client.PlayerModelMixin",
     "client.CameraMixin",
     "invoker.ClientPlayNetworkHandlerInvoker",
     "riding.JetMixin"

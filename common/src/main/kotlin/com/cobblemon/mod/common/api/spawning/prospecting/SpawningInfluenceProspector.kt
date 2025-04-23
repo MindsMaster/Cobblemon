@@ -28,7 +28,8 @@ interface SpawningInfluenceProspector {
         @JvmStatic
         val prospectors = mutableSetOf<SpawningInfluenceProspector>(
             LureCakeProspector,
-            SaccharineHoneyLogProspector
+            SaccharineHoneyLogProspector,
+            IncenseSweetProspector
         )
     }
 
