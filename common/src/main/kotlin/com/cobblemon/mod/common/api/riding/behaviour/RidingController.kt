@@ -185,6 +185,11 @@ class RidingController<Settings : RidingBehaviourSettings, State : RidingBehavio
         return behaviour.setRideBar(settings, state, vehicle, driver)
     }
 
+    override fun maxUpStep(settings: Settings, state: State, vehicle: PokemonEntity): Float? {
+        if (!isActive(settings, state, vehicle)) return null
+        return behaviour.maxUpStep(settings, state, vehicle)
+    }
+
     override fun createDefaultState(settings: Settings): State {
         return behaviour.createDefaultState(settings)
     }
