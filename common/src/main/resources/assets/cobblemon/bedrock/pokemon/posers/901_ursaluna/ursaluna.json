@@ -31,8 +31,7 @@
       ],
       "animations": [
         "q.look('head')",
-        "q.bedrock('ursaluna', 'ground_idle')",
-        "q.quadruped_walk( 0.75, 1, 'shoulder_left', 'shoulder_right', 'thigh_left', 'thigh_right')"
+        "q.bedrock('ursaluna', 'ground_walk')"
       ],
       "transformTicks": 5,
       "quirks": [
