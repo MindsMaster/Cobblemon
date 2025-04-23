@@ -43,10 +43,11 @@ interface CompositeRidingStrategy<T : CompositeSettings> {
     ) {
         toState.stamina.set(fromState.stamina.get())
         toState.rideVelocity.set(fromState.rideVelocity.get())
-        state.activeController.set(toSettings.key)
+        fromState.reset()
+        state.activeBehaviour.set(toSettings.key)
         state.lastTransition.set(vehicle.level().gameTime)
         val behaviour = RidingBehaviours.get(toSettings.key)
-        vehicle.setBehaviourFlag(PokemonBehaviourFlag.FLYING, behaviour.style == RidingStyle.AIR)
+        vehicle.setBehaviourFlag(PokemonBehaviourFlag.FLYING, behaviour.getRidingStyle(toSettings, toState) == RidingStyle.AIR)
     }
 
 }

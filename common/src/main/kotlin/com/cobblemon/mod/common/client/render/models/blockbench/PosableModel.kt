@@ -449,11 +449,11 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
                 if (layer.texture is AnimatedModelTextureSupplier && layer.texture.interpolation) {
                     //Handle Interpolation
                     val texture = layer.texture.interpolatedTexture(currentState ?: FloatingState()) ?: continue
-                    renderLayer = makeLayer(DynamicStateShard(texture), layer.emissive, layer.translucent)
+                    renderLayer = makeLayer(DynamicStateShard(texture), layer.emissive, layer.translucent, layer.translucent_cull)
                 }
                 else {
                     val texture = layer.texture?.invoke(currentState ?: FloatingState()) ?: continue
-                    renderLayer = getLayer(texture, layer.emissive, layer.translucent)
+                    renderLayer = getLayer(texture, layer.emissive, layer.translucent, layer.translucent_cull)
                 }
                 val consumer = provider.getBuffer(renderLayer)
                 val tint = layer.tint
@@ -484,11 +484,12 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
     }
 
     /** Generates a [RenderType] by the power of god and anime. Only possible thanks to 100 access wideners. */
-    fun makeLayer(texture: RenderStateShard.EmptyTextureStateShard, emissive: Boolean, translucent: Boolean): RenderType {
+    fun makeLayer(texture: RenderStateShard.EmptyTextureStateShard, emissive: Boolean, translucent: Boolean, translucentCull: Boolean): RenderType {
         val multiPhaseParameters: RenderType.CompositeState = RenderType.CompositeState.builder()
             .setShaderState(
                 when {
                     emissive && translucent -> RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_SHADER
+                    !emissive && translucent && translucentCull -> RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_CULL_SHADER
                     !emissive && translucent -> RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_SHADER
                     !emissive && !translucent -> RenderStateShard.RENDERTYPE_ENTITY_CUTOUT_SHADER
                     else -> RenderStateShard.RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_SHADER // This one should be changed to maybe a custom shader? Translucent stuffs with things
@@ -514,13 +515,13 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
     }
 
     /** Makes a [RenderType] in a jank way. Mostly works so that's cool. */
-    fun getLayer(texture: ResourceLocation, emissive: Boolean, translucent: Boolean): RenderType {
+    fun getLayer(texture: ResourceLocation, emissive: Boolean, translucent: Boolean, translucentCull: Boolean): RenderType {
         return if (!emissive && !translucent) {
             RenderType.entityCutout(texture)
-        } else if (!emissive) {
+        } else if (!emissive && !translucentCull) {
             RenderType.entityTranslucent(texture)
         } else {
-            makeLayer(RenderStateShard.TextureStateShard(texture, false, false), emissive = emissive, translucent = translucent)
+            makeLayer(RenderStateShard.TextureStateShard(texture, false, false), emissive = emissive, translucent = translucent, translucentCull = translucentCull)
         }
     }
 
@@ -609,7 +610,7 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
         val primaryAnimation = state.primaryAnimation
         val shouldRotateHead = if (entity is PokemonEntity) {
             entity.ifRidingAvailableSupply(true) { behaviour, settings, ridingState ->
-                behaviour.shouldRotatePokemonHead(settings, ridingState, entity)
+                entity.passengers.none() || behaviour.shouldRotatePokemonHead(settings, ridingState, entity)
             }
         } else true
 

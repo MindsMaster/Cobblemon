@@ -49,6 +49,8 @@ import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviourState
 import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviours
 import com.cobblemon.mod.common.api.riding.events.SelectDriverEvent
 import com.cobblemon.mod.common.api.riding.stats.RidingStat
+import com.cobblemon.mod.common.api.riding.util.RidingAnimationData
+import com.cobblemon.mod.common.api.riding.util.Vec3Spring
 import com.cobblemon.mod.common.api.scheduling.Schedulable
 import com.cobblemon.mod.common.api.scheduling.SchedulingTracker
 import com.cobblemon.mod.common.api.scheduling.afterOnServer
@@ -251,11 +253,14 @@ open class PokemonEntity(
 
     var enablePoseTypeRecalculation = true
 
+    val ridingAnimationData: RidingAnimationData = RidingAnimationData()
 
     var previousRidingState: RidingBehaviourState? = null
     var ridingState: RidingBehaviourState? = null
     var ridingBehaviourSettings: RidingBehaviourSettings? = null
     override var riding: RidingBehaviour<RidingBehaviourSettings, RidingBehaviourState>? = null
+
+    private val rideStatOverrides = mutableMapOf<RidingStyle, MutableMap<RidingStat, Double>>()
 
     val runtime: MoLangRuntime by lazy {
         MoLangRuntime()
@@ -268,11 +273,7 @@ open class PokemonEntity(
                     val rideStyle = RidingStyle.valueOf(params.getString(1).uppercase())
                     val maxVal = params.getDouble(2)
                     val minVal = params.getDouble(3)
-                    //TODO: Use the mons actual boost once implemented
-                    val normalizedStat = rideProp.calculate(rideStat, rideStyle, 0) / 100.0f
-                    val trueStatVal = (normalizedStat * (maxVal - minVal)) + minVal
-
-                    DoubleValue(trueStatVal)
+                    DoubleValue(getRideStat(rideStat, rideStyle, minVal, maxVal))
                 }
             }
     }
@@ -483,6 +484,11 @@ open class PokemonEntity(
         entityData.get(MOVING)
 
         super.tick()
+
+        if (passengers.isNotEmpty()) {
+            ridingAnimationData.update(this)
+        }
+
         flyDistO = flyDist
 
         if (isBattling) {
@@ -1565,6 +1571,8 @@ open class PokemonEntity(
                     inp.z * g.toDouble() + inp.x * f.toDouble()
                 )
 
+
+
                 val diff = v.subtract(this.deltaMovement)
 
                 val inertia = ifRidingAvailableSupply(fallback = 0.5) { behaviour, settings, state ->
@@ -1817,9 +1825,26 @@ open class PokemonEntity(
     // stat based on the boost of that pokemons stat
     fun getRideStat(stat: RidingStat, style: RidingStyle, baseMin: Double, baseMax: Double): Double {
         //TODO: Change from static zero boost once aprijuice is implemented.
+        if (rideStatOverrides[style] != null && rideStatOverrides[style]!![stat] != null) {
+            return (((baseMax - baseMin) / 100) * rideStatOverrides[style]!![stat]!!) + baseMin
+        }
         val stat = this.rideProp.calculate(stat, style, 0)
         val statVal = (((baseMax - baseMin) / 100) * stat) + baseMin
         return statVal
+    }
+
+    fun getRawRideStat(stat: RidingStat, style: RidingStyle): Double {
+        if (rideStatOverrides[style] != null && rideStatOverrides[style]!![stat] != null) {
+            return rideStatOverrides[style]!![stat]!!
+        }
+        return this.rideProp.calculate(stat, style, 0).toDouble()
+    }
+
+    internal fun overrideRideStat(style: RidingStyle, stat: RidingStat, value: Double) {
+        if (rideStatOverrides[style] == null) {
+            rideStatOverrides[style] = mutableMapOf()
+        }
+        rideStatOverrides[style]!![stat] = value
     }
 
     override fun canAddPassenger(passenger: Entity): Boolean {
@@ -1924,7 +1949,7 @@ open class PokemonEntity(
 //    }
 
     override fun onPassengerTurned(entityToUpdate: Entity) {
-        if (entityToUpdate !is LivingEntity) return
+         if (entityToUpdate !is LivingEntity) return
         ifRidingAvailable { behaviour, settings, state ->
             behaviour.clampPassengerRotation(settings, state, this, entityToUpdate)
         }
@@ -1940,6 +1965,22 @@ open class PokemonEntity(
                 }
             }
         }
+    }
+
+    // When riding mimic RemotePlayers logic for rendering players at farther
+    // distances than usual. Otherwise the player may render when the pokemon
+    // entity is not, causing a floating player.
+    override fun shouldRenderAtSqrDistance(distance: Double): Boolean {
+        if (!passengers.isEmpty()) {
+            var d = (boundingBox.getSize() * 10.0)
+            if (d.isNaN()) {
+                d = 1.0
+            }
+            val scale = 64.0 * getViewScale()
+            return distance < d * scale * scale
+        }
+
+        return super.shouldRenderAtSqrDistance(distance)
     }
 
     override fun getControllingPassenger(): LivingEntity? {
@@ -2051,6 +2092,9 @@ open class PokemonEntity(
             behaviour.turnOffOnGround(settings, state, this)
         }
         if (result != null && result) return false
+        if (!this.behaviour.moving.walk.canWalk && this.behaviour.moving.fly.canFly) {
+            return false
+        }
         return super.onGround()
     }
 
@@ -2104,5 +2148,11 @@ open class PokemonEntity(
 
     override fun resolveEntityScan(): LivingEntity {
         return this
+    }
+
+    fun canStopRiding(pokemon: PokemonEntity, player: ServerPlayer): Boolean {
+        if (pokemon.passengers.isEmpty()) return false
+        if (pokemon.controllingPassenger != player) return false
+        return true
     }
 }
