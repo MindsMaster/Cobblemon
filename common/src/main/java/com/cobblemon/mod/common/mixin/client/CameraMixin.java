@@ -151,7 +151,12 @@ public abstract class CameraMixin {
                 Vec3 position = locatorOffset.add(entityPos).add(new Vec3(rotatedEyeHeight));
                 setPosition(position);
             } else {
-                Vector3f pos = entityPos.add(new Vec3(0, pokemon.getBbHeight() / 2, 0)).toVector3f();
+                var playerPos = new Vec3(
+                        Mth.lerp(instance.getPartialTickTime(), entity.xOld, entity.getX()),
+                        Mth.lerp(instance.getPartialTickTime(), entity.yOld, entity.getY()),
+                        Mth.lerp(instance.getPartialTickTime(), entity.zOld, entity.getZ())
+                );
+                Vector3f pos = playerPos.toVector3f();
 
                 PosableModel model = VaryingModelRepository.INSTANCE.getPoser(pokemon.getPokemon().getSpecies().getResourceIdentifier(), new FloatingState());
                 Map<String, Vec3> cameraOffsets = model.getSeatToCameraOffset();
@@ -171,7 +176,11 @@ public abstract class CameraMixin {
                 float xRot = (float) (-1 * Math.toRadians(instance.getXRot()));
 
                 Matrix3f orientation = controller.isActive() && controller.getOrientation() != null ? controller.getOrientation() : new Matrix3f().rotateY((float) Math.toRadians(180f - instance.getYRot())).rotateX(xRot);
-                Vector3f rotatedOffset = orientation.transform(offset);
+                Vector3f rotatedOffset = orientation.transform(new Vector3f(
+                        offset.x,
+                        offset.y,
+                        offset.z + 4.0f
+                ));
                 float offsetDistance = rotatedOffset.length();
                 Vector3f offsetDirection = rotatedOffset.mul(1 / offsetDistance);
 
