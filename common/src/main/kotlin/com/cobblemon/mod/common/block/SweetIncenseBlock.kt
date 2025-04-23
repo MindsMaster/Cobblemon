@@ -36,7 +36,10 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.context.BlockPlaceContext
 import net.minecraft.world.level.BlockGetter
 import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.RenderShape
 import net.minecraft.world.phys.BlockHitResult
+import net.minecraft.world.phys.shapes.CollisionContext
+import net.minecraft.world.phys.shapes.VoxelShape
 
 class SweetIncenseBlock(properties: Properties) : BaseEntityBlock(properties), SimpleWaterloggedBlock {
 
@@ -84,6 +87,8 @@ class SweetIncenseBlock(properties: Properties) : BaseEntityBlock(properties), S
     override fun codec(): MapCodec<out SweetIncenseBlock> {
         return CODEC
     }
+
+    override fun getRenderShape(state: BlockState) = RenderShape.MODEL
 
     override fun useItemOn(
             stack: ItemStack,
