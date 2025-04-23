@@ -266,7 +266,7 @@
 			}
 		},
 		"animation.wailord.cry": {
-			"animation_length": 2.83333,
+			"animation_length": 2.8333,
 			"bones": {
 				"body": {
 					"rotation": {
@@ -1335,6 +1335,14 @@
 						},
 						"1.875": [0, 0, 0]
 					}
+				}
+			}
+		},
+		"scale": {
+			"loop": true,
+			"bones": {
+				"wailord": {
+					"scale": 25
 				}
 			}
 		}

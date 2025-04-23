@@ -32,6 +32,10 @@ class WailordModel(root: ModelPart) : PokemonPosableModel(root) {
     lateinit var sleep: Pose
     lateinit var battleidle: Pose
 
+    override var seatToCameraOffset: MutableMap<String, Vec3> = mutableMapOf(
+        "seat_1" to Vec3(0.0, 0.0, 4.0),
+    )
+
     val offsetY = 0.0
     override fun registerPoses() {
         val blink = quirk { bedrockStateful("wailord", "blink")}
