@@ -16,7 +16,6 @@
         "PROFILE",
         "FLOAT"
       ],
-      "isBattle": false,
       "animations": [
         "q.look('head', 1, 1, 70, -45, 0, 0)",
         "q.bedrock('croagunk', 'ground_idle')"
