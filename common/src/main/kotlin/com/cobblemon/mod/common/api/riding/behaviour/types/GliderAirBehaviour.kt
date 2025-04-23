@@ -35,7 +35,10 @@ class GliderAirBehaviour : RidingBehaviour<GliderAirSettings, RidingBehaviourSta
     }
 
     override val key = KEY
-    override val style = RidingStyle.AIR
+
+    override fun getRidingStyle(settings: GliderAirSettings, state: RidingBehaviourState): RidingStyle {
+        return RidingStyle.AIR
+    }
 
     val poseProvider = PoseProvider<GliderAirSettings, RidingBehaviourState>(PoseType.HOVER)
         .with(PoseOption(PoseType.FLY) { _, _, entity -> entity.entityData.get(PokemonEntity.MOVING) })
