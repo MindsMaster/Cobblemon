@@ -68,9 +68,11 @@ public abstract class CameraMixin {
     @Unique private float rollAngleStart = 0;
     @Unique Minecraft minecraft = Minecraft.getInstance();
 
+    @Unique boolean disableRollableCameraDebug = false;
+
     @Inject(method = "setRotation", at = @At("HEAD"), cancellable = true)
     public void cobblemon$setRotation(float f, float g, CallbackInfo ci) {
-        if (!(this.entity instanceof OrientationControllable controllable) || Cobblemon.config.getDisableRoll()) return;
+        if (!(this.entity instanceof OrientationControllable controllable) || disableRollableCameraDebug) return;
         var controller = controllable.getOrientationController();
         if (!controller.isActive() && controller.getOrientation() != null) {
             if(this.returnTimer < 1) {
@@ -104,7 +106,6 @@ public abstract class CameraMixin {
         ci.cancel();
     }
 
-    //If you want to move this to a delagate you need an AW for position
     @WrapOperation(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setPosition(DDD)V"))
     public void cobblemon$positionCamera(Camera instance, double x, double y, double z, Operation<Void> original, @Local(ordinal = 1, argsOnly = true) boolean thirdPersonReverse) {
         Entity entity = instance.getEntity();
@@ -112,13 +113,10 @@ public abstract class CameraMixin {
         MountedPokemonAnimationRenderController.INSTANCE.reset();
 
         if(vehicle instanceof Rideable){
-            //RidingCameraDelagate.INSTANCE.positionCamera(instance, x, y, z, original);
             if (!(vehicle instanceof PokemonEntity pokemon)) {
                 original.call(instance, x, y, z);
                 return;
             }
-
-            PokemonClientDelegate delegate = (PokemonClientDelegate) pokemon.getDelegate();
             Vec3 entityPos = new Vec3(
                     Mth.lerp(instance.getPartialTickTime(), pokemon.xOld, pokemon.getX()),
                     Mth.lerp(instance.getPartialTickTime(), pokemon.yOld, pokemon.getY()),
@@ -133,7 +131,9 @@ public abstract class CameraMixin {
 
             PosableModel model = VaryingModelRepository.INSTANCE.getPoser(pokemon.getPokemon().getSpecies().getResourceIdentifier(), new FloatingState());
 
-            if (!instance.isDetached() || Cobblemon.config.getThirdPartyViewBobbing()) {
+            // First person and view bobbing are handled the same way.
+            if (!instance.isDetached() || Cobblemon.config.getThirdPersonViewBobbing()) {
+                PokemonClientDelegate delegate = (PokemonClientDelegate) pokemon.getDelegate();
                 MatrixWrapper locator = delegate.getLocatorStates().get(seat.getLocator());
 
                 if (locator == null) {
@@ -143,31 +143,39 @@ public abstract class CameraMixin {
 
                 Vec3 locatorOffset = new Vec3(locator.getMatrix().getTranslation(new Vector3f()));
 
-                // Eye height
+                // Get Eye height
                 float currEyeHeight = Mth.lerp(instance.getPartialTickTime(), eyeHeightOld, eyeHeight);
                 Vector3f offset = new Vector3f(0f, currEyeHeight - (entity.getBbHeight() / 2), 0f);
-                offset.add(cobblemon$getFirstPersonOffset(model, seat));
 
+                // Get additional offset from poser and add to the eyeHeight offset when first person
+                if(!instance.isDetached()){
+                    offset.add(cobblemon$getFirstPersonOffset(model, seat));
+                }
+
+                // Rotate Offset if needed
                 if (controller.isActive()) {
-                    //Rotate Offset
                     offset = controller.getRenderOrientation(partialTickTime).transform(offset);
                 }
 
                 Vec3 position = locatorOffset.add(entityPos).add(new Vec3(offset));
                 setPosition(position);
             } else {
-                Vector3f pos = entityPos.add(new Vec3(0, pokemon.getBbHeight() / 2, 0)).toVector3f();
+                // Get pivot from poser
+                Vector3f pivot = cobblemon$getThirdPersonPivot(model, seat, pokemon);
+                Vector3f pos = entityPos.toVector3f().add(pivot);
 
+                // Get offset from poser
                 Vector3f offset = cobblemon$getThirdPersonOffset(thirdPersonReverse, model, seat);
-
                 if (thirdPersonReverse) offset.z *= -1;
                 float xRot = (float) (-1 * Math.toRadians(instance.getXRot()));
 
+                // Rotate offset based on orientation or normal rotations
                 Matrix3f orientation = controller.isActive() && controller.getOrientation() != null ? controller.getOrientation() : new Matrix3f().rotateY((float) Math.toRadians(180f - instance.getYRot())).rotateX(xRot);
                 Vector3f rotatedOffset = orientation.transform(offset);
                 float offsetDistance = rotatedOffset.length();
                 Vector3f offsetDirection = rotatedOffset.mul(1 / offsetDistance);
 
+                // Use getMaxZoom to calculate clipping
                 float maxZoom = cobblemon$getMaxZoom(offsetDistance, offsetDirection, pos);
 
                 setPosition(new Vec3(offsetDirection.mul(maxZoom).add(pos)));
@@ -187,6 +195,17 @@ public abstract class CameraMixin {
             return cameraOffsets.get(seat.getLocator()).toVector3f();
         } else {
             return new Vector3f(0f, 2f, 4f);
+        }
+    }
+
+    @Unique
+    private static @NotNull Vector3f cobblemon$getThirdPersonPivot(PosableModel model, Seat seat, PokemonEntity entity) {
+        Map<String, Vec3> pivotOffset = model.getThirdPersonPivotOffset();
+
+        if (pivotOffset.containsKey(seat.getLocator())) {
+            return pivotOffset.get(seat.getLocator()).toVector3f();
+        } else {
+            return new Vector3f(0f, entity.getBbHeight()/2, 0);
         }
     }
 
@@ -222,7 +241,7 @@ public abstract class CameraMixin {
         Entity entity = instance.getEntity();
         Entity vehicle = entity.getVehicle();
 
-        if (!(vehicle instanceof PokemonEntity) || Cobblemon.config.getThirdPartyViewBobbing()) {
+        if (!(vehicle instanceof PokemonEntity) || Cobblemon.config.getThirdPersonViewBobbing()) {
             original.call(instance, zoom, dy, dx);
         }
     }

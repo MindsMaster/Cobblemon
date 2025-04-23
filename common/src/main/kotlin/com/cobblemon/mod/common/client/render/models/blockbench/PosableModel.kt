@@ -95,6 +95,9 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
     /** Used for third person riding camera */
     open var thirdPersonCameraOffset = mutableMapOf<String, Vec3>()
 
+    /** Used for third person riding camera */
+    open var thirdPersonPivotOffset = mutableMapOf<String, Vec3>()
+
     /** Used for first person riding camera */
     open var firstPersonCameraOffset = mutableMapOf<String, Vec3>()
 
