@@ -19,17 +19,19 @@ import java.util.Optional
 
 class PokemonCriterion(
     playerCtx: Optional<ContextAwarePredicate>,
+    val species: String,
     val properties: PokemonProperties
 ): SimpleCriterionCondition<Pokemon>(playerCtx) {
 
     companion object {
         val CODEC: Codec<PokemonCriterion> = RecordCodecBuilder.create { it.group(
             EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(PokemonCriterion::playerCtx),
+            Codec.STRING.optionalFieldOf("species", "any").forGetter(PokemonCriterion::species),
             PokemonProperties.CODEC.optionalFieldOf("properties", PokemonProperties()).forGetter(PokemonCriterion::properties)
         ).apply(it, ::PokemonCriterion) }
     }
 
     override fun matches(player: ServerPlayer, context: Pokemon): Boolean {
-        return properties.matches(context)
+        return (species.equals(context.species.resourceIdentifier.path) || species.equals(context.species.resourceIdentifier)) && properties.matches(context)
     }
 }
