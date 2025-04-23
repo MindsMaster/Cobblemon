@@ -37,6 +37,7 @@
 - Bronzor
 - Bronzong
 - Croagunk
+- Toxicroak
 - Froslass
 - Glameow
 - Purugly
