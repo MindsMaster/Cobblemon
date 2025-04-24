@@ -125,6 +125,8 @@
 - Teddiursa
 - Ursaring
 - Ursaluna
+- Heatmor
+- Bouffalant
 - Added Syrupy Apples.
 
 ### Changes
