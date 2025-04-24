@@ -1,3 +1,11 @@
+/*
+ * Copyright (C) 2023 Cobblemon Contributors
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package com.cobblemon.mod.common.client.render.camera
 
 import com.cobblemon.mod.common.Cobblemon
@@ -78,21 +86,36 @@ object MountedCameraRenderer
             val position = locatorOffset.add(entityPos).add(Vec3(offset))
             return position
         } else {
+            val xRot = (-1 * Math.toRadians(instance.xRot.toDouble())).toFloat()
+
+            // get orientation based on OrientationController or normal rotations
+            val orientation =
+                if (controller.isActive() && controller.orientation != null)
+                    controller.orientation!!
+                else
+                    Matrix3f()
+                        .rotateY(Math.toRadians((180f - instance.yRot).toDouble()).toFloat())
+                        .rotateX(xRot)
+
             // Get pivot from poser
-            val pivot = getThirdPersonPivot(model, seat, vehicle)
+            val pivotOffsets = model.thirdPersonPivotOffset
+            val pokemonCenter = Vector3f(0f, entity.bbHeight/2, 0f)
+
+            var pivot = Vector3f(pokemonCenter)
+            if (pivotOffsets.containsKey(seat.locator)) {
+                pivot = pivotOffsets[seat.locator]!!.toVector3f()
+                pivot.sub(pokemonCenter)
+                orientation.transform(pivot)
+                pivot.add(pokemonCenter)
+            }
+
             val pos = entityPos.toVector3f().add(pivot)
 
             // Get offset from poser
             val offset = getThirdPersonOffset(thirdPersonReverse, model, seat)
-            if (thirdPersonReverse) offset.z *= -1f
-            val xRot = (-1 * Math.toRadians(instance.xRot.toDouble())).toFloat()
 
-            // Rotate offset based on orientation or normal rotations
-            val orientation =
-                if (controller.isActive() && controller.orientation != null) controller.orientation else Matrix3f().rotateY(
-                    Math.toRadians((180f - instance.yRot).toDouble()).toFloat()
-                ).rotateX(xRot)
-            val rotatedOffset = orientation!!.transform(offset)
+            if (thirdPersonReverse) offset.z *= -1f
+            val rotatedOffset = orientation.transform(offset)
             val offsetDistance = rotatedOffset.length()
             val offsetDirection = rotatedOffset.mul(1 / offsetDistance)
 
@@ -117,16 +140,6 @@ object MountedCameraRenderer
             cameraOffsets[seat.locator]!!.toVector3f()
         } else {
             Vector3f(0f, 2f, 4f)
-        }
-    }
-
-    private fun getThirdPersonPivot(model: PosableModel, seat: Seat, entity: PokemonEntity): Vector3f {
-        val pivotOffset = model.thirdPersonPivotOffset
-
-        return if (pivotOffset.containsKey(seat.locator)) {
-            pivotOffset[seat.locator]!!.toVector3f()
-        } else {
-            Vector3f(0f, entity.bbHeight / 2, 0f)
         }
     }
 
