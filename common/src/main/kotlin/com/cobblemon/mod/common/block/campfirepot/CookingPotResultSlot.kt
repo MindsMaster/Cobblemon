@@ -9,8 +9,7 @@
 package com.cobblemon.mod.common.block.campfirepot
 
 import com.cobblemon.mod.common.CobblemonSounds
-import net.minecraft.client.Minecraft
-import net.minecraft.client.resources.sounds.SimpleSoundInstance
+import net.minecraft.sounds.SoundSource
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.CraftingContainer
 import net.minecraft.world.inventory.Slot
@@ -28,7 +27,7 @@ class CookingPotResultSlot(
 
         if (menu is CookingPotMenu) {
             menu.broadcastChanges()
-            Minecraft.getInstance().soundManager.play(SimpleSoundInstance.forUI(CobblemonSounds.CAMPFIRE_POT_USE, 1.0f, 1.0f))
+            player.playNotifySound(CobblemonSounds.CAMPFIRE_POT_USE, SoundSource.MASTER, 1.0f, 1.0f)
         }
 
         super.onTake(player, stack)
