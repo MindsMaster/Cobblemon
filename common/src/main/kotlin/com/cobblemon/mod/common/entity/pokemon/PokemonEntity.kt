@@ -31,6 +31,7 @@ import com.cobblemon.mod.common.api.molang.MoLangFunctions.setup
 import com.cobblemon.mod.common.api.molang.ObjectValue
 import com.cobblemon.mod.common.api.net.serializers.PlatformTypeDataSerializer
 import com.cobblemon.mod.common.api.net.serializers.PoseTypeDataSerializer
+import com.cobblemon.mod.common.api.net.serializers.RideBoostsDataSerializer
 import com.cobblemon.mod.common.api.net.serializers.StringSetDataSerializer
 import com.cobblemon.mod.common.api.pokemon.feature.ChoiceSpeciesFeatureProvider
 import com.cobblemon.mod.common.api.pokemon.feature.FlagSpeciesFeature
@@ -181,6 +182,7 @@ open class PokemonEntity(
         @JvmStatic val CAUGHT_BALL = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.STRING)
         @JvmStatic val EVOLUTION_STARTED = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BOOLEAN)
         @JvmStatic var SHOWN_HELD_ITEM = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.ITEM_STACK)
+        @JvmStatic var RIDE_BOOSTS = SynchedEntityData.defineId(PokemonEntity::class.java, RideBoostsDataSerializer)
 
         const val BATTLE_LOCK = "battle"
         const val EVOLUTION_LOCK = "evolving"
@@ -394,6 +396,7 @@ open class PokemonEntity(
         builder.define(CAUGHT_BALL, "")
         builder.define(EVOLUTION_STARTED, false)
         builder.define(SHOWN_HELD_ITEM, ItemStack.EMPTY)
+        builder.define(RIDE_BOOSTS, emptyMap())
     }
 
     override fun onSyncedDataUpdated(data: EntityDataAccessor<*>) {
