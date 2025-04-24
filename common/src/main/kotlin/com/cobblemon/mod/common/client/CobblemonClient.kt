@@ -14,6 +14,7 @@ import com.cobblemon.mod.common.CobblemonBlocks
 import com.cobblemon.mod.common.CobblemonClientImplementation
 import com.cobblemon.mod.common.CobblemonEntities
 import com.cobblemon.mod.common.CobblemonItems
+import com.cobblemon.mod.common.CobblemonMenuType.COOKING_POT
 import com.cobblemon.mod.common.api.berry.Berries
 import com.cobblemon.mod.common.api.molang.ObjectValue
 import com.cobblemon.mod.common.api.scheduling.ClientTaskTracker
@@ -23,6 +24,7 @@ import com.cobblemon.mod.common.api.tags.CobblemonItemTags
 import com.cobblemon.mod.common.client.battle.ClientBattle
 import com.cobblemon.mod.common.client.gui.PartyOverlay
 import com.cobblemon.mod.common.client.gui.battle.BattleOverlay
+import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotScreen
 import com.cobblemon.mod.common.client.particle.BedrockParticleOptionsRepository
 import com.cobblemon.mod.common.client.render.block.CandlePokeCakeBlockEntityRenderer
 import com.cobblemon.mod.common.client.render.ClientPlayerIcon
@@ -55,6 +57,7 @@ import com.cobblemon.mod.common.pokedex.scanner.PokedexUsageContext
 import com.cobblemon.mod.common.util.isLookingAt
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
+import net.minecraft.client.gui.screens.MenuScreens
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.model.BoatModel
 import net.minecraft.client.model.ChestBoatModel
@@ -127,6 +130,7 @@ object CobblemonClient {
             BerryModelRepository.patchModels()
         }
         this.registerTooltipManagers()
+        this.registerMenuScreens()
 
         LOGGER.info("Registering custom BuiltinItemRenderers")
         CobblemonBuiltinItemRendererRegistry.register(CobblemonItems.POKEMON_MODEL, PokemonItemRenderer())
@@ -296,6 +300,10 @@ object CobblemonClient {
         renderer?.addLayer(PokemonOnShoulderRenderer(renderer))
         renderer = skinMap[PlayerSkin.Model.SLIM] as LivingEntityRenderer<Player, PlayerModel<Player>>?
         renderer?.addLayer(PokemonOnShoulderRenderer(renderer))
+    }
+
+    private fun registerMenuScreens() {
+        MenuScreens.register(COOKING_POT, ::CookingPotScreen)
     }
 
     private fun registerBlockEntityRenderers() {

@@ -89,7 +89,7 @@ internal data class PokemonP3(
                 Codec.list(ResourceLocation.CODEC).optionalFieldOf(DataKeys.POKEMON_MARKS, emptyList()).forGetter { it.marks.toMutableList() },
                 Codec.list(ResourceLocation.CODEC).optionalFieldOf(DataKeys.POKEMON_POTENTIAL_MARKS, emptyList()).forGetter { it.potentialMarks.toMutableList() },
                 Codec.list(Codec.INT).optionalFieldOf(DataKeys.POKEMON_MARKINGS, listOf(0, 0, 0, 0, 0, 0)).forGetter(PokemonP3::markings),
-                Codec.unboundedMap(Codec.STRING, Codec.FLOAT).fieldOf(DataKeys.POKEMON_RIDE_BOOSTS).forGetter { it.rideBoosts },
+                Codec.unboundedMap(Codec.STRING, Codec.FLOAT).optionalFieldOf(DataKeys.POKEMON_RIDE_BOOSTS, emptyMap<String, Float>()).forGetter(PokemonP3::rideBoosts),
             ).apply(instance) { originalTrainerType, originalTrainer, forcedAspects, features, heldItemVisible, cosmeticItem, activeMark, marks, potentialMarks, markings, rideBoosts -> PokemonP3(originalTrainerType, originalTrainer, forcedAspects.toSet(), features, heldItemVisible, cosmeticItem.orElse(ItemStack.EMPTY), activeMark, marks.toMutableSet(), potentialMarks.toMutableSet(), markings, rideBoosts) }
         }
 

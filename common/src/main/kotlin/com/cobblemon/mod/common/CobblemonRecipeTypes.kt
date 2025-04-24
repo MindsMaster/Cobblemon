@@ -21,8 +21,8 @@ import net.minecraft.world.item.crafting.RecipeType
 
 object CobblemonRecipeTypes : PlatformRegistry<Registry<RecipeType<*>>, ResourceKey<Registry<RecipeType<*>>>, RecipeType<*>>() {
 
-    val COOKING_POT_COOKING: RecipeType<CookingPotRecipe> = register<CookingPotRecipe>("cobblemon:cooking_pot")
-    val COOKING_POT_SHAPELESS: RecipeType<CookingPotShapelessRecipe> = register<CookingPotShapelessRecipe>("cobblemon:cooking_pot_shapeless")
+    val COOKING_POT_COOKING: RecipeType<CookingPotRecipe> = register("cobblemon:cooking_pot")
+    val COOKING_POT_SHAPELESS: RecipeType<CookingPotShapelessRecipe> = register("cobblemon:cooking_pot_shapeless")
 
     override val registry: Registry<RecipeType<*>>
         get() = BuiltInRegistries.RECIPE_TYPE
@@ -38,7 +38,7 @@ object CobblemonRecipeTypes : PlatformRegistry<Registry<RecipeType<*>>, Resource
                         return identifier
                     }
                 }
-        ).also { println("Registered recipe type with identifier: $identifier") }
+        )
     }
 
 }
