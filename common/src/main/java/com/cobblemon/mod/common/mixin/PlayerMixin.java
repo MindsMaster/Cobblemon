@@ -21,6 +21,9 @@ import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore;
 import com.cobblemon.mod.common.api.tags.CobblemonItemTags;
 import com.cobblemon.mod.common.client.entity.PokemonClientDelegate;
 import com.cobblemon.mod.common.client.render.MatrixWrapper;
+import com.cobblemon.mod.common.client.render.models.blockbench.FloatingState;
+import com.cobblemon.mod.common.client.render.models.blockbench.PosableModel;
+import com.cobblemon.mod.common.client.render.models.blockbench.repository.VaryingModelRepository;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokedex.scanner.PokedexEntityData;
 import com.cobblemon.mod.common.pokedex.scanner.ScannableEntity;
@@ -34,6 +37,9 @@ import com.cobblemon.mod.common.util.DataKeys;
 import com.cobblemon.mod.common.world.gamerules.CobblemonGameRules;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import net.minecraft.client.CameraType;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -49,6 +55,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Vector3f;
@@ -304,8 +311,15 @@ public abstract class PlayerMixin extends LivingEntity implements ScannableEntit
             OrientationController controller = this.getOrientationController();
 
             float currEyeHeight = this.getEyeHeight();
+            Vector3f offset = new Vector3f(new Vector3f(0f, currEyeHeight - (this.getBbHeight() / 2), 0f));
+
+            if (this.level() instanceof ClientLevel && Minecraft.getInstance().options.getCameraType() == CameraType.FIRST_PERSON) {
+                PosableModel model = VaryingModelRepository.INSTANCE.getPoser(pokemonEntity.getPokemon().getSpecies().getResourceIdentifier(), new FloatingState());
+                offset.add(cobblemon$getFirstPersonOffset(model, seat));
+            }
+
             Matrix3f orientation = controller.isActive() && controller.getOrientation() != null ? controller.getOrientation() : new Matrix3f();
-            Vec3 rotatedEyeHeight = new Vec3(orientation.transform(new Vector3f(0f, currEyeHeight - (this.getBbHeight() / 2), 0f)));
+            Vec3 rotatedEyeHeight = new Vec3(orientation.transform(offset));
 
             Vec3 eyePosition = locatorOffset.add(pokemonEntity.position()).add(rotatedEyeHeight);
 
@@ -320,5 +334,17 @@ public abstract class PlayerMixin extends LivingEntity implements ScannableEntit
         }
 
         return super.pick(hitDistance, partialTicks, hitFluids);
+    }
+
+
+    @Unique
+    private static @NotNull Vector3f cobblemon$getFirstPersonOffset(PosableModel model, Seat seat) {
+        Map<String, Vec3> cameraOffsets = model.getFirstPersonCameraOffset();
+
+        if (cameraOffsets.containsKey(seat.getLocator())) {
+            return cameraOffsets.get(seat.getLocator()).toVector3f();
+        } else {
+            return new Vector3f(0f, 0f, 0f);
+        }
     }
 }
