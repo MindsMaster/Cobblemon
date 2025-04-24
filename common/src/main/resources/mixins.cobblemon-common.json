@@ -84,7 +84,6 @@
     "invoker.AdornRegisterInvoker",
     "invoker.BlocksInvoker",
     "invoker.BooleanRuleInvoker",
-    "invoker.ClientPlayNetworkHandlerInvoker",
     "invoker.DoorBlockInvoker",
     "invoker.FireBlockInvoker",
     "invoker.PressurePlateBlockInvoker",
