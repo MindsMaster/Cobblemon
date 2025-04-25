@@ -118,6 +118,8 @@
 - Probopass
 - Kangaskhan
 - Cinderace
+- Magnemite
+- Magneton
 - Magnezone
 - Metagross
 - Hoothoot
