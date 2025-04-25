@@ -434,9 +434,9 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
         driver: Player
     ): ResourceLocation {
         if (state.gliding.get()) {
-            return ResourceLocation.fromNamespaceAndPath("cobblemon", "gliding")
+            return cobblemonResource("gliding")
         }
-        return ResourceLocation.fromNamespaceAndPath("cobblemon", "no_pose")
+        return cobblemonResource("no_pose")
     }
 
     override fun inertia(settings: BirdAirSettings, state: BirdAirState, vehicle: PokemonEntity): Double {

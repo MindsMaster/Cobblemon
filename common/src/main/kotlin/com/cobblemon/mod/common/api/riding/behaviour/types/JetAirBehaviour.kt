@@ -336,7 +336,7 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
         vehicle: PokemonEntity,
         driver: Player
     ): ResourceLocation {
-        return ResourceLocation.fromNamespaceAndPath("cobblemon", "no_pose")
+        return cobblemonResource("no_pose")
     }
 
     override fun inertia(settings: JetAirSettings, state: JetAirState, vehicle: PokemonEntity): Double {

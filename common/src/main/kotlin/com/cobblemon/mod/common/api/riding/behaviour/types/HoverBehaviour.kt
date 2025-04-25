@@ -409,7 +409,7 @@ class HoverBehaviour : RidingBehaviour<HoverSettings, HoverState> {
         vehicle: PokemonEntity,
         driver: Player
     ): ResourceLocation {
-        return ResourceLocation.fromNamespaceAndPath("cobblemon", "no_pose")
+        return cobblemonResource("no_pose")
     }
 
     override fun inertia(

@@ -2015,9 +2015,17 @@ open class PokemonEntity(
         }
     }
 
-    fun isUsingAltPose( resourceLocation: ResourceLocation): Boolean {
+    fun getAltPose(): String {
+        val driver = this.controllingPassenger as? Player ?: return "cobblemon:no_pose"
+        val str =  ifRidingAvailableSupply(fallback = "cobblemon:no_pose") { behaviour, settings, state ->
+            behaviour.useRidingAltPose(settings, state, this, driver).toString()
+        }
+        return str
+    }
+
+    fun isUsingAltPose(resourceLocation: ResourceLocation): Boolean {
         val driver = this.controllingPassenger as? Player ?: return false
-        val loc =  ifRidingAvailableSupply(fallback = ResourceLocation.withDefaultNamespace("no_pose")) { behaviour, settings, state ->
+        val loc =  ifRidingAvailableSupply(fallback = cobblemonResource("no_pose")) { behaviour, settings, state ->
             behaviour.useRidingAltPose(settings, state, this, driver)
         }
         return loc.compareTo(resourceLocation) == 0

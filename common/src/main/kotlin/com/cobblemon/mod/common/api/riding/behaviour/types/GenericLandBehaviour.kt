@@ -385,10 +385,10 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
         driver: Player
     ): ResourceLocation {
         when {
-            state.inAir.get() -> return ResourceLocation.fromNamespaceAndPath("cobblemon", "in_air")
-            state.sprinting.get() -> return ResourceLocation.fromNamespaceAndPath("cobblemon", "sprinting")
+            state.inAir.get() -> cobblemonResource("in_air")
+            state.sprinting.get() -> return cobblemonResource("sprinting")
         }
-        return ResourceLocation.fromNamespaceAndPath("cobblemon", "no_pose")
+        return cobblemonResource("no_pose")
     }
 
     override fun inertia(

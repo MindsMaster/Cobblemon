@@ -226,7 +226,7 @@ class DolphinBehaviour : RidingBehaviour<DolphinSettings, DolphinState> {
         vehicle: PokemonEntity,
         driver: Player
     ): ResourceLocation {
-        return ResourceLocation.fromNamespaceAndPath("cobblemon", "no_pose")
+        return cobblemonResource("no_pose")
     }
 
     override fun inertia(settings: DolphinSettings, state: DolphinState, vehicle: PokemonEntity): Double {

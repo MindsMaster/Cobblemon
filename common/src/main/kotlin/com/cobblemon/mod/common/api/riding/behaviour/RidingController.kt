@@ -10,6 +10,7 @@ package com.cobblemon.mod.common.api.riding.behaviour
 
 import com.cobblemon.mod.common.api.riding.RidingStyle
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
+import com.cobblemon.mod.common.util.cobblemonResource
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.SmoothDouble
 import net.minecraft.world.entity.LivingEntity
@@ -139,7 +140,7 @@ class RidingController<Settings : RidingBehaviourSettings, State : RidingBehavio
     }
 
     override fun useRidingAltPose(settings: Settings, state: State, vehicle: PokemonEntity, driver: Player): ResourceLocation {
-        if (!isActive(settings, state, vehicle)) return ResourceLocation.withDefaultNamespace("nullPose")
+        if (!isActive(settings, state, vehicle)) return cobblemonResource("no_pose")
         return behaviour.useRidingAltPose(settings, state, vehicle, driver)
     }
 

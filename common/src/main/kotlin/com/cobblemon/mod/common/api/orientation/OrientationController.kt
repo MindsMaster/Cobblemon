@@ -113,18 +113,11 @@ open class OrientationController(val entity: LivingEntity) {
     }
 
     fun applyGlobalPitch(deltaPitchDegrees: Float) = updateOrientation { original ->
-
-
         val currQuat = Quaternionf().setFromUnnormalized(original)
         val horzLeftVector = Vector3f(this.leftVector.x, 0.0f, this.leftVector.z)
-
-
         val globalPitch = Quaternionf().fromAxisAngleRad(horzLeftVector.normalize(), -deltaPitchDegrees.toRadians())
-        //apply the local pitch to the current quat
         val resultQuat = globalPitch.mul(currQuat)
-
         return@updateOrientation Matrix3f().set(resultQuat)
-
     }
 
 }
