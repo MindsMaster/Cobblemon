@@ -112,6 +112,8 @@
 - Grovyle
 - Sceptile
 - Honchkrow
+- Gible
+- Gabite
 - Garchomp
 - Pidgeot
 - Nosepass
@@ -121,6 +123,8 @@
 - Magnemite
 - Magneton
 - Magnezone
+- Beldum
+- Metang
 - Metagross
 - Hoothoot
 - Noctowl
@@ -129,6 +133,7 @@
 - Ursaluna
 - Heatmor
 - Bouffalant
+- Sigilyph
 - Added Syrupy Apples.
 
 ### Changes
