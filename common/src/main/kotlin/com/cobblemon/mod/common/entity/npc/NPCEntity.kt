@@ -663,4 +663,6 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
     override fun setFlying(state: Boolean) {
         // NPCs cannot fly (yet)
     }
+
+    override fun isOnGround(): Boolean = onGround()
 }

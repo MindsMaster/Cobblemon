@@ -420,8 +420,8 @@ class OmniPathNodeMaker : NodeEvaluator() {
     }
 
     fun isOnGround(): Boolean {
-        return if (this.mob is PokemonEntity) {
-            (this.mob as PokemonEntity).onGround()
+        return if (this.mob is OmniPathingEntity) {
+            (this.mob as OmniPathingEntity).isOnGround()
         } else {
             false
         }

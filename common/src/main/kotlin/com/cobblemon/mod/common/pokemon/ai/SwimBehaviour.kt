@@ -34,7 +34,6 @@ class SwimBehaviour {
     @Transient
     val struct = ObjectValue(this).also {
         it.addFunction("avoids_water") { DoubleValue(avoidsWater) }
-        it.addFunction("hurt_by_lava") { DoubleValue(hurtByLava) }
         it.addFunction("can_swim_in_water") { DoubleValue(canSwimInWater) }
         it.addFunction("can_swim_in_lava") { DoubleValue(canSwimInLava) }
         it.addFunction("swim_speed") { it.environment.createDuplicateRuntime().resolveFloat(swimSpeed) }

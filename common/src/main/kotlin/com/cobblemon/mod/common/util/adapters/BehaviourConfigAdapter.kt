@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.util.adapters
 
 import com.cobblemon.mod.common.api.ai.config.BehaviourConfig
+import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
@@ -19,25 +20,25 @@ import java.lang.reflect.Type
  * Adapter that deserializes a [BehaviourConfig] from a JSON object. If the JSON is just a string, it assumes
  * that that is the type and the rest of the properties should be default. This is just as shorthand.
  *
- * In general a brain config will be an object with a 'type' property matching something inside [BehaviourConfig.types].
+ * In general a behaviour config will be an object with a 'type' property matching something inside [BehaviourConfig.types].
  *
  * @see BehaviourConfig
  * @since October 13th, 2024
  * @author Hiroku
  */
-object BrainConfigAdapter : JsonDeserializer<BehaviourConfig> {
+object BehaviourConfigAdapter : JsonDeserializer<BehaviourConfig> {
     override fun deserialize(json: JsonElement, typeOfT: Type, ctx: JsonDeserializationContext): BehaviourConfig? {
         if (json.isJsonPrimitive) {
-            val type = json.asString
+            val type = json.asString.asIdentifierDefaultingNamespace()
             val clazz = BehaviourConfig.types[type]
-                ?: throw IllegalArgumentException("Unknown brain config type: $type")
+                ?: throw IllegalArgumentException("Unknown behaviour config type: $type")
             return ctx.deserialize(JsonObject(), clazz)
         } else {
             val obj = json.asJsonObject
-            val type = obj.get("type")?.asString
-                ?: throw IllegalArgumentException("Missing brain config type. A brain config element must have a 'type' value.")
+            val type = obj.get("type")?.asString?.asIdentifierDefaultingNamespace()
+                ?: throw IllegalArgumentException("Missing behaviour config type. A behaviour config element must have a 'type' value.")
             val clazz = BehaviourConfig.types[type]
-                ?: throw IllegalArgumentException("Unknown brain config type: $type")
+                ?: throw IllegalArgumentException("Unknown behaviour config type: $type")
             return ctx.deserialize(obj, clazz)
         }
     }
