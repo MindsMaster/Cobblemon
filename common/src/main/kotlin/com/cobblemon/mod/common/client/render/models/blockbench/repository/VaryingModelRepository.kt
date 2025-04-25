@@ -290,8 +290,6 @@ object VaryingModelRepository {
         inbuilt("koffing", ::KoffingModel)
         inbuilt("krabby", ::KrabbyModel)
         inbuilt("lickitung", ::LickitungModel)
-        inbuilt("magnemite", ::MagnemiteModel)
-        inbuilt("magneton", ::MagnetonModel)
         inbuilt("marowak", ::MarowakModel)
         inbuilt("meowth", ::MeowthModel)
         inbuilt("mew", ::MewModel)
