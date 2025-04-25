@@ -9,9 +9,9 @@
 package com.cobblemon.mod.common.api.spawning.prospecting
 
 import com.cobblemon.mod.common.CobblemonPoiTypes
-import com.cobblemon.mod.common.api.spawning.influence.SpatialZoneSpawningInfluence
+import com.cobblemon.mod.common.api.spawning.influence.SpatialSpawningZoneInfluence
 import com.cobblemon.mod.common.api.spawning.influence.SpawnBaitInfluence
-import com.cobblemon.mod.common.api.spawning.influence.ZoneSpawningInfluence
+import com.cobblemon.mod.common.api.spawning.influence.SpawningZoneInfluence
 import com.cobblemon.mod.common.api.spawning.influence.detector.SpawningInfluenceDetector
 import com.cobblemon.mod.common.api.spawning.spawner.Spawner
 import com.cobblemon.mod.common.api.spawning.spawner.SpawningZoneInput
@@ -32,9 +32,9 @@ object LureCakeDetector : SpawningInfluenceDetector {
     @JvmField
     val RANGE: Int = 48
 
-    override fun detectFromInput(spawner: Spawner, input: SpawningZoneInput): MutableList<ZoneSpawningInfluence> {
+    override fun detectFromInput(spawner: Spawner, input: SpawningZoneInput): MutableList<SpawningZoneInfluence> {
         val world = input.world
-        val listOfInfluences = mutableListOf<ZoneSpawningInfluence>()
+        val listOfInfluences = mutableListOf<SpawningZoneInfluence>()
 
         val searchRange = RANGE + ceil(sqrt(((input.length pow 2) + (input.width pow 2)).toDouble())).toInt()
         val lureCakePositions = world.poiManager.findAll(
@@ -52,7 +52,7 @@ object LureCakeDetector : SpawningInfluenceDetector {
             val blockEntity = world.getBlockEntity(lureCakePos) as? LureCakeBlockEntity ?: continue
             val baitEffects = blockEntity.getBaitEffectsFromLureCake()
 
-            listOfInfluences.add(SpatialZoneSpawningInfluence(lureCakePos, radius = RANGE.toFloat(), influence = SpawnBaitInfluence(baitEffects, lureCakePos)))
+            listOfInfluences.add(SpatialSpawningZoneInfluence(lureCakePos, radius = RANGE.toFloat(), influence = SpawnBaitInfluence(baitEffects, lureCakePos)))
         }
 
         return listOfInfluences
@@ -62,5 +62,5 @@ object LureCakeDetector : SpawningInfluenceDetector {
         world: ServerLevel,
         pos: BlockPos,
         blockState: BlockState
-    ) = emptyList<ZoneSpawningInfluence>()
+    ) = emptyList<SpawningZoneInfluence>()
 }

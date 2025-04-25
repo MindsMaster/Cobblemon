@@ -9,7 +9,7 @@
 package com.cobblemon.mod.common.api.spawning.influence.detector
 
 import com.cobblemon.mod.common.api.spawning.SpawningZone
-import com.cobblemon.mod.common.api.spawning.influence.ZoneSpawningInfluence
+import com.cobblemon.mod.common.api.spawning.influence.SpawningZoneInfluence
 import com.cobblemon.mod.common.api.spawning.spawner.Spawner
 import com.cobblemon.mod.common.api.spawning.spawner.SpawningZoneInput
 import net.minecraft.core.BlockPos
@@ -21,7 +21,7 @@ import com.cobblemon.mod.common.api.spawning.prospecting.LureCakeDetector
 import com.cobblemon.mod.common.api.spawning.prospecting.SaccharineHoneyLogProspector
 
 /**
- * Prospects for [ZoneSpawningInfluence] in a world at a given position. Occurs as part of a
+ * Prospects for [SpawningZoneInfluence] in a world at a given position. Occurs as part of a
  * [SpawningZoneGenerator] scanning a part of the world while formulating a [SpawningZone].
  *
  * @author Hiroku
@@ -37,6 +37,6 @@ interface SpawningInfluenceDetector {
         )
     }
 
-    fun detectFromInput(spawner: Spawner, input: SpawningZoneInput) : List<ZoneSpawningInfluence>
-    fun detectFromBlock(world: ServerLevel, pos: BlockPos, blockState: BlockState): List<ZoneSpawningInfluence>
+    fun detectFromInput(spawner: Spawner, input: SpawningZoneInput) : List<SpawningZoneInfluence>
+    fun detectFromBlock(world: ServerLevel, pos: BlockPos, blockState: BlockState): List<SpawningZoneInfluence>
 }

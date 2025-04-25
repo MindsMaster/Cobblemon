@@ -8,10 +8,10 @@
 
 package com.cobblemon.mod.common.api.spawning
 
-import com.cobblemon.mod.common.api.spawning.influence.ConditionalZoneSpawningInfluence
+import com.cobblemon.mod.common.api.spawning.influence.ConditionalSpawningZoneInfluence
 import com.cobblemon.mod.common.api.spawning.influence.SpawningInfluence
-import com.cobblemon.mod.common.api.spawning.influence.UnconditionalZoneSpawningInfluence
-import com.cobblemon.mod.common.api.spawning.influence.ZoneSpawningInfluence
+import com.cobblemon.mod.common.api.spawning.influence.UnconditionalSpawningZoneInfluence
+import com.cobblemon.mod.common.api.spawning.influence.SpawningZoneInfluence
 import com.cobblemon.mod.common.api.spawning.position.SpawnablePosition
 import kotlin.math.max
 import net.minecraft.core.BlockPos
@@ -39,7 +39,7 @@ class SpawningZone(
     val blocks: Array<Array<Array<BlockData>>>,
     val skyLevel: Array<Array<Int>>,
     var nearbyEntityPositions: List<Vec3>,
-    influences: List<ZoneSpawningInfluence>
+    influences: List<SpawningZoneInfluence>
 ) {
     class BlockData(
         val state: BlockState,
@@ -47,8 +47,8 @@ class SpawningZone(
         val skyLight: Int
     )
 
-    val unconditionalInfluences = influences.filterIsInstance<UnconditionalZoneSpawningInfluence>().map { it.influence }
-    val conditionalInfluences = influences.filterIsInstance<ConditionalZoneSpawningInfluence>()
+    val unconditionalInfluences = influences.filterIsInstance<UnconditionalSpawningZoneInfluence>().map { it.influence }
+    val conditionalInfluences = influences.filterIsInstance<ConditionalSpawningZoneInfluence>()
 
     val length = blocks.size
     val height = blocks[0].size

@@ -13,17 +13,17 @@ import kotlin.math.sqrt
 import net.minecraft.core.BlockPos
 
 /**
- * A type of [ZoneSpawningInfluence] that is only applied to spawnable positions within a particular radius
+ * A type of [SpawningZoneInfluence] that is only applied to spawnable positions within a particular radius
  * of a position.
  *
  * @author Hiroku
  * @since March 9th, 2025
  */
-class SpatialZoneSpawningInfluence(
+class SpatialSpawningZoneInfluence(
     val pos: BlockPos,
     val radius: Float,
     override val influence: SpawningInfluence
-) : ConditionalZoneSpawningInfluence {
+) : ConditionalSpawningZoneInfluence {
     override fun appliesTo(spawnablePosition: SpawnablePosition): Boolean {
         return sqrt(spawnablePosition.position.distSqr(pos)) <= radius
     }

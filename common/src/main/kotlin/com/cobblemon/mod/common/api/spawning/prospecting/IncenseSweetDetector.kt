@@ -10,8 +10,8 @@ package com.cobblemon.mod.common.api.spawning.prospecting
 
 import com.cobblemon.mod.common.CobblemonPoiTypes
 import com.cobblemon.mod.common.api.spawning.influence.IncenseSweetInfluence
-import com.cobblemon.mod.common.api.spawning.influence.SpatialZoneSpawningInfluence
-import com.cobblemon.mod.common.api.spawning.influence.ZoneSpawningInfluence
+import com.cobblemon.mod.common.api.spawning.influence.SpatialSpawningZoneInfluence
+import com.cobblemon.mod.common.api.spawning.influence.SpawningZoneInfluence
 import com.cobblemon.mod.common.api.spawning.influence.detector.SpawningInfluenceDetector
 import com.cobblemon.mod.common.api.spawning.spawner.Spawner
 import com.cobblemon.mod.common.api.spawning.spawner.SpawningZoneInput
@@ -30,9 +30,9 @@ object IncenseSweetDetector : SpawningInfluenceDetector {
     @JvmField
     val RANGE: Int = 32
 
-    override fun detectFromInput(spawner: Spawner, input: SpawningZoneInput): MutableList<ZoneSpawningInfluence> {
+    override fun detectFromInput(spawner: Spawner, input: SpawningZoneInput): MutableList<SpawningZoneInfluence> {
         val world = input.world
-        val listOfInfluences = mutableListOf<ZoneSpawningInfluence>()
+        val listOfInfluences = mutableListOf<SpawningZoneInfluence>()
 
         val searchRange = RANGE + ceil(sqrt(((input.length pow 2) + (input.width pow 2)).toDouble())).toInt()
         val centerPos = input.getCenter().toBlockPos()
@@ -46,7 +46,7 @@ object IncenseSweetDetector : SpawningInfluenceDetector {
         ).toList()
 
         for (pos in sweetIncensePositions) {
-            val influence = SpatialZoneSpawningInfluence(pos, radius = RANGE.toFloat(), IncenseSweetInfluence(pos))
+            val influence = SpatialSpawningZoneInfluence(pos, radius = RANGE.toFloat(), IncenseSweetInfluence(pos))
             listOfInfluences.add(influence)
         }
 
@@ -57,5 +57,5 @@ object IncenseSweetDetector : SpawningInfluenceDetector {
         world: ServerLevel,
         pos: BlockPos,
         blockState: BlockState
-    ): List<ZoneSpawningInfluence> = emptyList()
+    ): List<SpawningZoneInfluence> = emptyList()
 }
