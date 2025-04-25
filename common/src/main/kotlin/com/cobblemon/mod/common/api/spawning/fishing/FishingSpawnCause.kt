@@ -18,7 +18,9 @@ import com.cobblemon.mod.common.api.pokemon.Natures
 import com.cobblemon.mod.common.api.pokemon.stats.Stats
 import com.cobblemon.mod.common.api.spawning.SpawnBucket
 import com.cobblemon.mod.common.api.spawning.SpawnCause
-import com.cobblemon.mod.common.api.spawning.context.SpawningContext
+import com.cobblemon.mod.common.api.spawning.position.SpawnablePosition
+import com.cobblemon.mod.common.api.spawning.detail.PokemonSpawnDetail
+import com.cobblemon.mod.common.api.spawning.detail.SpawnAction
 import com.cobblemon.mod.common.api.spawning.detail.SpawnDetail
 import com.cobblemon.mod.common.api.spawning.influence.SpawnBaitInfluence
 import com.cobblemon.mod.common.api.spawning.spawner.Spawner
@@ -40,10 +42,10 @@ import net.minecraft.world.item.ItemStack
  */
 class FishingSpawnCause(
     spawner: Spawner,
-    bucket: SpawnBucket,
+    val bucket: SpawnBucket,
     entity: Entity?,
     val rodStack: ItemStack
-) : SpawnCause(spawner, bucket, entity) {
+) : SpawnCause(spawner, entity) {
     companion object {
         const val FISHED_ASPECT = "fished"
         fun shinyReroll(pokemonEntity: PokemonEntity, effect: SpawnBait.Effect) {
@@ -134,11 +136,11 @@ class FishingSpawnCause(
     // Determine the combined bait effects if any
     val baitEffects = SpawnBaitInfluence(SpawnBaitEffects.getEffectsFromRodItemStack(rodStack))
 
-    override fun affectSpawn(entity: Entity) {
-        super.affectSpawn(entity)
+    override fun affectSpawn(action: SpawnAction<*>, entity: Entity) {
+        super.affectSpawn(action, entity)
         if (entity is PokemonEntity) {
             entity.pokemon.forcedAspects += FISHED_ASPECT
-            baitEffects.affectSpawn(entity)
+            baitEffects.affectSpawn(action, entity)
             // Some of the bait actions might have changed the aspects and we need it to be
             // in the entityData IMMEDIATELY otherwise it will flash as what it would be
             // with the old aspects.
@@ -148,8 +150,8 @@ class FishingSpawnCause(
         }
     }
 
-    override fun affectWeight(detail: SpawnDetail, ctx: SpawningContext, weight: Float): Float {
-        val weight = baitEffects.affectWeight(detail, ctx, weight)
-        return super.affectWeight(detail, ctx, weight)
+    override fun affectWeight(detail: SpawnDetail, spawnablePosition: SpawnablePosition, weight: Float): Float {
+        val weight = baitEffects.affectWeight(detail, spawnablePosition, weight)
+        return super.affectWeight(detail, spawnablePosition, weight)
     }
 }
