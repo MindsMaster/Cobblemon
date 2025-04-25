@@ -15,25 +15,25 @@
     "resurrected_dracozolt": {
       "trigger": "cobblemon:resurrect_pokemon",
 			"conditions": {
-				"pokemon": "cobblemon:dracozolt"
+				"species": "cobblemon:dracozolt"
 			}
     },
     "resurrected_dracovish": {
       "trigger": "cobblemon:resurrect_pokemon",
 			"conditions": {
-				"pokemon": "cobblemon:dracovish"
+				"species": "cobblemon:dracovish"
 			}
     },
 	"resurrected_arctozolt": {
       "trigger": "cobblemon:resurrect_pokemon",
 			"conditions": {
-				"pokemon": "cobblemon:arctozolt"
+				"species": "cobblemon:arctozolt"
 			}
     },
     "resurrected_arctovish": {
       "trigger": "cobblemon:resurrect_pokemon",
 			"conditions": {
-				"pokemon": "cobblemon:arctovish"
+				"species": "cobblemon:arctovish"
 			}
     }
   }
