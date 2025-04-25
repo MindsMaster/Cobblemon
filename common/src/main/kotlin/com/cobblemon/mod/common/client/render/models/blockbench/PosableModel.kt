@@ -272,6 +272,7 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
         poseType: PoseType,
         condition: ((PosableState) -> Boolean)? = null,
         transformTicks: Int = 10,
+        transformToTicks: Int = 10,
         namedAnimations: MutableMap<String, ExpressionLike> = mutableMapOf(),
         onTransitionedInto: (PosableState) -> Unit = {},
         animations: Array<PoseAnimation> = emptyArray(),
@@ -284,6 +285,7 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
             condition,
             onTransitionedInto,
             transformTicks,
+            transformToTicks,
             namedAnimations,
             animations,
             transformedParts,
@@ -298,6 +300,7 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
         poseTypes: Set<PoseType>,
         condition: ((PosableState) -> Boolean)? = null,
         transformTicks: Int = 10,
+        transformToTicks: Int = 10,
         namedAnimations: MutableMap<String, ExpressionLike> = mutableMapOf(),
         onTransitionedInto: (PosableState) -> Unit = {},
         animations: Array<PoseAnimation> = emptyArray(),
@@ -310,6 +313,7 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
             condition,
             onTransitionedInto,
             transformTicks,
+            transformToTicks,
             namedAnimations,
             animations,
             transformedParts,
@@ -324,6 +328,7 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
         poseType: PoseType,
         condition: ((PosableState) -> Boolean)? = null,
         transformTicks: Int = 10,
+        transformToTicks: Int = 10,
         namedAnimations: MutableMap<String, ExpressionLike> = mutableMapOf(),
         onTransitionedInto: (PosableState) -> Unit = {},
         animations: Array<PoseAnimation> = emptyArray(),
@@ -336,6 +341,7 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
             condition,
             onTransitionedInto,
             transformTicks,
+            transformToTicks,
             namedAnimations,
             animations,
             transformedParts,
@@ -682,13 +688,15 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
         if (state.activeAnimations.none { it.isTransition }) {
             // Check for a dedicated transition animation.
             val transition = previousPose.transitions[desirablePose.poseName]
+            val transformToTicks = desirablePose.transformToTicks
             val animation = if (transition == null && previousPose.transformTicks > 0) {
                 // If no dedicated transition exists then use a simple interpolator.
+                val durationTicks = transformToTicks ?: previousPose.transformTicks
                 PrimaryAnimation(
                     PoseTransitionAnimation(
                         beforePose = previousPose,
                         afterPose = desirablePose,
-                        durationTicks = previousPose.transformTicks
+                        durationTicks = durationTicks
                     ),
                     curve = { 1F }
                 )

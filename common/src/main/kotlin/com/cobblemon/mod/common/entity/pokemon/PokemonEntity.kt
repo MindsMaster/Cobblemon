@@ -51,7 +51,6 @@ import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviours
 import com.cobblemon.mod.common.api.riding.events.SelectDriverEvent
 import com.cobblemon.mod.common.api.riding.stats.RidingStat
 import com.cobblemon.mod.common.api.riding.util.RidingAnimationData
-import com.cobblemon.mod.common.api.riding.util.Vec3Spring
 import com.cobblemon.mod.common.api.scheduling.Schedulable
 import com.cobblemon.mod.common.api.scheduling.SchedulingTracker
 import com.cobblemon.mod.common.api.scheduling.afterOnServer
@@ -1574,8 +1573,6 @@ open class PokemonEntity(
                     inp.z * g.toDouble() + inp.x * f.toDouble()
                 )
 
-
-
                 val diff = v.subtract(this.deltaMovement)
 
                 val inertia = ifRidingAvailableSupply(fallback = 0.5) { behaviour, settings, state ->
@@ -2021,11 +2018,20 @@ open class PokemonEntity(
         }
     }
 
-    fun useRidingAltPose(): Boolean {
+    fun getAltPose(): String {
+        val driver = this.controllingPassenger as? Player ?: return "cobblemon:no_pose"
+        val str =  ifRidingAvailableSupply(fallback = "cobblemon:no_pose") { behaviour, settings, state ->
+            behaviour.useRidingAltPose(settings, state, this, driver).toString()
+        }
+        return str
+    }
+
+    fun isUsingAltPose(resourceLocation: ResourceLocation): Boolean {
         val driver = this.controllingPassenger as? Player ?: return false
-        return ifRidingAvailableSupply(fallback = false) { behaviour, settings, state ->
+        val loc =  ifRidingAvailableSupply(fallback = cobblemonResource("no_pose")) { behaviour, settings, state ->
             behaviour.useRidingAltPose(settings, state, this, driver)
         }
+        return loc.compareTo(resourceLocation) == 0
     }
 
     var jumpInputStrength: Int = 0 // move this
