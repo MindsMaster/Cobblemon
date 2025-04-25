@@ -629,8 +629,6 @@ object VaryingModelRepository {
         inbuilt("kirlia", ::KirliaModel)
         inbuilt("gardevoir", ::GardevoirModel)
         inbuilt("gallade", ::GalladeModel)
-        inbuilt("beldum", ::BeldumModel)
-        inbuilt("metang", ::MetangModel)
         inbuilt("pidove", ::PidoveModel)
         inbuilt("tranquill", ::TranquillModel)
         inbuilt("unfezant", ::UnfezantModel)
