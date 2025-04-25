@@ -44,20 +44,11 @@ object CobblemonSounds : PlatformRegistry<Registry<SoundEvent>, ResourceKey<Regi
     val PC_WALLPAPER_UNLOCK = this.create("pc.wallpaper.unlock")
 
     @JvmField
-    val NPC_SPEECH_TYPE_1_1 = this.create("entity.npc.speech.type_1.1")
-    @JvmField
-    val NPC_SPEECH_TYPE_1_2 = this.create("entity.npc.speech.type_1.2")
-    @JvmField
-    val NPC_SPEECH_TYPE_1_3 = this.create("entity.npc.speech.type_1.3")
+    val NPC_GIBBER_GENERIC = this.create("entity.npc.gibber.generic")
 
     @JvmField
     val VILLAGER_WORK_NURSE = this.create("entity.villager.work_nurse")
-    @JvmField
-    val VILLAGER_NPC_1 = this.create("entity.villager.npc1")
-    @JvmField
-    val VILLAGER_NPC_2 = this.create("entity.villager.npc2")
-    @JvmField
-    val VILLAGER_NPC_3 = this.create("entity.villager.npc3")
+
     @JvmField
     val HEALING_MACHINE_ACTIVE = this.create("block.healing_machine.active")
 

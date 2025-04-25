@@ -8,26 +8,11 @@
   "battle.pvw.default": {
     "sounds": []
   },
-  "entity.npc.speech.type_1.1": {
-    "sounds": [ "cobblemon:entity/npc/speech_type_1_1" ]
-  },
-  "entity.npc.speech.type_1.2": {
-    "sounds": [ "cobblemon:entity/npc/speech_type_1_2" ]
-  },
-  "entity.npc.speech.type_1.3": {
-    "sounds": [ "cobblemon:entity/npc/speech_type_1_3" ]
+  "entity.npc.gibber.generic": {
+    "sounds": [ { "name":  "cobblemon:entity/npc/gibber/gibber_generic", "volume":  0.1 } ]
   },
   "entity.villager.work_nurse": {
     "sounds": [ { "name":  "cobblemon:entity/villager/work_nurse", "volume":  0.8 } ]
-  },
-  "entity.villager.npc1": {
-    "sounds": [ "cobblemon:entity/villager/npc1" ]
-  },
-  "entity.villager.npc2": {
-    "sounds": [ "cobblemon:entity/villager/npc2" ]
-  },
-  "entity.villager.npc3": {
-    "sounds": [ { "name":  "cobblemon:entity/villager/npc3", "volume": 0.7 } ]
   },
   "pc.on": {
     "sounds": [ "cobblemon:pc/pc_on" ]

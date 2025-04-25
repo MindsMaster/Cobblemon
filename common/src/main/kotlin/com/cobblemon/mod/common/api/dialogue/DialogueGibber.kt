@@ -26,14 +26,12 @@ class DialogueGibber(
     val step: Int = 4,
     /** The time (in seconds) between gibbers. The smaller this is, the faster the text will progress. */
     val interval: Double = 0.1,
-    val minPitch: Float = 0.8F,
-    val maxPitch: Float = 1.2F,
-    val minVolume: Float = 0.75F,
-    val maxVolume: Float = 1.1F,
+    val minPitch: Float = 0.9F,
+    val maxPitch: Float = 1.1F,
+    val minVolume: Float = 0.9F,
+    val maxVolume: Float = 1.0F,
     /** The possible sounds to play when gibbering. */
     val sounds: List<ResourceLocation> = listOf(
-        cobblemonResource("entity.villager.npc1"),
-        cobblemonResource("entity.villager.npc2"),
-        cobblemonResource("entity.villager.npc3")
+        cobblemonResource("entity.npc.gibber.generic")
     )
 )
