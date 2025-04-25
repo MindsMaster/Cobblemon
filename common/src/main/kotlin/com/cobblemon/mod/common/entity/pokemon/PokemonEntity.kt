@@ -31,6 +31,7 @@ import com.cobblemon.mod.common.api.molang.MoLangFunctions.setup
 import com.cobblemon.mod.common.api.molang.ObjectValue
 import com.cobblemon.mod.common.api.net.serializers.PlatformTypeDataSerializer
 import com.cobblemon.mod.common.api.net.serializers.PoseTypeDataSerializer
+import com.cobblemon.mod.common.api.net.serializers.RideBoostsDataSerializer
 import com.cobblemon.mod.common.api.net.serializers.StringSetDataSerializer
 import com.cobblemon.mod.common.api.pokemon.feature.ChoiceSpeciesFeatureProvider
 import com.cobblemon.mod.common.api.pokemon.feature.FlagSpeciesFeature
@@ -181,6 +182,7 @@ open class PokemonEntity(
         @JvmStatic val CAUGHT_BALL = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.STRING)
         @JvmStatic val EVOLUTION_STARTED = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.BOOLEAN)
         @JvmStatic var SHOWN_HELD_ITEM = SynchedEntityData.defineId(PokemonEntity::class.java, EntityDataSerializers.ITEM_STACK)
+        @JvmStatic var RIDE_BOOSTS = SynchedEntityData.defineId(PokemonEntity::class.java, RideBoostsDataSerializer)
 
         const val BATTLE_LOCK = "battle"
         const val EVOLUTION_LOCK = "evolving"
@@ -260,6 +262,8 @@ open class PokemonEntity(
     var ridingBehaviourSettings: RidingBehaviourSettings? = null
     override var riding: RidingBehaviour<RidingBehaviourSettings, RidingBehaviourState>? = null
 
+    private val rideStatOverrides = mutableMapOf<RidingStyle, MutableMap<RidingStat, Double>>()
+
     val runtime: MoLangRuntime by lazy {
         MoLangRuntime()
             .setup()
@@ -271,11 +275,7 @@ open class PokemonEntity(
                     val rideStyle = RidingStyle.valueOf(params.getString(1).uppercase())
                     val maxVal = params.getDouble(2)
                     val minVal = params.getDouble(3)
-                    //TODO: Use the mons actual boost once implemented
-                    val normalizedStat = rideProp.calculate(rideStat, rideStyle, 0) / 100.0f
-                    val trueStatVal = (normalizedStat * (maxVal - minVal)) + minVal
-
-                    DoubleValue(trueStatVal)
+                    DoubleValue(getRideStat(rideStat, rideStyle, minVal, maxVal))
                 }
             }
     }
@@ -396,6 +396,7 @@ open class PokemonEntity(
         builder.define(CAUGHT_BALL, "")
         builder.define(EVOLUTION_STARTED, false)
         builder.define(SHOWN_HELD_ITEM, ItemStack.EMPTY)
+        builder.define(RIDE_BOOSTS, emptyMap())
     }
 
     override fun onSyncedDataUpdated(data: EntityDataAccessor<*>) {
@@ -1827,9 +1828,26 @@ open class PokemonEntity(
     // stat based on the boost of that pokemons stat
     fun getRideStat(stat: RidingStat, style: RidingStyle, baseMin: Double, baseMax: Double): Double {
         //TODO: Change from static zero boost once aprijuice is implemented.
+        if (rideStatOverrides[style] != null && rideStatOverrides[style]!![stat] != null) {
+            return (((baseMax - baseMin) / 100) * rideStatOverrides[style]!![stat]!!) + baseMin
+        }
         val stat = this.rideProp.calculate(stat, style, 0)
         val statVal = (((baseMax - baseMin) / 100) * stat) + baseMin
         return statVal
+    }
+
+    fun getRawRideStat(stat: RidingStat, style: RidingStyle): Double {
+        if (rideStatOverrides[style] != null && rideStatOverrides[style]!![stat] != null) {
+            return rideStatOverrides[style]!![stat]!!
+        }
+        return this.rideProp.calculate(stat, style, 0).toDouble()
+    }
+
+    internal fun overrideRideStat(style: RidingStyle, stat: RidingStat, value: Double) {
+        if (rideStatOverrides[style] == null) {
+            rideStatOverrides[style] = mutableMapOf()
+        }
+        rideStatOverrides[style]!![stat] = value
     }
 
     override fun canAddPassenger(passenger: Entity): Boolean {
@@ -2077,6 +2095,9 @@ open class PokemonEntity(
             behaviour.turnOffOnGround(settings, state, this)
         }
         if (result != null && result) return false
+        if (!this.behaviour.moving.walk.canWalk && this.behaviour.moving.fly.canFly) {
+            return false
+        }
         return super.onGround()
     }
 
