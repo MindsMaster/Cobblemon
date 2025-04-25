@@ -428,7 +428,6 @@ object VaryingModelRepository {
         inbuilt("exploud", :: ExploudModel)
         inbuilt("luvdisc", :: LuvdiscModel)
         inbuilt("cryogonal", :: CryogonalModel)
-        inbuilt("sigilyph", :: SigilyphModel)
         inbuilt("pumpkaboo", :: PumpkabooModel)
         inbuilt("gourgeist", :: GourgeistModel)
         inbuilt("eiscue", :: EiscueModel)
