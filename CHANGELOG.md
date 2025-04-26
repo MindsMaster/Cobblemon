@@ -135,6 +135,7 @@
 - Bouffalant
 - Sigilyph
 - Sharpedo
+- Maractus
 - Added Syrupy Apples.
 
 ### Changes
