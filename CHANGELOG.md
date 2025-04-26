@@ -134,6 +134,7 @@
 - Heatmor
 - Bouffalant
 - Sigilyph
+- Sharpedo
 - Added Syrupy Apples.
 
 ### Changes
