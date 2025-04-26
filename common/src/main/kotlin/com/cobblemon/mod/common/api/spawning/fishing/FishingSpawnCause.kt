@@ -19,7 +19,6 @@ import com.cobblemon.mod.common.api.pokemon.stats.Stats
 import com.cobblemon.mod.common.api.spawning.SpawnBucket
 import com.cobblemon.mod.common.api.spawning.SpawnCause
 import com.cobblemon.mod.common.api.spawning.position.SpawnablePosition
-import com.cobblemon.mod.common.api.spawning.detail.PokemonSpawnDetail
 import com.cobblemon.mod.common.api.spawning.detail.SpawnAction
 import com.cobblemon.mod.common.api.spawning.detail.SpawnDetail
 import com.cobblemon.mod.common.api.spawning.influence.SpawnBaitInfluence
@@ -42,9 +41,9 @@ import net.minecraft.world.item.ItemStack
  */
 class FishingSpawnCause(
     spawner: Spawner,
-    val bucket: SpawnBucket,
     entity: Entity?,
-    val rodStack: ItemStack
+    val rodStack: ItemStack,
+    val lureLevel: Int
 ) : SpawnCause(spawner, entity) {
     companion object {
         const val FISHED_ASPECT = "fished"
@@ -146,7 +145,13 @@ class FishingSpawnCause(
             // with the old aspects.
             // New aspects copy into the entity data only on the next tick.
             entity.entityData.set(PokemonEntity.ASPECTS, entity.pokemon.aspects)
-            CobblemonEvents.BOBBER_SPAWN_POKEMON_MODIFY.post(BobberSpawnPokemonEvent.Modify(bucket, rodStack, entity))
+            CobblemonEvents.BOBBER_SPAWN_POKEMON_MODIFY.post(
+                BobberSpawnPokemonEvent.Modify(
+                    spawnAction = action,
+                    rod = rodStack,
+                    pokemon = entity
+                )
+            )
         }
     }
 
