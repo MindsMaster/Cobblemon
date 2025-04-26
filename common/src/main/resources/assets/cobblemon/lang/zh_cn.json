@@ -7074,5 +7074,9 @@
     "cobblemon.battle.block.aromaveil": "%1$s正受到芳香幕的保护！",
     "cobblemon.species.mimikyu-busted.desc": "在战斗中，攻击的力道可能会导致谜拟丘伪装的颈部断裂。在一些不幸的情况下，这还可能导致布料撕裂，让周围的人瞥见其下不可知的阴影团块。这种宝可梦的真实形态仍然是个谜，因为每一个尝试研究它的学者要么直接被谜拟Q所杀，要么在精神痛苦中度过余生，直至过早地死亡。",
     "item.cobblemon.syrupy_apple": "蜜汁苹果",
-    "item.cobblemon.syrupy_apple.tooltip": "当啃果虫使用时，会使其进化为裹蜜虫"
+    "item.cobblemon.syrupy_apple.tooltip": "当啃果虫使用时，会使其进化为裹蜜虫",
+    "cobblemon.command.unlockablepcboxwallpaper.invalid-wallpaper": "无效的壁纸标识",
+    "cobblemon.ui.pc.wallpaper": "壁纸",
+    "cobblemon.ui.pc.filter": "过滤",
+    "cobblemon.ui.pc.filter.tooltip": "格式：皮卡丘 shiny held_item lvl=1......"
 }
