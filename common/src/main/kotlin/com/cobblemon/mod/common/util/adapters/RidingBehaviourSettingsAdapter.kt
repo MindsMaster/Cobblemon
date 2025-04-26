@@ -39,7 +39,6 @@ object RidingBehaviourSettingsAdapter : JsonDeserializer<RidingBehaviourSettings
         DolphinBehaviour.KEY to DolphinSettings::class.java,
         HorseBehaviour.KEY to HorseSettings::class.java,
         BoatBehaviour.KEY to BoatSettings::class.java,
-        SubmarineBehaviour.KEY to SubmarineSettings::class.java,
         GliderBehaviour.KEY to GliderSettings::class.java,
         HelicopterBehaviour.KEY to HelicopterSettings::class.java,
         JetBehaviour.KEY to JetSettings::class.java,

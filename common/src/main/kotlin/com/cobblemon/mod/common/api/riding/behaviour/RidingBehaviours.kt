@@ -15,7 +15,6 @@ import com.cobblemon.mod.common.api.riding.behaviour.types.land.VehicleBehaviour
 import com.cobblemon.mod.common.api.riding.behaviour.types.liquid.BoatBehaviour
 import com.cobblemon.mod.common.api.riding.behaviour.types.liquid.BurstBehaviour
 import com.cobblemon.mod.common.api.riding.behaviour.types.liquid.DolphinBehaviour
-import com.cobblemon.mod.common.api.riding.behaviour.types.liquid.SubmarineBehaviour
 import net.minecraft.resources.ResourceLocation
 
 object RidingBehaviours {
@@ -26,7 +25,6 @@ object RidingBehaviours {
         register(DolphinBehaviour.KEY, DolphinBehaviour())
         register(HorseBehaviour.KEY, HorseBehaviour())
         register(BoatBehaviour.KEY, BoatBehaviour())
-        register(SubmarineBehaviour.KEY, SubmarineBehaviour())
         register(GliderBehaviour.KEY, GliderBehaviour())
         register(HelicopterBehaviour.KEY, HelicopterBehaviour())
         register(JetBehaviour.KEY, JetBehaviour())
