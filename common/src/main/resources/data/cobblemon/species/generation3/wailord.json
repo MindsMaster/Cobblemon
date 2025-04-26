@@ -49,37 +49,6 @@
     "height": 2.1,
     "fixed": false
   },
-  "riding": {
-    "behaviour": {
-      "key": "cobblemon:liquid/submarine"
-    },
-    "seats": [
-      {
-        "offset": {
-          "x": 0.0,
-          "y": 5.0,
-          "z": 10.0
-        }
-      }
-    ],
-    "stats": {
-      "SPEED": {
-        "ranges": "35-60"
-      },
-      "ACCELERATION": {
-        "ranges": "25-50"
-      },
-      "SKILL": {
-        "ranges": "30-60"
-      },
-      "JUMP": {
-        "ranges": "5-10"
-      },
-      "STAMINA": {
-        "ranges": "45-100"
-      }
-    }
-  },
   "behaviour": {
     "moving": {
       "canLook": false,
