@@ -442,7 +442,6 @@ object VaryingModelRepository {
         inbuilt("kricketot", ::KricketotModel)
         inbuilt("kricketune", ::KricketuneModel)
         inbuilt("durant", ::DurantModel)
-        inbuilt("sharpedo", ::SharpedoModel)
         inbuilt("mawile", ::MawileModel)
         inbuilt("walkingwake", ::WalkingwakeModel)
         inbuilt("ironleaves", ::IronleavesModel)
