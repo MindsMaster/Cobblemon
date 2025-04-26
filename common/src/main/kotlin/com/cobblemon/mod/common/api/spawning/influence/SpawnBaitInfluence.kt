@@ -21,7 +21,6 @@ import com.cobblemon.mod.common.api.spawning.detail.SpawnDetail
 import com.cobblemon.mod.common.api.spawning.position.SpawnablePosition
 import com.cobblemon.mod.common.api.types.ElementalTypes
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
-import net.minecraft.core.BlockPos
 import net.minecraft.world.entity.Entity
 
 /**
@@ -30,12 +29,13 @@ import net.minecraft.world.entity.Entity
  * @author Hiroku, Plastered_Crab
  * @since March 18th, 2025
  */
-class SpawnBaitInfluence(val effects: List<SpawnBait.Effect>, val baitPos: BlockPos? = null) : SpawningInfluence {
+class SpawnBaitInfluence(val effects: List<SpawnBait.Effect>, val onUsed: (time: Int) -> Unit = {}) : SpawningInfluence {
 
-    var used: Boolean = false
+    var usedTimes = 0
 
     private fun markUsed() {
-        used = true
+        usedTimes++
+        onUsed(usedTimes)
     }
 
     override fun affectSpawn(action: SpawnAction<*>, entity: Entity) {

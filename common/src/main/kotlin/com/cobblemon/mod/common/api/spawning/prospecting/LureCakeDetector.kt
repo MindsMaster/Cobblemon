@@ -9,9 +9,12 @@
 package com.cobblemon.mod.common.api.spawning.prospecting
 
 import com.cobblemon.mod.common.CobblemonPoiTypes
+import com.cobblemon.mod.common.api.fishing.SpawnBait
+import com.cobblemon.mod.common.api.spawning.influence.BucketNormalizingInfluence
 import com.cobblemon.mod.common.api.spawning.influence.SpatialSpawningZoneInfluence
 import com.cobblemon.mod.common.api.spawning.influence.SpawnBaitInfluence
 import com.cobblemon.mod.common.api.spawning.influence.SpawningZoneInfluence
+import com.cobblemon.mod.common.api.spawning.influence.UnconditionalSpawningZoneInfluence
 import com.cobblemon.mod.common.api.spawning.influence.detector.SpawningInfluenceDetector
 import com.cobblemon.mod.common.api.spawning.spawner.Spawner
 import com.cobblemon.mod.common.api.spawning.spawner.SpawningZoneInput
@@ -45,6 +48,8 @@ object LureCakeDetector : SpawningInfluenceDetector {
             PoiManager.Occupancy.ANY
         ).toList()
 
+        var highestLureTier = 0
+
         for (lureCakePos in lureCakePositions) {
             val blockState = world.getBlockState(lureCakePos)
             if (blockState.block !is LureCakeBlock) continue
@@ -52,10 +57,43 @@ object LureCakeDetector : SpawningInfluenceDetector {
             val blockEntity = world.getBlockEntity(lureCakePos) as? LureCakeBlockEntity ?: continue
             val baitEffects = blockEntity.getBaitEffectsFromLureCake()
 
-            listOfInfluences.add(SpatialSpawningZoneInfluence(lureCakePos, radius = RANGE.toFloat(), influence = SpawnBaitInfluence(baitEffects, lureCakePos)))
+            highestLureTier = maxOf(highestLureTier, baitEffects.filter { it.type == SpawnBait.Effects.RARITY_BUCKET }.maxOfOrNull { it.value }?.toInt() ?: 0)
+
+            listOfInfluences.add(
+                SpatialSpawningZoneInfluence(
+                    pos = lureCakePos,
+                    radius = RANGE.toFloat(),
+                    influence = SpawnBaitInfluence(
+                        effects = baitEffects,
+                        onUsed = { time ->
+                            if (time == 1) {
+                                tryBiteCake(world, lureCakePos)
+                            }
+                        }
+                    )
+                )
+            )
+        }
+
+        if (highestLureTier > 0) {
+            listOfInfluences.add(UnconditionalSpawningZoneInfluence(influence = BucketNormalizingInfluence(tier = highestLureTier)))
         }
 
         return listOfInfluences
+    }
+
+    private fun tryBiteCake(world: ServerLevel, lureCakePos: BlockPos) {
+       if (world.isLoaded(lureCakePos)) {
+           val blockEntity = world.getBlockEntity(lureCakePos) as? LureCakeBlockEntity ?: return
+           blockEntity.bites++
+
+           if (blockEntity.bites >= blockEntity.maxBites) {
+               world.removeBlock(lureCakePos, false)
+           } else {
+               blockEntity.setChanged()
+               world.sendBlockUpdated(lureCakePos, blockEntity.blockState, blockEntity.blockState, 3)
+           }
+        }
     }
 
     override fun detectFromBlock(
