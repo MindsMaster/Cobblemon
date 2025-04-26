@@ -185,8 +185,8 @@ class BurstBehaviour : RidingBehaviour<BurstSettings, BurstState> {
         state: BurstState,
         vehicle: PokemonEntity,
         driver: Player
-    ): Boolean {
-        return false
+    ): ResourceLocation {
+        return cobblemonResource("no_pose")
     }
 
     override fun inertia(settings: BurstSettings, state: BurstState, vehicle: PokemonEntity): Double {

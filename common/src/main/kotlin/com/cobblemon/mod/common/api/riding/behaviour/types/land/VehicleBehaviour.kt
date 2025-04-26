@@ -224,8 +224,8 @@ class VehicleBehaviour : RidingBehaviour<VehicleSettings, VehicleState> {
         state: VehicleState,
         vehicle: PokemonEntity,
         driver: Player
-    ): Boolean {
-        return false
+    ): ResourceLocation {
+        return cobblemonResource("no_pose")
     }
 
     override fun inertia(settings: VehicleSettings, state: VehicleState, vehicle: PokemonEntity): Double {

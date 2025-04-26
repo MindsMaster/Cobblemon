@@ -62,7 +62,6 @@ class RidingStatsDebugGUI(val vehicle: PokemonEntity) : Screen(lang("ui.debug.ri
                     RidingStyle.LAND -> RidingStyle.LIQUID
                     RidingStyle.LIQUID -> RidingStyle.AIR
                     RidingStyle.AIR -> RidingStyle.LAND
-                    else -> RidingStyle.LAND
                 }
                 refresh()
             }.bounds(10, 10, getScaledWidth() - 20, 20).build()

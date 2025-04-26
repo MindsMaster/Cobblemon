@@ -40,7 +40,7 @@ class GliderBehaviour : RidingBehaviour<GliderSettings, RidingBehaviourState> {
     }
 
     val poseProvider = PoseProvider<GliderSettings, RidingBehaviourState>(PoseType.HOVER)
-        .with(PoseOption(PoseType.FLY) { _, _, entity -> entity.entityData.get(PokemonEntity.MOVING) })
+            .with(PoseOption(PoseType.FLY) { _, _, entity -> entity.entityData.get(PokemonEntity.MOVING) })
 
     override fun isActive(settings: GliderSettings, state: RidingBehaviourState, vehicle: PokemonEntity): Boolean {
         return true
@@ -55,20 +55,20 @@ class GliderBehaviour : RidingBehaviour<GliderSettings, RidingBehaviourState> {
     }
 
     override fun rotation(
-        settings: GliderSettings,
-        state: RidingBehaviourState,
-        vehicle: PokemonEntity,
-        driver: LivingEntity
+            settings: GliderSettings,
+            state: RidingBehaviourState,
+            vehicle: PokemonEntity,
+            driver: LivingEntity
     ): Vec2 {
         return Vec2(driver.xRot, driver.yRot)
     }
 
     override fun velocity(
-        settings: GliderSettings,
-        state: RidingBehaviourState,
-        vehicle: PokemonEntity,
-        driver: Player,
-        input: Vec3
+            settings: GliderSettings,
+            state: RidingBehaviourState,
+            vehicle: PokemonEntity,
+            driver: Player,
+            input: Vec3
     ): Vec3 {
         val xVector = if (vehicle.runtime.resolveBoolean(settings.canStrafe)) driver.xxa.toDouble() else 0.0
         val yVector = -vehicle.runtime.resolveDouble(settings.glideSpeed)
@@ -79,26 +79,26 @@ class GliderBehaviour : RidingBehaviour<GliderSettings, RidingBehaviourState> {
     }
 
     override fun angRollVel(
-        settings: GliderSettings,
-        state: RidingBehaviourState,
-        vehicle: PokemonEntity,
-        driver: Player,
-        deltaTime: Double
+            settings: GliderSettings,
+            state: RidingBehaviourState,
+            vehicle: PokemonEntity,
+            driver: Player,
+            deltaTime: Double
     ): Vec3 {
         return Vec3.ZERO
     }
 
     override fun rotationOnMouseXY(
-        settings: GliderSettings,
-        state: RidingBehaviourState,
-        vehicle: PokemonEntity,
-        driver: Player,
-        mouseY: Double,
-        mouseX: Double,
-        mouseYSmoother: SmoothDouble,
-        mouseXSmoother: SmoothDouble,
-        sensitivity: Double,
-        deltaTime: Double
+            settings: GliderSettings,
+            state: RidingBehaviourState,
+            vehicle: PokemonEntity,
+            driver: Player,
+            mouseY: Double,
+            mouseX: Double,
+            mouseYSmoother: SmoothDouble,
+            mouseXSmoother: SmoothDouble,
+            sensitivity: Double,
+            deltaTime: Double
     ): Vec3 {
         if (driver !is OrientationControllable) return Vec3.ZERO
 
@@ -113,38 +113,38 @@ class GliderBehaviour : RidingBehaviour<GliderSettings, RidingBehaviourState> {
     }
 
     override fun setRideBar(
-        settings: GliderSettings,
-        state: RidingBehaviourState,
-        vehicle: PokemonEntity,
-        driver: Player
+            settings: GliderSettings,
+            state: RidingBehaviourState,
+            vehicle: PokemonEntity,
+            driver: Player
     ): Float {
         return 0.0f
     }
 
     override fun jumpForce(
-        settings: GliderSettings,
-        state: RidingBehaviourState,
-        vehicle: PokemonEntity,
-        driver: Player,
-        jumpStrength: Int
+            settings: GliderSettings,
+            state: RidingBehaviourState,
+            vehicle: PokemonEntity,
+            driver: Player,
+            jumpStrength: Int
     ): Vec3 {
         return Vec3.ZERO
     }
 
     override fun gravity(
-        settings: GliderSettings,
-        state: RidingBehaviourState,
-        vehicle: PokemonEntity,
-        regularGravity: Double
+            settings: GliderSettings,
+            state: RidingBehaviourState,
+            vehicle: PokemonEntity,
+            regularGravity: Double
     ): Double {
         return 0.0
     }
 
     override fun rideFovMultiplier(
-        settings: GliderSettings,
-        state: RidingBehaviourState,
-        vehicle: PokemonEntity,
-        driver: Player
+            settings: GliderSettings,
+            state: RidingBehaviourState,
+            vehicle: PokemonEntity,
+            driver: Player
     ): Float {
         return 1.0f
     }
@@ -158,8 +158,8 @@ class GliderBehaviour : RidingBehaviour<GliderSettings, RidingBehaviourState> {
         state: RidingBehaviourState,
         vehicle: PokemonEntity,
         driver: Player
-    ): Boolean {
-        return false
+    ): ResourceLocation {
+        return cobblemonResource("no_pose")
     }
 
     override fun inertia(settings: GliderSettings, state: RidingBehaviourState, vehicle: PokemonEntity): Double {
