@@ -26,7 +26,7 @@ import net.minecraft.world.entity.ai.village.poi.PoiManager
 import net.minecraft.world.entity.ai.village.poi.PoiType
 import net.minecraft.world.level.block.state.BlockState
 
-object SaccharineHoneyLogProspector : SpawningInfluenceDetector {
+object SaccharineHoneyLogDetector : SpawningInfluenceDetector {
     @JvmField
     val RANGE: Int = 32
 
@@ -46,8 +46,7 @@ object SaccharineHoneyLogProspector : SpawningInfluenceDetector {
         ).toList()
 
         for (pos in honeyLogPositions) {
-            val influence = SpatialSpawningZoneInfluence(pos, radius = RANGE.toFloat(), SaccharineHoneyLogInfluence(pos))
-            listOfInfluences.add(influence)
+            listOfInfluences.add(SpatialSpawningZoneInfluence(pos, radius = RANGE.toFloat(), SaccharineHoneyLogInfluence(pos)))
         }
 
         return listOfInfluences
