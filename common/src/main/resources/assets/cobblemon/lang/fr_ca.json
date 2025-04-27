@@ -7119,8 +7119,20 @@
     "cobblemon.ui.pokedex.search.search_by": "Recherche par %1$s",
     "cobblemon.ui.pokedex.search.type.species": "Nom",
     "cobblemon.ui.pokedex.search.type.abilities": "Talent",
-    "cobblemon.ui.pokedex.search.type.drops": "Butins",
-    "cobblemon.ui.pokedex.info.ability": "Talent : %1$s",
+    "cobblemon.ui.pokedex.search.type.drops": "Récompenses",
+    "cobblemon.ui.pokedex.info.ability": "Talent: %1$s",
     "cobblemon.ui.pokedex.info.entry": "Détails",
-    "cobblemon.ui.pokedex.info.stats": "Statistiques de base"
+    "cobblemon.ui.pokedex.info.stats": "Statistiques de base",
+    "cobblemon.ui.pokedex.info.drops": "Récompenses",
+    "cobblemon.ui.pokedex.info.drops_display": "%1$s %2$s",
+    "cobblemon.ui.pokedex.info.drops_amount": "×%1$s",
+    "cobblemon.ui.pokedex.info.drops_range": "×%1$s-%2$s",
+    "cobblemon.ui.pokedex.info.drops_percentage": "%1$s%%",
+    "cobblemon.ui.pokedex.info.drops_empty": "Aucune récompense disponible.",
+    "cobblemon.ui.pokedex.info.variation": "Variante",
+    "cobblemon.ui.pokedex.info.form": "Forme",
+    "cobblemon.ui.pokedex.info.form.normal": " ",
+    "cobblemon.ui.pokedex.info.form.alola": "Forme d'Alola",
+    "cobblemon.ui.pokedex.info.form.region-bias-alola": "Aspect d'Alola",
+    "cobblemon.ui.pokedex.info.form.galar": "Forme de Galar"
 }
