@@ -10,9 +10,11 @@ package com.cobblemon.mod.common.client.render.models.blockbench
 
 import com.bedrockk.molang.runtime.MoLangRuntime
 import com.cobblemon.mod.common.client.render.models.blockbench.animation.ActiveAnimation
+import com.cobblemon.mod.common.client.render.models.blockbench.pokemon.PokemonPosableModel
 import com.cobblemon.mod.common.client.render.models.blockbench.pose.Pose
 import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.util.asExpressionLike
+import com.cobblemon.mod.common.util.isBattling
 import com.cobblemon.mod.common.util.isDusk
 import com.cobblemon.mod.common.util.isStandingOnRedSand
 import com.cobblemon.mod.common.util.isStandingOnSand
@@ -31,7 +33,6 @@ import java.lang.reflect.Type
  * @since October 18th, 2022
  */
 class PoseAdapter(
-    val poseConditionReader: (JsonObject) -> List<(PosableState) -> Boolean>,
     val modelFinder: () -> PosableModel
 ) : JsonDeserializer<Pose> {
     companion object {
@@ -54,12 +55,18 @@ class PoseAdapter(
         addCondition("isTouchingWater") { entity, expectedValue -> entity.isInWater == expectedValue }
         addCondition("isInWaterOrRain") { entity, expectedValue -> entity.isInWaterOrRain == expectedValue }
         addCondition("isUnderWater") { entity, expectedValue -> entity.isUnderWater == expectedValue }
+
+        // Kept for compatibility
         addCondition("isStandingOnRedSand") { entity, expectedValue -> entity.isStandingOnRedSand() == expectedValue }
         addCondition("isStandingOnSand") { entity, expectedValue -> entity.isStandingOnSand() == expectedValue }
         addCondition("isStandingOnSandOrRedSand") { entity, expectedValue -> entity.isStandingOnSandOrRedSand() == expectedValue }
+
         addCondition("isDusk") { entity, expectedValue -> entity.isDusk() == expectedValue }
 
-        conditionsList.addAll(poseConditionReader(json))
+        val mustBeInBattle = json.get("isBattle")?.asBoolean
+        if (mustBeInBattle != null) {
+            conditionsList.add { mustBeInBattle == it.isBattling }
+        }
 
         if (json.has("conditions")) {
             val conditionSet = json.get("conditions").asJsonArray.map { it.asString.asExpressionLike() }
@@ -80,6 +87,7 @@ class PoseAdapter(
             poseTypes = pose.poseTypes.toSet(),
             condition = poseCondition,
             transformTicks = pose.transformTicks,
+            transformToTicks = pose.transformToTicks,
             animations = pose.idleAnimations,
             transformedParts = pose.transformedParts,
             quirks = pose.quirks.toTypedArray(),

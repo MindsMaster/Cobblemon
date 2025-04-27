@@ -32,6 +32,18 @@ abstract class AbstractPokedexManager {
         markDirty()
     }
 
+    fun deleteFormRecord(speciesId: ResourceLocation, formName: String) {
+        val speciesRecord = speciesRecords[speciesId] ?: return
+        speciesRecord.deleteFormRecord(formName)
+
+        if (speciesRecord.isFormRecordsEmpty) {
+            deleteSpeciesRecord(speciesId)
+            return
+        }
+
+        markDirty()
+    }
+
     fun getSpeciesRecord(speciesId: ResourceLocation): SpeciesDexRecord? {
         return speciesRecords[speciesId]
     }
@@ -84,15 +96,21 @@ abstract class AbstractPokedexManager {
     }
 
     fun getNewInformation(pokedexEntityData: PokedexEntityData): PokedexLearnedInformation {
-        val speciesRecord = getSpeciesRecord(pokedexEntityData.species.resourceIdentifier)
+        val speciesRecord = getSpeciesRecord(pokedexEntityData.getApparentSpecies().resourceIdentifier)
         if (speciesRecord == null || speciesRecord.getKnowledge() == PokedexEntryProgress.NONE) {
             return PokedexLearnedInformation.SPECIES
         }
-        val formRecord = speciesRecord.getFormRecord(pokedexEntityData.form.name)
+        val formRecord = speciesRecord.getFormRecord(pokedexEntityData.getApparentForm().name)
         if (formRecord == null || formRecord.knowledge == PokedexEntryProgress.NONE) {
             return PokedexLearnedInformation.FORM
         }
-        if (pokedexEntityData.aspects.any{ !speciesRecord.hasAspect(it) } || pokedexEntityData.gender !in formRecord.getGenders() || !formRecord.hasSeenShinyState(pokedexEntityData.shiny)) {
+
+        // Can't update aspects on a disguise
+        if (pokedexEntityData.disguise != null) {
+            return PokedexLearnedInformation.NONE
+        }
+
+        if (pokedexEntityData.pokemon.aspects.any { !speciesRecord.hasAspect(it) } || pokedexEntityData.pokemon.gender !in formRecord.getGenders() || !formRecord.hasSeenShinyState(pokedexEntityData.pokemon.shiny)) {
             return PokedexLearnedInformation.VARIATION
         }
         return PokedexLearnedInformation.NONE
@@ -149,26 +167,5 @@ abstract class AbstractPokedexManager {
 
     open fun markDirty() {
         // Save stuff
-    }
-
-    companion object {
-        const val NUM_CAUGHT_KEY = "cobblemon.pokedex.entries.caught"
-        const val NUM_SEEN_KEY = "cobblemon.pokedex.entries.seen"
-
-        fun getKeyForSpeciesBase(speciesId: ResourceLocation): String {
-            return "cobblemon.pokedex.${speciesId.path}"
-        }
-
-        fun getKnowledgeKeyForSpecies(speciesId: ResourceLocation): String {
-            return "${getKeyForSpeciesBase(speciesId)}.knowledge"
-        }
-
-        fun getKnowledgeKeyForForm(speciesId: ResourceLocation, formName: String): String {
-            return "${getKnowledgeKeyForSpecies(speciesId)}.${formName.lowercase()}"
-        }
-
-        fun getCaptureMethodKeyForSpecies(speciesId: ResourceLocation): String {
-            return "${getKeyForSpeciesBase(speciesId)}.capturemethod"
-        }
     }
 }
