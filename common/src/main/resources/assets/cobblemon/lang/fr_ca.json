@@ -3692,7 +3692,7 @@
     "cobblemon.species.wartortle.name": "Carabaffe",
     "cobblemon.species.wartortle.desc": "Carabaffe a une large queue recouverte d'une épaisse fourrure. Elle devient de plus en plus foncée avec l'âge. Les éraflures sur la carapace de ce Pokémon témoignent de son expérience au combat.",
     "cobblemon.species.blastoise.name": "Tortank",
-    "cobblemon.species.blastoise.desc": "Tortank dispose de canons à eau émergeant de sa carapace. Ils sont très précis et peuvent envoyer des balles d'eau capables de faire mouche sur une cible située à plus de 50 m.",
+    "cobblemon.species.blastoise.desc": "Tortank dispose de canons à eau émergeant de sa carapace. Ils sont très précis et peuvent envoyer des balles d'eau capables de faire mouche sur une cible située à plus de 50 mètres.",
     "cobblemon.species.caterpie.name": "Chenipan",
     "cobblemon.species.caterpie.desc": "Chenipan a un appétit d'ogre. Il peut engloutir des feuilles plus grosses que lui. Les antennes de ce Pokémon dégagent une odeur particulièrement entêtante.",
     "cobblemon.species.metapod.name": "Chrysacier",
@@ -6650,5 +6650,7 @@
     "cobblemon.ui.pokedex.info.form.alcremie-rubyswirl": "Mélange Ruby",
     "cobblemon.ui.pokedex.info.form.alcremie-caramelswirl": "Mélange Caramel",
     "cobblemon.ui.pokedex.info.form.alcremie-rainbowswirl": "Mélange Tricolore",
-    "cobblemon.ui.pokedex.info.form.alcremie-gmax": "Gigamax"
+    "cobblemon.ui.pokedex.info.form.alcremie-gmax": "Gigamax",
+    "cobblemon.species.floette-eternal.desc": "Bien que sa fleur de mauvais augure renferme une énergie terrible, elle l'agite en l'air d'un air innocent.",
+    "cobblemon.ability.toxicdebris.desc": "Quand le Pokémon est touché par une capacité physique, il répand des pics toxiques dans le camp adverse."
 }
