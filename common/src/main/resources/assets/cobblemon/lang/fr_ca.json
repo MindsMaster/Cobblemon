@@ -6655,5 +6655,6 @@
     "cobblemon.ability.toxicdebris.desc": "Quand le Pokémon est touché par une capacité physique, il répand des pics toxiques dans le camp adverse.",
     "cobblemon.battle.clearboost": "Les stats de %1$s sont revenues à la normale !",
     "cobblemon.battle.damage.ironbarbs": "%1$s est blessé !",
-    "cobblemon.battle.damage.roughskin": "%1$s est blessé !"
+    "cobblemon.battle.damage.roughskin": "%1$s est blessé !",
+    "cobblemon.mark.ribbon_ability": "Ruban Aptitude"
 }
