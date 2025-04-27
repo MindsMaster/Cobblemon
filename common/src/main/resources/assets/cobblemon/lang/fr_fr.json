@@ -3903,7 +3903,7 @@
     "cobblemon.species.pikachu.name": "Pikachu",
     "cobblemon.species.pikachu.desc": "Ce Pokémon dispose de petites poches dans les joues pour stocker de l'électricité. Elles semblent se charger pendant que Pikachu dort. Il libère parfois un peu d'électricité lorsqu'il n'est pas encore bien réveillé.",
     "cobblemon.species.raichu.name": "Raichu",
-    "cobblemon.species.raichu.desc": "Si ses joues sont à court d'énergie, il lève la queue et capte l'électricité contenue dans l'atmosphère.",
+    "cobblemon.species.raichu.desc": "Ce Pokémon libère un faible champ électrique tout autour de son corps, ce qui le rend légèrement lumineux dans le noir. Raichu plante sa queue dans le sol pour évacuer de l'électricité.",
     "cobblemon.species.sandshrew.name": "Sabelette",
     "cobblemon.species.sandshrew.desc": "Il creuse le sol pour construire sa tanière. Rien n'arrête ses griffes acérées, pas même la roche la plus solide.",
     "cobblemon.species.sandslash.name": "Sablaireau",
@@ -6837,5 +6837,8 @@
     "cobblemon.species.pikachu-partner.desc": "Un Pikachu portant la casquette de son Dresseur, qu'il considère comme son partenaire. Elle est trop grande pour lui et glisse un peu.",
     "cobblemon.species.pikachu-hoenn.desc": "Un Pikachu portant la casquette de son Dresseur, qu'il considère comme son partenaire. Elle est trop grande pour lui et glisse un peu.",
     "cobblemon.species.pikachu-kalos.desc": "Un Pikachu portant la casquette de son Dresseur, qu'il considère comme son partenaire. Elle est trop grande pour lui et glisse un peu.",
-    "cobblemon.species.pikachu-alola.desc": "Un Pikachu portant la casquette de son Dresseur, qu'il considère comme son partenaire. Elle est trop grande pour lui et glisse un peu."
+    "cobblemon.species.pikachu-alola.desc": "Un Pikachu portant la casquette de son Dresseur, qu'il considère comme son partenaire. Elle est trop grande pour lui et glisse un peu.",
+    "cobblemon.species.pikachu-gmax.desc": "L'énergie du phénomène Gigamax l'a tellement fait grossir que sa queue touche le ciel.",
+    "cobblemon.species.raichu-alola.desc": "Si vous pincez ses joues rondouillardes, une douce odeur sucrée se répand dans l'air. Mais attention à la petite décharge électrique !",
+    "cobblemon.species.pikachu-world.desc": "Il porte sa casquette de son partenaire. Elle lui rappelle leurs aventures dans diverses régions."
 }
