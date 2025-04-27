@@ -8,6 +8,7 @@
 
 package com.cobblemon.mod.common.util.adapters
 
+import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.api.riding.behaviour.RidingBehaviourSettings
 import com.cobblemon.mod.common.api.riding.behaviour.types.air.*
 import com.cobblemon.mod.common.api.riding.behaviour.types.composite.CompositeBehaviour
@@ -33,9 +34,9 @@ import java.lang.reflect.Type
  *
  * @author landonjw
  */
-object RidingBehaviourSettingsAdapter : JsonDeserializer<RidingBehaviourSettings> {
+object RidingBehaviourSettingsAdapter : JsonDeserializer<RidingBehaviourSettings?> {
     val types: MutableMap<ResourceLocation, Class<out RidingBehaviourSettings>> = mutableMapOf(
-        BirdBehaviour.KEY to BirdSettings::class.java,
+        BirdAirBehaviour.KEY to BirdAirSettings::class.java,
         DolphinBehaviour.KEY to DolphinSettings::class.java,
         HorseBehaviour.KEY to HorseSettings::class.java,
         BoatBehaviour.KEY to BoatSettings::class.java,
@@ -56,21 +57,27 @@ object RidingBehaviourSettingsAdapter : JsonDeserializer<RidingBehaviourSettings
         RunStrategy.key to CompositeSettings::class.java,
     )
 
-    override fun deserialize(element: JsonElement, type: Type, context: JsonDeserializationContext): RidingBehaviourSettings {
+    override fun deserialize(element: JsonElement, type: Type, context: JsonDeserializationContext): RidingBehaviourSettings? {
         val root = element.asJsonObject
         val key = root.get("key").asString
         val keyIdentifier = key.asIdentifierDefaultingNamespace()
         if (keyIdentifier == CompositeBehaviour.KEY) {
             val strategy = root.get("transitionStrategy").asString
             val strategyIdentifier = strategy.asIdentifierDefaultingNamespace()
-            val behaviourType = types[strategyIdentifier] ?: throw IllegalArgumentException("Unknown strategy for composite behaviour: $strategy")
-            val settings: RidingBehaviourSettings = context.deserialize(root, behaviourType)
-            return settings
+            val behaviourType = types[strategyIdentifier]
+            if (behaviourType == null) {
+                Cobblemon.LOGGER.warn("Unknown strategy: $strategyIdentifier for composite behaviour: $key. Skipping.")
+                return null
+            }
+            return context.deserialize(root, behaviourType)
         }
         else {
-            val behaviourType = types[keyIdentifier] ?: throw IllegalArgumentException("Unknown behaviour: $key")
-            val settings: RidingBehaviourSettings = context.deserialize(element, behaviourType)
-            return settings
+            val behaviourType = types[keyIdentifier]
+            if (behaviourType == null) {
+                Cobblemon.LOGGER.warn("Unknown riding behaviour encountered: $key. Skipping.")
+                return null
+            }
+            return context.deserialize(element, behaviourType)
         }
     }
 }
