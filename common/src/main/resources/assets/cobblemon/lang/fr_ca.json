@@ -6646,5 +6646,9 @@
     "cobblemon.ui.pokedex.info.form.alcremie-matchacream": "Lait Matcha",
     "cobblemon.ui.pokedex.info.form.alcremie-mintcream": "Lait Menthe",
     "cobblemon.ui.pokedex.info.form.alcremie-lemoncream": "Lait Citron",
-    "cobblemon.ui.pokedex.info.form.alcremie-saltedcream": "Lait Salé"
+    "cobblemon.ui.pokedex.info.form.alcremie-saltedcream": "Lait Salé",
+    "cobblemon.ui.pokedex.info.form.alcremie-rubyswirl": "Mélange Ruby",
+    "cobblemon.ui.pokedex.info.form.alcremie-caramelswirl": "Mélange Caramel",
+    "cobblemon.ui.pokedex.info.form.alcremie-rainbowswirl": "Mélange Tricolore",
+    "cobblemon.ui.pokedex.info.form.alcremie-gmax": "Gigamax"
 }
