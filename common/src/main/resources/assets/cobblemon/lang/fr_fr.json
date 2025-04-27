@@ -6714,7 +6714,7 @@
     "cobblemon.ui.interact.give.cosmetic_item": "Changer le cosmétique",
     "cobblemon.ui.interact.ride": "Chevaucher",
     "cobblemon.ui.pokedex.search.search_by": "Rechercher par %1$s",
-    "cobblemon.ui.pokedex.search.type.species": "Espèce",
+    "cobblemon.ui.pokedex.search.type.species": "Nom",
     "cobblemon.ui.pokedex.search.type.abilities": "Talent",
     "cobblemon.ui.pokedex.search.type.drops": "Butins",
     "cobblemon.cosmetic.held_logs.spruce": "Sapin",
