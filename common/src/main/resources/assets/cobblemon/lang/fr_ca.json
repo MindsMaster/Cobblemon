@@ -6585,7 +6585,7 @@
     "cobblemon.species.fezandipiti.desc": "Lorsqu'il agite ses ailes splendides, il libère des phéromones capables d'envoûter les êtres humains comme les Pokémon.",
     "cobblemon.species.ogerpon.name": "Ogerpon",
     "cobblemon.species.ogerpon-wellspring.desc": "Sous cette forme, elle excelle en attaque comme en défense, et peut enchaîner les capacités avec la même fluidité qu'une source d'eau jaillissante.",
-    "cobblemon.species.ogerpon-cornerstone.desc": "Sous cette forme spécialisée en défense, il encaisse les coups et reste inébranlable, telles les fondations d'une maison.",
+    "cobblemon.species.ogerpon-cornerstone.desc": "Sous cette forme spécialisée en défense, elle encaisse les coups et reste inébranlable, telles les fondations d'une maison.",
     "cobblemon.species.archaludon.name": "Pondralugon",
     "cobblemon.species.archaludon.desc": "Ce Pokémon creuse dans les montagnes à la recherche de nourriture. Il est si robuste qu'être piégé dans un effondrement le laisse indifférent.",
     "cobblemon.species.hydrapple.name": "Pomdorochi",
@@ -6640,5 +6640,11 @@
     "cobblemon.ui.pokedex.info.form.ogerpon-wellspring": "Masque du Puits",
     "cobblemon.ui.pokedex.info.form.ogerpon-hearthflame": "Masque du Fourneau",
     "cobblemon.ui.pokedex.info.form.ogerpon-cornerstone": "Masque de la Pierre",
-    "cobblemon.ui.pokedex.info.form.petilil-hisuibias": "Aspect de Hisui"
+    "cobblemon.ui.pokedex.info.form.petilil-hisuibias": "Aspect de Hisui",
+    "cobblemon.ui.pokedex.info.form.alcremie": "Lait Vanille",
+    "cobblemon.ui.pokedex.info.form.alcremie-rubycream": "Lait Ruby",
+    "cobblemon.ui.pokedex.info.form.alcremie-matchacream": "Lait Matcha",
+    "cobblemon.ui.pokedex.info.form.alcremie-mintcream": "Lait Menthe",
+    "cobblemon.ui.pokedex.info.form.alcremie-lemoncream": "Lait Citron",
+    "cobblemon.ui.pokedex.info.form.alcremie-saltedcream": "Lait Salé"
 }
