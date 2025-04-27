@@ -6678,5 +6678,12 @@
     "cobblemon.mark.ribbon_battle_tree_great": "Ruban Élite de l'Arbre",
     "cobblemon.mark.ribbon_battle_tree_great.title": "%1$s le Vainqueur de l'Arbre",
     "cobblemon.mark.ribbon_battle_tree_master": "Ruban Maître de l'Arbre",
-    "cobblemon.mark.ribbon_battle_tree_master.title": "%1$s le Maître de l'Arbre"
+    "cobblemon.mark.ribbon_battle_tree_master.title": "%1$s le Maître de l'Arbre",
+    "cobblemon.mark.ribbon_battle_tree_master.desc": "Ruban commémorant la victoire contre les Dresseurs de légende en Combat Super à l'Arbre de Combat.",
+    "cobblemon.mark.ribbon_battle_tower_master": "Ruban Maître de la Tour",
+    "cobblemon.mark.ribbon_battle_tower_master.title": "%1$s le Maître de la Tour",
+    "cobblemon.mark.ribbon_battle_tower_master.desc": "Ruban commémorant la victoire contre le maître de la Tour de Combat.",
+    "cobblemon.mark.ribbon_battle_victory": "Ruban Victoire",
+    "cobblemon.mark.ribbon_battle_victory.desc": "Ruban pour une victoire au N. 100 de la Tour de Combat.",
+    "cobblemon.mark.ribbon_battle_winning": "Ruban Gagnant"
 }
