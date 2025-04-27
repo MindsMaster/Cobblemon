@@ -6109,7 +6109,7 @@
     "cobblemon.ui.pokedex.info.drops_empty": "Aucun butin disponible.",
     "cobblemon.ui.pokedex.info.form.color-blue": "Bleu",
     "cobblemon.ui.interact.too_far": "La cible est trop éloignée !",
-    "cobblemon.ui.pokedex.info.entry": "Entrée",
+    "cobblemon.ui.pokedex.info.entry": "Détails",
     "cobblemon.ui.pokedex.info.form.color-light_blue": "Bleu Clair",
     "cobblemon.fishing_bait_effects.tera.tooltip": "%1$s%% - attire le type Téracristal %2$s",
     "cobblemon.fishing_bait_effects.pokemon_chance.tooltip": "%1$s%% - Augmente les chances de pêcher un Pokémon",
