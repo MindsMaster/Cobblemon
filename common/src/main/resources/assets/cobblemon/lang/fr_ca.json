@@ -7120,5 +7120,7 @@
     "cobblemon.ui.pokedex.search.type.species": "Nom",
     "cobblemon.ui.pokedex.search.type.abilities": "Talent",
     "cobblemon.ui.pokedex.search.type.drops": "Butins",
-    "cobblemon.ui.pokedex.info.ability": "Talent : %1$s"
+    "cobblemon.ui.pokedex.info.ability": "Talent : %1$s",
+    "cobblemon.ui.pokedex.info.entry": "Détails",
+    "cobblemon.ui.pokedex.info.stats": "Statistiques de base"
 }
