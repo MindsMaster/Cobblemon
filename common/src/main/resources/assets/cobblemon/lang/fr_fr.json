@@ -606,7 +606,7 @@
     "cobblemon.held_item.already_holding": "%1$s tient déjà l'objet %2$s !",
     "cobblemon.ui.pokemonteam": "Équipe Pokémon",
     "cobblemon.ui.lv": "Nv.",
-    "cobblemon.ui.lv.number": "N. %1$s",
+    "cobblemon.ui.lv.number": "N.%1$s",
     "cobblemon.ui.changemove": "Changer",
     "cobblemon.ui.status.brn": "BRU",
     "cobblemon.ui.status.fnt": "K.O.",
