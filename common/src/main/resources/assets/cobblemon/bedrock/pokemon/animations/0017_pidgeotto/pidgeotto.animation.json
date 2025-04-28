@@ -588,10 +588,8 @@
 					"rotation": ["-17.5+math.sin(q.anim_time*90*4-60)*-20", 0, 0]
 				}
 			},
-			"sound_effects": {
-				"0.375": {
-					"effect": "animation.plumage.wing_flap.medium"
-				}
+			"timeline": {
+				"0.375": "q.has_entity ? { q.sound('animation.plumage.wing_flap.medium'); };"
 			}
 		},
 		"animation.pidgeotto.air_fly_test": {
@@ -5872,10 +5870,8 @@
 					}
 				}
 			},
-			"sound_effects": {
-				"0.8333": {
-					"effect": "animation.plumage.wing_flap.medium"
-				}
+			"timeline": {
+				"0.8333": "q.has_entity ? { q.sound('animation.plumage.wing_flap.medium'); };"
 			}
 		},
 		"animation.pidgeotto.air_fly_quirk2": {
@@ -7052,13 +7048,9 @@
 					}
 				}
 			},
-			"sound_effects": {
-				"0.625": {
-					"effect": "animation.plumage.wing_flap.medium"
-				},
-				"2.0417": {
-					"effect": "animation.plumage.wing_flap.medium"
-				}
+			"timeline": {
+				"0.625": "q.has_entity ? { q.sound('animation.plumage.wing_flap.medium'); };",
+				"2.0417": "q.has_entity ? { q.sound('animation.plumage.wing_flap.medium'); };"
 			}
 		},
 		"animation.pidgeotto.cry": {

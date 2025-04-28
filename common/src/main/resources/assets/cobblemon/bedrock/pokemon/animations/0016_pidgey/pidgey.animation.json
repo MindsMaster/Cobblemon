@@ -865,10 +865,8 @@
 					}
 				}
 			},
-			"sound_effects": {
-				"0.2917": {
-					"effect": "animation.plumage.wing_flap.small"
-				}
+			"timeline": {
+				"0.2917": "q.has_entity ? { q.sound('animation.plumage.wing_flap.small'); };"
 			}
 		},
 		"animation.pidgey.air_fly": {
@@ -1506,16 +1504,10 @@
 					}
 				}
 			},
-			"sound_effects": {
-				"0.2917": {
-					"effect": "animation.plumage.wing_flap.small"
-				},
-				"0.875": {
-					"effect": "animation.plumage.wing_flap.small"
-				},
-				"1.4583": {
-					"effect": "animation.plumage.wing_flap.small"
-				}
+			"timeline": {
+				"0.2917": "q.has_entity ? { q.sound('animation.plumage.wing_flap.small'); };",
+				"0.875": "q.has_entity ? { q.sound('animation.plumage.wing_flap.small'); };",
+				"1.4583": "q.has_entity ? { q.sound('animation.plumage.wing_flap.small'); };"
 			}
 		},
 		"animation.pidgey.cry": {
