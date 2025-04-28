@@ -7793,5 +7793,9 @@
     "cobblemon.ui.pokedex.info.form.goomy-hisuibias": "Aspect de Hisui",
     "cobblemon.ui.pokedex.info.form.bergmite-hisuibias": "Aspect de Hisui",
     "cobblemon.ui.pokedex.info.form.rowlet-hisuibias": "Aspect de Hisui",
-    "cobblemon.ui.pokedex.info.form.dartrix-hisuibias": "Aspect de Hisui"
+    "cobblemon.ui.pokedex.info.form.dartrix-hisuibias": "Aspect de Hisui",
+    "item.cobblemon.choice_specs.tooltip": "Ce bandeau augmente l'Attaque Spéciale, mais ne permet d'utiliser qu'une seule capacité",
+    "item.cobblemon.choice_band.tooltip": "Ce bandeau augmente l'Attaque, mais ne permet d'utiliser qu'une seule capacité",
+    "item.cobblemon.choice_scarf.tooltip": "Ce bandeau augmente la Vitesse, mais ne permet d'utiliser qu'une seule capacité",
+    "item.cobblemon.cleanse_tag.tooltip": "Aucun effet"
 }
