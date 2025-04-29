@@ -1,12 +1,12 @@
 {
   "parent": "cobblemon:recipes/root",
   "criteria": {
-    "has_tear": {
+    "has_string": {
       "conditions": {
         "items": [
           {
             "items": [
-              "minecraft:ghast_tear"
+              "minecraft:string"
             ]
           }
         ]
@@ -15,20 +15,20 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "cobblemon:destiny_knot"
+        "recipe": "cobblemon:binding_band"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_tear",
+      "has_string",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "cobblemon:destiny_knot"
+      "cobblemon:binding_band"
     ]
   }
 }

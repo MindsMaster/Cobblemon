@@ -1,12 +1,12 @@
 {
   "parent": "cobblemon:recipes/root",
   "criteria": {
-    "is_rich": {
+    "has_moss": {
       "conditions": {
         "items": [
           {
             "items": [
-              "minecraft:gold_block"
+              "minecraft:moss_block"
             ]
           }
         ]
@@ -15,20 +15,20 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "cobblemon:amulet_coin"
+        "recipe": "cobblemon:luminous_moss"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "is_rich",
+      "has_moss",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "cobblemon:amulet_coin"
+      "cobblemon:luminous_moss"
     ]
   }
 }
