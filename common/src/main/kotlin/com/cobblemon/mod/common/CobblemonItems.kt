@@ -363,6 +363,9 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     val APRIJUICE_PINK = aprijuiceItem(Apricorn.PINK)
 
     @JvmField
+    val PONIGIRI = noSettingsItem("ponigiri")
+
+    @JvmField
     val POKE_PUFF = noSettingsItem("poke_puff") // todo make a PokePuffItem class for friendship boosting purposes
 
     // FOODS

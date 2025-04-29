@@ -8,9 +8,12 @@
 
 package com.cobblemon.mod.common.client.render.item
 
+import com.cobblemon.mod.common.CobblemonItemComponents
 import com.cobblemon.mod.common.CobblemonItems
+import com.cobblemon.mod.common.api.cooking.Seasonings
 import com.cobblemon.mod.common.entity.fishing.PokeRodFishingBobberEntity
 import com.cobblemon.mod.common.item.interactive.PokerodItem
+import com.cobblemon.mod.common.util.cobblemonResource
 import net.minecraft.client.renderer.item.ItemProperties
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Player
@@ -87,6 +90,23 @@ object CobblemonModelPredicateRegistry {
                 }
 
                 if (isMainHand && isFishingWithMainHand || isOffHand) 1.0f else 0.0f
+            }
+        }
+
+        ItemProperties.register(
+                CobblemonItems.PONIGIRI,
+                cobblemonResource("ponigiri_overlay")
+        ) { stack, world, entity, seed ->
+            val component = stack.get(CobblemonItemComponents.INGREDIENT)
+            val id = component?.ingredientId?.toString() ?: return@register 0.0f
+
+            return@register when (id) {
+                "minecraft:carrot" -> 0.1f
+                "minecraft:salmon" -> 0.2f
+                "minecraft:cod" -> 0.3f
+                "minecraft:rotten_flesh" -> 0.4f
+                "minecraft:pumpkin" -> 0.5f
+                else -> 0.0f
             }
         }
 

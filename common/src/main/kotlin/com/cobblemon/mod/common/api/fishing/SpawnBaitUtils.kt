@@ -8,6 +8,8 @@
 
 package com.cobblemon.mod.common.api.fishing
 
+import kotlin.math.ceil
+
 object SpawnBaitUtils {
     fun mergeEffects(effects: List<SpawnBait.Effect>): List<SpawnBait.Effect> {
         val grouped = effects.groupBy { Pair(it.type, it.subcategory) }
@@ -25,12 +27,12 @@ object SpawnBaitUtils {
 
                 val multiplier = when (count) {
                     2 -> 0.8
-                    3 -> 0.9
+                    3 -> 0.6
                     else -> 1.0
                 }
 
                 val adjustedChance = (totalChance * multiplier).coerceAtMost(1.0)
-                val adjustedValue = totalValue * multiplier
+                val adjustedValue = ceil(totalValue * multiplier)
 
                 SpawnBait.Effect(type, subcategory, adjustedChance, adjustedValue)
             }

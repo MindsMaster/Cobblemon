@@ -1,0 +1,38 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "cobblemon:item/ponigiri/ponigiri_base"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "cobblemon:ponigiri_overlay": 0.1
+      },
+      "model": "cobblemon:item/ponigiri_carrot"
+    },
+    {
+      "predicate": {
+        "cobblemon:ponigiri_overlay": 0.2
+      },
+      "model": "cobblemon:item/ponigiri_salmon"
+    },
+    {
+      "predicate": {
+        "cobblemon:ponigiri_overlay": 0.3
+      },
+      "model": "cobblemon:item/ponigiri_cod"
+    },
+    {
+      "predicate": {
+        "cobblemon:ponigiri_overlay": 0.4
+      },
+      "model": "cobblemon:item/ponigiri_rotten_flesh"
+    },
+    {
+      "predicate": {
+        "cobblemon:ponigiri_overlay": 0.5
+      },
+      "model": "cobblemon:item/ponigiri_pumpkin"
+    }
+  ]
+}
