@@ -2205,5 +2205,10 @@
     "item.cobblemon.remedy.tooltip": "Cura 60 PS del Pokémon",
     "item.cobblemon.fine_remedy.tooltip": "Cura 100 PS del Pokémon",
     "item.cobblemon.superb_remedy.tooltip": "Cura 150 PS del Pokémon",
-    "item.cobblemon.heal_powder.tooltip": "Cura todos los problemas de estado del Pokémon y reduce su amistad"
+    "item.cobblemon.heal_powder.tooltip": "Cura todos los problemas de estado del Pokémon y reduce su amistad",
+    "item.cobblemon.revive.tooltip": "Revive a un Pokémon desmayado, restaurando el 50% de sus PS",
+    "item.cobblemon.ether.tooltip": "Restaura 10 PP a un movimiento del Pokémon",
+    "item.cobblemon.max_ether.tooltip": "Restaura todos los PP de un movimiento del Pokémon",
+    "item.cobblemon.elixir.tooltip": "Restaura 10 PP a todos los movimientos del Pokémon",
+    "item.cobblemon.max_elixir.tooltip": "Restaura todos los PP de todos los movimientos del Pokémon"
 }
