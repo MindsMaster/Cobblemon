@@ -17,6 +17,7 @@ import com.cobblemon.mod.common.api.item.PokemonSelectingItem
 import com.cobblemon.mod.common.api.riding.stats.RidingStat
 import com.cobblemon.mod.common.pokemon.Nature
 import com.cobblemon.mod.common.pokemon.Pokemon
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
@@ -36,6 +37,30 @@ class PokePuffItem(): CobblemonItem(Properties().stacksTo(16)), PokemonSelecting
 
         const val STRONG_APRICORN_MULTIPLIER = 1.25F
         const val WEAK_APRICORN_MULTIPLIER = 0.75F
+    }
+
+    override fun getName(stack: ItemStack): Component {
+        val flavour = stack.get(CobblemonItemComponents.FLAVOUR)
+            ?.getDominantFlavours()?.firstOrNull()
+        val flavourKey = flavour?.name?.lowercase() ?: "plain"
+
+        val ingredients = stack.get(CobblemonItemComponents.INGREDIENT)
+            ?.ingredientIds?.map { it.toString() } ?: emptyList()
+
+        val hasSugar = "minecraft:sugar" in ingredients
+        val hasSweet = ingredients.any {
+            it.startsWith("cobblemon:") && it.endsWith("_sweet")
+        }
+
+        val nameKey = when {
+            hasSugar && hasSweet -> "item.cobblemon.poke_puff.deluxe"
+            hasSugar -> "item.cobblemon.poke_puff.frosted"
+            hasSweet -> "item.cobblemon.poke_puff.fancy"
+            else -> "item.cobblemon.poke_puff"
+        }
+
+        val flavourTranslationKey = "flavour.cobblemon.$flavourKey"
+        return Component.translatable(nameKey, Component.translatable(flavourTranslationKey))
     }
     
     override fun canUseOnPokemon(stack: ItemStack, pokemon: Pokemon): Boolean {

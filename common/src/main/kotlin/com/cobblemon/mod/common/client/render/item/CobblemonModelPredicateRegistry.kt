@@ -118,6 +118,7 @@ object CobblemonModelPredicateRegistry {
 
             val hasSugar = "minecraft:sugar" in ingredients
 
+            // todo CRAB NOTE: we may want a map or item tag instead
             val sweet = ingredients.firstOrNull {
                 it.startsWith("cobblemon:") && it.endsWith("_sweet")
             }?.removePrefix("cobblemon:")?.removeSuffix("_sweet")

@@ -989,6 +989,17 @@
   "cobblemon.seasoning_flavor.bitter": "Bitter",
   "cobblemon.seasoning_flavor.sour": "Sour",
 
+  "item.cobblemon.poke_puff": "%s Poke Puff",
+  "item.cobblemon.poke_puff.frosted": "Frosted %s Poke Puff",
+  "item.cobblemon.poke_puff.fancy": "Fancy %s Poke Puff",
+  "item.cobblemon.poke_puff.deluxe": "Deluxe %s Poke Puff",
+  "flavour.cobblemon.spicy": "Spicy",
+  "flavour.cobblemon.dry": "Dry",
+  "flavour.cobblemon.sweet": "Sweet",
+  "flavour.cobblemon.bitter": "Bitter",
+  "flavour.cobblemon.sour": "Sour",
+  "flavour.cobblemon.plain": "Plain",
+
   "entity.minecraft.villager.nurse": "Nurse",
   "entity.minecraft.villager.cobblemon.nurse": "Nurse",
 

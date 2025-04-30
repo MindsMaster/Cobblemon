@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.item.crafting
 
 import com.cobblemon.mod.common.CobblemonItemComponents
+import com.cobblemon.mod.common.CobblemonItems
 import com.cobblemon.mod.common.api.cooking.Flavour
 import com.cobblemon.mod.common.api.cooking.Seasonings
 import com.cobblemon.mod.common.item.components.FlavourComponent
@@ -16,15 +17,34 @@ import net.minecraft.world.item.ItemStack
 
 object FlavourSeasoningProcessor : SeasoningProcessor {
     override val type = "flavour"
+    private val flavourPriority = listOf(
+        Flavour.SPICY,
+        Flavour.DRY,
+        Flavour.SWEET,
+        Flavour.BITTER,
+        Flavour.SOUR
+    )
+
     override fun apply(result: ItemStack, seasoning: List<ItemStack>) {
-        var flavours = mutableMapOf<Flavour, Int>()
+        val isPokePuff = result.`is`(CobblemonItems.POKE_PUFF)
+        val flavours = mutableMapOf<Flavour, Int>()
+
         for (seasoningStack in seasoning) {
-            val seasoning = Seasonings.getFromItemStack(seasoningStack)
-            seasoning?.flavours?.forEach { (flavour, value) ->
-                val currentAmount = flavours[flavour] ?: 0
-                flavours[flavour] = currentAmount + value
+            val seasoningObj = Seasonings.getFromItemStack(seasoningStack) ?: continue
+            val relevantFlavours = if (isPokePuff) {
+                val maxValue = seasoningObj.flavours?.maxOfOrNull { it.value } ?: continue
+                val tied = seasoningObj.flavours.filterValues { it == maxValue }
+                val selected = tied.entries.minByOrNull { flavourPriority.indexOf(it.key) } ?: continue
+                mapOf(selected.key to selected.value)
+            } else {
+                seasoningObj.flavours ?: emptyMap()
+            }
+
+            for ((flavour, value) in relevantFlavours) {
+                flavours[flavour] = (flavours[flavour] ?: 0) + value
             }
         }
+
         result.set(CobblemonItemComponents.FLAVOUR, FlavourComponent(flavours))
     }
 }
