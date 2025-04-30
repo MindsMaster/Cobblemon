@@ -171,6 +171,7 @@ object CobblemonClient {
         TooltipManager.registerTooltipGenerator(FishingRodTooltipGenerator)
         TooltipManager.registerTooltipGenerator(SeasoningTooltipGenerator)
         TooltipManager.registerTooltipGenerator(AprijuiceTooltipGenerator)
+        TooltipManager.registerTooltipGenerator(PokePuffTooltipGenerator)
     }
 
     fun registerFlywheelRenderers() {
