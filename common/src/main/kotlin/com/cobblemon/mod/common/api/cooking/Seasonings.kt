@@ -75,8 +75,11 @@ object Seasonings : JsonDataRegistry<Seasoning> {
         val holder = stack.itemHolder
         val seasoning = seasonings.find { it.ingredient.fits(holder) } ?: BLANK_SEASONING
         val inherentFlavours = stack.get(CobblemonItemComponents.FLAVOUR)?.flavours ?: emptyMap()
+        val seasoningFlavours = seasoning.flavours ?: emptyMap()
 
-        return seasoning.flavours.mapValues { (flavour, value) -> inherentFlavours.getOrDefault(flavour, 0) + value }
+        return seasoningFlavours.mapValues { (flavour, value) ->
+            inherentFlavours.getOrDefault(flavour, 0) + value
+        }
     }
 
     fun getBaitEffectsFromItemStack(stack: ItemStack): List<SpawnBait.Effect> {

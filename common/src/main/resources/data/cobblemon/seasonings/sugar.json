@@ -1,7 +1,4 @@
 {
   "ingredient": "minecraft:sugar",
-  "flavours": {
-    "SWEET": 2
-  },
   "colour": "white"
 }

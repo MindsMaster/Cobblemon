@@ -25,7 +25,7 @@ import net.minecraft.world.item.Item
 data class Seasoning(
     val ingredient: RegistryLikeCondition<Item>,
     @SerializedName("flavours", alternate = ["flavors"])
-    val flavours: Map<Flavour, Int>,
+    val flavours: Map<Flavour, Int>? = null,
     @SerializedName("colour", alternate = ["color"])
     val colour: DyeColor,
     @SerializedName("baitEffects")

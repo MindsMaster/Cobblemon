@@ -112,7 +112,7 @@ object CobblemonModelPredicateRegistry {
 
         ItemProperties.register(CobblemonItems.POKE_PUFF, cobblemonResource("poke_puff_combined")) { stack, _, _, _ ->
             val flavour =
-                stack.get(CobblemonItemComponents.FLAVOUR)?.getDominantFlavours()?.firstOrNull()?.name?.lowercase()
+                stack.get(CobblemonItemComponents.FLAVOUR)?.getDominantFlavours()?.firstOrNull()?.name?.lowercase() ?: "plain"
             val ingredients =
                 stack.get(CobblemonItemComponents.INGREDIENT)?.ingredientIds?.map { it.toString() } ?: emptyList()
 
@@ -124,10 +124,11 @@ object CobblemonModelPredicateRegistry {
 
             val key = when {
                 hasSugar && sweet != null -> "overlay_${flavour}_${sweet}"
+                sweet != null && flavour != null -> "overlay_${sweet}_${flavour}"
                 sweet != null -> "overlay_${sweet}"
                 hasSugar && flavour != null -> "overlay_${flavour}"
                 flavour != null -> "overlay_${flavour}_only"
-                else -> "overlay_plain"
+                else -> "overlay_plain_only"
             }
 
             return@register PokePuffItemModelRegistry.getModelId(key)
