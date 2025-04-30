@@ -136,6 +136,9 @@
 - Sigilyph
 - Sharpedo
 - Maractus
+- Clodsire
+- Scyther
+- Scizor
 - Added Syrupy Apples.
 
 ### Changes
