@@ -1,5 +1,5 @@
 {
-  "parent": "cobblemon:item/poke_puff_flavoured",
+  "parent": "cobblemon:item/poke_puff_base_spicy",
   "textures": {
     "layer1": "cobblemon:item/poke_puffs/overlay_spicy_star"
   }

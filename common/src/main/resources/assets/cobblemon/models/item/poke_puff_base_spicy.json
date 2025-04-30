@@ -1,5 +1,5 @@
 {
-  "parent": "minecraft:item/generated",
+  "parent": "cobblemon:item/poke_puff",
   "textures": {
     "layer0": "cobblemon:item/poke_puffs/poke_puff_base_spicy"
   },
