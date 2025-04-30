@@ -1,0 +1,6 @@
+{
+  "parent": "cobblemon:item/poke_puff_flavoured",
+  "textures": {
+    "layer1": "cobblemon:item/poke_puffs/overlay_spicy_flower"
+  }
+}

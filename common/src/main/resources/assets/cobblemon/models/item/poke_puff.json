@@ -1,0 +1,50 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "cobblemon:item/poke_puffs/poke_puff_base_plain"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "cobblemon:poke_puff_flavour": 0.1
+      },
+      "model": "cobblemon:item/poke_puff_base_spicy"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_flavour": 0.2
+      },
+      "model": "cobblemon:item/poke_puff_base_dry"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_flavour": 0.3
+      },
+      "model": "cobblemon:item/poke_puff_base_sweet"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_flavour": 0.4
+      },
+      "model": "cobblemon:item/poke_puff_base_bitter"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_flavour": 0.5
+      },
+      "model": "cobblemon:item/poke_puff_base_sour"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_flavour": 0.6
+      },
+      "model": "cobblemon:item/poke_puff_base_mild"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_flavour": 0.0
+      },
+      "model": "cobblemon:item/poke_puff_base_plain"
+    }
+  ]
+}
