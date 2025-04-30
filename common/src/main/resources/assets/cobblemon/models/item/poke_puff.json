@@ -6,45 +6,405 @@
   "overrides": [
     {
       "predicate": {
-        "cobblemon:poke_puff_flavour": 0.1
+        "cobblemon:poke_puff_combined": 0.01
       },
-      "model": "cobblemon:item/poke_puff_base_spicy"
+      "model": "cobblemon:item/poke_puff_overlay_spicy"
     },
     {
       "predicate": {
-        "cobblemon:poke_puff_flavour": 0.2
+        "cobblemon:poke_puff_combined": 0.92
       },
-      "model": "cobblemon:item/poke_puff_base_dry"
+      "model": "cobblemon:item/poke_puff_overlay_strawberry"
     },
     {
       "predicate": {
-        "cobblemon:poke_puff_flavour": 0.3
+        "cobblemon:poke_puff_combined": 0.03
       },
-      "model": "cobblemon:item/poke_puff_base_sweet"
+      "model": "cobblemon:item/poke_puff_overlay_spicy_strawberry"
     },
     {
       "predicate": {
-        "cobblemon:poke_puff_flavour": 0.4
+        "cobblemon:poke_puff_combined": 0.94
       },
-      "model": "cobblemon:item/poke_puff_base_bitter"
+      "model": "cobblemon:item/poke_puff_overlay_love"
     },
     {
       "predicate": {
-        "cobblemon:poke_puff_flavour": 0.5
+        "cobblemon:poke_puff_combined": 0.05
       },
-      "model": "cobblemon:item/poke_puff_base_sour"
+      "model": "cobblemon:item/poke_puff_overlay_spicy_love"
     },
     {
       "predicate": {
-        "cobblemon:poke_puff_flavour": 0.6
+        "cobblemon:poke_puff_combined": 0.96
       },
-      "model": "cobblemon:item/poke_puff_base_mild"
+      "model": "cobblemon:item/poke_puff_overlay_berry"
     },
     {
       "predicate": {
-        "cobblemon:poke_puff_flavour": 0.0
+        "cobblemon:poke_puff_combined": 0.07
       },
-      "model": "cobblemon:item/poke_puff_base_plain"
+      "model": "cobblemon:item/poke_puff_overlay_spicy_berry"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.98
+      },
+      "model": "cobblemon:item/poke_puff_overlay_ribbon"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.09
+      },
+      "model": "cobblemon:item/poke_puff_overlay_spicy_ribbon"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.85
+      },
+      "model": "cobblemon:item/poke_puff_overlay_clover"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.11
+      },
+      "model": "cobblemon:item/poke_puff_overlay_spicy_clover"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.87
+      },
+      "model": "cobblemon:item/poke_puff_overlay_flower"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.13
+      },
+      "model": "cobblemon:item/poke_puff_overlay_spicy_flower"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.89
+      },
+      "model": "cobblemon:item/poke_puff_overlay_star"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.15
+      },
+      "model": "cobblemon:item/poke_puff_overlay_spicy_star"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.16
+      },
+      "model": "cobblemon:item/poke_puff_overlay_dry"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.18
+      },
+      "model": "cobblemon:item/poke_puff_overlay_dry_strawberry"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.2
+      },
+      "model": "cobblemon:item/poke_puff_overlay_dry_love"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.22
+      },
+      "model": "cobblemon:item/poke_puff_overlay_dry_berry"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.24
+      },
+      "model": "cobblemon:item/poke_puff_overlay_dry_ribbon"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.26
+      },
+      "model": "cobblemon:item/poke_puff_overlay_dry_clover"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.28
+      },
+      "model": "cobblemon:item/poke_puff_overlay_dry_flower"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.3
+      },
+      "model": "cobblemon:item/poke_puff_overlay_dry_star"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.31
+      },
+      "model": "cobblemon:item/poke_puff_overlay_sweet"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.33
+      },
+      "model": "cobblemon:item/poke_puff_overlay_sweet_strawberry"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.35
+      },
+      "model": "cobblemon:item/poke_puff_overlay_sweet_love"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.37
+      },
+      "model": "cobblemon:item/poke_puff_overlay_sweet_berry"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.39
+      },
+      "model": "cobblemon:item/poke_puff_overlay_sweet_ribbon"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.41
+      },
+      "model": "cobblemon:item/poke_puff_overlay_sweet_clover"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.43
+      },
+      "model": "cobblemon:item/poke_puff_overlay_sweet_flower"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.45
+      },
+      "model": "cobblemon:item/poke_puff_overlay_sweet_star"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.46
+      },
+      "model": "cobblemon:item/poke_puff_overlay_bitter"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.48
+      },
+      "model": "cobblemon:item/poke_puff_overlay_bitter_strawberry"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.5
+      },
+      "model": "cobblemon:item/poke_puff_overlay_bitter_love"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.52
+      },
+      "model": "cobblemon:item/poke_puff_overlay_bitter_berry"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.54
+      },
+      "model": "cobblemon:item/poke_puff_overlay_bitter_ribbon"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.56
+      },
+      "model": "cobblemon:item/poke_puff_overlay_bitter_clover"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.58
+      },
+      "model": "cobblemon:item/poke_puff_overlay_bitter_flower"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.6
+      },
+      "model": "cobblemon:item/poke_puff_overlay_bitter_star"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.61
+      },
+      "model": "cobblemon:item/poke_puff_overlay_sour"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.63
+      },
+      "model": "cobblemon:item/poke_puff_overlay_sour_strawberry"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.65
+      },
+      "model": "cobblemon:item/poke_puff_overlay_sour_love"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.67
+      },
+      "model": "cobblemon:item/poke_puff_overlay_sour_berry"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.69
+      },
+      "model": "cobblemon:item/poke_puff_overlay_sour_ribbon"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.71
+      },
+      "model": "cobblemon:item/poke_puff_overlay_sour_clover"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.73
+      },
+      "model": "cobblemon:item/poke_puff_overlay_sour_flower"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.75
+      },
+      "model": "cobblemon:item/poke_puff_overlay_sour_star"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.76
+      },
+      "model": "cobblemon:item/poke_puff_overlay_mild"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.78
+      },
+      "model": "cobblemon:item/poke_puff_overlay_mild_strawberry"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.8
+      },
+      "model": "cobblemon:item/poke_puff_overlay_mild_love"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.82
+      },
+      "model": "cobblemon:item/poke_puff_overlay_mild_berry"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.84
+      },
+      "model": "cobblemon:item/poke_puff_overlay_mild_ribbon"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.86
+      },
+      "model": "cobblemon:item/poke_puff_overlay_mild_clover"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.88
+      },
+      "model": "cobblemon:item/poke_puff_overlay_mild_flower"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.9
+      },
+      "model": "cobblemon:item/poke_puff_overlay_mild_star"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.91
+      },
+      "model": "cobblemon:item/poke_puff_overlay_plain"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.93
+      },
+      "model": "cobblemon:item/poke_puff_overlay_plain_strawberry"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.95
+      },
+      "model": "cobblemon:item/poke_puff_overlay_plain_love"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.97
+      },
+      "model": "cobblemon:item/poke_puff_overlay_plain_berry"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.99
+      },
+      "model": "cobblemon:item/poke_puff_overlay_plain_ribbon"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.02
+      },
+      "model": "cobblemon:item/poke_puff_overlay_spicy_only"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.04
+      },
+      "model": "cobblemon:item/poke_puff_overlay_dry_only"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.06
+      },
+      "model": "cobblemon:item/poke_puff_overlay_sweet_only"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.08
+      },
+      "model": "cobblemon:item/poke_puff_overlay_bitter_only"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.1
+      },
+      "model": "cobblemon:item/poke_puff_overlay_sour_only"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.12
+      },
+      "model": "cobblemon:item/poke_puff_overlay_mild_only"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.14
+      },
+      "model": "cobblemon:item/poke_puff_overlay_plain_only"
     }
   ]
 }

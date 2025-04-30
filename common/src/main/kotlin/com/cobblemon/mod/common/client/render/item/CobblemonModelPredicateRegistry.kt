@@ -98,7 +98,7 @@ object CobblemonModelPredicateRegistry {
                 cobblemonResource("ponigiri_overlay")
         ) { stack, world, entity, seed ->
             val component = stack.get(CobblemonItemComponents.INGREDIENT)
-            val id = component?.ingredientId?.toString() ?: return@register 0.0f
+            val id = component?.ingredientIds?.firstOrNull()?.toString() ?: return@register 0.0f
 
             return@register when (id) {
                 "minecraft:carrot" -> 0.1f
@@ -110,112 +110,27 @@ object CobblemonModelPredicateRegistry {
             }
         }
 
-        ItemProperties.register(CobblemonItems.POKE_PUFF, cobblemonResource("poke_puff_flavour")) { stack, _, _, _ ->
-            val flavour = stack.get(CobblemonItemComponents.FLAVOUR)?.getDominantFlavours()?.firstOrNull() ?: return@register 0.0f
-            return@register when (flavour.name) {
-                "SPICY" -> 0.1f
-                "DRY" -> 0.2f
-                "SWEET" -> 0.3f
-                "BITTER" -> 0.4f
-                "SOUR" -> 0.5f
-                "MILD" -> 0.6f
-                "PLAIN" -> 0.0f
-                else -> 0.0f
-            }
-        }
+        ItemProperties.register(CobblemonItems.POKE_PUFF, cobblemonResource("poke_puff_combined")) { stack, _, _, _ ->
+            val flavour =
+                stack.get(CobblemonItemComponents.FLAVOUR)?.getDominantFlavours()?.firstOrNull()?.name?.lowercase()
+            val ingredients =
+                stack.get(CobblemonItemComponents.INGREDIENT)?.ingredientIds?.map { it.toString() } ?: emptyList()
 
-        ItemProperties.register(CobblemonItems.POKE_PUFF, cobblemonResource("poke_puff_overlay")) { stack, _, _, _ ->
-            val flavour = stack.get(CobblemonItemComponents.FLAVOUR)?.getDominantFlavours()?.firstOrNull()?.name?.lowercase()
-            val ingredientId = stack.get(CobblemonItemComponents.INGREDIENT)?.ingredientId?.toString()
-            val hasSugar = ingredientId == "minecraft:sugar"
-            val sweet = when (ingredientId) {
-                "cobblemon:strawberry_sweet" -> "strawberry"
-                "cobblemon:love_sweet" -> "love"
-                "cobblemon:berry_sweet" -> "berry"
-                "cobblemon:ribbon_sweet" -> "ribbon"
-                "cobblemon:clover_sweet" -> "clover"
-                "cobblemon:flower_sweet" -> "flower"
-                "cobblemon:star_sweet" -> "star"
-                else -> null
-            }
+            val hasSugar = "minecraft:sugar" in ingredients
+
+            val sweet = ingredients.firstOrNull {
+                it.startsWith("cobblemon:") && it.endsWith("_sweet")
+            }?.removePrefix("cobblemon:")?.removeSuffix("_sweet")
+
             val key = when {
                 hasSugar && sweet != null -> "overlay_${flavour}_${sweet}"
                 sweet != null -> "overlay_${sweet}"
                 hasSugar && flavour != null -> "overlay_${flavour}"
+                flavour != null -> "overlay_${flavour}_only"
                 else -> "overlay_plain"
             }
 
-            return@register 0.11f
-
-            return@register when (key) {
-                "overlay_spicy" -> 0.11f
-                "overlay_strawberry" -> 0.12f
-                "overlay_spicy_strawberry" -> 0.13f
-                "overlay_love" -> 0.14f
-                "overlay_spicy_love" -> 0.15f
-                "overlay_berry" -> 0.16f
-                "overlay_spicy_berry" -> 0.17f
-                "overlay_ribbon" -> 0.18f
-                "overlay_spicy_ribbon" -> 0.19f
-                "overlay_clover" -> 0.2f
-                "overlay_spicy_clover" -> 0.21f
-                "overlay_flower" -> 0.22f
-                "overlay_spicy_flower" -> 0.23f
-                "overlay_star" -> 0.24f
-                "overlay_spicy_star" -> 0.25f
-                "overlay_dry" -> 0.26f
-                "overlay_dry_strawberry" -> 0.27f
-                "overlay_dry_love" -> 0.28f
-                "overlay_dry_berry" -> 0.29f
-                "overlay_dry_ribbon" -> 0.30f
-                "overlay_dry_clover" -> 0.31f
-                "overlay_dry_flower" -> 0.32f
-                "overlay_dry_star" -> 0.33f
-                "overlay_sweet" -> 0.34f
-                "overlay_sweet_strawberry" -> 0.35f
-                "overlay_sweet_love" -> 0.36f
-                "overlay_sweet_berry" -> 0.37f
-                "overlay_sweet_ribbon" -> 0.38f
-                "overlay_sweet_clover" -> 0.39f
-                "overlay_sweet_flower" -> 0.40f
-                "overlay_sweet_star" -> 0.41f
-                "overlay_bitter" -> 0.42f
-                "overlay_bitter_strawberry" -> 0.43f
-                "overlay_bitter_love" -> 0.44f
-                "overlay_bitter_berry" -> 0.45f
-                "overlay_bitter_ribbon" -> 0.46f
-                "overlay_bitter_clover" -> 0.47f
-                "overlay_bitter_flower" -> 0.48f
-                "overlay_bitter_star" -> 0.49f
-                "overlay_sour" -> 0.50f
-                "overlay_sour_strawberry" -> 0.51f
-                "overlay_sour_love" -> 0.52f
-                "overlay_sour_berry" -> 0.53f
-                "overlay_sour_ribbon" -> 0.54f
-                "overlay_sour_clover" -> 0.55f
-                "overlay_sour_flower" -> 0.56f
-                "overlay_sour_star" -> 0.57f
-                "overlay_mild" -> 0.58f
-                "overlay_mild_strawberry" -> 0.59f
-                "overlay_mild_love" -> 0.60f
-                "overlay_mild_berry" -> 0.61f
-                "overlay_mild_ribbon" -> 0.62f
-                "overlay_mild_clover" -> 0.63f
-                "overlay_mild_flower" -> 0.64f
-                "overlay_mild_star" -> 0.65f
-                "overlay_plain" -> 0.66f
-                "overlay_plain_strawberry" -> 0.67f
-                "overlay_plain_love" -> 0.68f
-                "overlay_plain_berry" -> 0.69f
-                "overlay_plain_ribbon" -> 0.70f
-                "overlay_plain_clover" -> 0.71f
-                "overlay_plain_flower" -> 0.72f
-                "overlay_plain_star" -> 0.73f
-                else -> 0.0f
-            }
+            return@register PokePuffItemModelRegistry.getModelId(key)
         }
-
-
-
     }
 }
