@@ -51,7 +51,7 @@ class HeartyGrainsBlock(settings: Properties) : CropBlock(settings), SimpleWater
         builder.add(AGE, PART, WATERLOGGED)
     }
 
-    override fun getBaseSeedId(): ItemLike = CobblemonItems.Hearty_Grains
+    override fun getBaseSeedId(): ItemLike = CobblemonItems.HEARTY_GRAINS
 
     override fun getShape(state: BlockState, world: BlockGetter, pos: BlockPos, context: CollisionContext): VoxelShape {
         return AGE_TO_SHAPE[this.getAge(state)]

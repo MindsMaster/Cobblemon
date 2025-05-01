@@ -107,7 +107,7 @@ object CobblemonItemGroups {
         entries.accept(CobblemonItems.VIVICHOKE)
         entries.accept(CobblemonItems.VIVICHOKE_SEEDS)
         entries.accept(CobblemonItems.GALARICA_NUTS)
-        entries.accept(CobblemonItems.Hearty_Grains)
+        entries.accept(CobblemonItems.HEARTY_GRAINS)
         entries.accept(CobblemonItems.BUGWORT)
 
         entries.accept(CobblemonItems.RED_APRICORN)
@@ -537,6 +537,9 @@ object CobblemonItemGroups {
         entries.accept(CobblemonItems.AUSPICIOUS_ARMOR)
         entries.accept(CobblemonItems.MALICIOUS_ARMOR)
         entries.accept(CobblemonItems.SHELL_HELMET)
+        entries.accept(CobblemonItems.METAL_ALLOY)
+        entries.accept(CobblemonItems.SCROLL_OF_DARKNESS)
+        entries.accept(CobblemonItems.SCROLL_OF_WATERS)
     }
 
     private fun heldItemEntries(displayContext: ItemDisplayParameters, entries: Output) {

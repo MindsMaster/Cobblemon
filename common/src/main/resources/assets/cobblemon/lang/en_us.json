@@ -162,6 +162,12 @@
   "item.cobblemon.black_augurite.tooltip": "Evolves Scyther into Kleavor",
   "item.cobblemon.peat_block": "Peat Block",
   "item.cobblemon.peat_block.tooltip": "Evolves Ursaring into Ursaluna when used during a full moon at night",
+  "item.cobblemon.metal_alloy": "Metal Alloy",
+  "item.cobblemon.metal_alloy.tooltip": "Evolves Duraludon into Archaludon",
+  "item.cobblemon.scroll_of_darkness": "Scroll of Darkness",
+  "item.cobblemon.scroll_of_darkness.tooltip": "Evolves Kubfu into Single Strike Style Urshifu",
+  "item.cobblemon.scroll_of_waters": "Scroll of Waters",
+  "item.cobblemon.scroll_of_waters.tooltip": "Evolves Kubfu into Rapid Strike Style Urshifu",
 
   "item.cobblemon.dawn_stone": "Dawn Stone",
   "item.cobblemon.dawn_stone.tooltip": "Evolves certain Pokémon",
