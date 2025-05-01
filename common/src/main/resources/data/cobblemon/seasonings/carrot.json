@@ -1,7 +1,4 @@
 {
   "ingredient": "minecraft:carrot",
-  "flavours": {
-    "BITTER": 10
-  },
   "colour": "orange"
 }

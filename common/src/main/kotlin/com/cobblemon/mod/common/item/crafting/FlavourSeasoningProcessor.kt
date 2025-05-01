@@ -31,11 +31,10 @@ object FlavourSeasoningProcessor : SeasoningProcessor {
 
         for (seasoningStack in seasoning) {
             val seasoningObj = Seasonings.getFromItemStack(seasoningStack) ?: continue
+
             val relevantFlavours = if (isPokePuff) {
                 val maxValue = seasoningObj.flavours?.maxOfOrNull { it.value } ?: continue
-                val tied = seasoningObj.flavours.filterValues { it == maxValue }
-                val selected = tied.entries.minByOrNull { flavourPriority.indexOf(it.key) } ?: continue
-                mapOf(selected.key to selected.value)
+                seasoningObj.flavours.filterValues { it == maxValue } // keep all tied max flavours
             } else {
                 seasoningObj.flavours ?: emptyMap()
             }

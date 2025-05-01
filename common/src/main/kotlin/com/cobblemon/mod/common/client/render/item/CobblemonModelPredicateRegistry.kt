@@ -101,18 +101,37 @@ object CobblemonModelPredicateRegistry {
             val id = component?.ingredientIds?.firstOrNull()?.toString() ?: return@register 0.0f
 
             return@register when (id) {
-                "minecraft:carrot" -> 0.1f
-                "minecraft:salmon" -> 0.2f
-                "minecraft:cod" -> 0.3f
-                "minecraft:rotten_flesh" -> 0.4f
-                "minecraft:pumpkin" -> 0.5f
+                "minecraft:potato" -> 0.01f
+                "minecraft:beetroot" -> 0.02f
+                "minecraft:carrot" -> 0.03f
+                "minecraft:dried_kelp" -> 0.04f
+                "cobblemon:medicinal_leek" -> 0.05f
+                "minecraft:red_mushroom" -> 0.06f
+                "minecraft:brown_mushroom" -> 0.07f
+                "minecraft:pumpkin" -> 0.08f
+                "cobblemon:rice" -> 0.09f
+                "minecraft:cooked_chicken" -> 0.10f
+                "minecraft:cooked_cod" -> 0.11f
+                "minecraft:cooked_mutton" -> 0.12f
+                "minecraft:cooked_porkchop" -> 0.13f
+                "minecraft:cooked_rabbit" -> 0.14f
+                "minecraft:cooked_salmon" -> 0.15f
+                "minecraft:cooked_beef" -> 0.16f
+                "minecraft:egg" -> 0.17f
+                "minecraft:poisonous_potato" -> 0.18f
+                "minecraft:rotten_flesh" -> 0.19f
                 else -> 0.0f
             }
         }
 
         ItemProperties.register(CobblemonItems.POKE_PUFF, cobblemonResource("poke_puff_combined")) { stack, _, _, _ ->
-            val flavour =
-                stack.get(CobblemonItemComponents.FLAVOUR)?.getDominantFlavours()?.firstOrNull()?.name?.lowercase() ?: "plain"
+            val dominantFlavours = stack.get(CobblemonItemComponents.FLAVOUR)?.getDominantFlavours()
+            val flavour = when {
+                dominantFlavours == null || dominantFlavours.isEmpty() -> "plain"
+                dominantFlavours.size > 1 -> "mild"
+                else -> dominantFlavours.first().name.lowercase()
+            }
+
             val ingredients =
                 stack.get(CobblemonItemComponents.INGREDIENT)?.ingredientIds?.map { it.toString() } ?: emptyList()
 

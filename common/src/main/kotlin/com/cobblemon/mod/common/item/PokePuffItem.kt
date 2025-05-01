@@ -40,9 +40,12 @@ class PokePuffItem(): CobblemonItem(Properties().stacksTo(16)), PokemonSelecting
     }
 
     override fun getName(stack: ItemStack): Component {
-        val flavour = stack.get(CobblemonItemComponents.FLAVOUR)
-            ?.getDominantFlavours()?.firstOrNull()
-        val flavourKey = flavour?.name?.lowercase() ?: "plain"
+        val dominantFlavours = stack.get(CobblemonItemComponents.FLAVOUR)?.getDominantFlavours()
+        val flavour = when {
+            dominantFlavours == null || dominantFlavours.isEmpty() -> "plain"
+            dominantFlavours.size > 1 -> "mild"
+            else -> dominantFlavours.first().name.lowercase()
+        }
 
         val ingredients = stack.get(CobblemonItemComponents.INGREDIENT)
             ?.ingredientIds?.map { it.toString() } ?: emptyList()
@@ -59,7 +62,7 @@ class PokePuffItem(): CobblemonItem(Properties().stacksTo(16)), PokemonSelecting
             else -> "item.cobblemon.poke_puff"
         }
 
-        val flavourTranslationKey = "flavour.cobblemon.$flavourKey"
+        val flavourTranslationKey = "flavour.cobblemon.$flavour"
         return Component.translatable(nameKey, Component.translatable(flavourTranslationKey))
     }
     

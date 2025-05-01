@@ -1,7 +1,4 @@
 {
   "ingredient": "minecraft:pumpkin",
-  "flavours": {
-    "SWEET": 10
-  },
   "colour": "orange"
 }

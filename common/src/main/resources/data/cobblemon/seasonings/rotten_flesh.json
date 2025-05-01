@@ -1,7 +1,4 @@
 {
   "ingredient": "minecraft:rotten_flesh",
-  "flavours": {
-    "SOUR": 10
-  },
-  "colour": "brown"
+  "colour": "red"
 }

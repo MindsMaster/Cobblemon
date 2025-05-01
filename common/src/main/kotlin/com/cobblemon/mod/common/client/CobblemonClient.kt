@@ -32,6 +32,7 @@ import com.cobblemon.mod.common.client.render.block.*
 import com.cobblemon.mod.common.client.render.boat.CobblemonBoatRenderer
 import com.cobblemon.mod.common.client.render.color.AprijuiceItemColorProvider
 import com.cobblemon.mod.common.client.render.color.PokeBaitItemColorProvider
+import com.cobblemon.mod.common.client.render.color.PonigiriItemColorProvider
 import com.cobblemon.mod.common.client.render.entity.PokeBobberEntityRenderer
 import com.cobblemon.mod.common.client.render.generic.GenericBedrockRenderer
 import com.cobblemon.mod.common.client.render.item.CobblemonBuiltinItemRendererRegistry
@@ -342,6 +343,7 @@ object CobblemonClient {
         implementation.registerItemColors(PokeBaitItemColorProvider, CobblemonItems.POKE_BAIT)
         implementation.registerItemColors(PokeBaitItemColorProvider, CobblemonItems.LURE_CAKE)
         implementation.registerItemColors(PokeBaitItemColorProvider, CobblemonItems.POKE_CAKE)
+        implementation.registerItemColors(PonigiriItemColorProvider, CobblemonItems.PONIGIRI)
     }
 
     fun reloadCodedAssets(resourceManager: ResourceManager) {

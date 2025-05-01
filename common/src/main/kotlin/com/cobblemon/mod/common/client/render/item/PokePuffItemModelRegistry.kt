@@ -1,7 +1,5 @@
 package com.cobblemon.mod.common.client.render.item
 
-import java.math.RoundingMode
-
 object PokePuffItemModelRegistry {
     private val modelMap = mapOf(
         "overlay_spicy" to 0.001f,
@@ -15,6 +13,7 @@ object PokePuffItemModelRegistry {
         "overlay_spicy_ribbon" to 0.009f,
         "overlay_sour_only" to 0.010f,
         "overlay_spicy_clover" to 0.011f,
+        "overlay_mild_only" to 0.012f,
         "overlay_spicy_flower" to 0.013f,
         "overlay_plain_only" to 0.014f,
         "overlay_spicy_star" to 0.015f,
@@ -50,9 +49,17 @@ object PokePuffItemModelRegistry {
         "overlay_sour_clover" to 0.045f,
         "overlay_sour_flower" to 0.046f,
         "overlay_sour_star" to 0.047f,
+        "overlay_mild" to 0.048f,
+        "overlay_mild_strawberry" to 0.049f,
+        "overlay_mild_love" to 0.050f,
+        "overlay_mild_berry" to 0.051f,
+        "overlay_mild_ribbon" to 0.052f,
         "overlay_clover" to 0.053f,
+        "overlay_mild_clover" to 0.054f,
         "overlay_flower" to 0.055f,
+        "overlay_mild_flower" to 0.056f,
         "overlay_star" to 0.057f,
+        "overlay_mild_star" to 0.058f,
         "overlay_plain" to 0.059f,
         "overlay_strawberry" to 0.060f,
         "overlay_plain_strawberry" to 0.061f,
@@ -68,6 +75,7 @@ object PokePuffItemModelRegistry {
         "overlay_strawberry_sweet" to 0.070f,
         "overlay_strawberry_bitter" to 0.071f,
         "overlay_strawberry_sour" to 0.072f,
+        "overlay_strawberry_mild" to 0.073f,
         "overlay_strawberry_plain" to 0.074f,
 
         "overlay_love_spicy" to 0.075f,
@@ -75,6 +83,7 @@ object PokePuffItemModelRegistry {
         "overlay_love_sweet" to 0.077f,
         "overlay_love_bitter" to 0.078f,
         "overlay_love_sour" to 0.079f,
+        "overlay_love_mild" to 0.080f,
         "overlay_love_plain" to 0.081f,
 
         "overlay_berry_spicy" to 0.082f,
@@ -82,6 +91,7 @@ object PokePuffItemModelRegistry {
         "overlay_berry_sweet" to 0.084f,
         "overlay_berry_bitter" to 0.085f,
         "overlay_berry_sour" to 0.086f,
+        "overlay_berry_mild" to 0.087f,
         "overlay_berry_plain" to 0.088f,
 
         "overlay_ribbon_spicy" to 0.089f,
@@ -89,6 +99,7 @@ object PokePuffItemModelRegistry {
         "overlay_ribbon_sweet" to 0.091f,
         "overlay_ribbon_bitter" to 0.092f,
         "overlay_ribbon_sour" to 0.093f,
+        "overlay_ribbon_mild" to 0.094f,
         "overlay_ribbon_plain" to 0.095f,
 
         "overlay_clover_spicy" to 0.096f,
@@ -96,6 +107,7 @@ object PokePuffItemModelRegistry {
         "overlay_clover_sweet" to 0.098f,
         "overlay_clover_bitter" to 0.099f,
         "overlay_clover_sour" to 0.100f,
+        "overlay_clover_mild" to 0.101f,
         "overlay_clover_plain" to 0.102f,
 
         "overlay_flower_spicy" to 0.103f,
@@ -103,6 +115,7 @@ object PokePuffItemModelRegistry {
         "overlay_flower_sweet" to 0.105f,
         "overlay_flower_bitter" to 0.106f,
         "overlay_flower_sour" to 0.107f,
+        "overlay_flower_mild" to 0.108f,
         "overlay_flower_plain" to 0.109f,
 
         "overlay_star_spicy" to 0.110f,
@@ -110,6 +123,7 @@ object PokePuffItemModelRegistry {
         "overlay_star_sweet" to 0.112f,
         "overlay_star_bitter" to 0.113f,
         "overlay_star_sour" to 0.114f,
+        "overlay_star_mild" to 0.115f,
         "overlay_star_plain" to 0.116f
     )
 
