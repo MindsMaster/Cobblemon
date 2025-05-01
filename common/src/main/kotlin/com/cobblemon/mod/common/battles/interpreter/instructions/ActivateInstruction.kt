@@ -92,7 +92,6 @@ class ActivateInstruction(val instructionSet: InstructionSet, val message: Battl
                         pokemon.effectedPokemon.exchangeMove(oldMove = it, newMove = template)
                     }
                 }
-
             }
 
             val lang = when (effect.id) {
