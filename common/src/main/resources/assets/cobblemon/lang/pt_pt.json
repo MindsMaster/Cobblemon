@@ -2172,7 +2172,6 @@
     "cobblemon.trade.error.pending": "Tu já tens um pedido de troca pendente de %1$s!",
     "cobblemon.trade.decline.sender": "%1$s recusou o teu pedido de troca...",
     "cobblemon.ui.pc.options": "Opções",
-    "cobblemon.ui.pc.filter": "",
     "cobblemon.ui.sort.gender": "Ordenar por género",
     "cobblemon.ui.sort.type": "Ordenar por tipo",
     "cobblemon.ui.sort.level": "Ordenar por nível",

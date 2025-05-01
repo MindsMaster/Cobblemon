@@ -6984,8 +6984,6 @@
     "cobblemon.battle.enditem.babiriberry": "霹霹果減輕了對 %1$ 造成的傷害",
     "cobblemon.battle.enditem.chilanberry": "燈漿果減輕了對 %1$ 造成的傷害",
     "npc.variable.challenge_cooldown.name": "挑戰冷卻時間",
-    "npc.variable.home_x.name": "",
-    "npc.variable.on_defeat.name": "",
     "cobblemon.move.visegrip.desc": "從兩側夾住對手，給予傷害。",
     "cobblemon.move.twinkletackle": "可愛星星飛天撞",
     "cobblemon.move.twinkletackle.desc": "透過Ｚ力量製造魅惑空間，全力玩弄對手，威力會隨原本的招式而改變。"
