@@ -74,6 +74,8 @@
 - Smoliv
 - Dolliv
 - Arboliva
+- Tarountula
+- Spidops
 - Orthworm
 - Dudunsparce
 - Cyclizar
@@ -139,6 +141,7 @@
 - Clodsire
 - Scyther
 - Scizor
+- Cacturne
 - Added Syrupy Apples.
 
 ### Changes
