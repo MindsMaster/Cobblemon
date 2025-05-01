@@ -36,5 +36,13 @@
 				"species": "cobblemon:arctovish"
 			}
     }
-  }
+  },
+  "requirements": [
+    [
+      "resurrected_arctovish",
+      "resurrected_arctozolt",
+      "resurrected_dracovish",
+      "resurrected_dracozolt"
+    ]
+  ]
 }
