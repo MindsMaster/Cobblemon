@@ -15,8 +15,11 @@ import com.cobblemon.mod.common.api.apricorn.Apricorn
 import com.cobblemon.mod.common.api.cooking.Flavour
 import com.cobblemon.mod.common.api.item.PokemonSelectingItem
 import com.cobblemon.mod.common.api.riding.stats.RidingStat
+import com.cobblemon.mod.common.client.pot.CookingQuality
 import com.cobblemon.mod.common.pokemon.Nature
 import com.cobblemon.mod.common.pokemon.Pokemon
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.Component.translatable
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
@@ -35,7 +38,27 @@ class AprijuiceItem(val type: Apricorn): CobblemonItem(Properties().stacksTo(16)
         const val STRONG_APRICORN_MULTIPLIER = 1.25F
         const val WEAK_APRICORN_MULTIPLIER = 0.75F
     }
-    
+
+    override fun getName(stack: ItemStack): Component {
+        val quality = stack.get(CobblemonItemComponents.FLAVOUR)?.getQuality()
+        val baseNameKey = "item.cobblemon.aprijuice_${type.name.lowercase()}"
+
+        val prefixKey = when (quality) {
+            CookingQuality.HIGH -> "item.cobblemon.aprijuice.prefix.delicious"
+            CookingQuality.MEDIUM -> "item.cobblemon.aprijuice.prefix.tasty"
+            else -> null
+        }
+
+        return if (prefixKey != null) {
+            Component.translatable("item.cobblemon.aprijuice.quality_format",
+                Component.translatable(prefixKey),
+                Component.translatable(baseNameKey)
+            )
+        } else {
+            Component.translatable(baseNameKey)
+        }
+    }
+
     override fun canUseOnPokemon(stack: ItemStack, pokemon: Pokemon): Boolean {
         return getBoosts(stack, pokemon).any { pokemon.canAddRideBoost(it.key, it.value) }
     }
