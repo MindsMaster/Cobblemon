@@ -2,7 +2,7 @@
   "parent": "cobblemon:resurrect_pokemon",
   "display": {
     "icon": {
-      "id": "cobblemon:restoration_tank"
+      "id": "cobblemon:fossil_analyzer"
     },
     "title": {
       "translate": "advancements.cobblemon.resurrect_galar_fossil"

@@ -2563,6 +2563,8 @@
   "advancements.cobblemon.craft_master_rod.description": "Craft a Poké Rod using a Master Ball",
   "advancements.cobblemon.craft_pokedex": "Researcher Recruit",
   "advancements.cobblemon.craft_pokedex.description": "Craft a Pokédex out of Apricorns, Iron, Copper, and any glowing powder",
+  "advancements.cobblemon.ride_pokemon": "Pokémon Jockey!",
+  "advancements.cobblemon.ride_pokemon.description": "Ride a Pokémon for the first time",
 
   "cobblemon.battle.crash": "A battle error has occurred. If playing single-player, report this to the mod team. Otherwise, report this to the servers administrator.",
   "cobblemon.battle.damage_dealt": "%1$s took %2$s damage!",
