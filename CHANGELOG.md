@@ -21,6 +21,7 @@
 - Fixed Moon Ball moon phase logic to actually work correctly
 - Added `translucent_cull` boolean option into resolver's layer to allow for translucent textures with culling
 - Added [LambDynamicLights](https://modrinth.com/mod/lambdynamiclights) support for items held by Pokémon.
+- Added modification to Minecraft Creative Inventory search to account for item names that contain `poké` when input contains `poke`.
 
 ### Pokémon Added
 
