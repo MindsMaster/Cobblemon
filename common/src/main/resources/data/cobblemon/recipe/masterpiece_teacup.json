@@ -1,7 +1,7 @@
 {
     "type": "minecraft:crafting_shaped",
     "pattern": [
-        "C C",
+        "CTC",
         "QCQ"
     ],
     "key": {
@@ -10,9 +10,13 @@
         },
         "C": {
             "item": "minecraft:clay_ball"
+        },
+        "T": {
+            "item": "cobblemon:masterpiece_teacup"
         }
     },
     "result": {
-        "id": "cobblemon:unremarkable_teacup"
+        "id": "cobblemon:masterpiece_teacup",
+        "count": 2
     }
 }
