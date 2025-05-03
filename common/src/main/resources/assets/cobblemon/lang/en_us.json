@@ -757,6 +757,10 @@
   "item.cobblemon.aprijuice_white": "White Aprijuice",
   "item.cobblemon.aprijuice_yellow": "Yellow Aprijuice",
 
+  "item.cobblemon.aprijuice.prefix.tasty": "Tasty",
+  "item.cobblemon.aprijuice.prefix.delicious": "Delicious",
+  "item.cobblemon.aprijuice.quality_format": "%1$s %2$s",
+
   "item.cobblemon.relic_coin": "Relic Coin",
   "block.cobblemon.relic_coin_pouch": "Relic Coin Pouch",
   "block.cobblemon.relic_coin_sack": "Relic Coin Sack",

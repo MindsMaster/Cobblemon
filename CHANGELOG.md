@@ -22,6 +22,7 @@
 - Added `translucent_cull` boolean option into resolver's layer to allow for translucent textures with culling
 - Added [LambDynamicLights](https://modrinth.com/mod/lambdynamiclights) support for items held by Pokémon.
 - Added the Clear Amulet, Grip Claw, Lagging Tail, Luminous Moss, Metal Alloy, Scroll of Darkness, Scroll of Waters
+- Added modification to Minecraft Creative Inventory search to account for item names that contain `poké` when input contains `poke`.
 
 ### Pokémon Added
 
@@ -171,6 +172,7 @@
 - Fixed dragon's breath not being usable on the restoration tank when it should be
 - Fixed Moon Stones not interacting properly with dripstone blocks.
 - Fixed some effects like particles from fishing rods appearing for players in the same coordinates in another world.
+- Fixed an issue with Sketch where the Pokémon using Sketch would not properly learn moves with special characters in their name (e.g. King's Shield, Baby-Doll Eyes, etc.)
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
