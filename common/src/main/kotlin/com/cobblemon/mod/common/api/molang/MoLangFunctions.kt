@@ -812,6 +812,10 @@ object MoLangFunctions {
                 npc.hideNameTag = !nameTagVisible
                 return@put DoubleValue.ONE
             }
+            map.put("unset_interaction") {
+                npc.interaction = null
+                return@put DoubleValue.ONE
+            }
             map.put("set_dialogue_interaction") { params ->
                 val dialogue = params.getString(0).asIdentifierDefaultingNamespace()
                 npc.interaction = DialogueNPCInteractionConfiguration().also {
