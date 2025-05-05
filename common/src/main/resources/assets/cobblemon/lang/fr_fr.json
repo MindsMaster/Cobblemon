@@ -6018,7 +6018,7 @@
     "cobblemon.ui.pokedex.info.drops_percentage": "%1$s%%",
     "cobblemon.ui.pokedex.info.variation": "Variante",
     "cobblemon.ui.pokedex.info.form": "Forme",
-    "cobblemon.ui.pokedex.info.form.normal": " ",
+    "cobblemon.ui.pokedex.info.form.normal": "Standard",
     "cobblemon.ui.pokedex.info.form.alola": "Forme d'Alola",
     "cobblemon.ui.pokedex.info.form.region-bias-alola": "Aspect d'Alola",
     "cobblemon.ui.pokedex.info.form.galar": "Forme de Galar",
