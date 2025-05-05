@@ -32,7 +32,8 @@
         "NONE"
       ],
       "animations": [
-        "q.look('head')",
+        "q.look('horn2', 0.5, 0)",
+        "q.look('body', 0.5, 1)",
         "q.bedrock('sigilyph', 'air_idle')"
       ],
       "quirks": [
@@ -47,6 +48,8 @@
         "SWIM"
       ],
       "animations": [
+        "q.look('horn2', 0.5, 0)",
+        "q.look('body', 0.5, 1)",
         "q.bedrock('sigilyph', 'air_fly')"
       ],
       "quirks": [
