@@ -32,6 +32,7 @@ import com.cobblemon.mod.common.api.moves.animations.ActionEffectContext
 import com.cobblemon.mod.common.api.moves.animations.ActionEffects
 import com.cobblemon.mod.common.api.moves.animations.NPCProvider
 import com.cobblemon.mod.common.api.npc.NPCClasses
+import com.cobblemon.mod.common.api.npc.configuration.interaction.DialogueNPCInteractionConfiguration
 import com.cobblemon.mod.common.api.npc.configuration.interaction.ScriptNPCInteractionConfiguration
 import com.cobblemon.mod.common.api.npc.partyproviders.SimplePartyProvider
 import com.cobblemon.mod.common.api.pokedex.AbstractPokedexManager
@@ -809,6 +810,17 @@ object MoLangFunctions {
             map.put("set_name_tag_visible") { params ->
                 val nameTagVisible = params.getBooleanOrNull(0) != false
                 npc.hideNameTag = !nameTagVisible
+                return@put DoubleValue.ONE
+            }
+            map.put("unset_interaction") {
+                npc.interaction = null
+                return@put DoubleValue.ONE
+            }
+            map.put("set_dialogue_interaction") { params ->
+                val dialogue = params.getString(0).asIdentifierDefaultingNamespace()
+                npc.interaction = DialogueNPCInteractionConfiguration().also {
+                    it.dialogue = dialogue
+                }
                 return@put DoubleValue.ONE
             }
             map.put("set_script_interaction") { params ->
