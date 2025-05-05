@@ -8,9 +8,13 @@
 
 package com.cobblemon.mod.common.client.render.item
 
+import com.cobblemon.mod.common.CobblemonItemComponents
 import com.cobblemon.mod.common.CobblemonItems
+import com.cobblemon.mod.common.client.pot.CookingQuality
 import com.cobblemon.mod.common.entity.fishing.PokeRodFishingBobberEntity
 import com.cobblemon.mod.common.item.interactive.PokerodItem
+import com.cobblemon.mod.common.util.cobblemonResource
+import net.minecraft.ChatFormatting
 import net.minecraft.client.renderer.item.ItemProperties
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Player
@@ -90,6 +94,28 @@ object CobblemonModelPredicateRegistry {
             }
         }
 
+        val aprijuice = listOf(
+            CobblemonItems.APRIJUICE_BLACK,
+            CobblemonItems.APRIJUICE_GREEN,
+            CobblemonItems.APRIJUICE_WHITE,
+            CobblemonItems.APRIJUICE_BLUE,
+            CobblemonItems.APRIJUICE_PINK,
+            CobblemonItems.APRIJUICE_RED,
+            CobblemonItems.APRIJUICE_YELLOW,
+        )
+
+        aprijuice.forEach { aprijuice ->
+            ItemProperties.register(aprijuice, cobblemonResource("aprijuice_quality")) { stack, world, entity, seed ->
+                val flavourComponent = stack.get(CobblemonItemComponents.FLAVOUR) ?: return@register 0.0f
+                val quality = flavourComponent.getQuality()
+
+                return@register when (quality) {
+                    CookingQuality.LOW -> 0.0f
+                    CookingQuality.MEDIUM -> 0.1f
+                    CookingQuality.HIGH -> 0.2f
+                }
+            }
+        }
 
 
     }
