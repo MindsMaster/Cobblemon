@@ -7262,5 +7262,16 @@
     "cobblemon.mark.ribbon_effort.desc": "赠予勤奋努力的宝可梦的奖章。",
     "cobblemon.mark.ribbon_event": "活动奖章",
     "cobblemon.mark.ribbon_event.title": "%1$s 参加了活动的",
-    "cobblemon.mark.ribbon_event.desc": "参加了宝可梦活动的纪念奖章。"
+    "cobblemon.mark.ribbon_event.desc": "参加了宝可梦活动的纪念奖章。",
+    "cobblemon.mark.ribbon_artist.title": "%1$s 被当做了绘画模版",
+    "cobblemon.mark.ribbon_battle_royal_master.title": "%1$s 皇家大师",
+    "cobblemon.mark.ribbon_battle_tree_great.title": "%1$s 对战树赢家",
+    "cobblemon.mark.ribbon_battle_tree_master.title": "%1$s 对战树大师",
+    "cobblemon.mark.ribbon_battle_tower_master.title": "%1$s 对战塔大师",
+    "cobblemon.mark.ribbon_battler_expert.title": "%1$s 大师",
+    "cobblemon.mark.ribbon_battler_skillful.title": "%1$s 老手",
+    "cobblemon.mark.ribbon_best_friends.title": "%1$s 挚友",
+    "cobblemon.mark.ribbon_champion.title": "%1$s冠军",
+    "cobblemon.mark.ribbon_champion_alola.title": "%1$s阿罗拉冠军",
+    "cobblemon.mark.ribbon_champion_galar.title": "%1$s 伽勒尔冠军"
 }
