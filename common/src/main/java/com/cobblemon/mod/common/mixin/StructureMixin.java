@@ -33,7 +33,7 @@ public abstract class StructureMixin {
     @Shadow
     public abstract Optional<Structure.GenerationStub> findValidGenerationPoint(Structure.GenerationContext context);
 
-    // Define a set of structures that should not spawn below Y=65
+    // Define a set of structures that should not spawn below Sea Level
     private static final Set<ResourceLocation> RESTRICTED_STRUCTURES = new HashSet<>();
 
     static {
@@ -53,7 +53,7 @@ public abstract class StructureMixin {
             if (RESTRICTED_STRUCTURES.contains(structureKey)) {
                 StructurePiecesBuilder structurePiecesBuilder = optional.get().getPiecesBuilder();
                 for (StructurePiece piece : structurePiecesBuilder.build().pieces()) {
-                    if (piece.getBoundingBox().minY() < 65) {
+                    if (piece.getBoundingBox().minY() < chunkGenerator.getSeaLevel()) {
                         cir.setReturnValue(StructureStart.INVALID_START);
                         return;
                     }
