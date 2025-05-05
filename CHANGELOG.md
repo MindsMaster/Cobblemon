@@ -171,6 +171,7 @@
 - Fixed Moon Stones not interacting properly with dripstone blocks.
 - Fixed some effects like particles from fishing rods appearing for players in the same coordinates in another world.
 - Fixed an issue with Sketch where the Pokémon using Sketch would not properly learn moves with special characters in their name (e.g. King's Shield, Baby-Doll Eyes, etc.)
+- Fixed wild Pokémon sometimes spawning with incorrect friendship values
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
