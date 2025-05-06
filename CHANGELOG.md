@@ -98,6 +98,9 @@
 - Wailmer
 - Lechonk
 - Oinkologne
+- Dratini
+- Dragonair
+- Dragonite
 
 ### Model updates for the following Pokémon
 - Gyarados

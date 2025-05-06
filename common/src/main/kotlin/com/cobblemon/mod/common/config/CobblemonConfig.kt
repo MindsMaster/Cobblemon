@@ -281,7 +281,7 @@ class CobblemonConfig {
     var disableRoll = false
 
     @CobblemonConfigField(Category.Debug, lang = "enable_debug_keys")
-    var enableDebugKeys = false
+    var enableDebugKeys = true
 
     fun clone(): CobblemonConfig {
         val newConfig = CobblemonConfig()
