@@ -123,7 +123,7 @@ class BrewingStandMenu(
 
         companion object {
             fun mayPlaceItem(stack: ItemStack): Boolean {
-                return stack.`is`(Items.POTION) ||
+                return stack.`is`(Items.POTION) || 
                         stack.`is`(Items.SPLASH_POTION) ||
                         stack.`is`(Items.LINGERING_POTION) ||
                         stack.`is`(Items.GLASS_BOTTLE)
