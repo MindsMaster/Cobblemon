@@ -42,6 +42,7 @@
   ],
   "mixins": [
     "BeeEntityMixin",
+    "BrewingStandBlockMixin",
     "ChunkStorageMixin",
     "CrashReportMixin",
     "DecoratedPotPatternsMixin",

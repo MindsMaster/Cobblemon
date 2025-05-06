@@ -14,15 +14,18 @@ import com.cobblemon.mod.common.CobblemonBlocks
 import com.cobblemon.mod.common.CobblemonClientImplementation
 import com.cobblemon.mod.common.CobblemonEntities
 import com.cobblemon.mod.common.CobblemonItems
+import com.cobblemon.mod.common.CobblemonMenuType.BREWING_STAND
 import com.cobblemon.mod.common.CobblemonMenuType.COOKING_POT
 import com.cobblemon.mod.common.api.berry.Berries
 import com.cobblemon.mod.common.api.scheduling.ClientTaskTracker
 import com.cobblemon.mod.common.api.storage.player.client.ClientGeneralPlayerData
 import com.cobblemon.mod.common.api.storage.player.client.ClientPokedexManager
 import com.cobblemon.mod.common.api.tags.CobblemonItemTags
+import com.cobblemon.mod.common.block.brewingstand.BrewingStandBlock
 import com.cobblemon.mod.common.client.battle.ClientBattle
 import com.cobblemon.mod.common.client.gui.PartyOverlay
 import com.cobblemon.mod.common.client.gui.battle.BattleOverlay
+import com.cobblemon.mod.common.client.gui.brewingstand.BrewingStandScreen
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotScreen
 import com.cobblemon.mod.common.client.particle.BedrockParticleOptionsRepository
 import com.cobblemon.mod.common.client.render.block.CandlePokeCakeBlockEntityRenderer
@@ -268,6 +271,7 @@ object CobblemonClient {
             CobblemonBlocks.POKE_CAKE,
             CobblemonBlocks.LECTERN,
             CobblemonBlocks.CAMPFIRE,
+            CobblemonBlocks.BREWING_STAND,
             CobblemonBlocks.BLACK_CAMPFIRE_POT,
             CobblemonBlocks.BLUE_CAMPFIRE_POT,
             CobblemonBlocks.GREEN_CAMPFIRE_POT,
@@ -301,6 +305,7 @@ object CobblemonClient {
 
     private fun registerMenuScreens() {
         MenuScreens.register(COOKING_POT, ::CookingPotScreen)
+        MenuScreens.register(BREWING_STAND, ::BrewingStandScreen)
     }
 
     private fun registerBlockEntityRenderers() {
@@ -314,6 +319,7 @@ object CobblemonClient {
         this.implementation.registerBlockEntityRenderer(CobblemonBlockEntities.DISPLAY_CASE, ::DisplayCaseRenderer)
         this.implementation.registerBlockEntityRenderer(CobblemonBlockEntities.LECTERN, ::LecternBlockEntityRenderer)
         this.implementation.registerBlockEntityRenderer(CobblemonBlockEntities.CAMPFIRE, ::CampfireBlockEntityRenderer)
+        this.implementation.registerBlockEntityRenderer(CobblemonBlockEntities.BREWING_STAND, ::BrewingStandBlockEntityRenderer)
         this.implementation.registerBlockEntityRenderer(CobblemonBlockEntities.LURE_CAKE, ::CakeBlockEntityRenderer)
         this.implementation.registerBlockEntityRenderer(CobblemonBlockEntities.POKE_CAKE, ::CakeBlockEntityRenderer)
         this.implementation.registerBlockEntityRenderer(CobblemonBlockEntities.CANDLE_POKE_CAKE, ::CandlePokeCakeBlockEntityRenderer)

@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common
 
 
+import com.cobblemon.mod.common.block.brewingstand.BrewingStandMenu
 import com.cobblemon.mod.common.block.campfirepot.CookingPotMenu
 import com.cobblemon.mod.common.client.gui.cookingpot.CookingPotScreen
 import com.cobblemon.mod.common.platform.PlatformRegistry
@@ -22,6 +23,7 @@ import net.minecraft.world.inventory.MenuType
 object CobblemonMenuType : PlatformRegistry<Registry<MenuType<*>>, ResourceKey<Registry<MenuType<*>>>, MenuType<*>>() {
 
     val COOKING_POT = MenuType.register("cooking_pot", ::CookingPotMenu)
+    val BREWING_STAND = MenuType.register("brewing_stand", ::BrewingStandMenu)
 
     override val registry: Registry<MenuType<*>>
         get() = BuiltInRegistries.MENU
