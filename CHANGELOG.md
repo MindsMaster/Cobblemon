@@ -137,6 +137,7 @@
 - A number of Pokemon that float above the ground visually (Gastly, Klingklang, etc.)  are no longer considered to be touching the ground
 - Renamed `pokemonId` and `type` to `species` in relevant Advancement triggers for conformity, this is a breaking change.
 - Added a separate `species` argument to the `pick_starter`, `pasture_use` and `resurrect_pokemon` Advancement triggers.
+- Made `CobblemonAgingDespawner` thresholds configurable via the config file.
 
 ### Fixes
 - Fixed Particles sometimes facing the wrong direction (looking at you, Swords Dance)
