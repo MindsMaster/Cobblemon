@@ -12,6 +12,7 @@ import com.cobblemon.mod.common.*
 import com.cobblemon.mod.common.advancement.CobblemonCriteria
 import com.cobblemon.mod.common.advancement.predicate.CobblemonEntitySubPredicates
 import com.cobblemon.mod.common.api.net.serializers.*
+import com.cobblemon.mod.common.data.StarterDataLoader
 import com.cobblemon.mod.common.item.group.CobblemonItemGroups
 import com.cobblemon.mod.common.loot.LootInjector
 import com.cobblemon.mod.common.particle.CobblemonParticles
@@ -202,6 +203,13 @@ object CobblemonFabric : CobblemonImplementation {
         LootTableEvents.MODIFY.register { id, tableBuilder, source ->
             LootInjector.attemptInjection(id.location(), tableBuilder::withPool)
         }
+
+        registerResourceReloader(
+            cobblemonResource("starters"),
+            StarterDataLoader,
+            PackType.SERVER_DATA,
+            emptyList()
+        )
 
         CommandRegistrationCallback.EVENT.register(CobblemonCommands::register)
     }
