@@ -5,10 +5,10 @@ import net.minecraft.world.item.crafting.RecipeInput
 
 class BrewingStandInput : RecipeInput {
     override fun getItem(index: Int): ItemStack? {
-        TODO("Not yet implemented")
+        return ItemStack.EMPTY
     }
 
     override fun size(): Int {
-        TODO("Not yet implemented")
+        return 0
     }
 }

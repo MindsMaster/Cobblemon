@@ -24,18 +24,19 @@ class BrewingStandRecipe(
         input: BrewingStandInput,
         level: Level
     ): Boolean {
-        TODO("Not yet implemented")
+        return false
     }
 
     override fun assemble(
         input: BrewingStandInput,
         registries: HolderLookup.Provider
     ): ItemStack? {
-        TODO("Not yet implemented")
+        return ItemStack.EMPTY
     }
+    
 
     override fun getResultItem(registries: HolderLookup.Provider): ItemStack? {
-        TODO("Not yet implemented")
+        return ItemStack.EMPTY
     }
 
     class Serializer : RecipeSerializer<BrewingStandRecipe> {
