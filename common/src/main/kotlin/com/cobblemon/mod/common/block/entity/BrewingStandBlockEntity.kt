@@ -1,40 +1,46 @@
 package com.cobblemon.mod.common.block.entity
 
 import com.cobblemon.mod.common.CobblemonBlockEntities
-import com.cobblemon.mod.common.CobblemonBlocks
 import com.cobblemon.mod.common.block.brewingstand.BrewingStandBlock
 import com.cobblemon.mod.common.block.brewingstand.BrewingStandMenu
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.core.HolderLookup
 import net.minecraft.core.NonNullList
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.ContainerHelper
 import net.minecraft.world.Containers
 import net.minecraft.world.WorldlyContainer
 import net.minecraft.world.entity.player.Inventory
+import net.minecraft.world.entity.player.StackedContents
 import net.minecraft.world.inventory.AbstractContainerMenu
 import net.minecraft.world.inventory.ContainerData
+import net.minecraft.world.inventory.CraftingContainer
+import net.minecraft.world.inventory.RecipeCraftingHolder
+import net.minecraft.world.inventory.StackedContentsCompatible
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.alchemy.PotionBrewing
+import net.minecraft.world.item.crafting.RecipeHolder
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity
-import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
 import org.jetbrains.annotations.Nullable
 import java.util.*
 
 class BrewingStandBlockEntity(pos: BlockPos, state: BlockState) :
-    BaseContainerBlockEntity(CobblemonBlockEntities.BREWING_STAND, pos, state), WorldlyContainer {
+    BaseContainerBlockEntity(CobblemonBlockEntities.BREWING_STAND, pos, state), WorldlyContainer, RecipeCraftingHolder, StackedContentsCompatible, CraftingContainer {
 
     private var items: NonNullList<ItemStack> = NonNullList.withSize(5, ItemStack.EMPTY)
     var brewTime: Int = 0
     private var lastPotionCount: BooleanArray? = null
     private var ingredient: Item? = null
     var fuel: Int = 0
+    private val recipesUsed: Object2IntOpenHashMap<ResourceLocation> = Object2IntOpenHashMap()
 
     companion object {
         private const val INGREDIENT_SLOT = 3
@@ -120,6 +126,13 @@ class BrewingStandBlockEntity(pos: BlockPos, state: BlockState) :
     override fun getDefaultName(): Component = Component.translatable("container.brewing")
 
     override fun getContainerSize(): Int = items.size
+    override fun getWidth(): Int {
+        return 1
+    }
+
+    override fun getHeight(): Int {
+        return 1
+    }
 
     override fun getItems(): NonNullList<ItemStack> = items
 
@@ -158,6 +171,7 @@ class BrewingStandBlockEntity(pos: BlockPos, state: BlockState) :
             in 0..2 -> (stack.`is`(Items.POTION) || stack.`is`(Items.SPLASH_POTION) ||
                     stack.`is`(Items.LINGERING_POTION) || stack.`is`(Items.GLASS_BOTTLE)) &&
                     getItem(slot).isEmpty
+
             else -> false
         }
     }
@@ -199,5 +213,22 @@ class BrewingStandBlockEntity(pos: BlockPos, state: BlockState) :
         }
 
         override fun getCount(): Int = 2
+    }
+
+    override fun setRecipeUsed(recipe: RecipeHolder<*>?) {
+        if (recipe != null) {
+            val resourceLocation = recipe.id()
+            this.recipesUsed.addTo(resourceLocation, 1)
+        }
+    }
+
+    override fun getRecipeUsed(): RecipeHolder<*>? {
+        return null
+    }
+
+    override fun fillStackedContents(contents: StackedContents) {
+        for (itemStack in this.items) {
+            contents.accountSimpleStack(itemStack);
+        }
     }
 }
