@@ -47,7 +47,7 @@ public class RecipeBookComponentMixin {
 
         for (RecipeBookTabButton recipeBookTabButton : instance.tabButtons) {
             RecipeBookCategories recipeBookCategories = recipeBookTabButton.getCategory();
-            if (recipeBookCategories != RecipeBookCategories.CRAFTING_SEARCH && recipeBookCategories != RecipeBookCategories.FURNACE_SEARCH && recipeBookCategories != CobblemonRecipeCategories.COOKING_POT_SEARCH.toVanillaCategory()) {
+            if (recipeBookCategories != RecipeBookCategories.CRAFTING_SEARCH && recipeBookCategories != RecipeBookCategories.FURNACE_SEARCH && recipeBookCategories != CobblemonRecipeCategories.COOKING_POT_SEARCH.toVanillaCategory() && recipeBookCategories != CobblemonRecipeCategories.BREWING_STAND.toVanillaCategory()) {
                 if (recipeBookTabButton.updateVisibility(book)) {
                     recipeBookTabButton.setPosition(i, j + 27 * l++);
                     recipeBookTabButton.startAnimation(minecraft);

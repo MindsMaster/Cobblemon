@@ -12,6 +12,7 @@ import com.cobblemon.mod.common.CobblemonRecipeCategories;
 import com.cobblemon.mod.common.item.crafting.CookingPotBookCategory;
 import com.cobblemon.mod.common.item.crafting.CookingPotRecipe;
 import com.cobblemon.mod.common.item.crafting.CookingPotShapelessRecipe;
+import com.cobblemon.mod.common.item.crafting.brewingstand.BrewingStandRecipe;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -60,7 +61,10 @@ public abstract class ClientRecipeBookMixin {
                 default -> throw new MatchException(null, null);
             }
             cir.setReturnValue(var7);
+        } else if (recipe2 instanceof BrewingStandRecipe) {
+            cir.setReturnValue(CobblemonRecipeCategories.BREWING_STAND.toVanillaCategory());
         }
+        
     }
 
     @Inject(method = "setupCollections", at = @At("RETURN"))
