@@ -204,13 +204,6 @@ object CobblemonFabric : CobblemonImplementation {
             LootInjector.attemptInjection(id.location(), tableBuilder::withPool)
         }
 
-        registerResourceReloader(
-            cobblemonResource("starters"),
-            StarterDataLoader,
-            PackType.SERVER_DATA,
-            emptyList()
-        )
-
         CommandRegistrationCallback.EVENT.register(CobblemonCommands::register)
     }
 

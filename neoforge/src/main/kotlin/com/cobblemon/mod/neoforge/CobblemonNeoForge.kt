@@ -158,13 +158,6 @@ class CobblemonNeoForge : CobblemonImplementation {
             this.attemptModCompat()
         }
         Cobblemon.initialize()
-
-        registerResourceReloader(
-            cobblemonResource("starters"),
-            StarterDataLoader,
-            PackType.SERVER_DATA,
-            emptyList()
-        )
     }
 
     // This event gets fired before init, so we need to put resource packs in EARLY
