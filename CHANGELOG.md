@@ -59,6 +59,9 @@
 - Gothita
 - Gothorita
 - Gothitelle
+- Solosis
+- Duosion
+- Reuniclus
 
 #### Gen 6
 - Noibat
