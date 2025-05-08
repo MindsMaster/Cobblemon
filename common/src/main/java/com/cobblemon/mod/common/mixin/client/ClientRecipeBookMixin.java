@@ -12,6 +12,7 @@ import com.cobblemon.mod.common.CobblemonRecipeCategories;
 import com.cobblemon.mod.common.item.crafting.CookingPotBookCategory;
 import com.cobblemon.mod.common.item.crafting.CookingPotRecipe;
 import com.cobblemon.mod.common.item.crafting.CookingPotShapelessRecipe;
+import com.cobblemon.mod.common.item.crafting.brewingstand.BrewingStandBookCategory;
 import com.cobblemon.mod.common.item.crafting.brewingstand.BrewingStandRecipe;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -62,7 +63,13 @@ public abstract class ClientRecipeBookMixin {
             }
             cir.setReturnValue(var7);
         } else if (recipe2 instanceof BrewingStandRecipe) {
-            cir.setReturnValue(CobblemonRecipeCategories.BREWING_STAND.toVanillaCategory());
+            BrewingStandBookCategory category = ((BrewingStandRecipe) recipe2).getCategory();
+            RecipeBookCategories var7;
+            switch (category) {
+                case BrewingStandBookCategory.FOODS -> var7 = CobblemonRecipeCategories.BREWING_STAND_FOOD.toVanillaCategory();
+                default -> throw new MatchException(null, null);
+            }
+            cir.setReturnValue(var7);
         }
         
     }

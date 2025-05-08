@@ -17,7 +17,8 @@ enum class CobblemonRecipeCategories {
     COOKING_POT_MEDICINES("COOKING_POT_MEDICINES"),
     COOKING_POT_BAITS("COOKING_POT_BAITS"),
     COOKING_POT_MISC("COOKING_POT_MISC"),
-    BREWING_STAND("BREWING_STAND");
+    BREWING_STAND("BREWING_STAND"),
+    BREWING_STAND_FOOD("BREWING_STAND_FOOD"),;
     
     companion object {
         val customAggregateCategories: Map<RecipeBookCategories, List<RecipeBookCategories>> = mapOf(
@@ -25,7 +26,7 @@ enum class CobblemonRecipeCategories {
                 COOKING_POT_FOODS.toVanillaCategory(), COOKING_POT_MISC.toVanillaCategory(), COOKING_POT_MEDICINES.toVanillaCategory(), COOKING_POT_BAITS.toVanillaCategory()
             ),
             BREWING_STAND.toVanillaCategory() to listOf(
-                BREWING_STAND.toVanillaCategory()
+                BREWING_STAND_FOOD.toVanillaCategory()
             )
         )
     }

@@ -28,6 +28,7 @@ public class RecipeBookSettingsMixin {
     @Inject(method = "<init>", at = @At("TAIL"))
     private void cobblemon$init(CallbackInfo ci) {
         states.put(RecipeBookType.valueOf("COOKING_POT"), new RecipeBookSettings.TypeSettings(true, true));
+        states.put(RecipeBookType.valueOf("BREWING_STAND"), new RecipeBookSettings.TypeSettings(true, true));
     }
 
 }

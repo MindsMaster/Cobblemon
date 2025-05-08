@@ -43,7 +43,7 @@ class BrewingStandRecipe(
         companion object {
             val CODEC: MapCodec<BrewingStandRecipe> = RecordCodecBuilder.mapCodec { instance ->
                 instance.group(
-                    BrewingStandBookCategory.Companion.CODEC.fieldOf("category").orElse(BrewingStandBookCategory.MISC)
+                    BrewingStandBookCategory.Companion.CODEC.fieldOf("category").orElse(BrewingStandBookCategory.FOODS)
                         .forGetter { recipe -> recipe.category }
                 ).apply(instance, ::BrewingStandRecipe)
             }

@@ -131,15 +131,21 @@ class BrewingStandMenu(
     fun getFuel(): Int = brewingStandData[1]
     fun getBrewingTicks(): Int = brewingStandData[0]
     override fun fillCraftSlotsStackedContents(itemHelper: StackedContents) {
-        TODO("Not yet implemented")
+        for (i in 0 until brewingStand.containerSize) {
+            val itemStack = brewingStand.getItem(i)
+            if (itemStack.isEmpty) continue
+            itemHelper.accountSimpleStack(itemStack)
+        }
     }
 
     override fun clearCraftingContent() {
-        TODO("Not yet implemented")
+        for (i in 0 until brewingStand.containerSize) {
+            brewingStand.setItem(i, ItemStack.EMPTY)
+        }
     }
 
     override fun recipeMatches(recipe: RecipeHolder<BrewingStandRecipe?>): Boolean {
-        TODO("Not yet implemented")
+        return false
     }
 
     override fun getResultSlotIndex(): Int {
@@ -163,7 +169,12 @@ class BrewingStandMenu(
     }
 
     override fun shouldMoveToInventory(slotIndex: Int): Boolean {
-        TODO("Not yet implemented")
+        return when (slotIndex) {
+            0, 1, 2 -> false
+            3 -> true
+            4 -> false
+            else -> true
+        }
     }
 
     override fun slotChanged(
@@ -171,7 +182,11 @@ class BrewingStandMenu(
         dataSlotIndex: Int,
         stack: ItemStack
     ) {
-        TODO("Not yet implemented")
+        if (dataSlotIndex == 3) {
+            resultContainer.setItem(0, stack)
+        } else if (dataSlotIndex == 4) {
+            ingredientSlot.set(stack)
+        }
     }
 
     override fun dataChanged(
@@ -179,7 +194,17 @@ class BrewingStandMenu(
         dataSlotIndex: Int,
         value: Int
     ) {
-        TODO("Not yet implemented")
+        if (dataSlotIndex == 0) {
+            val brewTime = value
+            if (brewTime == 0) {
+                resultContainer.setItem(0, ItemStack.EMPTY)
+            }
+        } else if (dataSlotIndex == 1) {
+            val fuel = value
+            if (fuel == 0) {
+                resultContainer.setItem(0, ItemStack.EMPTY)
+            }
+        }
     }
 
     class PotionSlot(container: Container, slot: Int, x: Int, y: Int) : Slot(container, slot, x, y) {

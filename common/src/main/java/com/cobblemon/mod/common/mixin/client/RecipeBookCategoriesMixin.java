@@ -55,6 +55,7 @@ public class RecipeBookCategoriesMixin {
         types.add(cobblemon$createCategory("COOKING_POT_BAITS", $VALUES.length + 3, new ItemStack(CobblemonItems.PERSIM_BERRY)));
         types.add(cobblemon$createCategory("COOKING_POT_MISC", $VALUES.length + 4, new ItemStack(CobblemonItems.MIRROR_HERB)));
         types.add(cobblemon$createCategory("BREWING_STAND", $VALUES.length + 5, new ItemStack(Items.BREWING_STAND)));
+        types.add(cobblemon$createCategory("BREWING_STAND_FOOD", $VALUES.length + 6, new ItemStack(CobblemonItems.HP_UP)));
         $VALUES = types.toArray(RecipeBookCategories[]::new);
     }
 
@@ -71,7 +72,8 @@ public class RecipeBookCategoriesMixin {
             return;
         } else if (recipeBookType == RecipeBookType.valueOf("BREWING_STAND")) {
             List var10000 = ImmutableList.of(
-                    CobblemonRecipeCategories.BREWING_STAND.toVanillaCategory());
+                    CobblemonRecipeCategories.BREWING_STAND.toVanillaCategory(),
+                    CobblemonRecipeCategories.BREWING_STAND_FOOD.toVanillaCategory());
             cir.setReturnValue(var10000);
             return;
         }

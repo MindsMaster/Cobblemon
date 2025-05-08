@@ -21,10 +21,7 @@ enum class BrewingStandBookCategory(
     private val categoryName: String,
     private val categoryId: Int
 ) : StringRepresentable {
-    FOODS("foods", 0),
-    MEDICINES("medicines", 1),
-    BAITS("baits", 2),
-    MISC("misc", 3);
+    FOODS("foods", 0);
 
     override fun getSerializedName() = categoryName
     private fun getCategoryId() = categoryId
