@@ -173,6 +173,7 @@
 - Fixed some effects like particles from fishing rods appearing for players in the same coordinates in another world.
 - Fixed an issue with Sketch where the Pokémon using Sketch would not properly learn moves with special characters in their name (e.g. King's Shield, Baby-Doll Eyes, etc.)
 - Fixed wild Pokémon sometimes spawning with incorrect friendship values
+- Fixed an issue where catching a Pokémon while it was leashed to a fence would not update the fence.
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
