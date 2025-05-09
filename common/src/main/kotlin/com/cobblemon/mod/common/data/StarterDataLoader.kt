@@ -28,8 +28,11 @@ object StarterDataLoader : JsonDataRegistry<StarterCategory> {
     override val type: PackType = PackType.SERVER_DATA
     override val observable = SimpleObservable<StarterDataLoader>()
 
-    override val gson = GsonBuilder().disableHtmlEscaping().setPrettyPrinting()
-        .registerTypeAdapter(PokemonProperties::class.java, pokemonPropertiesShortAdapter).create()
+    override val gson = GsonBuilder()
+        .disableHtmlEscaping()
+        .setPrettyPrinting()
+        .registerTypeAdapter(PokemonProperties::class.java, pokemonPropertiesShortAdapter)
+        .create()
 
     override val typeToken: TypeToken<StarterCategory> = TypeToken.get(StarterCategory::class.java)
     override val resourcePath: String = "starters"
