@@ -174,6 +174,7 @@
 - Fixed an issue with Sketch where the Pokémon using Sketch would not properly learn moves with special characters in their name (e.g. King's Shield, Baby-Doll Eyes, etc.)
 - Fixed wild Pokémon sometimes spawning with incorrect friendship values
 - Fixed typo while saving/loading NPCEntity causes data loss
+- Fixed an issue where catching a Pokémon while it was leashed to a fence would not update the fence.
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
