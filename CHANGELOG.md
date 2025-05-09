@@ -219,6 +219,7 @@
 - Fixed `heldItem` property inside spawn files not working and causing crashes
 - Fixed `spawn_bedrock_particles` MoLang causing crashes when used in a server environment
 - The Pokédex form lang key definition now follows `cobblemon.ui.pokedex.info.form.{species}-{formname}` instead of `cobblemon.ui.pokedex.info.form.{formname}`.
+- Added `labels` & `has_label` as available Molang functions for the `speciesFunctions`
 
 ## [1.6.1 (January 26th, 2025)](#1-6-1)
 
