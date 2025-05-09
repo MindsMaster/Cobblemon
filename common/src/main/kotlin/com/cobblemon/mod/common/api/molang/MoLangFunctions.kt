@@ -1347,6 +1347,8 @@ object MoLangFunctions {
             map.put("hitbox_height") { DoubleValue(species.hitbox.height) }
             map.put("hitbox_fixed") { DoubleValue(species.hitbox.fixed) }
             map.put("catch_rate") { DoubleValue(species.catchRate) }
+            map.put("labels") { return@put species.labels.asArrayValue { StringValue(it) } }
+            map.put("has_label") { params -> DoubleValue(species.labels.contains(params.getString(0))) }
             map
         }
     )

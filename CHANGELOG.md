@@ -214,6 +214,7 @@
 - Fixed some effects like particles from fishing rods appearing for players in the same coordinates in another world.
 - Fixed an issue with Sketch where the Pokémon using Sketch would not properly learn moves with special characters in their name (e.g. King's Shield, Baby-Doll Eyes, etc.)
 - Fixed wild Pokémon sometimes spawning with incorrect friendship values
+- Fixed typo while saving/loading NPCEntity causes data loss
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
@@ -259,6 +260,7 @@
 - Fixed `heldItem` property inside spawn files not working and causing crashes
 - Fixed `spawn_bedrock_particles` MoLang causing crashes when used in a server environment
 - The Pokédex form lang key definition now follows `cobblemon.ui.pokedex.info.form.{species}-{formname}` instead of `cobblemon.ui.pokedex.info.form.{formname}`.
+- Added `labels` & `has_label` as available Molang functions for the `speciesFunctions`
 
 ## [1.6.1 (January 26th, 2025)](#1-6-1)
 
