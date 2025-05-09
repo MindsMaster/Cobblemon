@@ -28,11 +28,8 @@ object StarterDataLoader : JsonDataRegistry<StarterCategory> {
     override val type: PackType = PackType.SERVER_DATA
     override val observable = SimpleObservable<StarterDataLoader>()
 
-    override val gson = GsonBuilder()
-        .disableHtmlEscaping()
-        .setPrettyPrinting()
-        .registerTypeAdapter(PokemonProperties::class.java, pokemonPropertiesShortAdapter)
-        .create()
+    override val gson = GsonBuilder().disableHtmlEscaping().setPrettyPrinting()
+        .registerTypeAdapter(PokemonProperties::class.java, pokemonPropertiesShortAdapter).create()
 
     override val typeToken: TypeToken<StarterCategory> = TypeToken.get(StarterCategory::class.java)
     override val resourcePath: String = "starters"
@@ -48,7 +45,34 @@ object StarterDataLoader : JsonDataRegistry<StarterCategory> {
             categories += Cobblemon.starterConfig.starters
         }
 
-        val loadedCategories = data.values.toList()
+        // Validate and collect only the valid categories
+        val loadedCategories = data.mapNotNull { (id, category) ->
+            try {
+                if (category.name.isBlank()) {
+                    LOGGER.warn("Skipping starter category '{}': missing name", id)
+                    return@mapNotNull null
+                }
+                val name = category.name.trim()
+
+                // If displayName is blank or throws NPE because it's missing, fall back to name
+                val displayName = try {
+                    category.displayName.takeIf { it.isNotBlank() } ?: name
+                } catch (e: NullPointerException) {
+                    name
+                }
+
+                val pokemonList = category.pokemon
+                if (pokemonList.isEmpty()) {
+                    LOGGER.warn("Skipping starter category '{}': pokemon list is empty", id)
+                    return@mapNotNull null
+                }
+
+                StarterCategory(name, displayName, pokemonList)
+            } catch (e: Exception) {
+                LOGGER.warn("Skipping starter category '{}': error loading - {}", id, e.message)
+                null
+            }
+        }
 
         // Default: If datapack exist then only use those, otherwise fall back to built-in starters
         if (loadedCategories.isNotEmpty() && !Cobblemon.starterConfig.useConfigStarters) {
