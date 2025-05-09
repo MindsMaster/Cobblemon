@@ -60,7 +60,7 @@ object StarterDataLoader : JsonDataRegistry<StarterCategory> {
                 // If displayName is blank or throws NPE because it's missing, fall back to name
                 val displayName = try {
                     category.displayName.takeIf { it.isNotBlank() } ?: name
-                } catch (e: NullPointerException) {
+                } catch (_: NullPointerException) {
                     name
                 }
 
