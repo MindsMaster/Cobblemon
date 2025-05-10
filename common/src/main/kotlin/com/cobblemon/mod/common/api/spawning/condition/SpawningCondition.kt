@@ -11,7 +11,6 @@ package com.cobblemon.mod.common.api.spawning.condition
 import com.cobblemon.mod.common.api.conditional.RegistryLikeCondition
 import com.cobblemon.mod.common.api.spawning.MoonPhaseRange
 import com.cobblemon.mod.common.api.spawning.TimeRange
-import com.cobblemon.mod.common.api.spawning.context.FishingSpawningContext
 import com.cobblemon.mod.common.api.spawning.context.SpawningContext
 import com.cobblemon.mod.common.util.Merger
 import com.cobblemon.mod.common.util.math.orMax
@@ -19,8 +18,6 @@ import com.cobblemon.mod.common.util.math.orMin
 import com.mojang.datafixers.util.Either
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.tags.TagKey
-import net.minecraft.world.item.enchantment.EnchantmentHelper
-import net.minecraft.world.item.enchantment.Enchantments
 import net.minecraft.world.level.biome.Biome
 import net.minecraft.world.level.levelgen.WorldgenRandom
 import net.minecraft.world.level.levelgen.structure.Structure
@@ -97,7 +94,7 @@ abstract class SpawningCondition<T : SpawningContext> {
             return false
         } else if (isThundering != null && ctx.world.isThundering != isThundering!!) {
             return false
-        } else if (dimensions != null && dimensions!!.isNotEmpty() && ctx.world.dimensionType().effectsLocation !in dimensions!!) {
+        } else if (dimensions != null && dimensions!!.isNotEmpty() && ctx.world.dimension().location() !in dimensions!!) {
             return false
         } else if (biomes != null && biomes!!.isNotEmpty() && biomes!!.none { condition -> condition.fits(ctx.biomeHolder) }) {
             return false
