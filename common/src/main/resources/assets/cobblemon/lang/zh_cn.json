@@ -7600,5 +7600,15 @@
     "cobblemon.move.psychicnoise": "精神噪音",
     "cobblemon.move.matchagotcha": "刷刷茶炮",
     "cobblemon.move.matchagotcha.desc": "发射经搅拌的茶的大炮， 可以回复给予对手伤害的一半ＨＰ， 有时会让对手陷入灼伤状态。",
-    "cobblemon.move.electroshot": "电光束"
+    "cobblemon.move.electroshot": "电光束",
+    "entity.cobblemon.pokemon": "宝可梦",
+    "cobblemon.battle.activate.snaptrap": "%1%s被捕兽夹困住了！",
+    "cobblemon.move.electroshot.desc": "第1回合收集电力提高特攻， 第2回合将高压的电力发射出去。 下雨天气时能立刻发射。",
+    "cobblemon.move.alluringvoice": "魅诱之声",
+    "cobblemon.move.alluringvoice.desc": "用天使般的歌声攻击对手。 会让此回合内能力有提高的宝可梦 陷入混乱状态。",
+    "entity.cobblemon.npc": "非玩家角色",
+    "cobblemon.ui.pokedex.info.form.venusaur-mega": "超级妙蛙花",
+    "cobblemon.species.venusaur-mega.desc": "为了支撑在超级进化后成长得更大的花，它的腰腿也变得更加健壮了。",
+    "cobblemon.ui.pokedex.info.form.venusaur-gmax": "超极巨化妙蛙花",
+    "cobblemon.species.venusaur-gmax.desc": "通过挥舞２根粗壮的藤蔓来战斗。其力量强到就连１０层高的大楼都能轻易撂倒。"
 }
