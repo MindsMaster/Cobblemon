@@ -17,24 +17,22 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.resources.ResourceLocation
 import java.util.Optional
 
-class PokemonInteractContext(val type: ResourceLocation, val item: ResourceLocation)
+class PokemonInteractContext(val species: ResourceLocation, val item: ResourceLocation)
 
 class PokemonInteractCriterion(
     playerCtx: Optional<ContextAwarePredicate>,
-    val type: Optional<String>,
-    val item: Optional<String>
+    val species: String,
+    val item: String
 ): SimpleCriterionCondition<PokemonInteractContext>(playerCtx) {
     companion object {
         val CODEC: Codec<PokemonInteractCriterion> = RecordCodecBuilder.create { it.group(
             EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(PokemonInteractCriterion::playerCtx),
-            Codec.STRING.optionalFieldOf("type").forGetter(PokemonInteractCriterion::type),
-            Codec.STRING.optionalFieldOf("item").forGetter(PokemonInteractCriterion::item)
+            Codec.STRING.optionalFieldOf("species", "any").forGetter(PokemonInteractCriterion::species),
+            Codec.STRING.optionalFieldOf("item", "any").forGetter(PokemonInteractCriterion::item)
         ).apply(it, ::PokemonInteractCriterion) }
     }
 
     override fun matches(player: ServerPlayer, context: PokemonInteractContext): Boolean {
-        val otherType = this.type.orElse("any")
-        val otherItem = this.item.orElse("any")
-        return (context.type == otherType.asIdentifierDefaultingNamespace() || otherType == "any") && (context.type == otherItem.asIdentifierDefaultingNamespace() || otherItem == "any")
+        return (context.species == this.species.asIdentifierDefaultingNamespace() || this.species == "any") && (context.item == this.item.asIdentifierDefaultingNamespace() || this.item == "any")
     }
 }

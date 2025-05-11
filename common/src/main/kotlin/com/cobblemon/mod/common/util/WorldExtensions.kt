@@ -11,9 +11,6 @@ package com.cobblemon.mod.common.util
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Registry
 import net.minecraft.core.SectionPos
-import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.entity.Entity
-import net.minecraft.world.item.Item
 import net.minecraft.core.particles.ParticleOptions
 import net.minecraft.core.registries.Registries
 import net.minecraft.server.level.ServerLevel
@@ -22,11 +19,20 @@ import net.minecraft.sounds.SoundSource
 import net.minecraft.tags.FluidTags
 import net.minecraft.util.Mth.ceil
 import net.minecraft.util.Mth.floor
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.schedule.Activity
+import net.minecraft.world.item.Item
 import net.minecraft.world.item.enchantment.Enchantment
 import net.minecraft.world.level.BlockGetter
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.biome.Biome
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.entity.BlockEntity
+import net.minecraft.world.level.block.entity.BlockEntityType
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.pathfinder.PathComputationType
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 
@@ -76,13 +82,13 @@ fun AABB.getRanges(): Triple<IntRange, IntRange, IntRange> {
     return Triple(floor(minX)..ceil(maxX), minY.toInt()..ceil(maxY), minZ.toInt()..ceil(maxZ))
 }
 
-fun BlockGetter.doForAllBlocksIn(box: AABB, useMutablePos: Boolean, action: (BlockState, BlockPos) -> Unit) {
+fun BlockGetter.doForAllBlocksIn(box: AABB, action: (BlockState, BlockPos) -> Unit) {
     val mutable = BlockPos.MutableBlockPos()
     val (xRange, yRange, zRange) = box.getRanges()
     for (x in xRange) {
         for (y in yRange) {
             for (z in zRange) {
-                val pos = if (useMutablePos) mutable.set(x, y, z) else BlockPos(x, y, z)
+                val pos = mutable.set(x, y, z)
                 val state = getBlockState(pos)
                 action(state, pos)
             }
@@ -90,23 +96,51 @@ fun BlockGetter.doForAllBlocksIn(box: AABB, useMutablePos: Boolean, action: (Blo
     }
 }
 
+fun <T : BlockEntity> BlockGetter.getNearbyBlockEntities(box: AABB, blockEntityType: BlockEntityType<T>): List<Pair<BlockPos, T>> {
+    val entities = mutableListOf<Pair<BlockPos, T>>()
+    val mutable = BlockPos.MutableBlockPos()
+    val (xRange, yRange, zRange) = box.getRanges()
+    for (x in xRange) {
+        for (y in yRange) {
+            for (z in zRange) {
+                val pos = mutable.set(x, y, z)
+                getBlockEntity(pos, blockEntityType).ifPresent { entities.add(pos.immutable() to it) }
+            }
+        }
+    }
+    return entities
+}
+
 fun BlockGetter.getBlockStates(box: AABB): Iterable<BlockState> {
     val states = mutableListOf<BlockState>()
-    doForAllBlocksIn(box, useMutablePos = true) { state, _ -> states.add(state) }
+    doForAllBlocksIn(box) { state, _ -> states.add(state) }
     return states
 }
 
 fun BlockGetter.getBlockStatesWithPos(box: AABB): Iterable<Pair<BlockState, BlockPos>> {
     val states = mutableListOf<Pair<BlockState, BlockPos>>()
-    doForAllBlocksIn(box, useMutablePos = true) { state, pos -> states.add(state to pos) }
+    doForAllBlocksIn(box) { state, pos -> states.add(state to pos.immutable()) }
     return states
+}
+
+fun BlockGetter.getBlockPositions(box: AABB): Iterable<BlockPos> {
+    val positions = mutableListOf<BlockPos>()
+    val (xRange, yRange, zRange) = box.getRanges()
+    for (x in xRange) {
+        for (y in yRange) {
+            for (z in zRange) {
+                positions.add(BlockPos(x, y, z))
+            }
+        }
+    }
+    return positions
 }
 
 fun BlockGetter.getWaterAndLavaIn(box: AABB): Pair<Boolean, Boolean> {
     var hasWater = false
     var hasLava = false
 
-    doForAllBlocksIn(box, useMutablePos = true) { state, _ ->
+    doForAllBlocksIn(box) { state, _ ->
         if (!hasWater && state.fluidState.`is`(FluidTags.WATER)) {
             hasWater = true
         }
@@ -125,6 +159,63 @@ fun Entity.canFit(vec: Vec3): Boolean {
     return level().noCollision(box)
 }
 
+enum class PositionType {
+    LAND,
+    WATER,
+    SEAFLOOR,
+    LAVAFLOOR
+}
+
+fun Level.canEntityStayAt(position: BlockPos, width: Int = 1, height: Int = 1, positionType: PositionType): Boolean {
+    val minX = kotlin.math.floor(position.x + 0.5 - (width - 1) / 2F).toInt()
+    val maxX = kotlin.math.ceil(position.x + 0.5 + (width - 1) / 2F).toInt()
+    val maxY = position.y + height
+
+    val minZ = kotlin.math.floor(position.z + 0.5 - (width - 1) / 2F).toInt()
+    val maxZ = kotlin.math.ceil(position.z + 0.5 + (width - 1) / 2F).toInt()
+
+    val mutable = BlockPos.MutableBlockPos()
+    for (x in minX until maxX) {
+        for (y in position.y..maxY) {
+            for (z in minZ until maxZ) {
+                val state = getBlockState(mutable.set(x, y, z))
+
+                // If it's a floor check, we likely need to do something different than surrounding blocks
+                if (y == position.y) {
+                    if (positionType == PositionType.LAND) {
+                        // Land entities need to be standing on solid ground
+                        if (state.isPathfindable(PathComputationType.LAND)) {
+                            return false
+                        }
+                    }
+                } else {
+                    when (positionType) {
+                        PositionType.LAND -> {
+                            if (!state.isPathfindable(PathComputationType.LAND)) {
+                                return false
+                            }
+                        }
+
+                        PositionType.WATER, PositionType.SEAFLOOR -> {
+                            if (!state.fluidState.`is`(FluidTags.WATER)) {
+                                return false
+                            }
+                        }
+
+                        PositionType.LAVAFLOOR -> {
+                            if (!state.fluidState.`is`(FluidTags.LAVA)) {
+                                return false
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return true
+}
+
 val Level.itemRegistry: Registry<Item>
     get() = registryAccess().registryOrThrow(Registries.ITEM)
 val Level.biomeRegistry: Registry<Biome>
@@ -133,7 +224,12 @@ val Level.worldRegistry: Registry<Level>
     get() = registryAccess().registryOrThrow(Registries.DIMENSION)
 val Level.enchantmentRegistry: Registry<Enchantment>
     get() = registryAccess().registryOrThrow(Registries.ENCHANTMENT)
-
+val Level.activityRegistry: Registry<Activity>
+    get() = registryAccess().registryOrThrow(Registries.ACTIVITY)
+val Level.blockRegistry: Registry<Block>
+    get() = registryAccess().registryOrThrow(Registries.BLOCK)
+val Level.entityTypeRegistry: Registry<EntityType<*>>
+    get() = registryAccess().registryOrThrow(Registries.ENTITY_TYPE)
 
 fun Vec3.traceDownwards(
     world: Level,

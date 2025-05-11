@@ -10,6 +10,7 @@ package com.cobblemon.mod.common.client.gui.pc
 
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.gui.blitk
+import com.cobblemon.mod.common.client.gui.CobblemonRenderable
 import com.cobblemon.mod.common.util.cobblemonResource
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.Button
@@ -21,27 +22,25 @@ class NavigationButton(
     pX: Int, pY: Int,
     private val forward: Boolean,
     onPress: OnPress
-): Button(pX, pY, (WIDTH * SCALE).toInt(), (HEIGHT * SCALE).toInt(), Component.literal("Navigation"), onPress, DEFAULT_NARRATION) {
+): Button(pX, pY, (SIZE * SCALE).toInt(), (SIZE * SCALE).toInt(), Component.literal("Navigation"), onPress, DEFAULT_NARRATION), CobblemonRenderable {
 
     companion object {
-        private const val WIDTH = 8F
-        private const val HEIGHT = 10F
+        private const val SIZE = 14
         private const val SCALE = 0.5F
         private val forwardButtonResource = cobblemonResource("textures/gui/pc/pc_arrow_next.png")
         private val backwardsButtonResource = cobblemonResource("textures/gui/pc/pc_arrow_previous.png")
     }
 
     override fun renderWidget(context: GuiGraphics, pMouseX: Int, pMouseY: Int, pPartialTicks: Float) {
-        val hovered = (isHovered(pMouseX.toDouble(), pMouseY.toDouble()))
         blitk(
             matrixStack = context.pose(),
             x = x / SCALE,
             y = y / SCALE,
             texture = if (forward) forwardButtonResource else backwardsButtonResource,
-            width = WIDTH,
-            height = HEIGHT,
-            vOffset = if (hovered) HEIGHT else 0,
-            textureHeight = HEIGHT * 2,
+            width = SIZE,
+            height = SIZE,
+            vOffset = if (isHovered()) SIZE else 0,
+            textureHeight = SIZE * 2,
             scale = SCALE
         )
     }
@@ -49,6 +48,4 @@ class NavigationButton(
     override fun playDownSound(soundManager: SoundManager) {
         soundManager.play(SimpleSoundInstance.forUI(CobblemonSounds.PC_CLICK, 1.0F))
     }
-
-    fun isHovered(mouseX: Double, mouseY: Double) = mouseX.toFloat() in (x.toFloat()..(x.toFloat() + (WIDTH * SCALE))) && mouseY.toFloat() in (y.toFloat()..(y.toFloat() + (HEIGHT * SCALE)))
 }

@@ -27,7 +27,7 @@ class LocatorAccess(
     val children: List<LocatorAccess> = listOf()
 ) {
     companion object {
-        const val PREFIX = "locator_"
+        const val PREFIX = "internal_locator__"
 
         fun resolve(part: Bone): LocatorAccess? {
             val (
@@ -69,11 +69,11 @@ class LocatorAccess(
      * Updates all of the locator states with the position at this current frame.
      * This is the same logic as ModelPart uses, that's why we reuse ModelPart#rotate.
      */
-    fun update(matrixStack: PoseStack, entity: Entity, scale: Float, state: MutableMap<String, MatrixWrapper>, isRoot: Boolean = false) {
+    fun update(matrixStack: PoseStack, entity: Entity?, scale: Float, state: MutableMap<String, MatrixWrapper>, isRoot: Boolean = false) {
         matrixStack.pushPose()
         joint.transform(matrixStack)
 
-        if (isRoot) {
+        if (isRoot && null!=entity) {
             matrixStack.pushPose()
             matrixStack.scale(-1F, -1F, 1F)
             state.getOrPut("root") { MatrixWrapper() }.updateMatrix(matrixStack.last().pose())
@@ -96,6 +96,12 @@ class LocatorAccess(
             state.getOrPut("middle") { MatrixWrapper() }.updateMatrix(matrixStack.last().pose())
             matrixStack.popPose()
 
+            // If we have the entity, put in a "top" locator for top center of hitbox.
+            matrixStack.pushPose()
+            matrixStack.translate(0.0, -entity.boundingBox.ysize, 0.0)
+            matrixStack.scale(-1F, -1F, 1F)
+            state.getOrPut("top") { MatrixWrapper() }.updateMatrix(matrixStack.last().pose())
+            matrixStack.popPose()
         }
 
         for ((name, locator) in locators) {

@@ -14,6 +14,7 @@ import com.cobblemon.mod.common.api.storage.StorePosition
 import com.cobblemon.mod.common.api.storage.adapter.CobblemonAdapterParent
 import java.io.File
 import java.util.UUID
+import net.minecraft.core.RegistryAccess
 
 /**
  * A subset of [FileStoreAdapter] that make predictable use of files based on the implementation of [rootFolder],
@@ -40,7 +41,8 @@ abstract class OneToOneFileStoreAdapter<S>(
     private val fileExtension: String
 ) : FileStoreAdapter<S>, CobblemonAdapterParent<S>() {
     abstract fun save(file: File, serialized: S)
-    abstract fun <E, T : PokemonStore<E>> load(file: File, storeClass: Class<out T>, uuid: UUID): T?
+    abstract fun <E, T : PokemonStore<E>> load(file: File, storeClass: Class<out T>, uuid: UUID, registryAccess: RegistryAccess): T?
+
     fun getFile(storeClass: Class<out PokemonStore<*>>, uuid: UUID): File {
         val className = storeClass.simpleName.lowercase()
         val subfolder1 = if (folderPerClass) "$className/" else ""
@@ -55,34 +57,54 @@ abstract class OneToOneFileStoreAdapter<S>(
     override fun save(storeClass: Class<out PokemonStore<*>>, uuid: UUID, serialized: S) {
         val file = getFile(storeClass, uuid)
         val tempFile = File(file.absolutePath + ".temp")
+        val oldFile = File(file.absolutePath + ".old")
         tempFile.createNewFile()
         save(tempFile, serialized)
+        if (file.exists()) {
+            file.copyTo(oldFile, overwrite = true)
+        }
         tempFile.copyTo(file, overwrite = true)
         tempFile.delete()
     }
 
-    override fun <E : StorePosition, T : PokemonStore<E>> provide(storeClass: Class<T>, uuid: UUID): T? {
+    override fun <E : StorePosition, T : PokemonStore<E>> provide(storeClass: Class<T>, uuid: UUID, registryAccess: RegistryAccess): T? {
         val file = getFile(storeClass, uuid)
-        val tempFile = File(file.absolutePath + ".temp")
-        if (tempFile.exists()) {
-            try {
-                val tempLoaded = load(tempFile, storeClass, uuid)
-                if (tempLoaded != null) {
-                    save(file, serialize(tempLoaded))
-                    return tempLoaded
-                }
-            } finally {
-                tempFile.delete()
-            }
-        }
+        val oldFile = File(file.absolutePath + ".old")
 
-        return if (file.exists()) {
-            load(file, storeClass, uuid)
+        return if (file.exists() && file.length() > 0L) {
+            load(file, storeClass, uuid, registryAccess)
                 ?: let {
-                    LOGGER.error("Pokémon save file for ${storeClass.simpleName} ($uuid) was corrupted. A fresh file will be created.")
-                    storeClass.getConstructor(UUID::class.java).newInstance(uuid)
+                    file.delete()
+                    if (oldFile.exists() && oldFile.length() > 0L) {
+                        var result = load(oldFile, storeClass, uuid, registryAccess) ?: let {
+                            LOGGER.error("Pokémon save file for ${storeClass.simpleName} ($uuid) was corrupted. A fresh file will be created.")
+                            var result = storeClass.getConstructor(UUID::class.java).newInstance(uuid)
+                            save(storeClass, uuid, serialize(result, registryAccess))
+                            oldFile.delete()
+                            return result
+                        }
+                        LOGGER.warn("Loading old Pokémon save file for ${storeClass.simpleName} ($uuid) due to corruption of current file.")
+                        oldFile.copyTo(file, overwrite = true)
+                        result
+                    }
+                    else {
+                        storeClass.getConstructor(UUID::class.java).newInstance(uuid)
+                        var result = storeClass.getConstructor(UUID::class.java).newInstance(uuid)
+                        save(storeClass, uuid, serialize(result, registryAccess))
+                        oldFile.delete()
+                        result
+                    }
                 }
         } else {
+            file.delete()
+            if (oldFile.exists() && oldFile.length() > 0L) {
+                var result = load(oldFile, storeClass, uuid, registryAccess) ?: let {
+                    oldFile.delete()
+                    return null
+                }
+                oldFile.copyTo(file, overwrite = true)
+                result
+            }
             null
         }
     }

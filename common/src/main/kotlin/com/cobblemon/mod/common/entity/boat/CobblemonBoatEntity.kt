@@ -14,7 +14,6 @@ import net.minecraft.core.BlockPos
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.StringTag
 import net.minecraft.nbt.Tag
-import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.Packet
 import net.minecraft.network.protocol.game.ClientGamePacketListener
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
@@ -73,8 +72,6 @@ open class CobblemonBoatEntity(entityType: EntityType<out Boat>, world: Level) :
         builder.define(TYPE_TRACKED_DATA, CobblemonBoatType.APRICORN.ordinal)
     }
 
-    override fun getTypeName(): Component = EntityType.BOAT.description
-
     override fun readAdditionalSaveData(nbt: CompoundTag) {
         if (nbt.contains(TYPE_KEY, Tag.TAG_STRING.toInt())) {
             this.boatType = CobblemonBoatType.valueOf(nbt.getString(TYPE_KEY))
@@ -86,11 +83,11 @@ open class CobblemonBoatEntity(entityType: EntityType<out Boat>, world: Level) :
     }
 
     override fun setVariant(type: Type) {
-        throw UnsupportedOperationException("The vanilla boat type is not present in the Cobblemon implementation use the type property")
+        throw UnsupportedOperationException("The vanilla boat type is not present in the Cobblemon implementation use the boatType property")
     }
 
     override fun getVariant(): Type {
-        throw UnsupportedOperationException("The vanilla boat type is not present in the Cobblemon implementation use the type property")
+        return Type.BAMBOO //have to return something here as otherwise it breaks vanilla interactions (e.g. player getting into boat)
     }
 
     override fun getSinglePassengerXOffset(): Float = this.boatType.mountedOffset

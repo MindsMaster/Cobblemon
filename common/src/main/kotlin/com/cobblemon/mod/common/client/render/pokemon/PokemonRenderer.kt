@@ -8,6 +8,9 @@
 
 package com.cobblemon.mod.common.client.render.pokemon
 
+import com.cobblemon.mod.common.Cobblemon
+import com.cobblemon.mod.common.OrientationControllable
+import com.cobblemon.mod.common.api.pokedex.PokedexEntryProgress
 import com.cobblemon.mod.common.client.CobblemonClient
 import com.cobblemon.mod.common.client.battle.ClientBallDisplay
 import com.cobblemon.mod.common.client.entity.NPCClientDelegate
@@ -16,51 +19,50 @@ import com.cobblemon.mod.common.client.entity.PokemonClientDelegate.Companion.BE
 import com.cobblemon.mod.common.client.entity.PokemonClientDelegate.Companion.BEAM_SHRINK_TIME
 import com.cobblemon.mod.common.client.keybind.boundKey
 import com.cobblemon.mod.common.client.keybind.keybinds.PartySendBinding
+import com.cobblemon.mod.common.client.render.item.HeldItemRenderer
 import com.cobblemon.mod.common.client.render.models.blockbench.PosableModel
 import com.cobblemon.mod.common.client.render.models.blockbench.PosableState
 import com.cobblemon.mod.common.client.render.models.blockbench.pokemon.PosablePokemonEntityModel
-import com.cobblemon.mod.common.client.render.models.blockbench.repository.PokeBallModelRepository
-import com.cobblemon.mod.common.client.render.models.blockbench.repository.PokemonModelRepository
+import com.cobblemon.mod.common.client.render.models.blockbench.repository.MiscModelRepository
 import com.cobblemon.mod.common.client.render.models.blockbench.repository.RenderContext
+import com.cobblemon.mod.common.client.render.models.blockbench.repository.VaryingModelRepository
 import com.cobblemon.mod.common.client.render.pokeball.PokeBallPosableState
 import com.cobblemon.mod.common.client.render.renderBeaconBeam
 import com.cobblemon.mod.common.client.settings.ServerSettings
+import com.cobblemon.mod.common.entity.PlatformType
 import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.entity.npc.NPCEntity
 import com.cobblemon.mod.common.entity.pokeball.EmptyPokeBallEntity
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity.Companion.SPAWN_DIRECTION
 import com.cobblemon.mod.common.pokeball.PokeBall
-import com.cobblemon.mod.common.util.effectiveName
-import com.cobblemon.mod.common.util.isLookingAt
-import com.cobblemon.mod.common.util.lang
+import com.cobblemon.mod.common.util.*
 import com.cobblemon.mod.common.util.math.DoubleRange
 import com.cobblemon.mod.common.util.math.geometry.toRadians
 import com.cobblemon.mod.common.util.math.remap
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
-import kotlin.math.*
 import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.Font
+import net.minecraft.client.gui.Font.DisplayMode
+import net.minecraft.client.player.RemotePlayer
 import net.minecraft.client.renderer.*
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.entity.ItemRenderer
 import net.minecraft.client.renderer.entity.MobRenderer
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.MutableComponent
 import net.minecraft.network.chat.Style
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.phys.Vec3
-import org.joml.Math
-import org.joml.Quaternionf
-import org.joml.Vector3f
-import org.joml.Vector4f
+import org.joml.*
+import kotlin.math.*
 
 class PokemonRenderer(
-context: EntityRendererProvider.Context
+    context: EntityRendererProvider.Context
 ) : MobRenderer<PokemonEntity, PosablePokemonEntityModel>(context, PosablePokemonEntityModel(), 0.5f) {
     companion object {
         val recallBeamColour = Vector4f(1F, 0.1F, 0.1F, 1F)
@@ -73,14 +75,22 @@ context: EntityRendererProvider.Context
             .withUnderlined(false)
             .withStrikethrough(false)
             .withObfuscated(false)
+
+        private const val HIDDEN_NAME = "???"
+
+        private const val SPACE = " "
+
+        private const val DISABLE_ROLLING_DEBUG = false
     }
 
     val ballContext = RenderContext().also {
         it.put(RenderContext.RENDER_STATE, RenderContext.RenderState.WORLD)
     }
 
+    private val heldItemRenderer = HeldItemRenderer()
+
     override fun getTextureLocation(entity: PokemonEntity): ResourceLocation {
-        return PokemonModelRepository.getTexture(entity.pokemon.species.resourceIdentifier, entity.aspects, (entity.delegate as PokemonClientDelegate).animationSeconds)
+        return VaryingModelRepository.getTexture(entity.pokemon.species.resourceIdentifier, entity.delegate as PokemonClientDelegate)
     }
 
     override fun render(
@@ -91,15 +101,22 @@ context: EntityRendererProvider.Context
         buffer: MultiBufferSource,
         packedLight: Int
     ) {
-        shadowRadius = min((entity.boundingBox.maxX - entity.boundingBox.minX), (entity.boundingBox.maxZ) - (entity.boundingBox.minZ)).toFloat() / 1.5F * (entity.delegate as PokemonClientDelegate).entityScaleModifier
-        model.posableModel = PokemonModelRepository.getPoser(entity.pokemon.species.resourceIdentifier, entity.aspects)
+        val clientDelegate = entity.delegate as PokemonClientDelegate
+        shadowRadius = (min((entity.boundingBox.maxX - entity.boundingBox.minX), (entity.boundingBox.maxZ) - (entity.boundingBox.minZ)).toFloat() / 1.5F * (entity.delegate as PokemonClientDelegate).entityScaleModifier)/entity.scale
+        model.posableModel = VaryingModelRepository.getPoser(entity.pokemon.species.resourceIdentifier, clientDelegate)
         model.posableModel.context = model.context
         model.setupEntityTypeContext(entity)
-        val clientDelegate = entity.delegate as PokemonClientDelegate
         val modelNow = model.posableModel
-        clientDelegate.updatePartialTicks(partialTicks)
 
-        if (entity.beamMode != 0) {
+        val freezeFrame = entity.entityData.get(PokemonEntity.FREEZE_FRAME)
+        if (freezeFrame != -1F) {
+            clientDelegate.updateAge(0)
+            clientDelegate.updatePartialTicks(freezeFrame * 20F)
+        } else {
+            clientDelegate.updatePartialTicks(partialTicks)
+        }
+
+        if (entity.beamMode != 0 && !Minecraft.getInstance().isPaused) {
             renderTransition(
                 modelNow,
                 entity.beamMode,
@@ -111,29 +128,27 @@ context: EntityRendererProvider.Context
                 clientDelegate
             )
         }
-
-        modelNow.setLayerContext(buffer, clientDelegate, PokemonModelRepository.getLayers(entity.pokemon.species.resourceIdentifier, entity.aspects))
-
-
-        // TODO: Need a way to get a shader from a render layer, and need a way to get the renderlayer for the pokemon's main model
-        // TODO: Need packet to sync evo time from server to client
-//        val shader: ShaderInstance? = RenderSystem.getShader()
-//        shader?.let { shader ->
-//            if(shader == GameRenderer.getRenderTypeEntityCutoutProgram() ||
-//                shader == GameRenderer.getRenderTypeEntityTranslucentProgram() ||
-//                shader == GameRenderer.getRenderTypeEntityTranslucentEmissiveProgram()){
-//                val progressUniform = shader.getUniform("u_evo_progress")
-//                // TODO: set this to the actual progress, 0->1->0
-//                progressUniform?.set((sin(entity.ticksLived/20f) + 1f)/2f)
-//            }
-//        }
-
-        if (entity.ticksLived < 10) {
-            entity.yBodyRot = entity.entityData.get(SPAWN_DIRECTION)
-            entity.yBodyRotO = entity.yBodyRot
+        if(entity.platform != PlatformType.NONE) {
+            drawPlatform(
+                poseMatrix,
+                entity,
+                (entity.delegate as PokemonClientDelegate).entityScaleModifier,
+                buffer,
+                packedLight,
+            )
+            // keeps the pokemon's root on the raft
+            poseMatrix.translate(0.0, 0.25 * (entity.delegate as PokemonClientDelegate).entityScaleModifier, 0.0)
         }
 
-        super.render(entity, entityYaw, partialTicks, poseMatrix, buffer, packedLight)
+        modelNow.setLayerContext(buffer, clientDelegate, VaryingModelRepository.getLayers(entity.pokemon.species.resourceIdentifier, clientDelegate))
+
+
+        if (entity.passengers.isNotEmpty()) {
+            renderRiding(entity, partialTicks, poseMatrix, buffer, packedLight)
+        }
+        else {
+            super.render(entity, entityYaw, partialTicks, poseMatrix, buffer, packedLight)
+        }
 
         modelNow.green = 1F
         modelNow.blue = 1F
@@ -141,7 +156,52 @@ context: EntityRendererProvider.Context
         if (this.shouldRenderLabel(entity)) {
             this.renderNameTag(entity, entity.effectiveName(), poseMatrix, buffer, packedLight, partialTicks)
         }
-//        MinecraftClient.getInstance().bufferBuilders.entityVertexConsumers.draw()
+//        Minecraft.getInstance().bufferBuilders.entityVertexConsumers.draw()
+
+        //Render Held Item
+        heldItemRenderer.renderOnModel(
+            entity.shownItem,
+            modelNow,
+            clientDelegate,
+            poseMatrix,
+            buffer,
+            packedLight,
+            false,
+            entity
+        )
+    }
+
+    fun renderRiding(
+        entity: PokemonEntity,
+        partialTicks: Float,
+        poseMatrix: PoseStack,
+        buffer: MultiBufferSource,
+        packedLight: Int
+    ) {
+        val driver = entity.firstPassenger ?: return
+        val rollable = driver as? OrientationControllable ?: return
+        val controller = rollable.orientationController
+        poseMatrix.pushPose()
+
+        if(!DISABLE_ROLLING_DEBUG && controller.active){
+            val matrix = poseMatrix.last().pose()
+            val yaw = Mth.rotLerp(partialTicks, entity.yBodyRotO, entity.yBodyRot)
+            val center = Vector3f(0f, entity.bbHeight/2, 0f)
+            val transformationMatrix = Matrix4f()
+            //Move origin to center of Pokemon
+            transformationMatrix.translate(center)
+
+            transformationMatrix.rotate(controller.getRenderOrientation(partialTicks))
+            //Move origin to base of the entity
+            transformationMatrix.translate(center.negate(Vector3f()))
+
+            //Pre-undo yaw rotation
+            transformationMatrix.rotate(Axis.YP.rotationDegrees(yaw+180f))
+            matrix.mul(transformationMatrix)
+        }
+
+        super.render(entity, 0f, partialTicks, poseMatrix, buffer, packedLight)
+        poseMatrix.popPose()
     }
 
     fun renderTransition(
@@ -166,8 +226,14 @@ context: EntityRendererProvider.Context
 
         val phaseTarget = clientDelegate.phaseTarget ?: return
         poseMatrix.pushPose()
-        var beamSourcePosition = if (phaseTarget is PosableEntity) {
-            (phaseTarget.delegate as PosableState).locatorStates["beam"]?.getOrigin() ?: phaseTarget.position()
+        var beamSourcePosition = if (phaseTarget is NPCEntity) {
+                val npcDelegate = phaseTarget.delegate as NPCClientDelegate
+                val baseScale = phaseTarget.baseScale?.toDouble() ?: 1.0
+
+                (npcDelegate.locatorStates["beam"]?.getOrigin()?.scale(baseScale))
+                    ?: phaseTarget.position().add(0.0, (phaseTarget.bbHeight / 2.0) * baseScale, 0.0)
+                } else if (phaseTarget is PosableEntity) {
+                    (phaseTarget.delegate as PosableState).locatorStates["beam"]?.getOrigin() ?: phaseTarget.position()
         } else {
             if (phaseTarget.uuid == Minecraft.getInstance().player?.uuid) {
                 val lookVec = phaseTarget.lookAngle.yRot((PI / 2).toFloat()).multiply(1.0, 0.0, 1.0).normalize()
@@ -198,7 +264,6 @@ context: EntityRendererProvider.Context
         val angle = Mth.atan2(dir.z, dir.x) - PI / 2
         poseMatrix.mulPose(Axis.YP.rotation(-angle.toFloat() + (180 * Math.PI / 180).toFloat()))
 
-        // TODO: if you want to remove the open ball, add `!clientDelegate.ballDone` to the if statement
         if (beamMode == 1 && !clientDelegate.ballDone){
             if(entity.pokemon.caughtBall.name.toString().contains("beast")){
                 // get rotation angle on x-axis for facingDir
@@ -248,7 +313,11 @@ context: EntityRendererProvider.Context
                 val lookVec = beamTarget.lookAngle.yRot((PI / 2).toFloat()).multiply(1.0, 0.0, 1.0).normalize()
                 beamTarget.getEyePosition(partialTicks).subtract(0.0, 0.4, 0.0).subtract(lookVec.scale(0.3))
             } else if (beamTarget is NPCEntity) {
-                (beamTarget.delegate as NPCClientDelegate).locatorStates["beam"]?.getOrigin() ?: beamTarget.position()
+                val npcDelegate = beamTarget.delegate as NPCClientDelegate
+                val baseScale = beamTarget.baseScale?.toDouble() ?: 1.0
+
+                (npcDelegate.locatorStates["beam"]?.getOrigin()?.scale(baseScale))
+                    ?: beamTarget.position().add(0.0, (beamTarget.bbHeight / 2.0) * baseScale, 0.0)
             } else {
                 val lookVec = beamTarget.lookAngle.yRot((PI / 2 - (beamTarget.visualRotationYInDegrees - beamTarget.xRot).toRadians()).toFloat()).multiply(1.0, 0.0, 1.0).normalize()
                 beamTarget.getEyePosition(partialTicks).subtract(0.0, 0.7, 0.0).subtract(lookVec.scale(0.4))
@@ -323,7 +392,10 @@ context: EntityRendererProvider.Context
         }
         val player = Minecraft.getInstance().player ?: return false
         val delegate = entity.delegate as? PokemonClientDelegate ?: return false
-        return player.isLookingAt(entity) && delegate.phaseTarget == null
+        return (!Cobblemon.config.displayEntityLabelsWhenCrouchingOnly || player.isCrouching) &&
+                player.isLookingAt(entity) &&
+                delegate.phaseTarget == null &&
+                !CobblemonClient.pokedexUsageContext.scanningGuiOpen
     }
 
     override fun renderNameTag(
@@ -346,36 +418,45 @@ context: EntityRendererProvider.Context
             val entityHeight = entity.boundingBox.ysize + 0.5f
             matrices.pushPose()
             matrices.translate(0.0, entityHeight, 0.0)
-            matrices.mulPose(entityRenderDispatcher.cameraOrientation())
-            matrices.translate(0.0,0.0+(offsetScale/2),-(scale+offsetScale))
-            matrices.scale((-0.025*sizeScale).toFloat(), (-0.025*sizeScale).toFloat(), 1 * sizeScale.toFloat())
+            matrices.mulPose(this.entityRenderDispatcher.cameraOrientation())
+            matrices.translate(0.0, 0.0 + (offsetScale / 2), -(scale + offsetScale))
+            matrices.scale((0.025 * sizeScale).toFloat(), (-0.025 * sizeScale).toFloat(), (1 * sizeScale).toFloat())
             val matrix4f = matrices.last().pose()
-            val opacity = (Minecraft.getInstance().options.getBackgroundOpacity(0.25f) * 255.0f).toInt() shl 24
-            var label = entity.name.copy()
+            val opacity = (Minecraft.getInstance().options.getBackgroundOpacity(0.25F) * 255.0F).toInt() shl 24
+            val label = this.resolveBaseLabel(entity)
             if (ServerSettings.displayEntityLevelLabel && entity.labelLevel() > 0) {
+                if (ServerSettings.displayEntityNameLabel) {
+                    label.append(SPACE)
+                }
                 // This a Style.EMPTY with a lot of effects set to false and color set to white, renderer inherits these from nick otherwise
-                val levelLabel = Component.literal(" ")
-                    .append(lang("label.lv", entity.labelLevel()))
+                val levelLabel = lang("label.lv", entity.labelLevel())
                     .setStyle(LEVEL_LABEL_STYLE)
-                label = label.append(levelLabel)
+                label.append(levelLabel)
             }
-            var h = (-font.width(label) / 2).toFloat()
+            var h = (-this.font.width(label) / 2).toFloat()
             val y = 0F
             val packedLight = LightTexture.pack(15, 15)
-            font.drawInBatch(label, h, y, 0x20FFFFFF, false, matrix4f, vertexConsumers, Font.DisplayMode.SEE_THROUGH, opacity, packedLight)
-            font.drawInBatch(label, h, y, -1, false, matrix4f, vertexConsumers, Font.DisplayMode.NORMAL, 0, packedLight)
+            this.font.drawInBatch(label, h, y, 0x20FFFFFF, false, matrix4f, vertexConsumers, DisplayMode.SEE_THROUGH, opacity, packedLight)
+            this.font.drawInBatch(label, h, y, -1, false, matrix4f, vertexConsumers, DisplayMode.NORMAL, 0, packedLight)
 
-            if (entity.canBattle(player)) {
+            if (CobblemonClient.clientPlayerData.showChallengeLabel && entity.canBattle(player)) {
                 val sendOutBinding = PartySendBinding.boundKey().displayName
                 val battlePrompt = lang("challenge_label", sendOutBinding)
-                h = (-font.width(battlePrompt) / 2).toFloat()
-                font.drawInBatch(battlePrompt, h, y + 10, 0x20FFFFFF, false, matrix4f, vertexConsumers, Font.DisplayMode.SEE_THROUGH, opacity, packedLight)
-                font.drawInBatch(battlePrompt, h, y + 10, -1, false, matrix4f, vertexConsumers, Font.DisplayMode.NORMAL, 0, packedLight)
+                h = (-this.font.width(battlePrompt) / 2).toFloat()
+                this.font.drawInBatch(battlePrompt, h, y + 10, 0x20FFFFFF, false, matrix4f, vertexConsumers, DisplayMode.SEE_THROUGH, opacity, packedLight)
+                this.font.drawInBatch(battlePrompt, h, y + 10, -1, false, matrix4f, vertexConsumers, DisplayMode.NORMAL, 0, packedLight)
             }
             matrices.popPose()
         }
     }
 
+    private fun resolveBaseLabel(entity: PokemonEntity): MutableComponent {
+        return when {
+            !ServerSettings.displayEntityNameLabel -> Component.empty()
+            Cobblemon.config.displayNameForUnknownPokemon || CobblemonClient.clientPokedexData.getKnowledgeForSpecies(entity.pokemon.species.resourceIdentifier) != PokedexEntryProgress.NONE -> entity.getTitledName()
+            else -> Component.literal(HIDDEN_NAME)
+        }
+    }
 
     private fun drawPokeBall(
         state: ClientBallDisplay,
@@ -390,8 +471,8 @@ context: EntityRendererProvider.Context
     ) {
         matrixStack.pushPose()
         matrixStack.scale(0.7F, -0.7F, -0.7F)
-        val model = PokeBallModelRepository.getPoser(ball.name, state.aspects)
-        val texture = PokeBallModelRepository.getTexture(ball.name, state.aspects, state.animationSeconds)
+        val model = VaryingModelRepository.getPoser(ball.name, state)
+        val texture = VaryingModelRepository.getTexture(ball.name, state)
         if (scale == 1.0f) {
             model.moveToPose(state, model.poses["open"]!!)
         } else {
@@ -417,6 +498,25 @@ context: EntityRendererProvider.Context
         model.blue = 1f
         model.red = 1f
         model.resetLayerContext()
+        matrixStack.popPose()
+    }
+
+    private fun drawPlatform(
+            matrixStack: PoseStack,
+            entity: PokemonEntity,
+            scale: Float = 1F,
+            buff: MultiBufferSource,
+            packedLight: Int,
+            ) {
+        val (modelResource, textureResource) = PlatformType.getModelWithTexture(entity.platform)
+        val model = MiscModelRepository.modelOf(modelResource) ?: return
+        matrixStack.pushPose()
+        matrixStack.mulPose(Axis.ZP.rotationDegrees(180f))
+        matrixStack.rotateAround(Axis.YP.rotationDegrees(entity.entityData.get(SPAWN_DIRECTION)), 0.0f, 0f, 0.0f)
+        matrixStack.scale(scale, scale, scale)
+        val buffer = ItemRenderer.getFoilBufferDirect(buff, RenderType.entityCutout(textureResource), false, false)
+        model.render(matrixStack, buffer, packedLight, OverlayTexture.NO_OVERLAY, -0x1)
+
         matrixStack.popPose()
     }
 }

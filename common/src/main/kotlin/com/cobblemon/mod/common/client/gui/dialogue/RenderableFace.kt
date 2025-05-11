@@ -8,15 +8,14 @@
 
 package com.cobblemon.mod.common.client.gui.dialogue
 
+import com.bedrockk.molang.runtime.struct.QueryStruct
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.api.gui.drawPosablePortrait
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.client.entity.NPCClientDelegate
 import com.cobblemon.mod.common.client.entity.PokemonClientDelegate
-import com.cobblemon.mod.common.client.render.models.blockbench.PosableState
 import com.cobblemon.mod.common.client.render.models.blockbench.FloatingState
-import com.cobblemon.mod.common.client.render.models.blockbench.repository.NPCModelRepository
-import com.cobblemon.mod.common.client.render.models.blockbench.repository.PokemonModelRepository
+import com.cobblemon.mod.common.client.render.models.blockbench.PosableState
 import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.entity.npc.NPCEntity
 import java.util.UUID
@@ -35,11 +34,14 @@ import org.joml.Vector3f
  * @since January 1st, 2024
  */
 sealed interface RenderableFace {
-    fun render(drawContext: GuiGraphics, partialTicks: Float)
+    val isLeftSide: Boolean
+    val struct: QueryStruct
+    fun render(GuiGraphics: GuiGraphics, partialTicks: Float)
 }
 
-class PlayerRenderableFace(val playerId: UUID) : RenderableFace {
-    override fun render(drawContext: GuiGraphics, partialTicks: Float) {
+class PlayerRenderableFace(val playerId: UUID, override val isLeftSide: Boolean) : RenderableFace {
+    override val struct: QueryStruct = QueryStruct(hashMapOf())
+    override fun render(GuiGraphics: GuiGraphics, partialTicks: Float) {
         val entity = Minecraft.getInstance().level?.getPlayerByUUID(playerId) ?: return
         // All of the maths below is shamelessly stolen from InventoryScreen.drawEntity.
         // the -20 and 5 divided by 40 are for configuring the yaw and pitch tilt of the body and head respectively.
@@ -56,14 +58,14 @@ class PlayerRenderableFace(val playerId: UUID) : RenderableFace {
         val oldHeadYaw = entity.yHeadRot
         // Modifies the entity for rendering based on our f and g values
         entity.yBodyRot = 180.0F + f * 20.0F
-        entity.yRot = 180.0F + f * 40.0F
+        entity.yRot = (180.0F + f * 40.0F) * if (isLeftSide) 1 else -1
         entity.xRot = 0F
         entity.yHeadRot = entity.yRot // TODO (techdaan): is this correct, looks weird.
         entity.yHeadRotO = entity.yRot
         val size = 37F
         val xOffset = 0
         val yOffset = 72
-        InventoryScreen.renderEntityInInventory(drawContext, xOffset.toFloat(), yOffset.toFloat(), size, Vector3f(), quaternionf, quaternionf2, entity)
+        InventoryScreen.renderEntityInInventory(GuiGraphics, xOffset.toFloat(), yOffset.toFloat(), size, Vector3f(), quaternionf, quaternionf2, entity)
         // Resets the entity
         entity.yBodyRot = oldBodyYaw
         entity.yRot = oldEntityYaw
@@ -73,19 +75,20 @@ class PlayerRenderableFace(val playerId: UUID) : RenderableFace {
     }
 }
 
-class ReferenceRenderableFace(val entity: PosableEntity): RenderableFace {
+class ReferenceRenderableFace(val entity: PosableEntity, override val isLeftSide: Boolean): RenderableFace {
     val state = entity.delegate as PosableState
-    override fun render(drawContext: GuiGraphics, partialTicks: Float) {
+    override val struct: QueryStruct
+        get() = state.runtime.environment.query
+    override fun render(GuiGraphics: GuiGraphics, partialTicks: Float) {
         val state = this.state
         if (state is PokemonClientDelegate) {
             state.currentAspects = state.currentEntity.pokemon.aspects
             drawPosablePortrait(
                 identifier = state.currentEntity.pokemon.species.resourceIdentifier,
-                aspects = state.currentEntity.pokemon.aspects,
-                repository = PokemonModelRepository,
                 contextScale = state.currentEntity.pokemon.form.baseScale,
-                matrixStack = drawContext.pose(),
+                matrixStack = GuiGraphics.pose(),
                 state = state,
+                reversed = !isLeftSide,
                 partialTicks = 0F // It's already being rendered potentially so we don't need to tick the state.
             )
         } else if (state is NPCClientDelegate) {
@@ -94,11 +97,10 @@ class ReferenceRenderableFace(val entity: PosableEntity): RenderableFace {
             val limbSwing = entity.walkAnimation.position(partialTicks)
             val limbSwingAmount = entity.walkAnimation.speed(partialTicks)
             drawPosablePortrait(
-                identifier = state.npcEntity.npc.resourceIdentifier,
-                aspects = state.npcEntity.aspects,
-                repository = NPCModelRepository,
-                matrixStack = drawContext.pose(),
+                identifier = state.npcEntity.resourceIdentifier,
+                matrixStack = GuiGraphics.pose(),
                 state = state,
+                reversed = !isLeftSide,
                 partialTicks = 0F, // It's already being rendered potentially so we don't need to tick the state.
                 limbSwing = limbSwing,
                 limbSwingAmount = limbSwingAmount,
@@ -111,11 +113,14 @@ class ReferenceRenderableFace(val entity: PosableEntity): RenderableFace {
 class ArtificialRenderableFace(
     val modelType: String,
     val identifier: ResourceLocation,
-    val aspects: Set<String>
+    val aspects: Set<String>,
+    override val isLeftSide: Boolean
 ): RenderableFace {
     val state = FloatingState()
+    override val struct: QueryStruct
+        get() = state.runtime.environment.query
 
-    override fun render(drawContext: GuiGraphics, partialTicks: Float) {
+    override fun render(GuiGraphics: GuiGraphics, partialTicks: Float) {
         val state = this.state
         state.currentAspects = aspects
         if (modelType == "pokemon") {
@@ -125,20 +130,18 @@ class ArtificialRenderableFace(
             }
             drawPosablePortrait(
                 identifier = species.resourceIdentifier,
-                aspects = aspects,
-                matrixStack = drawContext.pose(),
+                matrixStack = GuiGraphics.pose(),
                 contextScale = species.getForm(aspects).baseScale,
                 state = state,
-                repository = PokemonModelRepository,
+                reversed = !isLeftSide,
                 partialTicks = partialTicks
             )
         } else if (modelType == "npc") {
             drawPosablePortrait(
                 identifier = identifier,
-                aspects = aspects,
-                matrixStack = drawContext.pose(),
+                matrixStack = GuiGraphics.pose(),
                 state = state,
-                repository = NPCModelRepository,
+                reversed = !isLeftSide,
                 partialTicks = partialTicks
             )
         }

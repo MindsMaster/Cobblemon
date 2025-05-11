@@ -13,11 +13,12 @@
             "context": "grounded",
             "bucket": "common",
             "level": "25-41",
-            "weight": 0.9,
+            "weight": 0.95,
             "condition": {
                 "minSkyLight": 0,
                 "maxSkyLight": 0,
                 "biomes": [
+                    "#aether:is_aether",
                     "#cobblemon:is_overworld"
                 ],
                 "maxLight": 0
@@ -38,7 +39,7 @@
             "context": "grounded",
             "bucket": "uncommon",
             "level": "25-41",
-            "weight": 0.54,
+            "weight": 0.712,
             "condition": {
                 "canSeeSky": false,
                 "biomes": [
@@ -61,7 +62,7 @@
             "context": "grounded",
             "bucket": "common",
             "level": "25-41",
-            "weight": 0.9,
+            "weight": 0.95,
             "condition": {
                 "minSkyLight": 8,
                 "maxSkyLight": 15,
@@ -81,7 +82,7 @@
             "context": "grounded",
             "bucket": "common",
             "level": "25-41",
-            "weight": 0.9,
+            "weight": 0.95,
             "condition": {
                 "biomes": [
                     "#minecraft:is_nether"

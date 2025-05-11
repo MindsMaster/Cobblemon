@@ -29,6 +29,8 @@ object CobblemonCriteria : PlatformRegistry<Registry<CriterionTrigger<*>>, Resou
 
     val CATCH_SHINY_POKEMON = this.create("catch_shiny_pokemon", SimpleCriterionTrigger(CountableCriterion.CODEC))
 
+    val EGG_COLLECT = this.create("eggs_collected", SimpleCriterionTrigger(CountableCriterion.CODEC))
+
     val EGG_HATCH = this.create("eggs_hatched", SimpleCriterionTrigger(CountableCriterion.CODEC))
 
     val EVOLVE_POKEMON = this.create("pokemon_evolved", SimpleCriterionTrigger(EvolvePokemonCriterion.CODEC))
@@ -52,6 +54,8 @@ object CobblemonCriteria : PlatformRegistry<Registry<CriterionTrigger<*>>, Resou
     val TRADE_POKEMON = this.create("trade_pokemon", SimpleCriterionTrigger(TradePokemonCriterion.CODEC))
 
     val CAST_POKE_ROD = this.create("cast_poke_rod", SimpleCriterionTrigger(CastPokeRodCriterionCondition.CODEC))
+
+    val REEL_IN_POKEMON = this.create("reel_in_pokemon", SimpleCriterionTrigger(ReelInPokemonCriterionCondition.CODEC))
 
     // Advancement criteria for [grow_tumblestone.json]
     val PLANT_TUMBLESTONE = this.create("plant_tumblestone", SimpleCriterionTrigger(PlantTumblestoneCriterion.CODEC))

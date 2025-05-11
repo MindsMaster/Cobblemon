@@ -11,10 +11,12 @@ package com.cobblemon.mod.common.client.gui.pokenav
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.api.gui.blitk
 import com.cobblemon.mod.common.client.CobblemonClient
+import com.cobblemon.mod.common.client.gui.CobblemonRenderable
 import com.cobblemon.mod.common.client.gui.summary.Summary
 import com.cobblemon.mod.common.client.keybind.boundKey
 import com.cobblemon.mod.common.client.keybind.keybinds.PokeNavigatorBinding
 import com.cobblemon.mod.common.util.cobblemonResource
+import com.cobblemon.mod.common.util.isInventoryKeyPressed
 import com.cobblemon.mod.common.util.lang
 import com.google.common.collect.HashBasedTable
 import com.google.common.collect.Table
@@ -27,7 +29,7 @@ import net.minecraft.network.chat.MutableComponent
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 
-class PokeNav : Screen(Component.translatable("cobblemon.ui.pokenav.title")) {
+class PokeNav : Screen(Component.translatable("cobblemon.ui.pokenav.title")), CobblemonRenderable {
 
     companion object {
         // Limiting
@@ -82,6 +84,11 @@ class PokeNav : Screen(Component.translatable("cobblemon.ui.pokenav.title")) {
      * Cleaned up the original code see [moveSelected] for how the selection moves around.
      */
     override fun keyPressed(pKeyCode: Int, pScanCode: Int, pModifiers: Int): Boolean {
+        if (isInventoryKeyPressed(minecraft, pKeyCode, pScanCode)) {
+            Minecraft.getInstance().setScreen(null)
+            return true
+        }
+
         val movement: Pair<Int, Int> = when (pKeyCode) {
             InputConstants.KEY_RIGHT, InputConstants.KEY_D -> 1 to 0
             InputConstants.KEY_LEFT, InputConstants.KEY_A -> -1 to 0

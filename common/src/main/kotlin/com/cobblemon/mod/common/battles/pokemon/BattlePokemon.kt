@@ -8,8 +8,11 @@
 
 package com.cobblemon.mod.common.battles.pokemon
 
-import com.bedrockk.molang.runtime.struct.VariableStruct
+import com.bedrockk.molang.runtime.struct.QueryStruct
+import com.bedrockk.molang.runtime.value.DoubleValue
+import com.bedrockk.molang.runtime.value.StringValue
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor
+import com.cobblemon.mod.common.api.molang.MoLangFunctions.asStruct
 import com.cobblemon.mod.common.api.moves.MoveSet
 import com.cobblemon.mod.common.api.pokemon.helditem.HeldItemManager
 import com.cobblemon.mod.common.api.pokemon.helditem.HeldItemProvider
@@ -22,9 +25,13 @@ import com.cobblemon.mod.common.net.messages.client.battle.BattleUpdateTeamPokem
 import com.cobblemon.mod.common.pokemon.IVs
 import com.cobblemon.mod.common.pokemon.Nature
 import com.cobblemon.mod.common.pokemon.Pokemon
+import com.cobblemon.mod.common.pokemon.properties.BattleCloneProperty
+import com.cobblemon.mod.common.pokemon.properties.UncatchableProperty
 import com.cobblemon.mod.common.util.battleLang
+import com.cobblemon.mod.common.util.server
 import java.util.UUID
 import net.minecraft.network.chat.MutableComponent
+import java.util.function.Function
 
 open class BattlePokemon(
     val originalPokemon: Pokemon,
@@ -32,12 +39,19 @@ open class BattlePokemon(
     val postBattleEntityOperation: (PokemonEntity) -> Unit = {}
 ) {
     lateinit var actor: BattleActor
+
     companion object {
-        fun safeCopyOf(pokemon: Pokemon): BattlePokemon = BattlePokemon(
-            originalPokemon = pokemon,
-            effectedPokemon = pokemon.clone(),
-            postBattleEntityOperation = { entity -> entity.discard() }
-        )
+        fun safeCopyOf(pokemon: Pokemon): BattlePokemon {
+            //TOOD figure out a closer registry access (might have to break some method signatures for this (1.7?)
+            val effectedPokemon = pokemon.clone(registryAccess = server()?.registryAccess() ?: throw IllegalStateException("No registry access available"))
+            BattleCloneProperty.isBattleClone().apply(effectedPokemon)
+            UncatchableProperty.uncatchable().apply(effectedPokemon)
+            return BattlePokemon(
+                originalPokemon = pokemon,
+                effectedPokemon = effectedPokemon,
+                postBattleEntityOperation = { it.recallWithAnimation() }
+            )
+        }
 
         fun playerOwned(pokemon: Pokemon): BattlePokemon = BattlePokemon(
             originalPokemon = pokemon,
@@ -48,12 +62,28 @@ open class BattlePokemon(
         )
     }
 
+    val struct = QueryStruct(
+        hashMapOf(
+            "pokemon" to Function { effectedPokemon.asStruct() },
+            "original_pokemon" to Function {
+                originalPokemon.asStruct()
+            },
+            "actor" to Function { actor.struct },
+            "battle" to Function { actor.battle.struct },
+            "uuid" to Function { StringValue(uuid.toString()) },
+            "health" to Function { DoubleValue(health.toDouble()) },
+            "max_health" to Function { DoubleValue(maxHealth.toDouble()) },
+            "ivs" to Function { effectedPokemon.ivs.struct },
+            "nature" to Function { StringValue(effectedPokemon.nature.name.toString()) },
+            "moveset" to Function { effectedPokemon.moveSet.toStruct() }
+        ))
+
     val uuid: UUID
         get() = effectedPokemon.uuid
     val health: Int
         get() = effectedPokemon.currentHealth
     val maxHealth: Int
-        get() = effectedPokemon.hp
+        get() = effectedPokemon.maxHealth
     val ivs: IVs
         get() = effectedPokemon.ivs
     val nature: Nature
@@ -94,15 +124,11 @@ open class BattlePokemon(
 
     fun isSentOut() = actor.battle.activePokemon.any { it.battlePokemon == this }
     fun canBeSentOut() =
-            if (actor.request?.side?.pokemon?.get(0)?.reviving == true) {
-                !isSentOut() && !willBeSwitchedIn && health <= 0
-            } else {
-                !isSentOut() && !willBeSwitchedIn && health > 0
-            }
-
-    fun writeVariables(struct: VariableStruct) {
-        effectedPokemon.writeVariables(struct)
-    }
+        if (actor.request?.side?.pokemon?.any { it.reviving } == true) {
+            !isSentOut() && !willBeSwitchedIn && health <= 0
+        } else {
+            !isSentOut() && !willBeSwitchedIn && health > 0
+        }
 
     fun getIllusion(): BattlePokemon? = this.actor.activePokemon.find { it.battlePokemon == this }?.illusion
 }

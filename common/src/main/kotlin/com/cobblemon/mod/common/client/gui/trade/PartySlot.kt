@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.client.gui.trade
 
 import com.cobblemon.mod.common.api.gui.blitk
+import com.cobblemon.mod.common.client.gui.CobblemonRenderable
 import com.cobblemon.mod.common.client.gui.drawProfilePokemon
 import com.cobblemon.mod.common.client.render.drawScaledText
 import com.cobblemon.mod.common.client.render.models.blockbench.FloatingState
@@ -31,7 +32,7 @@ open class PartySlot(
     private val parent: TradeGUI,
     private val isOpposing: Boolean = false,
     onPress: OnPress
-) : Button(x, y, SIZE, SIZE, Component.literal("PartySlot"), onPress, DEFAULT_NARRATION) {
+) : Button(x, y, SIZE, SIZE, Component.literal("PartySlot"), onPress, DEFAULT_NARRATION), CobblemonRenderable {
     val state = FloatingState()
     companion object {
         const val SIZE = 25
@@ -60,13 +61,7 @@ open class PartySlot(
         }
 
         if (pokemon != null) {
-            context.enableScissor(
-                x - 2,
-                y + 2,
-                x + SIZE + 4,
-                y + SIZE + 4
-            )
-
+            // context.enableScissor(x - 2, y + 2, x + SIZE + 4, y + SIZE + 4)
             // Render Pokémon
             matrices.pushPose()
             matrices.translate(x + (SIZE / 2.0), y + 1.0, 0.0)
@@ -81,7 +76,7 @@ open class PartySlot(
             )
             matrices.popPose()
 
-            context.disableScissor()
+            // context.disableScissor()
 
             // Ensure elements are not hidden behind Pokémon render
             matrices.pushPose()

@@ -9,6 +9,8 @@
 package com.cobblemon.mod.common.client.gui.interact.wheel
 
 import com.cobblemon.mod.common.api.gui.blitk
+import com.cobblemon.mod.common.client.gui.CobblemonRenderable
+import com.cobblemon.mod.common.client.gui.interact.wheel.InteractWheelButton.Companion.BUTTON_SIZE
 import com.cobblemon.mod.common.client.gui.startselection.widgets.preview.ArrowButton
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.google.common.collect.Multimap
@@ -20,10 +22,9 @@ import net.minecraft.client.gui.screens.Screen
 import net.minecraft.network.chat.Component
 import kotlin.math.max
 
-class InteractWheelGUI(private val options: Multimap<Orientation, InteractWheelOption>, title: Component) : Screen(title) {
+class InteractWheelGUI(private val options: Multimap<Orientation, InteractWheelOption>, title: Component) : Screen(title), CobblemonRenderable {
     companion object {
         const val SIZE = 138
-        const val OPTION_SIZE = 69
         private val backgroundResource = cobblemonResource("textures/gui/interact/interact_base.png")
         private val buttonResources = mutableMapOf(
             Orientation.TOP_LEFT to cobblemonResource("textures/gui/interact/button_left_top.png"),
@@ -36,6 +37,8 @@ class InteractWheelGUI(private val options: Multimap<Orientation, InteractWheelO
     private val buttons = mutableListOf<InteractWheelButton>()
     private var maxPage = 1
     private var currentPage = 0
+    override fun renderBlurredBackground(delta: Float) { }
+    override fun renderMenuBackground(context: GuiGraphics) {}
 
     override fun init() {
         calculateMaxPage()
@@ -96,19 +99,21 @@ class InteractWheelGUI(private val options: Multimap<Orientation, InteractWheelO
         val (x, y) = getButtonPosition(orientation)
         addRenderableWidget(InteractWheelButton(
             iconResource = option?.iconResource,
+            secondaryIconResource = option?.secondaryIconResource,
             buttonResource = buttonResources[orientation]!!,
             tooltipText = option?.tooltipText,
             x = x,
             y = y,
-            isEnabled = option != null,
+            isEnabled = option != null && option.enabled,
             colour = option?.colour ?: { null },
-            onPress = { option?.onPress?.invoke() }
+            onPress = { option?.onPress?.invoke() },
+            canHover = { a: Double, b: Double -> !isMouseInCenter(a, b)}
         ))
     }
 
     override fun <T> addRenderableWidget(drawableElement: T): T where T : GuiEventListener?, T : Renderable?, T : NarratableEntry? {
         if (drawableElement is InteractWheelButton) {
-            buttons.add(drawableElement)
+//            buttons.add(drawableElement)
         }
         return super.addRenderableWidget(drawableElement)
     }
@@ -137,9 +142,9 @@ class InteractWheelGUI(private val options: Multimap<Orientation, InteractWheelO
         val (x, y) = getDimensions()
         return when (orientation) {
             Orientation.TOP_LEFT -> Pair(x, y)
-            Orientation.TOP_RIGHT -> Pair(x + OPTION_SIZE, y)
-            Orientation.BOTTOM_LEFT -> Pair(x, y + OPTION_SIZE)
-            Orientation.BOTTOM_RIGHT -> Pair(x + OPTION_SIZE, y + OPTION_SIZE)
+            Orientation.TOP_RIGHT -> Pair(x + BUTTON_SIZE, y)
+            Orientation.BOTTOM_LEFT -> Pair(x, y + BUTTON_SIZE)
+            Orientation.BOTTOM_RIGHT -> Pair(x + BUTTON_SIZE, y + BUTTON_SIZE)
         }
     }
 

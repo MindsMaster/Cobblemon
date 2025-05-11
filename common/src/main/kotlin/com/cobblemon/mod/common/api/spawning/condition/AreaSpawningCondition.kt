@@ -32,7 +32,7 @@ abstract class AreaTypeSpawningCondition<T : AreaSpawningContext> : SpawningCond
             return false
         } else if (maxHeight != null && ctx.height > maxHeight!!) {
             return false
-        } else if (neededNearbyBlocks != null && neededNearbyBlocks!!.none { cond -> ctx.nearbyBlockTypes.any { cond.fits(it, ctx.blockRegistry) } }) {
+        } else if (neededNearbyBlocks != null && neededNearbyBlocks!!.none { cond -> ctx.nearbyBlockHolders.any { cond.fits(it) } }) {
             return false
         } else {
             return true
@@ -46,6 +46,11 @@ abstract class AreaTypeSpawningCondition<T : AreaSpawningContext> : SpawningCond
             merger.mergeSingle(maxHeight, other.maxHeight)
             neededNearbyBlocks = merger.merge(neededNearbyBlocks, other.neededNearbyBlocks)?.toMutableList()
         }
+    }
+
+    override fun isValid(): Boolean {
+        val containsNullValues = neededNearbyBlocks != null && neededNearbyBlocks!!.any {it == null}
+        return super.isValid() && !containsNullValues
     }
 }
 

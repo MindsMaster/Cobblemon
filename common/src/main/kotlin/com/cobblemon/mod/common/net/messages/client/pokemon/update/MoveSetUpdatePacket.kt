@@ -13,7 +13,7 @@ import com.cobblemon.mod.common.pokemon.Pokemon
 import com.cobblemon.mod.common.util.cobblemonResource
 import net.minecraft.network.RegistryFriendlyByteBuf
 
-class MoveSetUpdatePacket(pokemon: () -> Pokemon, value: MoveSet) : SingleUpdatePacket<MoveSet, MoveSetUpdatePacket>(pokemon, value) {
+class MoveSetUpdatePacket(pokemon: () -> Pokemon?, value: MoveSet) : SingleUpdatePacket<MoveSet, MoveSetUpdatePacket>(pokemon, value) {
     override val id = ID
     override fun encodeValue(buffer: RegistryFriendlyByteBuf) {
         this.value.saveToBuffer(buffer)
@@ -22,6 +22,7 @@ class MoveSetUpdatePacket(pokemon: () -> Pokemon, value: MoveSet) : SingleUpdate
     override fun set(pokemon: Pokemon, value: MoveSet) {
         pokemon.moveSet.copyFrom(value)
     }
+
     companion object {
         val ID = cobblemonResource("moveset_update")
         fun decode(buffer: RegistryFriendlyByteBuf) = MoveSetUpdatePacket(decodePokemon(buffer), MoveSet().apply { loadFromBuffer(buffer) })

@@ -13,6 +13,7 @@ import com.cobblemon.mod.common.api.gui.blitk
 import com.cobblemon.mod.common.api.text.bold
 import com.cobblemon.mod.common.api.text.text
 import com.cobblemon.mod.common.client.CobblemonResources
+import com.cobblemon.mod.common.client.gui.CobblemonRenderable
 import com.cobblemon.mod.common.client.gui.drawProfilePokemon
 import com.cobblemon.mod.common.client.gui.pc.StorageSlot
 import com.cobblemon.mod.common.client.gui.summary.widgets.PartySlotWidget
@@ -40,7 +41,7 @@ class PasturePokemonScrollList(
     HEIGHT, // height
     0, // top
     SLOT_HEIGHT + SLOT_SPACING
-) {
+), CobblemonRenderable {
     companion object {
         const val WIDTH = 70
         const val HEIGHT = 120
@@ -114,7 +115,7 @@ class PasturePokemonScrollList(
             font = CobblemonResources.DEFAULT_LARGE,
             text = "${children().count { it.isOwned() }}/${config.permissions.maxPokemon.takeIf { it >= 0 } ?: config.limit }".text().bold(),
             x = x + (WIDTH / 2),
-            y = y - 9,
+            y = y - 7,
             centered = true
         )
     }
@@ -191,7 +192,8 @@ class PasturePokemonScrollList(
             partialTicks: Float
         ) {
             val x = rowLeft - 4
-            val y = rowTop
+            val y = rowTop + 2
+
             val matrixStack = context.pose()
             blitk(
                 matrixStack = matrixStack,
@@ -208,9 +210,9 @@ class PasturePokemonScrollList(
             matrixStack.pushPose()
             matrixStack.translate(x + 11 + (StorageSlot.SIZE / 2.0), y - 5.0, 0.0)
             matrixStack.scale(2.5F, 2.5F, 1F)
+            state.currentAspects = pokemon.aspects
             drawProfilePokemon(
                 species = pokemon.species,
-                aspects = pokemon.aspects,
                 matrixStack = matrixStack,
                 rotation = Quaternionf().fromEulerXYZDegrees(Vector3f(13F, 35F, 0F)),
                 state = state,

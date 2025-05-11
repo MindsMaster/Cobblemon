@@ -14,6 +14,7 @@ import com.cobblemon.mod.common.pokemon.Pokemon
 import com.cobblemon.mod.common.util.DataKeys
 import com.google.gson.JsonObject
 import java.util.UUID
+import net.minecraft.core.RegistryAccess
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.server.level.ServerPlayer
 
@@ -44,23 +45,23 @@ open class BottomlessStore(override val uuid: UUID) : PokemonStore<BottomlessPos
     override fun initialize() {
         pokemon.forEachIndexed { index, pokemon ->
             pokemon.storeCoordinates.set(StoreCoordinates(this, BottomlessPosition(index)))
-            pokemon.getChangeObservable().pipe(
-                stopAfter { it.storeCoordinates.get()?.store != this }
+            pokemon.changeObservable.pipe(
+                stopAfter { pokemon.storeCoordinates.get()?.store != this }
             ).subscribe { storeChangeObservable.emit(Unit) }
         }
     }
 
-    override fun saveToNBT(nbt: CompoundTag): CompoundTag {
-        pokemon.forEachIndexed { index, pokemon -> nbt.put(DataKeys.STORE_SLOT + index, pokemon.saveToNBT()) }
+    override fun saveToNBT(nbt: CompoundTag, registryAccess: RegistryAccess): CompoundTag {
+        pokemon.forEachIndexed { index, pokemon -> nbt.put(DataKeys.STORE_SLOT + index, pokemon.saveToNBT(registryAccess)) }
         return nbt
     }
 
-    override fun loadFromNBT(nbt: CompoundTag): BottomlessStore {
+    override fun loadFromNBT(nbt: CompoundTag, registryAccess: RegistryAccess): BottomlessStore {
         var i = -1
         while (nbt.contains(DataKeys.STORE_SLOT + ++i)) {
             val pokemonNBT = nbt.getCompound(DataKeys.STORE_SLOT + i)
             try {
-                pokemon.add(Pokemon.loadFromNBT(pokemonNBT))
+                pokemon.add(Pokemon.loadFromNBT(registryAccess, pokemonNBT))
             } catch(_: InvalidSpeciesException) {
                 handleInvalidSpeciesNBT(pokemonNBT)
             }
@@ -68,17 +69,17 @@ open class BottomlessStore(override val uuid: UUID) : PokemonStore<BottomlessPos
         return this
     }
 
-    override fun saveToJSON(json: JsonObject): JsonObject {
-        pokemon.forEachIndexed { index, pokemon -> json.add(DataKeys.STORE_SLOT + index, pokemon.saveToJSON()) }
+    override fun saveToJSON(json: JsonObject, registryAccess: RegistryAccess): JsonObject {
+        pokemon.forEachIndexed { index, pokemon -> json.add(DataKeys.STORE_SLOT + index, pokemon.saveToJSON(registryAccess)) }
         return json
     }
 
-    override fun loadFromJSON(json: JsonObject): BottomlessStore {
+    override fun loadFromJSON(json: JsonObject, registryAccess: RegistryAccess): BottomlessStore {
         var i = -1
         while (json.has(DataKeys.STORE_SLOT + ++i)) {
             val pokemonJSON = json.getAsJsonObject(DataKeys.STORE_SLOT + i)
             try {
-                pokemon.add(Pokemon.loadFromJSON(pokemonJSON))
+                pokemon.add(Pokemon.loadFromJSON(registryAccess, pokemonJSON))
             } catch (_: InvalidSpeciesException) {
                 handleInvalidSpeciesJSON(pokemonJSON)
             }
@@ -109,7 +110,7 @@ open class BottomlessStore(override val uuid: UUID) : PokemonStore<BottomlessPos
             } else {
                 this.pokemon.removeAt(position.currentIndex)
             }
-            for(i in startIndex until this.pokemon.size) {
+            for (i in startIndex until this.pokemon.size) {
                 this.pokemon[i].storeCoordinates.set(StoreCoordinates(this, BottomlessPosition(i)))
             }
             storeChangeObservable.emit(Unit)

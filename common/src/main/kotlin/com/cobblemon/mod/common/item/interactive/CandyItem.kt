@@ -8,6 +8,7 @@
 
 package com.cobblemon.mod.common.item.interactive
 
+import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.events.CobblemonEvents
 import com.cobblemon.mod.common.api.events.pokemon.interaction.ExperienceCandyUseEvent
 import com.cobblemon.mod.common.api.item.PokemonSelectingItem
@@ -20,6 +21,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResultHolder
+import net.minecraft.world.item.Rarity
 import net.minecraft.world.level.Level
 
 /**
@@ -31,7 +33,13 @@ import net.minecraft.world.level.Level
  * @author Licious
  * @since May 5th, 2022
  */
-class CandyItem(val calculator: Calculator) : CobblemonItem(Properties()), PokemonSelectingItem {
+class CandyItem(
+    val item_rarity: Rarity,
+    val calculator: Calculator
+) : CobblemonItem(Properties().apply {
+    rarity(item_rarity)
+}), PokemonSelectingItem {
+
     override val bagItem = null
 
     override fun use(world: Level, user: Player, hand: InteractionHand): InteractionResultHolder<ItemStack> {
@@ -57,6 +65,7 @@ class CandyItem(val calculator: Calculator) : CobblemonItem(Properties()), Pokem
                         }
                         returnValue = true
                     }
+                    pokemon.entity?.playSound(CobblemonSounds.MEDICINE_CANDY_USE, 1F, 1F)
                     CobblemonEvents.EXPERIENCE_CANDY_USE_POST.post(ExperienceCandyUseEvent.Post(player, pokemon, this, result))
 
                     return if (returnValue)
@@ -68,7 +77,7 @@ class CandyItem(val calculator: Calculator) : CobblemonItem(Properties()), Pokem
         return InteractionResultHolder.fail(stack)
     }
 
-    override fun canUseOnPokemon(pokemon: Pokemon): Boolean {
+    override fun canUseOnPokemon(stack: ItemStack, pokemon: Pokemon): Boolean {
         return pokemon.isPlayerOwned()
     }
 

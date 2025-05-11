@@ -28,14 +28,13 @@ class BattleCountableCriterion(
         val CODEC: Codec<BattleCountableCriterion> = RecordCodecBuilder.create { it.group(
             ContextAwarePredicate.CODEC.optionalFieldOf("player").forGetter(BattleCountableCriterion::playerCtx),
             Codec.STRING.listOf().optionalFieldOf("battle_types", listOf("any")).forGetter(BattleCountableCriterion::battleTypes),
-            Codec.INT.optionalFieldOf( "count", 0).forGetter(BattleCountableCriterion::count)
+            Codec.INT.optionalFieldOf("count", 0).forGetter(BattleCountableCriterion::count)
         ).apply(it, ::BattleCountableCriterion) }
     }
 
     override fun matches(player: ServerPlayer, context: BattleCountableContext): Boolean {
         var typeCheck = false
-        val advancementData = Cobblemon.playerData.get(player).advancementData
-
+        val advancementData = Cobblemon.playerDataManager.getGenericData(player).advancementData
         if (battleTypes.isEmpty() || battleTypes.contains("any")) {
             typeCheck = true
         }
@@ -87,7 +86,7 @@ class BattleCountableCriterion(
 //        json.add("battle_types", battleTypes.toJsonArray())
 //    }
 //
-//    override fun matches(player: ServerPlayerEntity, context: BattleCountableContext): Boolean {
+//    override fun matches(player: ServerPlayer, context: BattleCountableContext): Boolean {
 //        var typeCheck = false
 //        val advancementData = Cobblemon.playerData.get(player).advancementData
 //        if (battleTypes.isEmpty() || battleTypes.contains("any")) {

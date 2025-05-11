@@ -8,9 +8,10 @@
 
 package com.cobblemon.mod.common.api.spawning.context
 
-import com.bedrockk.molang.runtime.struct.VariableStruct
-import com.bedrockk.molang.runtime.value.DoubleValue
-import com.cobblemon.mod.common.api.molang.ObjectValue
+import com.bedrockk.molang.runtime.MoLangRuntime
+import com.bedrockk.molang.runtime.struct.QueryStruct
+import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMoLangValue
+import com.cobblemon.mod.common.api.molang.MoLangFunctions.setup
 import com.cobblemon.mod.common.api.spawning.SpawnCause
 import com.cobblemon.mod.common.api.spawning.condition.BasicSpawningCondition
 import com.cobblemon.mod.common.api.spawning.detail.SpawnDetail
@@ -55,6 +56,10 @@ abstract class SpawningContext {
         }
     }
 
+    @Transient
+    val runtime = MoLangRuntime().setup()
+        .also { runtime -> runtime.environment.query.addFunction("context") { getOrSetupStruct()  } }
+
     /** What caused the spawn context, as a [SpawnCause]. */
     abstract val cause: SpawnCause
     val spawner: Spawner
@@ -77,7 +82,9 @@ abstract class SpawningContext {
     /** The current phase of the moon at this location. */
     val moonPhase: Int by lazy { world.moonPhase }
     /** The biome of this location. */
-    val biome: Biome by lazy { world.getBiome(position).value() }
+    val biome: Biome by lazy { biomeHolder.value() }
+    /** The registry holder for the biome this context is in. */
+    val biomeHolder: Holder<Biome> by lazy { world.getBiome(position) }
 
     val biomeRegistry: Registry<Biome> by lazy { world.registryAccess().registryOrThrow(Registries.BIOME) }
     val blockRegistry: Registry<Block> by lazy { world.registryAccess().registryOrThrow(Registries.BLOCK) }
@@ -87,7 +94,7 @@ abstract class SpawningContext {
     val biomeName: ResourceLocation
         get() = this.biomeRegistry.getKey(biome)!!
 
-    private val struct = VariableStruct()
+    private var struct = QueryStruct(hashMapOf())
     private var structCompiled = false
 
     class StructureChunkCache {
@@ -168,19 +175,11 @@ abstract class SpawningContext {
         return weight
     }
 
-    fun getOrSetupStruct(): VariableStruct {
+    fun getOrSetupStruct(): QueryStruct {
         if (structCompiled) {
             return struct
         }
-
-        struct.setDirectly("light", DoubleValue(light.toDouble()))
-        struct.setDirectly("x", DoubleValue(position.x.toDouble()))
-        struct.setDirectly("y", DoubleValue(position.y.toDouble()))
-        struct.setDirectly("z", DoubleValue(position.z.toDouble()))
-        struct.setDirectly("moon_phase", DoubleValue(moonPhase.toDouble()))
-        struct.setDirectly("world", ObjectValue(world.registryAccess().registryOrThrow(Registries.DIMENSION).wrapAsHolder(world)))
-        struct.setDirectly("biome", ObjectValue(biomeRegistry.wrapAsHolder(biome)))
-
+        struct = this.asMoLangValue()
         structCompiled = true
         return struct
     }

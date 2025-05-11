@@ -30,10 +30,14 @@ abstract class SeafloorTypeSpawningCondition<T : SeafloorSpawningContext> : Area
         return if (!super.fits(ctx)) {
             false
         } else if (minHeight != null && ctx.height < minHeight!!) {
-            return false
+            false
         } else if (maxHeight != null && ctx.height > maxHeight!!) {
-            return false
-        } else !(neededBaseBlocks != null && neededBaseBlocks!!.none { it.fits(ctx.baseBlock.block, ctx.blockRegistry) })
+            false
+        } else if (neededBaseBlocks != null && neededBaseBlocks!!.none { it.fits(ctx.baseBlockHolder) }) {
+            false
+        } else {
+            true
+        }
     }
 
     override fun copyFrom(other: SpawningCondition<*>, merger: Merger) {
@@ -41,6 +45,11 @@ abstract class SeafloorTypeSpawningCondition<T : SeafloorSpawningContext> : Area
         if (other is SeafloorTypeSpawningCondition) {
             neededBaseBlocks = merger.merge(neededBaseBlocks, other.neededBaseBlocks)?.toMutableList()
         }
+    }
+
+    override fun isValid(): Boolean {
+        val containsNullValues = neededBaseBlocks != null && neededBaseBlocks!!.any { it == null }
+        return super.isValid() && !containsNullValues
     }
 }
 

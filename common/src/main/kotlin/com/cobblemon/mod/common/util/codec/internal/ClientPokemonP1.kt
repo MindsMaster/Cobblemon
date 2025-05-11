@@ -15,6 +15,7 @@ import com.cobblemon.mod.common.api.moves.MoveSet
 import com.cobblemon.mod.common.api.pokemon.feature.SpeciesFeatures
 import com.cobblemon.mod.common.api.pokemon.feature.SynchronizedSpeciesFeature
 import com.cobblemon.mod.common.api.pokemon.feature.SynchronizedSpeciesFeatureProvider
+import com.cobblemon.mod.common.client.settings.ServerSettings
 import com.cobblemon.mod.common.pokemon.*
 import com.cobblemon.mod.common.util.DataKeys
 import com.cobblemon.mod.common.util.codec.CodecUtils
@@ -59,12 +60,20 @@ internal class ClientPokemonP1(
         other.experience = this.experience
         other.setFriendship(this.friendship)
         // Applied before current health for calcs to take place
-        other.ivs = this.ivs
-        other.evs = this.evs
+        other.ivs.doWithoutEmitting {
+            this.ivs.forEach {
+                other.ivs[it.key] = it.value
+            }
+        }
+        other.evs.doWithoutEmitting {
+            this.evs.forEach {
+                other.evs[it.key] = it.value
+            }
+        }
         other.currentHealth = this.currentHealth
         other.gender = this.gender
-        other.moveSet = this.moveSet
-        other.benchedMoves = this.benchedMoves
+        other.moveSet.copyFrom(this.moveSet)
+        other.benchedMoves.copyFrom(this.benchedMoves)
         other.scaleModifier = this.scaleModifier
         this.features.forEach { featureNbt ->
             val featureId = featureNbt.getString(FEATURE_ID)
@@ -88,18 +97,21 @@ internal class ClientPokemonP1(
 
     companion object {
 
-        private const val FEATURES = "Features"
-        private const val FEATURE_ID = "${Cobblemon.MODID}:feature_id"
+        const val FEATURES = "Features"
+        const val FEATURE_ID = "${Cobblemon.MODID}:feature_id"
 
+        /**
+         * do not use cobblemon.config in here, as this is used by the client whose config is different to server, always use [ServerSettings]
+          */
         internal val CODEC: MapCodec<ClientPokemonP1> = RecordCodecBuilder.mapCodec { instance ->
             instance.group(
                 UUIDUtil.LENIENT_CODEC.fieldOf(DataKeys.POKEMON_UUID).forGetter(ClientPokemonP1::uuid),
                 Species.BY_IDENTIFIER_CODEC.fieldOf(DataKeys.POKEMON_SPECIES_IDENTIFIER).forGetter(ClientPokemonP1::species),
                 Codec.STRING.fieldOf(DataKeys.POKEMON_FORM_ID).forGetter { pokemon -> pokemon.form.formOnlyShowdownId() },
                 ComponentSerialization.CODEC.optionalFieldOf(DataKeys.POKEMON_NICKNAME).forGetter(ClientPokemonP1::nickname),
-                CodecUtils.dynamicIntRange(1) { Cobblemon.config.maxPokemonLevel }.fieldOf(DataKeys.POKEMON_LEVEL).forGetter(ClientPokemonP1::level),
+                CodecUtils.dynamicIntRange(1) { ServerSettings.maxPokemonLevel }.fieldOf(DataKeys.POKEMON_LEVEL).forGetter(ClientPokemonP1::level),
                 Codec.intRange(0, Int.MAX_VALUE).fieldOf(DataKeys.POKEMON_EXPERIENCE).forGetter(ClientPokemonP1::experience),
-                CodecUtils.dynamicIntRange(0) { Cobblemon.config.maxPokemonFriendship }.fieldOf(DataKeys.POKEMON_FRIENDSHIP).forGetter(ClientPokemonP1::friendship),
+                CodecUtils.dynamicIntRange(0) { ServerSettings.maxPokemonFriendship }.fieldOf(DataKeys.POKEMON_FRIENDSHIP).forGetter(ClientPokemonP1::friendship),
                 Codec.intRange(0, Int.MAX_VALUE).fieldOf(DataKeys.POKEMON_HEALTH).forGetter(ClientPokemonP1::currentHealth),
                 Gender.CODEC.fieldOf(DataKeys.POKEMON_GENDER).forGetter(ClientPokemonP1::gender),
                 IVs.CODEC.fieldOf(DataKeys.POKEMON_IVS).forGetter(ClientPokemonP1::ivs),
@@ -134,7 +146,7 @@ internal class ClientPokemonP1(
             pokemon.ability,
         )
 
-        private fun collectVisibleFeatures(pokemon: Pokemon) = pokemon.features
+        fun collectVisibleFeatures(pokemon: Pokemon) = pokemon.features
             .filterIsInstance<SynchronizedSpeciesFeature>()
             .filter { (SpeciesFeatures.getFeature(it.name) as? SynchronizedSpeciesFeatureProvider<*>)?.visible == true }
             .map { feature ->

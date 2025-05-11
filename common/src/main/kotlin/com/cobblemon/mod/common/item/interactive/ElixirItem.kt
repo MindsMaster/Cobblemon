@@ -25,6 +25,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResultHolder
+import net.minecraft.world.item.Rarity
 import net.minecraft.world.level.Level
 
 /**
@@ -33,14 +34,19 @@ import net.minecraft.world.level.Level
  * @author Hiroku
  * @since June 30th, 2023
  */
-class ElixirItem(val max: Boolean) : CobblemonItem(Properties()), PokemonSelectingItem {
+class ElixirItem(
+    val max: Boolean
+) : CobblemonItem(Properties().apply {
+    if (max) rarity(Rarity.UNCOMMON)
+}), PokemonSelectingItem {
     override val bagItem = object : BagItem {
         override val itemName = "item.cobblemon.${ if (max) "max_elixir" else "elixir" }"
-        override fun canUse(battle: PokemonBattle, target: BattlePokemon) = target.health > 0 && target.moveSet.any { it.currentPp < it.maxPp }
+        override val returnItem = Items.GLASS_BOTTLE
+        override fun canUse(stack: ItemStack, battle: PokemonBattle, target: BattlePokemon) = target.health > 0 && target.moveSet.any { it.currentPp < it.maxPp }
         override fun getShowdownInput(actor: BattleActor, battlePokemon: BattlePokemon, data: String?) = "elixir".let { if (!max) "$it 10" else it }
     }
 
-    override fun canUseOnPokemon(pokemon: Pokemon) = pokemon.moveSet.any { it.currentPp < it.maxPp }
+    override fun canUseOnPokemon(stack: ItemStack, pokemon: Pokemon) = pokemon.moveSet.any { it.currentPp < it.maxPp }
     override fun applyToPokemon(player: ServerPlayer, stack: ItemStack, pokemon: Pokemon): InteractionResultHolder<ItemStack> {
         var changed = false
         pokemon.moveSet.doWithoutEmitting {
@@ -60,9 +66,9 @@ class ElixirItem(val max: Boolean) : CobblemonItem(Properties()), PokemonSelecti
             pokemon.moveSet.update()
             if (!player.isCreative) {
                 stack.shrink(1)
-                player.giveOrDropItemStack(ItemStack(Items.GLASS_BOTTLE))
+                player.giveOrDropItemStack(ItemStack(bagItem.returnItem))
             }
-            player.playSound(CobblemonSounds.MEDICINE_LIQUID_USE, 1F, 1F)
+            pokemon.entity?.playSound(CobblemonSounds.MEDICINE_LIQUID_USE, 1F, 1F)
             InteractionResultHolder.success(stack)
         } else {
             InteractionResultHolder.fail(stack)
@@ -71,7 +77,7 @@ class ElixirItem(val max: Boolean) : CobblemonItem(Properties()), PokemonSelecti
 
     override fun applyToBattlePokemon(player: ServerPlayer, stack: ItemStack, battlePokemon: BattlePokemon) {
         super.applyToBattlePokemon(player, stack, battlePokemon)
-        player.playSound(CobblemonSounds.MEDICINE_LIQUID_USE, 1F, 1F)
+        battlePokemon.entity?.playSound(CobblemonSounds.MEDICINE_LIQUID_USE, 1F, 1F)
     }
 
     override fun use(world: Level, user: Player, hand: InteractionHand): InteractionResultHolder<ItemStack> {

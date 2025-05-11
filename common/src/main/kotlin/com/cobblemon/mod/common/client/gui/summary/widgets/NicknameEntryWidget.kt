@@ -11,8 +11,10 @@ package com.cobblemon.mod.common.client.gui.summary.widgets
 import com.cobblemon.mod.common.CobblemonNetwork
 import com.cobblemon.mod.common.api.text.bold
 import com.cobblemon.mod.common.client.CobblemonResources
+import com.cobblemon.mod.common.client.gui.CobblemonRenderable
 import com.cobblemon.mod.common.client.render.drawScaledText
 import com.cobblemon.mod.common.net.messages.server.pokemon.update.SetNicknamePacket
+import com.cobblemon.mod.common.net.serverhandling.pokemon.update.SetNicknameHandler.MAX_NAME_LENGTH
 import com.cobblemon.mod.common.pokemon.Pokemon
 import com.mojang.blaze3d.platform.InputConstants
 import net.minecraft.client.Minecraft
@@ -27,10 +29,7 @@ class NicknameEntryWidget(
 ): EditBox(
     Minecraft.getInstance().font,
     x, y, width, height, text
-) {
-    companion object {
-        private const val MAX_NAME_LENGTH = 12
-    }
+), CobblemonRenderable {
 
     var pokemonName = ""
 

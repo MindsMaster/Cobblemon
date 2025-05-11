@@ -30,7 +30,11 @@ abstract class GroundedTypeSpawningCondition<T : GroundedSpawningContext> : Area
             return false
         } else if (maxHeight != null && ctx.height > maxHeight!!) {
             return false
-        } else !(neededBaseBlocks != null && neededBaseBlocks!!.none { it.fits(ctx.baseBlock.block, ctx.blockRegistry) })
+        } else if (neededBaseBlocks != null && neededBaseBlocks!!.none { it.fits(ctx.baseBlockHolder) }) {
+            return false
+        } else {
+            return true
+        }
     }
 
     override fun copyFrom(other: SpawningCondition<*>, merger: Merger) {
@@ -38,6 +42,11 @@ abstract class GroundedTypeSpawningCondition<T : GroundedSpawningContext> : Area
         if (other is GroundedTypeSpawningCondition) {
             neededBaseBlocks = merger.merge(neededBaseBlocks, other.neededBaseBlocks)?.toMutableList()
         }
+    }
+
+    override fun isValid(): Boolean {
+        val containsNullValues = neededBaseBlocks != null && neededBaseBlocks!!.any {it == null}
+        return super.isValid() && !containsNullValues
     }
 }
 

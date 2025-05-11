@@ -8,8 +8,13 @@
 
 package com.cobblemon.mod.common.client.render.item
 
+import com.cobblemon.mod.common.CobblemonItemComponents
 import com.cobblemon.mod.common.CobblemonItems
+import com.cobblemon.mod.common.client.pot.CookingQuality
+import com.cobblemon.mod.common.entity.fishing.PokeRodFishingBobberEntity
 import com.cobblemon.mod.common.item.interactive.PokerodItem
+import com.cobblemon.mod.common.util.cobblemonResource
+import net.minecraft.ChatFormatting
 import net.minecraft.client.renderer.item.ItemProperties
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Player
@@ -71,20 +76,46 @@ object CobblemonModelPredicateRegistry {
 
         rods.forEach { rod ->
             ItemProperties.register(rod, ResourceLocation.parse("cast")) { stack, world, entity, seed ->
-                if (entity == null) {
-                    0.0f
-                } else {
-                    val isMainHand = entity.mainHandItem == stack
-                    var isOffHand = entity.offhandItem == stack
-                    if (entity.mainHandItem.item is PokerodItem) {
-                        isOffHand = false
-                    }
+                if (entity !is Player || entity.fishing !is PokeRodFishingBobberEntity) return@register 0.0f
 
-                    if ((isMainHand || isOffHand) && entity is Player && entity.fishing != null) 1.0f else 0.0f
+                val rodId = entity.fishing!!.entityData.get(PokeRodFishingBobberEntity.POKEROD_ID)
+
+                val isMainHand = stack == entity.mainHandItem
+                var isOffHand = stack == entity.offhandItem
+
+                var mainHandItem = entity.mainHandItem.item
+                val isFishingWithMainHand = mainHandItem is PokerodItem && rodId == mainHandItem.pokeRodId.toString()
+
+                if (isFishingWithMainHand) {
+                    isOffHand = false
                 }
+
+                if (isMainHand && isFishingWithMainHand || isOffHand) 1.0f else 0.0f
             }
         }
 
+        val aprijuice = listOf(
+            CobblemonItems.APRIJUICE_BLACK,
+            CobblemonItems.APRIJUICE_GREEN,
+            CobblemonItems.APRIJUICE_WHITE,
+            CobblemonItems.APRIJUICE_BLUE,
+            CobblemonItems.APRIJUICE_PINK,
+            CobblemonItems.APRIJUICE_RED,
+            CobblemonItems.APRIJUICE_YELLOW,
+        )
+
+        aprijuice.forEach { aprijuice ->
+            ItemProperties.register(aprijuice, cobblemonResource("aprijuice_quality")) { stack, world, entity, seed ->
+                val flavourComponent = stack.get(CobblemonItemComponents.FLAVOUR) ?: return@register 0.0f
+                val quality = flavourComponent.getQuality()
+
+                return@register when (quality) {
+                    CookingQuality.LOW -> 0.0f
+                    CookingQuality.MEDIUM -> 0.1f
+                    CookingQuality.HIGH -> 0.2f
+                }
+            }
+        }
 
 
     }

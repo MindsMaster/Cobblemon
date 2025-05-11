@@ -8,9 +8,11 @@
 
 package com.cobblemon.mod.common.util
 
+import com.bedrockk.molang.Expression
 import com.cobblemon.mod.common.api.storage.party.PartyPosition
 import com.cobblemon.mod.common.api.storage.pc.PCPosition
 import com.cobblemon.mod.common.net.IntSize
+import com.google.common.collect.Lists
 import io.netty.buffer.ByteBuf
 import io.netty.buffer.ByteBufInputStream
 import io.netty.buffer.ByteBufOutputStream
@@ -19,6 +21,7 @@ import net.minecraft.nbt.EndTag
 import net.minecraft.nbt.NbtAccounter
 import net.minecraft.nbt.NbtIo
 import net.minecraft.nbt.Tag
+import net.minecraft.network.FriendlyByteBuf
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.network.Utf8String
 import net.minecraft.network.chat.Component
@@ -28,6 +31,8 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.EntityDimensions
 import net.minecraft.world.item.ItemStack
+import org.joml.Matrix3f
+import org.joml.Matrix4f
 import java.io.IOException
 import java.util.*
 
@@ -85,19 +90,18 @@ fun ByteBuf.writeString(string: String): ByteBuf {
     return this
 }
 
-fun <T> ByteBuf.readCollection(reader: (ByteBuf) -> T): List<T> {
-    val numElements = this.readInt()
-    val collection = mutableListOf<T>()
-    repeat(numElements) {
-        collection.add(reader.invoke(this))
-    }
-    return collection
-}
-
-fun <T> ByteBuf.readList(reader: (ByteBuf) -> T) = readCollection(reader)
+fun <T> RegistryFriendlyByteBuf.readList(reader: (FriendlyByteBuf) -> T): List<T> = readCollection(Lists::newArrayListWithCapacity, reader)
 
 fun ByteBuf.readString(): String {
     return Utf8String.read(this, 32767)
+}
+
+fun ByteBuf.writeExpression(expression: Expression): ByteBuf {
+    return this.writeString(expression.getString())
+}
+
+fun ByteBuf.readExpression(): Expression {
+    return this.readString().asExpression()
 }
 
 fun <T> ByteBuf.readNullable(reader: (ByteBuf) -> T): T? {
@@ -241,4 +245,54 @@ fun ByteBuf.readBitSet(size: Int): BitSet {
     return BitSet.valueOf(bs)
 }
 
-//fun
+fun ByteBuf.writeMatrix3f(matrix: Matrix3f) {
+    this.writeFloat(matrix.m00)
+    this.writeFloat(matrix.m01)
+    this.writeFloat(matrix.m02)
+    this.writeFloat(matrix.m10)
+    this.writeFloat(matrix.m11)
+    this.writeFloat(matrix.m12)
+    this.writeFloat(matrix.m20)
+    this.writeFloat(matrix.m21)
+    this.writeFloat(matrix.m22)
+}
+
+fun ByteBuf.readMatrix3f(): Matrix3f {
+    return Matrix3f(
+        readFloat(), readFloat(), readFloat(),
+        readFloat(), readFloat(), readFloat(),
+        readFloat(), readFloat(), readFloat(),
+    )
+}
+
+fun ByteBuf.writeMatrix4f(matrix: Matrix4f) {
+    this.writeFloat(matrix.m00())
+    this.writeFloat(matrix.m01())
+    this.writeFloat(matrix.m02())
+    this.writeFloat(matrix.m03())
+
+    this.writeFloat(matrix.m10())
+    this.writeFloat(matrix.m11())
+    this.writeFloat(matrix.m12())
+    this.writeFloat(matrix.m13())
+
+    this.writeFloat(matrix.m20())
+    this.writeFloat(matrix.m21())
+    this.writeFloat(matrix.m22())
+    this.writeFloat(matrix.m23())
+
+    this.writeFloat(matrix.m30())
+    this.writeFloat(matrix.m31())
+    this.writeFloat(matrix.m32())
+    this.writeFloat(matrix.m33())
+}
+
+fun ByteBuf.readMatrix4f(): Matrix4f {
+    return Matrix4f(
+        readFloat(), readFloat(), readFloat(), readFloat(),
+        readFloat(), readFloat(), readFloat(), readFloat(),
+        readFloat(), readFloat(), readFloat(), readFloat(),
+        readFloat(), readFloat(), readFloat(), readFloat(),
+    )
+}
+

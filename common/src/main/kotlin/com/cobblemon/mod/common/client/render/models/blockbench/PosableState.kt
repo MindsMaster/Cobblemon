@@ -35,15 +35,20 @@ import com.cobblemon.mod.common.client.render.models.blockbench.quirk.ModelQuirk
 import com.cobblemon.mod.common.client.render.models.blockbench.quirk.QuirkData
 import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.entity.PoseType
+import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
+import com.mojang.brigadier.StringReader
+import com.mojang.brigadier.exceptions.CommandSyntaxException
+import java.util.concurrent.ConcurrentLinkedQueue
 import net.minecraft.client.Minecraft
 import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.resources.sounds.SimpleSoundInstance
+import net.minecraft.commands.arguments.item.ItemParser
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.phys.Vec3
-import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
  * Represents some kind of animation state for an entity or GUI element or other renderable component in the game.
@@ -66,13 +71,14 @@ abstract class PosableState : Schedulable {
             val changed = field != value
             field = value
             if (value != null && changed) {
+                runtime.environment.query.addFunctions(value.functions.functions)
+
                 val entity = getEntity() as? PosableEntity ?: return
                 entity.struct.addFunctions(value.functions.functions)
-                runtime.environment.query.addFunctions(value.functions.functions)
                 // Locators need to be initialized asap, even if they aren't in perfect positions. The reason for this
                 // is that the locators might be called upon by frame 0 particle effects and if they aren't defined
                 // it'll crash. For non-entity states we don't give a shit though.
-                value.updateLocators(getEntity() ?: return, this)
+                value.updateLocators(entity as Entity, this)
             }
         }
     /** The name of the current pose. */
@@ -122,8 +128,140 @@ abstract class PosableState : Schedulable {
     /** This gets called 500 million times so use a mutable value for runtime */
     private val reusableAnimTime = DoubleValue(0.0)
 
+    /** A list of items to be rendered on a PosableModel during an animation */
+    val animationItems = mutableMapOf<String, ItemStack>()
+
+    /** All of the MoLang functions that can be expose current riding data. */
+    val ridingFunctions = QueryStruct(hashMapOf())
+        .addFunction("pitch") { params ->
+            val lookBackTick = params.getInt(0)
+
+            val pokemon = getEntity() as? PokemonEntity ?: return@addFunction DoubleValue(0.0)
+            val partialTickPitch = pokemon.ridingAnimationData.rotSpring.getInterpolated(currentPartialTicks.toDouble(), lookBackTick).x
+            val maxPitch = 90.0
+            return@addFunction DoubleValue((partialTickPitch / maxPitch).coerceIn(-1.0,1.0))
+        }
+        .addFunction("yaw") { params ->
+            val lookBackTick = params.getInt(0)
+
+            val pokemon = getEntity() as? PokemonEntity ?: return@addFunction DoubleValue(0.0)
+            val partialTickYaw = pokemon.ridingAnimationData.rotSpring.getInterpolated(currentPartialTicks.toDouble(), lookBackTick).y
+            val maxYaw = 180.0
+            return@addFunction DoubleValue((partialTickYaw / maxYaw).coerceIn(-1.0,1.0))
+        }
+        .addFunction("roll") { params ->
+            val lookBackTick = params.getInt(0)
+
+            val pokemon = getEntity() as? PokemonEntity ?: return@addFunction DoubleValue(0.0)
+            val partialTickRoll = pokemon.ridingAnimationData.rotSpring.getInterpolated(currentPartialTicks.toDouble(), lookBackTick).z
+            val maxRoll = 180.0
+            return@addFunction DoubleValue((partialTickRoll / maxRoll).coerceIn(-1.0,1.0))
+        }
+        .addFunction("pitch_change") { params ->
+            val lookBackTick = params.getInt(0)
+
+            val pokemon = getEntity() as? PokemonEntity ?: return@addFunction DoubleValue(0.0)
+            val partialTickPitchDelta = pokemon.ridingAnimationData.rotDeltaSpring.getInterpolated(currentPartialTicks.toDouble(), lookBackTick).x
+            //TODO: hook back up the retrieval of the current behaviors stat for this and the following functions
+            val maxRotRate = 140.0//pokemon.riding.getController(pokemon)?.getStat(pokemon, RidingStat.SKILL)
+            //?: return@addFunction DoubleValue(0.0)
+            return@addFunction DoubleValue((partialTickPitchDelta / maxRotRate).coerceIn(-1.0,1.0))
+        }
+        .addFunction("yaw_change") { params ->
+            val lookBackTick = params.getInt(0)
+            val pokemon = getEntity() as? PokemonEntity ?: return@addFunction DoubleValue(0.0)
+            val partialTickYawDelta = pokemon.ridingAnimationData.rotDeltaSpring.getInterpolated(currentPartialTicks.toDouble(), lookBackTick).y
+            //TODO: make this not hardcoded
+            val maxRotRate = -140.0 //pokemon.riding.getController(pokemon)?.getStat(pokemon, RidingStat.SKILL)
+            //?: return@addFunction DoubleValue(0.0)
+            return@addFunction DoubleValue((partialTickYawDelta / maxRotRate).coerceIn(-1.0,1.0))
+        }
+        .addFunction("roll_change") { params ->
+            val lookBackTick = params.getInt(0)
+
+            val pokemon = getEntity() as? PokemonEntity ?: return@addFunction DoubleValue(0.0)
+            val partialTickRollDelta = pokemon.ridingAnimationData.rotDeltaSpring.getInterpolated(currentPartialTicks.toDouble(), lookBackTick).z
+            val maxRotRate = -140.0 //pokemon.riding.getController(pokemon)?.getStat(pokemon, RidingStat.SKILL)
+            //?: return@addFunction DoubleValue(0.0)
+            return@addFunction DoubleValue((partialTickRollDelta / maxRotRate).coerceIn(-1.0,1.0))
+        }
+        .addFunction("speed") { params ->
+            val lookBackTick = params.getInt(0)
+            val pokemon = getEntity() as? PokemonEntity ?: return@addFunction DoubleValue(0.0)
+
+            val partialTickSpeed = pokemon.ridingAnimationData.velocitySpring.getInterpolated(currentPartialTicks.toDouble(), lookBackTick).length()
+            val topSpeed = 1.0//pokemon.riding.getController(pokemon)?.getStat(pokemon, RidingStat.SPEED)
+            //?: return@addFunction DoubleValue(0.0)
+
+            return@addFunction DoubleValue((partialTickSpeed / topSpeed).coerceIn(-1.0,1.0))
+        }
+        .addFunction("velocity_x") { params ->
+            val lookBackTick = params.getInt(0)
+            val pokemon = getEntity() as? PokemonEntity ?: return@addFunction DoubleValue(0.0)
+
+            val partialTickXVel = pokemon.ridingAnimationData.velocitySpring.getInterpolated(currentPartialTicks.toDouble(), lookBackTick).x
+
+            val topSpeed = 1.0//pokemon.riding.getController(pokemon)?.getStat(pokemon, RidingStat.SPEED)
+            //?: return@addFunction DoubleValue(0.0)
+            return@addFunction DoubleValue((partialTickXVel / topSpeed).coerceIn(-1.0,1.0))
+        }
+        .addFunction("velocity_y") { params ->
+            val lookBackTick = params.getInt(0)
+            val pokemon = getEntity() as? PokemonEntity ?: return@addFunction DoubleValue(0.0)
+
+            val partialTickYVel = pokemon.ridingAnimationData.velocitySpring.getInterpolated(currentPartialTicks.toDouble(), lookBackTick).y
+
+            val topSpeed = 1.0//pokemon.riding.getController(pokemon)?.getStat(pokemon, RidingStat.SPEED)
+            //?: return@addFunction DoubleValue(0.0)
+            return@addFunction DoubleValue((partialTickYVel / topSpeed).coerceIn(-1.0,1.0))
+        }
+        .addFunction("velocity_z") { params ->
+            val lookBackTick = params.getInt(0)
+            val pokemon = getEntity() as? PokemonEntity ?: return@addFunction DoubleValue(0.0)
+
+            val partialTickZVel = pokemon.ridingAnimationData.velocitySpring.getInterpolated(currentPartialTicks.toDouble(), lookBackTick).z
+
+            val topSpeed = 1.0//pokemon.riding.getController(pokemon)?.getStat(pokemon, RidingStat.SPEED)
+            //?: return@addFunction DoubleValue(0.0)
+            return@addFunction DoubleValue((partialTickZVel / topSpeed).coerceIn(-1.0,1.0))
+        }
+        .addFunction("velocity_right") { params ->
+            val lookBackTick = params.getInt(0)
+            val pokemon = getEntity() as? PokemonEntity ?: return@addFunction DoubleValue(0.0)
+
+            val partialTickZVel = pokemon.ridingAnimationData.localVelocitySpring.getInterpolated(currentPartialTicks.toDouble(), lookBackTick).x
+
+            val topSpeed = 1.0//pokemon.riding.getController(pokemon)?.getStat(pokemon, RidingStat.SPEED)
+            //?: return@addFunction DoubleValue(0.0)
+            return@addFunction DoubleValue((partialTickZVel / topSpeed).coerceIn(-1.0,1.0))
+        }
+        .addFunction("velocity_up") { params ->
+            val lookBackTick = params.getInt(0)
+            val pokemon = getEntity() as? PokemonEntity ?: return@addFunction DoubleValue(0.0)
+
+            val partialTickZVel = pokemon.ridingAnimationData.localVelocitySpring.getInterpolated(currentPartialTicks.toDouble(), lookBackTick).y
+
+            val topSpeed = 1.0//pokemon.riding.getController(pokemon)?.getStat(pokemon, RidingStat.SPEED)
+            //?: return@addFunction DoubleValue(0.0)
+            return@addFunction DoubleValue((partialTickZVel / topSpeed).coerceIn(-1.0,1.0))
+        }
+        .addFunction("velocity_forward") { params ->
+            val lookBackTick = params.getInt(0)
+            val pokemon = getEntity() as? PokemonEntity ?: return@addFunction DoubleValue(0.0)
+
+            val partialTickZVel = pokemon.ridingAnimationData.localVelocitySpring.getInterpolated(currentPartialTicks.toDouble(), lookBackTick).z
+
+            val topSpeed = 1.0//pokemon.riding.getController(pokemon)?.getStat(pokemon, RidingStat.SPEED)
+            //?: return@addFunction DoubleValue(0.0)
+            return@addFunction DoubleValue((partialTickZVel / topSpeed).coerceIn(-1.0,1.0))
+        }
+
+
     /** All of the MoLang functions that can be applied to something with this state. */
-    val functions = QueryStruct(hashMapOf())
+    val functions = QueryStruct(hashMapOf(
+        "riding" to java.util.function.Function { ridingFunctions },
+        "r" to java.util.function.Function { ridingFunctions }
+    ))
         .addFunction("anim_time") {
             reusableAnimTime.value = animationSeconds.toDouble()
             reusableAnimTime
@@ -133,19 +271,47 @@ abstract class PosableState : Schedulable {
         .addFunction("has_entity") { DoubleValue(getEntity() != null) }
         .addFunction("pose") { StringValue(currentPose ?: "") }
         .addFunction("sound") { params ->
-            val entity = getEntity() ?: return@addFunction Unit
             if (params.get<MoValue>(0) !is StringValue) {
                 return@addFunction Unit
             }
+            val entity = getEntity()
             val soundEvent = SoundEvent.createVariableRangeEvent(params.getString(0).asIdentifierDefaultingNamespace())
             if (soundEvent != null) {
                 val volume = if (params.contains(1)) params.getDouble(1).toFloat() else 1F
                 val pitch = if (params.contains(2)) params.getDouble(2).toFloat() else 1F
-                Minecraft.getInstance().soundManager.play(
-                    SimpleSoundInstance(soundEvent, SoundSource.NEUTRAL, volume, pitch, entity.level().random, entity.x, entity.y, entity.z)
-                )
+                if (entity != null) {
+                    if (!entity.isSilent) {
+                        entity.level().playLocalSound(entity, soundEvent, entity.soundSource, volume, pitch)
+                    }
+                } else {
+                    Minecraft.getInstance().soundManager.play(SimpleSoundInstance.forUI(soundEvent, volume, pitch))
+                }
             }
         }
+        .addFunction("render_item") { params ->
+            if (params.get<MoValue>(0) !is StringValue) return@addFunction Unit
+
+            val item: ItemStack
+            try {
+                val client = Minecraft.getInstance().connection ?: return@addFunction Unit
+                val result = ItemParser(client.registryAccess()).parse(StringReader(params.getString(0)))
+                item = ItemStack(result.item)
+                item.applyComponents(result.components)
+            }
+            catch (_: CommandSyntaxException) {
+                return@addFunction Unit
+            }
+
+            val renderLocation = if (params.contains(1)) params.getString(1) else "item"
+
+            if (!item.isEmpty && locatorStates.containsKey(renderLocation)) {
+                animationItems.put(renderLocation, item)
+            } else {
+                if (animationItems.containsKey(renderLocation)) animationItems.remove(renderLocation)
+                return@addFunction Unit
+            }
+        }
+        .addFunction("clear_items") { animationItems.clear() }
         .addFunction("play_animation") { params ->
             val animationParameter = params.get<MoValue>(0)
             val animation = if (animationParameter is ObjectValue<*>) {
@@ -181,15 +347,18 @@ abstract class PosableState : Schedulable {
 
                 val entity = getEntity() ?: return@addFunction Unit
                 val world = entity.level() as ClientLevel
-                val matrixWrapper = locatorStates[locator] ?: locatorStates["root"]!!
 
+                val rootMatrix = locatorStates["root"]!!
+                val locatorMatrix = locatorStates[locator] ?: locatorStates["root"]!!
+                val particleMatrix = effect.emitter.space.initializeEmitterMatrix(rootMatrix, locatorMatrix)
                 val particleRuntime = MoLangRuntime().setup().setupClient()
                 particleRuntime.environment.query.addFunction("entity") { runtime.environment.query }
 
                     val storm = ParticleStorm(
                         effect = effect,
                         entity = entity,
-                        matrixWrapper = matrixWrapper,
+                        emitterSpaceMatrix = particleMatrix,
+                        locatorSpaceMatrix = locatorMatrix,
                         world = world,
                         runtime = particleRuntime,
                         sourceVelocity = { entity.deltaMovement },
@@ -224,12 +393,16 @@ abstract class PosableState : Schedulable {
             updateLocatorPosition(entity.position())
             it.validatePose(entity as? PosableEntity, this)
         }
-        runEffects(entity, previousAge, age)
+        tickEffects(entity, previousAge, age)
         val primaryAnimation = primaryAnimation ?: return
         if (primaryAnimation.started + primaryAnimation.duration <= animationSeconds) {
             this.primaryAnimation = null
             primaryAnimation.afterAction.accept(Unit)
         }
+    }
+
+    fun getMatchingLocators(locator: String): List<String> {
+        return locatorStates.keys.filter { it.matches("${locator}[0-9]*".toRegex()) }
     }
 
     /** Decides how an update to partial ticks should be applied to the state. See [FloatingState] for how it could happen. */
@@ -296,7 +469,11 @@ abstract class PosableState : Schedulable {
         val model = currentModel
         if (model != null) {
             val poseImpl = model.poses[pose] ?: return
-            poseParticles.removeIf { particle -> poseImpl.animations.filterIsInstance<BedrockPoseAnimation>().flatMap { it.particleKeyFrames }.none(particle::isSameAs) }
+            poseParticles.removeIf { particle ->
+                poseImpl.animations.filterIsInstance<BedrockPoseAnimation>().flatMap { it.particleKeyFrames }.none(particle::isSameAs)
+                        && activeAnimations.filterIsInstance<BedrockActiveAnimation>().flatMap { it.animation.effects.filterIsInstance<BedrockParticleKeyframe>() }.none(particle::isSameAs)
+            }
+
             poseImpl.onTransitionedInto(this)
             val entity = getEntity()
             if (entity != null) {
@@ -312,6 +489,7 @@ abstract class PosableState : Schedulable {
     fun setActiveAnimations(vararg animations: ActiveAnimation) {
         activeAnimations.clear()
         activeAnimations.addAll(animations)
+        animations.forEach { it.start(this) }
     }
 
     /**
@@ -324,6 +502,7 @@ abstract class PosableState : Schedulable {
     fun addActiveAnimation(animation: ActiveAnimation, whenComplete: (state: PosableState) -> Unit = {}) {
         this.activeAnimations.add(animation)
         val duration = animation.duration
+        animation.start(this)
         if (duration > 0F) {
             after(seconds = (duration * 20F).toInt() / 20F) {
                 whenComplete(this)
@@ -336,27 +515,34 @@ abstract class PosableState : Schedulable {
      */
     fun addPrimaryAnimation(primaryAnimation: PrimaryAnimation) {
         this.primaryAnimation = primaryAnimation
-        this.activeAnimations.clear()
+        primaryAnimation.start(this)
+        this.activeAnimations.removeIf { !it.enduresPrimaryAnimations }
         this.quirks.clear()
         this.poseIntensity = 1F
-        primaryAnimation.started = animationSeconds
+    }
+
+    /**
+     * Runs [runEffects] with the ages converted to seconds.
+     */
+    fun tickEffects(entity: Entity?, previousAge: Int, newAge: Int) {
+        val previousSeconds = previousAge / 20F
+        val newSeconds = newAge / 20F
+        runEffects(entity, previousSeconds, newSeconds)
     }
 
     /**
      * Runs any effects that are associated with the current state of the entity. This includes running effects for
      * all active animations, the primary animation, and any pose animations that are relevant.
      */
-    fun runEffects(entity: Entity, previousAge: Int, newAge: Int) {
-        val previousSeconds = previousAge / 20F
-        val currentSeconds = newAge / 20F
-        allActiveAnimations.forEach { it.applyEffects(entity, this, previousSeconds, currentSeconds) }
-        primaryAnimation?.animation?.applyEffects(entity, this, previousSeconds, currentSeconds)
+    fun runEffects(entity: Entity?, previousSeconds: Float, newSeconds: Float) {
+        allActiveAnimations.forEach { it.applyEffects(entity, this, previousSeconds, newSeconds) }
+        primaryAnimation?.animation?.applyEffects(entity, this, previousSeconds, newSeconds)
         currentModel?.let { model ->
             val pose = currentPose?.let { model.poses[it] }
             // Effects start playing from pose animations as long as the intensity is above 0.5. Pretty sloppy honestly.
             pose?.animations
                 ?.filter { shouldIdleRun(it, 0.5F) && it.condition(this) }
-                ?.forEach { it.applyEffects(entity, this, previousSeconds, currentSeconds) }
+                ?.forEach { it.applyEffects(entity, this, previousSeconds, newSeconds) }
         }
     }
 

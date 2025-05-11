@@ -18,17 +18,28 @@ import com.cobblemon.mod.common.api.dialogue.DialogueManager
 import com.cobblemon.mod.common.api.reactive.Observable.Companion.filter
 import com.cobblemon.mod.common.api.reactive.Observable.Companion.takeFirst
 import com.cobblemon.mod.common.battles.BattleRegistry
+import com.cobblemon.mod.common.battles.TeamManager
+import com.cobblemon.mod.common.net.messages.client.storage.pc.wallpaper.RequestPCBoxWallpapersPacket
+import com.cobblemon.mod.common.client.CobblemonClient
+import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
+import com.cobblemon.mod.common.item.PokedexItem
 import com.cobblemon.mod.common.platform.events.PlatformEvents
 import com.cobblemon.mod.common.pokemon.Pokemon
+import com.cobblemon.mod.common.pokemon.activestate.ShoulderedState
+import com.cobblemon.mod.common.trade.TradeManager
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.nbt.StringTag
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
 import net.minecraft.util.Mth
+import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
@@ -37,18 +48,23 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.Vec3
+import net.minecraft.world.phys.HitResult
 import java.util.*
+import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.min
+import kotlin.math.sin
 
 // Stuff like getting their party
 fun ServerPlayer.party() = Cobblemon.storage.getParty(this)
-fun ServerPlayer.pc() = Cobblemon.storage.getPC(this.uuid)
+fun ServerPlayer.pc() = Cobblemon.storage.getPC(this)
+fun ServerPlayer.pokedex() = Cobblemon.playerDataManager.getPokedexData(this)
 val ServerPlayer.activeDialogue: ActiveDialogue?
     get() = DialogueManager.activeDialogues[uuid]
 val ServerPlayer.isInDialogue: Boolean
     get() = DialogueManager.activeDialogues.containsKey(uuid)
 fun ServerPlayer.closeDialogue() {
-    DialogueManager.stopDialogue(this)
+    activeDialogue?.close()
 }
 fun ServerPlayer.openDialogue(dialogue: Dialogue) {
     DialogueManager.startDialogue(this, dialogue)
@@ -56,9 +72,13 @@ fun ServerPlayer.openDialogue(dialogue: Dialogue) {
 fun ServerPlayer.openDialogue(activeDialogue: ActiveDialogue) {
     DialogueManager.startDialogue(activeDialogue)
 }
-fun ServerPlayer.extraData(key: String) = Cobblemon.playerData.get(this).extraData[key]
-fun ServerPlayer.hasKeyItem(key: ResourceLocation) = Cobblemon.playerData.get(this).keyItems.contains(key)
+fun ServerPlayer.extraData(key: String) = Cobblemon.playerDataManager.getGenericData(this).extraData[key]
+fun ServerPlayer.hasKeyItem(key: ResourceLocation) = Cobblemon.playerDataManager.getGenericData(this).keyItems.contains(key)
 fun UUID.getPlayer() = server()?.playerList?.getPlayer(this)
+
+fun ServerPlayer.requestWallpapers() {
+    RequestPCBoxWallpapersPacket().sendToPlayer(this)
+}
 
 fun ServerPlayer.onLogout(handler: () -> Unit) {
     PlatformEvents.SERVER_PLAYER_LOGOUT.pipe(filter { it.player.uuid == uuid }, takeFirst()).subscribe { handler() }
@@ -90,6 +110,18 @@ fun ServerPlayer.getBattleState(): Pair<PokemonBattle, BattleActor>? {
     return null
 }
 
+fun ServerPlayer.getBattleTeam() = TeamManager.getTeam(this)
+
+fun ServerPlayer.isTrading() = TradeManager.getActiveTrade(this.uuid) != null
+
+fun ServerPlayer.canInteractWith(target: LivingEntity, maxDistance: Float) = target != this && !this.isSpectator && !target.isSpectator &&
+    this.traceFirstEntityCollision(
+        entityClass = LivingEntity::class.java,
+        ignoreEntity = this,
+        maxDistance = maxDistance,
+        collideBlock = ClipContext.Fluid.NONE
+    ) == target
+
 // TODO Player extension for queueing next login?
 class TraceResult(
     val location: Vec3,
@@ -117,44 +149,71 @@ class EntityTraceResult<T : Entity>(
     val entities: Iterable<T>
 )
 
-fun <T : Entity> Player.traceFirstEntityCollision(
-    maxDistance: Float = 10F,
-    stepDistance: Float = 0.05F,
-    entityClass: Class<T>,
-    ignoreEntity: T? = null
+fun <T : Entity> LivingEntity.traceFirstEntityCollision(
+        maxDistance: Float = 10F,
+        stepDistance: Float = 0.05F,
+        entityClass: Class<T>,
+        ignoreEntity: T? = null,
+        collideBlock: ClipContext.Fluid? = null
 ): T? {
     return traceEntityCollision(
         maxDistance,
         stepDistance,
         entityClass,
-        ignoreEntity
+        ignoreEntity,
+        collideBlock
     )?.let { it.entities.minByOrNull { it.distanceTo(this) } }
 }
 
-fun <T : Entity> Player.traceEntityCollision(
+fun <T : Entity> LivingEntity.traceEntityCollision(
     maxDistance: Float = 10F,
     stepDistance: Float = 0.05F,
     entityClass: Class<T>,
-    ignoreEntity: T? = null
+    ignoreEntity: T? = null,
+    collideBlock: ClipContext.Fluid?
+): EntityTraceResult<T>? {
+    val direction = lookAngle
+    return traceEntityCollision(
+        maxDistance = maxDistance,
+        stepDistance = stepDistance,
+        entityClass = entityClass,
+        ignoreEntity = ignoreEntity,
+        collideBlock = collideBlock,
+        direction = direction
+    )
+}
+
+fun <T : Entity> LivingEntity.traceEntityCollision(
+    maxDistance: Float = 10F,
+    stepDistance: Float = 0.05F,
+    entityClass: Class<T>,
+    ignoreEntity: T? = null,
+    collideBlock: ClipContext.Fluid?,
+    direction: Vec3
 ): EntityTraceResult<T>? {
     var step = stepDistance
     val startPos = eyePosition
-    val direction = lookAngle
     val maxDistanceVector = Vec3(1.0, 1.0, 1.0).scale(maxDistance.toDouble())
 
     val entities = level().getEntities(
         null,
         AABB(startPos.subtract(maxDistanceVector), startPos.add(maxDistanceVector)),
-        { entityClass.isInstance(it) }
+        { entityClass.isAssignableFrom(it::class.java) }
     )
 
     while (step <= maxDistance) {
         val location = startPos.add(direction.scale(step.toDouble()))
         step += stepDistance
 
-        val collided = entities.filter { ignoreEntity != it && location in it.boundingBox }.filter { entityClass.isInstance(it) }
+        val collided = entities.filter {
+            ignoreEntity != it && location in it.boundingBox && entityClass.isAssignableFrom(it::class.java) && !it.isSpectator
+        }
 
         if (collided.isNotEmpty()) {
+            if (collideBlock != null && level().clip(ClipContext(startPos, location, ClipContext.Block.COLLIDER, collideBlock, this)).type == HitResult.Type.BLOCK) {
+                // Collided with block on the way to the entity
+                return null
+            }
             return EntityTraceResult(location, collided.filterIsInstance(entityClass))
         }
     }
@@ -366,13 +425,12 @@ fun Player.giveOrDropItemStack(stack: ItemStack, playSound: Boolean = true) {
     val inserted = this.inventory.add(stack)
     if (inserted && stack.isEmpty) {
         stack.count = 1
-        this.drop(stack, false)?.makeFakeItem()
+        this.dropFakeItem(stack)
         if (playSound) {
             this.level().playSound(null, this.x, this.y, this.z, SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2f, ((this.random.nextFloat() - this.random.nextFloat()) * 0.7f + 1.0f) * 2.0f)
         }
         this.containerMenu.broadcastChanges()
-    }
-    else {
+    } else {
         this.drop(stack, false)?.let { itemEntity ->
             itemEntity.setNoPickUpDelay()
             itemEntity.setTarget(this.uuid)
@@ -380,5 +438,53 @@ fun Player.giveOrDropItemStack(stack: ItemStack, playSound: Boolean = true) {
     }
 }
 
+/**
+ * Utility function to mimic the [Player.drop] method but as a fake item entity.
+ * Avoids cases where other mods listen to that drop method and expect a real item to be dropped.
+ */
+fun Player.dropFakeItem(stack: ItemStack): ItemEntity {
+    val d = this.eyeY - 0.3
+    val itemEntity = ItemEntity(this.level(), this.x, d, this.z, stack)
+
+    val f = 0.3F
+    val g = sin(this.xRot * (PI / 180.0)).toFloat()
+    val h = cos(this.xRot * (PI / 180.0)).toFloat()
+    val i = sin(this.yRot * (PI / 180.0)).toFloat()
+    val j = cos(this.yRot * (PI / 180.0)).toFloat()
+    val k = this.random.nextFloat() * (PI * 2)
+    val l = 0.02F * this.random.nextFloat()
+    itemEntity.deltaMovement = Vec3(
+        (-i * h * f).toDouble() + cos(k) * l.toDouble(),
+        (-g * f + 0.1f + (this.random.nextFloat() - this.random.nextFloat()) * 0.1f).toDouble(),
+        (j * h * f).toDouble() + sin(k) * l.toDouble()
+    )
+
+    itemEntity.makeFakeItem()
+    return itemEntity
+}
+
 /** Retrieves the battle theme associated with this player, or the default PVP theme if null. */
-fun ServerPlayer.getBattleTheme() = Cobblemon.playerData.get(this).battleTheme?.let { BuiltInRegistries.SOUND_EVENT.get(it) } ?: CobblemonSounds.PVP_BATTLE
+fun ServerPlayer.getBattleTheme() = Cobblemon.playerDataManager.getGenericData(this).battleTheme?.let { BuiltInRegistries.SOUND_EVENT.get(it) } ?: CobblemonSounds.PVP_BATTLE
+
+
+/** Checks if any [PokemonEntity]s belonging to a player's party has any busy locks. */
+fun Player.isPartyBusy() =
+    if (this.level().isClientSide)
+        CobblemonClient.storage.myParty.find { it?.entity?.isBusy == true } != null
+    else
+        Cobblemon.storage.getParty(this.uuid, this.registryAccess()).find { it?.entity?.isBusy == true } != null
+
+fun Player.isUsingPokedex() = isUsingItem &&
+    ((mainHandItem.item is PokedexItem && usedItemHand == InteractionHand.MAIN_HAND) ||
+    (offhandItem.item is PokedexItem && usedItemHand == InteractionHand.OFF_HAND))
+
+fun ServerPlayer.updateShoulderNbt(pokemon: Pokemon) {
+    // Use copies because player doesn't expose a forceful update of shoulder data
+    val nbt = if ((pokemon.state as ShoulderedState).isLeftShoulder) shoulderEntityLeft.copy() else shoulderEntityRight.copy()
+    nbt.putUUID(DataKeys.SHOULDER_UUID, uuid)
+    nbt.putString(DataKeys.SHOULDER_SPECIES, pokemon.species.resourceIdentifier.toString())
+    nbt.putString(DataKeys.SHOULDER_FORM, pokemon.form.name)
+    nbt.put(DataKeys.SHOULDER_ASPECTS, pokemon.aspects.map(StringTag::valueOf).toNbtList())
+    nbt.putFloat(DataKeys.SHOULDER_SCALE_MODIFIER, pokemon.scaleModifier)
+    if ((pokemon.state as ShoulderedState).isLeftShoulder) shoulderEntityLeft = nbt else shoulderEntityRight = nbt
+}

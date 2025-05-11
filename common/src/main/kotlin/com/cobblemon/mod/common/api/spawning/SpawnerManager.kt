@@ -10,6 +10,7 @@ package com.cobblemon.mod.common.api.spawning
 
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.api.spawning.influence.SpawningInfluence
+import com.cobblemon.mod.common.api.spawning.spawner.PlayerSpawner
 import com.cobblemon.mod.common.api.spawning.spawner.Spawner
 import com.cobblemon.mod.common.api.spawning.spawner.TickingSpawner
 import com.cobblemon.mod.common.util.server
@@ -26,8 +27,21 @@ import com.cobblemon.mod.common.world.gamerules.CobblemonGameRules.DO_POKEMON_SP
  */
 open class SpawnerManager {
     val spawners = mutableListOf<Spawner>()
+        get() {
+            if (server()?.isSameThread == false) {
+                Cobblemon.LOGGER.error("Illegal access to spawners list from non-server thread!")
+                Exception().printStackTrace()
+            }
+            return field
+        }
     val influences = mutableListOf<SpawningInfluence>()
-
+        get() {
+            if (server()?.isSameThread == false) {
+                Cobblemon.LOGGER.error("Illegal access to influences from non-server thread!")
+                Exception().printStackTrace()
+            }
+            return field
+        }
     inline fun <reified T : Spawner> getSpawnersOfType() = spawners.filterIsInstance<T>()
     open fun getSpawnerByName(name: String) = spawners.find { it.name == name }
 
@@ -45,16 +59,27 @@ open class SpawnerManager {
         }
     }
 
+    open fun onConfigReload() {
+        spawners.filterIsInstance<PlayerSpawner>().forEach {
+            it.ticksBetweenSpawns = Cobblemon.config.ticksBetweenSpawnAttempts
+        }
+    }
+
     open fun onServerStarted() {
         spawners.clear()
     }
 
     open fun onServerTick() {
         // Disables spawning
-        if (!Cobblemon.config.enableSpawning || server()?.gameRules?.getBoolean(DO_POKEMON_SPAWNING) == false) {
+        if (!Cobblemon.config.enableSpawning) {
             return
         }
         influences.removeIf { it.isExpired() }
-        getSpawnersOfType<TickingSpawner>().forEach(TickingSpawner::tick)
+        getSpawnersOfType<TickingSpawner>().forEach {
+            if (it.getCauseEntity()?.level()?.gameRules?.getBoolean(DO_POKEMON_SPAWNING) == false) {
+                return@forEach
+            }
+            it.tick()
+        }
     }
 }

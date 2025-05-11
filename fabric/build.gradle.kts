@@ -39,6 +39,7 @@ repositories {
     mavenLocal()
     maven("https://oss.sonatype.org/content/repositories/snapshots")
     maven(url = "https://api.modrinth.com/maven")
+    maven(url = "https://maven.terraformersmc.com/")
 }
 
 dependencies {
@@ -51,21 +52,24 @@ dependencies {
     bundle(project(path = ":common", configuration = "transformProductionFabric")) {
         isTransitive = false
     }
-
+    modLocalRuntime(libs.fabric.debugutils)
     modImplementation(libs.fabric.loader)
     modApi(libs.fabric.api)
     modApi(libs.bundles.fabric)
 
-    modCompileOnly(libs.bundles.fabric.integrations.compileOnly) {
+    modCompileOnly(libs.bundles.common.integrations.compileOnly) {
         isTransitive = false
     }
-//    modRuntimeOnly(libs.jei.fabric)
+
+    modImplementation(libs.bundles.fabric.integrations.implementation)
+    modRuntimeOnly(libs.bundles.fabric.integrations.runtimeOnly)
+
 //    modImplementation(libs.flywheelFabric)
 //    include(libs.flywheelFabric)
 
+    include(libs.fabric.kotlin)
+
     listOf(
-        libs.bundles.kotlin,
-        libs.bundles.fabric.kotlin.deps,
         libs.graal,
         libs.molang
     ).forEach {
@@ -90,12 +94,14 @@ tasks {
         inputs.property("version", rootProject.version)
         inputs.property("fabric_loader_version", libs.fabric.loader.get().version)
         inputs.property("minecraft_version", rootProject.property("mc_version").toString())
+        inputs.property("java_version", rootProject.property("java_version").toString())
 
         filesMatching("fabric.mod.json") {
             expand(
                 "version" to rootProject.version,
                 "fabric_loader_version" to libs.fabric.loader.get().version,
-                "minecraft_version" to rootProject.property("mc_version").toString()
+                "minecraft_version" to rootProject.property("mc_version").toString(),
+                "java_version" to rootProject.property("java_version").toString()
             )
         }
     }

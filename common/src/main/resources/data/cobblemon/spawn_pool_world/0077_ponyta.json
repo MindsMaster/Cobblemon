@@ -13,7 +13,7 @@
             "context": "grounded",
             "bucket": "uncommon",
             "level": "16-41",
-            "weight": 5.4,
+            "weight": 5.04,
             "weightMultiplier": {
                 "multiplier": 0.25,
                 "condition": {
@@ -75,7 +75,7 @@
             "context": "grounded",
             "bucket": "uncommon",
             "level": "16-41",
-            "weight": 9.0,
+            "weight": 8.4,
             "weightMultiplier": {
                 "multiplier": 0.25,
                 "condition": {
@@ -88,6 +88,25 @@
                 "biomes": [
                     "#cobblemon:is_floral",
                     "#cobblemon:is_magical"
+                ]
+            }
+        },
+        {
+            "id": "ponyta-galarian-4",
+            "pokemon": "ponyta galarian",
+            "presets": [
+                "natural"
+            ],
+            "type": "pokemon",
+            "context": "grounded",
+            "bucket": "common",
+            "level": "16-41",
+            "weight": 9.0,
+            "condition": {
+                "minSkyLight": 8,
+                "maxSkyLight": 15,
+                "biomes": [
+                    "#aether:is_aether"
                 ]
             }
         }

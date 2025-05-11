@@ -13,6 +13,7 @@ import com.cobblemon.mod.common.Cobblemon.config
 import com.cobblemon.mod.common.api.spawning.detail.PokemonSpawnAction
 import com.cobblemon.mod.common.api.spawning.detail.SpawnAction
 import com.cobblemon.mod.common.util.math.intersection
+import com.cobblemon.mod.common.util.server
 import kotlin.math.max
 import kotlin.math.min
 import net.minecraft.server.level.ServerPlayer
@@ -32,6 +33,11 @@ open class PlayerLevelRangeInfluence(
     val noPokemonRange: IntRange = 1 .. config.minimumLevelRangeMax,
     val recalculationMillis: Long = 5000L
 ) : SpawningInfluence {
+    companion object {
+        /** The internally tuned variation for player level range influences */
+        val TYPICAL_VARIATION = 5
+    }
+
     val uuid = player.uuid
     var lastCalculatedTime: Long = 0
     var previousRange: IntRange = noPokemonRange
@@ -40,7 +46,7 @@ open class PlayerLevelRangeInfluence(
         return if (System.currentTimeMillis() - lastCalculatedTime > recalculationMillis) {
             lastCalculatedTime = System.currentTimeMillis()
 
-            val party = Cobblemon.storage.getParty(uuid)
+            val party = Cobblemon.storage.getParty(uuid, server()!!.registryAccess())
             previousRange = if (party.any()) {
                 //val minimumLevel = party.minOf { it.level }
                 val maximumLevel = party.maxOf { it.level }

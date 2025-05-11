@@ -11,6 +11,7 @@ package com.cobblemon.mod.common.client.gui.dialogue.widgets
 import com.cobblemon.mod.common.api.gui.blitk
 import com.cobblemon.mod.common.api.gui.drawCenteredText
 import com.cobblemon.mod.common.api.text.text
+import com.cobblemon.mod.common.client.gui.CobblemonRenderable
 import com.cobblemon.mod.common.client.gui.dialogue.DialogueScreen
 import com.cobblemon.mod.common.net.messages.client.dialogue.dto.DialogueInputDTO
 import com.cobblemon.mod.common.net.messages.server.dialogue.InputToDialoguePacket
@@ -28,7 +29,7 @@ class DialogueTextInputWidget(
     y: Int,
     width: Int,
     height: Int,
-    maxLength: Int = 100
+    maxLength: Int = 30
 ) : EditBox(
     Minecraft.getInstance().font,
     x,
@@ -36,13 +37,16 @@ class DialogueTextInputWidget(
     width,
     height,
     "gui_dialogue_text_input".text()
-) {
+), CobblemonRenderable {
     init {
         setMaxLength(maxLength)
         isFocused = true
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
+        if (!dialogueScreen.renderInput()) {
+            return false
+        }
         if (dialogueScreen.dialogueDTO.dialogueInput.inputType != DialogueInputDTO.InputType.TEXT || dialogueScreen.waitingForServerUpdate) {
             return false
         }
@@ -56,6 +60,9 @@ class DialogueTextInputWidget(
     }
 
     override fun renderWidget(context: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {
+        if (!dialogueScreen.renderInput()) {
+            return
+        }
         if (dialogueScreen.dialogueDTO.dialogueInput.inputType != DialogueInputDTO.InputType.TEXT || dialogueScreen.waitingForServerUpdate) {
             return
         }
@@ -76,7 +83,7 @@ class DialogueTextInputWidget(
             context = context,
             text = (if (isFocused) "$value|" else value).text(),
             x = x + width / 2F,
-            y = y + height / 2 - 4,
+            y = y + (height / 2) - 3,
             shadow = true,
             colour = 0xFFFFFF
         )

@@ -12,6 +12,7 @@ import com.cobblemon.mod.common.api.pokeball.catching.CaptureContext
 import com.cobblemon.mod.common.api.pokeball.catching.calculators.CaptureCalculator
 import com.cobblemon.mod.common.api.pokeball.catching.calculators.CriticalCaptureProvider
 import com.cobblemon.mod.common.api.pokeball.catching.calculators.PokedexProgressCaptureMultiplierProvider
+import com.cobblemon.mod.common.api.pokeball.catching.calculators.PokedexStatusCaptureInfluencer
 import com.cobblemon.mod.common.entity.pokeball.EmptyPokeBallEntity
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.pokemon.status.statuses.persistent.BurnStatus
@@ -34,7 +35,7 @@ import net.minecraft.server.level.ServerPlayer
  * @author Licious
  * @since January 29th, 2022
  */
-object Gen9CaptureCalculator : CaptureCalculator, CriticalCaptureProvider, PokedexProgressCaptureMultiplierProvider {
+object Gen9CaptureCalculator : CaptureCalculator, CriticalCaptureProvider, PokedexProgressCaptureMultiplierProvider, PokedexStatusCaptureInfluencer {
 
     override fun id(): String = "generation_9"
 
@@ -42,7 +43,7 @@ object Gen9CaptureCalculator : CaptureCalculator, CriticalCaptureProvider, Poked
         val pokeBall = pokeBallEntity.pokeBall
         val pokemon = target.pokemon
         if (pokeBall.catchRateModifier.isGuaranteed()) {
-            return CaptureContext.successful()
+            return this.influence(thrower, target, CaptureContext.successful())
         }
         // We don't have dark grass so we're just gonna pretend everything is that.
         val darkGrass = if (thrower is ServerPlayer) this.caughtMultiplierFor(thrower).roundToInt() else 1
@@ -57,7 +58,7 @@ object Gen9CaptureCalculator : CaptureCalculator, CriticalCaptureProvider, Poked
         // ToDo implement badgePenalty when we have a system for obedience
         // ToDo implement bonusMisc when we have sandwich powers
         val ballBonus = if (validModifier) pokeBall.catchRateModifier.value(thrower, pokemon) else 1F
-        val modifiedCatchRate = (pokeBall.catchRateModifier.behavior(thrower, pokemon).mutator((3F * pokemon.hp - 2F * pokemon.currentHealth) * darkGrass * catchRate, ballBonus) / (3F * pokemon.hp)) * bonusStatus * bonusLevel
+        val modifiedCatchRate = (pokeBall.catchRateModifier.behavior(thrower, pokemon).mutator((3F * pokemon.maxHealth - 2F * pokemon.currentHealth) * darkGrass * catchRate, ballBonus) / (3F * pokemon.maxHealth)) * bonusStatus * bonusLevel
         val critical = if (thrower is ServerPlayer) this.shouldHaveCriticalCapture(thrower, modifiedCatchRate) else false
         val shakeProbability = (65536F / (255F / modifiedCatchRate).pow(0.1875F)).roundToInt()
         var shakes = 0
@@ -70,8 +71,7 @@ object Gen9CaptureCalculator : CaptureCalculator, CriticalCaptureProvider, Poked
                 return CaptureContext(numberOfShakes = 1, isSuccessfulCapture = shakes == 1, isCriticalCapture = true)
             }
         }
-        // ToDo once pokedex is implemented if the target is registered and it's a success shorten to 1 shake and become critical capture
-        return CaptureContext(numberOfShakes = shakes, isSuccessfulCapture = shakes == 4, isCriticalCapture = false)
+        return this.influence(thrower, target, CaptureContext(numberOfShakes = shakes, isSuccessfulCapture = shakes == 4, isCriticalCapture = false))
     }
 
 }

@@ -7,13 +7,29 @@
       "poser": "cobblemon:vivillon",
       "model": "cobblemon:vivillon.geo",
       "texture": "cobblemon:textures/pokemon/0666_vivillon/vivillon.png",
-      "layers": []
+      "layers": [
+        {
+          "name": "wings",
+          "texture": "cobblemon:textures/pokemon/0666_vivillon/vivillon_wings_meadow.png"
+        }
+      ]
     },
     {
       "aspects": [
         "shiny"
       ],
       "texture": "cobblemon:textures/pokemon/0666_vivillon/vivillon_shiny.png"
+    },
+    {
+      "aspects": [
+        "vivillon-wings-meadow"
+      ],
+      "layers": [
+        {
+          "name": "wings",
+          "texture": "cobblemon:textures/pokemon/0666_vivillon/vivillon_wings_meadow.png"
+        }
+      ]
     },
     {
       "aspects": [
@@ -111,28 +127,6 @@
         {
           "name": "wings",
           "texture": "cobblemon:textures/pokemon/0666_vivillon/vivillon_wings_marine.png"
-        }
-      ]
-    },
-    {
-      "aspects": [
-        "vivillon-wings-meadow"
-      ],
-      "layers": [
-        {
-          "name": "wings",
-          "texture": "cobblemon:textures/pokemon/0666_vivillon/vivillon_wings_meadow.png"
-        }
-      ]
-    },
-    {
-      "aspects": [
-        "vivillon-wings-modern"
-      ],
-      "layers": [
-        {
-          "name": "wings",
-          "texture": "cobblemon:textures/pokemon/0666_vivillon/vivillon_wings_modern.png"
         }
       ]
     },

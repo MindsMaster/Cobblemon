@@ -19,7 +19,6 @@ open class PokeBallModel(root: ModelPart) : PosableModel(root), PokeBallFrame {
     override val rootPart = root.registerChildWithAllChildren("poke_ball")
     override val base = getPart("bottom")
     override val lid = getPart("lid")
-    override var isForLivingEntityRenderer = false
 
     open lateinit var shut: Pose
     open lateinit var open: Pose
@@ -36,14 +35,14 @@ open class PokeBallModel(root: ModelPart) : PosableModel(root), PokeBallFrame {
 
         shut = registerPose(
             poseName = "shut",
-            poseTypes = setOf(PoseType.NONE),
+            poseTypes = setOf(PoseType.NONE, PoseType.PORTRAIT),
             animations = arrayOf(bedrock("poke_ball", "shut_idle")),
             transformTicks = 0
         )
 
         open = registerPose(
             poseName = "open",
-            poseTypes = setOf(PoseType.NONE),
+            poseTypes = setOf(PoseType.NONE, PoseType.PORTRAIT),
             animations = arrayOf(bedrock("poke_ball", "open_idle")),
             transformTicks = 0
         )

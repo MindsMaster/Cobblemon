@@ -11,9 +11,11 @@ package com.cobblemon.mod.common.api.moves.animations
 import com.bedrockk.molang.runtime.MoLangRuntime
 import com.cobblemon.mod.common.api.molang.ExpressionLike
 import com.cobblemon.mod.common.api.moves.animations.keyframes.ActionEffectKeyframe
+import com.cobblemon.mod.common.entity.npc.NPCEntity
 import com.cobblemon.mod.common.util.asExpressionLike
 import com.cobblemon.mod.common.util.resolveBoolean
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.level.Level
 import java.util.concurrent.CompletableFuture
 
 /**
@@ -38,7 +40,7 @@ class ActionEffectTimeline(
             CompletableFuture.completedFuture(Unit)
         } else {
             val finalFuture = CompletableFuture<Unit>()
-            // .toList copy because I'm paranoid about iterators being trying to share between identical effects playing
+            // .toList copy because I'm paranoid about iterators trying to share between identical effects playing
             chainKeyframes(context, timeline.toList().iterator(), finalFuture)
             finalFuture
         }.exceptionallyCompose {
@@ -68,11 +70,10 @@ class ActionEffectContext(
     val runtime: MoLangRuntime,
     var canBeInterrupted: Boolean = false,
     var interrupted: Boolean = false,
-    var currentKeyframes: MutableList<ActionEffectKeyframe> = mutableListOf()
+    var currentKeyframes: MutableList<ActionEffectKeyframe> = mutableListOf(),
+    var level: Level? = null
 ) {
     inline fun <reified T> findOneProvider() = providers.filterIsInstance<T>().firstOrNull()
-
-
 }
 
 class UsersProvider(users: List<Entity>): EntityProvider {
@@ -85,12 +86,16 @@ class TargetsProvider(targets: List<Entity>): EntityProvider {
     constructor(vararg targets: Entity): this(targets.toList())
 }
 
+class NPCProvider(npc: NPCEntity): EntityProvider {
+    override val entities = listOf(npc)
+}
+
 interface EntityProvider {
     val entities: List<Entity>
 }
 
 //class MoveAnimationKeyframe(
-//    val sound: Identifier? = null,
+//    val sound: ResourceLocation? = null,
 //    val animation: List<AnimationWithMoments> = listOf(),
 //    val effects: List<ActionEffect> = listOf()
 //)

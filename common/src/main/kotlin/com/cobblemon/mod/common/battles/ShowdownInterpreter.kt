@@ -9,13 +9,11 @@
 package com.cobblemon.mod.common.battles
 
 import com.cobblemon.mod.common.Cobblemon.LOGGER
-import com.cobblemon.mod.common.api.battles.interpreter.BasicContext
-import com.cobblemon.mod.common.api.battles.interpreter.BattleContext
-import com.cobblemon.mod.common.api.battles.interpreter.BattleMessage
-import com.cobblemon.mod.common.api.battles.interpreter.Effect
-import com.cobblemon.mod.common.api.battles.interpreter.MissingContext
+import com.cobblemon.mod.common.api.battles.interpreter.*
 import com.cobblemon.mod.common.api.battles.model.PokemonBattle
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor
+import com.cobblemon.mod.common.api.battles.model.actor.EntityBackedBattleActor
+import com.cobblemon.mod.common.api.text.red
 import com.cobblemon.mod.common.api.text.yellow
 import com.cobblemon.mod.common.battles.dispatch.InstructionSet
 import com.cobblemon.mod.common.battles.dispatch.InterpreterInstruction
@@ -24,6 +22,9 @@ import com.cobblemon.mod.common.battles.interpreter.instructions.*
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon
 import com.cobblemon.mod.common.util.battleLang
 import com.cobblemon.mod.common.util.runOnServer
+import net.minecraft.world.level.ClipContext
+import net.minecraft.world.phys.HitResult
+import net.minecraft.world.phys.Vec3
 import java.util.UUID
 import kotlin.collections.Iterator
 import kotlin.collections.filter
@@ -35,6 +36,7 @@ import kotlin.collections.mutableMapOf
 import kotlin.collections.set
 import kotlin.collections.toMutableList
 import kotlin.collections.toTypedArray
+import kotlin.time.measureTime
 
 @Suppress("KotlinPlaceholderCountMatchesArgumentCount", "UNUSED_PARAMETER")
 object ShowdownInterpreter {
@@ -55,21 +57,22 @@ object ShowdownInterpreter {
         }
 
         listOf(
-            "player", "teamsize", "gametype", "gen", "tier", "rated", "clearpoke", "poke", "teampreview", "start", "rule", "t:", "", "capture"
+            "player", "teamsize", "gametype", "gen", "tier", "rated", "clearpoke", "poke", "teampreview", "start", "rule", "t:", "", "capture", "-anim"
         ).forEach { updateInstructionParser[it] = { _, _, _, _ -> IgnoredInstruction() } }
 
         updateInstructionParser["-ability"]              = { _, instructionSet, message, _ -> AbilityInstruction(instructionSet, message) }
         updateInstructionParser["-activate"]             = { _, instructionSet, message, _ -> ActivateInstruction(instructionSet, message) }
         updateInstructionParser["bagitem"]               = { _, _, message, _ -> BagItemInstruction(message) }
-        updateInstructionParser["-boost"]                = { _, instructionSet, message, remainingLines -> BoostInstruction(instructionSet, message, remainingLines, true) }
+        updateInstructionParser["-boost"]                = { battle, _, message, _ -> BoostInstruction(battle, message, true) }
         updateInstructionParser["-block"]                = { _, _, message, _ -> BlockInstruction(message) }
         updateInstructionParser["cant"]                  = { _, _, message, _ -> CantInstruction(message) }
         updateInstructionParser["-clearallboost"]        = { _, _, message, _ -> ClearAllBoostInstruction(message) }
         updateInstructionParser["-clearnegativeboost"]   = { _, _, message, _ -> ClearNegativeBoostInstruction(message) }
+        updateInstructionParser["-clearboost"]           = {  _, _, message, _ -> ClearBoostInstruction(message) }
         updateInstructionParser["-copyboost"]            = { _, _, message, _ -> CopyBoostInstruction(message) }
-        updateInstructionParser["-crit"]                 = { _, _, message, _ -> CritInstruction(message) }
+        updateInstructionParser["-crit"]                 = { _, instructionSet, message, _ -> CritInstruction(message, instructionSet) }
         updateInstructionParser["-curestatus"]           = { _, _, message, _ -> CureStatusInstruction(message) }
-        updateInstructionParser["detailschange"]         = { _, _, message, _ -> DetailsChangeInstruction(message) }
+        updateInstructionParser["detailschange"]         = { _, _, message, _ -> FormeChangeInstruction(message) }
         updateInstructionParser["-endability"]           = { _, _, message, _ -> EndAbilityInstruction(message) }
         updateInstructionParser["-end"]                  = { _, _, message, _ -> EndInstruction(message) }
         updateInstructionParser["-enditem"]              = { _, _, message, _ -> EndItemInstruction(message) }
@@ -78,6 +81,7 @@ object ShowdownInterpreter {
         updateInstructionParser["-fieldactivate"]        = { _, _, message, _ -> FieldActivateInstruction(message) }
         updateInstructionParser["-fieldend"]             = { _, _, message, _ -> FieldEndInstruction(message) }
         updateInstructionParser["-fieldstart"]           = { _, _, message, _ -> FieldStartInstruction(message) }
+        updateInstructionParser["-formechange"]          = { _, _, message, _ -> FormeChangeInstruction(message) }
         updateInstructionParser["-hitcount"]             = { _, _, message, _ -> HitCountInstruction(message) }
         updateInstructionParser["-immune"]               = { _, _, message, _ -> ImmuneInstruction(message) }
         updateInstructionParser["-invertboost"]          = { _, _, message, _ -> InvertBoostInstruction(message) }
@@ -90,27 +94,29 @@ object ShowdownInterpreter {
         updateInstructionParser["-prepare"]              = { _, _, message, _ -> PrepareInstruction(message) }
         updateInstructionParser["-mustrecharge"]         = { _, _, message, _ -> RechargeInstruction(message) }
         updateInstructionParser["replace"]               = { _, _, message, _ -> ReplaceInstruction(message) }
-        updateInstructionParser["-resisted"]             = { _, _, message, _ -> ResistedInstruction(message) }
-        updateInstructionParser["-resisted"]             = { _, _, message, _ -> ResistedInstruction(message) }
+        updateInstructionParser["-resisted"]             = { _, instructionSet, message, _ -> ResistedInstruction(message, instructionSet) }
         updateInstructionParser["-setboost"]             = { _, _, message, _ -> SetBoostInstruction(message) }
         updateInstructionParser["-sideend"]              = { _, _, message, _ -> SideEndInstruction(message) }
         updateInstructionParser["-sidestart"]            = { _, _, message, _ -> SideStartInstruction(message) }
         updateInstructionParser["-singlemove"]           = { _, _, message, _ -> SingleMoveInstruction(message) }
         updateInstructionParser["-singleturn"]           = { _, _, message, _ -> SingleTurnInstruction(message) }
+        updateInstructionParser["start"]                 = { _, instructionSet, message, _ -> InitializeInstruction(instructionSet, message) }
         updateInstructionParser["-start"]                = { _, _, message, _ -> StartInstruction(message) }
         updateInstructionParser["-status"]               = { _, _, message, _ -> StatusInstruction(message) }
-        updateInstructionParser["-supereffective"]       = { _, _, message, _ -> SuperEffectiveInstruction(message) }
+        updateInstructionParser["-supereffective"]       = { _, instructionSet, message, _ -> SuperEffectiveInstruction(message, instructionSet) }
         updateInstructionParser["-swapboost"]            = { _, _, message, _ -> SwapBoostInstruction(message) }
         updateInstructionParser["-swapsideconditions"]   = { _, _, message, _ -> SwapSideConditionsInstruction(message) }
         updateInstructionParser["-terastallize"]         = { _, _, message, _ -> TerastallizeInstruction(message) }
         updateInstructionParser["-transform"]            = { battle, _, message, _ -> TransformInstruction(battle, message) }
         updateInstructionParser["turn"]                  = { _, _, message, _ -> TurnInstruction(message) }
-        updateInstructionParser["-unboost"]              = { _, instructionSet, message, remainingLines -> BoostInstruction(instructionSet, message, remainingLines, false) }
+        updateInstructionParser["-unboost"]              = { battle, _, message, _ -> BoostInstruction(battle, message, false) }
         updateInstructionParser["upkeep"]                = { _, _, _, _ -> UpkeepInstruction() }
         updateInstructionParser["-weather"]              = { _, _, message, _ -> WeatherInstruction(message) }
         updateInstructionParser["win"]                   = { _, _, message, _ -> WinInstruction(message) }
         updateInstructionParser["-zbroken"]              = { _, _, message, _ -> ZBrokenInstruction(message) }
         updateInstructionParser["-zpower"]               = { _, _, message, _ -> ZPowerInstruction(message) }
+        updateInstructionParser["swap"]                  = { _, instructionSet, message, _ -> SwapInstruction(message, instructionSet) }
+        updateInstructionParser["-center"]               = { _, _, message, _ -> CenterInstruction(message) }
 
         sideInstructionParser["error"]                   = { _, targetActor, _, message -> ErrorInstruction(targetActor, message) }
         sideInstructionParser["request"]                 = { _, targetActor, _, message -> RequestInstruction(targetActor, message) }
@@ -131,8 +137,10 @@ object ShowdownInterpreter {
                                                                 SwitchInstruction(instructionSet, targetActor, publicMessage, privateMessage)
                                                            }
 
+
         // Note '-cureteam' is a legacy thing that is only used in generation 2 and 4 mods for heal bell and aromatherapy respectively as such we can just ignore that
     }
+
 
     fun interpretMessage(battleId: UUID, message: String) {
         // Check key map and use function if matching
@@ -193,19 +201,28 @@ object ShowdownInterpreter {
             }
             instructionSet.execute(battle)
         }
+        catch (e: InvalidInstructionException) {
+            e.message?.let {
+                battle.broadcastChatMessage(it.red())
+                LOGGER.error(it)
+            }
+
+        }
         catch (e: Exception) {
-            LOGGER.error("Caught exception interpreting {}", e)
+            battle.broadcastChatMessage("A fatal error occurred. Please report to developers.".red())
+            LOGGER.error("Caught exception interpreting battle instructions.", e)
         }
     }
 
     fun broadcastOptionalAbility(battle: PokemonBattle, effect: Effect?, pokemon: BattlePokemon) {
-        if (effect != null && effect.type == Effect.Type.ABILITY)
-            broadcastAbility(battle, effect, pokemon)
+        if (effect == null) return
+        broadcastAbility(battle, effect, pokemon)
     }
 
     // Broadcasts a generic lang to notify players of ability activations (effects are broadcasted separately)
     fun broadcastAbility(battle: PokemonBattle, effect: Effect, pokemon: BattlePokemon) {
-        battle.dispatchGo {
+        if (effect.type != Effect.Type.ABILITY) return
+        battle.dispatchWaiting(0.5F) {
             val lang = battleLang("ability.generic", pokemon.getName(), effect.typelessData).yellow()
             battle.broadcastChatMessage(lang)
         }

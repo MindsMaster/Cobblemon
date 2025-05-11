@@ -87,71 +87,65 @@ object CobblemonItemTags {
     @JvmField
     val PROTEIN_INGREDIENTS = create("protein_ingredients")
     /** See [COOKED_MEAT] */
-    @JvmField
-    val RAW_MEAT = create("raw_meat")
-    @JvmField
-    val SEEDS = create("seeds")
-    @JvmField
-    val SHINY_STONE_ORES = create("shiny_stone_ores")
-    @JvmField
-    val SIGNS = create("signs")
-    @JvmField
-    val SUN_STONE_ORES = create("sun_stone_ores")
-    @JvmField
-    val THUNDER_STONE_ORES = create("thunder_stone_ores")
-    @JvmField
-    val TUMBLESTONES = create("tumblestones")
-    @JvmField
-    val WATER_STONE_ORES = create("water_stone_ores")
-    @JvmField
-    val ZINC_INGREDIENTS = create("zinc_ingredients")
+    @JvmField val RAW_MEAT = create("raw_meat")
+    @JvmField val RED_TUMBLESTONE_BRICKS = create("red_tumblestone_bricks")
+    @JvmField val RED_TUMBLESTONES = create("red_tumblestones")
+    @JvmField val REMEDIES = create("remedies")
+    @JvmField val RESTORES = create("restores")
+    @JvmField val REVIVES = create("revives")
+    @JvmField val SEEDS = create("seeds")
+    @JvmField val SHINY_STONE_ORES = create("shiny_stone_ores")
+    @JvmField val SIGNS = create("signs")
+    @JvmField val SKY_TUMBLESTONE_BRICKS = create("sky_tumblestone_bricks")
+    @JvmField val SKY_TUMBLESTONES = create("sky_tumblestones")
+    @JvmField val SUN_STONE_ORES = create("sun_stone_ores")
+    @JvmField val SWEETS = create("sweets")
+    @JvmField val TEACUPS = create("teacups")
+    @JvmField val TEAPOTS = create("teapots")
+    @JvmField val THUNDER_STONE_ORES = create("thunder_stone_ores")
+    @JvmField val TIER_1_POKE_BALL_MATERIALS = create("tier_1_poke_ball_materials")
+    @JvmField val TIER_1_POKE_BALLS = create("tier_1_poke_balls")
+    @JvmField val TIER_2_POKE_BALL_MATERIALS = create("tier_2_poke_ball_materials")
+    @JvmField val TIER_2_POKE_BALLS = create("tier_2_poke_balls")
+    @JvmField val TIER_3_POKE_BALL_MATERIALS = create("tier_3_poke_ball_materials")
+    @JvmField val TIER_3_POKE_BALLS = create("tier_3_poke_balls")
+    @JvmField val TIER_4_POKE_BALL_MATERIALS = create("tier_4_poke_ball_materials")
+    @JvmField val TIER_4_POKE_BALLS = create("tier_4_poke_balls")
+    @JvmField val TIER_5_POKE_BALLS = create("tier_5_poke_balls")
+    @JvmField val TUMBLESTONE_BRICKS = create("tumblestone_bricks")
+    @JvmField val TUMBLESTONES = create("tumblestones")
+    @JvmField val TYPE_GEMS = create("type_gems")
+    @JvmField val VITAMINS = create("vitamins")
+    @JvmField val WATER_STONE_ORES = create("water_stone_ores")
+    @JvmField val ZINC_INGREDIENTS = create("zinc_ingredients")
 
     // Held Item Tags
-    @JvmField
-    val ANY_HELD_ITEM = create("held/is_held_item")
-    @JvmField
-    val EXPERIENCE_SHARE = create("held/experience_share")
-    @JvmField
-    val LUCKY_EGG = create("held/lucky_egg")
-    @JvmField
-    val DESTINY_KNOT = create("held/destiny_knot")
-    @JvmField
-    val EVERSTONE = create("held/everstone")
-    @JvmField
-    val POWER_ANKLET = create("held/power_anklet")
-    @JvmField
-    val POWER_BAND = create("held/power_band")
-    @JvmField
-    val POWER_BELT = create("held/power_belt")
-    @JvmField
-    val POWER_BRACER = create("held/power_bracer")
-    @JvmField
-    val POWER_LENS = create("held/power_lens")
-    @JvmField
-    val POWER_WEIGHT = create("held/power_weight")
-    @JvmField
-    val CONSUMED_IN_NPC_BATTLE = create("held/consumed_in_npc_battle")
-    @JvmField
-    val CONSUMED_IN_PVP_BATTLE = create("held/consumed_in_pvp_battle")
-    @JvmField
-    val CONSUMED_IN_WILD_BATTLE = create("held/consumed_in_wild_battle")
-    @JvmField
-    val TERRAIN_SEEDS = create("held/terrain_seeds")
+    @JvmField val CONSUMED_IN_NPC_BATTLE = create("held/consumed_in_npc_battle")
+    @JvmField val CONSUMED_IN_PVP_BATTLE = create("held/consumed_in_pvp_battle")
+    @JvmField val CONSUMED_IN_WILD_BATTLE = create("held/consumed_in_wild_battle")
+    @JvmField val DESTINY_KNOT = create("held/destiny_knot")
+    @JvmField val EVERSTONE = create("held/everstone")
+    @JvmField val EXPERIENCE_SHARE = create("held/experience_share")
+    @JvmField val IS_FRIENDSHIP_BOOSTER = create("is_friendship_booster")
+    @JvmField val ANY_HELD_ITEM = create("held/is_held_item")
+    @JvmField val BLACKLISTED_ITEMS_TO_HOLD = create("held/blacklisted_items_to_hold")
+    @JvmField val WHITELISTED_ITEMS_TO_HOLD = create("held/whitelisted_items_to_hold")
 
-    /**
-     * Tag that flags items as being able to "create" [CobblemonItems.LEFTOVERS].
-     */
-    @JvmField
-    val LEAVES_LEFTOVERS = create("held/leaves_leftovers")
+    /** Tag that flags items as being able to "create" [CobblemonItems.LEFTOVERS]. */
+    @JvmField val LEAVES_LEFTOVERS = create("held/leaves_leftovers")
+    @JvmField val LUCKY_EGG = create("held/lucky_egg")
+    @JvmField val POWER_ANKLET = create("held/power_anklet")
+    @JvmField val POWER_BAND = create("held/power_band")
+    @JvmField val POWER_BELT = create("held/power_belt")
+    @JvmField val POWER_BRACER = create("held/power_bracer")
+    @JvmField val POWER_LENS = create("held/power_lens")
+    @JvmField val POWER_WEIGHT = create("held/power_weight")
+    @JvmField val TERRAIN_SEEDS = create("held/terrain_seeds")
+    //Held Item Visibility Tags
+    @JvmField val WEARABLE_FACE_ITEMS = create("held/visibility/face")
+    @JvmField val WEARABLE_HAT_ITEMS = create("held/visibility/hat")
+    @JvmField val HIDDEN_ITEMS = create("held/visibility/hidden")
 
-    @JvmField
-    val POTTERY_SHERDS = create("decorated_pot_sherds")
-
-    @JvmField
-    val ABILITY_CHANGERS = create("ability_changers")
-
-    @JvmField
-    val IS_FRIENDSHIP_BOOSTER = create("is_friendship_booster")
 
     private fun create(path: String) = TagKey.create(Registries.ITEM, cobblemonResource(path))
 

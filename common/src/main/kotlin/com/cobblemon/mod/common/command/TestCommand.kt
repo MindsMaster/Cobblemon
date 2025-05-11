@@ -14,6 +14,7 @@ import com.cobblemon.mod.common.CobblemonNetwork.sendPacket
 import com.cobblemon.mod.common.api.Priority
 import com.cobblemon.mod.common.api.abilities.Abilities
 import com.cobblemon.mod.common.api.item.ability.AbilityChanger
+import com.cobblemon.mod.common.api.npc.NPCClasses
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties
 import com.cobblemon.mod.common.api.scheduling.ServerTaskTracker
 import com.cobblemon.mod.common.api.scheduling.taskBuilder
@@ -46,6 +47,7 @@ import net.minecraft.world.phys.AABB
 import com.mojang.serialization.JsonOps
 import java.io.File
 import java.io.PrintWriter
+import net.minecraft.core.BlockPos
 
 @Suppress("unused")
 object TestCommand {
@@ -66,8 +68,11 @@ object TestCommand {
         try {
             //this.testCodecOutput(context)
             val player = context.source.entity as ServerPlayer
+            player.party().forEach { it.currentHealth = it.hp / 2 }
             val npc = NPCEntity(player.level())
             npc.setPos(player.x, player.y, player.z)
+            npc.npc = NPCClasses.getByName("standard")!!
+            npc.initialize(50)
             player.level().addFreshEntity(npc)
 //            val evolutionEntity = GenericBedrockEntity(world = player.level())
 //            evolutionEntity.apply {
@@ -82,6 +87,7 @@ object TestCommand {
 //            after(seconds = 0.5F) {
 //                player.sendPacket(PlayPoseableAnimationPacket(evolutionEntity.id, setOf("evolution:animation.evolution.evolution"), emptySet()))
 //            }
+
 
 //            readBerryDataFromCSV()
 
@@ -107,10 +113,10 @@ object TestCommand {
 //            val enemyPokemon3 = BattlePokemon(PokemonSpecies.random().create())
 //            val enemyPokemon4 = BattlePokemon(PokemonSpecies.random().create())
 //
-//            enemyPokemon.effectedPokemon.sendOut(player.level() as ServerWorld, player.pos.add(2.0, 0.0, 0.0))
-//            enemyPokemon2.effectedPokemon.sendOut(player.level() as ServerWorld, player.pos.add(-2.0, 0.0, 0.0))
-//            enemyPokemon3.effectedPokemon.sendOut(player.level() as ServerWorld, player.pos.add(0.0, 0.0, 2.0))
-//            enemyPokemon4.effectedPokemon.sendOut(player.level() as ServerWorld, player.pos.add(0.0, 0.0, -2.0))
+//            enemyPokemon.effectedPokemon.sendOut(player.level() as ServerLevel, player.pos.add(2.0, 0.0, 0.0))
+//            enemyPokemon2.effectedPokemon.sendOut(player.level() as ServerLevel, player.pos.add(-2.0, 0.0, 0.0))
+//            enemyPokemon3.effectedPokemon.sendOut(player.level() as ServerLevel, player.pos.add(0.0, 0.0, 2.0))
+//            enemyPokemon4.effectedPokemon.sendOut(player.level() as ServerLevel, player.pos.add(0.0, 0.0, -2.0))
 //
 //            // Start the battle
 //            BattleRegistry.startBattle(

@@ -25,15 +25,19 @@ open class BedrockActiveAnimation(
     val animation: BedrockAnimation,
 ) : ActiveAnimation {
     var startedSeconds = -1F
-    var isTransformAnimation = false
+    override var enduresPrimaryAnimations: Boolean = false
     override val duration = animation.animationLength.toFloat()
     private var afterAction: (RenderContext, PosableState) -> Unit = { _, _ -> }
 
-    override val isTransition: Boolean
-        get() = isTransformAnimation
+    override var isTransition: Boolean = false
 
     fun andThen(action: (context: RenderContext, PosableState) -> Unit) = this.also {
         it.afterAction = action
+    }
+
+    override fun start(state: PosableState) {
+        super.start(state)
+        startedSeconds = state.animationSeconds
     }
 
     override fun run(
@@ -47,21 +51,14 @@ open class BedrockActiveAnimation(
         headPitch: Float,
         intensity: Float
     ): Boolean {
-        if (startedSeconds == -1F) {
-            startedSeconds = state.animationSeconds
-        }
-
-        return animation.run(context, model, state, state.animationSeconds - startedSeconds, limbSwing, limbSwingAmount, ageInTicks, intensity).also {
+        return animation.run(model, state, state.animationSeconds - startedSeconds, limbSwing, limbSwingAmount, ageInTicks, intensity).also {
             if (!it) {
                 afterAction(context, state)
             }
         }
     }
 
-    override fun applyEffects(entity: Entity, state: PosableState, previousSeconds: Float, newSeconds: Float) {
-        if (startedSeconds == -1F) {
-            startedSeconds = state.animationSeconds
-        }
+    override fun applyEffects(entity: Entity?, state: PosableState, previousSeconds: Float, newSeconds: Float) {
         val previousSecondsOffset = previousSeconds - startedSeconds
         val currentSecondsOffset = newSeconds - startedSeconds
         animation.applyEffects(entity, state, previousSecondsOffset, currentSecondsOffset)

@@ -8,10 +8,14 @@
 
 package com.cobblemon.mod.common.api.pokeball.catching.modifiers
 
+import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.api.pokeball.PokeBalls
 import com.cobblemon.mod.common.api.pokeball.catching.CatchRateModifier
+import com.cobblemon.mod.common.api.pokedex.PokedexEntryProgress
+import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.api.pokemon.status.Status
 import com.cobblemon.mod.common.api.spawning.fishing.FishingSpawnCause
+import com.cobblemon.mod.common.api.storage.player.PlayerInstancedDataStoreManager
 import com.cobblemon.mod.common.api.tags.CobblemonBiomeTags
 import com.cobblemon.mod.common.api.types.ElementalType
 import com.cobblemon.mod.common.battles.BattleRegistry
@@ -73,18 +77,18 @@ object CatchRateModifiers {
 
     /**
      * Used by [PokeBalls.MOON_BALL].
-     * Boosts the catch rate 1.5× during Moon Phases 3 and 7 between the times of 12000 – 24000.
-     * 2.5× during Moon Phases 2 and 8 between the times of 12000 – 24000.
-     * 4× during Moon Phase 1 between the times of 12000 – 24000.
+     * Boosts the catch rate 1.5× during Moon Phases 2 and 6 between the times of 12000 – 24000.
+     * 2.5× during Moon Phases 1 and 7 between the times of 12000 – 24000.
+     * 4× during Moon Phase 0 between the times of 12000 – 24000.
      * 1× otherwise.
      */
     val MOON_PHASES: CatchRateModifier = WorldStateModifier { _, entity ->
         if (entity.level().gameTime in 12000..24000)
             return@WorldStateModifier 1F
         when (entity.level().moonPhase) {
-            3, 7 -> 1.5F
-            2, 8 -> 2.5F
-            1 -> 4F
+            2, 6 -> 1.5F
+            1, 7 -> 2.5F
+            0 -> 4F
             else -> 1F
         }
     }
@@ -98,8 +102,8 @@ object CatchRateModifiers {
      */
     val LIGHT_LEVEL = WorldStateModifier { _, entity ->
         when (entity.level().getMaxLocalRawBrightness(entity.blockPosition())) {
-            0 -> 3F
-            in 1..7 -> 1.5F
+            0 -> 3.5F
+            in 1..7 -> 3F
             else -> 1F
         }
     }
@@ -129,7 +133,7 @@ object CatchRateModifiers {
      */
     val LURE = WorldStateModifier { _, entity ->
         if (FishingSpawnCause.FISHED_ASPECT in entity.aspects)
-            4f
+            4F
         else
             1F
     }
@@ -147,6 +151,21 @@ object CatchRateModifiers {
             else -> 1F
         }
     }) { _, pokemon -> pokemon.form.weight >= 1000F }
+
+    /**
+     * Used by [PokeBalls.REPEAT_BALL].
+     * Checks if the entity is registered as caught in the thrower's pokedex data.
+     * If yes boosts the catch rate by *2.5
+     */
+    val REPEAT: CatchRateModifier = WorldStateModifier { thrower, pokemon ->
+        val playerDexData = Cobblemon.playerDataManager.getPokedexData(thrower.uuid)
+        val speciesId = pokemon.pokemon.species.resourceIdentifier
+        val knowledge = playerDexData.getKnowledgeForSpecies(speciesId)
+        when (knowledge) {
+            PokedexEntryProgress.CAUGHT -> 3.5F
+            else -> 1F
+        }
+    }
 
     /**
      * Used by [PokeBalls.NET_BALL].
@@ -179,5 +198,4 @@ object CatchRateModifiers {
         val battle = BattleRegistry.getBattleByParticipatingPlayer(player) ?: return@BattleModifier 1F
         multiplierCalculator.invoke(battle.turn)
     }
-
 }

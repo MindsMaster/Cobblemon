@@ -8,30 +8,35 @@
 
 package com.cobblemon.mod.common.api.pokemon.evolution
 
-import com.cobblemon.mod.common.Cobblemon.playerData
+import com.cobblemon.mod.common.Cobblemon.playerDataManager
 import com.cobblemon.mod.common.CobblemonItems
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.advancement.CobblemonCriteria
 import com.cobblemon.mod.common.advancement.criterion.EvolvePokemonContext
+import com.cobblemon.mod.common.api.drop.DropTable
 import com.cobblemon.mod.common.api.events.CobblemonEvents
+import com.cobblemon.mod.common.api.events.pokemon.PokemonGainedEvent
 import com.cobblemon.mod.common.api.events.pokemon.evolution.EvolutionCompleteEvent
 import com.cobblemon.mod.common.api.events.pokemon.evolution.EvolutionTestedEvent
 import com.cobblemon.mod.common.api.moves.BenchedMove
 import com.cobblemon.mod.common.api.moves.MoveTemplate
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties
 import com.cobblemon.mod.common.api.pokemon.evolution.requirement.EvolutionRequirement
-import com.cobblemon.mod.common.api.scheduling.afterOnServer
 import com.cobblemon.mod.common.api.tags.CobblemonItemTags
-import com.cobblemon.mod.common.entity.generic.GenericBedrockEntity
+import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.item.PokeBallItem
+import com.cobblemon.mod.common.net.messages.client.animation.PlayPosableAnimationPacket
 import com.cobblemon.mod.common.pokemon.Pokemon
 import com.cobblemon.mod.common.pokemon.activestate.ShoulderedState
 import com.cobblemon.mod.common.pokemon.evolution.variants.ItemInteractionEvolution
 import com.cobblemon.mod.common.pokemon.evolution.variants.LevelUpEvolution
 import com.cobblemon.mod.common.pokemon.evolution.variants.TradeEvolution
-import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.common.util.lang
 import com.cobblemon.mod.common.util.party
+import com.cobblemon.mod.common.world.gamerules.CobblemonGameRules
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.sounds.SoundSource
+import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
 
 /**
@@ -74,6 +79,11 @@ interface Evolution : EvolutionLike {
      * The [MoveTemplate]s that will be offered to be learnt upon evolving.
      */
     val learnableMoves: MutableSet<MoveTemplate>
+
+    /**
+     * The items that will drop once the evolution finishes.
+     */
+    val drops: DropTable
 
     /**
      * Checks if the given [Pokemon] passes all the conditions and is ready to evolve.
@@ -122,15 +132,15 @@ interface Evolution : EvolutionLike {
             if (pokeballStack == null) return false
         }
         // If the player has at least one empty spot in their party.
-        val emptySlot = owner.party().getFirstAvailablePosition() ?: return false
+        owner.party().getFirstAvailablePosition() ?: return false
 
         // Add shed Pokemon to player's party
-        val shedPokemon = pokemon.clone()
+        val shedPokemon = pokemon.clone(registryAccess = owner.registryAccess())
         shedPokemon.removeHeldItem()
         innerShedder.apply(shedPokemon)
         shedPokemon.caughtBall = ((pokeballStack?.item ?: CobblemonItems.POKE_BALL) as PokeBallItem).pokeBall
         pokemon.storeCoordinates.get()?.store?.add(shedPokemon)
-        CobblemonCriteria.EVOLVE_POKEMON.trigger(owner, EvolvePokemonContext(pokemon.preEvolution!!.species.resourceIdentifier, shedPokemon.species.resourceIdentifier, playerData.get(owner).advancementData.totalEvolvedCount))
+        CobblemonCriteria.EVOLVE_POKEMON.trigger(owner, EvolvePokemonContext(pokemon.preEvolution!!.species.resourceIdentifier, shedPokemon.species.resourceIdentifier, playerDataManager.getGenericData(owner).advancementData.totalEvolvedCount))
         // Consume one of the balls
         pokeballStack?.shrink(1)
 
@@ -145,59 +155,87 @@ interface Evolution : EvolutionLike {
      */
     fun forceEvolve(pokemon: Pokemon) {
         // This is a switch to enable/disable the evolution effect while we get particles improved
-        val useEvolutionEffect = false
+        val useEvolutionEffect = true
 
         if (pokemon.state is ShoulderedState) {
             pokemon.tryRecallWithAnimation()
         }
 
+        val preEvoName = pokemon.getDisplayName()
         val pokemonEntity = pokemon.entity
         if (pokemonEntity == null || !useEvolutionEffect) {
+            pokemon.getOwnerPlayer()?.playNotifySound(CobblemonSounds.EVOLUTION_UI, SoundSource.PLAYERS, 1F, 1F)
             evolutionMethod(pokemon)
+            pokemon.getOwnerPlayer()?.sendSystemMessage(lang("ui.evolve.into", preEvoName, pokemon.species.translatedName))
         } else {
-            pokemonEntity.evolutionEntity = pokemon.getOwnerPlayer()?.let { GenericBedrockEntity(world = it.level()) }
-            val evolutionEntity = pokemon.entity!!.evolutionEntity
-            evolutionEntity?.apply {
-                category = cobblemonResource("evolution")
-                colliderHeight = pokemonEntity.bbHeight
-                colliderWidth = pokemonEntity.bbWidth
-                scale = pokemonEntity.ageScale
-                syncAge = true // Otherwise particle animation will be starting from zero even if you come along partway through
-                setPos(pokemonEntity.x, pokemonEntity.y, pokemonEntity.z)
+            pokemonEntity.entityData.set(PokemonEntity.EVOLUTION_STARTED, true)
+            pokemonEntity.navigation.stop()
+            pokemonEntity.after(1F) {
+                evolutionAnimation(pokemonEntity)
             }
-            pokemon.getOwnerPlayer()?.level()?.addFreshEntity(evolutionEntity)
-            afterOnServer(seconds = 9F) {
-                if (!pokemonEntity.isRemoved) {
-                    evolutionMethod(pokemon)
-                    afterOnServer(seconds = 1.5F) { pokemonEntity.cry() }
-                    afterOnServer(seconds = 3F) {
-                        if (evolutionEntity != null) {
-                            evolutionEntity.kill()
-                            if (!pokemonEntity.isRemoved) {
-                                pokemonEntity.evolutionEntity = null
-                            }
-                        }
-                    }
-                }
+            pokemonEntity.after(11.2F) {
+                evolutionMethod(pokemon)
+            }
+            pokemonEntity.after(seconds = 12F) {
+                cryAnimation(pokemonEntity)
+                pokemonEntity.entityData.set(PokemonEntity.EVOLUTION_STARTED, false)
+                pokemon.getOwnerPlayer()?.sendSystemMessage(lang("ui.evolve.into", preEvoName, pokemon.species.translatedName))
             }
         }
     }
 
+    private fun evolutionAnimation(pokemon: Entity) {
+        val playPoseableAnimationPacket = PlayPosableAnimationPacket(pokemon.id, setOf("q.bedrock_stateful('evolution', 'evolution', 'endures_primary_animations');"), listOf())
+        playPoseableAnimationPacket.sendToPlayersAround(pokemon.x, pokemon.y, pokemon.z, 128.0, pokemon.level().dimension())
+    }
+
+    private fun cryAnimation(pokemon: Entity) {
+        val playPoseableAnimationPacket = PlayPosableAnimationPacket(pokemon.id, setOf("cry"), emptyList())
+        playPoseableAnimationPacket.sendToPlayersAround(pokemon.x, pokemon.y, pokemon.z, 128.0, pokemon.level().dimension())
+    }
+
     fun evolutionMethod(pokemon: Pokemon) {
+        // This ensures the Pokémon doesn't lose moves during evolution
+        // (e.g., Oshawott evolving at level 17 knowing Razor Shell, while Dewott only learns it at level 18).
+        val previousSpeciesLearnableMoves = pokemon.relearnableMoves
+
         this.result.apply(pokemon)
-        this.learnableMoves.forEach { move ->
-            if (pokemon.moveSet.hasSpace()) {
-                pokemon.moveSet.add(move.create())
-            } else {
-                pokemon.benchedMoves.add(BenchedMove(move, 0))
+
+        val movesToLearn = previousSpeciesLearnableMoves + this.learnableMoves
+        movesToLearn.forEach { move ->
+            val couldAddMove =
+                if (pokemon.moveSet.hasSpace()) {
+                    pokemon.moveSet.add(move.create())
+                } else {
+                    pokemon.benchedMoves.add(BenchedMove(move, 0))
+                }
+
+            val previousSpeciesKnewMove = previousSpeciesLearnableMoves.any { move.name == it.name }
+
+            if (couldAddMove && !previousSpeciesKnewMove) {
+                pokemon.getOwnerPlayer()?.sendSystemMessage(lang("experience.learned_move", pokemon.getDisplayName(), move.displayName))
             }
-            pokemon.getOwnerPlayer()?.sendSystemMessage(lang("experience.learned_move", pokemon.getDisplayName(), move.displayName))
         }
+
         // we want to instantly tick for example you might only evolve your Bulbasaur at level 34 so Venusaur should be immediately available
+        pokemon.evolutions.filterIsInstance<PassiveEvolution>().forEach { evolution -> evolution.attemptEvolution(pokemon) }
         pokemon.lockedEvolutions.filterIsInstance<PassiveEvolution>().forEach { evolution -> evolution.attemptEvolution(pokemon) }
-        pokemon.getOwnerPlayer()?.playSound(CobblemonSounds.EVOLVING, 1F, 1F)
+
         this.shed(pokemon)
+
+        val ownerPlayer = pokemon.getOwnerPlayer()
+        if (ownerPlayer != null && ownerPlayer.level().gameRules.getBoolean(CobblemonGameRules.DO_POKEMON_LOOT)) {
+            drops.drop(
+                pokemon.entity,
+                ownerPlayer.level() as ServerLevel,
+                pokemon.entity?.position() ?: ownerPlayer.position(),
+                ownerPlayer,
+                pokemon = pokemon
+            )
+        }
+
         CobblemonEvents.EVOLUTION_COMPLETE.post(EvolutionCompleteEvent(pokemon, this))
+        CobblemonEvents.POKEMON_GAINED.post(PokemonGainedEvent(pokemon.getOwnerUUID()!!, pokemon))
     }
 
     fun applyTo(pokemon: Pokemon) {

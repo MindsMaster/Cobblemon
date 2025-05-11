@@ -8,12 +8,12 @@
 
 package com.cobblemon.mod.common.api.pokemon
 
-import com.bedrockk.molang.runtime.struct.VariableStruct
-import com.bedrockk.molang.runtime.value.DoubleValue
-import com.bedrockk.molang.runtime.value.StringValue
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.api.abilities.Abilities
 import com.cobblemon.mod.common.api.abilities.Ability
+import com.cobblemon.mod.common.api.events.CobblemonEvents
+import com.cobblemon.mod.common.api.events.pokemon.ShinyChanceCalculationEvent
+import com.cobblemon.mod.common.api.moves.Moves
 import com.cobblemon.mod.common.api.pokeball.PokeBalls
 import com.cobblemon.mod.common.api.pokemon.aspect.AspectProvider
 import com.cobblemon.mod.common.api.pokemon.stats.Stats
@@ -23,13 +23,30 @@ import com.cobblemon.mod.common.api.types.ElementalTypes
 import com.cobblemon.mod.common.api.types.tera.TeraTypes
 import com.cobblemon.mod.common.api.types.tera.elemental.ElementalTypeTeraType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
-import com.cobblemon.mod.common.pokemon.*
+import com.cobblemon.mod.common.pokemon.EVs
+import com.cobblemon.mod.common.pokemon.FormData
+import com.cobblemon.mod.common.pokemon.Gender
+import com.cobblemon.mod.common.pokemon.IVs
+import com.cobblemon.mod.common.pokemon.OriginalTrainerType
+import com.cobblemon.mod.common.pokemon.Pokemon
+import com.cobblemon.mod.common.pokemon.RenderablePokemon
 import com.cobblemon.mod.common.pokemon.status.PersistentStatus
-import com.cobblemon.mod.common.util.*
+import com.cobblemon.mod.common.util.DataKeys
+import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
+import com.cobblemon.mod.common.util.isDouble
+import com.cobblemon.mod.common.util.isUuid
+import com.cobblemon.mod.common.util.server
+import com.cobblemon.mod.common.util.simplify
+import com.cobblemon.mod.common.util.splitMap
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import com.mojang.brigadier.StringReader
 import com.mojang.serialization.Codec
+import java.util.UUID
+import kotlin.math.min
+import kotlin.random.Random
 import net.minecraft.ResourceLocationException
+import net.minecraft.commands.arguments.item.ItemParser
 import net.minecraft.core.HolderLookup
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
@@ -38,9 +55,9 @@ import net.minecraft.nbt.Tag
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
-import java.util.*
-import kotlin.random.Random
 
 /**
  * A grouping of typical, selectable properties for a Pokémon. This is serializable
@@ -122,6 +139,8 @@ open class PokemonProperties {
             props.tradeable = parseBooleanProperty(keyPairs, listOf("tradeable", "tradable"))
             props.originalTrainerType = OriginalTrainerType.entries.toList().parsePropertyOfCollection(keyPairs, listOf("originaltrainertype", "ottype"), labelsOptional = true) { it.name.lowercase() }
             props.originalTrainer = parsePlayerProperty(keyPairs, listOf("originaltrainer", "ot"))
+            props.moves = parseString(keyPairs, listOf("moves"))?.split(",")
+            props.heldItem = parseString(keyPairs, listOf("helditem", "held_item"))
 
             val maybeIVs = IVs()
             val maybeEVs = EVs()
@@ -151,13 +170,23 @@ open class PokemonProperties {
             }
         }
 
+        private fun parseString(keyPairs: MutableList<Pair<String, String?>>, labels: Iterable<String>): String? {
+            val matchingKeyPair = getMatchedKeyPair(keyPairs, labels) ?: return null
+            val value = matchingKeyPair.second
+            return if (value.isNullOrBlank()) {
+                null
+            } else {
+                value
+            }
+        }
+
         private fun parseIntProperty(keyPairs: MutableList<Pair<String, String?>>, labels: Iterable<String>): Int? {
             val matchingKeyPair = getMatchedKeyPair(keyPairs, labels) ?: return null
             val value = matchingKeyPair.second
-            return if (value == null || !value.isInt()) {
+            return if (value == null || !value.isDouble()) {
                 null
             } else {
-                value.toInt()
+                value.toDouble().toInt()
             }
         }
 
@@ -305,6 +334,8 @@ open class PokemonProperties {
     var tradeable: Boolean? = null
     var originalTrainerType: OriginalTrainerType? = null
     var originalTrainer: String? = null // Original Trainer by Username or UUID
+    var moves: List<String>? = null
+    var heldItem: String? = null
 
     var ivs: IVs? = null
     var evs: EVs? = null
@@ -333,6 +364,10 @@ open class PokemonProperties {
         this.commonApply(pokemonEntity.pokemon)
     }
 
+    fun applyCustomProperties(pokemonEntity: PokemonEntity) {
+        this.customProperties.forEach { it.apply(pokemonEntity) }
+    }
+
     private fun commonApply(pokemon: Pokemon) {
         species?.let {
             return@let try {
@@ -350,7 +385,13 @@ open class PokemonProperties {
         shiny?.let { pokemon.shiny = it }
         gender?.let { pokemon.gender = it }
         level?.let { pokemon.level = it }
-        friendship?.let { pokemon.setFriendship(it) }
+        friendship.also {
+            if (it != null) {
+                pokemon.setFriendship(it)
+            } else {
+                pokemon.setFriendship(pokemon.form.baseFriendship)
+            }
+        }
         pokeball?.let { PokeBalls.getPokeBall(it.asIdentifierDefaultingNamespace())?.let { pokeball -> pokemon.caughtBall = pokeball } }
         nature?.let  { Natures.getNature(it.asIdentifierDefaultingNamespace())?.let { nature -> pokemon.nature = nature } }
         ability?.let { this.createAbility(it, pokemon.form)?.let(pokemon::updateAbility) }
@@ -392,6 +433,31 @@ open class PokemonProperties {
             }
             pokemon.refreshOriginalTrainer()
         }
+        moves?.let { moves ->
+            if (pokemon.moveSet.getMoves().isEmpty()) {
+                pokemon.initializeMoveset(preferLatest = true)
+            }
+            val moveTemplates = moves.mapNotNull(Moves::getByName).shuffled()
+            val replaceableIndices = (0..3).filterNot { pokemon.moveSet[it]?.template?.let(moveTemplates::contains) == true }.shuffled()
+            val insertableMoves = moveTemplates.filterNot { pokemon.moveSet.any { move -> move.template == it } }
+            if (replaceableIndices.isNotEmpty() && insertableMoves.isNotEmpty()) {
+                val insertingMoves = insertableMoves.subList(0, min(replaceableIndices.size, insertableMoves.size))
+                pokemon.moveSet.doWithoutEmitting {
+                    insertingMoves.forEachIndexed { index, move -> pokemon.moveSet.setMove(replaceableIndices[index], move.create()); pokemon.moveSet[replaceableIndices[index]]!!.update() }
+                }
+                pokemon.moveSet.update()
+            }
+        }
+        heldItem?.let { itemKey ->
+            val server = server() ?: return@let
+            val parser = ItemParser(server.registryAccess())
+            val result = parser.parse(StringReader(itemKey))
+
+            val stack = ItemStack(result.item)
+            stack.applyComponents(result.components)
+            if (stack.isEmpty) return@let
+            pokemon.heldItem = stack
+        }
         pokemon.updateAspects()
     }
 
@@ -403,6 +469,10 @@ open class PokemonProperties {
     fun matches(pokemonEntity: PokemonEntity): Boolean {
         // Custom properties check could be duplicated but can't assume 3rd party hasn't done anything type specific
         return this.commonMatches(pokemonEntity.pokemon) && this.customProperties.none { !it.matches(pokemonEntity) }
+    }
+
+    fun matches(properties: PokemonProperties): Boolean {
+        return properties.asString() == this.asString()
     }
 
     private fun commonMatches(pokemon: Pokemon): Boolean {
@@ -441,8 +511,25 @@ open class PokemonProperties {
         dmaxLevel?.takeIf { it != pokemon.dmaxLevel }?.let { return false }
         gmaxFactor?.takeIf { it != pokemon.gmaxFactor }?.let { return false }
         tradeable?.takeIf { it != pokemon.tradeable }?.let { return false }
-        originalTrainer?.takeIf { it != pokemon.originalTrainer }?.let{ return false }
-        originalTrainerType?.takeIf { it != pokemon.originalTrainerType }?.let{ return false }
+        originalTrainer?.takeIf { it != pokemon.originalTrainer }?.let { return false }
+        originalTrainerType?.takeIf { it != pokemon.originalTrainerType }?.let { return false }
+        moves?.takeIf { it.any { move -> pokemon.moveSet.none { it.template.name == move } } }?.let { return false }
+        heldItem?.takeIf { itemKey ->
+            val server = server() ?: return@takeIf true
+            val parser = ItemParser(server.registryAccess())
+            val result = parser.parse(StringReader(itemKey))
+
+            if (!pokemon.heldItem.`is`(result.item)) return@takeIf true
+
+            for (entry in result.components.entrySet()) {
+                val targetPropValue = pokemon.heldItem.get(entry.key)
+                if (targetPropValue != entry.value.get()) {
+                    return@takeIf true
+                }
+            }
+
+            return@takeIf false
+        }?.let { return false }
         return true
     }
 
@@ -492,21 +579,28 @@ open class PokemonProperties {
         tradeable?.takeIf { it != properties.tradeable }?.let { return false }
         originalTrainer?.takeIf { it != properties.originalTrainer }?.let{ return false }
         originalTrainerType?.takeIf { it != properties.originalTrainerType }?.let{ return false }
+        moves?.takeIf { it.any { move -> properties.moves?.none { it == move } == true } }?.let { return false }
         return true
     }
 
-    fun create(): Pokemon {
+    @JvmOverloads
+    fun create(player: ServerPlayer? = null): Pokemon {
         val pokemon = Pokemon()
         apply(pokemon)
         pokemon.initialize()
-        roll(pokemon)
+        roll(pokemon, player)
         return pokemon
     }
 
     // TEST YOUR LUCK!
-    fun roll(pokemon: Pokemon) {
+    @JvmOverloads
+    fun roll(pokemon: Pokemon, player: ServerPlayer? = null) {
         val baseTypes = pokemon.form.types.toList()
-        if (this.shiny == null) pokemon.shiny = Cobblemon.config.shinyRate.checkRate()
+        var shinyRate = Cobblemon.config.shinyRate
+        CobblemonEvents.SHINY_CHANCE_CALCULATION.post(ShinyChanceCalculationEvent(shinyRate, pokemon)) { event ->
+            shinyRate = event.calculate(player)
+        }
+        if (this.shiny == null) pokemon.shiny = shinyRate.checkRate()
         if (this.teraType == null) pokemon.teraType =
             if (Cobblemon.config.teraTypeRate.checkRate()) {
                 var picked = TeraTypes.random(true)
@@ -518,8 +612,9 @@ open class PokemonProperties {
             else TeraTypes.forElementalType(baseTypes.random())
     }
 
-    fun createEntity(world: Level): PokemonEntity {
-        return PokemonEntity(world, create())
+    @JvmOverloads
+    fun createEntity(world: Level, player: ServerPlayer? = null): PokemonEntity {
+        return PokemonEntity(world, create(player)).also { applyCustomProperties(it) }
     }
 
     // TODO Codecs at some point
@@ -546,6 +641,8 @@ open class PokemonProperties {
         tradeable?.let { nbt.putBoolean(DataKeys.POKEMON_TRADEABLE, it) }
         originalTrainerType?.let { nbt.putInt(DataKeys.POKEMON_ORIGINAL_TRAINER_TYPE, it.ordinal) }
         originalTrainer?.let { nbt.putString(DataKeys.POKEMON_ORIGINAL_TRAINER, it) }
+        moves?.let { nbt.putString(DataKeys.POKEMON_PROPERTIES_MOVES, it.joinToString(separator = ",")) }
+        heldItem?.let {nbt.putString(DataKeys.POKEMON_PROPERTIES_HELDITEM, it)}
         val custom = ListTag()
         customProperties.map { StringTag.valueOf(it.asString()) }.forEach { custom.add(it) }
         nbt.put(DataKeys.POKEMON_PROPERTIES_CUSTOM, custom)
@@ -566,8 +663,8 @@ open class PokemonProperties {
         nature = if (tag.contains(DataKeys.POKEMON_NATURE)) tag.getString(DataKeys.POKEMON_NATURE) else null
         ability = if (tag.contains(DataKeys.POKEMON_ABILITY)) tag.getString(DataKeys.POKEMON_ABILITY) else null
         status = if (tag.contains(DataKeys.POKEMON_STATUS_NAME)) tag.getString(DataKeys.POKEMON_STATUS_NAME) else null
-        ivs = if (tag.contains(DataKeys.POKEMON_IVS)) ivs?.loadFromNBT(tag.getCompound(DataKeys.POKEMON_IVS)) as IVs? else null
-        evs = if (tag.contains(DataKeys.POKEMON_EVS)) evs?.loadFromNBT(tag.getCompound(DataKeys.POKEMON_EVS)) as EVs? else null
+        ivs = if (tag.contains(DataKeys.POKEMON_IVS)) IVs().loadFromNBT(tag.getCompound(DataKeys.POKEMON_IVS)) as IVs else null
+        evs = if (tag.contains(DataKeys.POKEMON_EVS)) EVs().loadFromNBT(tag.getCompound(DataKeys.POKEMON_EVS)) as EVs else null
         type = if (tag.contains(DataKeys.ELEMENTAL_TYPE)) tag.getString(DataKeys.ELEMENTAL_TYPE) else null
         teraType = if (tag.contains(DataKeys.POKEMON_TERA_TYPE)) tag.getString(DataKeys.POKEMON_TERA_TYPE) else null
         dmaxLevel = if (tag.contains(DataKeys.POKEMON_DMAX_LEVEL)) tag.getInt(DataKeys.POKEMON_DMAX_LEVEL) else null
@@ -575,6 +672,8 @@ open class PokemonProperties {
         tradeable = if (tag.contains(DataKeys.POKEMON_TRADEABLE)) tag.getBoolean(DataKeys.POKEMON_TRADEABLE) else null
         originalTrainerType = if (tag.contains(DataKeys.POKEMON_ORIGINAL_TRAINER_TYPE)) OriginalTrainerType.valueOf(tag.getString(DataKeys.POKEMON_ORIGINAL_TRAINER_TYPE)) else null
         originalTrainer = if (tag.contains(DataKeys.POKEMON_ORIGINAL_TRAINER)) tag.getString(DataKeys.POKEMON_ORIGINAL_TRAINER) else null
+        moves = if (tag.contains(DataKeys.POKEMON_PROPERTIES_MOVES)) tag.getString(DataKeys.POKEMON_PROPERTIES_MOVES).split(",") else null
+        heldItem = if (tag.contains(DataKeys.POKEMON_PROPERTIES_HELDITEM)) tag.getString(DataKeys.POKEMON_PROPERTIES_HELDITEM) else null
         val custom = tag.getList(DataKeys.POKEMON_PROPERTIES_CUSTOM, Tag.TAG_STRING.toInt())
         // This is kinda gross
         custom.forEach { customProperties.addAll(parse(it.asString).customProperties) }
@@ -606,6 +705,8 @@ open class PokemonProperties {
         tradeable?.let { json.addProperty(DataKeys.POKEMON_TRADEABLE, it) }
         originalTrainerType?.let { json.addProperty(DataKeys.POKEMON_ORIGINAL_TRAINER_TYPE, it.name) }
         originalTrainer?.let { json.addProperty(DataKeys.POKEMON_ORIGINAL_TRAINER, it) }
+        moves?.let { json.addProperty(DataKeys.POKEMON_PROPERTIES_MOVES, it.joinToString(separator = ",")) }
+        heldItem?.let {json.addProperty(DataKeys.POKEMON_PROPERTIES_HELDITEM, it)}
         val custom = JsonArray()
         customProperties.map { it.asString() }.forEach { custom.add(it) }
         json.add(DataKeys.POKEMON_PROPERTIES_CUSTOM, custom)
@@ -627,8 +728,8 @@ open class PokemonProperties {
         nature = json.get(DataKeys.POKEMON_NATURE)?.asString
         ability = json.get(DataKeys.POKEMON_ABILITY)?.asString
         status = json.get(DataKeys.POKEMON_STATUS_NAME)?.asString
-        ivs?.loadFromJSON(json.getAsJsonObject(DataKeys.POKEMON_IVS))
-        evs?.loadFromJSON(json.getAsJsonObject(DataKeys.POKEMON_EVS))
+        ivs = json.getAsJsonObject(DataKeys.POKEMON_IVS)?.let { IVs().loadFromJSON(it) } as? IVs
+        evs = json.getAsJsonObject(DataKeys.POKEMON_EVS)?.let { EVs().loadFromJSON(it) } as? EVs
         type = json.get(DataKeys.ELEMENTAL_TYPE)?.asString
         teraType = json.get(DataKeys.POKEMON_TERA_TYPE)?.asString
         dmaxLevel = json.get(DataKeys.POKEMON_DMAX_LEVEL)?.asInt
@@ -636,6 +737,8 @@ open class PokemonProperties {
         tradeable = json.get(DataKeys.POKEMON_TRADEABLE)?.asBoolean
         originalTrainerType = json.get(DataKeys.POKEMON_ORIGINAL_TRAINER_TYPE)?.asString?.let { OriginalTrainerType.valueOf(it) }
         originalTrainer = json.get(DataKeys.POKEMON_ORIGINAL_TRAINER)?.asString
+        moves = json.get(DataKeys.POKEMON_PROPERTIES_MOVES)?.asString?.split(",")
+        heldItem = json.get(DataKeys.POKEMON_PROPERTIES_HELDITEM)?.asString
         val custom = json.get(DataKeys.POKEMON_PROPERTIES_CUSTOM)?.asJsonArray
         // This is still kinda gross
         custom?.forEach { customProperties.addAll(parse(it.asString).customProperties) }
@@ -646,7 +749,7 @@ open class PokemonProperties {
     fun asString(separator: String = " "): String {
         val pieces = mutableListOf<String>()
         species?.let { pieces.add(it) }
-        nickname?.let { pieces.add("nickname=$${it.string}") }
+        nickname?.let { pieces.add("nickname=${it.string}") }
         form?.let { pieces.add("form=$it") }
         level?.let { pieces.add("level=$it") }
         shiny?.let { pieces.add("shiny=$it") }
@@ -670,18 +773,9 @@ open class PokemonProperties {
         originalTrainerType?.let { pieces.add("originaltrainertype=${it.name}") }
         originalTrainer?.let { pieces.add("originaltrainer=$it") }
         customProperties.forEach { pieces.add(it.asString()) }
+        moves?.let { pieces.add("moves=${it.joinToString(separator = ",")}") }
+        heldItem?.let {pieces.add("helditem=$it")}
         return pieces.joinToString(separator)
-    }
-
-    fun asStruct(): VariableStruct {
-        val struct = VariableStruct()
-        species?.let { struct.setDirectly("species", StringValue(it)) }
-        level?.let { struct.setDirectly("level", DoubleValue(it)) }
-        shiny?.let { struct.setDirectly("shiny", DoubleValue(it)) }
-        // add more of the optional properties to the struct as doubles or strings
-        gender?.let { struct.setDirectly("gender", StringValue(it.name)) }
-        friendship?.let { struct.setDirectly("friendship", DoubleValue(it)) }
-        return struct
     }
 
     fun updateAspects() {
@@ -691,11 +785,11 @@ open class PokemonProperties {
     }
 
     fun copy(): PokemonProperties {
-        return PokemonProperties().loadFromJSON(saveToJSON())
+        return PokemonProperties().loadFromJSON(this.saveToJSON())
     }
 
     // If the config value is at least 1, then do 1/x and use that as the property chance
-    private fun Float.checkRate(): Boolean = this >= 1 && (Random.Default.nextFloat() < 1 / this)
+    private fun Float.checkRate(): Boolean = if (this >= 1) (Random.Default.nextFloat() < 1 / this) else Random.Default.nextFloat() < this
 
     /**
      * Attempts to find an ability by ID and resolve if it should be forced or if it's legal for the given form.
@@ -707,7 +801,7 @@ open class PokemonProperties {
     private fun createAbility(id: String, form: FormData): Ability? {
         val ability = Abilities.get(id) ?: return null
         val potentialAbility = form.abilities.firstOrNull { potential -> potential.template == ability } ?: return ability.create(true)
-        return potentialAbility.template.create(false)
+        return potentialAbility.template.create(false, potentialAbility.priority)
     }
 
 }

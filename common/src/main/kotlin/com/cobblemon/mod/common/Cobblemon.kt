@@ -14,14 +14,12 @@ import com.cobblemon.mod.common.api.SeasonResolver
 import com.cobblemon.mod.common.api.data.DataProvider
 import com.cobblemon.mod.common.api.drop.CommandDropEntry
 import com.cobblemon.mod.common.api.drop.DropEntry
+import com.cobblemon.mod.common.api.drop.EvolutionItemDropEntry
 import com.cobblemon.mod.common.api.drop.ItemDropEntry
 import com.cobblemon.mod.common.api.events.CobblemonEvents
-import com.cobblemon.mod.common.api.events.CobblemonEvents.BATTLE_VICTORY
 import com.cobblemon.mod.common.api.events.CobblemonEvents.DATA_SYNCHRONIZED
-import com.cobblemon.mod.common.api.events.CobblemonEvents.EVOLUTION_COMPLETE
-import com.cobblemon.mod.common.api.events.CobblemonEvents.LEVEL_UP_EVENT
-import com.cobblemon.mod.common.api.events.CobblemonEvents.POKEMON_CAPTURED
-import com.cobblemon.mod.common.api.events.CobblemonEvents.TRADE_COMPLETED
+import com.cobblemon.mod.common.api.interaction.RequestManager
+import com.cobblemon.mod.common.api.molang.ObjectValue
 import com.cobblemon.mod.common.api.permission.PermissionValidator
 import com.cobblemon.mod.common.api.pokeball.catching.calculators.CaptureCalculator
 import com.cobblemon.mod.common.api.pokeball.catching.calculators.CaptureCalculators
@@ -56,9 +54,13 @@ import com.cobblemon.mod.common.api.storage.factory.FileBackedPokemonStoreFactor
 import com.cobblemon.mod.common.api.storage.molang.NbtMoLangDataStoreFactory
 import com.cobblemon.mod.common.api.storage.pc.PCStore
 import com.cobblemon.mod.common.api.storage.pc.link.PCLinkManager
-import com.cobblemon.mod.common.api.storage.player.PlayerDataStoreManager
-import com.cobblemon.mod.common.api.storage.player.factory.JsonPlayerDataStoreFactory
-import com.cobblemon.mod.common.api.storage.player.factory.MongoPlayerDataStoreFactory
+import com.cobblemon.mod.common.api.storage.player.PlayerInstancedDataStoreManager
+import com.cobblemon.mod.common.api.storage.player.PlayerInstancedDataStoreTypes
+import com.cobblemon.mod.common.api.storage.player.adapter.DexDataMongoBackend
+import com.cobblemon.mod.common.api.storage.player.adapter.DexDataNbtBackend
+import com.cobblemon.mod.common.api.storage.player.adapter.PlayerDataJsonBackend
+import com.cobblemon.mod.common.api.storage.player.adapter.PlayerDataMongoBackend
+import com.cobblemon.mod.common.api.storage.player.factory.CachedPlayerDataStoreFactory
 import com.cobblemon.mod.common.api.tags.CobblemonEntityTypeTags
 import com.cobblemon.mod.common.api.tags.CobblemonItemTags
 import com.cobblemon.mod.common.battles.BagItems
@@ -68,13 +70,8 @@ import com.cobblemon.mod.common.battles.BattleSide
 import com.cobblemon.mod.common.battles.ShowdownThread
 import com.cobblemon.mod.common.battles.actor.PokemonBattleActor
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon
-import com.cobblemon.mod.common.command.argument.DialogueArgumentType
-import com.cobblemon.mod.common.command.argument.MoveArgumentType
-import com.cobblemon.mod.common.command.argument.PartySlotArgumentType
-import com.cobblemon.mod.common.command.argument.PokemonArgumentType
-import com.cobblemon.mod.common.command.argument.PokemonPropertiesArgumentType
-import com.cobblemon.mod.common.command.argument.PokemonStoreArgumentType
-import com.cobblemon.mod.common.command.argument.SpawnBucketArgumentType
+import com.cobblemon.mod.common.client.CobblemonPack
+import com.cobblemon.mod.common.command.argument.*
 import com.cobblemon.mod.common.config.CobblemonConfig
 import com.cobblemon.mod.common.config.LastChangedVersion
 import com.cobblemon.mod.common.config.constraint.IntConstraint
@@ -82,25 +79,36 @@ import com.cobblemon.mod.common.config.starter.StarterConfig
 import com.cobblemon.mod.common.data.CobblemonDataProvider
 import com.cobblemon.mod.common.events.AdvancementHandler
 import com.cobblemon.mod.common.events.BellyHandler
+import com.cobblemon.mod.common.events.FlowHandler
+import com.cobblemon.mod.common.events.PokedexHandler
 import com.cobblemon.mod.common.events.ServerTickHandler
 import com.cobblemon.mod.common.net.messages.client.settings.ServerSettingsPacket
 import com.cobblemon.mod.common.permission.LaxPermissionValidator
 import com.cobblemon.mod.common.platform.events.PlatformEvents
 import com.cobblemon.mod.common.pokemon.Pokemon
+import com.cobblemon.mod.common.pokemon.aspects.COSMETIC_SLOT_ASPECT
 import com.cobblemon.mod.common.pokemon.aspects.GENDER_ASPECT
 import com.cobblemon.mod.common.pokemon.aspects.SHINY_ASPECT
 import com.cobblemon.mod.common.pokemon.evolution.variants.BlockClickEvolution
 import com.cobblemon.mod.common.pokemon.feature.TagSeasonResolver
 import com.cobblemon.mod.common.pokemon.helditem.CobblemonHeldItemManager
 import com.cobblemon.mod.common.pokemon.properties.AspectPropertyType
+import com.cobblemon.mod.common.pokemon.properties.BattleCloneProperty
+import com.cobblemon.mod.common.pokemon.properties.FreezeFrameProperty
 import com.cobblemon.mod.common.pokemon.properties.HiddenAbilityPropertyType
+import com.cobblemon.mod.common.pokemon.properties.NoAIProperty
 import com.cobblemon.mod.common.pokemon.properties.UnaspectPropertyType
 import com.cobblemon.mod.common.pokemon.properties.UncatchableProperty
 import com.cobblemon.mod.common.pokemon.properties.tags.PokemonFlagProperty
 import com.cobblemon.mod.common.pokemon.stat.CobblemonStatProvider
 import com.cobblemon.mod.common.starter.CobblemonStarterHandler
-import com.cobblemon.mod.common.trade.TradeManager
-import com.cobblemon.mod.common.util.*
+import com.cobblemon.mod.common.util.DataKeys
+import com.cobblemon.mod.common.util.cobblemonResource
+import com.cobblemon.mod.common.util.ifDedicatedServer
+import com.cobblemon.mod.common.util.isLaterVersion
+import com.cobblemon.mod.common.util.party
+import com.cobblemon.mod.common.util.requestWallpapers
+import com.cobblemon.mod.common.util.server
 import com.cobblemon.mod.common.world.feature.CobblemonPlacedFeatures
 import com.cobblemon.mod.common.world.feature.ore.CobblemonOrePlacedFeatures
 import com.cobblemon.mod.common.world.gamerules.CobblemonGameRules
@@ -112,7 +120,8 @@ import java.io.File
 import java.io.FileReader
 import java.io.FileWriter
 import java.io.PrintWriter
-import java.util.*
+import java.util.UUID
+import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 import kotlin.properties.Delegates
 import kotlin.reflect.full.memberProperties
@@ -120,7 +129,12 @@ import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaField
 import net.minecraft.client.Minecraft
 import net.minecraft.commands.synchronization.SingletonArgumentInfo
+import net.minecraft.core.registries.Registries
 import net.minecraft.resources.ResourceKey
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.server.packs.PackType
+import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.NameTagItem
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.storage.LevelResource
@@ -131,6 +145,7 @@ object Cobblemon {
     const val MODID = CobblemonBuildDetails.MOD_ID
     const val VERSION = CobblemonBuildDetails.VERSION
     const val CONFIG_PATH = "config/$MODID/main.json"
+    @JvmField
     val LOGGER: Logger = LogManager.getLogger()
 
     lateinit var implementation: CobblemonImplementation
@@ -152,22 +167,37 @@ object Cobblemon {
     val battleRegistry = BattleRegistry
     var storage = PokemonStoreManager()
     var molangData = NbtMoLangDataStoreFactory
-    lateinit var playerData: PlayerDataStoreManager
+    lateinit var playerDataManager: PlayerInstancedDataStoreManager
     lateinit var starterConfig: StarterConfig
     val dataProvider: DataProvider = CobblemonDataProvider
     var permissionValidator: PermissionValidator by Delegates.observable(LaxPermissionValidator().also { it.initialize() }) { _, _, newValue -> newValue.initialize() }
     var statProvider: StatProvider = CobblemonStatProvider
     var seasonResolver: SeasonResolver = TagSeasonResolver
+    var wallpapers = mutableMapOf<UUID, Set<ResourceLocation>>()
+
+    val serverPlayerStructs = mutableMapOf<UUID, ObjectValue<Player>>()
+
+    @JvmStatic
+    val builtinPacks = listOf<CobblemonPack>(
+        CobblemonPack(id = "adorncompatibility", name = "Adorn Compatibility", packType = PackType.CLIENT_RESOURCES, activationBehaviour = ResourcePackActivationBehaviour.ALWAYS_ENABLED, neededMods = setOf("adorn")),
+        CobblemonPack(id = "gyaradosjump", name = "Gyarados Jump Patterns", packType = PackType.CLIENT_RESOURCES, activationBehaviour = ResourcePackActivationBehaviour.DEFAULT_ENABLED),
+        CobblemonPack(id = "regionbiasforms", name = "Region Bias Forms", packType = PackType.CLIENT_RESOURCES, activationBehaviour = ResourcePackActivationBehaviour.DEFAULT_ENABLED),
+        CobblemonPack(id = "uniqueshinyforms", name = "Shinies for Magikarp Jump", packType = PackType.CLIENT_RESOURCES, activationBehaviour = ResourcePackActivationBehaviour.NORMAL),
+
+        CobblemonPack(id = "repurposedstructurescobblemon", name = "Repurposed Structures Cobblemon", packType = PackType.SERVER_DATA, activationBehaviour = ResourcePackActivationBehaviour.DEFAULT_ENABLED, neededMods = setOf("repurposed_structures")),
+    )
 
     fun preInitialize(implementation: CobblemonImplementation) {
         this.implementation = implementation
 
         this.LOGGER.info("Launching Cobblemon ${CobblemonBuildDetails.VERSION}${if(CobblemonBuildDetails.SNAPSHOT) "-SNAPSHOT" else ""} ")
-        if(CobblemonBuildDetails.SNAPSHOT) {
+        if (CobblemonBuildDetails.SNAPSHOT) {
             this.LOGGER.info("  - Git Commit: ${smallCommitHash()} (https://gitlab.com/cable-mc/cobblemon/-/commit/${CobblemonBuildDetails.GIT_COMMIT})")
             this.LOGGER.info("  - Branch: ${CobblemonBuildDetails.BRANCH}")
         }
 
+        implementation.registerRecipeSerializers()
+        implementation.registerRecipeTypes()
         implementation.registerPermissionValidator()
         implementation.registerSoundEvents()
         implementation.registerDataComponents()
@@ -176,14 +206,18 @@ object Cobblemon {
         implementation.registerEntityTypes()
         implementation.registerEntityAttributes()
         implementation.registerBlockEntityTypes()
+        implementation.registerPoiTypes()
+        implementation.registerVillagers()
         implementation.registerWorldGenFeatures()
         implementation.registerParticles()
+        implementation.registerMenu()
         implementation.registerEntityDataSerializers()
         implementation.registerCriteria()
         implementation.registerEntitySubPredicates()
 
         DropEntry.register("command", CommandDropEntry::class.java)
         DropEntry.register("item", ItemDropEntry::class.java, isDefault = true)
+        DropEntry.register("evolution", EvolutionItemDropEntry::class.java)
 
         ExperienceGroups.registerDefaults()
         CaptureCalculators.registerDefaults()
@@ -200,16 +234,18 @@ object Cobblemon {
 
         DATA_SYNCHRONIZED.subscribe {
             storage.onPlayerDataSync(it)
-            playerData.get(it).sendToPlayer(it)
+            playerDataManager.syncAllToPlayer(it)
             starterHandler.handleJoin(it)
-            ServerSettingsPacket(this.config.preventCompletePartyDeposit, this.config.displayEntityLevelLabel).sendToPlayer(it)
+            it.requestWallpapers()
+            sendServerSettingsPacketToPlayer(it)
         }
         PlatformEvents.SERVER_PLAYER_LOGOUT.subscribe {
             PCLinkManager.removeLink(it.player.uuid)
-            BattleRegistry.getBattleByParticipatingPlayer(it.player)?.stop()
+            BattleRegistry.onPlayerDisconnect(it.player)
             storage.onPlayerDisconnect(it.player)
-            playerData.onPlayerDisconnect(it.player)
-            TradeManager.onLogoff(it.player)
+            playerDataManager.onPlayerDisconnect(it.player)
+            RequestManager.onLogoff(it.player)
+            serverPlayerStructs.remove(it.player.uuid)
         }
         PlatformEvents.PLAYER_DEATH.subscribe {
             PCLinkManager.removeLink(it.player.uuid)
@@ -233,9 +269,6 @@ object Cobblemon {
             }
         }
 
-        // Register the grow_tumblestone advancement
-        PlatformEvents.RIGHT_CLICK_BLOCK.subscribe { AdvancementHandler.onTumbleStonePlaced(it) }
-
         PlatformEvents.CHANGE_DIMENSION.subscribe {
             it.player.party().forEach { pokemon -> pokemon.entity?.recallWithAnimation() }
         }
@@ -243,6 +276,8 @@ object Cobblemon {
         // Lowest priority because this applies after luxury ball bonus as of gen 4
         CobblemonEvents.FRIENDSHIP_UPDATED.subscribe(Priority.LOWEST) { event ->
             var increment = (event.newFriendship - event.pokemon.friendship).toFloat()
+            if (increment <= 0) //these affects are only meant to affect positive gains
+                return@subscribe
             // Our Luxury ball spec is diff from official, but we will still assume these stack
             if (event.pokemon.heldItemNoCopy().`is`(CobblemonItemTags.IS_FRIENDSHIP_BOOSTER)) {
                 increment += increment * 0.5F
@@ -253,6 +288,17 @@ object Cobblemon {
         HeldItemProvider.register(CobblemonHeldItemManager, Priority.LOWEST)
     }
 
+    fun sendServerSettingsPacketToPlayer(player: ServerPlayer) {
+        ServerSettingsPacket(
+            this.config.preventCompletePartyDeposit,
+            this.config.displayEntityLevelLabel,
+            this.config.displayEntityNameLabel,
+            this.config.maxPokemonLevel,
+            this.config.maxPokemonFriendship,
+            this.config.maxDynamaxLevel,
+        ).sendToPlayer(player)
+    }
+
     fun initialize() {
         showdownThread.launch()
 
@@ -261,6 +307,7 @@ object Cobblemon {
 
         SHINY_ASPECT.register()
         GENDER_ASPECT.register()
+        COSMETIC_SLOT_ASPECT.register()
 
         SpeciesFeatures.types["choice"] = ChoiceSpeciesFeatureProvider::class.java
         SpeciesFeatures.types["flag"] = FlagSpeciesFeatureProvider::class.java
@@ -274,10 +321,17 @@ object Cobblemon {
             FlagSpeciesFeatureProvider(keys = listOf(DataKeys.HAS_BEEN_SHEARED), default = false))
 
         CustomPokemonProperty.register(UncatchableProperty)
+        CustomPokemonProperty.register(BattleCloneProperty)
         CustomPokemonProperty.register(PokemonFlagProperty)
         CustomPokemonProperty.register(HiddenAbilityPropertyType)
         CustomPokemonProperty.register(AspectPropertyType)
         CustomPokemonProperty.register(UnaspectPropertyType)
+        CustomPokemonProperty.register(FreezeFrameProperty)
+        CustomPokemonProperty.register(NoAIProperty)
+
+        CobblemonEvents.POKEMON_PROPERTY_INITIALISED.emit(Unit)
+
+        FlowHandler.setup()
 
         ifDedicatedServer {
             isDedicatedServer = true
@@ -292,16 +346,21 @@ object Cobblemon {
         }
         PlatformEvents.SERVER_STARTING.subscribe { event ->
             val server = event.server
-            playerData = PlayerDataStoreManager().also { it.setup(server) }
+            playerDataManager = PlayerInstancedDataStoreManager().also { it.setup(server) }
 
             val mongoClient: MongoClient?
 
             val pokemonStoreRoot = server.getWorldPath(LevelResource.ROOT).resolve("pokemon").toFile()
             val storeAdapter = when (config.storageFormat) {
                 "nbt", "json" -> {
-                    val jsonFactory = JsonPlayerDataStoreFactory()
-                    jsonFactory.setup(server)
-                    playerData.setFactory(jsonFactory)
+                    val generalJsonFactory = CachedPlayerDataStoreFactory(PlayerDataJsonBackend())
+                    generalJsonFactory.setup(server)
+
+                    val pokedexNbtFactory = CachedPlayerDataStoreFactory(DexDataNbtBackend())
+                    pokedexNbtFactory.setup(server)
+
+                    playerDataManager.setFactory(generalJsonFactory, PlayerInstancedDataStoreTypes.GENERAL)
+                    playerDataManager.setFactory(pokedexNbtFactory, PlayerInstancedDataStoreTypes.POKEDEX)
 
                     if (config.storageFormat == "nbt") {
                         NBTStoreAdapter(pokemonStoreRoot.absolutePath, useNestedFolders = true, folderPerClass = true)
@@ -322,14 +381,22 @@ object Cobblemon {
                             .applyConnectionString(ConnectionString(config.mongoDBConnectionString))
                             .build()
                         mongoClient = MongoClients.create(mongoClientSettings)
-                        val mongoFactory = MongoPlayerDataStoreFactory(mongoClient, config.mongoDBDatabaseName)
-                        playerData.setFactory(mongoFactory)
+                        val generalMongoFactory = CachedPlayerDataStoreFactory(PlayerDataMongoBackend(mongoClient, config.mongoDBDatabaseName, "PlayerDataCollection"))
+                        generalMongoFactory.setup(server)
+
+                        val pokedexMongoFactory = CachedPlayerDataStoreFactory(DexDataMongoBackend(mongoClient, config.mongoDBDatabaseName, "PokeDexCollection"))
+                        pokedexMongoFactory.setup(server)
+
+                        playerDataManager.setFactory(generalMongoFactory, PlayerInstancedDataStoreTypes.GENERAL)
+                        playerDataManager.setFactory(pokedexMongoFactory, PlayerInstancedDataStoreTypes.POKEDEX)
                         MongoDBStoreAdapter(mongoClient, config.mongoDBDatabaseName)
                     } catch (e: ClassNotFoundException) {
                         LOGGER.error("MongoDB driver not found.")
                         throw e
                     }
+
                 }
+
 
                 else -> throw IllegalArgumentException("Unsupported storageFormat: ${config.storageFormat}")
             }
@@ -346,23 +413,16 @@ object Cobblemon {
         }
 
         PlatformEvents.SERVER_STOPPED.subscribe {
-            storage.unregisterAll()
-            playerData.saveAll()
+            storage.unregisterAll(it.server.registryAccess())
+            playerDataManager.saveAllStores()
+            playerDataManager.saveExecutor.shutdown()
+            playerDataManager.saveExecutor.awaitTermination(30L, TimeUnit.SECONDS)
         }
-        PlatformEvents.SERVER_STARTED.subscribe {
-            bestSpawner.onServerStarted()
+        PlatformEvents.SERVER_STARTED.subscribe { event ->
+            bestSpawner.onServerStarted(event.server)
             battleRegistry.onServerStarted()
         }
         PlatformEvents.SERVER_TICK_POST.subscribe { ServerTickHandler.onTick(it.server) }
-        POKEMON_CAPTURED.subscribe { AdvancementHandler.onCapture(it) }
-//        EGG_HATCH.subscribe { AdvancementHandler.onHatch(it) }
-        BATTLE_VICTORY.subscribe { AdvancementHandler.onWinBattle(it) }
-        EVOLUTION_COMPLETE.subscribe(Priority.LOWEST) { event ->
-            AdvancementHandler.onEvolve(event)
-        }
-        LEVEL_UP_EVENT.subscribe { AdvancementHandler.onLevelUp(it) }
-        TRADE_COMPLETED.subscribe { AdvancementHandler.onTradeCompleted(it) }
-        BATTLE_VICTORY.subscribe { BellyHandler.onVictory(it) }
 
         BagItems.observable.subscribe {
             LOGGER.info("Starting dummy Showdown battle to force it to pre-load data.")
@@ -370,12 +430,24 @@ object Cobblemon {
                 BattleFormat.GEN_9_SINGLES,
                 BattleSide(PokemonBattleActor(UUID.randomUUID(), BattlePokemon(Pokemon().initialize()), -1F)),
                 BattleSide(PokemonBattleActor(UUID.randomUUID(), BattlePokemon(Pokemon().initialize()), -1F)),
-                true
-            ).ifSuccessful { it.mute = true }
+                false
+            ).ifSuccessful {
+                it.mute = true
+            }.ifErrored {
+                val errors = it.errors.joinToString("\n") { it.javaClass.name }
+                LOGGER.error("Failed to start dummy Showdown battle: $errors")
+            }
         }
 
-        //To whomever is merging, this is moved out of Cobblemon and into the CobblemonImplementations
-        //CobblemonSherds.registerSherds()
+        registerEventHandlers()
+
+        CobblemonEvents.COBBLEMON_INITIALISED.emit(Unit)
+
+    }
+
+    fun registerEventHandlers() {
+        AdvancementHandler.registerListeners()
+        PokedexHandler.registerListeners()
     }
 
     fun getLevel(dimension: ResourceKey<Level>): Level? {
@@ -387,7 +459,23 @@ object Cobblemon {
         }
     }
 
+    private fun initializeConfig() {
+        loadCobblemonConfig()
+        saveConfig(this.config)
+        PokemonSpecies.observable.subscribe { starterConfig = this.loadStarterConfig() }
+    }
+
     fun loadConfig() {
+        initializeConfig()
+        bestSpawner.init()
+    }
+
+    fun reloadConfig() {
+        initializeConfig()
+        bestSpawner.reloadConfig()
+    }
+
+    private fun loadCobblemonConfig() {
         val configFile = File(CONFIG_PATH)
         configFile.parentFile.mkdirs()
 
@@ -430,12 +518,6 @@ object Cobblemon {
         } else {
             this.config = CobblemonConfig()
         }
-
-        config.lastSavedVersion = VERSION
-        this.saveConfig()
-
-        bestSpawner.loadConfig()
-        PokemonSpecies.observable.subscribe { starterConfig = this.loadStarterConfig() }
     }
 
     fun loadStarterConfig(): StarterConfig {
@@ -458,12 +540,14 @@ object Cobblemon {
         }
     }
 
-    fun saveConfig() {
+    fun saveConfig(config: CobblemonConfig) {
+        config.lastSavedVersion = VERSION
+
         try {
             val configFile = File(CONFIG_PATH)
             val fileWriter = FileWriter(configFile)
             // Put the config to json then flush the writer to commence writing.
-            CobblemonConfig.GSON.toJson(this.config, fileWriter)
+            CobblemonConfig.GSON.toJson(config, fileWriter)
             fileWriter.flush()
             fileWriter.close()
         } catch (exception: Exception) {
@@ -473,13 +557,20 @@ object Cobblemon {
     }
 
     private fun registerArgumentTypes() {
-        this.implementation.registerCommandArgument(cobblemonResource("pokemon"), PokemonArgumentType::class, SingletonArgumentInfo.contextFree(PokemonArgumentType::pokemon))
+        this.implementation.registerCommandArgument(cobblemonResource("pokemon"), SpeciesArgumentType::class, SingletonArgumentInfo.contextFree(SpeciesArgumentType::species))
         this.implementation.registerCommandArgument(cobblemonResource("pokemon_properties"), PokemonPropertiesArgumentType::class, SingletonArgumentInfo.contextFree(PokemonPropertiesArgumentType::properties))
         this.implementation.registerCommandArgument(cobblemonResource("spawn_bucket"), SpawnBucketArgumentType::class, SingletonArgumentInfo.contextFree(SpawnBucketArgumentType::spawnBucket))
         this.implementation.registerCommandArgument(cobblemonResource("move"), MoveArgumentType::class, SingletonArgumentInfo.contextFree(MoveArgumentType::move))
         this.implementation.registerCommandArgument(cobblemonResource("party_slot"), PartySlotArgumentType::class, SingletonArgumentInfo.contextFree(PartySlotArgumentType::partySlot))
         this.implementation.registerCommandArgument(cobblemonResource("pokemon_store"), PokemonStoreArgumentType::class, SingletonArgumentInfo.contextFree(PokemonStoreArgumentType::pokemonStore))
         this.implementation.registerCommandArgument(cobblemonResource("dialogue"), DialogueArgumentType::class, SingletonArgumentInfo.contextFree(DialogueArgumentType::dialogue))
+        this.implementation.registerCommandArgument(cobblemonResource("form"), FormArgumentType::class, SingletonArgumentInfo.contextFree(FormArgumentType::form))
+        this.implementation.registerCommandArgument(cobblemonResource("dex"), DexArgumentType::class, SingletonArgumentInfo.contextFree (DexArgumentType::dex))
+        this.implementation.registerCommandArgument(cobblemonResource("npc_class"), NPCClassArgumentType::class, SingletonArgumentInfo.contextFree(NPCClassArgumentType::npcClass))
+        this.implementation.registerCommandArgument(cobblemonResource("wallpaper"), UnlockablePCBoxWallpaperArgumentType::class, SingletonArgumentInfo.contextFree(UnlockablePCBoxWallpaperArgumentType::wallpaper))
+        this.implementation.registerCommandArgument(cobblemonResource("mark"), MarkArgumentType::class, SingletonArgumentInfo.contextFree(MarkArgumentType::mark))
+        this.implementation.registerCommandArgument(cobblemonResource("transform_type"), TransformTypeArgumentType::class, SingletonArgumentInfo.contextFree(TransformTypeArgumentType::transformType))
+        this.implementation.registerCommandArgument(cobblemonResource("model_part"), ModelPartArgumentType::class, SingletonArgumentInfo.contextFree(ModelPartArgumentType::modelPart))
     }
 
 }

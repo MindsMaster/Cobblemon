@@ -17,10 +17,13 @@ import net.minecraft.commands.Commands
 object CobblemonCommands {
     fun register(dispatcher: CommandDispatcher<CommandSourceStack>, registry: CommandBuildContext, selection: Commands.CommandSelection) {
         SpawnPokemon.register(dispatcher)
+        SpawnNPCCommand.register(dispatcher)
         GivePokemon.register(dispatcher)
         TakePokemon.register(dispatcher)
+        ChangeEyeHeight.register(dispatcher)
         ChangeScaleAndSize.register(dispatcher)
         ChangeWalkSpeed.register(dispatcher)
+        TransformModelPartCommand.register(dispatcher)
         TestCommand.register(dispatcher)
         ReloadShowdownCommand.register(dispatcher)
         ClickTextCommand.register(dispatcher)
@@ -39,6 +42,7 @@ object CobblemonCommands {
         PcCommand.register(dispatcher)
         SpawnPokemonFromPool.register(dispatcher)
         PokeboxCommand.register(dispatcher)
+        PokedexCommand.register(dispatcher)
         TestStoreCommand.register(dispatcher)
         QueryLearnsetCommand.register(dispatcher)
         TestPcSlotCommand.register(dispatcher)
@@ -49,9 +53,25 @@ object CobblemonCommands {
         BedrockParticleCommand.register(dispatcher)
         OpenDialogueCommand.register(dispatcher)
         NPCEditCommand.register(dispatcher)
+        NPCDeleteCommand.register(dispatcher)
+        AbandonMultiTeam.register(dispatcher)
+        FreezePokemonCommand.register(dispatcher)
+        ApplyPlayerTextureCommand.register(dispatcher)
+        RenameBoxCommand.register(dispatcher)
+        ChangeBoxWallpaperCommand.register(dispatcher)
+        RunMolangScriptCommand.register(dispatcher)
+        SpectateBattleCommand.register(dispatcher)
+        CobblemonConfigCommand.register(dispatcher)
+        UnlockPCBoxWallpaperCommand.register(dispatcher)
+        BehaviourEditCommand.register(dispatcher)
+        ChangePCBoxesCommand.register(dispatcher)
+        MarkGiveCommand.register(dispatcher)
+        MarkTakeCommand.register(dispatcher)
+        MarkGiveAllCommand.register(dispatcher)
 
         // Possibly lock down registration if and only if under dev environment or running in an environment
         // with a certain system environment variable set
         CobblemonInfoCommand.register(dispatcher)
+        CalculateSeatPositionCommand.register(dispatcher)
     }
 }

@@ -8,7 +8,6 @@
 
 package com.cobblemon.mod.common.pokemon.evolution.controller
 
-import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.events.CobblemonEvents
 import com.cobblemon.mod.common.api.events.pokemon.evolution.EvolutionAcceptedEvent
 import com.cobblemon.mod.common.api.pokemon.evolution.Evolution
@@ -16,13 +15,11 @@ import com.cobblemon.mod.common.api.pokemon.evolution.EvolutionController
 import com.cobblemon.mod.common.api.pokemon.evolution.PreProcessor
 import com.cobblemon.mod.common.api.pokemon.evolution.progress.EvolutionProgress
 import com.cobblemon.mod.common.api.pokemon.evolution.progress.EvolutionProgressTypes
-import com.cobblemon.mod.common.api.text.green
 import com.cobblemon.mod.common.net.messages.client.pokemon.update.evolution.AddEvolutionPacket
 import com.cobblemon.mod.common.net.messages.client.pokemon.update.evolution.ClearEvolutionsPacket
 import com.cobblemon.mod.common.net.messages.client.pokemon.update.evolution.RemoveEvolutionPacket
 import com.cobblemon.mod.common.pokemon.Pokemon
-import com.cobblemon.mod.common.util.asTranslated
-import net.minecraft.nbt.*
+import com.cobblemon.mod.common.util.server
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 
@@ -40,7 +37,7 @@ class ServerEvolutionController(
         this.progress.removeIf { !it.shouldKeep(this.pokemon) }
         val pokemonEvolutions = this.pokemon.evolutions.map { it.id }.toSet()
         this.evolutionIds.removeIf { !pokemonEvolutions.contains(it.lowercase()) }
-        this.evolutionIds.forEach { this.findEvolutionFromId(it)?.let(this::add) }
+        this.evolutionIds.forEach { this.findEvolutionFromId(it)?.let(this::silentAdd) }
     }
 
     override val size: Int
@@ -76,13 +73,30 @@ class ServerEvolutionController(
     }
 
     override fun add(element: Evolution): Boolean {
+        // Removes duplicate evolutions that result in the same outcome, keeping only the most recent evolution.
+        // For example, Karrablast can evolve via trade or link cable, which otherwise creates duplicate
+        // entries in the summary screen.
+        val duplicatedEvolutions = this.filter { element.result.matches(it.result) }
+        duplicatedEvolutions.forEach { it -> this.remove(it) }
+
         if (this.evolutions.add(element)) {
-            this.pokemon.getOwnerPlayer()?.sendSystemMessage("cobblemon.ui.evolve.hint".asTranslated(pokemon.getDisplayName()).green())
-            this.pokemon.notify(AddEvolutionPacket(this.pokemon, element))
-            this.pokemon.getOwnerPlayer()?.playSound(CobblemonSounds.CAN_EVOLVE, 1F, 1F)
+            this.pokemon.notify(AddEvolutionPacket(this.pokemon, element, this.pokemon.getOwnerEntity()?.registryAccess() ?: server()?.registryAccess() ?: throw IllegalStateException("No registry access available")))
             return true
         }
+
         return false
+    }
+
+    // Silently add evolution to the controller
+    // used during data loading to ensure the server doesn't send update packets before the client is ready
+    fun silentAdd(element: Evolution): Boolean {
+        // Removes duplicate evolutions that result in the same outcome, keeping only the most recent evolution.
+        // For example, Karrablast can evolve via trade or link cable, which otherwise creates duplicate
+        // entries in the summary screen.
+        val duplicatedEvolutions = this.filter { element.result.matches(it.result) }
+        duplicatedEvolutions.forEach { it -> this.remove(it) }
+
+        return this.evolutions.add(element)
     }
 
     override fun addAll(elements: Collection<Evolution>): Boolean {
@@ -115,7 +129,7 @@ class ServerEvolutionController(
 
     override fun remove(element: Evolution): Boolean {
         if (this.evolutions.remove(element)) {
-            this.pokemon.notify(RemoveEvolutionPacket(this.pokemon, element))
+            this.pokemon.notify(RemoveEvolutionPacket(this.pokemon, element, this.pokemon.getOwnerEntity()?.registryAccess() ?: server()?.registryAccess() ?: throw IllegalStateException("No registry access available")))
             return true
         }
         return false

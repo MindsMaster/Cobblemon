@@ -11,12 +11,11 @@ package com.cobblemon.mod.common.net.messages.client.pokemon.update
 import com.cobblemon.mod.common.pokemon.Pokemon
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.common.util.readText
-import com.cobblemon.mod.common.util.writeNullable
 import com.cobblemon.mod.common.util.writeText
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.network.chat.MutableComponent
 
-class NicknameUpdatePacket(pokemon: () -> Pokemon, value: MutableComponent?): SingleUpdatePacket<MutableComponent?, NicknameUpdatePacket>(pokemon, value) {
+class NicknameUpdatePacket(pokemon: () -> Pokemon?, value: MutableComponent?): SingleUpdatePacket<MutableComponent?, NicknameUpdatePacket>(pokemon, value) {
     override val id = ID
 
     override fun encodeValue(buffer: RegistryFriendlyByteBuf) {
