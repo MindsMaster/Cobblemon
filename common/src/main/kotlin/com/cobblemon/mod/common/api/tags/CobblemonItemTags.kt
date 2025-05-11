@@ -21,71 +21,55 @@ import net.minecraft.tags.TagKey
  */
 @Suppress("unused", "HasPlatformType")
 object CobblemonItemTags {
-    @JvmField
-    val ANCIENT_POKE_BALLS = create("ancient_poke_balls")
-    @JvmField
-    val APRICORN_LOGS = create("apricorn_logs")
-    @JvmField
-    val APRICORN_SPROUTS = create("apricorn_sprouts")
-    @JvmField
-    val APRICORNS = create("apricorns")
-    /**
-     * This tag is only used for a Torterra aspect based easter egg evolution at the moment.
-     * It simply includes the 'minecraft:azalea' and 'minecraft:flowering_azalea' items by default.
-     */
-    @JvmField
-    val AZALEA_TREE = create("azalea_tree")
-    @JvmField
-    val BERRIES = create("berries")
-    @JvmField
-    val BOATS = create("boats")
-    @JvmField
-    val COBBLEMON_SEEDS = create("cobblemon_seeds")
-    @JvmField
-    val POKE_FOOD = create("poke_food")
-    /**
-     * This tag is used for Fossil Machine natural materials
-     */
-    @JvmField
-    val COOKED_MEAT = create("cooked_meat")
-    @JvmField
-    val DAWN_STONE_ORES = create("dawn_stone_ores")
-    @JvmField
-    val DUSK_STONE_ORES = create("dusk_stone_ores")
-    @JvmField
-    val EVOLUTION_ITEMS = create("evolution_items")
-    @JvmField
-    val EVOLUTION_STONES = create("evolution_stones")
-    @JvmField
-    val EXPERIENCE_CANDIES = create("experience_candies")
-    @JvmField
-    val FIRE_STONE_ORES = create("fire_stone_ores")
-    @JvmField
-    val FOSSILS = create("fossils")
-    @JvmField
-    val HANGING_SIGNS = create("hanging_signs")
-    @JvmField
-    val HERBS = create("herbs")
-    @JvmField
-    val ICE_STONE_ORES = create("ice_stone_ores")
-    @JvmField
-    val LEAF_STONE_ORES = create("leaf_stone_ores")
-    @JvmField
-    val MINT_LEAF = create("mint_leaf")
-    @JvmField
-    val MINT_SEEDS = create("mint_seeds")
-    @JvmField
-    val MINTS = create("mints")
-    @JvmField
-    val MOON_STONE_ORES = create("moon_stone_ores")
-    @JvmField
-    val MUTATED_BERRIES = create("mutated_berries")
-    @JvmField
-    val PLANTS = create("plants")
-    @JvmField
-    val POKE_BALLS = create("poke_balls")
-    @JvmField
-    val PROTEIN_INGREDIENTS = create("protein_ingredients")
+    @JvmField val ABILITY_CHANGERS = create("ability_changers")
+    @JvmField val ANCIENT_POKE_BALLS = create("ancient_poke_balls")
+    @JvmField val APPLES = create("apples")
+    @JvmField val APRICORN_LOGS = create("apricorn_logs")
+    @JvmField val APRICORN_POKE_BALLS = create("apricorn_poke_balls")
+    @JvmField val APRICORN_SPROUTS = create("apricorn_sprouts")
+    @JvmField val APRICORNS = create("apricorns")
+    /** This tag is only used for a Torterra aspect based easter egg evolution at the moment.
+     * It simply includes the 'minecraft:azalea' and 'minecraft:flowering_azalea' items by default. */
+    @JvmField val AZALEA_TREE = create("azalea_tree")
+    @JvmField val BATTLE_ITEMS = create("battle_items")
+    @JvmField val BERRIES = create("berries")
+    @JvmField val BLACK_TUMBLESTONE_BRICKS = create("black_tumblestone_bricks")
+    @JvmField val BLACK_TUMBLESTONES = create("black_tumblestones")
+    @JvmField val BOATS = create("boats")
+    /** This tag is used for Fossil Machine natural materials */
+    @JvmField val COOKED_MEAT = create("cooked_meat")
+    @JvmField val DAWN_STONE_ORES = create("dawn_stone_ores")
+    @JvmField val POTTERY_SHERDS = create("decorated_pot_sherds")
+    @JvmField val DEEP_SEAS = create("deep_seas")
+    @JvmField val DUSK_STONE_ORES = create("dusk_stone_ores")
+    @JvmField val ETHERS = create("ethers")
+    @JvmField val EVOLUTION_ITEMS = create("evolution_items")
+    @JvmField val EVOLUTION_STONE_BLOCKS = create("evolution_stone_blocks")
+    @JvmField val EVOLUTION_STONES = create("evolution_stones")
+    @JvmField val EXPERIENCE_CANDIES = create("experience_candies")
+    @JvmField val FEATHERS = create("feathers")
+    @JvmField val FIRE_STONE_ORES = create("fire_stone_ores")
+    @JvmField val FOSSIL_MACHINE_PARTS = create("fossil_machine_parts")
+    @JvmField val FOSSILS = create("fossils")
+    @JvmField val GILDED_CHESTS = create("gilded_chests")
+    @JvmField val HANGING_SIGNS = create("hanging_signs")
+    @JvmField val HERBS = create("herbs")
+    @JvmField val ICE_STONE_ORES = create("ice_stone_ores")
+    @JvmField val LEAF_STONE_ORES = create("leaf_stone_ores")
+    @JvmField val MACHINES = create("machines")
+    @JvmField val MINT_LEAF = create("mint_leaf")
+    @JvmField val MINT_SEEDS = create("mint_seeds")
+    @JvmField val MINTS = create("mints")
+    @JvmField val MOON_STONE_ORES = create("moon_stone_ores")
+    @JvmField val MUTATED_BERRIES = create("mutated_berries")
+    @JvmField val PLANTS = create("plants")
+    @JvmField val POKE_BALLS = create("poke_balls")
+    @JvmField val POKE_RODS = create("poke_rods")
+    @JvmField val POKEDEX = create("pokedex")
+    @JvmField val POKEDEX_SCREEN = create("pokedex_screen")
+    @JvmField val POKE_FOOD = create("poke_food")
+    @JvmField val POTIONS = create("potions")
+    @JvmField val PROTEIN_INGREDIENTS = create("protein_ingredients")
     /** See [COOKED_MEAT] */
     @JvmField val RAW_MEAT = create("raw_meat")
     @JvmField val RED_TUMBLESTONE_BRICKS = create("red_tumblestone_bricks")
