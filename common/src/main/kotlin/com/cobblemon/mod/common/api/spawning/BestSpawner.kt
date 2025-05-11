@@ -87,7 +87,7 @@ import net.minecraft.server.MinecraftServer
 object BestSpawner {
     var config = BestSpawnerConfig()
     val spawnerManagers = mutableListOf<SpawnerManager>(CobblemonWorldSpawnerManager)
-    var defaultPokemonDespawner: Despawner<PokemonEntity> = CobblemonAgingDespawner(getAgeTicks = { it.ticksLived })
+    lateinit var defaultPokemonDespawner: Despawner<PokemonEntity>
     lateinit var fishingSpawner: FishingSpawner
 
     fun init() {
@@ -130,6 +130,7 @@ object BestSpawner {
     }
 
     fun loadConfig() {
+        defaultPokemonDespawner = CobblemonAgingDespawner(getAgeTicks = { it.ticksLived })
         config = BestSpawnerConfig.load()
     }
 

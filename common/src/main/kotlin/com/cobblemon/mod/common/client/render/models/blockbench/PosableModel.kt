@@ -152,8 +152,6 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
 
     /** Legacy faint code. */
     open fun getFaintAnimation(state: PosableState): ActiveAnimation? = null
-    /** Legacy eating code. */
-    open fun getEatAnimation(state: PosableState): ActiveAnimation? = null
     /** Legacy cry code. */
     @Transient
     open val cryAnimation: CryProvider = CryProvider { null }
@@ -193,7 +191,7 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
                 else -> {
                     try {
                         name.asExpressionLike().resolveObject(runtime).obj as ActiveAnimation
-                    } catch (exception: Exception) {
+                    } catch (_: Exception) {
                         extractAnimation(name)
                     }
                 }
@@ -272,6 +270,7 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
         poseType: PoseType,
         condition: ((PosableState) -> Boolean)? = null,
         transformTicks: Int = 10,
+        transformToTicks: Int = 10,
         namedAnimations: MutableMap<String, ExpressionLike> = mutableMapOf(),
         onTransitionedInto: (PosableState) -> Unit = {},
         animations: Array<PoseAnimation> = emptyArray(),
@@ -284,6 +283,7 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
             condition,
             onTransitionedInto,
             transformTicks,
+            transformToTicks,
             namedAnimations,
             animations,
             transformedParts,
@@ -298,6 +298,7 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
         poseTypes: Set<PoseType>,
         condition: ((PosableState) -> Boolean)? = null,
         transformTicks: Int = 10,
+        transformToTicks: Int = 10,
         namedAnimations: MutableMap<String, ExpressionLike> = mutableMapOf(),
         onTransitionedInto: (PosableState) -> Unit = {},
         animations: Array<PoseAnimation> = emptyArray(),
@@ -310,6 +311,7 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
             condition,
             onTransitionedInto,
             transformTicks,
+            transformToTicks,
             namedAnimations,
             animations,
             transformedParts,
@@ -324,6 +326,7 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
         poseType: PoseType,
         condition: ((PosableState) -> Boolean)? = null,
         transformTicks: Int = 10,
+        transformToTicks: Int = 10,
         namedAnimations: MutableMap<String, ExpressionLike> = mutableMapOf(),
         onTransitionedInto: (PosableState) -> Unit = {},
         animations: Array<PoseAnimation> = emptyArray(),
@@ -336,6 +339,7 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
             condition,
             onTransitionedInto,
             transformTicks,
+            transformToTicks,
             namedAnimations,
             animations,
             transformedParts,
@@ -617,6 +621,11 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
             }
         } else true
 
+
+        val headPitch = if (shouldRotateHead) headPitch else 0f
+        val headYaw = if (shouldRotateHead) headYaw else 0f
+
+
         // Quirks will run if there is no primary animation running and quirks are enabled for this context.
         if (primaryAnimation == null && context.request(RenderContext.DO_QUIRKS) != false) {
             // Remove any quirk animations that don't exist in our current pose
@@ -624,7 +633,7 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
 
             // Tick all the quirks
             pose.quirks.forEach {
-                it.apply(context, this, state, limbSwing, limbSwingAmount, ageInTicks, if(shouldRotateHead) headYaw else 0f, if(shouldRotateHead) headPitch else 0f, 1F)
+                it.apply(context, this, state, limbSwing, limbSwingAmount, ageInTicks, headYaw, headPitch, 1F)
             }
         }
 
@@ -640,8 +649,8 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
                     limbSwing,
                     limbSwingAmount,
                     ageInTicks,
-                    if(shouldRotateHead) headYaw else 0f,
-                    if(shouldRotateHead) headPitch else 0f,
+                    headYaw,
+                    headPitch,
                     1 - state.poseIntensity
                 )
             ) {
@@ -653,11 +662,11 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
 
         // Run active animations and return back any that are done and can be removed.
         val removedActiveAnimations = state.activeAnimations.toList()
-            .filterNot { it.run(context, this, state, limbSwing, limbSwingAmount, ageInTicks, if(shouldRotateHead) headYaw else 0f, if(shouldRotateHead) headPitch else 0f, 1F) }
+            .filterNot { it.run(context, this, state, limbSwing, limbSwingAmount, ageInTicks, headYaw, headPitch, 1F) }
         state.activeAnimations.removeAll(removedActiveAnimations)
         // Applies the pose's animations.
         state.currentPose?.let(poses::get)
-            ?.apply(context, this, state, limbSwing, limbSwingAmount, ageInTicks, if(shouldRotateHead) headYaw else 0f, if(shouldRotateHead) headPitch else 0f)
+            ?.apply(context, this, state, limbSwing, limbSwingAmount, ageInTicks, headYaw, headPitch)
         // Updates the locator positions now that all the animations are in effect. This is the last thing we do!
         updateLocators(entity, state)
     }
@@ -682,13 +691,15 @@ open class PosableModel(@Transient override val rootPart: Bone) : ModelFrame {
         if (state.activeAnimations.none { it.isTransition }) {
             // Check for a dedicated transition animation.
             val transition = previousPose.transitions[desirablePose.poseName]
+            val transformToTicks = desirablePose.transformToTicks
             val animation = if (transition == null && previousPose.transformTicks > 0) {
                 // If no dedicated transition exists then use a simple interpolator.
+                val durationTicks = transformToTicks ?: previousPose.transformTicks
                 PrimaryAnimation(
                     PoseTransitionAnimation(
                         beforePose = previousPose,
                         afterPose = desirablePose,
-                        durationTicks = previousPose.transformTicks
+                        durationTicks = durationTicks
                     ),
                     curve = { 1F }
                 )

@@ -21,6 +21,7 @@
 - Fixed Moon Ball moon phase logic to actually work correctly
 - Added `translucent_cull` boolean option into resolver's layer to allow for translucent textures with culling
 - Added [LambDynamicLights](https://modrinth.com/mod/lambdynamiclights) support for items held by Pokémon.
+- Added modification to Minecraft Creative Inventory search to account for item names that contain `poké` when input contains `poke`.
 
 ### Pokémon Added
 
@@ -134,6 +135,9 @@
 - Improved parity with vanilla mobs' drop behavior; loot and XP drop on death instead of after the entire death sequence finishes.
 - Quirk animations no longer play in the battle GUI since they were pretty distracting.
 - A number of Pokemon that float above the ground visually (Gastly, Klingklang, etc.)  are no longer considered to be touching the ground
+- Renamed `pokemonId` and `type` to `species` in relevant Advancement triggers for conformity, this is a breaking change.
+- Added a separate `species` argument to the `pick_starter`, `pasture_use` and `resurrect_pokemon` Advancement triggers.
+- Made `CobblemonAgingDespawner` thresholds configurable via the config file.
 
 ### Fixes
 - Fixed Particles sometimes facing the wrong direction (looking at you, Swords Dance)
@@ -165,6 +169,12 @@
 - Fixed certain Pokémon with forms not having appropriate stock Pokédex entries.
 - Fixed issue with Pokédex Scanner that caused the open/close overlay to have the wrong opacity values
 - Fixed dragon's breath not being usable on the restoration tank when it should be
+- Fixed Moon Stones not interacting properly with dripstone blocks.
+- Fixed some effects like particles from fishing rods appearing for players in the same coordinates in another world.
+- Fixed an issue with Sketch where the Pokémon using Sketch would not properly learn moves with special characters in their name (e.g. King's Shield, Baby-Doll Eyes, etc.)
+- Fixed wild Pokémon sometimes spawning with incorrect friendship values
+- Fixed typo while saving/loading NPCEntity causes data loss
+- Fixed an issue where catching a Pokémon while it was leashed to a fence would not update the fence.
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
@@ -210,6 +220,7 @@
 - Fixed `heldItem` property inside spawn files not working and causing crashes
 - Fixed `spawn_bedrock_particles` MoLang causing crashes when used in a server environment
 - The Pokédex form lang key definition now follows `cobblemon.ui.pokedex.info.form.{species}-{formname}` instead of `cobblemon.ui.pokedex.info.form.{formname}`.
+- Added `labels` & `has_label` as available Molang functions for the `speciesFunctions`
 
 ## [1.6.1 (January 26th, 2025)](#1-6-1)
 
