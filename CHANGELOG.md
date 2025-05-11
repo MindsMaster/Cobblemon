@@ -176,6 +176,7 @@
 - Fixed typo while saving/loading NPCEntity causes data loss
 - Fixed an issue where catching a Pokémon while it was leashed to a fence would not update the fence.
 - Fixed the `dimensions` spawning condition using the incorrect ResourceLocation, causing it to not function properly.
+- Fix issue where locator X axis was not aligned with blockbench.
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
