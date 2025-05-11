@@ -31,6 +31,7 @@ import com.cobblemon.mod.common.api.spawning.detail.SpawnAction
 import com.cobblemon.mod.common.api.spawning.detail.SpawnDetail
 import com.cobblemon.mod.common.api.spawning.fishing.FishingSpawner
 import com.cobblemon.mod.common.api.spawning.influence.SpawningInfluence
+import com.cobblemon.mod.common.api.spawning.position.AreaSpawnablePositionResolver
 import com.cobblemon.mod.common.api.spawning.position.FishingSpawnablePosition
 import com.cobblemon.mod.common.api.spawning.position.GroundedSpawnablePosition
 import com.cobblemon.mod.common.api.spawning.position.LavafloorSpawnablePosition
@@ -57,7 +58,7 @@ import net.minecraft.server.MinecraftServer
  * the configuration and many other properties used by the spawner.
  *
  * The Best Spawner (in world spawning) works in distinct stages that are:
- * - Prospecting (see: [SpawningZoneGenerator])
+ * - Spawning zone generation (see: [SpawningZoneGenerator])
  * - Spawnable position resolving (see: [AreaSpawnablePositionResolver])
  * - Spawn selection (see: [SpawningSelector])
  * - Spawn action (see: [SpawnAction])
