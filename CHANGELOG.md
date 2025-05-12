@@ -22,6 +22,7 @@
 - Added `translucent_cull` boolean option into resolver's layer to allow for translucent textures with culling
 - Added [LambDynamicLights](https://modrinth.com/mod/lambdynamiclights) support for items held by Pokémon.
 - Added modification to Minecraft Creative Inventory search to account for item names that contain `poké` when input contains `poke`.
+- Added Campfire Pot as well as loads of new food items (Poke Puffs, Ponigiri, Sinister Tea, etc)
 
 ### Pokémon Added
 
@@ -138,6 +139,7 @@
 - Renamed `pokemonId` and `type` to `species` in relevant Advancement triggers for conformity, this is a breaking change.
 - Added a separate `species` argument to the `pick_starter`, `pasture_use` and `resurrect_pokemon` Advancement triggers.
 - Made `CobblemonAgingDespawner` thresholds configurable via the config file.
+- Tweaked Berry flavor data to balance cooking pot mechanics
 
 ### Fixes
 - Fixed Particles sometimes facing the wrong direction (looking at you, Swords Dance)
