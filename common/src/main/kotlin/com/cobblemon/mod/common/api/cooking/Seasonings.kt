@@ -46,7 +46,9 @@ object Seasonings : JsonDataRegistry<Seasoning> {
     val BLANK_SEASONING = Seasoning(
         ingredient = RegistryLikeIdentifierCondition<Item>(cobblemonResource("blank")),
         flavours = emptyMap(),
-        colour = DyeColor.WHITE
+        colour = DyeColor.WHITE,
+        food = Food(),
+        mobEffects = MobCookingEffects()
     )
 
     override fun sync(player: ServerPlayer) {
@@ -59,7 +61,10 @@ object Seasonings : JsonDataRegistry<Seasoning> {
             it.identifier to Seasoning(
                 ingredient = RegistryLikeIdentifierCondition(it.identifier),
                 flavours = it.flavours.toMap(),
-                colour = it.colour
+                colour = it.colour,
+                baitEffects = emptyList(),
+                food = Food(),
+                mobEffects = MobCookingEffects()
             )
         }.toMutableMap()
         finalData.putAll(data)
@@ -75,8 +80,29 @@ object Seasonings : JsonDataRegistry<Seasoning> {
         val holder = stack.itemHolder
         val seasoning = seasonings.find { it.ingredient.fits(holder) } ?: BLANK_SEASONING
         val inherentFlavours = stack.get(CobblemonItemComponents.FLAVOUR)?.flavours ?: emptyMap()
+        val seasoningFlavours = seasoning.flavours ?: emptyMap()
 
-        return seasoning.flavours.mapValues { (flavour, value) -> inherentFlavours.getOrDefault(flavour, 0) + value }
+        return seasoningFlavours.mapValues { (flavour, value) ->
+            inherentFlavours.getOrDefault(flavour, 0) + value
+        }
+    }
+
+    fun getFoodFromItemStack(stack: ItemStack): Food? {
+        return getFromItemStack(stack)?.food
+    }
+
+    fun hasFood(stack: ItemStack): Boolean {
+        val effects = getFromItemStack(stack)?.food ?: return false
+        return effects.hunger > 0 || effects.saturation > 0f
+    }
+
+    fun getMobEffectFromItemStack(stack: ItemStack): MobCookingEffects? {
+        return getFromItemStack(stack)?.mobEffects
+    }
+
+    fun hasMobEffect(stack: ItemStack): Boolean {
+        val effects = getFromItemStack(stack)?.mobEffects ?: return false
+        return effects.appliedEffects.isNotEmpty()
     }
 
     fun getBaitEffectsFromItemStack(stack: ItemStack): List<SpawnBait.Effect> {

@@ -99,6 +99,7 @@ object CobblemonDataProvider : DataProvider {
         this.register(CobblemonFlows)
         this.register(CobblemonUnlockableWallpapers)
         this.register(Marks)
+        this.register(StarterDataLoader)
 
         CobblemonSpawnPools.load()
         this.register(PokeRods)
