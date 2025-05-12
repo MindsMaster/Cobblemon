@@ -64,7 +64,6 @@ class FriendshipRaisingBerryItem(block: BerryBlock, val stat: Stat) : BerryItem(
                 player.playSound(CobblemonSounds.BERRY_EAT, 1F, 1F + fullnessPercent)
             }
 
-            pokemon.entity?.playSound(CobblemonSounds.BERRY_EAT, 1F, 1F)
             if (!player.isCreative) {
                 stack.shrink(1)
             }

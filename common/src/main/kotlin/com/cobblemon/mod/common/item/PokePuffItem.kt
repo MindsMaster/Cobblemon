@@ -100,6 +100,13 @@ class PokePuffItem : Item(Properties().stacksTo(16)), PokemonSelectingItem {
     }
 
     override fun applyToPokemon(player: ServerPlayer, stack: ItemStack, pokemon: Pokemon): InteractionResultHolder<ItemStack> {
+        if (pokemon.isFull()) {
+            return InteractionResultHolder.fail(stack)
+        }
+
+        // Feed the Pokémon 4 fullness points
+        pokemon.feedPokemon(4)
+
         val friendshipChange = PokePuffUtils.calculateFriendshipChange(stack, pokemon.nature)
 
         if (friendshipChange != 0) {

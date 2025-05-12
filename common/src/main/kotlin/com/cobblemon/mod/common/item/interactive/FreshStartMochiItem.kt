@@ -28,11 +28,25 @@ class FreshStartMochiItem : CobblemonItem(Properties()), PokemonSelectingItem {
         stack: ItemStack,
         pokemon: Pokemon
     ): InteractionResultHolder<ItemStack> {
+        if (pokemon.isFull()) {
+            return InteractionResultHolder.fail(stack)
+        }
+
+        pokemon.feedPokemon(1)
+
+        val fullnessPercent = ((pokemon.currentFullness).toFloat() / (pokemon.getMaxFullness()).toFloat()) * (.5).toFloat()
+        if (pokemon.currentFullness >= pokemon.getMaxFullness()) {
+            player.playSound(CobblemonSounds.BERRY_EAT_FULL, 1F, 1F)
+        }
+        else {
+            player.playSound(CobblemonSounds.BERRY_EAT, 1F, 1F + fullnessPercent)
+        }
+
         pokemon.evs.forEach {
             pokemon.evs[it.key] = 0
         }
 
-        pokemon.entity?.playSound(CobblemonSounds.MOCHI_USE, 1F, 1F)
+        //pokemon.entity?.playSound(CobblemonSounds.MOCHI_USE, 1F, 1F) todo use mochi sounds for fullness levels and replace above
         if (!player.isCreative) {
             stack.shrink(1)
         }

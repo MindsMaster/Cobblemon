@@ -75,7 +75,7 @@ class PortionHealingBerryItem(block: BerryBlock, val canCauseConfusion: Boolean,
             amount = event.amount
         }
         pokemon.currentHealth = amount
-        player.playSound(CobblemonSounds.BERRY_EAT, 1F, 1F)
+
         if (!player.isCreative) {
             stack.shrink(1)
         }
