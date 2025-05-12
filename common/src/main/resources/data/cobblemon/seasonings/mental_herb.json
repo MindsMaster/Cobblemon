@@ -1,0 +1,16 @@
+{
+  "ingredient": "cobblemon:mental_herb",
+  "colour": "green",
+  "mobEffects": {
+    "appliedEffects": [
+      {
+        "effect": "minecraft:darkness",
+        "duration": 15600,
+        "amplifier": 0,
+        "ambient": false,
+        "visible": true,
+        "showIcon": true
+      }
+    ]
+  }
+}
