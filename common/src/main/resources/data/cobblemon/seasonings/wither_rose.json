@@ -1,0 +1,16 @@
+{
+  "ingredient": "minecraft:wither_rose",
+  "colour": "black",
+  "mobEffects": {
+    "appliedEffects": [
+      {
+        "effect": "minecraft:wither",
+        "duration": 140,
+        "amplifier": 0,
+        "ambient": false,
+        "visible": true,
+        "showIcon": true
+      }
+    ]
+  }
+}

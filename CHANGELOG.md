@@ -22,6 +22,7 @@
 - Added `translucent_cull` boolean option into resolver's layer to allow for translucent textures with culling
 - Added [LambDynamicLights](https://modrinth.com/mod/lambdynamiclights) support for items held by Pokémon.
 - Added modification to Minecraft Creative Inventory search to account for item names that contain `poké` when input contains `poke`.
+- Added Campfire Pot as well as loads of new food items (Poke Puffs, Ponigiri, Sinister Tea, etc)
 
 ### Pokémon Added
 
@@ -179,6 +180,7 @@
 - Renamed `pokemonId` and `type` to `species` in relevant Advancement triggers for conformity, this is a breaking change.
 - Added a separate `species` argument to the `pick_starter`, `pasture_use` and `resurrect_pokemon` Advancement triggers.
 - Made `CobblemonAgingDespawner` thresholds configurable via the config file.
+- Tweaked Berry flavor data to balance cooking pot mechanics
 
 ### Fixes
 - Fixed Particles sometimes facing the wrong direction (looking at you, Swords Dance)
@@ -215,6 +217,10 @@
 - Fixed an issue with Sketch where the Pokémon using Sketch would not properly learn moves with special characters in their name (e.g. King's Shield, Baby-Doll Eyes, etc.)
 - Fixed wild Pokémon sometimes spawning with incorrect friendship values
 - Fixed typo while saving/loading NPCEntity causes data loss
+- Fixed an issue where catching a Pokémon while it was leashed to a fence would not update the fence.
+- Fixed the `dimensions` spawning condition using the incorrect ResourceLocation, causing it to not function properly.
+- Fix issue where locator X axis was not aligned with blockbench.
+- Fix issue where particle effects that play on frame 1 on sendout would never play (Gastly)
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
@@ -261,6 +267,7 @@
 - Fixed `spawn_bedrock_particles` MoLang causing crashes when used in a server environment
 - The Pokédex form lang key definition now follows `cobblemon.ui.pokedex.info.form.{species}-{formname}` instead of `cobblemon.ui.pokedex.info.form.{formname}`.
 - Added `labels` & `has_label` as available Molang functions for the `speciesFunctions`
+- Added datapack-defined starter categories via `data/<namespace>/starters/*.json`, with built-in fallback and `useConfigStarters` merge option.
 
 ## [1.6.1 (January 26th, 2025)](#1-6-1)
 
