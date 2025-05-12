@@ -19,6 +19,7 @@ import com.cobblemon.mod.common.api.data.ShowdownIdentifiable
 import com.cobblemon.mod.common.api.entity.PokemonSender
 import com.cobblemon.mod.common.api.events.CobblemonEvents
 import com.cobblemon.mod.common.api.events.CobblemonEvents.FRIENDSHIP_UPDATED
+import com.cobblemon.mod.common.api.events.CobblemonEvents.FULLNESS_UPDATED
 import com.cobblemon.mod.common.api.events.CobblemonEvents.POKEMON_FAINTED
 import com.cobblemon.mod.common.api.events.pokemon.*
 import com.cobblemon.mod.common.api.events.pokemon.healing.PokemonHealedEvent
@@ -334,6 +335,18 @@ open class Pokemon : ShowdownIdentifiable {
             FRIENDSHIP_UPDATED.post(FriendshipUpdatedEvent(this, value)) {
                 field = it.newFriendship
                 onChange(FriendshipUpdatePacket({ this }, it.newFriendship))
+            }
+        }
+
+    var currentFullness = 0
+        set(value) {
+            if (value < 0) {
+                field = 0
+                return
+            }
+            FULLNESS_UPDATED.post(FullnessUpdatedEvent(this, value)) {
+                field = it.newFullness
+                onChange(FullnessUpdatePacket({ this }, it.newFullness))
             }
         }
 
@@ -896,20 +909,6 @@ open class Pokemon : ShowdownIdentifiable {
         lastMilked = 0
     }
 
-    // Silly Magikarp Jump mechanics
-
-    var jumpPower = 0.0
-
-    // reset Magikarp Jump Power
-    fun resetJumpPower() {
-        this.jumpPower = 0.0
-    }
-
-    // function to add incremental jump power to Magikarp
-    fun addJumpPower(value: Double) {
-        this.jumpPower = value / 100
-    }
-
     // returns true depending on the type of pokemon
     fun isMilkable(pokemon: Pokemon): Boolean {
         if (
@@ -927,9 +926,6 @@ open class Pokemon : ShowdownIdentifiable {
         }
     }
 
-
-    // Value of current Fullness level
-    var currentFullness = 0
 
     // DEPRECATED
     //base Hunger value for all pokemon
@@ -960,7 +956,6 @@ open class Pokemon : ShowdownIdentifiable {
         }
     }
 
-    // Method to add a new feeding time
     fun feedPokemon(feedCount: Int) {
         // get the fullness set to 0 in case something weird happens
         if (this.currentFullness < 0) {
@@ -970,17 +965,11 @@ open class Pokemon : ShowdownIdentifiable {
         // if pokemon is not full then feed
         if (this.isFull() == false) {
             this.currentFullness += feedCount
-
         }
 
         // pokemon was fed the first berry so we should reset their metabolism cycle so there is no inconsistencies
         if (this.currentFullness == 1) {
             this.resetMetabolismCycle()
-        }
-
-        // Every time Magikarp gets fed his JumpPower increases
-        if (this.species.name == "Magikarp") {
-            this.addJumpPower(feedCount.toDouble())
         }
     }
 
@@ -1059,26 +1048,6 @@ open class Pokemon : ShowdownIdentifiable {
         else {
             return metabolismRate
         }
-
-
-
-        /*var baseSpeed = this.species.baseStats.getOrDefault(Stats.SPEED, 0)
-
-        // maximum time it can take for a pokemon to lose 1 fullness
-        val maxRate = 480
-        // minimum time it can take for a pokemon to lose 1 fullness
-        val minRate = 120
-
-        // inflection point of the graph
-        val metabolismInflection = 80
-
-        // steepness of the curve near the inflection point
-        val steepness = 0.1
-
-        val metabolismRate = (maxRate - minRate) / (1 + Math.exp(steepness * (baseSpeed - metabolismInflection))) + minRate
-
-        // Ensure the metabolism rate is within a reasonable range
-        return metabolismRate.toInt().coerceIn(minRate.toInt(), maxRate.toInt())*/
     }
 
     // Boolean function that checks if a Pokemon can eat food based on fedTimes
