@@ -12,6 +12,7 @@ import com.cobblemon.mod.common.CobblemonItemComponents
 import com.cobblemon.mod.common.api.berry.Berries
 import com.cobblemon.mod.common.api.conditional.RegistryLikeCondition
 import com.cobblemon.mod.common.api.conditional.RegistryLikeIdentifierCondition
+import com.cobblemon.mod.common.api.cooking.Seasoning.Companion.BLANK_SEASONING
 import com.cobblemon.mod.common.api.data.JsonDataRegistry
 import com.cobblemon.mod.common.api.fishing.SpawnBait
 import com.cobblemon.mod.common.api.reactive.SimpleObservable
@@ -43,14 +44,6 @@ object Seasonings : JsonDataRegistry<Seasoning> {
 
     val seasonings = mutableListOf<Seasoning>()
 
-    val BLANK_SEASONING = Seasoning(
-        ingredient = RegistryLikeIdentifierCondition<Item>(cobblemonResource("blank")),
-        flavours = emptyMap(),
-        colour = DyeColor.WHITE,
-        food = Food(),
-        mobEffects = MobCookingEffects()
-    )
-
     override fun sync(player: ServerPlayer) {
         SeasoningRegistrySyncPacket(seasonings.toList()).sendToPlayer(player)
     }
@@ -64,7 +57,7 @@ object Seasonings : JsonDataRegistry<Seasoning> {
                 colour = it.colour,
                 baitEffects = emptyList(),
                 food = Food(),
-                mobEffects = MobCookingEffects()
+                mobEffects = emptyList()
             )
         }.toMutableMap()
         finalData.putAll(data)
@@ -96,13 +89,12 @@ object Seasonings : JsonDataRegistry<Seasoning> {
         return effects.hunger > 0 || effects.saturation > 0f
     }
 
-    fun getMobEffectFromItemStack(stack: ItemStack): MobCookingEffects? {
-        return getFromItemStack(stack)?.mobEffects
+    fun getMobEffectsFromItemStack(stack: ItemStack): List<SerializableMobEffectInstance> {
+        return getFromItemStack(stack)?.mobEffects ?: emptyList()
     }
 
     fun hasMobEffect(stack: ItemStack): Boolean {
-        val effects = getFromItemStack(stack)?.mobEffects ?: return false
-        return effects.appliedEffects.isNotEmpty()
+        return !getFromItemStack(stack)?.mobEffects.isNullOrEmpty()
     }
 
     fun getBaitEffectsFromItemStack(stack: ItemStack): List<SpawnBait.Effect> {
