@@ -1,0 +1,16 @@
+{
+  "ingredient": "cobblemon:power_herb",
+  "colour": "orange",
+  "mobEffects": {
+    "appliedEffects": [
+      {
+        "effect": "minecraft:haste",
+        "duration": 260,
+        "amplifier": 0,
+        "ambient": false,
+        "visible": true,
+        "showIcon": true
+      }
+    ]
+  }
+}

@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.api.pokemon
 
 import com.cobblemon.mod.common.Cobblemon
+import com.cobblemon.mod.common.Cobblemon.config
 import com.cobblemon.mod.common.api.abilities.Abilities
 import com.cobblemon.mod.common.api.abilities.Ability
 import com.cobblemon.mod.common.api.events.CobblemonEvents
@@ -385,7 +386,13 @@ open class PokemonProperties {
         shiny?.let { pokemon.shiny = it }
         gender?.let { pokemon.gender = it }
         level?.let { pokemon.level = it }
-        friendship?.let { pokemon.setFriendship(it) }
+        friendship.also {
+            if (it != null) {
+                pokemon.setFriendship(it)
+            } else {
+                pokemon.setFriendship(pokemon.form.baseFriendship)
+            }
+        }
         pokeball?.let { PokeBalls.getPokeBall(it.asIdentifierDefaultingNamespace())?.let { pokeball -> pokemon.caughtBall = pokeball } }
         nature?.let  { Natures.getNature(it.asIdentifierDefaultingNamespace())?.let { nature -> pokemon.nature = nature } }
         ability?.let { this.createAbility(it, pokemon.form)?.let(pokemon::updateAbility) }
@@ -798,4 +805,19 @@ open class PokemonProperties {
         return potentialAbility.template.create(false, potentialAbility.priority)
     }
 
+    /**
+     * Shared logic for figuring out what range of levels is possible for a Pokémon, given that some
+     * kind of optional level range has been requested. Used mainly as a thing for spawning to avoid
+     * copy-pasting code.
+     */
+    fun deriveLevelRange(levelRange: IntRange?): IntRange {
+        return levelRange.let { levelRange ->
+            val pokemonLevel = level
+            levelRange
+                ?: pokemonLevel?.until(pokemonLevel)
+                ?: IntRange(1, config.maxPokemonLevel)
+        }
+    }
+
+    fun hasSpecies() = species?.let { PokemonSpecies.getByIdentifier(it.asIdentifierDefaultingNamespace()) } != null
 }
