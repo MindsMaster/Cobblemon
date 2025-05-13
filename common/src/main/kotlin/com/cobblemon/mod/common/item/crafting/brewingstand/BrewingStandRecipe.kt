@@ -2,6 +2,7 @@ package com.cobblemon.mod.common.item.crafting.brewingstand
 
 import com.cobblemon.mod.common.CobblemonRecipeSerializers
 import com.cobblemon.mod.common.CobblemonRecipeTypes
+import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import net.minecraft.core.HolderLookup
@@ -13,7 +14,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer
 import net.minecraft.world.level.Level
 
 class BrewingStandRecipe(
-    val category: BrewingStandBookCategory
+    val groupName: String,
 ) : Recipe<BrewingStandInput> {
 
     override fun getType() = CobblemonRecipeTypes.BREWING_STAND
@@ -33,7 +34,7 @@ class BrewingStandRecipe(
     ): ItemStack? {
         return ItemStack.EMPTY
     }
-    
+
 
     override fun getResultItem(registries: HolderLookup.Provider): ItemStack? {
         return ItemStack.EMPTY
@@ -43,21 +44,21 @@ class BrewingStandRecipe(
         companion object {
             val CODEC: MapCodec<BrewingStandRecipe> = RecordCodecBuilder.mapCodec { instance ->
                 instance.group(
-                    BrewingStandBookCategory.Companion.CODEC.fieldOf("category").orElse(BrewingStandBookCategory.FOODS)
-                        .forGetter { recipe -> recipe.category }
+                    Codec.STRING.optionalFieldOf("group", "").forGetter { recipe -> recipe.group },
                 ).apply(instance, ::BrewingStandRecipe)
             }
+
 
             val STREAM_CODEC: StreamCodec<RegistryFriendlyByteBuf, BrewingStandRecipe> =
                 StreamCodec.of(::toNetwork, ::fromNetwork)
 
             private fun fromNetwork(buffer: RegistryFriendlyByteBuf): BrewingStandRecipe {
-                val category = buffer.readEnum(BrewingStandBookCategory::class.java)
-                return BrewingStandRecipe(category)
+                val group = buffer.readUtf(32767)
+                return BrewingStandRecipe(group)
             }
 
             private fun toNetwork(buffer: RegistryFriendlyByteBuf, recipe: BrewingStandRecipe) {
-                buffer.writeEnum(recipe.category)
+                buffer.writeUtf(recipe.groupName)
             }
         }
 

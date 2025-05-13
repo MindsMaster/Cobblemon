@@ -1,9 +1,6 @@
 package com.cobblemon.mod.common.block.brewingstand
 
 import com.cobblemon.mod.common.CobblemonMenuType
-import com.cobblemon.mod.common.CobblemonRecipeTypes
-import com.cobblemon.mod.common.item.crafting.brewingstand.BrewingStandInput
-import com.cobblemon.mod.common.item.crafting.brewingstand.BrewingStandRecipe
 import net.minecraft.advancements.CriteriaTriggers
 import net.minecraft.core.component.DataComponents
 import net.minecraft.server.level.ServerPlayer
@@ -11,37 +8,26 @@ import net.minecraft.world.Container
 import net.minecraft.world.SimpleContainer
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.entity.player.StackedContents
 import net.minecraft.world.inventory.*
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.alchemy.PotionBrewing
 import net.minecraft.world.item.alchemy.PotionContents
-import net.minecraft.world.item.crafting.RecipeHolder
-import net.minecraft.world.item.crafting.RecipeManager
-import net.minecraft.world.item.crafting.RecipeType
-import net.minecraft.world.level.Level
 
 class BrewingStandMenu(
     containerId: Int,
     playerInventory: Inventory,
     private val brewingStand: Container = SimpleContainer(SLOT_COUNT),
-    private val brewingStandData: ContainerData = SimpleContainerData(DATA_COUNT),
-    menuType: MenuType<*> = CobblemonMenuType.BREWING_STAND
-) : RecipeBookMenu<BrewingStandInput, BrewingStandRecipe>(menuType, containerId), ContainerListener {
-
-    private val player: Player = playerInventory.player
-    private val level: Level = player.level()
-    private val resultContainer: ResultContainer = ResultContainer()
-    private val recipeType: RecipeType<BrewingStandRecipe> = CobblemonRecipeTypes.BREWING_STAND
-    private val quickCheck = RecipeManager.createCheck(CobblemonRecipeTypes.BREWING_STAND)
+    private val brewingStandData: ContainerData = SimpleContainerData(DATA_COUNT)
+) : AbstractContainerMenu(CobblemonMenuType.BREWING_STAND, containerId) {
+    
     private val ingredientSlot: Slot
 
     init {
         checkContainerSize(brewingStand, SLOT_COUNT)
         checkContainerDataCount(brewingStandData, DATA_COUNT)
 
-        val potionBrewing = player.level().potionBrewing()
+        val potionBrewing = playerInventory.player.level().potionBrewing()
 
         addSlot(PotionSlot(brewingStand, 0, 56, 51))
         addSlot(PotionSlot(brewingStand, 1, 79, 58))
@@ -62,12 +48,6 @@ class BrewingStandMenu(
         }
     }
 
-    constructor(containerId: Int, playerInventory: Inventory) : this(
-        containerId,
-        playerInventory,
-        SimpleContainer(SLOT_COUNT),
-        SimpleContainerData(DATA_COUNT)
-    )
 
     override fun stillValid(player: Player): Boolean {
         return brewingStand.stillValid(player)
@@ -130,82 +110,7 @@ class BrewingStandMenu(
 
     fun getFuel(): Int = brewingStandData[1]
     fun getBrewingTicks(): Int = brewingStandData[0]
-    override fun fillCraftSlotsStackedContents(itemHelper: StackedContents) {
-        for (i in 0 until brewingStand.containerSize) {
-            val itemStack = brewingStand.getItem(i)
-            if (itemStack.isEmpty) continue
-            itemHelper.accountSimpleStack(itemStack)
-        }
-    }
 
-    override fun clearCraftingContent() {
-        for (i in 0 until brewingStand.containerSize) {
-            brewingStand.setItem(i, ItemStack.EMPTY)
-        }
-    }
-
-    override fun recipeMatches(recipe: RecipeHolder<BrewingStandRecipe?>): Boolean {
-        return false
-    }
-
-    override fun getResultSlotIndex(): Int {
-        return 3
-    }
-
-    override fun getGridWidth(): Int {
-        return 1
-    }
-
-    override fun getGridHeight(): Int {
-        return 1
-    }
-
-    override fun getSize(): Int {
-        return 5
-    }
-
-    override fun getRecipeBookType(): RecipeBookType? {
-        return RecipeBookType.valueOf("BREWING_STAND")
-    }
-
-    override fun shouldMoveToInventory(slotIndex: Int): Boolean {
-        return when (slotIndex) {
-            0, 1, 2 -> false
-            3 -> true
-            4 -> false
-            else -> true
-        }
-    }
-
-    override fun slotChanged(
-        containerToSend: AbstractContainerMenu,
-        dataSlotIndex: Int,
-        stack: ItemStack
-    ) {
-        if (dataSlotIndex == 3) {
-            resultContainer.setItem(0, stack)
-        } else if (dataSlotIndex == 4) {
-            ingredientSlot.set(stack)
-        }
-    }
-
-    override fun dataChanged(
-        containerMenu: AbstractContainerMenu,
-        dataSlotIndex: Int,
-        value: Int
-    ) {
-        if (dataSlotIndex == 0) {
-            val brewTime = value
-            if (brewTime == 0) {
-                resultContainer.setItem(0, ItemStack.EMPTY)
-            }
-        } else if (dataSlotIndex == 1) {
-            val fuel = value
-            if (fuel == 0) {
-                resultContainer.setItem(0, ItemStack.EMPTY)
-            }
-        }
-    }
 
     class PotionSlot(container: Container, slot: Int, x: Int, y: Int) : Slot(container, slot, x, y) {
         override fun mayPlace(stack: ItemStack): Boolean = mayPlaceItem(stack)
@@ -215,6 +120,7 @@ class BrewingStandMenu(
         override fun onTake(player: Player, stack: ItemStack) {
             val optional =
                 (stack.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY) as PotionContents).potion()
+
             if (optional.isPresent && player is ServerPlayer) {
                 CriteriaTriggers.BREWED_POTION.trigger(player, optional.get())
             }

@@ -41,7 +41,6 @@ public class RecipeBookTypeMixin {
     private static void cobblemon$addRecipeBookType(CallbackInfo ci) {
         ArrayList<RecipeBookType> types = new ArrayList<>(List.of($VALUES));
         types.add(cobblemon$createBookType("COOKING_POT", $VALUES.length));
-        types.add(cobblemon$createBookType("BREWING_STAND", $VALUES.length + 1));
         $VALUES = types.toArray(RecipeBookType[]::new);
     }
 }
