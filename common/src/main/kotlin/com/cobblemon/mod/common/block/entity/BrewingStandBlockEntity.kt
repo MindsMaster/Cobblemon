@@ -1,8 +1,11 @@
 package com.cobblemon.mod.common.block.entity
 
 import com.cobblemon.mod.common.CobblemonBlockEntities
+import com.cobblemon.mod.common.CobblemonRecipeTypes
 import com.cobblemon.mod.common.block.brewingstand.BrewingStandBlock
 import com.cobblemon.mod.common.block.brewingstand.BrewingStandMenu
+import com.cobblemon.mod.common.item.crafting.brewingstand.BrewingStandInput
+import com.cobblemon.mod.common.item.crafting.brewingstand.BrewingStandRecipe
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
@@ -90,36 +93,24 @@ class BrewingStandBlockEntity(pos: BlockPos, state: BlockState) :
             setChanged(level, pos, state)
         }
 
-        val brewable = isBrewable(level.potionBrewing(), blockEntity.items)
+        val recipe = blockEntity.fetchBrewingRecipe(level)
         val isBrewing = blockEntity.brewTime > 0
-        val ingredientStack = blockEntity.items[3]
 
         if (isBrewing) {
             blockEntity.brewTime--
-            val finishBrew = blockEntity.brewTime == 0
-            if (finishBrew && brewable) {
-                doBrew(level, pos, blockEntity.items)
-            } else if (!brewable || ingredientStack.item != blockEntity.ingredient) {
-                blockEntity.brewTime = 0
+            if (blockEntity.brewTime == 0 && recipe != null) {
+                for (i in 0 until 3) {
+                    if (!blockEntity.items[i].isEmpty) {
+                        blockEntity.items[i] = recipe.result.copy()
+                    }
+                }
+                blockEntity.items[3].shrink(1)
             }
             setChanged(level, pos, state)
-        } else if (brewable && blockEntity.fuel > 0) {
+        } else if (recipe != null && blockEntity.fuel > 0) {
             blockEntity.fuel--
             blockEntity.brewTime = 400
-            blockEntity.ingredient = ingredientStack.item
             setChanged(level, pos, state)
-        }
-
-        val newPotionBits = blockEntity.getPotionBits()
-        if (!Arrays.equals(newPotionBits, blockEntity.lastPotionCount)) {
-            blockEntity.lastPotionCount = newPotionBits
-            if (state.block is BrewingStandBlock) {
-                var newState = state
-                for (i in BrewingStandBlock.HAS_BOTTLE.indices) {
-                    newState = newState.setValue(BrewingStandBlock.HAS_BOTTLE[i], newPotionBits[i])
-                }
-                level.setBlock(pos, newState, 2)
-            }
         }
     }
 
@@ -186,6 +177,19 @@ class BrewingStandBlockEntity(pos: BlockPos, state: BlockState) :
 
     override fun canPlaceItemThroughFace(index: Int, itemStack: ItemStack, @Nullable direction: Direction?): Boolean {
         return canPlaceItem(index, itemStack)
+    }
+
+    private fun fetchBrewingRecipe(level: Level): BrewingStandRecipe? {
+        val ingredient = items[3]
+        val bottles = items.subList(0, 3)
+
+        if (ingredient.isEmpty || bottles.all { it.isEmpty }) return null
+
+        val input = BrewingStandInput(ingredient, bottles)
+        val recipeManager = level.recipeManager
+
+        val recipeHolder = recipeManager.getRecipeFor(CobblemonRecipeTypes.BREWING_STAND, input, level).orElse(null)
+        return recipeHolder?.value()
     }
 
     override fun canTakeItemThroughFace(index: Int, stack: ItemStack, direction: Direction): Boolean {

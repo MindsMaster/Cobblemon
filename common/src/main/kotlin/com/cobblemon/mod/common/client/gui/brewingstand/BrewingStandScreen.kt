@@ -35,7 +35,7 @@ class BrewingStandScreen(
         super.render(guiGraphics, mouseX, mouseY, partialTick)
         renderTooltip(guiGraphics, mouseX, mouseY)
     }
-
+    
     override fun renderBg(guiGraphics: GuiGraphics, partialTick: Float, mouseX: Int, mouseY: Int) {
         val i = (width - imageWidth) / 2
         val j = (height - imageHeight) / 2
@@ -50,7 +50,7 @@ class BrewingStandScreen(
 
         val brewingTicks = menu.getBrewingTicks()
         if (brewingTicks > 0) {
-            var brewHeight = (28.0f * (1.0f - brewingTicks / 400.0f)).toInt()
+            val brewHeight = (28.0f * (1.0f - brewingTicks / 400.0f)).toInt()
             if (brewHeight > 0) {
                 guiGraphics.blitSprite(BREW_PROGRESS_SPRITE, 9, 28, 0, 0, i + 97, j + 16, 9, brewHeight)
             }
