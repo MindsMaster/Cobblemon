@@ -124,8 +124,7 @@ object CobblemonSounds : PlatformRegistry<Registry<SoundEvent>, ResourceKey<Regi
     val MEDICINE_FEATHER_USE = this.create("item.medicine.feather.use")
     @JvmField
     val MOCHI_USE = this.create("item.medicine.feather.use")
-    @JvmField
-    val BERRY_EAT_FULL = this.create("berry.eat.full")
+
 
     @JvmField
     val MULCH_PLACE = this.create("block.mulch.place")
@@ -218,6 +217,8 @@ object CobblemonSounds : PlatformRegistry<Registry<SoundEvent>, ResourceKey<Regi
     val BERRY_HARVEST = this.create("block.berry_bush.harvest")
     @JvmField
     val BERRY_EAT = this.create("item.berry.eat")
+    @JvmField
+    val BERRY_EAT_FULL = this.create("item.berry.eat.full")
 
     @JvmField
     val BIG_ROOT_BREAK = this.create("block.big_root.break")
