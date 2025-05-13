@@ -42,8 +42,8 @@ data class Seasoning(
                 Codec.unboundedMap(Flavour.CODEC, Codec.INT).fieldOf("flavours").forGetter { it.flavours }, // Use map codec
                 DyeColor.CODEC.fieldOf("colour").forGetter { it.colour },
                 SpawnBait.Effect.CODEC.listOf().optionalFieldOf("baitEffects", emptyList()).forGetter { it.baitEffects },
-                Food.CODEC.fieldOf("food").forGetter { it.food },
-                MobCookingEffects.CODEC.fieldOf("mobEffects").forGetter { it.mobEffects }
+                Food.CODEC.optionalFieldOf("food", Food(0, 0f)).forGetter { it.food ?: Food(0, 0f) },
+                MobCookingEffects.CODEC.optionalFieldOf("mobEffects", MobCookingEffects()).forGetter { it.mobEffects ?: MobCookingEffects() }
             ).apply(builder, ::Seasoning)
         }
 
