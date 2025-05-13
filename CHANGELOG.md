@@ -150,6 +150,8 @@
 - Scyther
 - Scizor
 - Cacturne
+- Taillow
+- Swellow
 - Added Syrupy Apples.
 
 ### Changes
