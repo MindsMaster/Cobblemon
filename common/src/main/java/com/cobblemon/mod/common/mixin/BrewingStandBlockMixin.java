@@ -9,7 +9,9 @@
 package com.cobblemon.mod.common.mixin;
 
 import com.cobblemon.mod.common.CobblemonBlocks;
+import com.cobblemon.mod.common.block.entity.BrewingStandBlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -38,6 +40,12 @@ public class BrewingStandBlockMixin {
             if (oldEntity != null) oldEntity.setRemoved();
 
             level.setBlockAndUpdate(pos, CobblemonBlocks.BREWING_STAND.defaultBlockState());
+
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof BrewingStandBlockEntity) {
+                player.openMenu((MenuProvider) blockEntity);
+                player.awardStat(Stats.INTERACT_WITH_BREWINGSTAND);
+            }
 
             cir.setReturnValue(InteractionResult.SUCCESS);
         }
