@@ -699,6 +699,24 @@
         "cobblemon:poke_puff_combined": 0.116
       },
       "model": "cobblemon:item/poke_puff_overlay_star_plain"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.117
+      },
+      "model": "cobblemon:item/poke_puff_overlay_plain_clover"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.118
+      },
+      "model": "cobblemon:item/poke_puff_overlay_plain_flower"
+    },
+    {
+      "predicate": {
+        "cobblemon:poke_puff_combined": 0.119
+      },
+      "model": "cobblemon:item/poke_puff_overlay_plain_star"
     }
   ]
 }

@@ -1,4 +1,8 @@
 {
   "ingredient": "minecraft:pumpkin",
-  "colour": "orange"
+  "colour": "orange",
+  "food": {
+    "hunger": 6,
+    "saturation": 3.6
+  }
 }

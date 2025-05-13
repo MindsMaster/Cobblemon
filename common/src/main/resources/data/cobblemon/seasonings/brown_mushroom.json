@@ -1,4 +1,8 @@
 {
   "ingredient": "minecraft:brown_mushroom",
-  "colour": "brown"
+  "colour": "brown",
+  "food": {
+    "hunger": 3,
+    "saturation": 3.6
+  }
 }

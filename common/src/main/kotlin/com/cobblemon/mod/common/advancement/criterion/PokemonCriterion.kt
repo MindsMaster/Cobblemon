@@ -32,6 +32,6 @@ class PokemonCriterion(
     }
 
     override fun matches(player: ServerPlayer, context: Pokemon): Boolean {
-        return (species.equals(context.species.resourceIdentifier.path) || species.equals(context.species.resourceIdentifier)) && properties.matches(context)
+        return (species.equals(context.species.resourceIdentifier.path) || species.equals(context.species.resourceIdentifier.toString())) && properties.matches(context)
     }
 }

@@ -11,9 +11,12 @@ package com.cobblemon.mod.common.client.render.item
 import com.cobblemon.mod.common.CobblemonItemComponents
 import com.cobblemon.mod.common.CobblemonItems
 import com.cobblemon.mod.common.api.cooking.Seasonings
+import com.cobblemon.mod.common.client.pot.CookingQuality
 import com.cobblemon.mod.common.entity.fishing.PokeRodFishingBobberEntity
 import com.cobblemon.mod.common.item.interactive.PokerodItem
 import com.cobblemon.mod.common.util.cobblemonResource
+import com.cobblemon.mod.common.util.cobblemonResource
+import net.minecraft.ChatFormatting
 import net.minecraft.client.renderer.item.ItemProperties
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.player.Player
@@ -110,17 +113,44 @@ object CobblemonModelPredicateRegistry {
                 "minecraft:brown_mushroom" -> 0.07f
                 "minecraft:pumpkin" -> 0.08f
                 "cobblemon:rice" -> 0.09f
-                "minecraft:cooked_chicken" -> 0.10f
-                "minecraft:cooked_cod" -> 0.11f
-                "minecraft:cooked_mutton" -> 0.12f
-                "minecraft:cooked_porkchop" -> 0.13f
-                "minecraft:cooked_rabbit" -> 0.14f
-                "minecraft:cooked_salmon" -> 0.15f
-                "minecraft:cooked_beef" -> 0.16f
+                "minecraft:raw_chicken" -> 0.10f
+                "minecraft:raw_cod" -> 0.11f
+                "minecraft:raw_mutton" -> 0.12f
+                "minecraft:raw_porkchop" -> 0.13f
+                "minecraft:raw_rabbit" -> 0.14f
+                "minecraft:raw_salmon" -> 0.15f
+                "minecraft:raw_beef" -> 0.16f
                 "minecraft:egg" -> 0.17f
                 "minecraft:poisonous_potato" -> 0.18f
                 "minecraft:rotten_flesh" -> 0.19f
+                "minecraft:golden_carrot" -> 0.20f
+                "cobblemon:vivichoke" -> 0.21f
+                "cobblemon:tasty_tail" -> 0.22f
+                "minecraft:sweet_berries" -> 0.23f
                 else -> 0.0f
+            }
+        }
+
+        val aprijuice = listOf(
+            CobblemonItems.APRIJUICE_BLACK,
+            CobblemonItems.APRIJUICE_GREEN,
+            CobblemonItems.APRIJUICE_WHITE,
+            CobblemonItems.APRIJUICE_BLUE,
+            CobblemonItems.APRIJUICE_PINK,
+            CobblemonItems.APRIJUICE_RED,
+            CobblemonItems.APRIJUICE_YELLOW,
+        )
+
+        aprijuice.forEach { aprijuice ->
+            ItemProperties.register(aprijuice, cobblemonResource("aprijuice_quality")) { stack, world, entity, seed ->
+                val flavourComponent = stack.get(CobblemonItemComponents.FLAVOUR) ?: return@register 0.0f
+                val quality = flavourComponent.getQuality()
+
+                return@register when (quality) {
+                    CookingQuality.LOW -> 0.0f
+                    CookingQuality.MEDIUM -> 0.1f
+                    CookingQuality.HIGH -> 0.2f
+                }
             }
         }
 

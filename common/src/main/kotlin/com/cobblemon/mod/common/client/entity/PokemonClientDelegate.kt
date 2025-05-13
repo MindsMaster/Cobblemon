@@ -148,6 +148,7 @@ class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
                             beamStartTime = System.currentTimeMillis()
                             ballStartTime = System.currentTimeMillis()
                             currentEntity.isInvisible = true
+                            currentEntity.isSilent = true
                             ballDone = false
                             var soundPos = currentEntity.position()
                             currentEntity.ownerUUID?.let {
@@ -256,6 +257,7 @@ class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
                                 if (scaleAnimTask == null || scaleAnimTask!!.expired) {
                                     scaleAnimTask = lerpOnClient(BEAM_SHRINK_TIME) { entityScaleModifier = it }
                                     currentEntity.isInvisible = false
+                                    currentEntity.isSilent = false
                                     currentEntity.after(seconds = POKEBALL_AIR_TIME * 2) {
                                         ballOffset = 0f
                                         ballRotOffset = 0f
@@ -272,6 +274,7 @@ class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
                             playedSendOutSound = false
                             entityScaleModifier = 0F
                             currentEntity.isInvisible = false
+                            currentEntity.isSilent = false
                             ballDone = false
                             val soundPos = currentEntity.position()
                             val client = Minecraft.getInstance()

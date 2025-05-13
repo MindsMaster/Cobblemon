@@ -1,3 +1,11 @@
+/*
+ * Copyright (C) 2023 Cobblemon Contributors
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package com.cobblemon.mod.common.client.render.item
 
 object PokePuffItemModelRegistry {
@@ -124,7 +132,11 @@ object PokePuffItemModelRegistry {
         "overlay_star_bitter" to 0.113f,
         "overlay_star_sour" to 0.114f,
         "overlay_star_mild" to 0.115f,
-        "overlay_star_plain" to 0.116f
+        "overlay_star_plain" to 0.116f,
+
+        "overlay_plain_clover" to 0.117f,
+        "overlay_plain_flower" to 0.118f,
+        "overlay_plain_star" to 0.119f
     )
 
     fun getModelId(key: String): Float {

@@ -1,4 +1,8 @@
 {
   "ingredient": "minecraft:beetroot",
-  "colour": "red"
+  "colour": "red",
+  "food": {
+    "hunger": 1,
+    "saturation": 1.2
+  }
 }

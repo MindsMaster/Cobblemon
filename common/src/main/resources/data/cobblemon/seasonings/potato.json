@@ -1,4 +1,8 @@
 {
   "ingredient": "minecraft:potato",
-  "colour": "brown"
+  "colour": "brown",
+  "food": {
+    "hunger": 5,
+    "saturation": 6
+  }
 }

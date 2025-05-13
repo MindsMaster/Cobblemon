@@ -4,6 +4,9 @@
     "ingredients": [
         {
             "item": "cobblemon:hearty_grains"
+        },
+        {
+            "item": "minecraft:dried_kelp"
         }
     ],
     "result": {
@@ -12,7 +15,7 @@
     },
     "seasoningProcessors": [
         "ingredient",
-        "flavour",
-        "food_colour"
+        "food_colour",
+        "food"
     ]
 }

@@ -29,7 +29,11 @@ data class Seasoning(
     @SerializedName("colour", alternate = ["color"])
     val colour: DyeColor,
     @SerializedName("baitEffects")
-    val baitEffects: List<SpawnBait.Effect> = emptyList()
+    val baitEffects: List<SpawnBait.Effect> = emptyList(),
+    @SerializedName("food")
+    val food: Food? = null,
+    @SerializedName("mobEffects")
+    val mobEffects: MobCookingEffects? = null
 ) {
     companion object {
         val CODEC: Codec<Seasoning> = RecordCodecBuilder.create { builder ->
@@ -37,7 +41,9 @@ data class Seasoning(
                 ITEM_REGISTRY_LIKE_CODEC.fieldOf("ingredient").forGetter { it.ingredient },
                 Codec.unboundedMap(Flavour.CODEC, Codec.INT).fieldOf("flavours").forGetter { it.flavours }, // Use map codec
                 DyeColor.CODEC.fieldOf("colour").forGetter { it.colour },
-                SpawnBait.Effect.CODEC.listOf().optionalFieldOf("baitEffects", emptyList()).forGetter { it.baitEffects }
+                SpawnBait.Effect.CODEC.listOf().optionalFieldOf("baitEffects", emptyList()).forGetter { it.baitEffects },
+                Food.CODEC.optionalFieldOf("food", Food(0, 0f)).forGetter { it.food ?: Food(0, 0f) },
+                MobCookingEffects.CODEC.optionalFieldOf("mobEffects", MobCookingEffects()).forGetter { it.mobEffects ?: MobCookingEffects() }
             ).apply(builder, ::Seasoning)
         }
 
@@ -47,7 +53,9 @@ data class Seasoning(
             ingredient = RegistryLikeIdentifierCondition<Item>(cobblemonResource("blank")),
             flavours = Flavour.entries.associate { it to 0 },
             colour = DyeColor.WHITE,
-            baitEffects = emptyList()
+            baitEffects = emptyList(),
+            food = Food(),
+            mobEffects = MobCookingEffects()
         )
     }
 }

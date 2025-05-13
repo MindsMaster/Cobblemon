@@ -34,6 +34,8 @@ import com.cobblemon.mod.common.item.berry.PPRestoringBerryItem
 import com.cobblemon.mod.common.item.berry.PortionHealingBerryItem
 import com.cobblemon.mod.common.item.berry.StatusCuringBerryItem
 import com.cobblemon.mod.common.item.berry.VolatileCuringBerryItem
+import com.cobblemon.mod.common.item.food.PonigiriItem
+import com.cobblemon.mod.common.item.food.SinisterTeaItem
 import com.cobblemon.mod.common.item.interactive.*
 import com.cobblemon.mod.common.item.interactive.ability.AbilityChangeItem
 import com.cobblemon.mod.common.platform.PlatformRegistry
@@ -363,7 +365,10 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     val APRIJUICE_PINK = aprijuiceItem(Apricorn.PINK)
 
     @JvmField
-    val PONIGIRI = noSettingsItem("ponigiri") // todo make a PonigiriItem class for player effects upon being eaten
+    val PONIGIRI = create("ponigiri", PonigiriItem())
+
+    @JvmField
+    val SINISTER_TEA = create("sinister_tea", SinisterTeaItem())
 
     @JvmField
     val POKE_PUFF = pokepuffItem("poke_puff") // todo make a PokePuffItem class for friendship boosting purposes
@@ -373,116 +378,84 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     val SWEET_HEART = noSettingsItem("sweet_heart") // todo make a SweetHeartItem class for breeding purposes
 
     @JvmField
+    val TASTY_TAIL = create("tasty_tail", object : Item(Properties().stacksTo(16)
+            .food(FoodProperties.Builder()
+                    .nutrition(8)
+                    .saturationModifier(12.8F)
+                    .alwaysEdible()
+                    .build())) {})
+
+    @JvmField
     val PEWTER_CRUNCHIES = create("pewter_crunchies", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
-                    .nutrition(10)
-                    .saturationModifier(1.2F)
-                    .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F)
+                    .nutrition(10) // todo get final values for this from vera
+                    .saturationModifier(1.2F) // todo get final values for this from vera
+                    .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F) // todo get final values for this from vera
                     .alwaysEdible()
-                    .build())) {
-        override fun finishUsingItem(stack: ItemStack, world: Level, user: LivingEntity): ItemStack {
-            user.removeAllEffects()
-            return super.finishUsingItem(stack, world, user)
-        }
-    })
+                    .build())) {})
 
     @JvmField
     val RAGE_CANDY_BAR = create("rage_candy_bar", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
-                    .nutrition(10)
-                    .saturationModifier(1.2F)
-                    .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F)
+                    .nutrition(10) // todo get final values for this from vera
+                    .saturationModifier(1.2F) // todo get final values for this from vera
+                    .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F) // todo get final values for this from vera
                     .alwaysEdible()
-                    .build())) {
-        override fun finishUsingItem(stack: ItemStack, world: Level, user: LivingEntity): ItemStack {
-            user.removeAllEffects()
-            return super.finishUsingItem(stack, world, user)
-        }
-    })
+                    .build())) {})
 
     @JvmField
     val LAVA_COOKIE = create("lava_cookie", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
-                    .nutrition(10)
-                    .saturationModifier(1.2F)
-                    .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F)
+                    .nutrition(10) // todo get final values for this from vera
+                    .saturationModifier(1.2F) // todo get final values for this from vera
+                    .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F) // todo get final values for this from vera
                     .alwaysEdible()
-                    .build())) {
-        override fun finishUsingItem(stack: ItemStack, world: Level, user: LivingEntity): ItemStack {
-            user.removeAllEffects()
-            return super.finishUsingItem(stack, world, user)
-        }
-    })
+                    .build())) {})
 
     @JvmField
     val OLD_GATEAU = create("old_gateau", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
-                    .nutrition(10)
-                    .saturationModifier(1.2F)
-                    .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F)
+                    .nutrition(10) // todo get final values for this from vera
+                    .saturationModifier(1.2F) // todo get final values for this from vera
+                    .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F) // todo get final values for this from vera
                     .alwaysEdible()
-                    .build())) {
-        override fun finishUsingItem(stack: ItemStack, world: Level, user: LivingEntity): ItemStack {
-            user.removeAllEffects()
-            return super.finishUsingItem(stack, world, user)
-        }
-    })
+                    .build())) {})
 
     @JvmField
     val CASTELIACONE = create("casteliacone", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
-                    .nutrition(10)
-                    .saturationModifier(1.2F)
-                    .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F)
+                    .nutrition(10) // todo get final values for this from vera
+                    .saturationModifier(1.2F) // todo get final values for this from vera
+                    .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F) // todo get final values for this from vera
                     .alwaysEdible()
-                    .build())) {
-        override fun finishUsingItem(stack: ItemStack, world: Level, user: LivingEntity): ItemStack {
-            user.removeAllEffects()
-            return super.finishUsingItem(stack, world, user)
-        }
-    })
+                    .build())) {})
 
     @JvmField
-    val SHALOR_SABLE = create("shalor_sable", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
+    val SHALOUR_SABLE = create("shalour_sable", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
-                    .nutrition(10)
-                    .saturationModifier(1.2F)
-                    .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F)
+                    .nutrition(10) // todo get final values for this from vera
+                    .saturationModifier(1.2F) // todo get final values for this from vera
+                    .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F) // todo get final values for this from vera
                     .alwaysEdible()
-                    .build())) {
-        override fun finishUsingItem(stack: ItemStack, world: Level, user: LivingEntity): ItemStack {
-            user.removeAllEffects()
-            return super.finishUsingItem(stack, world, user)
-        }
-    })
+                    .build())) {})
 
     @JvmField
     val LUMIOSE_GALETTE = create("lumiose_galette", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
-                    .nutrition(10)
-                    .saturationModifier(1.2F)
-                    .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F)
+                    .nutrition(10) // todo get final values for this from vera
+                    .saturationModifier(1.2F) // todo get final values for this from vera
+                    .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F) // todo get final values for this from vera
                     .alwaysEdible()
-                    .build())) {
-        override fun finishUsingItem(stack: ItemStack, world: Level, user: LivingEntity): ItemStack {
-            user.removeAllEffects()
-            return super.finishUsingItem(stack, world, user)
-        }
-    })
+                    .build())) {})
 
     @JvmField
     val BIG_MALASADA = create("big_malasada", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
-                    .nutrition(10)
-                    .saturationModifier(1.2F)
-                    .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F)
+                    .nutrition(10) // todo get final values for this from vera
+                    .saturationModifier(1.2F) // todo get final values for this from vera
+                    .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F) // todo get final values for this from vera
                     .alwaysEdible()
-                    .build())) {
-        override fun finishUsingItem(stack: ItemStack, world: Level, user: LivingEntity): ItemStack {
-            user.removeAllEffects()
-            return super.finishUsingItem(stack, world, user)
-        }
-    })
+                    .build())) {})
 
     /*@JvmField // todo see what we are doing for these (are there different kinds?)
     val CURRY = create("curry", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
@@ -502,16 +475,11 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     @JvmField
     val JUBILIFE_MUFFIN = create("jubilife_muffin", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
-                    .nutrition(10)
-                    .saturationModifier(1.2F)
-                    .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F)
+                    .nutrition(10) // todo get final values for this from vera
+                    .saturationModifier(1.2F) // todo get final values for this from vera
+                    .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F) // todo get final values for this from vera
                     .alwaysEdible()
-                    .build())) {
-        override fun finishUsingItem(stack: ItemStack, world: Level, user: LivingEntity): ItemStack {
-            user.removeAllEffects()
-            return super.finishUsingItem(stack, world, user)
-        }
-    })
+                    .build())) {})
 
     /*@JvmField // todo see what we are doing for these (are there different kinds?)
     val SANDWICH = create("sandwich", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
@@ -539,70 +507,31 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     @JvmField
     val POTATO_MOCHI = create("potato_mochi", object : Item(Properties().stacksTo(16)
         .food(FoodProperties.Builder()
-            .nutrition(10)
-            .saturationModifier(1.2F)
-            .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F)
+            .nutrition(10) // todo get final values for this from vera
+            .saturationModifier(1.2F) // todo get final values for this from vera
             .alwaysEdible()
-            .build())) {
-        override fun finishUsingItem(stack: ItemStack, world: Level, user: LivingEntity): ItemStack {
-            user.removeAllEffects()
-            return super.finishUsingItem(stack, world, user)
-        }
-    })
+            .build())) {})
     @JvmField
     val FRIED_RICE = create("fried_rice", object : Item(Properties().stacksTo(16)
         .food(FoodProperties.Builder()
-            .nutrition(10)
-            .saturationModifier(1.2F)
-            .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F)
+            .nutrition(10) // todo get final values for this from vera
+            .saturationModifier(1.2F) // todo get final values for this from vera
             .alwaysEdible()
-            .build())) {
-        override fun finishUsingItem(stack: ItemStack, world: Level, user: LivingEntity): ItemStack {
-            user.removeAllEffects()
-            return super.finishUsingItem(stack, world, user)
-        }
-    })
+            .build())) {})
     @JvmField
     val CANDIED_APPLE = create("candied_apple", object : Item(Properties().stacksTo(16)
         .food(FoodProperties.Builder()
-            .nutrition(10)
-            .saturationModifier(1.2F)
-            .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F)
+            .nutrition(10) // todo get final values for this from vera
+            .saturationModifier(1.2F) // todo get final values for this from vera
             .alwaysEdible()
-            .build())) {
-        override fun finishUsingItem(stack: ItemStack, world: Level, user: LivingEntity): ItemStack {
-            user.removeAllEffects()
-            return super.finishUsingItem(stack, world, user)
-        }
-    })
+            .build())) {})
     @JvmField
     val CANDIED_BERRY = create("candied_berry", object : Item(Properties().stacksTo(16)
         .food(FoodProperties.Builder()
-            .nutrition(10)
-            .saturationModifier(1.2F)
-            .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F)
+            .nutrition(10) // todo get final values for this from vera
+            .saturationModifier(1.2F) // todo get final values for this from vera
             .alwaysEdible()
-            .build())) {
-        override fun finishUsingItem(stack: ItemStack, world: Level, user: LivingEntity): ItemStack {
-            user.removeAllEffects()
-            return super.finishUsingItem(stack, world, user)
-        }
-    })
-    @JvmField
-    val JELLY_DOUGHNUT = create("jelly_doughnut", object : Item(Properties().stacksTo(16)
-        .food(FoodProperties.Builder()
-            .nutrition(10)
-            .saturationModifier(1.2F)
-            .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F)
-            .alwaysEdible()
-            .build())) {
-        override fun finishUsingItem(stack: ItemStack, world: Level, user: LivingEntity): ItemStack {
-            user.removeAllEffects()
-            return super.finishUsingItem(stack, world, user)
-        }
-    })
-
-
+            .build())) {})
 
     // todo etc?
 

@@ -17,13 +17,6 @@ import net.minecraft.world.item.ItemStack
 
 object FlavourSeasoningProcessor : SeasoningProcessor {
     override val type = "flavour"
-    private val flavourPriority = listOf(
-        Flavour.SPICY,
-        Flavour.DRY,
-        Flavour.SWEET,
-        Flavour.BITTER,
-        Flavour.SOUR
-    )
 
     override fun apply(result: ItemStack, seasoning: List<ItemStack>) {
         val isPokePuff = result.`is`(CobblemonItems.POKE_PUFF)

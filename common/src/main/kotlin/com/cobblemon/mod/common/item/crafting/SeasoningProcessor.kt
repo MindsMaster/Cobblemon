@@ -24,7 +24,9 @@ interface SeasoningProcessor {
             IngredientSeasoningProcessor.type to IngredientSeasoningProcessor,
             BaitSeasoningProcessor.type to BaitSeasoningProcessor,
             FlavourSeasoningProcessor.type to FlavourSeasoningProcessor,
-            FoodColourSeasoningProcessor.type to FoodColourSeasoningProcessor
+            FoodColourSeasoningProcessor.type to FoodColourSeasoningProcessor,
+            FoodSeasoningProcessor.type to FoodSeasoningProcessor,
+            MobEffectSeasoningProcessor.type to MobEffectSeasoningProcessor
         )
     }
 

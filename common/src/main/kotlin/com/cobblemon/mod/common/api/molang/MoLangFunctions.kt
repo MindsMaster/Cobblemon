@@ -32,6 +32,7 @@ import com.cobblemon.mod.common.api.moves.animations.ActionEffectContext
 import com.cobblemon.mod.common.api.moves.animations.ActionEffects
 import com.cobblemon.mod.common.api.moves.animations.NPCProvider
 import com.cobblemon.mod.common.api.npc.NPCClasses
+import com.cobblemon.mod.common.api.npc.configuration.interaction.DialogueNPCInteractionConfiguration
 import com.cobblemon.mod.common.api.npc.configuration.interaction.ScriptNPCInteractionConfiguration
 import com.cobblemon.mod.common.api.npc.partyproviders.SimplePartyProvider
 import com.cobblemon.mod.common.api.pokedex.AbstractPokedexManager
@@ -45,7 +46,7 @@ import com.cobblemon.mod.common.api.pokemon.PokemonProperties
 import com.cobblemon.mod.common.api.pokemon.evolution.Evolution
 import com.cobblemon.mod.common.api.pokemon.stats.Stats
 import com.cobblemon.mod.common.api.scripting.CobblemonScripts
-import com.cobblemon.mod.common.api.spawning.context.SpawningContext
+import com.cobblemon.mod.common.api.spawning.position.SpawnablePosition
 import com.cobblemon.mod.common.api.storage.PokemonStore
 import com.cobblemon.mod.common.api.storage.party.NPCPartyStore
 import com.cobblemon.mod.common.api.storage.party.PartyStore
@@ -811,6 +812,17 @@ object MoLangFunctions {
                 npc.hideNameTag = !nameTagVisible
                 return@put DoubleValue.ONE
             }
+            map.put("unset_interaction") {
+                npc.interaction = null
+                return@put DoubleValue.ONE
+            }
+            map.put("set_dialogue_interaction") { params ->
+                val dialogue = params.getString(0).asIdentifierDefaultingNamespace()
+                npc.interaction = DialogueNPCInteractionConfiguration().also {
+                    it.dialogue = dialogue
+                }
+                return@put DoubleValue.ONE
+            }
             map.put("set_script_interaction") { params ->
                 val script = params.getString(0).asIdentifierDefaultingNamespace()
                 npc.interaction = ScriptNPCInteractionConfiguration().also {
@@ -1184,7 +1196,7 @@ object MoLangFunctions {
         }
     )
 
-    val spawningContextFunctions = mutableListOf<(SpawningContext) -> HashMap<String, java.util.function.Function<MoParams, Any>>>(
+    val spawningContextFunctions = mutableListOf<(SpawnablePosition) -> HashMap<String, java.util.function.Function<MoParams, Any>>>(
         { spawningContext ->
             val map = hashMapOf<String, java.util.function.Function<MoParams, Any>>()
             val worldValue = spawningContext.world.registryAccess().registryOrThrow(Registries.DIMENSION).wrapAsHolder(spawningContext.world).asWorldMoLangValue()
@@ -1198,7 +1210,6 @@ object MoLangFunctions {
             map.put("moon_phase") { _ -> DoubleValue(spawningContext.moonPhase.toDouble()) }
             map.put("can_see_sky") { _ -> DoubleValue(spawningContext.canSeeSky) }
             map.put("sky_light") { _ -> DoubleValue(spawningContext.skyLight.toDouble()) }
-            map.put("bucket") { _ -> StringValue(spawningContext.cause.bucket.name) }
             map.put("player") { _ ->
                 val causeEntity = spawningContext.cause.entity ?: return@put DoubleValue.ZERO
                 if (causeEntity is ServerPlayer) {
@@ -1335,6 +1346,8 @@ object MoLangFunctions {
             map.put("hitbox_height") { DoubleValue(species.hitbox.height) }
             map.put("hitbox_fixed") { DoubleValue(species.hitbox.fixed) }
             map.put("catch_rate") { DoubleValue(species.catchRate) }
+            map.put("labels") { return@put species.labels.asArrayValue { StringValue(it) } }
+            map.put("has_label") { params -> DoubleValue(species.labels.contains(params.getString(0))) }
             map
         }
     )
@@ -1536,7 +1549,7 @@ object MoLangFunctions {
         return value
     }
 
-    fun SpawningContext.asMoLangValue(): ObjectValue<SpawningContext> {
+    fun SpawnablePosition.asMoLangValue(): ObjectValue<SpawnablePosition> {
         val value = ObjectValue(
             obj = this,
             stringify = { it.toString() }

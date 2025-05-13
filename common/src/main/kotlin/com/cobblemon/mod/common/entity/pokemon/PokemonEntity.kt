@@ -513,12 +513,10 @@ open class PokemonEntity(
         yHeadRotO = Mth.wrapDegrees(yHeadRotO)
         /* I'm sure it's not even us but something altering the logic of the loops in LivingEntity */
 
+        super.tick()
+
         isPokemonFlying = flyDist - flyDistO > 0.005F
         isPokemonWalking = walkDist - walkDistO > 0.005F
-
-        entityData.get(MOVING)
-
-        super.tick()
 
         if (passengers.isNotEmpty()) {
             ridingAnimationData.update(this)

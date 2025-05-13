@@ -12,31 +12,35 @@ import com.cobblemon.mod.common.CobblemonItemComponents
 import com.cobblemon.mod.common.CobblemonItems
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.apricorn.Apricorn
+import com.cobblemon.mod.common.api.conditional.RegistryLikeIdentifierCondition
 import com.cobblemon.mod.common.api.cooking.Flavour
+import com.cobblemon.mod.common.api.cooking.PokePuffUtils
+import com.cobblemon.mod.common.api.cooking.Seasonings
 import com.cobblemon.mod.common.api.item.PokemonSelectingItem
 import com.cobblemon.mod.common.api.riding.stats.RidingStat
 import com.cobblemon.mod.common.pokemon.Nature
 import com.cobblemon.mod.common.pokemon.Pokemon
+import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.sounds.SoundEvent
+import net.minecraft.sounds.SoundEvents
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResultHolder
+import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.UseAnim
 import net.minecraft.world.level.Level
 
-class PokePuffItem(): CobblemonItem(Properties().stacksTo(16)), PokemonSelectingItem {
+class PokePuffItem : Item(Properties().stacksTo(16)), PokemonSelectingItem {
     override val bagItem = null
 
-    // todo this needs an overhaul. this is just a copy of AprijuiceItem so far
-
     companion object {
-        const val DISLIKED_FLAVOUR_MULTIPLIER = 0.75F
-        const val LIKED_FLAVOUR_MULTIPLIER = 1.25F
-
-        const val STRONG_APRICORN_MULTIPLIER = 1.25F
-        const val WEAK_APRICORN_MULTIPLIER = 0.75F
+        const val LIKED_FLAVOR_MULTIPLIER = 10
+        const val DISLIKED_FLAVOR_MULTIPLIER = 7 // if they don't like it maybe have a bigger negative effect on the friendship? might make sense
     }
 
     override fun getName(stack: ItemStack): Component {
@@ -55,85 +59,139 @@ class PokePuffItem(): CobblemonItem(Properties().stacksTo(16)), PokemonSelecting
             it.startsWith("cobblemon:") && it.endsWith("_sweet")
         }
 
-        val nameKey = when {
-            hasSugar && hasSweet -> "item.cobblemon.poke_puff.deluxe"
-            hasSugar -> "item.cobblemon.poke_puff.frosted"
-            hasSweet -> "item.cobblemon.poke_puff.fancy"
-            else -> "item.cobblemon.poke_puff"
+        val prefix = when {
+            hasSugar && hasSweet -> "deluxe"
+            hasSweet -> "fancy"
+            hasSugar -> "frosted"
+            else -> null
         }
 
-        val flavourTranslationKey = "flavour.cobblemon.$flavour"
-        return Component.translatable(nameKey, Component.translatable(flavourTranslationKey))
-    }
-    
-    override fun canUseOnPokemon(stack: ItemStack, pokemon: Pokemon): Boolean {
-        return true // todo change this
-    }
+        val isCreamPuff = (flavour == "plain")
+        val baseKey = if (isCreamPuff) "item.cobblemon.cream_puff" else "item.cobblemon.poke_puff"
+        val finalKey = if (prefix != null) "$baseKey.$prefix" else baseKey
 
-    /*fun getBoosts(stack: ItemStack, pokemon: Pokemon): Map<RidingStat, Float> {
-        val flavours = stack.get(CobblemonItemComponents.FLAVOUR)?.flavours ?: emptyMap()
-        return RidingStat.entries.associate { ridingStat ->
-            val flavour = ridingStat.flavour
-            val flavourValue = flavours[flavour]?.takeUnless { it == 0 } ?: return@associate (ridingStat to 0F)
-            val adjustedValue = calculateRidingBoostForFlavour(flavour, type, flavourValue, pokemon.nature)
-            ridingStat to adjustedValue
-        }.filter { it.value > 0 }
-    }*/
-
-    override fun applyToPokemon(
-        player: ServerPlayer,
-        stack: ItemStack,
-        pokemon: Pokemon
-    ): InteractionResultHolder<ItemStack>? {
-        // todo  add to this
-
-        /*val boosts = getBoosts(stack, pokemon)
-        if (boosts.isEmpty()) {
-            return InteractionResultHolder.fail(stack)
-        }
-
-        if (!canUseOnPokemon(stack, pokemon)) {
-            return InteractionResultHolder.fail(stack)
-        }
-
-        boosts.forEach { (stat, value) ->
-            pokemon.addRideBoost(stat, value)
-        }
-
-        pokemon.entity?.playSound(CobblemonSounds.BERRY_EAT, 1F, 1F)
-        if (!player.isCreative) {
-            stack.shrink(1)
-        }*/
-
-        return InteractionResultHolder.success(stack)
-    }
-
-    fun calculateRidingBoostForFlavour(flavour: Flavour, apricorn: Apricorn, value: Int, nature: Nature): Float {
-        val tasteMultiplier = if (flavour == nature.dislikedFlavour) {
-            DISLIKED_FLAVOUR_MULTIPLIER
-        } else if (flavour == nature.favouriteFlavour) {
-            LIKED_FLAVOUR_MULTIPLIER
+        return if (isCreamPuff) {
+            // No flavor inserted if it's Cream Puff
+            Component.translatable(finalKey)
         } else {
-            1F
+            // Insert flavor name for normal Poke Puffs
+            val flavourTranslationKey = "flavour.cobblemon.poke_puff.$flavour"
+            Component.translatable(finalKey, Component.translatable(flavourTranslationKey))
         }
-
-        val apricornPolarity = apricorn.flavourStrength[flavour]
-        val apricornMultiplier = if (apricornPolarity == true) {
-            STRONG_APRICORN_MULTIPLIER
-        } else if (apricornPolarity == false) {
-            WEAK_APRICORN_MULTIPLIER
-        } else {
-            1F
-        }
-
-        return value * apricornMultiplier * tasteMultiplier
     }
 
     override fun use(world: Level, user: Player, hand: InteractionHand): InteractionResultHolder<ItemStack> {
-        if (world is ServerLevel && user is ServerPlayer) {
-            val stack = user.getItemInHand(hand)
-            return use(user, stack)
+        val stack = user.getItemInHand(hand)
+        val isPlain = getFlavorType(stack) == "plain"
+
+        return if (isPlain) {
+            if (!user.foodData.needsFood()) {
+                return InteractionResultHolder.fail(stack)
+            }
+            user.startUsingItem(hand)
+            InteractionResultHolder.consume(stack)
+        } else {
+            if (user is ServerPlayer) {
+                super<PokemonSelectingItem>.use(user, stack)
+            } else {
+                InteractionResultHolder.pass(stack)
+            }
         }
-        return InteractionResultHolder.success(user.getItemInHand(hand))
+    }
+
+    override fun applyToPokemon(player: ServerPlayer, stack: ItemStack, pokemon: Pokemon): InteractionResultHolder<ItemStack> {
+        val friendshipChange = PokePuffUtils.calculateFriendshipChange(stack, pokemon.nature)
+
+        if (friendshipChange != 0) {
+            val current = pokemon.friendship
+            val newValue = (current + friendshipChange).coerceIn(0, 255)
+
+            if (newValue != current) {
+                pokemon.setFriendship(newValue)
+                pokemon.entity?.playSound(SoundEvents.PLAYER_BURP, 1F, 1F)
+                if (!player.isCreative) stack.shrink(1)
+                return InteractionResultHolder.success(stack)
+            }
+        }
+        return InteractionResultHolder.pass(stack)
+    }
+
+    private fun isPlainPuff(stack: ItemStack): Boolean {
+        val flavours = stack.get(CobblemonItemComponents.FLAVOUR)?.flavours ?: return true
+        return flavours.values.all { it == 0 }
+    }
+
+    private fun Nature.isNeutral(): Boolean {
+        return this.favouriteFlavour == this.dislikedFlavour
+    }
+
+    override fun getUseAnimation(stack: ItemStack): UseAnim {
+        val isPlain = isPlainPuff(stack)
+        return if (isPlain) UseAnim.EAT else UseAnim.NONE
+    }
+
+    override fun getUseDuration(stack: ItemStack, entity: LivingEntity): Int {
+        return if (getFlavorType(stack) == "plain") 32 else 0
+    }
+
+    override fun getEatingSound(): SoundEvent = SoundEvents.GENERIC_EAT
+    override fun getDrinkingSound(): SoundEvent = SoundEvents.GENERIC_EAT
+
+    override fun finishUsingItem(stack: ItemStack, world: Level, user: LivingEntity): ItemStack {
+        if (!world.isClientSide && user is Player && getFlavorType(stack) == "plain") {
+            val ingredients = stack.get(CobblemonItemComponents.INGREDIENT)?.ingredientIds?.map { it.toString() } ?: emptyList()
+            val hasSugar = "minecraft:sugar" in ingredients
+            val hasSweet = ingredients.any { it.startsWith("cobblemon:") && it.endsWith("_sweet") }
+
+            val (nutrition, saturation) = when {
+                hasSugar && hasSweet -> 6 to 4f    // deluxe
+                hasSweet -> 4 to 2.8f              // fancy
+                hasSugar -> 3 to 2.4f              // frosted
+                else -> 2 to 2f                    // plain
+            }
+
+            if (user.foodData.needsFood()) {
+                user.foodData.eat(nutrition, saturation)
+                if (!user.isCreative) {
+                    stack.shrink(1)
+                }
+            }
+        }
+
+        return super.finishUsingItem(stack, world, user)
+    }
+
+
+    override fun canUseOnPokemon(stack: ItemStack, pokemon: Pokemon): Boolean {
+        return getFriendshipDelta(stack, pokemon) != 0
+    }
+
+    private fun getFriendshipDelta(stack: ItemStack, pokemon: Pokemon): Int {
+        val flavour = getDominantFlavour(stack) ?: return 0
+        val nature = pokemon.nature
+
+        return when {
+            flavour == Flavour.MILD && nature.isNeutral() -> 5
+            flavour == nature.favouriteFlavour -> 10
+            flavour == nature.dislikedFlavour -> -10
+            else -> -10
+        }
+    }
+
+    private fun getDominantFlavour(stack: ItemStack): Flavour? {
+        val flavours = stack.get(CobblemonItemComponents.FLAVOUR)?.flavours ?: return null
+        val max = flavours.values.maxOrNull() ?: return null
+        val dominant = flavours.filterValues { it == max }.keys
+
+        return when {
+            dominant.isEmpty() -> null
+            dominant.size > 1 -> Flavour.MILD
+            else -> dominant.first()
+        }
+    }
+
+    private fun getFlavorType(stack: ItemStack): String {
+        val flavour = getDominantFlavour(stack)
+        return flavour?.name?.lowercase() ?: "plain"
     }
 }

@@ -22,6 +22,7 @@
     "client.AbstractClientPlayerMixin",
     "client.CameraMixin",
     "client.ClientRecipeBookMixin",
+    "client.SearchTreeMixin",
     "client.EntryListWidgetMixin",
     "client.GameRendererMixin",
     "client.HumanoidModelMixin",
