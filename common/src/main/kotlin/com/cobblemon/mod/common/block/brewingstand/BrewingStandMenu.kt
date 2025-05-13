@@ -52,6 +52,7 @@ class BrewingStandMenu(
     override fun stillValid(player: Player): Boolean {
         return brewingStand.stillValid(player)
     }
+    
     override fun quickMoveStack(player: Player, index: Int): ItemStack {
         var itemStack = ItemStack.EMPTY
         val slot = slots.getOrNull(index) ?: return itemStack
@@ -60,16 +61,38 @@ class BrewingStandMenu(
             val itemStack2 = slot.item
             itemStack = itemStack2.copy()
 
-            if (index in 0..2) {
-                if (!moveItemStackTo(itemStack2, 3, 4, false)) return ItemStack.EMPTY
-            } else if (index == 3 || index == 4) {
-                if (!moveItemStackTo(itemStack2, 0, 3, false)) return ItemStack.EMPTY
-            } else if (index in 5 until 32) {
-                if (!moveItemStackTo(itemStack2, 32, 41, false)) return ItemStack.EMPTY
-            } else if (index in 32 until 41) {
-                if (!moveItemStackTo(itemStack2, 5, 32, false)) return ItemStack.EMPTY
+            if (index !in 0..2 && index != 3 && index != 4) {
+                when {
+                    FuelSlot.mayPlaceItem(itemStack2) -> {
+                        if (!moveItemStackTo(itemStack2, 4, 5, false) &&
+                            ingredientSlot.mayPlace(itemStack2) &&
+                            !moveItemStackTo(itemStack2, 3, 4, false)
+                        ) return ItemStack.EMPTY
+                    }
+
+                    ingredientSlot.mayPlace(itemStack2) -> {
+                        if (!moveItemStackTo(itemStack2, 3, 4, false)) return ItemStack.EMPTY
+                    }
+
+                    PotionSlot.mayPlaceItem(itemStack2) -> {
+                        if (!moveItemStackTo(itemStack2, 0, 3, false)) return ItemStack.EMPTY
+                    }
+
+                    index in 5 until 32 -> {
+                        if (!moveItemStackTo(itemStack2, 32, 41, false)) return ItemStack.EMPTY
+                    }
+
+                    index in 32 until 41 -> {
+                        if (!moveItemStackTo(itemStack2, 5, 32, false)) return ItemStack.EMPTY
+                    }
+
+                    else -> {
+                        if (!moveItemStackTo(itemStack2, 5, 41, false)) return ItemStack.EMPTY
+                    }
+                }
             } else {
-                if (!moveItemStackTo(itemStack2, 5, 41, false)) return ItemStack.EMPTY
+                if (!moveItemStackTo(itemStack2, 5, 41, true)) return ItemStack.EMPTY
+                slot.onQuickCraft(itemStack2, itemStack)
             }
 
             if (itemStack2.isEmpty) {
@@ -90,9 +113,7 @@ class BrewingStandMenu(
 
 
     class PotionSlot(container: Container, slot: Int, x: Int, y: Int) : Slot(container, slot, x, y) {
-        override fun mayPlace(stack: ItemStack): Boolean {
-            return mayPlaceItem(stack)
-        }
+        override fun mayPlace(stack: ItemStack): Boolean = mayPlaceItem(stack)
 
         override fun getMaxStackSize(): Int = 1
 
@@ -105,15 +126,9 @@ class BrewingStandMenu(
             }
             super.onTake(player, stack)
         }
-
-        companion object {
-            fun mayPlaceItem(stack: ItemStack): Boolean {
-                return true
-            }
-
-            private fun isRecipeItem(stack: ItemStack): Boolean {
-                return true
-            }
+        
+        companion object{
+            fun mayPlaceItem(stack: ItemStack): Boolean = true
         }
     }
 
