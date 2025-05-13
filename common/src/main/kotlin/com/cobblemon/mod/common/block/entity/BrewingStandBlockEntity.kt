@@ -84,7 +84,7 @@ class BrewingStandBlockEntity(pos: BlockPos, state: BlockState) :
             level.levelEvent(1035, pos, 0)
         }
     }
-
+    
     fun serverTick(level: Level, pos: BlockPos, state: BlockState, blockEntity: BrewingStandBlockEntity) {
         val fuelStack = blockEntity.items[4]
         if (blockEntity.fuel <= 0 && fuelStack.`is`(Items.BLAZE_POWDER)) {
@@ -94,25 +94,50 @@ class BrewingStandBlockEntity(pos: BlockPos, state: BlockState) :
         }
 
         val recipe = blockEntity.fetchBrewingRecipe(level)
+        val ingredientStack = blockEntity.items[3]
         val isBrewing = blockEntity.brewTime > 0
 
         if (isBrewing) {
             blockEntity.brewTime--
-            if (blockEntity.brewTime == 0 && recipe != null) {
-                for (i in 0 until 3) {
-                    if (!blockEntity.items[i].isEmpty) {
-                        blockEntity.items[i] = recipe.result.copy()
+            val brewFinished = blockEntity.brewTime == 0
+
+            if (brewFinished) {
+                if (recipe != null) {
+                    for (i in 0 until 3) {
+                        if (!blockEntity.items[i].isEmpty) {
+                            blockEntity.items[i] = recipe.result.copy()
+                        }
+                    }
+                    blockEntity.items[3].shrink(1)
+                } else {
+                    if (isBrewable(level.potionBrewing(), blockEntity.items)) {
+                        doBrew(level, pos, blockEntity.items)
+                    } else if (!ingredientStack.`is`(blockEntity.ingredient)) {
+                        blockEntity.brewTime = 0
                     }
                 }
-                blockEntity.items[3].shrink(1)
             }
             setChanged(level, pos, state)
-        } else if (recipe != null && blockEntity.fuel > 0) {
+        } else if ((recipe != null || isBrewable(level.potionBrewing(), blockEntity.items)) && blockEntity.fuel > 0) {
             blockEntity.fuel--
             blockEntity.brewTime = 400
+            blockEntity.ingredient = ingredientStack.item
             setChanged(level, pos, state)
         }
+
+        val newBits = blockEntity.getPotionBits()
+        if (!newBits.contentEquals(blockEntity.lastPotionCount)) {
+            blockEntity.lastPotionCount = newBits
+            if (state.block is BrewingStandBlock) {
+                var newState = state
+                for (i in BrewingStandBlock.HAS_BOTTLE.indices) {
+                    newState = newState.setValue(BrewingStandBlock.HAS_BOTTLE[i], newBits[i])
+                }
+                level.setBlock(pos, newState, 2)
+            }
+        }
     }
+
 
     override fun getDefaultName(): Component = Component.translatable("container.brewing")
 

@@ -24,24 +24,17 @@ class BrewingStandRecipe(
     override fun getType() = CobblemonRecipeTypes.BREWING_STAND
     override fun canCraftInDimensions(width: Int, height: Int) = true
     override fun getSerializer() = CobblemonRecipeSerializers.BREWING_STAND
+    override fun assemble(input: BrewingStandInput, registries: HolderLookup.Provider): ItemStack? = result.copy()
+    override fun getResultItem(registries: HolderLookup.Provider): ItemStack? = result.copy()
 
     override fun matches(input: BrewingStandInput, level: Level): Boolean {
         val ingredientMatches = input.getIngredient().`is`(this.input.item)
         val bottles = input.getBottles()
-        val allBottlesValid = bottles.all { it.`is`(bottle.item) }
+        val validBottles = bottles.filter { !it.isEmpty }.all { it.`is`(bottle.item) }
 
-        return ingredientMatches && bottles.isNotEmpty() && allBottlesValid
+        return ingredientMatches && validBottles
     }
-
-    override fun assemble(input: BrewingStandInput, registries: HolderLookup.Provider): ItemStack? {
-        return result.copy()
-    }
-
-    override fun getResultItem(registries: HolderLookup.Provider): ItemStack? {
-        // Add logic to return the result item
-        return result.copy()
-    }
-
+    
     class Serializer : RecipeSerializer<BrewingStandRecipe> {
         companion object {
             val CODEC: MapCodec<BrewingStandRecipe> = RecordCodecBuilder.mapCodec { instance ->
