@@ -1045,12 +1045,12 @@ open class PokemonEntity(
                         return InteractionResult.sidedSuccess(level().isClientSide)
                     }
                 }
-                //Shuckle uses its Berry Juice meter to dispense Berry Juice if a player uses Wooden Bowl on it
-                else if (pokemon.species.name == "Shuckle" && pokemon.berryJuiceMeter > 0) {
+                //Shuckle uses it's fullness to dispense Berry Juice if a player uses Wooden Bowl on it
+                else if (pokemon.species.name == "Shuckle" && pokemon.currentFullness > 0) {
                     player.playSound(SoundEvents.MOOSHROOM_MILK, 1.0f, 1.0f)
                     val berryJuice = ItemUtils.createFilledResult(itemStack, player, CobblemonItems.BERRY_JUICE.defaultInstance)
                     player.setItemInHand(hand, berryJuice)
-                    pokemon.getBerryJuice()
+                    pokemon.currentFullness--
                     return InteractionResult.sidedSuccess(level().isClientSide)
                 }
             } else if (itemStack.`is`(Items.GLASS_BOTTLE)) {

@@ -892,15 +892,6 @@ open class Pokemon : ShowdownIdentifiable {
 
     // Fullness / Milking mechanics
 
-    // code for Shuckle Berry Juice farming
-    var berryJuiceMeter = 0
-
-    fun getBerryJuice() {
-        if (this.berryJuiceMeter != 0) {
-            this.berryJuiceMeter -= 1
-        }
-    }
-
     //last time this pokemon was milked (this will increase overtime)
     var lastMilked = 0
 
@@ -916,6 +907,7 @@ open class Pokemon : ShowdownIdentifiable {
             pokemon.species.name == "Camerupt" ||
             pokemon.species.name == "Vespiqueen" ||
             pokemon.species.name == "Combee" ||
+            pokemon.species.name == "Shuckle" ||
             (pokemon.species.name == "Gogoat" && pokemon.gender.name == "Female") ||
             (pokemon.species.name == "Bouffalant" && pokemon.gender.name == "Female")
         ) {
@@ -925,11 +917,6 @@ open class Pokemon : ShowdownIdentifiable {
             return false
         }
     }
-
-
-    // DEPRECATED
-    //base Hunger value for all pokemon
-    var baseFullness = 5
 
     // function to return the max hunger for the pokemon
     fun getMaxFullness(): Int {
@@ -981,42 +968,7 @@ open class Pokemon : ShowdownIdentifiable {
         if (this.currentFullness < 0) {
             this.currentFullness = 0
         }
-
-        // if that pokemon is Shuckle and the berry juice meter if not full then increase the berry juice meter
-        if (this.species.name == "Shuckle" && this.berryJuiceMeter < 12){
-            this.berryJuiceMeter += 1
-        }
     }
-
-    // DEPRECATED FOR NOW
-    // function to scale Hunger based off of the base HP stat of a Pokemon
-    fun scaleFullnessRates(stat: Int): Int {
-        // lowest base HP stat of a pokemon before adding more hunger
-        var lowerThreshold = 25
-
-        // highest base HP stat of a pokemon to be at max extra hunger
-        var upperThreshold = 150
-
-        // Value of the highest additional hunger allowed to be given
-        var maxAdditionalHunger = 15
-
-        // To adjust the curvature of the hunger scale increase as base HP gets larger
-        var hungerScaleExponent = 2.0
-
-        return when {
-            stat <= lowerThreshold -> 0
-            stat > upperThreshold -> maxAdditionalHunger
-            else -> {
-                // Scale the thresholds for hunger to be 0-1
-                val scaledStat = (stat - lowerThreshold) / (upperThreshold - lowerThreshold).toDouble()
-                // Apply exponential function for non-linear growth of the hunger increase
-                val result = maxAdditionalHunger * Math.pow(scaledStat, hungerScaleExponent)
-                // Ensure the result is within the bounds of the min and max thresholds
-                result.toInt().coerceIn(0, maxAdditionalHunger)
-            }
-        }
-    }
-
 
     // Amount of seconds that need to pass for the pokemon to lose 1 fullness value
     fun getMetabolismRate(): Int {
