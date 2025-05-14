@@ -3,14 +3,14 @@
     "category": "medicines",
     "ingredients": [
         {
-            "item": "minecraft:glass_bottle"
+            "item": "cobblemon:medicinal_brew"
         },
         {
-            "item": "cobblemon:aspear_berry"
+            "item": "cobblemon:sitrus_berry"
         }
     ],
     "result": {
-        "id": "cobblemon:ice_heal"
+        "id": "cobblemon:hyper_potion"
     },
     "seasoningProcessors": []
 }

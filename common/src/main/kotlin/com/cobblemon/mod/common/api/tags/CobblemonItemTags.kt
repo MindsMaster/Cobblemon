@@ -82,6 +82,7 @@ object CobblemonItemTags {
     @JvmField val SKY_TUMBLESTONE_BRICKS = create("sky_tumblestone_bricks")
     @JvmField val SKY_TUMBLESTONES = create("sky_tumblestones")
     @JvmField val SUN_STONE_ORES = create("sun_stone_ores")
+    @JvmField val SUPER_POTION_INGREDIENTS = create("super_potion_ingredients")
     @JvmField val SWEETS = create("sweets")
     @JvmField val TEACUPS = create("teacups")
     @JvmField val TEAPOTS = create("teapots")
