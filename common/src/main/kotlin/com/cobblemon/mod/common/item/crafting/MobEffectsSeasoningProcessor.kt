@@ -21,8 +21,7 @@ object MobEffectSeasoningProcessor : SeasoningProcessor {
 
     override fun apply(result: ItemStack, seasoning: List<ItemStack>) {
         val allEffects: List<SerializableMobEffectInstance> = seasoning
-                .mapNotNull { Seasonings.getFromItemStack(it)?.mobEffects }
-                .flatMap { it.appliedEffects }
+                .flatMap { Seasonings.getMobEffectsFromItemStack(it) }
 
         val mergedEffects = MobEffectUtils.mergeEffects(allEffects).map { it.toInstance() }
 

@@ -1,16 +1,14 @@
 {
   "ingredient": "minecraft:red_tulip",
   "colour": "red",
-  "mobEffects": {
-    "appliedEffects": [
-      {
-        "effect": "minecraft:weakness",
-        "duration": 140,
-        "amplifier": 0,
-        "ambient": false,
-        "visible": true,
-        "showIcon": true
-      }
-    ]
-  }
+  "mobEffects": [
+    {
+      "effect": "minecraft:weakness",
+      "duration": 140,
+      "amplifier": 0,
+      "ambient": false,
+      "visible": true,
+      "showIcon": true
+    }
+  ]
 }
