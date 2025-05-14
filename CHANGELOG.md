@@ -34,6 +34,8 @@
 - Grumpig
 - Snorunt
 - Glalie
+- Latias
+- Latios
 
 #### Gen 4
 - Bronzor
