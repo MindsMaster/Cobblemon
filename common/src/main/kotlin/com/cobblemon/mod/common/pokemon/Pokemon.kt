@@ -890,34 +890,6 @@ open class Pokemon : ShowdownIdentifiable {
         return ElementalTypes.FIRE in types || form.behaviour.moving.swim.canSwimInLava || form.behaviour.fireImmune
     }
 
-    // Fullness / Milking mechanics
-
-    //last time this pokemon was milked (this will increase overtime)
-    var lastMilked = 0
-
-    // reset the lastMilked timer whenever this pokemon is milked
-    fun milk() {
-        lastMilked = 0
-    }
-
-    // returns true depending on the type of pokemon
-    fun isMilkable(pokemon: Pokemon): Boolean {
-        if (
-            pokemon.species.name == "Miltank" ||
-            pokemon.species.name == "Camerupt" ||
-            pokemon.species.name == "Vespiqueen" ||
-            pokemon.species.name == "Combee" ||
-            pokemon.species.name == "Shuckle" ||
-            (pokemon.species.name == "Gogoat" && pokemon.gender.name == "Female") ||
-            (pokemon.species.name == "Bouffalant" && pokemon.gender.name == "Female")
-        ) {
-            return true
-        }
-        else {
-            return false
-        }
-    }
-
     // function to return the max hunger for the pokemon
     fun getMaxFullness(): Int {
         // get base HP stat of the referenced Pokemon
@@ -1021,28 +993,19 @@ open class Pokemon : ShowdownIdentifiable {
     }
 
     /**
-     * Called every second on the Pokémon for their fullness
+     * Called every second on Player owned and Pastured Pokémon for their fullness
      */
-    open fun onSecondPassed(player: ServerPlayer, pokemon: Pokemon) {
+    open fun tickMetabolism() {
         // have metabolism cycle increase each second
         metabolismCycle += 1
 
-        // set cap for lastMilked to save on resources potentially  [CURRENTLY SET TO 3 HOURS]
-        if (pokemon.lastMilked != 10800) {
-            pokemon.lastMilked += 1
-        }
-
         // if the metabolismCycle value equals the Pokemon's metabolism rate then decrease Fullness by 1
-        if (metabolismCycle >= pokemon.getMetabolismRate()) {
-            // as a baseline we will decrement the Fullness by 1 for each metabolism cycle
-            val message = "${pokemon.species.name}'s Fullness went down by 1"
-
-            if (pokemon.currentFullness > 0) {
-                //player.sendMessage(Text.of(message))
-                pokemon.loseFullness(1)
+        if (metabolismCycle >= this.getMetabolismRate()) {
+            if (this.currentFullness > 0) {
+                this.loseFullness(1)
             }
 
-            //reset the metabolic cycle back to zero
+            //reset the metabolic cycle back to zero (redundant if we always go down by 1, but in case we make it go down faster
             metabolismCycle = 0
         }
     }

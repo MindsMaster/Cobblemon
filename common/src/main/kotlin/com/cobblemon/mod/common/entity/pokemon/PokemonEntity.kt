@@ -987,29 +987,6 @@ open class PokemonEntity(
                     player.setItemInHand(hand, milkBucket)
                     return InteractionResult.sidedSuccess(level().isClientSide)
                 }
-                //Camerupt gives Lava Bucket if player uses Bucket on it
-                else if (pokemon.species.name == "Camerupt" && pokemon.lastMilked >= 900) {
-                    player.playSound(SoundEvents.GOAT_MILK, 1.0f, 1.0f)
-                    val lavaBucket = ItemUtils.createFilledResult(itemStack, player, Items.LAVA_BUCKET.defaultInstance)
-                    player.setItemInHand(hand, lavaBucket)
-                    pokemon.milk()
-                    return InteractionResult.sidedSuccess(level().isClientSide)
-                }
-                //Gogoat gives Milk Bucket if player uses Bucket on it
-                else if (pokemon.species.name == "Gogoat" && pokemon.gender.name == "Female") {
-                    player.playSound(SoundEvents.GOAT_MILK, 1.0f, 1.0f)
-                    val milkBucket = ItemUtils.createFilledResult(itemStack, player, Items.MILK_BUCKET.defaultInstance)
-                    player.setItemInHand(hand, milkBucket)
-                    return InteractionResult.sidedSuccess(level().isClientSide)
-                }
-                //Bouffalant  gives Milk Bucket if player uses Bucket on it
-                else if (pokemon.species.name == "Bouffalant" && pokemon.gender.name == "Female") {
-                    player.playSound(SoundEvents.GOAT_MILK, 1.0f, 1.0f)
-                    val milkBucket = ItemUtils.createFilledResult(itemStack, player, Items.MILK_BUCKET.defaultInstance)
-                    player.setItemInHand(hand, milkBucket)
-                    return InteractionResult.sidedSuccess(level().isClientSide)
-                }
-
             } else if (itemStack.`is`(Items.BOWL)) {
                 if (pokemon.aspects.any { it.contains("mooshtank") }) {
                     player.playSound(SoundEvents.MOOSHROOM_MILK, 1.0f, 1.0f)
@@ -1045,32 +1022,7 @@ open class PokemonEntity(
                         return InteractionResult.sidedSuccess(level().isClientSide)
                     }
                 }
-                //Shuckle uses it's fullness to dispense Berry Juice if a player uses Wooden Bowl on it
-                else if (pokemon.species.name == "Shuckle" && pokemon.currentFullness > 0) {
-                    player.playSound(SoundEvents.MOOSHROOM_MILK, 1.0f, 1.0f)
-                    val berryJuice = ItemUtils.createFilledResult(itemStack, player, CobblemonItems.BERRY_JUICE.defaultInstance)
-                    player.setItemInHand(hand, berryJuice)
-                    pokemon.currentFullness--
-                    return InteractionResult.sidedSuccess(level().isClientSide)
-                }
-            } else if (itemStack.`is`(Items.GLASS_BOTTLE)) {
-                if ((pokemon.species.name == "Vespiqueen") && pokemon.lastMilked >= 900) {
-                    player.playSound(SoundEvents.GOAT_MILK, 1.0f, 1.0f)
-                    val honeyBottle = ItemUtils.createFilledResult(itemStack, player, Items.HONEY_BOTTLE.defaultInstance)
-                    player.setItemInHand(hand, honeyBottle)
-                    pokemon.milk()
-                    return InteractionResult.sidedSuccess(level().isClientSide)
-                }
-                //Miltank gives MooMoo Milk if player uses Glass Bottle on it
-                else if (pokemon.species.name == "Miltank"  && pokemon.lastMilked >= 900) {
-                    player.playSound(SoundEvents.MOOSHROOM_MILK, 1.0f, 1.0f)
-                    val moomooMilk = ItemUtils.createFilledResult(itemStack, player, CobblemonItems.MOOMOO_MILK.defaultInstance)
-                    player.setItemInHand(hand, moomooMilk)
-                    pokemon.milk()
-                    return InteractionResult.sidedSuccess(level().isClientSide)
-                }
             }
-
             // Flowers used on brown MooshTanks
             else if (itemStack.`is`(Items.ALLIUM) ||
                 itemStack.`is`(Items.AZURE_BLUET) ||
