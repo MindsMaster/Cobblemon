@@ -21,7 +21,7 @@
       "conditions": {
         "items": [
           {
-            "items": "minecraft:pomeg_berry"
+            "items": "cobblemon:pomeg_berry"
           }
         ]
       },
