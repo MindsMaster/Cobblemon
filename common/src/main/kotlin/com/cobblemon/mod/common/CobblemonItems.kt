@@ -1502,7 +1502,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
         saturationModifier: Float,
         effect: MobEffectInstance? = null,
         effectChance: Float? = null,
-        alwaysEdible: Boolean? = null,
+        alwaysEdible: Boolean = false,
         convertsToOnUse: ItemStack? = null
     ): RegionalFoodItem {
         val foodPropertiesBuilder = FoodProperties.Builder()

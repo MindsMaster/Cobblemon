@@ -40,8 +40,6 @@ import net.minecraft.world.level.Level
 class RegionalFoodItem(properties: Properties) : Item(properties), PokemonSelectingItem {
     override val bagItem = null
 
-    override fun getName(stack: ItemStack) = super.getName(stack)
-
     override fun use(world: Level, player: Player, hand: InteractionHand): InteractionResultHolder<ItemStack> {
         val stack = player.getItemInHand(hand)
 
