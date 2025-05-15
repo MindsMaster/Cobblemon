@@ -10,7 +10,6 @@
   ],
   "mixins": [
     "BrewingRecipeRegistryMixin",
-    "BrewingStandBlockEntityMixin",
     "BrewingStandScreenHandlerMixin",
     "PlayerMixin",
     "PotionSlotMixin"
