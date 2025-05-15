@@ -475,10 +475,6 @@ class CobblemonNeoForge : CobblemonImplementation {
         LootInjector.attemptInjection(e.name) { builder -> e.table.addPool(builder.build()) }
     }
 
-    private fun onRegisterBrewingRecipes(e: RegisterBrewingRecipesEvent) {
-        CobblemonNeoForgeBrewingRegistry.register(e)
-    }
-
     private fun onBuildContents(e: BuildCreativeModeTabContentsEvent) {
         val forgeInject = ForgeItemGroupInject(e)
         CobblemonItemGroups.inject(e.tabKey, forgeInject)
