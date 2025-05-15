@@ -1,16 +1,14 @@
 {
   "ingredient": "minecraft:milk",
   "colour": "white",
-  "mobEffects": {
-    "appliedEffects": [
-      {
-        "effect": "minecraft:instant_health",
-        "duration": 1,
-        "amplifier": 0,
-        "ambient": false,
-        "visible": true,
-        "showIcon": true
-      }
-    ]
-  }
+  "mobEffects": [
+    {
+      "effect": "minecraft:instant_health",
+      "duration": 1,
+      "amplifier": 0,
+      "ambient": false,
+      "visible": true,
+      "showIcon": true
+    }
+  ]
 }
