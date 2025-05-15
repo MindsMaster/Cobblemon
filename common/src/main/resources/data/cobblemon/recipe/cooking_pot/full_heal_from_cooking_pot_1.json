@@ -6,19 +6,7 @@
             "item": "cobblemon:pep_up_flower"
         },
         {
-            "item": "cobblemon:antidote"
-        },
-        {
-            "item": "cobblemon:burn_heal"
-        },
-        {
-            "item": "cobblemon:ice_heal"
-        },
-        {
-            "item": "cobblemon:paralyze_heal"
-        },
-        {
-            "item": "cobblemon:awakening"
+            "tag": "cobblemon:full_heal_ingredients"
         }
     ],
     "result": {

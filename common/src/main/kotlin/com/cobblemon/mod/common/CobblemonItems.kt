@@ -371,19 +371,14 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     val SINISTER_TEA = create("sinister_tea", SinisterTeaItem())
 
     @JvmField
-    val POKE_PUFF = pokepuffItem("poke_puff") // todo make a PokePuffItem class for friendship boosting purposes
+    val POKE_PUFF = pokepuffItem("poke_puff")
 
     // FOODS
     @JvmField
     val SWEET_HEART = noSettingsItem("sweet_heart") // todo make a SweetHeartItem class for breeding purposes
 
     @JvmField
-    val TASTY_TAIL = create("tasty_tail", object : Item(Properties().stacksTo(16)
-            .food(FoodProperties.Builder()
-                    .nutrition(8)
-                    .saturationModifier(12.8F)
-                    .alwaysEdible()
-                    .build())) {})
+    val TASTY_TAIL = noSettingsItem("tasty_tail")
 
     @JvmField
     val PEWTER_CRUNCHIES = create("pewter_crunchies", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
@@ -457,8 +452,8 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
                     .alwaysEdible()
                     .build())) {})
 
-    /*@JvmField // todo see what we are doing for these (are there different kinds?)
-    val CURRY = create("curry", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
+    @JvmField // todo see what we are doing for these (are there different kinds?)
+    val SMOKED_TAIL_CURRY = create("smoked_tail_curry", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
                     .nutrition(10)
                     .saturationModifier(1.2F)
@@ -470,7 +465,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
             user.removeAllEffects()
             return super.finishUsingItem(stack, world, user)
         }
-    })*/
+    })
 
     @JvmField
     val JUBILIFE_MUFFIN = create("jubilife_muffin", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
@@ -481,8 +476,8 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
                     .alwaysEdible()
                     .build())) {})
 
-    /*@JvmField // todo see what we are doing for these (are there different kinds?)
-    val SANDWICH = create("sandwich", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
+    @JvmField // todo see what we are doing for these (are there different kinds?)
+    val OPEN_FACED_SANDWICH = create("open_faced_sandwich", object : Item(Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
             .food(FoodProperties.Builder()
                     .nutrition(10)
                     .saturationModifier(1.2F)
@@ -494,7 +489,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
             user.removeAllEffects()
             return super.finishUsingItem(stack, world, user)
         }
-    })*/
+    })
 
     // todo we might need to wait on these for later?
     /*@JvmField
