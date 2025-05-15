@@ -26,11 +26,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "cobblemon:pep_up_flower"
+          "name": "cobblemon:saccharine_sapling"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "cobblemon:blocks/potted_pep_up_flower"
+  "random_sequence": "cobblemon:blocks/potted_saccharine_sapling"
 }

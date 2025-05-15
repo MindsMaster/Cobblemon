@@ -26,11 +26,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "cobblemon:pep_up_flower"
+          "name": "cobblemon:pink_apricorn_seed"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "cobblemon:blocks/potted_pep_up_flower"
+  "random_sequence": "cobblemon:blocks/potted_pink_apricorn_sapling"
 }
