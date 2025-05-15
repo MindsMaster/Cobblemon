@@ -1,10 +1,10 @@
 {
   "type": "cobblemon:brewing_stand",
   "input": {
-    "id": "cobblemon:lum_berry"
+    "item": "cobblemon:lum_berry"
   },
   "bottle": {
-    "id": "cobblemon:max_potion"
+    "item": "cobblemon:max_potion"
   },
   "result": {
     "id": "cobblemon:full_restore"

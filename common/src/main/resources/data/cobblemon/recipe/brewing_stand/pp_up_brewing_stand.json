@@ -4,9 +4,9 @@
     "item": "cobblemon:vivichoke"
   },
   "bottle": {
-    "item": "cobblemon:hyper_potion"
+    "item": "cobblemon:medicinal_brew"
   },
   "result": {
-    "id": "cobblemon:max_potion"
+    "id": "cobblemon:pp_up"
   }
 }

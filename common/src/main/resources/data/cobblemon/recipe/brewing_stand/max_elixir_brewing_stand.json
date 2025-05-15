@@ -4,9 +4,9 @@
     "item": "cobblemon:pep_up_flower"
   },
   "bottle": {
-    "item": "cobblemon:ether"
+    "item": "cobblemon:elixir"
   },
   "result": {
-    "id": "cobblemon:max_ether"
+    "id": "cobblemon:max_elixir"
   }
 }
