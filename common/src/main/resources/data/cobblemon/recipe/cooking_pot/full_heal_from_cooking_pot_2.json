@@ -3,17 +3,14 @@
     "category": "medicines",
     "ingredients": [
         {
-            "item": "cobblemon:revive"
+            "item": "minecraft:glass_bottle"
         },
         {
-            "item": "cobblemon:revive"
-        },
-        {
-            "item": "cobblemon:vivichoke"
+            "item": "cobblemon:lum_berry"
         }
     ],
     "result": {
-        "id": "cobblemon:max_revive"
+        "id": "cobblemon:full_heal"
     },
     "seasoningProcessors": []
 }

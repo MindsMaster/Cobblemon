@@ -1,0 +1,28 @@
+{
+    "type": "cobblemon:cooking_pot_shapeless",
+    "category": "medicines",
+    "ingredients": [
+        {
+            "item": "cobblemon:pep_up_flower"
+        },
+        {
+            "item": "cobblemon:antidote"
+        },
+        {
+            "item": "cobblemon:burn_heal"
+        },
+        {
+            "item": "cobblemon:ice_heal"
+        },
+        {
+            "item": "cobblemon:paralyze_heal"
+        },
+        {
+            "item": "cobblemon:awakening"
+        }
+    ],
+    "result": {
+        "id": "cobblemon:full_heal"
+    },
+    "seasoningProcessors": []
+}
