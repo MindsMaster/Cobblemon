@@ -383,12 +383,12 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
 
     @JvmField
     val PEWTER_CRUNCHIES = regionalFoodItem("pewter_crunchies", Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
-            .food(FoodProperties.Builder()
-                    .nutrition(10) // todo get final values for this from vera
-                    .saturationModifier(1.2F) // todo get final values for this from vera
-                    .effect(MobEffectInstance(MobEffects.FIRE_RESISTANCE, 900, 0), 1F) // todo get final values for this from vera
-                    .alwaysEdible()
-                    .build()))
+        .food(FoodProperties.Builder()
+            .nutrition(10) // todo get final values for this from vera
+            .saturationModifier(1.2F) // todo get final values for this from vera
+            .effect(MobEffectInstance(MobEffects.ABSORPTION, 900, 0), 1F) // todo get final values for this from vera
+            .alwaysEdible()
+            .build()))
 
     @JvmField
     val RAGE_CANDY_BAR = regionalFoodItem("rage_candy_bar", Properties().stacksTo(16) // todo add all the effects and/or an item class for it for special interactions?
