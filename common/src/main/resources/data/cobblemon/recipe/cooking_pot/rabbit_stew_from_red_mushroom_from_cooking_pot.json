@@ -4,20 +4,20 @@
     "category": "foods",
     "ingredients": [
         {
+            "item": "minecraft:baked_potato"
+        },
+        {
             "item": "minecraft:cooked_rabbit"
         },
         {
-            "item": "minecraft:baked_potato"
+            "item": "minecraft:bowl"
         },
         {
             "item": "minecraft:carrot"
         },
         {
             "item": "minecraft:red_mushroom"
-        },
-		{
-			"item": "minecraft:bowl"
-		}
+        }
     ],
     "result": {
         "id": "minecraft:rabbit_stew",
