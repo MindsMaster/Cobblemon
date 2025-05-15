@@ -1,13 +1,13 @@
 {
   "parent": "cobblemon:recipes/root",
   "criteria": {
-    "has_root": {
+    "has_berry": {
       "conditions": {
         "items": [
           {
             "items": [
-				"cobblemon:big_root"
-			]
+              "cobblemon:micle_berry"
+            ]
           }
         ]
       },
@@ -15,20 +15,20 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "cobblemon:remedy_by_smoking"
+        "recipe": "cobblemon:cooking_pot/x_accuracy_from_cooking_pot"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
-      "has_root",
+      "has_berry",
       "has_the_recipe"
     ]
   ],
   "rewards": {
     "recipes": [
-      "cobblemon:remedy"
+      "cobblemon:cooking_pot/x_accuracy_from_cooking_pot"
     ]
   }
 }

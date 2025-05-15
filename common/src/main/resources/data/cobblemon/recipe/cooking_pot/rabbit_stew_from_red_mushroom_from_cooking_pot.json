@@ -1,5 +1,6 @@
 {
     "type": "cobblemon:cooking_pot_shapeless",
+    "group": "rabbit_stew",
     "category": "foods",
     "ingredients": [
         {
@@ -12,8 +13,11 @@
             "item": "minecraft:carrot"
         },
         {
-            "item": "minecraft:mushroom_stew"
-        }
+            "item": "minecraft:red_mushroom"
+        },
+		{
+			"item": "minecraft:bowl"
+		}
     ],
     "result": {
         "id": "minecraft:rabbit_stew",
