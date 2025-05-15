@@ -915,15 +915,27 @@ open class Pokemon : ShowdownIdentifiable {
         }
     }
 
-    fun feedPokemon(feedCount: Int) {
+    fun feedPokemon(feedCount: Int, playSound: Boolean = true) {
         // get the fullness set to 0 in case something weird happens
         if (this.currentFullness < 0) {
             this.currentFullness = 0
         }
 
         // if pokemon is not full then feed
-        if (this.isFull() == false) {
+        if (!isFull()) {
             this.currentFullness += feedCount
+        }
+
+        // play sounds from the entity
+        if (this.entity != null && playSound) {
+            val fullnessPercent = ((this.currentFullness).toFloat() / (this.getMaxFullness()).toFloat()) * (.5f)
+
+            if (this.currentFullness >= this.getMaxFullness()) {
+                this.entity?.playSound(CobblemonSounds.BERRY_EAT_FULL, 1F, 1F)
+            }
+            else {
+                this.entity?.playSound(CobblemonSounds.BERRY_EAT, 1F, 1F + fullnessPercent)
+            }
         }
 
         // pokemon was fed the first berry so we should reset their metabolism cycle so there is no inconsistencies
@@ -953,7 +965,7 @@ open class Pokemon : ShowdownIdentifiable {
         val speed = this.species.baseStats.getOrDefault(Stats.SPEED,0)
 
         // Base Stat Total for the pokemon
-        val BST = hp + atk + spatk + def + spdef + speed
+        val BST = species.baseStats.values.sum()
 
         // multiplying scaling value
         val multiplier = 4
@@ -976,12 +988,7 @@ open class Pokemon : ShowdownIdentifiable {
 
     // Boolean function that checks if a Pokemon can eat food based on fedTimes
     fun isFull(): Boolean {
-
-        // Check if the pokemon is at max fullness
-        if (currentFullness >= this.getMaxFullness()) {
-            return true
-        }
-        return false
+        return currentFullness >= this.getMaxFullness()
     }
 
     // The value that will increase per second until it hits a Pokemon's metabolism Factor then be set back to zero
@@ -1006,7 +1013,7 @@ open class Pokemon : ShowdownIdentifiable {
             }
 
             //reset the metabolic cycle back to zero (redundant if we always go down by 1, but in case we make it go down faster
-            metabolismCycle = 0
+            this.resetMetabolismCycle()
         }
     }
 

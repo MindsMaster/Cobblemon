@@ -106,7 +106,13 @@ interface PokemonSelectingItem {
         }
     }
 
-    fun canUseOnPokemon(stack: ItemStack, pokemon: Pokemon): Boolean
+    fun canUseOnPokemon(stack: ItemStack, pokemon: Pokemon): Boolean {
+        if (stack.`is`(CobblemonItemTags.POKE_FOOD)) {
+            return !pokemon.isFull()
+        }
+        return true
+    }
+
     fun canUseOnBattlePokemon(stack: ItemStack, battlePokemon: BattlePokemon): Boolean = bagItem!!.canUse(stack, battlePokemon.actor.battle, battlePokemon)
 
     fun interactWithSpecificBattle(player: ServerPlayer, stack: ItemStack, battlePokemon: BattlePokemon): InteractionResultHolder<ItemStack> {
@@ -131,15 +137,8 @@ interface PokemonSelectingItem {
             canSelect = { pk -> canUseOnPokemon(stack, pk) },
             handler = { pk ->
                 if (stack.isHeld(player)) {
-                    if (stack.`is`(CobblemonItemTags.POKE_FOOD)) {
-                        if (!pk.isFull()) {
-                            applyToPokemon(player, stack, pk)
-                            CobblemonCriteria.POKEMON_INTERACT.trigger(player, PokemonInteractContext(pk.species.resourceIdentifier, BuiltInRegistries.ITEM.getKey(stack.item)))
-                        }
-                    } else {
-                        applyToPokemon(player, stack, pk)
-                        CobblemonCriteria.POKEMON_INTERACT.trigger(player, PokemonInteractContext(pk.species.resourceIdentifier, BuiltInRegistries.ITEM.getKey(stack.item)))
-                    }
+                    applyToPokemon(player, stack, pk)
+                    CobblemonCriteria.POKEMON_INTERACT.trigger(player, PokemonInteractContext(pk.species.resourceIdentifier, BuiltInRegistries.ITEM.getKey(stack.item)))
                 }
             }
         )
