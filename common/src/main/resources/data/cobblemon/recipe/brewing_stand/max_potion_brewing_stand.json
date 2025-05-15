@@ -1,0 +1,12 @@
+{
+  "type": "cobblemon:brewing_stand",
+  "input": {
+    "id": "cobblemon:vivichoke"
+  },
+  "bottle": {
+    "id": "cobblemon:hyper_potion"
+  },
+  "result": {
+    "id": "cobblemon:max_potion"
+  }
+}

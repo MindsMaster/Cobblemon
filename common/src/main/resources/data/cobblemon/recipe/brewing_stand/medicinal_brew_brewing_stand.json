@@ -1,12 +1,12 @@
 {
   "type": "cobblemon:brewing_stand",
   "input": {
-    "id": "cobblemon:blue_apricorn"
+    "id": "cobblemon:medicinal_leek"
   },
   "bottle": {
     "id": "minecraft:glass_bottle"
   },
   "result": {
-    "id": "cobblemon:aprijuice_blue"
+    "id": "cobblemon:medicinal_brew"
   }
 }
