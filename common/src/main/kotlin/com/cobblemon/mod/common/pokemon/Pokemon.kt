@@ -910,17 +910,7 @@ open class Pokemon : ShowdownIdentifiable {
             return
         }
 
-        // get the fullness set to 0 in case something weird happens
-        if (this.currentFullness < 0) {
-            this.currentFullness = 0
-        }
-
-        // if pokemon is not full then feed
-        if (!isFull()) {
-            this.currentFullness += feedCount
-            this.currentFullness = this.currentFullness.coerceIn(0,this.getMaxFullness())
-        }
-
+        this.currentFullness = (this.currentFullness + feedCount).coerceIn(0, this.getMaxFullness())
         // play sounds from the entity
         if (this.entity != null && playSound) {
             val fullnessPercent = ((this.currentFullness).toFloat() / (this.getMaxFullness()).toFloat()) * (.5f)

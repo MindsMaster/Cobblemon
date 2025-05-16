@@ -65,9 +65,8 @@ class HealingBerryItem(block: BerryBlock, val amount: () -> ExpressionLike): Ber
     }
 
     override fun applyToBattlePokemon(player: ServerPlayer, stack: ItemStack, battlePokemon: BattlePokemon) {
-        battlePokemon.originalPokemon.feedPokemon(1)
         super.applyToBattlePokemon(player, stack, battlePokemon)
-        battlePokemon.entity?.playSound(CobblemonSounds.BERRY_EAT, 1F, 1F)
+        battlePokemon.originalPokemon.feedPokemon(1)
     }
 
     override fun use(world: Level, user: Player, hand: InteractionHand): InteractionResultHolder<ItemStack> {
