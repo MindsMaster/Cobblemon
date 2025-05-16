@@ -35,13 +35,16 @@ import net.minecraft.world.level.Level
  */
 class FriendshipRaisingBerryItem(block: BerryBlock, val stat: Stat) : BerryItem(block), PokemonSelectingItem {
     override val bagItem = null
-    override fun canUseOnPokemon(stack: ItemStack, pokemon: Pokemon) = pokemon.evs.getOrDefault(stat) > 0 || pokemon.friendship < Cobblemon.config.maxPokemonFriendship
+
+    override fun canUseOnPokemon(stack: ItemStack, pokemon: Pokemon) = (pokemon.evs.getOrDefault(stat) > 0 || pokemon.friendship < Cobblemon.config.maxPokemonFriendship)
+            && super.canUseOnPokemon(stack, pokemon)
+
     override fun applyToPokemon(
         player: ServerPlayer,
         stack: ItemStack,
         pokemon: Pokemon
     ): InteractionResultHolder<ItemStack> {
-        if (pokemon.isFull()) {
+        if (!canUseOnPokemon(stack, pokemon)) {
             return InteractionResultHolder.fail(stack)
         }
 

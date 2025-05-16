@@ -100,7 +100,7 @@ class PokePuffItem : Item(Properties().stacksTo(16)), PokemonSelectingItem {
     }
 
     override fun applyToPokemon(player: ServerPlayer, stack: ItemStack, pokemon: Pokemon): InteractionResultHolder<ItemStack> {
-        if (pokemon.isFull()) {
+        if (!canUseOnPokemon(stack, pokemon)) {
             return InteractionResultHolder.fail(stack)
         }
 
@@ -170,7 +170,7 @@ class PokePuffItem : Item(Properties().stacksTo(16)), PokemonSelectingItem {
 
 
     override fun canUseOnPokemon(stack: ItemStack, pokemon: Pokemon): Boolean {
-        return getFriendshipDelta(stack, pokemon) != 0
+        return getFriendshipDelta(stack, pokemon) != 0 && super.canUseOnPokemon(stack, pokemon)
     }
 
     private fun getFriendshipDelta(stack: ItemStack, pokemon: Pokemon): Int {

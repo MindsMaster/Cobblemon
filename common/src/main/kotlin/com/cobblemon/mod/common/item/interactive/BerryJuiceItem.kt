@@ -38,6 +38,8 @@ class BerryJuiceItem : CobblemonItem(Properties()), PokemonSelectingItem, Healin
     }
 
     override fun canUseOnPokemon(stack: ItemStack, pokemon: Pokemon) = !pokemon.isFullHealth() && pokemon.currentHealth > 0
+            && super.canUseOnPokemon(stack, pokemon)
+
     override fun use(world: Level, user: Player, hand: InteractionHand): InteractionResultHolder<ItemStack> {
         if (user is ServerPlayer) {
             return use(user, user.getItemInHand(hand))
@@ -50,11 +52,10 @@ class BerryJuiceItem : CobblemonItem(Properties()), PokemonSelectingItem, Healin
         stack: ItemStack,
         pokemon: Pokemon
     ): InteractionResultHolder<ItemStack>? {
-        if (pokemon.isFullHealth() || pokemon.isFull()) {
+        if (!canUseOnPokemon(stack, pokemon)) {
             return InteractionResultHolder.fail(stack)
         }
         pokemon.feedPokemon(1)
-        pokemon.currentHealth = Integer.min(pokemon.currentHealth + 20, pokemon.hp)
 
         var amount = Integer.min(pokemon.currentHealth + 20, pokemon.maxHealth)
         CobblemonEvents.POKEMON_HEALED.postThen(PokemonHealedEvent(pokemon, amount, this), { cancelledEvent -> return InteractionResultHolder.fail(stack)}) { event ->

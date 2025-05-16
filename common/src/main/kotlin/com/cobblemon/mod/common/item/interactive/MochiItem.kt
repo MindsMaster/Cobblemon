@@ -21,7 +21,7 @@ class MochiItem(stat: Stats): EVIncreaseItem(stat, 10) {
     override val sound: SoundEvent = CobblemonSounds.MOCHI_USE
 
     override fun applyToPokemon(player: ServerPlayer, stack: ItemStack, pokemon: Pokemon): InteractionResultHolder<ItemStack> {
-        if (pokemon.isFull()) {
+        if (!canUseOnPokemon(stack, pokemon)) {
             return InteractionResultHolder.fail(stack)
         }
 

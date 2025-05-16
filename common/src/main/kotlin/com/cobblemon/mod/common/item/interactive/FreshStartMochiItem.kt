@@ -21,14 +21,16 @@ import net.minecraft.world.level.Level
 
 class FreshStartMochiItem : CobblemonItem(Properties()), PokemonSelectingItem {
     override val bagItem = null
+
     override fun canUseOnPokemon(stack: ItemStack, pokemon: Pokemon) = pokemon.evs.any { it.value > 0 }
+            && super.canUseOnPokemon(stack, pokemon)
 
     override fun applyToPokemon(
         player: ServerPlayer,
         stack: ItemStack,
         pokemon: Pokemon
     ): InteractionResultHolder<ItemStack> {
-        if (pokemon.isFull()) {
+        if (!canUseOnPokemon(stack, pokemon)) {
             return InteractionResultHolder.fail(stack)
         }
 

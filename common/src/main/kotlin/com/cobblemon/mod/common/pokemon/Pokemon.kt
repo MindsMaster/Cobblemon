@@ -891,28 +891,17 @@ open class Pokemon : ShowdownIdentifiable {
     }
 
     // function to return the max hunger for the pokemon
-    fun getMaxFullness(): Int {
-        // get base HP stat of the referenced Pokemon
-        //var baseHP = this.species.baseStats.getOrDefault(Stats.HP,0)
-
-        // get weight of the pokemon
-        var weight = this.species.weight.toDouble()
-
-        //return (baseFullness + scaleFullnessRates(baseHP))
-        return ((getGrassKnotPower(weight) / 10 / 2) + 1)
-    }
+    fun getMaxFullness(): Int = ((getGrassKnotPower(this.species.weight.toDouble()) / 10 / 2) + 1)
 
     // function to get grassKnot power based on weight (in Lbs)
-    fun getGrassKnotPower(weight: Double): Int {
-        return when {
-            weight in 0.1..21.8 -> 20
-            weight in 21.9..54.9 -> 40
-            weight in 55.0..110.1 -> 60
-            weight in 110.2..220.3 -> 80
-            weight in 220.4..440.8 -> 100
-            weight >= 440.9 -> 120
-            else -> 0 // For weights less than 0.1
-        }
+    fun getGrassKnotPower(weight: Double): Int = when {
+        weight in 0.1..21.8 -> 20
+        weight in 21.9..54.9 -> 40
+        weight in 55.0..110.1 -> 60
+        weight in 110.2..220.3 -> 80
+        weight in 220.4..440.8 -> 100
+        weight >= 440.9 -> 120
+        else -> 0 // For weights less than 0.1
     }
 
     fun feedPokemon(feedCount: Int, playSound: Boolean = true) {
@@ -946,22 +935,11 @@ open class Pokemon : ShowdownIdentifiable {
 
     // decrease a pokemon's Fullness value by a certain amount
     fun loseFullness(value: Int) {
-        this.currentFullness -= value
-
-        // handle possible case of fullness being less than 0
-        if (this.currentFullness < 0) {
-            this.currentFullness = 0
-        }
+        this.currentFullness = max(0, this.currentFullness - value)
     }
 
     // Amount of seconds that need to pass for the pokemon to lose 1 fullness value
     fun getMetabolismRate(): Int {
-
-        val hp = this.species.baseStats.getOrDefault(Stats.HP,0)
-        val atk = this.species.baseStats.getOrDefault(Stats.ATTACK,0)
-        val spatk = this.species.baseStats.getOrDefault(Stats.SPECIAL_ATTACK,0)
-        val def = this.species.baseStats.getOrDefault(Stats.DEFENCE,0)
-        val spdef = this.species.baseStats.getOrDefault(Stats.SPECIAL_DEFENCE,0)
         val speed = this.species.baseStats.getOrDefault(Stats.SPEED,0)
 
         // Base Stat Total for the pokemon
@@ -974,22 +952,19 @@ open class Pokemon : ShowdownIdentifiable {
         val baseBerryCount = 20
 
         //rate of metabolism in seconds
-        var metabolismRate = ((baseBerryCount.toDouble() - ((speed.toDouble() / BST.toDouble()) * baseBerryCount.toDouble()) * multiplier.toDouble()) * 60.0).toInt()
+        val metabolismRate = ((baseBerryCount.toDouble() - ((speed.toDouble() / BST.toDouble()) * baseBerryCount.toDouble()) * multiplier.toDouble()) * 60.0).toInt()
 
         // returns value in seconds for the onSecondPassed function
         // check for below 0 value and set to minimum to 1 minute
-        if (metabolismRate <= 0) {
-            return 1    * 60
-        }
-        else {
-            return metabolismRate
+        return if (metabolismRate <= 0) {
+            1 * 60
+        } else {
+            metabolismRate
         }
     }
 
     // Boolean function that checks if a Pokemon can eat food based on fedTimes
-    fun isFull(): Boolean {
-        return currentFullness >= this.getMaxFullness()
-    }
+    fun isFull(): Boolean = currentFullness >= this.getMaxFullness()
 
     // The value that will increase per second until it hits a Pokemon's metabolism Factor then be set back to zero
     var metabolismCycle = 0

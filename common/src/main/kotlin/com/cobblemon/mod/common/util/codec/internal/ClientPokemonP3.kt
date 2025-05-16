@@ -71,7 +71,7 @@ internal data class ClientPokemonP3(
                 Codec.list(ResourceLocation.CODEC).fieldOf(DataKeys.POKEMON_POTENTIAL_MARKS).xmap({ it.toSet() }, { it.toMutableList() }).forGetter(ClientPokemonP3::potentialMarks),
                 Codec.list(Codec.INT).optionalFieldOf(DataKeys.POKEMON_MARKINGS, listOf(0, 0, 0, 0, 0, 0)).forGetter(ClientPokemonP3::markings),
                 Codec.unboundedMap(Codec.STRING, Codec.FLOAT).fieldOf(DataKeys.POKEMON_RIDE_BOOSTS).forGetter(ClientPokemonP3::rideBoosts),
-                Codec.intRange(0, Int.MAX_VALUE).fieldOf(DataKeys.POKEMON_FULLNESS).forGetter(ClientPokemonP3::currentFullness)
+                Codec.intRange(0, 100).fieldOf(DataKeys.POKEMON_FULLNESS).forGetter(ClientPokemonP3::currentFullness)
             ).apply(instance, ::ClientPokemonP3)
         }
 

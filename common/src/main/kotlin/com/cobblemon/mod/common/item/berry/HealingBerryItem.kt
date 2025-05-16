@@ -45,12 +45,14 @@ class HealingBerryItem(block: BerryBlock, val amount: () -> ExpressionLike): Ber
     }
 
     override fun canUseOnPokemon(stack: ItemStack, pokemon: Pokemon) = !pokemon.isFainted() && !pokemon.isFullHealth()
+            && super.canUseOnPokemon(stack, pokemon)
+
     override fun applyToPokemon(
         player: ServerPlayer,
         stack: ItemStack,
         pokemon: Pokemon
     ): InteractionResultHolder<ItemStack>? {
-        if (pokemon.isFullHealth() || pokemon.isFainted() || pokemon.isFull()) {
+        if (!canUseOnPokemon(stack, pokemon)) {
             return InteractionResultHolder.fail(stack)
         }
 

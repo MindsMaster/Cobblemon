@@ -48,8 +48,10 @@ class PPRestoringBerryItem(block: BerryBlock, val amount: () -> ExpressionLike):
 
     override fun canUseOnMove(stack: ItemStack, move: Move) = move.currentPp < move.maxPp
     override fun canUseOnPokemon(stack: ItemStack, pokemon: Pokemon) = pokemon.moveSet.any { canUseOnMove(stack, it) }
+            && super.canUseOnPokemon(stack, pokemon)
+
     override fun applyToPokemon(player: ServerPlayer, stack: ItemStack, pokemon: Pokemon, move: Move) {
-        if (!pokemon.isFull()) {
+        if (canUseOnPokemon(stack, pokemon) && canUseOnMove(stack, move)) {
             pokemon.feedPokemon(1)
             val moveToRecover = pokemon.moveSet.find { it.template == move.template }
             if (moveToRecover != null && moveToRecover.currentPp < moveToRecover.maxPp) {
