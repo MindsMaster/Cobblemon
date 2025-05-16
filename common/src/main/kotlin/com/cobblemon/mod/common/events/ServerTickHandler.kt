@@ -28,12 +28,6 @@ object ServerTickHandler {
             // Party tick
             for (player in server.playerList.players) {
                 player.party().onSecondPassed(player)
-                for (pokemon in player.party()) {
-                    // only run on player owned party pokemon who have a fullness value above 0 to save on resources for the server
-                    if (pokemon.currentFullness > 0) {
-                        pokemon.tickMetabolism()
-                    }
-                }
             }
         }
     }

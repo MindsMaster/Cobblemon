@@ -49,13 +49,7 @@ class StatusCuringBerryItem(block: BerryBlock, vararg val status: Status): Berry
         return if (currentStatus != null && (status.isEmpty() || currentStatus in status)) {
             pokemon.feedPokemon(1)
             pokemon.status = null
-            val fullnessPercent = ((pokemon.currentFullness).toFloat() / (pokemon.getMaxFullness()).toFloat()) * (.5).toFloat()
-            if (pokemon.currentFullness >= pokemon.getMaxFullness()) {
-                player.playSound(CobblemonSounds.BERRY_EAT_FULL, 1F, 1F)
-            }
-            else {
-                player.playSound(CobblemonSounds.BERRY_EAT, 1F, 1F + fullnessPercent)
-            }
+
             pokemon.entity?.playSound(CobblemonSounds.BERRY_EAT, 1F, 1F)
             if (!player.isCreative) {
                 stack.shrink(1)

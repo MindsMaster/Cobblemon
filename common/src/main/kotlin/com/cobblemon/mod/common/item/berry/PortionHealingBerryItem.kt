@@ -59,16 +59,7 @@ class PortionHealingBerryItem(block: BerryBlock, val canCauseConfusion: Boolean,
 
         // count these berries as multiple feedings due to the amount they heal
         pokemon.feedPokemon(5)
-
-        val fullnessPercent = ((pokemon.currentFullness).toFloat() / (pokemon.getMaxFullness()).toFloat()) * (.5).toFloat()
-
         pokemon.currentHealth = Integer.min(pokemon.currentHealth + (genericRuntime.resolveFloat(portion(), pokemon) * pokemon.hp).toInt(), pokemon.hp)
-        if (pokemon.currentFullness >= pokemon.getMaxFullness()) {
-            player.playSound(CobblemonSounds.BERRY_EAT_FULL, 1F, 1F)
-        }
-        else {
-            player.playSound(CobblemonSounds.BERRY_EAT, 1F, 1F + fullnessPercent)
-        }
 
         var amount = Integer.min(pokemon.currentHealth + (genericRuntime.resolveFloat(portion(), pokemon) * pokemon.maxHealth).toInt(), pokemon.maxHealth)
         CobblemonEvents.POKEMON_HEALED.postThen(PokemonHealedEvent(pokemon, amount, this), { cancelledEvent -> return InteractionResultHolder.fail(stack)}) { event ->

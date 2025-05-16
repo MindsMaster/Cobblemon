@@ -54,15 +54,7 @@ class BerryJuiceItem : CobblemonItem(Properties()), PokemonSelectingItem, Healin
             return InteractionResultHolder.fail(stack)
         }
         pokemon.feedPokemon(1)
-        val fullnessPercent = ((pokemon.currentFullness).toFloat() / (pokemon.getMaxFullness()).toFloat()) * (.5).toFloat()
-
         pokemon.currentHealth = Integer.min(pokemon.currentHealth + 20, pokemon.hp)
-        if (pokemon.currentFullness >= pokemon.getMaxFullness()) {
-            player.playSound(CobblemonSounds.BERRY_EAT_FULL,1F, 1F)
-        }
-        else {
-            player.playSound(CobblemonSounds.BERRY_EAT,1F, 1F + fullnessPercent)
-        }
 
         var amount = Integer.min(pokemon.currentHealth + 20, pokemon.maxHealth)
         CobblemonEvents.POKEMON_HEALED.postThen(PokemonHealedEvent(pokemon, amount, this), { cancelledEvent -> return InteractionResultHolder.fail(stack)}) { event ->
