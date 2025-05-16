@@ -75,6 +75,7 @@ class BerryJuiceItem : CobblemonItem(Properties()), PokemonSelectingItem, Healin
     }
 
     override fun applyToBattlePokemon(player: ServerPlayer, stack: ItemStack, battlePokemon: BattlePokemon) {
+        battlePokemon.originalPokemon.feedPokemon(1)
         super.applyToBattlePokemon(player, stack, battlePokemon)
         player.playSound(CobblemonSounds.BERRY_EAT, 1F, 1F)
         if (!player.isCreative)  {

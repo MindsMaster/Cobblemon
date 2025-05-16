@@ -63,6 +63,7 @@ class StatusCuringBerryItem(block: BerryBlock, vararg val status: Status): Berry
     }
 
     override fun applyToBattlePokemon(player: ServerPlayer, stack: ItemStack, battlePokemon: BattlePokemon) {
+        battlePokemon.originalPokemon.feedPokemon(1)
         super.applyToBattlePokemon(player, stack, battlePokemon)
         battlePokemon.entity?.playSound(CobblemonSounds.BERRY_EAT, 1F, 1F)
     }

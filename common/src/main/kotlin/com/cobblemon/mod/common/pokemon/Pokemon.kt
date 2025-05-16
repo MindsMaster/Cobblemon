@@ -905,6 +905,11 @@ open class Pokemon : ShowdownIdentifiable {
     }
 
     fun feedPokemon(feedCount: Int, playSound: Boolean = true) {
+        // if it is already full we don't need to do anything (this will likely only ever happen when feeding in battle since we check for fullness already anyways elsewhere)
+        if (isFull()) {
+            return
+        }
+
         // get the fullness set to 0 in case something weird happens
         if (this.currentFullness < 0) {
             this.currentFullness = 0
@@ -913,6 +918,7 @@ open class Pokemon : ShowdownIdentifiable {
         // if pokemon is not full then feed
         if (!isFull()) {
             this.currentFullness += feedCount
+            this.currentFullness.coerceIn(0,this.getMaxFullness())
         }
 
         // play sounds from the entity
