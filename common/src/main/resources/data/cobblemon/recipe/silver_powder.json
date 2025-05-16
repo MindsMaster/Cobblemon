@@ -2,16 +2,19 @@
     "type": "minecraft:crafting_shapeless",
     "ingredients": [
         {
+            "item": "cobblemon:bug_gem"
+        },
+        {
             "tag": "c:nuggets/iron"
         },
         {
-            "tag": "c:ingots/iron"
+            "tag": "c:strings"
         },
         {
-            "item": "cobblemon:psychic_gem"
+            "item": "minecraft:paper"
         }
     ],
     "result": {
-        "id": "cobblemon:twisted_spoon"
+        "id": "cobblemon:silver_powder"
     }
 }

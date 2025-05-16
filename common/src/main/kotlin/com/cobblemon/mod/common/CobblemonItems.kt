@@ -351,19 +351,19 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
 
     val aprijuices = mutableListOf<AprijuiceItem>()
     @JvmField
-    val APRIJUICE_BLACK = aprijuiceItem(Apricorn.BLACK)
-    @JvmField
     val APRIJUICE_RED = aprijuiceItem(Apricorn.RED)
-    @JvmField
-    val APRIJUICE_BLUE = aprijuiceItem(Apricorn.BLUE)
-    @JvmField
-    val APRIJUICE_GREEN = aprijuiceItem(Apricorn.GREEN)
     @JvmField
     val APRIJUICE_YELLOW = aprijuiceItem(Apricorn.YELLOW)
     @JvmField
-    val APRIJUICE_WHITE = aprijuiceItem(Apricorn.WHITE)
+    val APRIJUICE_GREEN = aprijuiceItem(Apricorn.GREEN)
+    @JvmField
+    val APRIJUICE_BLUE = aprijuiceItem(Apricorn.BLUE)
     @JvmField
     val APRIJUICE_PINK = aprijuiceItem(Apricorn.PINK)
+    @JvmField
+    val APRIJUICE_BLACK = aprijuiceItem(Apricorn.BLACK)
+    @JvmField
+    val APRIJUICE_WHITE = aprijuiceItem(Apricorn.WHITE)
 
     @JvmField
     val PONIGIRI = create("ponigiri", PonigiriItem())

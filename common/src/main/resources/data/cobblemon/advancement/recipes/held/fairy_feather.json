@@ -6,7 +6,7 @@
         "items": [
           {
             "items": [
-              "cobblemon:ghost_gem"
+              "cobblemon:fairy_gem"
             ]
           }
         ]
@@ -15,7 +15,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "cobblemon:spell_tag"
+        "recipe": "cobblemon:fairy_feather"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -28,7 +28,7 @@
   ],
   "rewards": {
     "recipes": [
-      "cobblemon:spell_tag"
+      "cobblemon:fairy_feather"
     ]
   }
 }
