@@ -13,19 +13,21 @@ import com.cobblemon.mod.common.CobblemonRecipeTypes
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
+import mezz.jei.api.recipe.vanilla.IJeiBrewingRecipe
+import net.minecraft.client.Minecraft
 import net.minecraft.core.HolderLookup
-import net.minecraft.core.registries.Registries
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.network.codec.StreamCodec
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.crafting.Ingredient
 import net.minecraft.world.item.crafting.Recipe
 import net.minecraft.world.item.crafting.RecipeSerializer
 import net.minecraft.world.level.Level
 
 class BrewingStandRecipe(
     val groupName: String,
-    val input: ItemStack,
-    val bottle: ItemStack,
+    val input: Ingredient,
+    val bottle: Ingredient,
     val result: ItemStack
 ) : Recipe<BrewingStandInput> {
 
@@ -36,20 +38,57 @@ class BrewingStandRecipe(
     override fun getResultItem(registries: HolderLookup.Provider): ItemStack? = result.copy()
 
     override fun matches(input: BrewingStandInput, level: Level): Boolean {
-        val ingredientMatches = input.getIngredient().`is`(this.input.item)
-        val bottles = input.getBottles()
-        val validBottles = bottles.filter { !it.isEmpty }.all { it.`is`(bottle.item) }
+        val ingredientMatches = this.input.test(input.getIngredient())
+        val validBottles = input.getBottles()
+            .filter { !it.isEmpty }
+            .all { this.bottle.test(it) }
 
         return ingredientMatches && validBottles
     }
-    
+
+    companion object {
+        fun isBottle(itemStack: ItemStack): Boolean {
+            val level = Minecraft.getInstance().level
+            if (level == null) {
+                return true
+            }
+            return isBottle(itemStack, level)
+        }
+
+        fun isInput(itemStack: ItemStack): Boolean {
+            val level = Minecraft.getInstance().level
+            if (level == null) {
+                return true
+            }
+            return isInput(itemStack, level)
+        }
+        
+        fun isBottle(itemStack: ItemStack, level: Level): Boolean {
+            val manager = level.recipeManager
+            val recipes = manager.getAllRecipesFor(CobblemonRecipeTypes.BREWING_STAND)
+
+            return recipes.any { recipe ->
+                recipe.value.bottle.test(itemStack)
+            }
+        }
+
+        fun isInput(itemStack: ItemStack, level: Level): Boolean {
+            val manager = level.recipeManager
+            val recipes = manager.getAllRecipesFor(CobblemonRecipeTypes.BREWING_STAND)
+
+            return recipes.any { recipe ->
+                recipe.value.input.test(itemStack)
+            }
+        }
+    }
+
     class Serializer : RecipeSerializer<BrewingStandRecipe> {
         companion object {
             val CODEC: MapCodec<BrewingStandRecipe> = RecordCodecBuilder.mapCodec { instance ->
                 instance.group(
                     Codec.STRING.optionalFieldOf("group", "").forGetter { recipe -> recipe.groupName },
-                    ItemStack.STRICT_CODEC.fieldOf("input").forGetter { recipe -> recipe.input },
-                    ItemStack.STRICT_CODEC.fieldOf("bottle").forGetter { recipe -> recipe.bottle },
+                    Ingredient.CODEC.fieldOf("input").forGetter { recipe -> recipe.input },
+                    Ingredient.CODEC.fieldOf("bottle").forGetter { recipe -> recipe.bottle },
                     ItemStack.STRICT_CODEC.fieldOf("result").forGetter { recipe -> recipe.result }
                 ).apply(instance, ::BrewingStandRecipe)
             }
@@ -59,16 +98,16 @@ class BrewingStandRecipe(
 
             private fun fromNetwork(buffer: RegistryFriendlyByteBuf): BrewingStandRecipe {
                 val group = buffer.readUtf(32767)
-                val input = ItemStack.STREAM_CODEC.decode(buffer)
-                val bottle = ItemStack.STREAM_CODEC.decode(buffer)
+                val input = Ingredient.CONTENTS_STREAM_CODEC.decode(buffer)
+                val bottle = Ingredient.CONTENTS_STREAM_CODEC.decode(buffer)
                 val result = ItemStack.STREAM_CODEC.decode(buffer)
                 return BrewingStandRecipe(group, input, bottle, result)
             }
 
             private fun toNetwork(buffer: RegistryFriendlyByteBuf, recipe: BrewingStandRecipe) {
                 buffer.writeUtf(recipe.groupName)
-                ItemStack.STREAM_CODEC.encode(buffer, recipe.input)
-                ItemStack.STREAM_CODEC.encode(buffer, recipe.bottle)
+                Ingredient.CONTENTS_STREAM_CODEC.encode(buffer, recipe.input)
+                Ingredient.CONTENTS_STREAM_CODEC.encode(buffer, recipe.bottle)
                 ItemStack.STREAM_CODEC.encode(buffer, recipe.result)
             }
         }

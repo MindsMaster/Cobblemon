@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.integration.jei
 
 import com.cobblemon.mod.common.integration.jei.berry.BerryMutationProvider
+import com.cobblemon.mod.common.integration.jei.brewing.BrewingStandJeiProvider
 import com.cobblemon.mod.common.integration.jei.cooking.CampfirePotJeiProvider
 import com.cobblemon.mod.common.util.cobblemonResource
 import mezz.jei.api.IModPlugin
@@ -38,6 +39,9 @@ class CobblemonJeiPlugin : IModPlugin {
         jeiProviders.forEach {
             it.registerRecipes(registration)
         }
+
+        // Manually do it since it injects into the JEI Category
+        BrewingStandJeiProvider.registerRecipes(registration)
     }
 
     companion object {
