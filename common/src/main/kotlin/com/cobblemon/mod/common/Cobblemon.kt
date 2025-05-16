@@ -285,11 +285,6 @@ object Cobblemon {
             event.newFriendship = event.pokemon.friendship + increment.roundToInt()
         }
 
-        CobblemonEvents.FULLNESS_UPDATED.subscribe(Priority.LOWEST) { event ->
-            event.newFullness = event.newFullness.coerceAtMost(100)
-        }
-
-
         HeldItemProvider.register(CobblemonHeldItemManager, Priority.LOWEST)
     }
 
