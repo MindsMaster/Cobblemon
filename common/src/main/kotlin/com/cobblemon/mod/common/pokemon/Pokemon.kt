@@ -918,7 +918,7 @@ open class Pokemon : ShowdownIdentifiable {
         // if pokemon is not full then feed
         if (!isFull()) {
             this.currentFullness += feedCount
-            this.currentFullness.coerceIn(0,this.getMaxFullness())
+            this.currentFullness = this.currentFullness.coerceIn(0,this.getMaxFullness())
         }
 
         // play sounds from the entity
