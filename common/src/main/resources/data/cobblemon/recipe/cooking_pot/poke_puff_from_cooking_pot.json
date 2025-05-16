@@ -1,9 +1,21 @@
 {
     "type": "cobblemon:cooking_pot_shapeless",
-    "category": "foods",
+    "category": "baits",
     "ingredients": [
         {
-            "item": "minecraft:sugar"
+            "item": "minecraft:wheat"
+        },
+        {
+            "item": "minecraft:wheat"
+        },
+        {
+            "item": "minecraft:wheat"
+        },
+        {
+            "item": "minecraft:milk_bucket"
+        },
+        {
+            "item": "minecraft:egg"
         }
     ],
     "result": {
