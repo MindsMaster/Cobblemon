@@ -57,6 +57,8 @@
 - Musharna
 - Blitzle
 - Zebstrika
+- Drilbur
+- Excadrill
 - Trubbish
 - Garbodor
 - Gothita
