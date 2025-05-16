@@ -4,7 +4,7 @@
     "item": "cobblemon:rawst_berry"
   },
   "bottle": {
-    "item": "minecraft:empty_bottle"
+    "item": "minecraft:glass_bottle"
   },
   "result": {
     "id": "cobblemon:burn_heal"

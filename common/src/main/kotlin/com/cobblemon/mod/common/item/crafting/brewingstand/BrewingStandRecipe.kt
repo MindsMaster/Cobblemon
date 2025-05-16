@@ -44,6 +44,27 @@ class BrewingStandRecipe(
 
         return ingredientMatches && validBottles
     }
+
+    companion object {
+        fun isBottle(itemStack: ItemStack, level: Level): Boolean {
+            val manager = level.recipeManager
+            val recipes = manager.getAllRecipesFor(CobblemonRecipeTypes.BREWING_STAND)
+
+            return recipes.any { recipe ->
+                recipe.value.bottle.test(itemStack)
+            }
+        }
+
+        fun isInput(itemStack: ItemStack, level: Level): Boolean {
+            val manager = level.recipeManager
+            val recipes = manager.getAllRecipesFor(CobblemonRecipeTypes.BREWING_STAND)
+
+            return recipes.any { recipe ->
+                recipe.value.input.test(itemStack)
+            }
+        }
+
+    }
     
     class Serializer : RecipeSerializer<BrewingStandRecipe> {
         companion object {

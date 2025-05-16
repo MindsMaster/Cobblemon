@@ -4,7 +4,7 @@
     "item": "cobblemon:lum_berry"
   },
   "bottle": {
-    "item": "minecraft:empty_bottle"
+    "item": "minecraft:glass_bottle"
   },
   "result": {
     "id": "cobblemon:full_heal"
