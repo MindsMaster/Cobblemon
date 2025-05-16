@@ -8,6 +8,7 @@
 
 package com.cobblemon.mod.common.mixin.brewing;
 
+import com.cobblemon.mod.common.item.crafting.brewingstand.BrewingStandRecipe;
 import net.minecraft.world.inventory.BrewingStandMenu;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,7 +24,7 @@ public class PotionSlotMixin {
 			cancellable = true
 	)
 	private void cobblemon$mayPlace(ItemStack stack, CallbackInfoReturnable<Boolean> cir) {
-		cir.setReturnValue(true);
+		cir.setReturnValue(BrewingStandRecipe.Companion.isBottle(stack));
 		cir.cancel();
 	}
 }

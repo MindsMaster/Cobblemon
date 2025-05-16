@@ -13,8 +13,9 @@ import com.cobblemon.mod.common.CobblemonRecipeTypes
 import com.mojang.serialization.Codec
 import com.mojang.serialization.MapCodec
 import com.mojang.serialization.codecs.RecordCodecBuilder
+import mezz.jei.api.recipe.vanilla.IJeiBrewingRecipe
+import net.minecraft.client.Minecraft
 import net.minecraft.core.HolderLookup
-import net.minecraft.core.registries.Registries
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.network.codec.StreamCodec
 import net.minecraft.world.item.ItemStack
@@ -46,6 +47,22 @@ class BrewingStandRecipe(
     }
 
     companion object {
+        fun isBottle(itemStack: ItemStack): Boolean {
+            val level = Minecraft.getInstance().level
+            if (level == null) {
+                return true
+            }
+            return isBottle(itemStack, level)
+        }
+
+        fun isInput(itemStack: ItemStack): Boolean {
+            val level = Minecraft.getInstance().level
+            if (level == null) {
+                return true
+            }
+            return isInput(itemStack, level)
+        }
+        
         fun isBottle(itemStack: ItemStack, level: Level): Boolean {
             val manager = level.recipeManager
             val recipes = manager.getAllRecipesFor(CobblemonRecipeTypes.BREWING_STAND)
@@ -63,9 +80,8 @@ class BrewingStandRecipe(
                 recipe.value.input.test(itemStack)
             }
         }
-
     }
-    
+
     class Serializer : RecipeSerializer<BrewingStandRecipe> {
         companion object {
             val CODEC: MapCodec<BrewingStandRecipe> = RecordCodecBuilder.mapCodec { instance ->
