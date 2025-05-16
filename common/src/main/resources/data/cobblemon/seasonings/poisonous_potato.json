@@ -5,16 +5,14 @@
     "hunger": 2,
     "saturation": 1.2
   },
-  "mobEffects": {
-    "appliedEffects": [
-      {
-        "effect": "minecraft:poison",
-        "duration": 100,
-        "amplifier": 0,
-        "ambient": false,
-        "visible": true,
-        "showIcon": true
-      }
-    ]
-  }
+  "mobEffects": [
+    {
+      "effect": "minecraft:poison",
+      "duration": 100,
+      "amplifier": 0,
+      "ambient": false,
+      "visible": true,
+      "showIcon": true
+    }
+  ]
 }
