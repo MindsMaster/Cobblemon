@@ -83,7 +83,8 @@ class AprijuiceItem(val type: Apricorn): CobblemonItem(Properties().stacksTo(16)
     }
 
     override fun canUseOnPokemon(stack: ItemStack, pokemon: Pokemon): Boolean {
-        return getBoosts(stack, pokemon).any { pokemon.canAddRideBoost(it.key, it.value) }
+        val boosts = getBoosts(stack, pokemon)
+        return boosts.isNotEmpty() && boosts.any { pokemon.canAddRideBoost(it.key, it.value) } && super.canUseOnPokemon(stack, pokemon)
     }
 
     fun getBoosts(stack: ItemStack, pokemon: Pokemon): Map<RidingStat, Float> {
@@ -101,20 +102,17 @@ class AprijuiceItem(val type: Apricorn): CobblemonItem(Properties().stacksTo(16)
         stack: ItemStack,
         pokemon: Pokemon
     ): InteractionResultHolder<ItemStack>? {
-        val boosts = getBoosts(stack, pokemon)
-        if (boosts.isEmpty()) {
-            return InteractionResultHolder.fail(stack)
-        }
-
         if (!canUseOnPokemon(stack, pokemon)) {
             return InteractionResultHolder.fail(stack)
         }
+        val boosts = getBoosts(stack, pokemon)
+        // Feed the Pokémon 1 fullness point
+        pokemon.feedPokemon(1)
 
         boosts.forEach { (stat, value) ->
             pokemon.addRideBoost(stat, value)
         }
 
-        pokemon.entity?.playSound(CobblemonSounds.BERRY_EAT, 1F, 1F)
         if (!player.isCreative) {
             stack.shrink(1)
         }
