@@ -784,7 +784,10 @@ open class PokemonEntity(
                 pokemon = this.createSidedPokemon()
                 health = 0F
             }
-        } else {
+        } else if(pokemon == null) {
+            // when the vanilla /data merge command is used, it will also run through this load method
+            // and if we are not careful here, the pokemon instance will get rebuilt from scratch
+            // this will fuck with storages, as they are tied to these very pokemon instances and their observables
             val ops = registryAccess().createSerializationContext(NbtOps.INSTANCE)
             pokemon = try {
                 this.sidedCodec().decode(ops, nbt.getCompound(DataKeys.POKEMON)).orThrow.first

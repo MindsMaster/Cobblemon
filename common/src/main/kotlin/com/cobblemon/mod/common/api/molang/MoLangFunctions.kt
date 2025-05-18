@@ -619,8 +619,9 @@ object MoLangFunctions {
             map.put("biome") { _ -> entity.level().getBiome(entity.blockPosition()).asBiomeMoLangValue() }
             map.put("is_passenger") { DoubleValue(entity.isPassenger) }
             map.put("find_nearby_block") { params ->
-                val type = params.getString(0).asIdentifierDefaultingNamespace(namespace = "minecraft")
-                val isTag = type.path.startsWith("#")
+                val input = params.getString(0)
+                val isTag = input.contains("#")
+                val type = input.replace("#", "").asIdentifierDefaultingNamespace(namespace = "minecraft")
                 val range = params.getDoubleOrNull(1) ?: 10
                 val blockPos = entity.level().getBlockStatesWithPos(AABB.ofSize(entity.position(), range.toDouble(), range.toDouble(), range.toDouble()))
                     .filter { it.first.blockHolder.let { if (isTag) it.`is`(TagKey.create(Registries.BLOCK, type)) else it.`is`(type) } }

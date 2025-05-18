@@ -1,7 +1,13 @@
 {
     "type": "cobblemon:cooking_pot_shapeless",
-    "category": "foods",
+    "category": "complex_dishes",
     "ingredients": [
+        {
+            "item": "cobblemon:hearty_grains"
+        },
+        {
+            "item": "cobblemon:hearty_grains"
+        },
         {
             "item": "cobblemon:hearty_grains"
         },
@@ -11,7 +17,7 @@
     ],
     "result": {
         "id": "cobblemon:ponigiri",
-        "count": 1
+        "count": 3
     },
     "seasoningProcessors": [
         "ingredient",
