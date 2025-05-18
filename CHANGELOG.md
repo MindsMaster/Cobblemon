@@ -34,6 +34,8 @@
 - Grumpig
 - Snorunt
 - Glalie
+- Latias
+- Latios
 
 #### Gen 4
 - Bronzor
@@ -55,6 +57,8 @@
 - Musharna
 - Blitzle
 - Zebstrika
+- Drilbur
+- Excadrill
 - Trubbish
 - Garbodor
 - Gothita
@@ -270,6 +274,7 @@
 - The Pokédex form lang key definition now follows `cobblemon.ui.pokedex.info.form.{species}-{formname}` instead of `cobblemon.ui.pokedex.info.form.{formname}`.
 - Added `labels` & `has_label` as available Molang functions for the `speciesFunctions`
 - Added datapack-defined starter categories via `data/<namespace>/starters/*.json`, with built-in fallback and `useConfigStarters` merge option.
+- Fixed `entity.find_nearby_block` causing crashes when attempting to use a block tag
 
 ## [1.6.1 (January 26th, 2025)](#1-6-1)
 

@@ -1,8 +1,8 @@
 {
-  "portraitScale": 3,
-  "portraitTranslation": [-0.8, -0.8, 0],
-  "profileScale": 1.2,
-  "profileTranslation": [0, -0.01, 0],
+  "portraitScale": 3.17,
+  "portraitTranslation": [-0.74, -0.11, 0],
+  "profileScale": 0.73,
+  "profileTranslation": [0.09, 0.72, 0],
   "rootBone": "swellow",
   "animations": {
     "cry": "q.bedrock_stateful('swellow', 'cry')"

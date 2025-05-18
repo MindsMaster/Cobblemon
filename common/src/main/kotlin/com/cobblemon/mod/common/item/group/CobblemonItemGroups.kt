@@ -482,6 +482,7 @@ object CobblemonItemGroups {
         entries.accept(CobblemonItems.JOLLY_MINT)
         entries.accept(CobblemonItems.NAIVE_MINT)
         entries.accept(CobblemonItems.SERIOUS_MINT)
+        entries.accept(CobblemonItems.MOOMOO_MILK)
 
         entries.accept(CobblemonItems.ABILITY_CAPSULE)
         entries.accept(CobblemonItems.ABILITY_PATCH)

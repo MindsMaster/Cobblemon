@@ -1,8 +1,8 @@
 {
-  "portraitScale": 3.5,
-  "portraitTranslation": [-0.2, -2.5, 0],
-  "profileScale": 1.2,
-  "profileTranslation": [0, -0.01, 0],
+  "portraitScale": 2.9,
+  "portraitTranslation": [-0.42, -1.54, 0],
+  "profileScale": 0.77,
+  "profileTranslation": [0, 0.63, 0],
   "rootBone": "taillow",
   "animations": {
     "cry": "q.bedrock_stateful('taillow', 'cry')"
