@@ -1,13 +1,13 @@
 {
   "variants": {
     "age=0,part=lower": { "model": "cobblemon:block/hearty_grains_stage_0" },
-    "age=4,part=upper": { "model": "cobblemon:block/hearty_grains_stage_4_top" },
+    "age=0,part=upper": { "model": "cobblemon:block/hearty_grains_stage_4_top" },
     "age=1,part=lower": { "model": "cobblemon:block/hearty_grains_stage_1" },
-    "age=4,part=upper": { "model": "cobblemon:block/hearty_grains_stage_4_top" },
+    "age=1,part=upper": { "model": "cobblemon:block/hearty_grains_stage_4_top" },
     "age=2,part=lower": { "model": "cobblemon:block/hearty_grains_stage_2" },
-    "age=4,part=upper": { "model": "cobblemon:block/hearty_grains_stage_4_top" },
+    "age=2,part=upper": { "model": "cobblemon:block/hearty_grains_stage_4_top" },
     "age=3,part=lower": { "model": "cobblemon:block/hearty_grains_stage_3_bottom" },
-    "age=4,part=upper": { "model": "cobblemon:block/hearty_grains_stage_4_top" },
+    "age=3,part=upper": { "model": "cobblemon:block/hearty_grains_stage_4_top" },
     "age=4,part=lower": { "model": "cobblemon:block/hearty_grains_stage_4_bottom" },
     "age=4,part=upper": { "model": "cobblemon:block/hearty_grains_stage_4_top" },
     "age=5,part=lower": { "model": "cobblemon:block/hearty_grains_stage_5_bottom" },
