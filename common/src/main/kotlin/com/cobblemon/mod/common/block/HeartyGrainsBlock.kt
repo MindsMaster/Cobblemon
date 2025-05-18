@@ -19,6 +19,7 @@ import net.minecraft.util.RandomSource
 import net.minecraft.util.StringRepresentable
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.context.BlockPlaceContext
 import net.minecraft.world.level.BlockGetter
 import net.minecraft.world.level.ItemLike
 import net.minecraft.world.level.Level
@@ -27,6 +28,7 @@ import net.minecraft.world.level.LevelReader
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.CropBlock
+import net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING
 import net.minecraft.world.level.block.SimpleWaterloggedBlock
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
@@ -45,7 +47,7 @@ class HeartyGrainsBlock(settings: Properties) : CropBlock(settings), SimpleWater
 
     override fun getMaxAge(): Int = MATURE_AGE
 
-    private val ageAfterHarvest = 3
+    private val ageAfterHarvest = 4
 
     override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
         builder.add(AGE, PART, WATERLOGGED)
@@ -69,7 +71,7 @@ class HeartyGrainsBlock(settings: Properties) : CropBlock(settings), SimpleWater
             val newAge = state.getValue(AGE) + 1
             world.setBlock(pos, state.setValue(AGE, newAge), UPDATE_CLIENTS)
 
-            if (newAge == MATURE_AGE) {
+            if (newAge == 5) {
                 val abovePos = pos.above()
                 if (world.getBlockState(abovePos).isAir) {
                     world.setBlock(
@@ -184,9 +186,9 @@ class HeartyGrainsBlock(settings: Properties) : CropBlock(settings), SimpleWater
 
     companion object {
         val CODEC = simpleCodec(::HeartyGrainsBlock)
-        const val MATURE_AGE = 4
+        const val MATURE_AGE = 7
         val WATERLOGGED = BlockStateProperties.WATERLOGGED
-        val AGE: IntegerProperty = BlockStateProperties.AGE_4
+        val AGE: IntegerProperty = BlockStateProperties.AGE_7
         val PART: EnumProperty<Part> = EnumProperty.create("part", Part::class.java)
 
         val AGE_TO_SHAPE = arrayOf(
@@ -194,7 +196,10 @@ class HeartyGrainsBlock(settings: Properties) : CropBlock(settings), SimpleWater
             box(2.0, 0.0, 0.0, 16.0, 17.0, 16.0), // Stage 2
             box(2.0, 0.0, 0.0, 16.0, 17.0, 16.0), // Stage 3
             box(2.0, 0.0, 0.0, 16.0, 17.0, 16.0), // Stage 4 (Bottom)
-            box(2.0, 0.0, 0.0, 16.0, 17.0, 16.0)  // Stage 5 (Bottom)
+            box(2.0, 0.0, 0.0, 16.0, 17.0, 16.0),  // Stage 5 (Bottom)
+            box(2.0, 0.0, 0.0, 16.0, 17.0, 16.0),  // Stage 6 (Bottom)
+            box(2.0, 0.0, 0.0, 16.0, 17.0, 16.0),  // Stage 7 (Bottom)
+            box(2.0, 0.0, 0.0, 16.0, 17.0, 16.0)  // Stage 8 (Bottom)
         )
     }
 
