@@ -292,6 +292,7 @@ object CobblemonItemGroups {
         entries.accept(CobblemonItems.SACCHARINE_LEAVES)
         //entries.accept(CobblemonItems.SACCHARINE_SAPLING)
 
+        entries.accept(CobblemonItems.HEARTY_GRAIN_BALE)
 
         entries.accept(CobblemonItems.TUMBLESTONE_BLOCK)
         entries.accept(CobblemonItems.BLACK_TUMBLESTONE_BLOCK)

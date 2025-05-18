@@ -532,6 +532,9 @@ object CobblemonBlocks : PlatformRegistry<Registry<Block>, ResourceKey<Registry<
     @JvmField
     val POTTED_SACCHARINE_SAPLING = this.create("potted_saccharine_sapling", BlocksInvoker.createFlowerPotBlock(SACCHARINE_SAPLING))
 
+    @JvmField
+    val HEARTY_GRAIN_BALE = this.create("hearty_grain_bale", HeartyGrainBaleBlock(BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).instrument(NoteBlockInstrument.BANJO).strength(0.5F).sound(SoundType.GRASS)))
+
     /**
      * Returns a map of all the blocks that can be stripped with an axe in the format of input - output.
      *
