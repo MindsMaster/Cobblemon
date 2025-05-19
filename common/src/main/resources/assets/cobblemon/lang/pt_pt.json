@@ -5047,5 +5047,10 @@
     "cobblemon.ability.cudchew": "Ruminante",
     "cobblemon.ability.cudchew.desc": "Quando o Pokémon come uma Baga, ele regurgita essa Baga no final do turno seguinte e come-a mais uma vez.",
     "cobblemon.ability.mindseye": "Olho Mental",
-    "cobblemon.ability.mindseye.desc": "O Pokémon ignora as alterações da evasão dos adversários, a sua precisão não pode ser diminuída e consegue atingir tipos Fantasma com movimentos de tipo Normal e Lutador."
+    "cobblemon.ability.mindseye.desc": "O Pokémon ignora as alterações da evasão dos adversários, a sua precisão não pode ser diminuída e consegue atingir tipos Fantasma com movimentos de tipo Normal e Lutador.",
+    "item.cobblemon.cleanse_tag.tooltip": "Não tem efeito",
+    "item.cobblemon.razor_claw.tooltip_1": "Aumenta a taxa de golpes críticos dos movimentos do portador",
+    "item.cobblemon.life_orb.tooltip": "Aumenta o poder dos movimentos do portador, mas causa-lhe dano de volta",
+    "item.cobblemon.guard_spec.tooltip": "Impede temporariamente a diminuição de atributos quando usado em batalha",
+    "item.cobblemon.full_heal.tooltip": "Cura completamente qualquer condição de estado de um Pokémon"
 }
