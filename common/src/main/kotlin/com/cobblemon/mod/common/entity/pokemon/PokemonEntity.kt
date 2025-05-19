@@ -784,7 +784,7 @@ open class PokemonEntity(
                 pokemon = this.createSidedPokemon()
                 health = 0F
             }
-        } else if(pokemon == null) {
+        } else if(pokemon.storeCoordinates.get() == null) {
             // when the vanilla /data merge command is used, it will also run through this load method
             // and if we are not careful here, the pokemon instance will get rebuilt from scratch
             // this will fuck with storages, as they are tied to these very pokemon instances and their observables
