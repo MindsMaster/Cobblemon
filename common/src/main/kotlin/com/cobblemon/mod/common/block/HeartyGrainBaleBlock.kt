@@ -99,6 +99,6 @@ class HeartyGrainBaleBlock(properties: Properties) : RotatedPillarBlock(properti
     }
 
     override fun fallOn(level: Level, state: BlockState, pos: BlockPos, entity: Entity, fallDistance: Float) {
-        entity.causeFallDamage(fallDistance, 0.2f, level.damageSources().fall())
+        entity.causeFallDamage(fallDistance, 0.3f, level.damageSources().fall())
     }
 }
