@@ -139,7 +139,7 @@ class HeartyGrainsBlock(settings: Properties) : CropBlock(settings), SimpleWater
         val newAge = (this.getAge(state) + this.getBonemealAgeIncrease(world)).coerceAtMost(this.maxAge)
         world.setBlock(pos, state.setValue(this.ageProperty, newAge), UPDATE_CLIENTS)
 
-        if (newAge == MATURE_AGE && state.getValue(PART) == Part.LOWER) {
+        if (newAge >= 5 && state.getValue(PART) == Part.LOWER) {
             val abovePos = pos.above()
             if (world.getBlockState(abovePos).isAir) {
                 world.setBlock(
@@ -192,14 +192,14 @@ class HeartyGrainsBlock(settings: Properties) : CropBlock(settings), SimpleWater
         val PART: EnumProperty<Part> = EnumProperty.create("part", Part::class.java)
 
         val AGE_TO_SHAPE = arrayOf(
-            box(2.0, 0.0, 0.0, 16.0, 17.0, 16.0), // Stage 1
-            box(2.0, 0.0, 0.0, 16.0, 17.0, 16.0), // Stage 2
-            box(2.0, 0.0, 0.0, 16.0, 17.0, 16.0), // Stage 3
-            box(2.0, 0.0, 0.0, 16.0, 17.0, 16.0), // Stage 4 (Bottom)
-            box(2.0, 0.0, 0.0, 16.0, 17.0, 16.0),  // Stage 5 (Bottom)
-            box(2.0, 0.0, 0.0, 16.0, 17.0, 16.0),  // Stage 6 (Bottom)
-            box(2.0, 0.0, 0.0, 16.0, 17.0, 16.0),  // Stage 7 (Bottom)
-            box(2.0, 0.0, 0.0, 16.0, 17.0, 16.0)  // Stage 8 (Bottom)
+            box(0.0, 0.0, 0.0, 16.0, 3.0, 16.0), // Stage 0
+            box(0.0, 0.0, 0.0, 16.0, 5.0, 16.0), // Stage 1
+            box(0.0, 0.0, 0.0, 16.0, 8.0, 16.0), // Stage 2
+            box(0.0, 0.0, 0.0, 16.0, 10.0, 16.0), // Stage 3
+            box(0.0, 0.0, 0.0, 16.0, 16.0, 16.0),  // Stage 4
+            box(0.0, 0.0, 0.0, 16.0, 16.0, 16.0),  // Stage 5
+            box(0.0, 0.0, 0.0, 16.0, 16.0, 16.0),  // Stage 6
+            box(0.0, 0.0, 0.0, 16.0, 16.0, 16.0)  // Stage 7
         )
     }
 
