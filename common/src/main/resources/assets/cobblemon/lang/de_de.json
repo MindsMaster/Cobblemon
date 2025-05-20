@@ -6293,7 +6293,7 @@
     "cobblemon.challenge.multi.decline.disband": "Das generische Team wurde aufgelöst, Multikampf abgebrochen...",
     "cobblemon.challenge.multi.decline.sender": "%1$s's team hat die Herausforderung abgelehnt...",
     "cobblemon.challenge.multi.decline.sender.personal": "Du hast %1$s's Multikampf Herausforderung abgelehnt...",
-    "cobblemon.challenge.decline.receiver": "%1$s hat deine Herausforderung abgelehnt...",
+    "cobblemon.challenge.decline.receiver": "Du hat %1$s's Herausforderung abgelehnt.",
     "cobblemon.command.freezepokemon.non_pokemon": "Du musst auf ein Pokémon zielen.",
     "advancements.cobblemon.craft_rod": "Angeln geh'n",
     "cobblemon.battle.types.singles": "Einzelkampf",
@@ -6554,5 +6554,13 @@
     "item.cobblemon.dark_gem.tooltip_2": "Wird nach Gebrauch verbraucht",
     "item.cobblemon.fighting_gem.tooltip_1": "Verstärkt die erste Kampf-Attacke des Trägers",
     "item.cobblemon.flying_gem.tooltip_1": "Verstärkt die erste Flug-Attacke des Trägers",
-    "item.cobblemon.flying_gem.tooltip_2": "Wird nach Gebrauch verbraucht"
+    "item.cobblemon.flying_gem.tooltip_2": "Wird nach Gebrauch verbraucht",
+    "cobblemon.cosmetic_item.already_wearing": "%1$s trägt schon %2$s!",
+    "cobblemon.cosmetic_item.take": "Du hast %1$s von %2$s zurückgeholt.",
+    "cobblemon.challenge.error.duplicate": "Du hast bereits eine Herausforderung nach %1$s geschickt.",
+    "cobblemon.challenge.rule.level": "Alle Level %1$s",
+    "cobblemon.ui.challenge.challenge": "Herausforderung",
+    "cobblemon.challenge.sent": "Du hast %1$s zu einem %2$s herausgefordert.",
+    "cobblemon.challenge.error.insufficient_pokemon.self": "Du hast keine Pokémon für einen Kampf!",
+    "cobblemon.challenge.error.insufficient_pokemon.other": "%1$s hat keine Pokémon für einen Kampf!"
 }
