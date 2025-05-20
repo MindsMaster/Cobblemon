@@ -227,6 +227,7 @@
 - Fixed the `dimensions` spawning condition using the incorrect ResourceLocation, causing it to not function properly.
 - Fix issue where locator X axis was not aligned with blockbench.
 - Fix issue where particle effects that play on frame 1 on sendout would never play (Gastly)
+- The Wiglett line will now sink in water again.
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
