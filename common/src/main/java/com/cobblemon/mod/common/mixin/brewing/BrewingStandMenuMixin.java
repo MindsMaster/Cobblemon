@@ -38,7 +38,7 @@ public abstract class BrewingStandMenuMixin {
 	private Slot ingredientSlot;
 	
 	private static final int BOTTLE_SLOT_START = 0;
-	private static final int BOTTLE_SLOT_END = 3;
+	private static final int BOTTLE_SLOT_END = 2;
 
 	private static final int INGREDIENT_SLOT_INDEX = 3;
 	private static final int FUEL_SLOT_INDEX = 4;
