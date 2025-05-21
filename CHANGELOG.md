@@ -69,6 +69,10 @@
 - Reuniclus
 
 #### Gen 6
+- Inkay
+- Malamar
+- Hawlucha
+- Dedenne
 - Noibat
 - Noivern
 
@@ -78,6 +82,8 @@
 #### Gen 8
 - Silicobra
 - Sandaconda
+- Sinistea
+- Polteageist
 
 #### Gen 9
 - Smoliv
@@ -88,6 +94,8 @@
 - Orthworm
 - Dudunsparce
 - Cyclizar
+- Poltchageist
+- Sinistcha
 
 ### Animation updates for the following Pokémon
 - Garchomp
@@ -157,6 +165,8 @@
 - Taillow
 - Swellow
 - Added Syrupy Apples.
+- Seel
+- Dewgong
 
 ### Changes
 - Renamed `chargeGainedPerTick` config to `secondsToChargeHealingMachine`.

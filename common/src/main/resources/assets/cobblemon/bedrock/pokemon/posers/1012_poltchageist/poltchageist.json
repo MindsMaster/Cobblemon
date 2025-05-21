@@ -1,0 +1,41 @@
+{
+  "portraitScale": 1.99,
+  "portraitTranslation": [ -0.31, 0, 0],
+  "profileScale": 0.54,
+  "profileTranslation": [ 0, 1.09, 0],
+  "rootBone": "poltchageist",
+  "animations": {
+  },
+  "poses": {
+    "standing": {
+      "poseTypes": [
+        "STAND",
+        "NONE",
+        "FLOAT",
+        "PORTRAIT",
+        "PROFILE"
+      ],
+      "isBattle": true,
+      "animations": [
+        "q.look('body')",
+        "q.bedrock('poltchageist', 'ground_idle')"
+      ],
+      "quirks": [
+        "q.bedrock_quirk('poltchageist', 'blink')"
+      ]
+    },
+    "walking": {
+      "poseTypes": [
+        "WALK",
+        "SWIM"
+      ],
+      "animations": [
+        "q.look('body')",
+        "q.bedrock('poltchageist', 'ground_idle')"
+      ],
+      "quirks": [
+        "q.bedrock_quirk('poltchageist', 'blink')"
+      ]
+    }
+  }
+}
