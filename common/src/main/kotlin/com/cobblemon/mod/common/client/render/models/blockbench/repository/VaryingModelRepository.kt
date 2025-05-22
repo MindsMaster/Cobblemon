@@ -563,7 +563,6 @@ object VaryingModelRepository {
         inbuilt("fuecoco", :: FuecocoModel)
         inbuilt("crocalor", :: CrocalorModel)
         inbuilt("skeledirge", :: SkeledirgeModel)
-        inbuilt("quaxly", :: QuaxlyModel)
         inbuilt("quaxwell", :: QuaxwellModel)
         inbuilt("quaquaval", :: QuaquavalModel)
         inbuilt("snubbull", :: SnubbullModel)
