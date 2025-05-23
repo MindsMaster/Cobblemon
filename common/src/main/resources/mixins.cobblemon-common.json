@@ -66,6 +66,7 @@
     "ServerEntityMixin",
     "ServerPlayerMixin",
     "ShearsDispenserBehaviorMixin",
+    "StructureMixin",
     "StructurePoolAccessor",
     "StructurePoolGeneratorMixin",
     "StructureProcessorListMixin",
