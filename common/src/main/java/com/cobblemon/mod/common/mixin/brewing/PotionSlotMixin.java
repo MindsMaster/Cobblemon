@@ -24,7 +24,7 @@ public class PotionSlotMixin {
 			cancellable = true
 	)
 	private void cobblemon$mayPlace(ItemStack stack, CallbackInfoReturnable<Boolean> cir) {
-		cir.setReturnValue(BrewingStandRecipe.Companion.isBottle(stack));
+		cir.setReturnValue(true);
 		cir.cancel();
 	}
 }

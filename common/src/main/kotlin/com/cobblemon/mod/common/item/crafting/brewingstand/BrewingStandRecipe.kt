@@ -47,26 +47,9 @@ class BrewingStandRecipe(
     }
 
     companion object {
-        fun isBottle(itemStack: ItemStack): Boolean {
-            val level = Minecraft.getInstance().level
-            if (level == null) {
-                return true
-            }
-            return isBottle(itemStack, level)
-        }
-
-        fun isInput(itemStack: ItemStack): Boolean {
-            val level = Minecraft.getInstance().level
-            if (level == null) {
-                return true
-            }
-            return isInput(itemStack, level)
-        }
-        
         fun isBottle(itemStack: ItemStack, level: Level): Boolean {
             val manager = level.recipeManager
             val recipes = manager.getAllRecipesFor(CobblemonRecipeTypes.BREWING_STAND)
-
             return recipes.any { recipe ->
                 recipe.value.bottle.test(itemStack)
             }
@@ -75,7 +58,6 @@ class BrewingStandRecipe(
         fun isInput(itemStack: ItemStack, level: Level): Boolean {
             val manager = level.recipeManager
             val recipes = manager.getAllRecipesFor(CobblemonRecipeTypes.BREWING_STAND)
-
             return recipes.any { recipe ->
                 recipe.value.input.test(itemStack)
             }

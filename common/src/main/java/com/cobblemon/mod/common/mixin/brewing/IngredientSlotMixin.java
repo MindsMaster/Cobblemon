@@ -24,7 +24,7 @@ public class IngredientSlotMixin {
 			cancellable = true
 	)
 	private void cobblemon$mayPlace(ItemStack stack, CallbackInfoReturnable<Boolean> cir) {
-		cir.setReturnValue(BrewingStandRecipe.Companion.isInput(stack));
+		cir.setReturnValue(true);
 		cir.cancel();
 	}
 }
