@@ -23,6 +23,8 @@
 - Added [LambDynamicLights](https://modrinth.com/mod/lambdynamiclights) support for items held by Pokémon.
 - Added modification to Minecraft Creative Inventory search to account for item names that contain `poké` when input contains `poke`.
 - Added Campfire Pot as well as loads of new food items (Poke Puffs, Ponigiri, Sinister Tea, etc)
+- Added `/pcsearch <player> <pokemonProperties>` command that searches for a specific Pokémon within a player's PC.
+- Added `/pctake <player> <box> <slot>` command that takes a specific Pokémon from a player's PC. Removes the pokemon if target is self or ran from the server.
 
 ### Pokémon Added
 
