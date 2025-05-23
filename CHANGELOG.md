@@ -180,6 +180,7 @@
 - Fixed the `dimensions` spawning condition using the incorrect ResourceLocation, causing it to not function properly.
 - Fix issue where locator X axis was not aligned with blockbench.
 - Fix issue where particle effects that play on frame 1 on sendout would never play (Gastly)
+- Fixed issue where the restoration tank would not accept valid items from a hopper.
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
