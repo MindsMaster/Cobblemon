@@ -47,7 +47,9 @@ public class BrewingStandBlockEntityMixin {
 	)
 	private static void cobblemon$serverTick(Level level, BlockPos pos, BlockState state, BrewingStandBlockEntity blockEntity, CallbackInfo ci) {
 		BrewingStandBlockEntityMixin self = (BrewingStandBlockEntityMixin) (Object) blockEntity;
-		assert self != null;
+		if (self == null) {
+			return;
+		}
 		NonNullList<ItemStack> items = self.items;
 
 		BrewingStandRecipe customRecipe = self.fetchBrewingRecipe(level);
