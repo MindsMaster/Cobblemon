@@ -21,6 +21,7 @@ import net.minecraft.network.codec.StreamCodec
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.crafting.Ingredient
 import net.minecraft.world.item.crafting.Recipe
+import net.minecraft.world.item.crafting.RecipeManager
 import net.minecraft.world.item.crafting.RecipeSerializer
 import net.minecraft.world.level.Level
 
@@ -47,17 +48,15 @@ class BrewingStandRecipe(
     }
 
     companion object {
-        fun isBottle(itemStack: ItemStack, level: Level): Boolean {
-            val manager = level.recipeManager
-            val recipes = manager.getAllRecipesFor(CobblemonRecipeTypes.BREWING_STAND)
+        fun isBottle(itemStack: ItemStack, recipeManager: RecipeManager): Boolean {
+            val recipes = recipeManager.getAllRecipesFor(CobblemonRecipeTypes.BREWING_STAND)
             return recipes.any { recipe ->
                 recipe.value.bottle.test(itemStack)
             }
         }
 
-        fun isInput(itemStack: ItemStack, level: Level): Boolean {
-            val manager = level.recipeManager
-            val recipes = manager.getAllRecipesFor(CobblemonRecipeTypes.BREWING_STAND)
+        fun isInput(itemStack: ItemStack, recipeManager: RecipeManager): Boolean {
+            val recipes = recipeManager.getAllRecipesFor(CobblemonRecipeTypes.BREWING_STAND)
             return recipes.any { recipe ->
                 recipe.value.input.test(itemStack)
             }

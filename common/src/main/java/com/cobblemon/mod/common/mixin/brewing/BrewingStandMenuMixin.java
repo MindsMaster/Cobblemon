@@ -8,17 +8,19 @@
 
 package com.cobblemon.mod.common.mixin.brewing;
 
+import com.cobblemon.mod.common.brewing.RecipeAwareSlot;
 import com.cobblemon.mod.common.item.crafting.brewingstand.BrewingStandRecipe;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.BrewingStandMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(BrewingStandMenu.class)
@@ -46,6 +48,17 @@ public abstract class BrewingStandMenuMixin {
 	private static final int PLAYER_INV_START = 5;
 	private static final int HOTBAR_END = 41;
 
+	@Inject(method = "<init>*", at = @At("TAIL"))
+	private void captureLevel(int containerId, Inventory playerInventory, CallbackInfo ci) {
+		var recipeManager = playerInventory.player.get().getRecipeManager();
+		for (Slot slot : ((BrewingStandMenu) (Object) this).slots) {
+			if (slot instanceof RecipeAwareSlot awareSlot) {
+				System.out.println("Setting level for slot: " + slot + " to " + recipeManager);
+				awareSlot.setRecipeManager(recipeManager);
+			}
+		}
+	}
+
 	@Inject(method = "quickMoveStack", at = @At("HEAD"), cancellable = true)
 	private void cobblemon$quickMoveStack(Player player, int index, CallbackInfoReturnable<ItemStack> cir) {
 		BrewingStandMenu menu = (BrewingStandMenu) (Object) this;
@@ -70,12 +83,12 @@ public abstract class BrewingStandMenuMixin {
 				moved = menu.moveItemStackTo(itemStack, FUEL_SLOT_INDEX, FUEL_SLOT_INDEX + 1, false);
 			}
 
-			if (!moved && (BrewingStandRecipe.Companion.isBottle(itemStack, player.level()) ||
+			if (!moved && (BrewingStandRecipe.Companion.isBottle(itemStack, player.level().getRecipeManager()) ||
 					BrewingStandMenu.PotionSlot.mayPlaceItem(itemStack))) {
 				moved = menu.moveItemStackTo(itemStack, BOTTLE_SLOT_START, BOTTLE_SLOT_END, false);
 			}
 			
-			if (BrewingStandRecipe.Companion.isInput(itemStack, player.level()) ||
+			if (BrewingStandRecipe.Companion.isInput(itemStack, player.level().getRecipeManager()) ||
 					this.ingredientSlot.mayPlace(itemStack)) {
 				moved = menu.moveItemStackTo(itemStack, INGREDIENT_SLOT_INDEX, INGREDIENT_SLOT_INDEX + 1, false);
 			}
