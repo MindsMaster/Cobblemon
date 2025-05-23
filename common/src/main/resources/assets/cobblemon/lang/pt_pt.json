@@ -5077,5 +5077,16 @@
     "cobblemon.move.bouncybubble.desc": "O utilizador dispara bolhas de água contra o alvo. Depois absorve água e restaura o seu HP por metade do dano sofrido pelo alvo.",
     "cobblemon.move.stuffcheeks": "Bochechas Cheias",
     "cobblemon.move.stuffcheeks.desc": "O utilizador come a sua Baga segurada, aumentando muito o seu atributo de Defesa.",
-    "cobblemon.move.bouncybubble": "Bolha Saltitante"
+    "cobblemon.move.bouncybubble": "Bolha Saltitante",
+    "cobblemon.move.chipaway": "Pouco a Pouco",
+    "cobblemon.move.axekick.desc": "O utilizador manda um pontapé no ar e acerta com o calcanhar no alvo. Isto também pode confundir o alvo. Se falhar, o utilizador recebe dano.",
+    "cobblemon.move.meteormash": "Meteoro Esmagador",
+    "cobblemon.move.meteormash.desc": "O alvo é atingido por um murro forte disparado como um meteoro. Isto também pode aumentar o atributo de Ataque do utilizador.",
+    "cobblemon.move.chipaway.desc": "À procura de uma abertura, o utilizador ataca de forma consistente. As alterações de atributos do alvo não afetam o dano deste ataque.",
+    "cobblemon.move.steelbeam": "Raio de Aço",
+    "cobblemon.move.steelbeam.desc": "O utilizador dispara um feixe de aço que recolheu de todo o seu corpo. Isto também causa dano ao utilizador.",
+    "cobblemon.move.lashout": "Fúria Acumulada",
+    "cobblemon.move.glaciallance": "Lança Glacial",
+    "cobblemon.move.glaciallance.desc": "O utilizador arremessa uma lança pingente revestida com gelo contra os Pokémon adversários.",
+    "cobblemon.move.axekick": "Pontapé Machado"
 }
