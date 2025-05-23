@@ -8,13 +8,14 @@
 
 package com.cobblemon.mod.common.mixin.brewing;
 
-import com.cobblemon.mod.common.brewing.RecipeAwareSlot;
+import com.cobblemon.mod.common.duck.RecipeAwareSlot;
 import com.cobblemon.mod.common.item.crafting.brewingstand.BrewingStandRecipe;
 import net.minecraft.world.inventory.BrewingStandMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -22,16 +23,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(BrewingStandMenu.IngredientsSlot.class)
 public class IngredientSlotMixin implements RecipeAwareSlot {
 
-	private RecipeManager recipeManager;
+	@Unique
+	private RecipeManager cobblemon$recipeManager;
 
 	@Override
 	public void setRecipeManager(RecipeManager recipeManager) {
-		this.recipeManager = recipeManager;
-	}
-
-	@Override
-	public RecipeManager getRecipeManager() {
-		return recipeManager;
+		this.cobblemon$recipeManager = recipeManager;
 	}
 
 	@Inject(
@@ -40,8 +37,8 @@ public class IngredientSlotMixin implements RecipeAwareSlot {
 			cancellable = true
 	)
 	private void cobblemon$mayPlace(ItemStack stack, CallbackInfoReturnable<Boolean> cir) {
-		System.out.println("RecipeManager: " + getRecipeManager());
-		cir.setReturnValue(BrewingStandRecipe.Companion.isInput(stack, getRecipeManager()));
-		cir.cancel();
+		if (BrewingStandRecipe.Companion.isInput(stack, cobblemon$recipeManager)) {
+			cir.setReturnValue(true);
+		}
 	}
 }

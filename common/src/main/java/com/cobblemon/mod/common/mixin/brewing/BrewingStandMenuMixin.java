@@ -8,11 +8,13 @@
 
 package com.cobblemon.mod.common.mixin.brewing;
 
-import com.cobblemon.mod.common.brewing.RecipeAwareSlot;
+import com.cobblemon.mod.common.duck.RecipeAwareSlot;
 import com.cobblemon.mod.common.item.crafting.brewingstand.BrewingStandRecipe;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.BrewingStandMenu;
+import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Final;
@@ -48,12 +50,11 @@ public abstract class BrewingStandMenuMixin {
 	private static final int PLAYER_INV_START = 5;
 	private static final int HOTBAR_END = 41;
 
-	@Inject(method = "<init>*", at = @At("TAIL"))
-	private void captureLevel(int containerId, Inventory playerInventory, CallbackInfo ci) {
-		var recipeManager = playerInventory.player.get().getRecipeManager();
+	@Inject(method = "<init>(ILnet/minecraft/world/entity/player/Inventory;Lnet/minecraft/world/Container;Lnet/minecraft/world/inventory/ContainerData;)V", at = @At("TAIL"))
+	private void captureLevel(int containerId, Inventory playerInventory, Container brewingStandContainer, ContainerData brewingStandData, CallbackInfo ci) {
+		var recipeManager = playerInventory.player.level().getRecipeManager();
 		for (Slot slot : ((BrewingStandMenu) (Object) this).slots) {
 			if (slot instanceof RecipeAwareSlot awareSlot) {
-				System.out.println("Setting level for slot: " + slot + " to " + recipeManager);
 				awareSlot.setRecipeManager(recipeManager);
 			}
 		}
