@@ -14,7 +14,14 @@ import com.cobblemon.mod.common.api.net.NetworkPacket
 import com.cobblemon.mod.common.battles.PassActionResponse
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon
 import com.cobblemon.mod.common.exception.IllegalActionChoiceException
+import com.cobblemon.mod.common.net.messages.client.battle.BattleFaintPacket
+import com.cobblemon.mod.common.net.messages.client.battle.BattleHealthChangePacket
 import com.cobblemon.mod.common.net.messages.client.battle.BattleMakeChoicePacket
+import com.cobblemon.mod.common.net.messages.client.battle.BattlePersistentStatusPacket
+import com.cobblemon.mod.common.net.messages.client.battle.BattleReplacePokemonPacket
+import com.cobblemon.mod.common.net.messages.client.battle.BattleSwapPokemonPacket
+import com.cobblemon.mod.common.net.messages.client.battle.BattleSwitchPokemonPacket
+import com.cobblemon.mod.common.net.messages.client.battle.BattleTransformPokemonPacket
 import java.util.UUID
 
 abstract class AIBattleActor(
@@ -25,8 +32,15 @@ abstract class AIBattleActor(
     override fun sendUpdate(packet: NetworkPacket<*>) {
         super.sendUpdate(packet)
 
-        if (packet is BattleMakeChoicePacket) {
-            this.onChoiceRequested()
+        when {
+            packet is BattleMakeChoicePacket -> this.onChoiceRequested()
+            packet is BattlePersistentStatusPacket -> {}
+            packet is BattleFaintPacket -> {}
+            packet is BattleSwitchPokemonPacket && !packet.isAlly -> {} //TODO this might be redundant; switch on opposing site should be visible during turn
+            packet is BattleSwapPokemonPacket -> {} //TODO CONSIDER MULTI SHIFTING
+            packet is BattleHealthChangePacket -> battleAI.onHealthChange(packet)
+            packet is BattleTransformPokemonPacket && !packet.isAlly -> {} //TODO this might be redundant; switch on opposing site should be visible during turn
+            packet is BattleReplacePokemonPacket && !packet.isAlly -> {} //TODO this might be redundant; switch on opposing site should be visible during turn
         }
     }
 
@@ -35,7 +49,9 @@ abstract class AIBattleActor(
      */
     open fun onChoiceRequested() {
         try {
-            setActionResponses(request!!.iterate(this.activePokemon, battleAI::choose))
+            setActionResponses(request!!.iterate(this.activePokemon) { battleMon, moveset, forceSwitch ->
+                battleAI.choose(battleMon, battle, getSide(), moveset, forceSwitch)
+            })
         } catch (exception: IllegalActionChoiceException) {
             LOGGER.error("AI was unable to choose a move, we're going to need to pass!")
             exception.printStackTrace()
