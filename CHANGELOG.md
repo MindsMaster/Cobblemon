@@ -181,6 +181,8 @@
 - Fix issue where locator X axis was not aligned with blockbench.
 - Fix issue where particle effects that play on frame 1 on sendout would never play (Gastly)
 - Fixed issue where the restoration tank would not accept valid items from a hopper.
+- Fixed energy root not being shearable
+- Fixed energy root always spreading into more energy roots instead of by chance (same as big root)
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
