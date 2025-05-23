@@ -140,6 +140,7 @@
 - Added a separate `species` argument to the `pick_starter`, `pasture_use` and `resurrect_pokemon` Advancement triggers.
 - Made `CobblemonAgingDespawner` thresholds configurable via the config file.
 - Tweaked Berry flavor data to balance cooking pot mechanics
+- Updated battle language keys for side effects to use position-specific formats, improving grammatical consistency
 
 ### Fixes
 - Fixed Particles sometimes facing the wrong direction (looking at you, Swords Dance)
