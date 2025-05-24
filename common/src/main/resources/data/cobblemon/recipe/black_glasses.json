@@ -11,9 +11,9 @@
         "I": {
             "tag": "c:ingots/iron"
         },
-		"D": {
-			"item": "cobblemon:dark_gem"
-		}
+        "D": {
+            "item": "cobblemon:dark_gem"
+        }
     },
     "result": {
         "id": "cobblemon:black_glasses"
