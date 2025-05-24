@@ -237,6 +237,9 @@
 - Fixed `heldItem` property inside spawn files not working and causing crashes
 - Fixed `spawn_bedrock_particles` MoLang causing crashes when used in a server environment
 - The Pokédex form lang key definition now follows `cobblemon.ui.pokedex.info.form.{species}-{formname}` instead of `cobblemon.ui.pokedex.info.form.{formname}`.
+- Added `play_sound_on_server` as an available Molang function for the `worldHolder` & `player` functions.
+- Added `run_molang_after` as an available Molang function for the `entity` functions when schedulable.
+- Added an optional parameter for `run_molang` to schedule the function.
 - Added `labels` & `has_label` as available Molang functions for the `speciesFunctions`
 - Added datapack-defined starter categories via `data/<namespace>/starters/*.json`, with built-in fallback and `useConfigStarters` merge option.
 - The format of the `remedies.json` file has changed to allow for individual friendshipDrop amounts per remedy
