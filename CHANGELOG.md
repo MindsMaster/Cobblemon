@@ -147,6 +147,7 @@
 - Made Red, Yellow, Green, Blue, Pink, Black, and White Apricorn Sprout and Saccharine Sapling able to be placed into flower pots.
 - Added all Potted Apricorn Sprouts, Potted Saccharine Saplings, and Potted Pep-Up Flowers to the `#minecraft:flower_pots` block tag
 - Corrected the healing values of the remedies and energy root, and reintroduced the friendship lowering mechanics for them, revivl herb, and heal powder
+- Updated battle language keys for side effects to use position-specific formats, improving grammatical consistency
 
 ### Fixes
 - Fixed Particles sometimes facing the wrong direction (looking at you, Swords Dance)
