@@ -295,6 +295,12 @@
         "moving": {
           "swim": {
             "canWalkOnWater": true
+          },
+          "walk": {
+            "canWalk": false
+          },
+          "fly": {
+            "canFly": true
           }
         }
       },

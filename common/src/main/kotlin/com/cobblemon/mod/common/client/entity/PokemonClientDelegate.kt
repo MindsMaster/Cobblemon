@@ -34,7 +34,11 @@ import com.cobblemon.mod.common.client.render.pokemon.PokemonRenderer.Companion.
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.net.messages.server.pokemon.update.ServerboundUpdateRidingStatePacket
 import com.cobblemon.mod.common.pokemon.Pokemon
-import com.cobblemon.mod.common.util.*
+import com.cobblemon.mod.common.util.MovingSoundInstance
+import com.cobblemon.mod.common.util.asExpressionLike
+import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
+import com.cobblemon.mod.common.util.cobblemonResource
+import com.cobblemon.mod.common.util.resolve
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.Minecraft
 import net.minecraft.network.syncher.EntityDataAccessor
@@ -144,6 +148,7 @@ class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
                             beamStartTime = System.currentTimeMillis()
                             ballStartTime = System.currentTimeMillis()
                             currentEntity.isInvisible = true
+                            currentEntity.isSilent = true
                             ballDone = false
                             var soundPos = currentEntity.position()
                             currentEntity.ownerUUID?.let {
@@ -252,6 +257,7 @@ class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
                                 if (scaleAnimTask == null || scaleAnimTask!!.expired) {
                                     scaleAnimTask = lerpOnClient(BEAM_SHRINK_TIME) { entityScaleModifier = it }
                                     currentEntity.isInvisible = false
+                                    currentEntity.isSilent = false
                                     currentEntity.after(seconds = POKEBALL_AIR_TIME * 2) {
                                         ballOffset = 0f
                                         ballRotOffset = 0f
@@ -268,6 +274,7 @@ class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
                             playedSendOutSound = false
                             entityScaleModifier = 0F
                             currentEntity.isInvisible = false
+                            currentEntity.isSilent = false
                             ballDone = false
                             val soundPos = currentEntity.position()
                             val client = Minecraft.getInstance()
@@ -340,8 +347,8 @@ class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
 
     override fun addToStruct(struct: QueryStruct) {
         super.addToStruct(struct)
-        struct.addFunctions(functions.functions)
         struct.addFunctions(ClientMoLangFunctions.clientFunctions)
+        struct.addFunctions(functions.functions)
         runtime.environment.query = struct
     }
 
@@ -421,14 +428,6 @@ class PokemonClientDelegate : PosableState(), PokemonSideDelegate {
 
     fun setPhaseTarget(targetId: Int) {
         this.phaseTarget = currentEntity.level().getEntity(targetId)
-    }
-
-    override fun handleStatus(status: Byte) {
-        if (status == 10.toByte()) {
-            val model = (currentModel ?: return)
-            val animation = model.getEatAnimation(this) ?: return
-            activeAnimations.add(animation)
-        }
     }
 
     override fun updatePostDeath() {

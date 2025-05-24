@@ -18,6 +18,12 @@
 - Added `/transformmodelpart (position|rotation|scale) <modelPart> <transform: x y z>` command that can add transformations to a pokemon's model part.
   - The player executing the command must be facing the target pokemon entity. Transformations are not persistent and will revert when resources are reloaded.
 - Added `legacy` and `special` sourced moves to Pokémon.
+- Added lang keys for all moves and abilities up to Generation 9.
+- Fixed Moon Ball moon phase logic to actually work correctly
+- Added `translucent_cull` boolean option into resolver's layer to allow for translucent textures with culling
+- Added [LambDynamicLights](https://modrinth.com/mod/lambdynamiclights) support for items held by Pokémon.
+- Added modification to Minecraft Creative Inventory search to account for item names that contain `poké` when input contains `poke`.
+- Added Campfire Pot as well as loads of new food items (Poke Puffs, Ponigiri, Sinister Tea, etc)
 
 ### Pokémon Added
 
@@ -29,12 +35,17 @@
 - Grumpig
 - Snorunt
 - Glalie
+- Latias
+- Latios
 
 #### Gen 4
 - Bronzor
 - Bronzong
 - Croagunk
+- Toxicroak
 - Froslass
+- Glameow
+- Purugly
 
 #### Gen 5
 - Pansage
@@ -47,10 +58,22 @@
 - Musharna
 - Blitzle
 - Zebstrika
+- Drilbur
+- Excadrill
 - Trubbish
 - Garbodor
+- Gothita
+- Gothorita
+- Gothitelle
+- Solosis
+- Duosion
+- Reuniclus
 
 #### Gen 6
+- Inkay
+- Malamar
+- Hawlucha
+- Dedenne
 - Noibat
 - Noivern
 
@@ -60,13 +83,20 @@
 #### Gen 8
 - Silicobra
 - Sandaconda
+- Sinistea
+- Polteageist
 
 #### Gen 9
 - Smoliv
 - Dolliv
 - Arboliva
+- Tarountula
+- Spidops
 - Orthworm
 - Dudunsparce
+- Cyclizar
+- Poltchageist
+- Sinistcha
 
 ### Animation updates for the following Pokémon
 - Garchomp
@@ -79,6 +109,15 @@
 - Delphox
 - Cinderace
 - Kangaskhan
+- Gossifleur
+- Eldegoss
+- Stonjourner
+- Wailmer
+- Lechonk
+- Oinkologne
+- Dratini
+- Dragonair
+- Dragonite
 
 ### Model updates for the following Pokémon
 - Gyarados
@@ -96,15 +135,39 @@
 - Grovyle
 - Sceptile
 - Honchkrow
+- Gible
+- Gabite
 - Garchomp
 - Pidgeot
 - Nosepass
 - Probopass
 - Kangaskhan
 - Cinderace
+- Magnemite
+- Magneton
 - Magnezone
+- Beldum
+- Metang
 - Metagross
+- Hoothoot
+- Noctowl
+- Teddiursa
+- Ursaring
+- Ursaluna
+- Heatmor
+- Bouffalant
+- Sigilyph
+- Sharpedo
+- Maractus
+- Clodsire
+- Scyther
+- Scizor
+- Cacturne
+- Taillow
+- Swellow
 - Added Syrupy Apples.
+- Seel
+- Dewgong
 
 ### Changes
 - Renamed `chargeGainedPerTick` config to `secondsToChargeHealingMachine`.
@@ -125,6 +188,16 @@
 - Removed Shulker aspect and replaced it with cosmetic_item-shulker_shell.
 - Shulker shell Forretress is now a cosmetic rather than a special evo and thus all shulker Forretress will revert back to normal until a shulker shell is put in their cosmetic slot.
 - Updated `doPokemonSpawning` gamerule to support per-dimension configurations.
+- The Pokedex now displays a form name of a "normal" Pokémon for when the base form is still a named form.
+- Improved the zoom functionality of the Pokédex Scanner by giving the levels logarithmic scaling.
+- Added a subtle rotation effect to the Pokédex Scanner's wheel when zooming.
+- Improved parity with vanilla mobs' drop behavior; loot and XP drop on death instead of after the entire death sequence finishes.
+- Quirk animations no longer play in the battle GUI since they were pretty distracting.
+- A number of Pokemon that float above the ground visually (Gastly, Klingklang, etc.)  are no longer considered to be touching the ground
+- Renamed `pokemonId` and `type` to `species` in relevant Advancement triggers for conformity, this is a breaking change.
+- Added a separate `species` argument to the `pick_starter`, `pasture_use` and `resurrect_pokemon` Advancement triggers.
+- Made `CobblemonAgingDespawner` thresholds configurable via the config file.
+- Tweaked Berry flavor data to balance cooking pot mechanics
 
 ### Fixes
 - Fixed Particles sometimes facing the wrong direction (looking at you, Swords Dance)
@@ -154,6 +227,19 @@
 - Fixed an issue with newer versions of Fabric API where underground Pokémon were spawning in The End.
 - Fixed spawning not working well when you're at high points surrounded by lower altitude spawning areas, such as flying.
 - Fixed some Pokémon having erroneous tutor moves if another move included a valid tutor move as a substring.
+- Fixed certain Pokémon with forms not having appropriate stock Pokédex entries.
+- Fixed issue with Pokédex Scanner that caused the open/close overlay to have the wrong opacity values
+- Fixed dragon's breath not being usable on the restoration tank when it should be
+- Fixed Moon Stones not interacting properly with dripstone blocks.
+- Fixed some effects like particles from fishing rods appearing for players in the same coordinates in another world.
+- Fixed an issue with Sketch where the Pokémon using Sketch would not properly learn moves with special characters in their name (e.g. King's Shield, Baby-Doll Eyes, etc.)
+- Fixed wild Pokémon sometimes spawning with incorrect friendship values
+- Fixed typo while saving/loading NPCEntity causes data loss
+- Fixed an issue where catching a Pokémon while it was leashed to a fence would not update the fence.
+- Fixed the `dimensions` spawning condition using the incorrect ResourceLocation, causing it to not function properly.
+- Fix issue where locator X axis was not aligned with blockbench.
+- Fix issue where particle effects that play on frame 1 on sendout would never play (Gastly)
+- The Wiglett line will now sink in water again.
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
@@ -177,6 +263,15 @@
   - `LEGACY` for moves that were once officially learnable by the Pokémon but aren't due to GameFreak's re-balancing.
   - `SPECIAL` for moves that are not learnable by the Pokémon but may have appeared in a special event or distribution.
 
+- Pokemon now have a fireImmune attribute in their behaviour that can be set to true to ignore all fire damage (lava, magma blocks, etc.)
+  `JSON
+  {
+    "behaviour": {
+      "fireImmune": true
+    }
+  }
+  `
+  
 ### MoLang & Datapacks
 - The following usages for item predicates can now use item conditions like advancements do, you can learn about them in the [Minecraft wiki](https://minecraft.wiki/w/Advancement_definition#minecraft:filled_bucket)
   - The `requiredContext` for an item interaction evolution
@@ -197,6 +292,10 @@
 - The following move sources are now valid for the `moves` array in species data:
   - `legacy:{move}`
   - `special:{move}`
+- The Pokédex form lang key definition now follows `cobblemon.ui.pokedex.info.form.{species}-{formname}` instead of `cobblemon.ui.pokedex.info.form.{formname}`.
+- Added `labels` & `has_label` as available Molang functions for the `speciesFunctions`
+- Added datapack-defined starter categories via `data/<namespace>/starters/*.json`, with built-in fallback and `useConfigStarters` merge option.
+- Fixed `entity.find_nearby_block` causing crashes when attempting to use a block tag
 
 ## [1.6.1 (January 26th, 2025)](#1-6-1)
 

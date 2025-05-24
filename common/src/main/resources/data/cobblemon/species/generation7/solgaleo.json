@@ -49,6 +49,13 @@
     "height": 1,
     "fixed": false
   },
+  "behaviour": {
+    "fireImmune": true,
+    "entityInteract": {
+      "avoidedByCreeper": true,
+      "avoidedByPhantom": true
+    }
+  },
   "moves": [
     "1:sunsteelstrike",
     "1:cosmicpower",

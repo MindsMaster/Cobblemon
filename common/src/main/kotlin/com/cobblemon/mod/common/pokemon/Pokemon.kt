@@ -14,12 +14,12 @@ import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.abilities.Abilities
 import com.cobblemon.mod.common.api.abilities.Ability
 import com.cobblemon.mod.common.api.abilities.AbilityPool
-import com.cobblemon.mod.common.api.battles.model.actor.BattleActor
 import com.cobblemon.mod.common.api.battles.model.actor.EntityBackedBattleActor
 import com.cobblemon.mod.common.api.data.ShowdownIdentifiable
 import com.cobblemon.mod.common.api.entity.PokemonSender
 import com.cobblemon.mod.common.api.events.CobblemonEvents
 import com.cobblemon.mod.common.api.events.CobblemonEvents.FRIENDSHIP_UPDATED
+import com.cobblemon.mod.common.api.events.CobblemonEvents.FULLNESS_UPDATED
 import com.cobblemon.mod.common.api.events.CobblemonEvents.POKEMON_FAINTED
 import com.cobblemon.mod.common.api.events.pokemon.*
 import com.cobblemon.mod.common.api.events.pokemon.healing.PokemonHealedEvent
@@ -60,6 +60,7 @@ import com.cobblemon.mod.common.api.reactive.Observable
 import com.cobblemon.mod.common.api.reactive.SettableObservable
 import com.cobblemon.mod.common.api.reactive.SimpleObservable
 import com.cobblemon.mod.common.api.riding.RidingProperties
+import com.cobblemon.mod.common.api.riding.stats.RidingStat
 import com.cobblemon.mod.common.api.scheduling.afterOnServer
 import com.cobblemon.mod.common.api.storage.StoreCoordinates
 import com.cobblemon.mod.common.api.storage.party.NPCPartyStore
@@ -70,7 +71,6 @@ import com.cobblemon.mod.common.api.types.ElementalTypes
 import com.cobblemon.mod.common.api.types.tera.TeraType
 import com.cobblemon.mod.common.api.types.tera.TeraTypes
 import com.cobblemon.mod.common.battles.ActiveBattlePokemon
-import com.cobblemon.mod.common.battles.ShowdownInterpreter
 import com.cobblemon.mod.common.config.CobblemonConfig
 import com.cobblemon.mod.common.datafixer.CobblemonSchemas
 import com.cobblemon.mod.common.datafixer.CobblemonTypeReferences
@@ -338,6 +338,18 @@ open class Pokemon : ShowdownIdentifiable {
             }
         }
 
+    var currentFullness = 0
+        set(value) {
+            if (value < 0) {
+                field = 0
+                return
+            }
+            FULLNESS_UPDATED.post(FullnessUpdatedEvent(this, value)) {
+                field = it.newFullness
+                onChange(FullnessUpdatePacket({ this }, it.newFullness))
+            }
+        }
+
     var state: PokemonState = InactivePokemonState()
         set(value) {
             if (field != value) {
@@ -579,6 +591,8 @@ open class Pokemon : ShowdownIdentifiable {
 
     val preEvolution: PreEvolution? get() = this.form.preEvolution
 
+    private val rideBoosts: MutableMap<RidingStat, Float> = mutableMapOf()
+
     /**
      * Provides the sided [EvolutionController]s, these operations can be done safely with a simple side check.
      * This can be done beforehand or using [EvolutionProxy.isClient].
@@ -638,7 +652,7 @@ open class Pokemon : ShowdownIdentifiable {
             SeasonFeatureHandler.updateSeason(this, level, position.toBlockPos())
             val entity = PokemonEntity(level, this)
             illusion?.start(entity)
-            val adjustedPosition = entity.getAjustedSendoutPosition(position)
+            val adjustedPosition = entity.getAdjustedSendoutPosition(position)
             entity.setPositionSafely(adjustedPosition)
             mutation(entity)
             level.addFreshEntity(entity)
@@ -849,6 +863,8 @@ open class Pokemon : ShowdownIdentifiable {
         this.moveSet.partialHeal()
     }
 
+
+
     /**
      * Check if this Pokémon can be healed.
      * This verifies if HP is not maxed, any status is present or any move is not full PP.
@@ -871,8 +887,107 @@ open class Pokemon : ShowdownIdentifiable {
     }
 
     fun isFireImmune(): Boolean {
-        return ElementalTypes.FIRE in types || !form.behaviour.moving.swim.hurtByLava
+        return ElementalTypes.FIRE in types || form.behaviour.moving.swim.canSwimInLava || form.behaviour.fireImmune
     }
+
+    // function to return the max hunger for the pokemon
+    fun getMaxFullness(): Int = ((getGrassKnotPower(this.species.weight.toDouble()) / 10 / 2) + 1)
+
+    // function to get grassKnot power based on weight (in Lbs)
+    fun getGrassKnotPower(weight: Double): Int = when {
+        weight in 0.1..21.8 -> 20
+        weight in 21.9..54.9 -> 40
+        weight in 55.0..110.1 -> 60
+        weight in 110.2..220.3 -> 80
+        weight in 220.4..440.8 -> 100
+        weight >= 440.9 -> 120
+        else -> 0 // For weights less than 0.1
+    }
+
+    fun feedPokemon(feedCount: Int, playSound: Boolean = true) {
+        // if it is already full we don't need to do anything (this will likely only ever happen when feeding in battle since we check for fullness already anyways elsewhere)
+        if (isFull()) {
+            return
+        }
+
+        this.currentFullness = (this.currentFullness + feedCount).coerceIn(0, this.getMaxFullness())
+        // play sounds from the entity
+        if (this.entity != null && playSound) {
+            val fullnessPercent = ((this.currentFullness).toFloat() / (this.getMaxFullness()).toFloat()) * (.5f)
+
+            if (this.currentFullness >= this.getMaxFullness()) {
+                this.entity?.playSound(CobblemonSounds.BERRY_EAT_FULL, 1F, 1F)
+            }
+            else {
+                this.entity?.playSound(CobblemonSounds.BERRY_EAT, 1F, 1F + fullnessPercent)
+            }
+        }
+
+        // pokemon was fed the first berry so we should reset their metabolism cycle so there is no inconsistencies
+        if (this.currentFullness == 1) {
+            this.resetMetabolismCycle()
+        }
+    }
+
+    // decrease a pokemon's Fullness value by a certain amount
+    fun loseFullness(value: Int) {
+        this.currentFullness = max(0, this.currentFullness - value)
+    }
+
+    // Amount of seconds that need to pass for the pokemon to lose 1 fullness value
+    fun getMetabolismRate(): Int {
+        val speed = this.species.baseStats.getOrDefault(Stats.SPEED,0)
+
+        // Base Stat Total for the pokemon
+        val BST = species.baseStats.values.sum()
+
+        // multiplying scaling value
+        val multiplier = 4
+
+        //base berry count
+        val baseBerryCount = 20
+
+        //rate of metabolism in seconds
+        val metabolismRate = ((baseBerryCount.toDouble() - ((speed.toDouble() / BST.toDouble()) * baseBerryCount.toDouble()) * multiplier.toDouble()) * 60.0).toInt()
+
+        // returns value in seconds for the onSecondPassed function
+        // check for below 0 value and set to minimum to 1 minute
+        return if (metabolismRate <= 0) {
+            1 * 60
+        } else {
+            metabolismRate
+        }
+    }
+
+    // Boolean function that checks if a Pokemon can eat food based on fedTimes
+    fun isFull(): Boolean = currentFullness >= this.getMaxFullness()
+
+    // The value that will increase per second until it hits a Pokemon's metabolism Factor then be set back to zero
+    var metabolismCycle = 0
+
+    // for setting the metabolism cycle of a pokemon back to 0 in certain cases
+    fun resetMetabolismCycle() {
+        this.metabolismCycle = 0
+    }
+
+    /**
+     * Called every second on Player owned and Pastured Pokémon for their fullness
+     */
+    open fun tickMetabolism() {
+        // have metabolism cycle increase each second
+        metabolismCycle += 1
+
+        // if the metabolismCycle value equals the Pokemon's metabolism rate then decrease Fullness by 1
+        if (metabolismCycle >= this.getMetabolismRate()) {
+            if (this.currentFullness > 0) {
+                this.loseFullness(1)
+            }
+
+            //reset the metabolic cycle back to zero (redundant if we always go down by 1, but in case we make it go down faster
+            this.resetMetabolismCycle()
+        }
+    }
+
 
     fun isPositionSafe(world: Level, pos: Vec3): Boolean {
         return isPositionSafe(world, pos.toBlockPos())
@@ -1535,6 +1650,46 @@ open class Pokemon : ShowdownIdentifiable {
             }
         }
         moveSet.update()
+    }
+
+    fun getMaxRideBoost(stat: RidingStat): Int {
+        return form.riding.stats[stat]?.ranges?.maxOf { it.value.endInclusive } ?: 0
+    }
+
+    fun getRideBoost(stat: RidingStat): Float {
+        return rideBoosts[stat] ?: 0F
+    }
+
+    fun getRideBoosts(): Map<RidingStat, Float> {
+        return rideBoosts.toMap()
+    }
+
+    fun canAddRideBoost(stat: RidingStat, boost: Float): Boolean {
+        val max = getMaxRideBoost(stat)
+        val current = rideBoosts[stat] ?: 0F
+        return current + boost <= max
+    }
+
+    fun addRideBoost(stat: RidingStat, boost: Float): Boolean {
+        if (!canAddRideBoost(stat, boost)) {
+            return false
+        }
+        val max = getMaxRideBoost(stat)
+        rideBoosts[stat] = (getRideBoost(stat) + boost).coerceIn(0F, max.toFloat())
+        onChange(RideBoostsUpdatePacket({ this }, rideBoosts))
+        return true
+    }
+
+    fun setRideBoost(stat: RidingStat, boost: Float) {
+        val max = getMaxRideBoost(stat)
+        rideBoosts[stat] = boost.coerceIn(0F, max.toFloat())
+        onChange(RideBoostsUpdatePacket({ this }, rideBoosts))
+    }
+
+    fun setRideBoosts(boosts: Map<RidingStat, Float>) {
+        rideBoosts.clear()
+        rideBoosts.putAll(boosts.mapValues { it.value.coerceIn(0F, getMaxRideBoost(it.key).toFloat()) })
+        onChange(RideBoostsUpdatePacket({ this }, rideBoosts))
     }
 
     fun getExperienceToNextLevel() = getExperienceToLevel(level + 1)

@@ -1,0 +1,25 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        " i ",
+        "cgc",
+        "aca"
+    ],
+    "key": {
+        "i": {
+            "item": "minecraft:iron_nugget"
+        },
+        "c": {
+            "item": "minecraft:copper_ingot"
+        },
+        "g": {
+            "item": "minecraft:glass"
+        },
+        "a": {
+            "item": "cobblemon:black_apricorn"
+        }
+    },
+    "result": {
+        "id": "cobblemon:campfire_pot_black"
+    }
+}

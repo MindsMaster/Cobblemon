@@ -8,6 +8,18 @@
   "battle.pvw.default": {
     "sounds": []
   },
+  "entity.npc.gibber.generic": {
+    "sounds": [ { "name":  "cobblemon:entity/npc/gibber/gibber_generic", "volume":  0.1 } ]
+  },
+  "entity.npc.gibber.speech_type_1_1": {
+    "sounds": [ { "name":  "cobblemon:entity/npc/gibber/speech_type_1/speech_type_1_1", "volume":  0.1 } ]
+  },
+  "entity.npc.gibber.speech_type_1_2": {
+    "sounds": [ { "name":  "cobblemon:entity/npc/gibber/speech_type_1/speech_type_1_2", "volume":  0.1 } ]
+  },
+  "entity.npc.gibber.speech_type_1_3": {
+    "sounds": [ { "name":  "cobblemon:entity/npc/gibber/speech_type_1/speech_type_1_3", "volume":  0.1 } ]
+  },
   "entity.villager.work_nurse": {
     "sounds": [ { "name":  "cobblemon:entity/villager/work_nurse", "volume":  0.8 } ]
   },
@@ -183,6 +195,9 @@
   },
   "item.berry.eat": {
     "sounds": [ "cobblemon:item/berry/berry_eat" ]
+  },
+  "item.berry.eat.full": {
+    "sounds": [ "cobblemon:item/berry/berry_eat_full" ]
   },
   "fishing.notification": {
     "sounds": [
@@ -617,6 +632,56 @@
       "cobblemon:block/gilded_chest/gilded_chest_step_4"
     ]
   },
+  "block.campfire_pot.place_campfire": {
+    "sounds": [ { "name": "cobblemon:block/campfire_pot/campfire_pot_place_campfire", "volume": 0.8 } ]
+  },
+  "block.campfire_pot.retrieve": {
+    "sounds": [ { "name": "cobblemon:block/campfire_pot/campfire_pot_retrieve", "volume": 0.8 } ]
+  },
+  "block.campfire_pot.open": {
+    "sounds": [ { "name": "cobblemon:block/campfire_pot/campfire_pot_open", "volume": 0.8 } ]
+  },
+  "block.campfire_pot.close": {
+    "sounds": [ { "name": "cobblemon:block/campfire_pot/campfire_pot_close", "volume": 0.8 } ]
+  },
+  "block.campfire_pot.use": {
+    "sounds": [ { "name": "cobblemon:block/campfire_pot/campfire_pot_use", "volume": 0.8 } ]
+  },
+  "block.campfire_pot.cook": {
+    "sounds": [ { "name": "cobblemon:block/campfire_pot/campfire_pot_cook", "volume": 0.8 } ]
+  },
+  "block.campfire_pot.craft": {
+    "sounds": [
+      { "name": "cobblemon:block/campfire_pot/campfire_pot_craft_1", "volume": 0.8 },
+      { "name": "cobblemon:block/campfire_pot/campfire_pot_craft_2", "volume": 0.8 },
+      { "name": "cobblemon:block/campfire_pot/campfire_pot_craft_3", "volume": 0.8 },
+      { "name": "cobblemon:block/campfire_pot/campfire_pot_craft_4", "volume": 0.8 }
+    ]
+  },
+  "block.campfire_pot.break": {
+    "subtitle": "subtitles.block.generic.break",
+    "sounds": [
+      "cobblemon:block/campfire_pot/campfire_pot_break_1"
+    ]
+  },
+  "block.campfire_pot.hit": {
+    "subtitle": "subtitles.block.generic.hit",
+    "sounds": [
+      "cobblemon:block/campfire_pot/campfire_pot_hit_1"
+    ]
+  },
+  "block.campfire_pot.place": {
+    "subtitle": "subtitles.block.generic.place",
+    "sounds": [
+      "cobblemon:block/campfire_pot/campfire_pot_place_1"
+    ]
+  },
+  "block.campfire_pot.step": {
+    "subtitle": "subtitles.block.generic.footsteps",
+    "sounds": [
+      "cobblemon:block/campfire_pot/campfire_pot_step_1"
+    ]
+  },
   "move.bite.target": {
     "sounds": [ { "name": "cobblemon:move/bite/bite_target", "volume": 0.8 } ]
   },
@@ -672,7 +737,7 @@
     "sounds": [ { "name": "cobblemon:move/confusion/confusion_actor", "volume": 0.9 } ]
   },
   "move.confusion.target": {
-      "sounds": [ { "name": "cobblemon:move/confusion/confusion_target", "volume": 0.8 } ]
+    "sounds": [ { "name": "cobblemon:move/confusion/confusion_target", "volume": 0.8 } ]
   },
   "move.swordsdance.actor": {
     "sounds": [ { "name": "cobblemon:move/swords_dance/swords_dance_actor", "volume": 0.8 } ]
@@ -681,7 +746,7 @@
     "sounds": [ { "name": "cobblemon:move/thunder_wave/thunder_wave_actor", "volume": 0.8 } ]
   },
   "move.thunderwave.target": {
-      "sounds": [ { "name": "cobblemon:move/thunder_wave/thunder_wave_target", "volume": 0.8 } ]
+    "sounds": [ { "name": "cobblemon:move/thunder_wave/thunder_wave_target", "volume": 0.8 } ]
   },
   "move.protect.actor": {
     "sounds": [ { "name": "cobblemon:move/protect/protect_actor", "volume": 0.8 } ]
@@ -743,7 +808,7 @@
     "sounds": [ { "name": "cobblemon:move/quick_attack/quick_attack_actor", "volume": 0.8 } ]
   },
   "move.quickattack.target": {
-      "sounds": [ { "name": "cobblemon:move/quick_attack/quick_attack_target", "volume": 0.8 } ]
+    "sounds": [ { "name": "cobblemon:move/quick_attack/quick_attack_target", "volume": 0.8 } ]
   },
   "move.seismictoss.actor": {
     "sounds": [ { "name": "cobblemon:move/seismic_toss/seismic_toss_actor", "volume": 0.8 } ]
@@ -1034,7 +1099,9 @@
       { "name": "cobblemon:animation/wings/plumage_wing_flap_small_4", "volume": 0.25 },
       { "name": "cobblemon:animation/wings/plumage_wing_flap_small_5", "volume": 0.25 },
       { "name": "cobblemon:animation/wings/plumage_wing_flap_small_6", "volume": 0.25 },
-      { "name": "cobblemon:animation/wings/plumage_wing_flap_small_7", "volume": 0.25 }
+      { "name": "cobblemon:animation/wings/plumage_wing_flap_small_7", "volume": 0.25 },
+      { "name": "cobblemon:animation/wings/plumage_wing_flap_small_8", "volume": 0.25 }
+
     ]
   },
   "animation.plumage.wing_flap.medium": {
@@ -1045,7 +1112,8 @@
       { "name": "cobblemon:animation/wings/plumage_wing_flap_medium_4", "volume": 0.3 },
       { "name": "cobblemon:animation/wings/plumage_wing_flap_medium_5", "volume": 0.3 },
       { "name": "cobblemon:animation/wings/plumage_wing_flap_medium_6", "volume": 0.3 },
-      { "name": "cobblemon:animation/wings/plumage_wing_flap_medium_7", "volume": 0.3 }
+      { "name": "cobblemon:animation/wings/plumage_wing_flap_medium_7", "volume": 0.3 },
+      { "name": "cobblemon:animation/wings/plumage_wing_flap_medium_8", "volume": 0.3 }
     ]
   },
   "animation.leather.wing_flap.small": {
@@ -1056,7 +1124,8 @@
       { "name": "cobblemon:animation/wings/leather_wing_flap_small_4", "volume": 0.25 },
       { "name": "cobblemon:animation/wings/leather_wing_flap_small_5", "volume": 0.25 },
       { "name": "cobblemon:animation/wings/leather_wing_flap_small_6", "volume": 0.25 },
-      { "name": "cobblemon:animation/wings/leather_wing_flap_small_7", "volume": 0.25 }
+      { "name": "cobblemon:animation/wings/leather_wing_flap_small_7", "volume": 0.25 },
+      { "name": "cobblemon:animation/wings/leather_wing_flap_small_8", "volume": 0.25 }
     ]
   },
   "animation.leather.wing_flap.medium": {
@@ -1067,7 +1136,20 @@
       { "name": "cobblemon:animation/wings/leather_wing_flap_medium_4", "volume": 0.3 },
       { "name": "cobblemon:animation/wings/leather_wing_flap_medium_5", "volume": 0.3 },
       { "name": "cobblemon:animation/wings/leather_wing_flap_medium_6", "volume": 0.3 },
-      { "name": "cobblemon:animation/wings/leather_wing_flap_medium_7", "volume": 0.3 }
+      { "name": "cobblemon:animation/wings/leather_wing_flap_medium_7", "volume": 0.3 },
+      { "name": "cobblemon:animation/wings/leather_wing_flap_medium_8", "volume": 0.3 }
+    ]
+  },
+  "animation.chitin.wing_flap.medium": {
+    "sounds": [
+      { "name": "cobblemon:animation/wings/chitin_wing_flap_medium_1", "volume": 0.3 },
+      { "name": "cobblemon:animation/wings/chitin_wing_flap_medium_2", "volume": 0.3 },
+      { "name": "cobblemon:animation/wings/chitin_wing_flap_medium_3", "volume": 0.3 },
+      { "name": "cobblemon:animation/wings/chitin_wing_flap_medium_4", "volume": 0.3 },
+      { "name": "cobblemon:animation/wings/chitin_wing_flap_medium_5", "volume": 0.3 },
+      { "name": "cobblemon:animation/wings/chitin_wing_flap_medium_6", "volume": 0.3 },
+      { "name": "cobblemon:animation/wings/chitin_wing_flap_medium_7", "volume": 0.3 },
+      { "name": "cobblemon:animation/wings/chitin_wing_flap_medium_8", "volume": 0.3 }
     ]
   },
   "pokemon.bulbasaur.ambient": {
@@ -7228,6 +7310,15 @@
   },
   "pokemon.ceruledge.cry": {
     "sounds": [ { "name": "cobblemon:pokemon/ceruledge/ceruledge_cry", "volume": 0.8 } ]
+  },
+  "pokemon.ceruledge.battle_cry": {
+    "sounds": [ { "name": "cobblemon:pokemon/ceruledge/ceruledge_battle_cry", "volume": 0.9 } ]
+  },
+  "pokemon.ceruledge.quirk1": {
+    "sounds": [ { "name": "cobblemon:pokemon/ceruledge/ceruledge_quirk1", "volume": 0.5 } ]
+  },
+  "pokemon.ceruledge.quirk2": {
+    "sounds": [ { "name": "cobblemon:pokemon/ceruledge/ceruledge_quirk2", "volume": 0.4 } ]
   },
   "pokemon.toedscool.cry": {
     "sounds": [ { "name": "cobblemon:pokemon/toedscool/toedscool_cry", "volume": 0.8 } ]

@@ -40,9 +40,9 @@ import com.cobblemon.mod.common.api.properties.CustomPokemonProperty
 import com.cobblemon.mod.common.api.scheduling.ServerRealTimeTaskTracker
 import com.cobblemon.mod.common.api.scheduling.ServerTaskTracker
 import com.cobblemon.mod.common.api.spawning.BestSpawner
-import com.cobblemon.mod.common.api.spawning.CobblemonSpawningProspector
-import com.cobblemon.mod.common.api.spawning.context.AreaContextResolver
-import com.cobblemon.mod.common.api.spawning.prospecting.SpawningProspector
+import com.cobblemon.mod.common.api.spawning.CobblemonSpawningZoneGenerator
+import com.cobblemon.mod.common.api.spawning.position.AreaSpawnablePositionResolver
+import com.cobblemon.mod.common.api.spawning.SpawningZoneGenerator
 import com.cobblemon.mod.common.api.starter.StarterHandler
 import com.cobblemon.mod.common.api.storage.PokemonStoreManager
 import com.cobblemon.mod.common.api.storage.adapter.conversions.ReforgedConversion
@@ -128,6 +128,7 @@ import kotlin.reflect.jvm.isAccessible
 import kotlin.reflect.jvm.javaField
 import net.minecraft.client.Minecraft
 import net.minecraft.commands.synchronization.SingletonArgumentInfo
+import net.minecraft.core.registries.Registries
 import net.minecraft.resources.ResourceKey
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
@@ -159,8 +160,8 @@ object Cobblemon {
     var isDedicatedServer = false
     val showdownThread = ShowdownThread()
     lateinit var config: CobblemonConfig
-    var prospector: SpawningProspector = CobblemonSpawningProspector
-    var areaContextResolver: AreaContextResolver = object : AreaContextResolver {}
+    var spawningZoneGenerator: SpawningZoneGenerator = CobblemonSpawningZoneGenerator
+    var areaSpawnablePositionResolver: AreaSpawnablePositionResolver = object : AreaSpawnablePositionResolver {}
     val bestSpawner = BestSpawner
     val battleRegistry = BattleRegistry
     var storage = PokemonStoreManager()
@@ -194,6 +195,8 @@ object Cobblemon {
             this.LOGGER.info("  - Branch: ${CobblemonBuildDetails.BRANCH}")
         }
 
+        implementation.registerRecipeSerializers()
+        implementation.registerRecipeTypes()
         implementation.registerPermissionValidator()
         implementation.registerSoundEvents()
         implementation.registerDataComponents()
@@ -202,9 +205,11 @@ object Cobblemon {
         implementation.registerEntityTypes()
         implementation.registerEntityAttributes()
         implementation.registerBlockEntityTypes()
+        implementation.registerPoiTypes()
         implementation.registerVillagers()
         implementation.registerWorldGenFeatures()
         implementation.registerParticles()
+        implementation.registerMenu()
         implementation.registerEntityDataSerializers()
         implementation.registerCriteria()
         implementation.registerEntitySubPredicates()
