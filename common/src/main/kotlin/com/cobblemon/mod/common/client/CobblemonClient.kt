@@ -32,6 +32,8 @@ import com.cobblemon.mod.common.client.render.block.*
 import com.cobblemon.mod.common.client.render.boat.CobblemonBoatRenderer
 import com.cobblemon.mod.common.client.render.color.AprijuiceItemColorProvider
 import com.cobblemon.mod.common.client.render.color.PokeBaitItemColorProvider
+import com.cobblemon.mod.common.client.render.color.PonigiriItemColorProvider
+import com.cobblemon.mod.common.client.render.color.SinisterTeaItemColorProvider
 import com.cobblemon.mod.common.client.render.entity.PokeBobberEntityRenderer
 import com.cobblemon.mod.common.client.render.generic.GenericBedrockRenderer
 import com.cobblemon.mod.common.client.render.item.CobblemonBuiltinItemRendererRegistry
@@ -51,6 +53,7 @@ import com.cobblemon.mod.common.client.trade.ClientTrade
 import com.cobblemon.mod.common.data.CobblemonDataProvider
 import com.cobblemon.mod.common.entity.boat.CobblemonBoatType
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
+import com.cobblemon.mod.common.item.food.SinisterTeaItem
 import com.cobblemon.mod.common.platform.events.PlatformEvents
 import com.cobblemon.mod.common.pokedex.scanner.PokedexUsageContext
 import com.cobblemon.mod.common.util.isLookingAt
@@ -171,6 +174,9 @@ object CobblemonClient {
         TooltipManager.registerTooltipGenerator(FishingRodTooltipGenerator)
         TooltipManager.registerTooltipGenerator(SeasoningTooltipGenerator)
         TooltipManager.registerTooltipGenerator(AprijuiceTooltipGenerator)
+        TooltipManager.registerTooltipGenerator(PokePuffTooltipGenerator)
+        TooltipManager.registerTooltipGenerator(FoodTooltipGenerator)
+        TooltipManager.registerTooltipGenerator(MobEffectTooltipGenerator)
     }
 
     fun registerFlywheelRenderers() {
@@ -213,6 +219,13 @@ object CobblemonClient {
             CobblemonBlocks.RED_APRICORN_SAPLING,
             CobblemonBlocks.WHITE_APRICORN_SAPLING,
             CobblemonBlocks.YELLOW_APRICORN_SAPLING,
+            CobblemonBlocks.POTTED_BLACK_APRICORN_SAPLING,
+            CobblemonBlocks.POTTED_BLUE_APRICORN_SAPLING,
+            CobblemonBlocks.POTTED_GREEN_APRICORN_SAPLING,
+            CobblemonBlocks.POTTED_PINK_APRICORN_SAPLING,
+            CobblemonBlocks.POTTED_RED_APRICORN_SAPLING,
+            CobblemonBlocks.POTTED_WHITE_APRICORN_SAPLING,
+            CobblemonBlocks.POTTED_YELLOW_APRICORN_SAPLING,
             CobblemonBlocks.BLACK_APRICORN,
             CobblemonBlocks.BLUE_APRICORN,
             CobblemonBlocks.GREEN_APRICORN,
@@ -262,6 +275,7 @@ object CobblemonClient {
             CobblemonBlocks.SACCHARINE_HANGING_SIGN,
             CobblemonBlocks.SACCHARINE_WALL_HANGING_SIGN,
             CobblemonBlocks.SACCHARINE_SAPLING,
+            CobblemonBlocks.POTTED_SACCHARINE_SAPLING,
             CobblemonBlocks.LURE_CAKE,
             CobblemonBlocks.POKE_CAKE,
             CobblemonBlocks.LECTERN,
@@ -341,6 +355,8 @@ object CobblemonClient {
         implementation.registerItemColors(PokeBaitItemColorProvider, CobblemonItems.POKE_BAIT)
         implementation.registerItemColors(PokeBaitItemColorProvider, CobblemonItems.LURE_CAKE)
         implementation.registerItemColors(PokeBaitItemColorProvider, CobblemonItems.POKE_CAKE)
+        implementation.registerItemColors(PonigiriItemColorProvider, CobblemonItems.PONIGIRI)
+        implementation.registerItemColors(SinisterTeaItemColorProvider, CobblemonItems.SINISTER_TEA)
     }
 
     fun reloadCodedAssets(resourceManager: ResourceManager) {

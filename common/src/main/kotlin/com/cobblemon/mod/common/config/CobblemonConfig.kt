@@ -94,20 +94,27 @@ class CobblemonConfig {
     @CobblemonConfigField(Category.Spawning, lang = "max_vertical_space")
     var maxVerticalSpace = 8
 
-    @CobblemonConfigField(Category.Spawning, lang = "world_slice_diameter")
-    var worldSliceDiameter = 8
+    @CobblemonConfigField(Category.Spawning, lang = "spawning_zone_diameter")
+    @SerializedName("spawningZoneDiameter", alternate = ["worldSliceDiameter"])
+    var spawningZoneDiameter = 8
 
-    @CobblemonConfigField(Category.Spawning, lang = "world_slice_height")
-    var worldSliceHeight = 16
+    @CobblemonConfigField(Category.Spawning, lang = "spawning_zone_height")
+    @SerializedName("spawningZoneHeight", alternate = ["worldSliceHeight"])
+    var spawningZoneHeight = 16
 
     @CobblemonConfigField(Category.Spawning, lang = "ticks_between_spawn_attempts")
     var ticksBetweenSpawnAttempts = 20F
 
-    @CobblemonConfigField(Category.Spawning, lang = "minimum_slice_distance_from_player")
-    var minimumSliceDistanceFromPlayer = 16F
+    @CobblemonConfigField(Category.Spawning, lang = "minimum_spawning_zone_distance_from_player")
+    @SerializedName("minimumSpawningZoneDistanceFromPlayer", alternate = ["minimumSliceDistanceFromPlayer"])
+    var minimumSpawningZoneDistanceFromPlayer = 16F
 
-    @CobblemonConfigField(Category.Spawning, lang = "maximum_slice_distance_from_player")
-    var maximumSliceDistanceFromPlayer = 16 * 4F
+    @CobblemonConfigField(Category.Spawning, lang = "maximum_spawning_zone_distance_from_player")
+    @SerializedName("maximumSpawningZoneDistanceFromPlayer", alternate = ["maximumSliceDistanceFromPlayer"])
+    var maximumSpawningZoneDistanceFromPlayer = 16 * 4F
+
+    @CobblemonConfigField(Category.Spawning, lang = "maximum_spawns_per_pass")
+    var maximumSpawnsPerPass = 8
 
     @CobblemonConfigField(Category.Spawning, lang = "export_spawn_config")
     var exportSpawnConfig = false
@@ -282,6 +289,18 @@ class CobblemonConfig {
 
     @CobblemonConfigField(Category.Debug, lang = "enable_debug_keys")
     var enableDebugKeys = false
+
+    @CobblemonConfigField(Category.Spawning, lang = "despawner_near_distance")
+    var despawnerNearDistance = 32f
+    
+    @CobblemonConfigField(Category.Spawning, lang = "despawner_far_distance")
+    var despawnerFarDistance = 96f
+    
+    @CobblemonConfigField(Category.Spawning, lang = "despawner_min_age_ticks")
+    var despawnerMinAgeTicks = 600
+    
+    @CobblemonConfigField(Category.Spawning, lang = "despawner_max_age_ticks")
+    var despawnerMaxAgeTicks = 3600
 
     fun clone(): CobblemonConfig {
         val newConfig = CobblemonConfig()
