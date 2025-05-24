@@ -204,7 +204,9 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     val CAMPFIRE_POT_YELLOW = campfirePotItem(CobblemonBlocks.YELLOW_CAMPFIRE_POT, "yellow")
 
     @JvmField
-    val Hearty_Grains = compostableItem("hearty_grains", HeartyGrainsItem(CobblemonBlocks.HEARTY_GRAINS))
+    val HEARTY_GRAINS = compostableItem("hearty_grains", HeartyGrainsItem(CobblemonBlocks.HEARTY_GRAINS))
+    @JvmField
+    val HEARTY_GRAIN_BALE = compostableBlockItem("hearty_grain_bale", CobblemonBlocks.HEARTY_GRAIN_BALE, 0.85f)
 
     @JvmField
     val VIVICHOKE = compostableItem("vivichoke")
@@ -351,19 +353,19 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
 
     val aprijuices = mutableListOf<AprijuiceItem>()
     @JvmField
-    val APRIJUICE_BLACK = aprijuiceItem(Apricorn.BLACK)
-    @JvmField
     val APRIJUICE_RED = aprijuiceItem(Apricorn.RED)
-    @JvmField
-    val APRIJUICE_BLUE = aprijuiceItem(Apricorn.BLUE)
-    @JvmField
-    val APRIJUICE_GREEN = aprijuiceItem(Apricorn.GREEN)
     @JvmField
     val APRIJUICE_YELLOW = aprijuiceItem(Apricorn.YELLOW)
     @JvmField
-    val APRIJUICE_WHITE = aprijuiceItem(Apricorn.WHITE)
+    val APRIJUICE_GREEN = aprijuiceItem(Apricorn.GREEN)
+    @JvmField
+    val APRIJUICE_BLUE = aprijuiceItem(Apricorn.BLUE)
     @JvmField
     val APRIJUICE_PINK = aprijuiceItem(Apricorn.PINK)
+    @JvmField
+    val APRIJUICE_BLACK = aprijuiceItem(Apricorn.BLACK)
+    @JvmField
+    val APRIJUICE_WHITE = aprijuiceItem(Apricorn.WHITE)
 
     @JvmField
     val PONIGIRI = create("ponigiri", PonigiriItem())
@@ -513,6 +515,9 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     @JvmField val AUSPICIOUS_ARMOR = heldItem("auspicious_armor")
     @JvmField val MALICIOUS_ARMOR = heldItem("malicious_armor")
     @JvmField val SHELL_HELMET = heldItem("shell_helmet")
+    @JvmField val METAL_ALLOY = noSettingsItem("metal_alloy")
+    @JvmField val SCROLL_OF_DARKNESS = noSettingsItem("scroll_of_darkness")
+    @JvmField val SCROLL_OF_WATERS = noSettingsItem("scroll_of_waters")
 
     private val berries = mutableMapOf<ResourceLocation, BerryItem>()
     // Plants
@@ -912,8 +917,8 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     val CHOICE_SCARF = heldItem("choice_scarf")
     @JvmField
     val CLEANSE_TAG = heldItem("cleanse_tag")
-   // @JvmField
-   // val CLEAR_AMULET = heldItem("clear_amulet")
+    @JvmField
+    val CLEAR_AMULET = heldItem("clear_amulet")
     @JvmField
     val COVERT_CLOAK = heldItem("covert_cloak")
     @JvmField
@@ -942,16 +947,16 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     val FOCUS_SASH = heldItem("focus_sash")
     @JvmField
     val GRASSY_SEED = heldItem("grassy_seed")
-   // @JvmField
-   // val GRIP_CLAW = heldItem("grip_claw")
+    @JvmField
+    val GRIP_CLAW = heldItem("grip_claw")
     @JvmField
     val HARD_STONE = heldItem("hard_stone")
     @JvmField
     val HEAVY_DUTY_BOOTS = heldItem("heavy_duty_boots")
     @JvmField
     val IRON_BALL = heldItem("iron_ball")
-   // @JvmField
-   // val LAGGING_TAIL = heldItem("lagging_tail")
+    @JvmField
+    val LAGGING_TAIL = heldItem("lagging_tail")
     @JvmField
     val LEFTOVERS = heldItem("leftovers")
     @JvmField
@@ -964,8 +969,8 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     val LOADED_DICE = heldItem("loaded_dice")
     @JvmField
     val LUCKY_EGG = heldItem("lucky_egg")
-   // @JvmField
-   // val LUMINOUS_MOSS = heldItem("luminous_moss")
+    @JvmField
+    val LUMINOUS_MOSS = heldItem("luminous_moss")
     @JvmField
     val MAGNET = heldItem("magnet")
     @JvmField

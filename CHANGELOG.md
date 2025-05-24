@@ -21,6 +21,8 @@
 - Fixed Moon Ball moon phase logic to actually work correctly
 - Added `translucent_cull` boolean option into resolver's layer to allow for translucent textures with culling
 - Added [LambDynamicLights](https://modrinth.com/mod/lambdynamiclights) support for items held by Pokémon.
+- Added the Clear Amulet, Grip Claw, Lagging Tail, Luminous Moss, Metal Alloy, Scroll of Darkness, Scroll of Waters
+- Added Recipes for Masterpiece Cup, Eject Pack
 - Added modification to Minecraft Creative Inventory search to account for item names that contain `poké` when input contains `poke`.
 - Added Campfire Pot as well as loads of new food items (Poke Puffs, Ponigiri, Sinister Tea, etc)
 
@@ -116,12 +118,13 @@
 - Made Blocks of Gold count as Big Nuggets when held by a Pokémon (for Fling functionality)
 - Players can now eat Sweet and Tart Apples, Whipped Dreams, and the Alcremie Sweets.
 - Updated Sweet and Tart Apple sprites
-- Updated the following recipes: Air Balloon, Assault Vest, Binding Band, Black Belt, Blunder Policy, Choice Band, Choice Scarf, Cleanse Tag, Covert Cloak, Destiny Knot, Eject Button, Expert Belt, Focus Band, Focus Sash, Magnet, Metronome, Muscle Band, Power Anklet, Power Band, Power Belt, Power Bracer, Power Lens, Power Weight, Protective Pads, Protein, Punching Glove, Reaper Cloth, Rocky Helmet, Room Service, Sachet, Safety Goggles, Silk Scarf, Spell Tag, Utility Umbrella, Weakness Policy, Zinc
-- Added alternate ingredient options to the following recipes: Cell Battery, Charcoal Stick, Dragon Fang, Miracle Seed, Mystic Water, Never Melt Ice, Twisted Spoon, Damp Rock, Heat Rock, Icy Rock, Smooth Rock
+- Updated the following recipes: Air Balloon, Assault Vest, Binding Band, Black Belt, Blunder Policy, Choice Band, Choice Scarf, Cleanse Tag, Covert Cloak, Destiny Knot, Eject Button, Expert Belt, Focus Band, Focus Sash, Magnet, Metronome, Muscle Band, Power Anklet, Power Band, Power Belt, Power Bracer, Power Lens, Power Weight, Protective Pads, Protein, Punching Glove, Reaper Cloth, Rocky Helmet, Room Service, Sachet, Safety Goggles, Silk Scarf, Spell Tag, Utility Umbrella, Weakness Policy, Zinc, Chipped Pot, Cracked Pot, Unremarkable Cup, Loaded Dice, Charcoal Stick, Dragon Fang, Miracle Seed, Mystic Water, Never Melt Ice, Twisted Spoon, Black Glasses, Fairy Feather, Hard Stone, Silver Powder, Soft Sand
+- Added alternate ingredient options to the following recipes: Cell Battery, Damp Rock, Heat Rock, Icy Rock, Smooth Rock
 - Grouped together some recipes within the Recipe Book. Groups include: the seven basic Poké Balls, the seven basic Ancient Poké Balls, Gilded Chests, Pokedexes, and the Weather Rocks.
 - Updated some item tags to better integrate behaviours between Cobblemon, Vanilla Minecraft, and other mods
   - Removed Cooked Meat, Raw Meat, Protein Ingredients, and Zinc Ingredients, the first two are now using `c` namespace tags, the latter have better integrated use of tags within their recipes which removes need for custom tags.
-  - Added our seeds tag into `#c:seeds`, which is now made use of for the Miracle Seed recipe. 
+  - Added our seeds tag into `#c:seeds`, which is now made use of for the Miracle Seed recipe.
+- Added herbs and snowballs to the consumable in PvE and Wild battle tags
 - Tweaked the Natural Materials Vanilla file to fit with the changes to tags
 - Substantially optimised spawning checks mainly by front-loading biome filtering.
 - When using the `cobblemon` or `generation_9` capture calculators a critical capture with a single shake will always play for successful captures when you've already registered the Pokémon as caught in your Pokédex.
@@ -136,10 +139,13 @@
 - Improved parity with vanilla mobs' drop behavior; loot and XP drop on death instead of after the entire death sequence finishes.
 - Quirk animations no longer play in the battle GUI since they were pretty distracting.
 - A number of Pokemon that float above the ground visually (Gastly, Klingklang, etc.)  are no longer considered to be touching the ground
+- Changed the recipes for Level, Lure, and Moon Balls to be cleaner
 - Renamed `pokemonId` and `type` to `species` in relevant Advancement triggers for conformity, this is a breaking change.
 - Added a separate `species` argument to the `pick_starter`, `pasture_use` and `resurrect_pokemon` Advancement triggers.
 - Made `CobblemonAgingDespawner` thresholds configurable via the config file.
 - Tweaked Berry flavor data to balance cooking pot mechanics
+- Made Red, Yellow, Green, Blue, Pink, Black, and White Apricorn Sprout and Saccharine Sapling able to be placed into flower pots.
+- Added all Potted Apricorn Sprouts, Potted Saccharine Saplings, and Potted Pep-Up Flowers to the `#minecraft:flower_pots` block tag
 
 ### Fixes
 - Fixed Particles sometimes facing the wrong direction (looking at you, Swords Dance)
@@ -180,6 +186,7 @@
 - Fixed the `dimensions` spawning condition using the incorrect ResourceLocation, causing it to not function properly.
 - Fix issue where locator X axis was not aligned with blockbench.
 - Fix issue where particle effects that play on frame 1 on sendout would never play (Gastly)
+- Fixed the block texture name for the Pep-Up Flower being inaccurate
 - Fixed issue where the restoration tank would not accept valid items from a hopper.
 - Fixed energy root not being shearable
 - Fixed energy root always spreading into more energy roots instead of by chance (same as big root)
