@@ -45,6 +45,9 @@ import com.cobblemon.mod.common.api.pokedex.SeenPercent
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties
 import com.cobblemon.mod.common.api.pokemon.evolution.Evolution
 import com.cobblemon.mod.common.api.pokemon.stats.Stats
+import com.cobblemon.mod.common.api.scheduling.ClientTaskTracker
+import com.cobblemon.mod.common.api.scheduling.Schedulable
+import com.cobblemon.mod.common.api.scheduling.ServerTaskTracker
 import com.cobblemon.mod.common.api.scripting.CobblemonScripts
 import com.cobblemon.mod.common.api.spawning.context.SpawningContext
 import com.cobblemon.mod.common.api.storage.PokemonStore
@@ -69,6 +72,7 @@ import com.cobblemon.mod.common.net.messages.client.animation.PlayPosableAnimati
 import com.cobblemon.mod.common.net.messages.client.effect.RunPosableMoLangPacket
 import com.cobblemon.mod.common.net.messages.client.effect.SpawnSnowstormEntityParticlePacket
 import com.cobblemon.mod.common.net.messages.client.effect.SpawnSnowstormParticlePacket
+import com.cobblemon.mod.common.net.messages.client.sound.UnvalidatedPlaySoundS2CPacket
 import com.cobblemon.mod.common.pokemon.Gender
 import com.cobblemon.mod.common.pokemon.Pokemon
 import com.cobblemon.mod.common.pokemon.Species
@@ -97,6 +101,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.sounds.SoundSource
 import net.minecraft.tags.TagKey
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.damagesource.DamageTypes
@@ -198,7 +203,15 @@ object MoLangFunctions {
             runtime.environment.variable = params.environment.variable
             runtime.environment.context = params.environment.context
             val expression = params.getString(0).asExpressionLike()
-            runtime.resolve(expression)
+            val delayInSeconds = params.getDoubleOrNull(1)?.toFloat() ?: 0.0f
+            if (delayInSeconds > 0.0f) {
+                val tracker = if (Cobblemon.implementation.environment() == Environment.SERVER) ServerTaskTracker else ClientTaskTracker
+                tracker.after(delayInSeconds) {
+                    runtime.resolve(expression)
+                }
+            } else {
+                runtime.resolve(expression)
+            }
         },
         "system_time_millis" to java.util.function.Function { _ ->
             DoubleValue(System.currentTimeMillis())
@@ -345,6 +358,27 @@ object MoLangFunctions {
                     return@put DoubleValue.ZERO
                 }
             }
+            map.put("play_sound_on_server") { params ->
+                val sound = params.getString(0).asResource()
+                val soundSource = params.getString(1).uppercase()
+                val x = params.getDouble(2)
+                val y = params.getDouble(3)
+                val z = params.getDouble(4)
+                val player = params.getOrNull<MoValue>(5)?.let {
+                    if (it is StringValue) world.getPlayerByUUID(UUID.fromString(it.value))
+                    else if (it is ObjectValue<*>) it.obj
+                    else null
+                } as? ServerPlayer
+                val volume = params.getDoubleOrNull(6)?.toFloat() ?: 1.0f
+                val pitch = params.getDoubleOrNull(7)?.toFloat() ?: 1.0f
+
+                val packet = UnvalidatedPlaySoundS2CPacket(sound, SoundSource.valueOf(soundSource), x, y, z, volume, pitch)
+                if (player != null) {
+                    packet.sendToPlayer(player)
+                } else {
+                    packet.sendToPlayersAround(x, y, z, 16.0, world.dimension())
+                }
+            }
             map.put("get_entities_around") { params ->
                 val x = params.getDouble(0)
                 val y = params.getDouble(1)
@@ -404,6 +438,15 @@ object MoLangFunctions {
                 map.put("run_command") { params ->
                     val command = params.getString(0)
                     player.server.commands.performPrefixedCommand(player.createCommandSourceStack(), command)
+                }
+                map.put("play_sound_on_server") { params ->
+                    val sound = params.getString(0).asResource()
+                    val soundSource = SoundSource.valueOf(params.getString(1).uppercase())
+                    val volume = params.getDoubleOrNull(2)?.toFloat() ?: 1.0f
+                    val pitch = params.getDoubleOrNull(3)?.toFloat() ?: 1.0f
+
+                    val packet = UnvalidatedPlaySoundS2CPacket(sound, soundSource, player.x, player.y, player.z, volume, pitch)
+                    packet.sendToPlayer(player)
                 }
                 map.put("is_party_at_full_health") { _ ->
                     DoubleValue(player.party().none(Pokemon::canBeHealed)) }
@@ -673,6 +716,17 @@ object MoLangFunctions {
                     } else {
                         packet.sendToPlayersAround(entity.x, entity.y, entity.z, 64.0, entity.level().dimension())
                         return@put DoubleValue.ONE
+                    }
+                }
+            }
+            if (entity is Schedulable) {
+                map.put("run_molang_after") { params ->
+                    val expression = params.getString(0).asExpressionLike()
+                    val delayInSeconds = params.getDouble(1).toFloat()
+                    val runtime = MoLangRuntime()
+                    runtime.environment.cloneFrom(params.environment)
+                    entity.after(delayInSeconds) {
+                        runtime.resolve(expression)
                     }
                 }
             }
