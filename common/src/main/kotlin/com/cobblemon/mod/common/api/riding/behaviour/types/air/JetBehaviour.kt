@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package com.cobblemon.mod.common.api.riding.behaviour.types
+package com.cobblemon.mod.common.api.riding.behaviour.types.air
 
 import com.bedrockk.molang.Expression
 import com.cobblemon.mod.common.Cobblemon
@@ -30,21 +30,21 @@ import net.minecraft.world.phys.Vec3
 import net.minecraft.world.phys.shapes.Shapes
 import kotlin.math.*
 
-class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
+class JetBehaviour : RidingBehaviour<JetSettings, JetState> {
     companion object {
         val KEY = cobblemonResource("air/jet")
     }
 
     override val key = KEY
 
-    override fun getRidingStyle(settings: JetAirSettings, state: JetAirState): RidingStyle {
+    override fun getRidingStyle(settings: JetSettings, state: JetState): RidingStyle {
         return RidingStyle.AIR
     }
 
-    val poseProvider = PoseProvider<JetAirSettings, JetAirState>(PoseType.HOVER)
+    val poseProvider = PoseProvider<JetSettings, JetState>(PoseType.HOVER)
         .with(PoseOption(PoseType.FLY) { _, state, _ -> state.rideVelocity.get().z > 0.1 })
 
-    override fun isActive(settings: JetAirSettings, state: JetAirState, vehicle: PokemonEntity): Boolean {
+    override fun isActive(settings: JetSettings, state: JetState, vehicle: PokemonEntity): Boolean {
         return Shapes.create(vehicle.boundingBox).blockPositionsAsListRounded().any {
             //Need to check other fluids
             if (vehicle.isInWater || vehicle.isUnderWater) {
@@ -59,11 +59,11 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
         }
     }
 
-    override fun pose(settings: JetAirSettings, state: JetAirState, vehicle: PokemonEntity): PoseType {
+    override fun pose(settings: JetSettings, state: JetState, vehicle: PokemonEntity): PoseType {
         return poseProvider.select(settings, state, vehicle)
     }
 
-    override fun speed(settings: JetAirSettings, state: JetAirState, vehicle: PokemonEntity, driver: Player): Float {
+    override fun speed(settings: JetSettings, state: JetState, vehicle: PokemonEntity, driver: Player): Float {
         //retrieve stats
         val topSpeed = vehicle.runtime.resolveDouble(settings.speedExpr)
         val staminaStat = vehicle.runtime.resolveDouble(settings.staminaExpr)
@@ -104,8 +104,8 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
     }
 
     override fun rotation(
-        settings: JetAirSettings,
-        state: JetAirState,
+        settings: JetSettings,
+        state: JetState,
         vehicle: PokemonEntity,
         driver: LivingEntity
     ): Vec2 {
@@ -113,8 +113,8 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
     }
 
     override fun velocity(
-        settings: JetAirSettings,
-        state: JetAirState,
+        settings: JetSettings,
+        state: JetState,
         vehicle: PokemonEntity,
         driver: Player,
         input: Vec3
@@ -153,8 +153,8 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
     *  Calculates the change in the ride space vector due to player input and ride state
     */
     private fun calculateRideSpaceVel(
-        settings: JetAirSettings,
-        state: JetAirState,
+        settings: JetSettings,
+        state: JetState,
         vehicle: PokemonEntity,
         driver: Player
     ) {
@@ -186,8 +186,8 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
     }
 
     override fun angRollVel(
-        settings: JetAirSettings,
-        state: JetAirState,
+        settings: JetSettings,
+        state: JetState,
         vehicle: PokemonEntity,
         driver: Player,
         deltaTime: Double
@@ -211,8 +211,8 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
     }
 
     override fun rotationOnMouseXY(
-        settings: JetAirSettings,
-        state: JetAirState,
+        settings: JetSettings,
+        state: JetState,
         vehicle: PokemonEntity,
         driver: Player,
         mouseY: Double,
@@ -273,8 +273,8 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
     }
 
     override fun canJump(
-        settings: JetAirSettings,
-        state: JetAirState,
+        settings: JetSettings,
+        state: JetState,
         vehicle: PokemonEntity,
         driver: Player
     ): Boolean {
@@ -282,8 +282,8 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
     }
 
     override fun setRideBar(
-        settings: JetAirSettings,
-        state: JetAirState,
+        settings: JetSettings,
+        state: JetState,
         vehicle: PokemonEntity,
         driver: Player
     ): Float {
@@ -291,8 +291,8 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
     }
 
     override fun jumpForce(
-        settings: JetAirSettings,
-        state: JetAirState,
+        settings: JetSettings,
+        state: JetState,
         vehicle: PokemonEntity,
         driver: Player,
         jumpStrength: Int
@@ -301,8 +301,8 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
     }
 
     override fun gravity(
-        settings: JetAirSettings,
-        state: JetAirState,
+        settings: JetSettings,
+        state: JetState,
         vehicle: PokemonEntity,
         regularGravity: Double
     ): Double {
@@ -310,8 +310,8 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
     }
 
     override fun rideFovMultiplier(
-        settings: JetAirSettings,
-        state: JetAirState,
+        settings: JetSettings,
+        state: JetState,
         vehicle: PokemonEntity,
         driver: Player
     ): Float {
@@ -326,52 +326,52 @@ class JetAirBehaviour : RidingBehaviour<JetAirSettings, JetAirState> {
         return 1.0f + normalizedSpeed.pow(2).toFloat() * 0.2f
     }
 
-    override fun useAngVelSmoothing(settings: JetAirSettings, state: JetAirState, vehicle: PokemonEntity): Boolean {
+    override fun useAngVelSmoothing(settings: JetSettings, state: JetState, vehicle: PokemonEntity): Boolean {
         return true
     }
 
     override fun useRidingAltPose(
-        settings: JetAirSettings,
-        state: JetAirState,
+        settings: JetSettings,
+        state: JetState,
         vehicle: PokemonEntity,
         driver: Player
     ): ResourceLocation {
         return cobblemonResource("no_pose")
     }
 
-    override fun inertia(settings: JetAirSettings, state: JetAirState, vehicle: PokemonEntity): Double {
+    override fun inertia(settings: JetSettings, state: JetState, vehicle: PokemonEntity): Double {
         return 1.0
     }
 
-    override fun shouldRoll(settings: JetAirSettings, state: JetAirState, vehicle: PokemonEntity): Boolean {
+    override fun shouldRoll(settings: JetSettings, state: JetState, vehicle: PokemonEntity): Boolean {
         return true
     }
 
-    override fun turnOffOnGround(settings: JetAirSettings, state: JetAirState, vehicle: PokemonEntity): Boolean {
+    override fun turnOffOnGround(settings: JetSettings, state: JetState, vehicle: PokemonEntity): Boolean {
         return false
     }
 
-    override fun dismountOnShift(settings: JetAirSettings, state: JetAirState, vehicle: PokemonEntity): Boolean {
+    override fun dismountOnShift(settings: JetSettings, state: JetState, vehicle: PokemonEntity): Boolean {
         return false
     }
 
     override fun shouldRotatePokemonHead(
-        settings: JetAirSettings,
-        state: JetAirState,
+        settings: JetSettings,
+        state: JetState,
         vehicle: PokemonEntity
     ): Boolean {
         return false
     }
 
-    override fun shouldRotatePlayerHead(settings: JetAirSettings, state: JetAirState, vehicle: PokemonEntity): Boolean {
+    override fun shouldRotatePlayerHead(settings: JetSettings, state: JetState, vehicle: PokemonEntity): Boolean {
         return false
     }
 
-    override fun createDefaultState(settings: JetAirSettings) = JetAirState()
+    override fun createDefaultState(settings: JetSettings) = JetState()
 }
 
-class JetAirSettings : RidingBehaviourSettings {
-    override val key = JetAirBehaviour.KEY
+class JetSettings : RidingBehaviourSettings {
+    override val key = JetBehaviour.KEY
 
     var gravity: Expression = "0".asExpression()
         private set
@@ -428,7 +428,7 @@ class JetAirSettings : RidingBehaviourSettings {
     }
 }
 
-class JetAirState : RidingBehaviourState() {
+class JetState : RidingBehaviourState() {
     var currSpeed = ridingState(0.0, Side.CLIENT)
     var currMouseXForce = ridingState(0.0, Side.CLIENT)
     var currMouseYForce = ridingState(0.0, Side.CLIENT)
@@ -451,7 +451,7 @@ class JetAirState : RidingBehaviourState() {
         currMouseYForce.set(0.0, forced = true)
     }
 
-    override fun copy() = JetAirState().also {
+    override fun copy() = JetState().also {
         it.currSpeed.set(currSpeed.get(), forced = true)
         it.stamina.set(stamina.get(), forced = true)
         it.rideVelocity.set(rideVelocity.get(), forced = true)
@@ -460,7 +460,7 @@ class JetAirState : RidingBehaviourState() {
     }
 
     override fun shouldSync(previous: RidingBehaviourState): Boolean {
-        if (previous !is JetAirState) return false
+        if (previous !is JetState) return false
         if (previous.currSpeed != currSpeed) return true
         return super.shouldSync(previous)
     }

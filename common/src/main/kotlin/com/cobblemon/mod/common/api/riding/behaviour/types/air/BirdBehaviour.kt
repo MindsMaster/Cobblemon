@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package com.cobblemon.mod.common.api.riding.behaviour.types
+package com.cobblemon.mod.common.api.riding.behaviour.types.air
 
 import com.bedrockk.molang.Expression
 import com.bedrockk.molang.runtime.MoLangMath.lerp
@@ -33,31 +33,31 @@ import net.minecraft.world.phys.Vec3
 import org.joml.Vector3f
 import kotlin.math.*
 
-class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
+class BirdBehaviour : RidingBehaviour<BirdSettings, BirdState> {
     companion object {
         val KEY = cobblemonResource("air/bird")
     }
 
     override val key: ResourceLocation = KEY
 
-    override fun getRidingStyle(settings: BirdAirSettings, state: BirdAirState): RidingStyle {
+    override fun getRidingStyle(settings: BirdSettings, state: BirdState): RidingStyle {
         return RidingStyle.AIR
     }
 
-    val poseProvider = PoseProvider<BirdAirSettings, BirdAirState>(PoseType.HOVER)
+    val poseProvider = PoseProvider<BirdSettings, BirdState>(PoseType.HOVER)
         .with(PoseOption(PoseType.FLY) { _, state, _ -> state.rideVelocity.get().z > 0.2 })
 
-    override fun isActive(settings: BirdAirSettings, state: BirdAirState, vehicle: PokemonEntity): Boolean {
+    override fun isActive(settings: BirdSettings, state: BirdState, vehicle: PokemonEntity): Boolean {
         return true
     }
 
-    override fun pose(settings: BirdAirSettings, state: BirdAirState, vehicle: PokemonEntity): PoseType {
+    override fun pose(settings: BirdSettings, state: BirdState, vehicle: PokemonEntity): PoseType {
         return poseProvider.select(settings, state, vehicle)
     }
 
     override fun speed(
-        settings: BirdAirSettings,
-        state: BirdAirState,
+        settings: BirdSettings,
+        state: BirdState,
         vehicle: PokemonEntity,
         driver: Player
     ): Float {
@@ -65,8 +65,8 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
     }
 
     override fun rotation(
-        settings: BirdAirSettings,
-        state: BirdAirState,
+        settings: BirdSettings,
+        state: BirdState,
         vehicle: PokemonEntity,
         driver: LivingEntity
     ): Vec2 {
@@ -74,8 +74,8 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
     }
 
     override fun velocity(
-        settings: BirdAirSettings,
-        state: BirdAirState,
+        settings: BirdSettings,
+        state: BirdState,
         vehicle: PokemonEntity,
         driver: Player,
         input: Vec3
@@ -122,7 +122,7 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
     /*
     *  Calculates the change in the ride space vector due to player input and ride state
     */
-    fun calculateRideSpaceVel(settings: BirdAirSettings, state: BirdAirState, vehicle: PokemonEntity, driver: Player) {
+    fun calculateRideSpaceVel(settings: BirdSettings, state: BirdState, vehicle: PokemonEntity, driver: Player) {
         //retrieve stats
         val topSpeed = vehicle.runtime.resolveDouble(settings.speedExpr)
         val glideTopSpeed = vehicle.runtime.resolveDouble(settings.glidespeedExpr)
@@ -240,8 +240,8 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
     }
 
     override fun angRollVel(
-        settings: BirdAirSettings,
-        state: BirdAirState,
+        settings: BirdSettings,
+        state: BirdState,
         vehicle: PokemonEntity,
         driver: Player,
         deltaTime: Double
@@ -282,8 +282,8 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
     }
 
     override fun rotationOnMouseXY(
-        settings: BirdAirSettings,
-        state: BirdAirState,
+        settings: BirdSettings,
+        state: BirdState,
         vehicle: PokemonEntity,
         driver: Player,
         mouseY: Double,
@@ -367,8 +367,8 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
     }
 
     override fun canJump(
-        settings: BirdAirSettings,
-        state: BirdAirState,
+        settings: BirdSettings,
+        state: BirdState,
         vehicle: PokemonEntity,
         driver: Player
     ): Boolean {
@@ -376,8 +376,8 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
     }
 
     override fun setRideBar(
-        settings: BirdAirSettings,
-        state: BirdAirState,
+        settings: BirdSettings,
+        state: BirdState,
         vehicle: PokemonEntity,
         driver: Player
     ): Float {
@@ -385,8 +385,8 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
     }
 
     override fun jumpForce(
-        settings: BirdAirSettings,
-        state: BirdAirState,
+        settings: BirdSettings,
+        state: BirdState,
         vehicle: PokemonEntity,
         driver: Player,
         jumpStrength: Int
@@ -395,8 +395,8 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
     }
 
     override fun gravity(
-        settings: BirdAirSettings,
-        state: BirdAirState,
+        settings: BirdSettings,
+        state: BirdState,
         vehicle: PokemonEntity,
         regularGravity: Double
     ): Double {
@@ -404,8 +404,8 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
     }
 
     override fun rideFovMultiplier(
-        settings: BirdAirSettings,
-        state: BirdAirState,
+        settings: BirdSettings,
+        state: BirdState,
         vehicle: PokemonEntity,
         driver: Player
     ): Float {
@@ -420,16 +420,16 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
     }
 
     override fun useAngVelSmoothing(
-        settings: BirdAirSettings,
-        state: BirdAirState,
+        settings: BirdSettings,
+        state: BirdState,
         vehicle: PokemonEntity
     ): Boolean {
         return false
     }
 
     override fun useRidingAltPose(
-        settings: BirdAirSettings,
-        state: BirdAirState,
+        settings: BirdSettings,
+        state: BirdState,
         vehicle: PokemonEntity,
         driver: Player
     ): ResourceLocation {
@@ -439,44 +439,44 @@ class BirdAirBehaviour : RidingBehaviour<BirdAirSettings, BirdAirState> {
         return cobblemonResource("no_pose")
     }
 
-    override fun inertia(settings: BirdAirSettings, state: BirdAirState, vehicle: PokemonEntity): Double {
+    override fun inertia(settings: BirdSettings, state: BirdState, vehicle: PokemonEntity): Double {
         return 0.5
     }
 
-    override fun shouldRoll(settings: BirdAirSettings, state: BirdAirState, vehicle: PokemonEntity): Boolean {
+    override fun shouldRoll(settings: BirdSettings, state: BirdState, vehicle: PokemonEntity): Boolean {
         return true
     }
 
-    override fun turnOffOnGround(settings: BirdAirSettings, state: BirdAirState, vehicle: PokemonEntity): Boolean {
+    override fun turnOffOnGround(settings: BirdSettings, state: BirdState, vehicle: PokemonEntity): Boolean {
         return false
     }
 
-    override fun dismountOnShift(settings: BirdAirSettings, state: BirdAirState, vehicle: PokemonEntity): Boolean {
+    override fun dismountOnShift(settings: BirdSettings, state: BirdState, vehicle: PokemonEntity): Boolean {
         return false
     }
 
     override fun shouldRotatePokemonHead(
-        settings: BirdAirSettings,
-        state: BirdAirState,
+        settings: BirdSettings,
+        state: BirdState,
         vehicle: PokemonEntity
     ): Boolean {
         return false
     }
 
     override fun shouldRotatePlayerHead(
-        settings: BirdAirSettings,
-        state: BirdAirState,
+        settings: BirdSettings,
+        state: BirdState,
         vehicle: PokemonEntity
     ): Boolean {
         return true
     }
 
-    override fun createDefaultState(settings: BirdAirSettings) = BirdAirState()
+    override fun createDefaultState(settings: BirdSettings) = BirdState()
 
 }
 
-class BirdAirSettings : RidingBehaviourSettings {
-    override val key = BirdAirBehaviour.KEY
+class BirdSettings : RidingBehaviourSettings {
+    override val key = BirdBehaviour.KEY
 
     var infiniteAltitude: Expression = "false".asExpression()
         private set
@@ -518,7 +518,7 @@ class BirdAirSettings : RidingBehaviourSettings {
     }
 }
 
-class BirdAirState : RidingBehaviourState() {
+class BirdState : RidingBehaviourState() {
     var gliding = ridingState(false, Side.CLIENT)
     var lastGlide = ridingState(-100L, Side.CLIENT)
     var currRollCorrectionForce = ridingState(0.0, Side.CLIENT)
@@ -542,10 +542,10 @@ class BirdAirState : RidingBehaviourState() {
     }
 
     override fun toString(): String {
-        return "BirdAirState(rideVelocity=${rideVelocity.get()}, stamina=${stamina.get()}, gliding=${gliding.get()})"
+        return "BirdState(rideVelocity=${rideVelocity.get()}, stamina=${stamina.get()}, gliding=${gliding.get()})"
     }
 
-    override fun copy() = BirdAirState().also {
+    override fun copy() = BirdState().also {
         it.rideVelocity.set(this.rideVelocity.get(), forced = true)
         it.stamina.set(this.stamina.get(), forced = true)
         it.gliding.set(this.gliding.get(), forced = true)
@@ -554,7 +554,7 @@ class BirdAirState : RidingBehaviourState() {
     }
 
     override fun shouldSync(previous: RidingBehaviourState): Boolean {
-        if (previous !is BirdAirState) return false
+        if (previous !is BirdState) return false
         if (previous.gliding.get() != gliding.get()) return true
         return super.shouldSync(previous)
     }

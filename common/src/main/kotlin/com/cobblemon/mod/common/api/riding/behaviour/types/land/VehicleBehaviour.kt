@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package com.cobblemon.mod.common.api.riding.behaviour.types
+package com.cobblemon.mod.common.api.riding.behaviour.types.land
 
 import com.bedrockk.molang.runtime.value.DoubleValue
 import com.cobblemon.mod.common.Cobblemon
@@ -31,7 +31,7 @@ import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
 
-class VehicleLandBehaviour : RidingBehaviour<VehicleLandSettings, VehicleLandState> {
+class VehicleBehaviour : RidingBehaviour<VehicleSettings, VehicleState> {
     companion object {
         val KEY = cobblemonResource("land/vehicle")
 
@@ -54,14 +54,14 @@ class VehicleLandBehaviour : RidingBehaviour<VehicleLandSettings, VehicleLandSta
 
     override val key = KEY
 
-    override fun getRidingStyle(settings: VehicleLandSettings, state: VehicleLandState): RidingStyle {
+    override fun getRidingStyle(settings: VehicleSettings, state: VehicleState): RidingStyle {
         return RidingStyle.LAND
     }
 
-    val poseProvider = PoseProvider<VehicleLandSettings, VehicleLandState>(PoseType.STAND)
+    val poseProvider = PoseProvider<VehicleSettings, VehicleState>(PoseType.STAND)
         .with(PoseOption(PoseType.WALK) { _, _, entity -> entity.entityData.get(PokemonEntity.MOVING) })
 
-    override fun isActive(settings: VehicleLandSettings, state: VehicleLandState, vehicle: PokemonEntity): Boolean {
+    override fun isActive(settings: VehicleSettings, state: VehicleState, vehicle: PokemonEntity): Boolean {
         return Shapes.create(vehicle.boundingBox).blockPositionsAsListRounded().any {
             //Need to check other fluids
             if (vehicle.isInWater || vehicle.isUnderWater) {
@@ -76,13 +76,13 @@ class VehicleLandBehaviour : RidingBehaviour<VehicleLandSettings, VehicleLandSta
         }
     }
 
-    override fun pose(settings: VehicleLandSettings, state: VehicleLandState, vehicle: PokemonEntity): PoseType {
+    override fun pose(settings: VehicleSettings, state: VehicleState, vehicle: PokemonEntity): PoseType {
         return poseProvider.select(settings, state, vehicle)
     }
 
     override fun speed(
-        settings: VehicleLandSettings,
-        state: VehicleLandState,
+        settings: VehicleSettings,
+        state: VehicleState,
         vehicle: PokemonEntity,
         driver: Player
     ): Float {
@@ -101,8 +101,8 @@ class VehicleLandBehaviour : RidingBehaviour<VehicleLandSettings, VehicleLandSta
     }
 
     override fun rotation(
-        settings: VehicleLandSettings,
-        state: VehicleLandState,
+        settings: VehicleSettings,
+        state: VehicleState,
         vehicle: PokemonEntity,
         driver: LivingEntity
     ): Vec2 {
@@ -113,8 +113,8 @@ class VehicleLandBehaviour : RidingBehaviour<VehicleLandSettings, VehicleLandSta
     }
 
     override fun velocity(
-        settings: VehicleLandSettings,
-        state: VehicleLandState,
+        settings: VehicleSettings,
+        state: VehicleState,
         vehicle: PokemonEntity,
         driver: Player,
         input: Vec3
@@ -134,8 +134,8 @@ class VehicleLandBehaviour : RidingBehaviour<VehicleLandSettings, VehicleLandSta
     }
 
     override fun angRollVel(
-        settings: VehicleLandSettings,
-        state: VehicleLandState,
+        settings: VehicleSettings,
+        state: VehicleState,
         vehicle: PokemonEntity,
         driver: Player,
         deltaTime: Double
@@ -144,8 +144,8 @@ class VehicleLandBehaviour : RidingBehaviour<VehicleLandSettings, VehicleLandSta
     }
 
     override fun rotationOnMouseXY(
-        settings: VehicleLandSettings,
-        state: VehicleLandState,
+        settings: VehicleSettings,
+        state: VehicleState,
         vehicle: PokemonEntity,
         driver: Player,
         mouseY: Double,
@@ -164,8 +164,8 @@ class VehicleLandBehaviour : RidingBehaviour<VehicleLandSettings, VehicleLandSta
     }
 
     override fun canJump(
-        settings: VehicleLandSettings,
-        state: VehicleLandState,
+        settings: VehicleSettings,
+        state: VehicleState,
         vehicle: PokemonEntity,
         driver: Player
     ): Boolean {
@@ -173,8 +173,8 @@ class VehicleLandBehaviour : RidingBehaviour<VehicleLandSettings, VehicleLandSta
     }
 
     override fun setRideBar(
-        settings: VehicleLandSettings,
-        state: VehicleLandState,
+        settings: VehicleSettings,
+        state: VehicleState,
         vehicle: PokemonEntity,
         driver: Player
     ): Float {
@@ -182,8 +182,8 @@ class VehicleLandBehaviour : RidingBehaviour<VehicleLandSettings, VehicleLandSta
     }
 
     override fun jumpForce(
-        settings: VehicleLandSettings,
-        state: VehicleLandState,
+        settings: VehicleSettings,
+        state: VehicleState,
         vehicle: PokemonEntity,
         driver: Player,
         jumpStrength: Int
@@ -195,8 +195,8 @@ class VehicleLandBehaviour : RidingBehaviour<VehicleLandSettings, VehicleLandSta
     }
 
     override fun gravity(
-        settings: VehicleLandSettings,
-        state: VehicleLandState,
+        settings: VehicleSettings,
+        state: VehicleState,
         vehicle: PokemonEntity,
         regularGravity: Double
     ): Double {
@@ -204,8 +204,8 @@ class VehicleLandBehaviour : RidingBehaviour<VehicleLandSettings, VehicleLandSta
     }
 
     override fun rideFovMultiplier(
-        settings: VehicleLandSettings,
-        state: VehicleLandState,
+        settings: VehicleSettings,
+        state: VehicleState,
         vehicle: PokemonEntity,
         driver: Player
     ): Float {
@@ -213,67 +213,67 @@ class VehicleLandBehaviour : RidingBehaviour<VehicleLandSettings, VehicleLandSta
     }
 
     override fun useAngVelSmoothing(
-        settings: VehicleLandSettings,
-        state: VehicleLandState,
+        settings: VehicleSettings,
+        state: VehicleState,
         vehicle: PokemonEntity
     ): Boolean {
         return false
     }
 
     override fun useRidingAltPose(
-        settings: VehicleLandSettings,
-        state: VehicleLandState,
+        settings: VehicleSettings,
+        state: VehicleState,
         vehicle: PokemonEntity,
         driver: Player
     ): ResourceLocation {
         return cobblemonResource("no_pose")
     }
 
-    override fun inertia(settings: VehicleLandSettings, state: VehicleLandState, vehicle: PokemonEntity): Double {
+    override fun inertia(settings: VehicleSettings, state: VehicleState, vehicle: PokemonEntity): Double {
         return 0.5
     }
 
-    override fun shouldRoll(settings: VehicleLandSettings, state: VehicleLandState, vehicle: PokemonEntity): Boolean {
+    override fun shouldRoll(settings: VehicleSettings, state: VehicleState, vehicle: PokemonEntity): Boolean {
         return false
     }
 
     override fun turnOffOnGround(
-        settings: VehicleLandSettings,
-        state: VehicleLandState,
+        settings: VehicleSettings,
+        state: VehicleState,
         vehicle: PokemonEntity
     ): Boolean {
         return false
     }
 
     override fun dismountOnShift(
-        settings: VehicleLandSettings,
-        state: VehicleLandState,
+        settings: VehicleSettings,
+        state: VehicleState,
         vehicle: PokemonEntity
     ): Boolean {
         return false
     }
 
     override fun shouldRotatePokemonHead(
-        settings: VehicleLandSettings,
-        state: VehicleLandState,
+        settings: VehicleSettings,
+        state: VehicleState,
         vehicle: PokemonEntity
     ): Boolean {
         return false
     }
 
     override fun shouldRotatePlayerHead(
-        settings: VehicleLandSettings,
-        state: VehicleLandState,
+        settings: VehicleSettings,
+        state: VehicleState,
         vehicle: PokemonEntity
     ): Boolean {
         return false
     }
 
-    override fun createDefaultState(settings: VehicleLandSettings) = VehicleLandState()
+    override fun createDefaultState(settings: VehicleSettings) = VehicleState()
 }
 
-class VehicleLandSettings : RidingBehaviourSettings {
-    override val key = VehicleLandBehaviour.KEY
+class VehicleSettings : RidingBehaviourSettings {
+    override val key = VehicleBehaviour.KEY
 
     var canJump = "true".asExpression()
         private set
@@ -329,7 +329,7 @@ class VehicleLandSettings : RidingBehaviourSettings {
     }
 }
 
-class VehicleLandState : RidingBehaviourState() {
+class VehicleState : RidingBehaviourState() {
     var currSpeed = ridingState(0.0, Side.BOTH)
     var deltaRotation = ridingState(Vec2.ZERO, Side.BOTH)
 
@@ -340,10 +340,10 @@ class VehicleLandState : RidingBehaviourState() {
     }
 
     override fun toString(): String {
-        return "VehicleLandState(currSpeed=${currSpeed.get()}, deltaRotation=${deltaRotation.get()})"
+        return "VehicleState(currSpeed=${currSpeed.get()}, deltaRotation=${deltaRotation.get()})"
     }
 
-    override fun copy() = VehicleLandState().also {
+    override fun copy() = VehicleState().also {
         it.rideVelocity.set(rideVelocity.get(), forced = true)
         it.stamina.set(stamina.get(), forced = true)
         it.currSpeed.set(currSpeed.get(), forced = true)

@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package com.cobblemon.mod.common.api.riding.behaviour.types
+package com.cobblemon.mod.common.api.riding.behaviour.types.liquid
 
 import com.bedrockk.molang.runtime.value.DoubleValue
 import com.cobblemon.mod.common.Cobblemon
@@ -32,7 +32,7 @@ import kotlin.math.sin
 
 class DolphinBehaviour : RidingBehaviour<DolphinSettings, DolphinState> {
     companion object {
-        val KEY = cobblemonResource("swim/dolphin")
+        val KEY = cobblemonResource("liquid/dolphin")
     }
 
     override val key = KEY

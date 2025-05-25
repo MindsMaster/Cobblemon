@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package com.cobblemon.mod.common.api.riding.behaviour.types
+package com.cobblemon.mod.common.api.riding.behaviour.types.land
 
 import com.bedrockk.molang.Expression
 import com.cobblemon.mod.common.api.riding.RidingStyle
@@ -30,25 +30,25 @@ import net.minecraft.world.phys.Vec3
 import net.minecraft.world.phys.shapes.Shapes
 import kotlin.math.*
 
-class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandState> {
+class HorseBehaviour : RidingBehaviour<HorseSettings, HorseState> {
     companion object {
-        val KEY = cobblemonResource("land/generic")
+        val KEY = cobblemonResource("land/horse")
     }
 
     override val key = KEY
 
-    override fun getRidingStyle(settings: GenericLandSettings, state: GenericLandState): RidingStyle {
+    override fun getRidingStyle(settings: HorseSettings, state: HorseState): RidingStyle {
         return RidingStyle.LAND
     }
 
-    val poseProvider = PoseProvider<GenericLandSettings, GenericLandState>(PoseType.STAND)
+    val poseProvider = PoseProvider<HorseSettings, HorseState>(PoseType.STAND)
         .with(PoseOption(PoseType.WALK) { _, state, _ ->
             return@PoseOption abs(state.rideVelocity.get().z) > 0.0
         })
 
     override fun isActive(
-        settings: GenericLandSettings,
-        state: GenericLandState,
+        settings: HorseSettings,
+        state: HorseState,
         vehicle: PokemonEntity
     ): Boolean {
         return Shapes.create(vehicle.boundingBox).blockPositionsAsListRounded().any {
@@ -66,16 +66,16 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
     }
 
     override fun pose(
-        settings: GenericLandSettings,
-        state: GenericLandState,
+        settings: HorseSettings,
+        state: HorseState,
         vehicle: PokemonEntity
     ): PoseType {
         return this.poseProvider.select(settings, state, vehicle)
     }
 
     override fun speed(
-        settings: GenericLandSettings,
-        state: GenericLandState,
+        settings: HorseSettings,
+        state: HorseState,
         vehicle: PokemonEntity,
         driver: Player
     ): Float {
@@ -102,8 +102,8 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
     }
 
     override fun updatePassengerRotation(
-        settings: GenericLandSettings,
-        state: GenericLandState,
+        settings: HorseSettings,
+        state: HorseState,
         vehicle: PokemonEntity,
         driver: LivingEntity
     ) {
@@ -128,8 +128,8 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
     }
 
     override fun clampPassengerRotation(
-        settings: GenericLandSettings,
-        state: GenericLandState,
+        settings: HorseSettings,
+        state: HorseState,
         vehicle: PokemonEntity,
         driver: LivingEntity
     ) {
@@ -143,8 +143,8 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
 
 
     override fun rotation(
-        settings: GenericLandSettings,
-        state: GenericLandState,
+        settings: HorseSettings,
+        state: HorseState,
         vehicle: PokemonEntity,
         driver: LivingEntity
     ): Vec2 {
@@ -161,8 +161,8 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
    *  without it being instant.
    */
     fun calcRotAmount(
-        settings: GenericLandSettings,
-        state: GenericLandState,
+        settings: HorseSettings,
+        state: HorseState,
         vehicle: PokemonEntity,
         driver: LivingEntity
     ): Float {
@@ -198,8 +198,8 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
 
 
     override fun velocity(
-        settings: GenericLandSettings,
-        state: GenericLandState,
+        settings: HorseSettings,
+        state: HorseState,
         vehicle: PokemonEntity,
         driver: Player,
         input: Vec3
@@ -209,8 +209,8 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
     }
 
     private fun calculateRideSpaceVel(
-        settings: GenericLandSettings,
-        state: GenericLandState,
+        settings: HorseSettings,
+        state: HorseState,
         vehicle: PokemonEntity,
         driver: Player
     ): Vec3 {
@@ -293,8 +293,8 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
     }
 
     override fun angRollVel(
-        settings: GenericLandSettings,
-        state: GenericLandState,
+        settings: HorseSettings,
+        state: HorseState,
         vehicle: PokemonEntity,
         driver: Player,
         deltaTime: Double
@@ -303,8 +303,8 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
     }
 
     override fun rotationOnMouseXY(
-        settings: GenericLandSettings,
-        state: GenericLandState,
+        settings: HorseSettings,
+        state: HorseState,
         vehicle: PokemonEntity,
         driver: Player,
         mouseY: Double,
@@ -324,8 +324,8 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
     }
 
     override fun canJump(
-        settings: GenericLandSettings,
-        state: GenericLandState,
+        settings: HorseSettings,
+        state: HorseState,
         vehicle: PokemonEntity,
         driver: Player
     ): Boolean {
@@ -333,8 +333,8 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
     }
 
     override fun setRideBar(
-        settings: GenericLandSettings,
-        state: GenericLandState,
+        settings: HorseSettings,
+        state: HorseState,
         vehicle: PokemonEntity,
         driver: Player
     ): Float {
@@ -343,8 +343,8 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
     }
 
     override fun jumpForce(
-        settings: GenericLandSettings,
-        state: GenericLandState,
+        settings: HorseSettings,
+        state: HorseState,
         vehicle: PokemonEntity,
         driver: Player,
         jumpStrength: Int
@@ -353,8 +353,8 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
     }
 
     override fun gravity(
-        settings: GenericLandSettings,
-        state: GenericLandState,
+        settings: HorseSettings,
+        state: HorseState,
         vehicle: PokemonEntity,
         regularGravity: Double
     ): Double {
@@ -362,8 +362,8 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
     }
 
     override fun rideFovMultiplier(
-        settings: GenericLandSettings,
-        state: GenericLandState,
+        settings: HorseSettings,
+        state: HorseState,
         vehicle: PokemonEntity,
         driver: Player
     ): Float {
@@ -371,16 +371,16 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
     }
 
     override fun useAngVelSmoothing(
-        settings: GenericLandSettings,
-        state: GenericLandState,
+        settings: HorseSettings,
+        state: HorseState,
         vehicle: PokemonEntity
     ): Boolean {
         return false
     }
 
     override fun useRidingAltPose(
-        settings: GenericLandSettings,
-        state: GenericLandState,
+        settings: HorseSettings,
+        state: HorseState,
         vehicle: PokemonEntity,
         driver: Player
     ): ResourceLocation {
@@ -392,58 +392,58 @@ class GenericLandBehaviour : RidingBehaviour<GenericLandSettings, GenericLandSta
     }
 
     override fun inertia(
-        settings: GenericLandSettings,
-        state: GenericLandState,
+        settings: HorseSettings,
+        state: HorseState,
         vehicle: PokemonEntity
     ): Double {
             return 1.0
     }
 
     override fun shouldRoll(
-        settings: GenericLandSettings,
-        state: GenericLandState,
+        settings: HorseSettings,
+        state: HorseState,
         vehicle: PokemonEntity
     ): Boolean {
         return false
     }
 
     override fun turnOffOnGround(
-        settings: GenericLandSettings,
-        state: GenericLandState,
+        settings: HorseSettings,
+        state: HorseState,
         vehicle: PokemonEntity
     ): Boolean {
         return false
     }
 
     override fun dismountOnShift(
-        settings: GenericLandSettings,
-        state: GenericLandState,
+        settings: HorseSettings,
+        state: HorseState,
         vehicle: PokemonEntity
     ): Boolean {
         return false
     }
 
     override fun shouldRotatePokemonHead(
-        settings: GenericLandSettings,
-        state: GenericLandState,
+        settings: HorseSettings,
+        state: HorseState,
         vehicle: PokemonEntity
     ): Boolean {
         return false
     }
 
     override fun shouldRotatePlayerHead(
-        settings: GenericLandSettings,
-        state: GenericLandState,
+        settings: HorseSettings,
+        state: HorseState,
         vehicle: PokemonEntity
     ): Boolean {
         return true
     }
 
-    override fun createDefaultState(settings: GenericLandSettings) = GenericLandState()
+    override fun createDefaultState(settings: HorseSettings) = HorseState()
 }
 
-class GenericLandSettings : RidingBehaviourSettings {
-    override val key = GenericLandBehaviour.KEY
+class HorseSettings : RidingBehaviourSettings {
+    override val key = HorseBehaviour.KEY
 
     var canJump = "true".asExpression()
         private set
@@ -486,7 +486,7 @@ class GenericLandSettings : RidingBehaviourSettings {
 
 }
 
-class GenericLandState : RidingBehaviourState() {
+class HorseState : RidingBehaviourState() {
     var sprinting = ridingState(false, Side.CLIENT)
     var inAir = ridingState(false, Side.CLIENT)
 
@@ -508,7 +508,7 @@ class GenericLandState : RidingBehaviourState() {
         inAir.set(false, forced = true)
     }
 
-    override fun copy() = GenericLandState().also {
+    override fun copy() = HorseState().also {
         it.rideVelocity.set(this.rideVelocity.get(), forced = true)
         it.stamina.set(this.stamina.get(), forced = true)
         it.sprinting.set(this.sprinting.get(), forced = true)
@@ -516,7 +516,7 @@ class GenericLandState : RidingBehaviourState() {
     }
 
     override fun shouldSync(previous: RidingBehaviourState): Boolean {
-        if (previous !is GenericLandState) return false
+        if (previous !is HorseState) return false
         if (previous.sprinting.get() != sprinting.get()) return true
         if (previous.inAir.get() != inAir.get()) return true
         return super.shouldSync(previous)

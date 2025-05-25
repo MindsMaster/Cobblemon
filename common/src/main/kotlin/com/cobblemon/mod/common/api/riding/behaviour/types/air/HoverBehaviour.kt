@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package com.cobblemon.mod.common.api.riding.behaviour.types
+package com.cobblemon.mod.common.api.riding.behaviour.types.air
 
 import com.bedrockk.molang.Expression
 import com.cobblemon.mod.common.api.riding.RidingStyle

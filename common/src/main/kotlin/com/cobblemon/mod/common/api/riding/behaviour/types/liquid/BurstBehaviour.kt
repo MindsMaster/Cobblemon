@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package com.cobblemon.mod.common.api.riding.behaviour.types
+package com.cobblemon.mod.common.api.riding.behaviour.types.liquid
 
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.OrientationControllable
@@ -27,22 +27,22 @@ import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.phys.shapes.Shapes
 
-class SwimDashBehaviour : RidingBehaviour<SwimDashSettings, SwimDashState> {
+class BurstBehaviour : RidingBehaviour<BurstSettings, BurstState> {
     companion object {
-        val KEY = cobblemonResource("swim/dash")
+        val KEY = cobblemonResource("liquid/burst")
         const val DASH_TICKS: Int = 60
     }
 
     override val key = KEY
 
-    override fun getRidingStyle(settings: SwimDashSettings, state: SwimDashState): RidingStyle {
+    override fun getRidingStyle(settings: BurstSettings, state: BurstState): RidingStyle {
         return RidingStyle.LIQUID
     }
 
-    val poseProvider = PoseProvider<SwimDashSettings, SwimDashState>(PoseType.FLOAT)
+    val poseProvider = PoseProvider<BurstSettings, BurstState>(PoseType.FLOAT)
         .with(PoseOption(PoseType.SWIM) { _, _, entity -> entity.isSwimming && entity.entityData.get(PokemonEntity.MOVING) })
 
-    override fun isActive(settings: SwimDashSettings, state: SwimDashState, vehicle: PokemonEntity): Boolean {
+    override fun isActive(settings: BurstSettings, state: BurstState, vehicle: PokemonEntity): Boolean {
         //This could be kinda weird... what if the top of the mon is in a fluid but the bottom isnt?
         return Shapes.create(vehicle.boundingBox).blockPositionsAsListRounded().any {
             if (vehicle.isInWater || vehicle.isUnderWater) {
@@ -53,13 +53,13 @@ class SwimDashBehaviour : RidingBehaviour<SwimDashSettings, SwimDashState> {
         }
     }
 
-    override fun pose(settings: SwimDashSettings, state: SwimDashState, vehicle: PokemonEntity): PoseType {
+    override fun pose(settings: BurstSettings, state: BurstState, vehicle: PokemonEntity): PoseType {
         return poseProvider.select(settings, state, vehicle)
     }
 
     override fun speed(
-        settings: SwimDashSettings,
-        state: SwimDashState,
+        settings: BurstSettings,
+        state: BurstState,
         vehicle: PokemonEntity,
         driver: Player
     ): Float {
@@ -77,8 +77,8 @@ class SwimDashBehaviour : RidingBehaviour<SwimDashSettings, SwimDashState> {
     }
 
     override fun rotation(
-        settings: SwimDashSettings,
-        state: SwimDashState,
+        settings: BurstSettings,
+        state: BurstState,
         vehicle: PokemonEntity,
         driver: LivingEntity
     ): Vec2 {
@@ -86,8 +86,8 @@ class SwimDashBehaviour : RidingBehaviour<SwimDashSettings, SwimDashState> {
     }
 
     override fun velocity(
-        settings: SwimDashSettings,
-        state: SwimDashState,
+        settings: BurstSettings,
+        state: BurstState,
         vehicle: PokemonEntity,
         driver: Player,
         input: Vec3
@@ -102,8 +102,8 @@ class SwimDashBehaviour : RidingBehaviour<SwimDashSettings, SwimDashState> {
     }
 
     override fun angRollVel(
-        settings: SwimDashSettings,
-        state: SwimDashState,
+        settings: BurstSettings,
+        state: BurstState,
         vehicle: PokemonEntity,
         driver: Player,
         deltaTime: Double
@@ -112,8 +112,8 @@ class SwimDashBehaviour : RidingBehaviour<SwimDashSettings, SwimDashState> {
     }
 
     override fun rotationOnMouseXY(
-        settings: SwimDashSettings,
-        state: SwimDashState,
+        settings: BurstSettings,
+        state: BurstState,
         vehicle: PokemonEntity,
         driver: Player,
         mouseY: Double,
@@ -132,8 +132,8 @@ class SwimDashBehaviour : RidingBehaviour<SwimDashSettings, SwimDashState> {
     }
 
     override fun canJump(
-        settings: SwimDashSettings,
-        state: SwimDashState,
+        settings: BurstSettings,
+        state: BurstState,
         vehicle: PokemonEntity,
         driver: Player
     ): Boolean {
@@ -141,8 +141,8 @@ class SwimDashBehaviour : RidingBehaviour<SwimDashSettings, SwimDashState> {
     }
 
     override fun setRideBar(
-        settings: SwimDashSettings,
-        state: SwimDashState,
+        settings: BurstSettings,
+        state: BurstState,
         vehicle: PokemonEntity,
         driver: Player
     ): Float {
@@ -150,8 +150,8 @@ class SwimDashBehaviour : RidingBehaviour<SwimDashSettings, SwimDashState> {
     }
 
     override fun jumpForce(
-        settings: SwimDashSettings,
-        state: SwimDashState,
+        settings: BurstSettings,
+        state: BurstState,
         vehicle: PokemonEntity,
         driver: Player,
         jumpStrength: Int
@@ -160,8 +160,8 @@ class SwimDashBehaviour : RidingBehaviour<SwimDashSettings, SwimDashState> {
     }
 
     override fun gravity(
-        settings: SwimDashSettings,
-        state: SwimDashState,
+        settings: BurstSettings,
+        state: BurstState,
         vehicle: PokemonEntity,
         regularGravity: Double
     ): Double {
@@ -169,64 +169,64 @@ class SwimDashBehaviour : RidingBehaviour<SwimDashSettings, SwimDashState> {
     }
 
     override fun rideFovMultiplier(
-        settings: SwimDashSettings,
-        state: SwimDashState,
+        settings: BurstSettings,
+        state: BurstState,
         vehicle: PokemonEntity,
         driver: Player
     ): Float {
         return 1.0f
     }
 
-    override fun useAngVelSmoothing(settings: SwimDashSettings, state: SwimDashState, vehicle: PokemonEntity): Boolean {
+    override fun useAngVelSmoothing(settings: BurstSettings, state: BurstState, vehicle: PokemonEntity): Boolean {
         return false
     }
 
     override fun useRidingAltPose(
-        settings: SwimDashSettings,
-        state: SwimDashState,
+        settings: BurstSettings,
+        state: BurstState,
         vehicle: PokemonEntity,
         driver: Player
     ): ResourceLocation {
         return cobblemonResource("no_pose")
     }
 
-    override fun inertia(settings: SwimDashSettings, state: SwimDashState, vehicle: PokemonEntity): Double {
+    override fun inertia(settings: BurstSettings, state: BurstState, vehicle: PokemonEntity): Double {
         return 0.5
     }
 
-    override fun shouldRoll(settings: SwimDashSettings, state: SwimDashState, vehicle: PokemonEntity): Boolean {
+    override fun shouldRoll(settings: BurstSettings, state: BurstState, vehicle: PokemonEntity): Boolean {
         return false
     }
 
-    override fun turnOffOnGround(settings: SwimDashSettings, state: SwimDashState, vehicle: PokemonEntity): Boolean {
+    override fun turnOffOnGround(settings: BurstSettings, state: BurstState, vehicle: PokemonEntity): Boolean {
         return false
     }
 
-    override fun dismountOnShift(settings: SwimDashSettings, state: SwimDashState, vehicle: PokemonEntity): Boolean {
+    override fun dismountOnShift(settings: BurstSettings, state: BurstState, vehicle: PokemonEntity): Boolean {
         return false
     }
 
     override fun shouldRotatePokemonHead(
-        settings: SwimDashSettings,
-        state: SwimDashState,
+        settings: BurstSettings,
+        state: BurstState,
         vehicle: PokemonEntity
     ): Boolean {
         return false
     }
 
     override fun shouldRotatePlayerHead(
-        settings: SwimDashSettings,
-        state: SwimDashState,
+        settings: BurstSettings,
+        state: BurstState,
         vehicle: PokemonEntity
     ): Boolean {
         return false
     }
 
-    override fun createDefaultState(settings: SwimDashSettings) = SwimDashState()
+    override fun createDefaultState(settings: BurstSettings) = BurstState()
 }
 
-class SwimDashSettings : RidingBehaviourSettings {
-    override val key = SwimDashBehaviour.KEY
+class BurstSettings : RidingBehaviourSettings {
+    override val key = BurstBehaviour.KEY
 
     var dashSpeed = 1F
         private set
@@ -241,7 +241,7 @@ class SwimDashSettings : RidingBehaviourSettings {
     }
 }
 
-class SwimDashState : RidingBehaviourState() {
+class BurstState : RidingBehaviourState() {
     var dashing = ridingState(false, Side.BOTH)
     var ticks = ridingState(0, Side.BOTH)
 
@@ -252,10 +252,10 @@ class SwimDashState : RidingBehaviourState() {
     }
 
     override fun toString(): String {
-        return "SwimDashState(dashing=${dashing.get()}, ticks=${ticks.get()})"
+        return "BurstState(dashing=${dashing.get()}, ticks=${ticks.get()})"
     }
 
-    override fun copy() = SwimDashState().also {
+    override fun copy() = BurstState().also {
         it.rideVelocity.set(rideVelocity.get(), forced = true)
         it.stamina.set(stamina.get(), forced = true)
         it.dashing.set(dashing.get(), forced = true)
