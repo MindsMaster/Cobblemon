@@ -9,25 +9,26 @@
 package com.cobblemon.mod.common.integration.jei.brewing
 
 import com.cobblemon.mod.common.CobblemonRecipeTypes
+import com.cobblemon.mod.common.integration.jei.CobblemonJeiProvider
 import mezz.jei.api.constants.RecipeTypes
+import mezz.jei.api.registration.IRecipeCategoryRegistration
 import mezz.jei.api.registration.IRecipeRegistration
 import net.minecraft.client.Minecraft
 
-class BrewingStandJeiProvider {
+class BrewingStandJeiProvider : CobblemonJeiProvider {
+    override fun registerCategory(registration: IRecipeCategoryRegistration) {
+    }
 
-    companion object {
-        fun registerRecipes(registration: IRecipeRegistration) {
-            val recipeManger =
-                Minecraft.getInstance().level?.recipeManager ?: throw IllegalStateException("Recipe manager not found")
+    override fun registerRecipes(registration: IRecipeRegistration) {
+        val recipeManger =
+            Minecraft.getInstance().level?.recipeManager ?: throw IllegalStateException("Recipe manager not found")
 
-            val allBrewingRecipes = Minecraft.getInstance().level?.recipeManager
-                ?.getAllRecipesFor(CobblemonRecipeTypes.BREWING_STAND) ?: return
+        val allBrewingRecipes = recipeManger.getAllRecipesFor(CobblemonRecipeTypes.BREWING_STAND)
 
-            val jeiRecipes = allBrewingRecipes.map { entry ->
-                JeiBrewingStandRecipe(entry.value, entry.id)
-            }
-
-            registration.addRecipes(RecipeTypes.BREWING, jeiRecipes)
+        val jeiRecipes = allBrewingRecipes.map { entry ->
+            JeiBrewingStandRecipe(entry.value, entry.id)
         }
+
+        registration.addRecipes(RecipeTypes.BREWING, jeiRecipes)
     }
 }

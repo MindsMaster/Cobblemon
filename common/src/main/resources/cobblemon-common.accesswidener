@@ -143,7 +143,5 @@ accessible method net/minecraft/world/level/block/AbstractCandleBlock addParticl
 
 transitive-accessible class net/minecraft/world/inventory/BrewingStandMenu$IngredientsSlot
 transitive-accessible class net/minecraft/world/inventory/BrewingStandMenu$FuelSlot
-transitive-accessible method net/minecraft/world/inventory/AbstractContainerMenu moveItemStackTo (Lnet/minecraft/world/item/ItemStack;IIZ)Z
-transitive-accessible field net/minecraft/world/inventory/BrewingStandMenu$IngredientsSlot potionBrewing Lnet/minecraft/world/item/alchemy/PotionBrewing;
 
 transitive-accessible method net/minecraft/world/entity/ai/behavior/RandomStroll getTargetSwimPos (Lnet/minecraft/world/entity/PathfinderMob;)Lnet/minecraft/world/phys/Vec3;

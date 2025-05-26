@@ -23,6 +23,7 @@ class CobblemonJeiPlugin : IModPlugin {
     private val jeiProviders: Set<CobblemonJeiProvider> = setOf(
         BerryMutationProvider(),
         CampfirePotJeiProvider(),
+        BrewingStandJeiProvider()
     )
 
     override fun getPluginUid(): ResourceLocation {
@@ -39,9 +40,6 @@ class CobblemonJeiPlugin : IModPlugin {
         jeiProviders.forEach {
             it.registerRecipes(registration)
         }
-
-        // Manually do it since it injects into the JEI Category
-        BrewingStandJeiProvider.registerRecipes(registration)
     }
 
     companion object {

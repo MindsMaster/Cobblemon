@@ -11,75 +11,63 @@ package com.cobblemon.mod.common.mixin.brewing;
 import com.cobblemon.mod.common.CobblemonRecipeTypes;
 import com.cobblemon.mod.common.item.crafting.brewingstand.BrewingStandInput;
 import com.cobblemon.mod.common.item.crafting.brewingstand.BrewingStandRecipe;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
+import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.entity.BrewingStandBlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 import java.util.Optional;
 @Mixin(BrewingStandBlockEntity.class)
 public class BrewingStandBlockEntityMixin {
 
-	@Shadow
-	private NonNullList<ItemStack> items;
-
-	@Shadow
-	int brewTime;
-
-	@Shadow
-	int fuel;
-
-	@Inject(
-			method = "serverTick",
-			at = @At("HEAD"),
-			cancellable = true
-	)
-	private static void cobblemon$serverTick(Level level, BlockPos pos, BlockState state, BrewingStandBlockEntity blockEntity, CallbackInfo ci) {
-		BrewingStandBlockEntityMixin self = (BrewingStandBlockEntityMixin) (Object) blockEntity;
-		if (self == null) {
+	@WrapOperation(method = "serverTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/BrewingStandBlockEntity;doBrew(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/NonNullList;)V"))
+	private static void cobblemon$doBrew(Level level, BlockPos pos, NonNullList<ItemStack> slots, Operation<Void> original) {
+		var recipe = cobblemon$fetchBrewingRecipe(slots, level);
+		if(recipe == null) {
+			original.call(level, pos, slots);
 			return;
 		}
-		NonNullList<ItemStack> items = self.items;
-
-		BrewingStandRecipe customRecipe = self.fetchBrewingRecipe(level);
-		if (customRecipe == null) {
-			return;
+		//copied from vanilla doBrew logic, but slightly tweaked to work for cobblemon, this was needed as replacing the loop was not quite possible inside doBrew
+		ItemStack itemStack = slots.get(3);
+		for(int i = 0; i < 3; ++i) {
+			slots.set(i, recipe.getResult().copy());
 		}
 
-		ItemStack ingredientStack = items.get(3);
-		boolean isBrewing = self.brewTime > 0;
-
-		if (isBrewing) {
-			self.brewTime--;
-			if (self.brewTime == 0) {
-				for (int i = 0; i < 3; i++) {
-					if (!items.get(i).isEmpty()) {
-						items.set(i, customRecipe.getResult().copy());
-					}
-				}
-				ingredientStack.shrink(1);
+		itemStack.shrink(1);
+		if (itemStack.getItem().hasCraftingRemainingItem()) {
+			ItemStack itemStack2 = new ItemStack(itemStack.getItem().getCraftingRemainingItem());
+			if (itemStack.isEmpty()) {
+				itemStack = itemStack2;
+			} else {
+				Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), itemStack2);
 			}
-		} else if (self.fuel > 0) {
-			self.fuel--;
-			self.brewTime = 400;
 		}
 
-		blockEntity.setChanged();
-		ci.cancel();
+		slots.set(3, itemStack);
+		level.levelEvent(LevelEvent.SOUND_BREWING_STAND_BREW, pos, 0);
 	}
 
-	private BrewingStandRecipe fetchBrewingRecipe(Level level) {
+	@WrapOperation(method = "serverTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/BrewingStandBlockEntity;isBrewable(Lnet/minecraft/world/item/alchemy/PotionBrewing;Lnet/minecraft/core/NonNullList;)Z"))
+	private static boolean cobblemon$isBrewable(PotionBrewing potionBrewing, NonNullList<ItemStack> items, Operation<Boolean> original,
+												@Local(argsOnly = true) BrewingStandBlockEntity blockEntity, @Local(argsOnly = true) Level level) {
+		return cobblemon$fetchBrewingRecipe(items, level) != null || original.call(potionBrewing, items);
+	}
+
+	@Unique
+	private static BrewingStandRecipe cobblemon$fetchBrewingRecipe(NonNullList<ItemStack> items, Level level) {
 		ItemStack ingredient = items.get(3);
 		List<ItemStack> bottles = items.subList(0, 3);
 
