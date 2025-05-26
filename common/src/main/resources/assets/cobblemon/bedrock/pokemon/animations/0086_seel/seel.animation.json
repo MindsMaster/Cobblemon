@@ -103,6 +103,11 @@
 						}
 					}
 				}
+			},
+			"sound_effects": {
+				"0.0417": {
+					"effect": "pokemon.seel.cry"
+				}
 			}
 		},
 		"animation.seel.blink": {
