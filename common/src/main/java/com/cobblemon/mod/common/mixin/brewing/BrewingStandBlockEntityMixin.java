@@ -62,7 +62,7 @@ public class BrewingStandBlockEntityMixin {
 
 	@WrapOperation(method = "serverTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/BrewingStandBlockEntity;isBrewable(Lnet/minecraft/world/item/alchemy/PotionBrewing;Lnet/minecraft/core/NonNullList;)Z"))
 	private static boolean cobblemon$isBrewable(PotionBrewing potionBrewing, NonNullList<ItemStack> items, Operation<Boolean> original,
-												@Local(argsOnly = true) BrewingStandBlockEntity blockEntity, @Local(argsOnly = true) Level level) {
+												@Local(argsOnly = true) Level level) {
 		return cobblemon$fetchBrewingRecipe(items, level) != null || original.call(potionBrewing, items);
 	}
 
