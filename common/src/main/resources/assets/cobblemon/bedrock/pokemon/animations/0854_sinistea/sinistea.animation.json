@@ -239,6 +239,14 @@
 					"position": [0, 0, -0.1]
 				}
 			}
+		},
+		"animation.sinistea.cry": {
+			"sound_effects": {
+				"animation_length": 1.25,
+				"0.04": {
+					"effect": "pokemon.sinistea.cry"
+				}
+			}
 		}
 	}
 }

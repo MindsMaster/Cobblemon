@@ -4,6 +4,9 @@
   "profileScale": 0.66,
   "profileTranslation": [ 0, 0.61, 0],
   "rootBone": "bramblin",
+  "animations": {
+    "cry": "q.bedrock_stateful('bramblin', 'cry')"
+  },
   "poses": {
     "standing": {
       "poseTypes": [

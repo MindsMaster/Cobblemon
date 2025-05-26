@@ -3,6 +3,9 @@
   "portraitTranslation": [-0.46, 0.59, 0],
   "profileScale": 0.59,
   "profileTranslation": [0.0, 0.87, 0],
+  "animations": {
+    "cry": "q.bedrock_stateful('excadrill', 'cry')"
+  },
   "poses": {
 	"battle-standing": {
      "poseTypes": ["STAND"],
