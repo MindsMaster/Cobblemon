@@ -6562,5 +6562,11 @@
     "cobblemon.ui.challenge.challenge": "Herausforderung",
     "cobblemon.challenge.sent": "Du hast %1$s zu einem %2$s herausgefordert.",
     "cobblemon.challenge.error.insufficient_pokemon.self": "Du hast keine Pokémon für einen Kampf!",
-    "cobblemon.challenge.error.insufficient_pokemon.other": "%1$s hat keine Pokémon für einen Kampf!"
+    "cobblemon.challenge.error.insufficient_pokemon.other": "%1$s hat keine Pokémon für einen Kampf!",
+    "item.cobblemon.psychic_seed.tooltip": "Erhöht die Sp. Vert. des Trägers, wenn Psychofeld aktiv ist",
+    "item.cobblemon.grassy_seed.tooltip": "Erhöht die Vert. des Trägers, wenn Grasfeld aktiv ist",
+    "item.cobblemon.terrain_extender.tooltip": "Verlängert die Wirkung von eingesetzten Feld-Attacken und Feld-Fähigkeiten",
+    "item.cobblemon.misty_seed.tooltip": "Erhöht die Sp. Vert. des Trägers, wenn Nebelfeld aktiv ist",
+    "cobblemon.move.psyblade.desc": "Das Ziel wird mit einer immateriellen Klinge angegriffen. Die Stärke der Attacke steigt um 50 %, wenn beim Anwender ein Elektrofeld aktiv ist.",
+    "cobblemon.species.grimmsnarl-gmax.desc": "Es transformiert seine Beinhaare, um damit bohrende Tritte zu verteilen, die in der ganzen Galar-Region große Erdlöcher hinterlassen."
 }
