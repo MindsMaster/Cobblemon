@@ -383,6 +383,13 @@
 					"position": [0, 0, -0.1]
 				}
 			}
+		},
+		"animation.polteageist.cry": {
+			"sound_effects": {
+				"0.04": {
+					"effect": "pokemon.polteageist.cry"
+				}
+			}
 		}
 	}
 }

@@ -454,6 +454,13 @@
 					}
 				}
 			}
+		},
+		"animation.excadrill.cry": {
+			"sound_effects": {
+				"0.0417": {
+					"effect": "pokemon.excadrill.cry"
+				}
+			}
 		}
 	}
 }

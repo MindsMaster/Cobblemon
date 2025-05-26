@@ -4,6 +4,9 @@
   "profileScale": 0.58,
   "profileTranslation": [ -0.09, 0.8, 0],
   "rootBone": "rellor",
+  "animations": {
+    "cry": "q.bedrock_stateful('rellor', 'cry')"
+  },
   "poses": {
     "standing": {
       "poseTypes": [

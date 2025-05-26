@@ -5,6 +5,7 @@
   "profileTranslation": [ 0, 1.09, 0],
   "rootBone": "sinistea",
   "animations": {
+    "cry": "q.bedrock_stateful('sinistea', 'cry')"
   },
   "poses": {
     "standing": {

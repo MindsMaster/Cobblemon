@@ -38,7 +38,11 @@
 			}
 		},
 		"animation.inkay.cry": {
-			"loop": true
+			"sound_effects": {
+				"0.0417": {
+					"effect": "pokemon.inkay.cry"
+				}
+			}
 		}
 	}
 }

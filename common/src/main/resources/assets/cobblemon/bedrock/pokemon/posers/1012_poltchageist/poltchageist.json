@@ -5,6 +5,7 @@
   "profileTranslation": [ 0, 1.09, 0],
   "rootBone": "poltchageist",
   "animations": {
+    "cry": "q.bedrock_stateful('poltchageist', 'cry')"
   },
   "poses": {
     "standing": {

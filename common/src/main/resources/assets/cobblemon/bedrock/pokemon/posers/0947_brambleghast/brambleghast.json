@@ -4,6 +4,9 @@
   "profileScale": 0.6,
   "profileTranslation": [ 0, 0.79, 0],
   "rootBone": "brambleghast",
+  "animations": {
+    "cry": "q.bedrock_stateful('brambleghast', 'cry')"
+  },
   "poses": {
     "standing": {
       "poseTypes": [

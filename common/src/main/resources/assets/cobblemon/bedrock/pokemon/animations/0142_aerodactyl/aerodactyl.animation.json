@@ -1130,6 +1130,11 @@
 						"1.5": [0, 0, 0]
 					}
 				}
+			},
+			"sound_effects": {
+				"0.0417": {
+					"effect": "pokemon.aerodactyl.cry"
+				}
 			}
 		}
 	}

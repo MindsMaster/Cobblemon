@@ -322,6 +322,13 @@
 					}
 				}
 			}
+		},
+		"animation.cyclizar.cry": {
+			"sound_effects": {
+				"0.04": {
+					"effect": "pokemon.cyclizar.cry"
+				}
+			}
 		}
 	}
 }

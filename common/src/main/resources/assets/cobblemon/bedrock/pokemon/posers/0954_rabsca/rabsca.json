@@ -4,6 +4,9 @@
   "profileScale": 0.48,
   "profileTranslation": [ 0, 1.07, 0],
   "rootBone": "rabsca",
+  "animations": {
+    "cry": "q.bedrock_stateful('rabsca', 'cry')"
+  },
   "poses": {
     "standing": {
       "poseTypes": [
