@@ -8,8 +8,12 @@
 
 package com.cobblemon.mod.common.api.events.pokemon
 
+import com.bedrockk.molang.runtime.value.DoubleValue
+import com.bedrockk.molang.runtime.value.MoValue
+import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMoLangValue
 import com.cobblemon.mod.common.api.events.Cancelable
 import com.cobblemon.mod.common.pokemon.Pokemon
+import com.cobblemon.mod.common.util.getPlayer
 import net.minecraft.network.chat.MutableComponent
 import net.minecraft.server.level.ServerPlayer
 
@@ -26,4 +30,11 @@ class PokemonNicknamedEvent(val player: ServerPlayer, val pokemon: Pokemon, var 
     /** A shortcut to using [nickname].getString(). Learn how Text works! */
     val nicknameString: String?
         get() = nickname?.string
+
+    fun getContext(): MutableMap<String, MoValue> {
+        return mutableMapOf(
+            "player" to (player.uuid.getPlayer()?.asMoLangValue() ?: DoubleValue.ZERO),
+            "pokemon" to pokemon.struct
+        )
+    }
 }

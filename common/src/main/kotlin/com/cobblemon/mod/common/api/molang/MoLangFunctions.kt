@@ -1043,6 +1043,7 @@ object MoLangFunctions {
         { pokemon ->
             val map = hashMapOf<String, java.util.function.Function<MoParams, Any>>()
             map.put("id") { StringValue(pokemon.uuid.toString()) }
+            map.put("nickname") { StringValue(pokemon.nickname.toString()) }
             map.put("level") { DoubleValue(pokemon.level.toDouble()) }
             map.put("max_hp") { DoubleValue(pokemon.maxHealth.toDouble()) }
             map.put("current_hp") { DoubleValue(pokemon.currentHealth.toDouble()) }
