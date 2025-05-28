@@ -1050,6 +1050,8 @@ object MoLangFunctions {
             map.put("friendship") { DoubleValue(pokemon.friendship.toDouble()) }
             map.put("behaviour") { pokemon.form.behaviour.struct }
             map.put("behavior") { pokemon.form.behaviour.struct } // Inferior
+            map.put("held_item") { StringValue(pokemon.heldItemNoCopy().toString()) }
+            map.put("pokeball") { StringValue(pokemon.caughtBall.toString()) }
             map.put("evs") {
                 val struct = QueryStruct(hashMapOf())
                 for (stat in Stats.PERMANENT) {
@@ -1700,6 +1702,14 @@ object MoLangFunctions {
             .associate { it.key to it.value }
         functions.putAll(addedFunctions)
         pokemonEntity.registerFunctionsForScripting(this)
+        return this
+    }
+
+    fun QueryStruct.addPokemonStoreFunctions(store: PokemonStore<*>): QueryStruct {
+        val addedFunctions = pokemonStoreFunctions
+            .flatMap { it.invoke(store).entries }
+            .associate { it.key to it.value }
+        functions.putAll(addedFunctions)
         return this
     }
 

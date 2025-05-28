@@ -46,7 +46,7 @@ interface ReleasePokemonEvent {
 
     /**
      * Returns a context map that can be used in MoLang functions.
-     * Contains the player, the Pokémon being released, and the storage from which it is being released.
+     * Contains the player, and the Pokémon being released.
      */
     fun getContext(): MutableMap<String, MoValue> {
         return mutableMapOf(
