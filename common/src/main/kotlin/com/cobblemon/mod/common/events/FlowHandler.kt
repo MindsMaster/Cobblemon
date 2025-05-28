@@ -21,6 +21,7 @@ import com.cobblemon.mod.common.util.cobblemonResource
  */
 object FlowHandler {
     fun setup() {
+        CobblemonEvents.STARTER_CHOSEN.subscribe { CobblemonFlows.run(cobblemonResource("starter_chosen"), it.getContext(), it.functions) }
         CobblemonEvents.POKEMON_CAPTURED.subscribe { CobblemonFlows.run(cobblemonResource("pokemon_captured"), it.context) }
         CobblemonEvents.POKEMON_ENTITY_SPAWN.subscribe { CobblemonFlows.run(cobblemonResource("pokemon_entity_spawn"), mutableMapOf<String, MoValue>("pokemon_entity" to it.entity.asMoLangValue())) }
         CobblemonEvents.BATTLE_VICTORY.subscribe { CobblemonFlows.run(cobblemonResource("battle_victory"), it.context) }
