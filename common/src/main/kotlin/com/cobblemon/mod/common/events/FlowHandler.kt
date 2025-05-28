@@ -47,6 +47,7 @@ object FlowHandler {
         CobblemonEvents.EVOLUTION_COMPLETE.subscribe { CobblemonFlows.run(cobblemonResource("evolution_completed"), it.context) }
         CobblemonEvents.FOSSIL_REVIVED.subscribe { CobblemonFlows.run(cobblemonResource("fossil_revived"), it.context) }
         CobblemonEvents.BOBBER_SPAWN_POKEMON_POST.subscribe { CobblemonFlows.run(cobblemonResource("bobber_spawn_pokemon_post"), it.context) }
+        CobblemonEvents.TRADE_COMPLETED.subscribe { CobblemonFlows.run(cobblemonResource("trade_completed"), it.context) }
         CobblemonEvents.WALLPAPER_UNLOCKED_EVENT.subscribe { CobblemonFlows.run(cobblemonResource("wallpaper_unlocked"), it.context, it.functions) }
 
         PlatformEvents.SERVER_PLAYER_LOGIN.subscribe(priority = Priority.LOW) { CobblemonFlows.run(cobblemonResource("player_logged_in"), it.context) }
