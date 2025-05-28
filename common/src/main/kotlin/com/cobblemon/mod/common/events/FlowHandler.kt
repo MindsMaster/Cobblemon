@@ -39,6 +39,8 @@ object FlowHandler {
         CobblemonEvents.LEVEL_UP_EVENT.subscribe { CobblemonFlows.run(cobblemonResource("level_up"), it.context, it.functions) }
         CobblemonEvents.POKEMON_FAINTED.subscribe { CobblemonFlows.run(cobblemonResource("pokemon_fainted"), it.context) }
         CobblemonEvents.POKEMON_GAINED.subscribe { CobblemonFlows.run(cobblemonResource("pokemon_gained"), it.context, it.functions) }
+        CobblemonEvents.POKEMON_RELEASED_EVENT_PRE.subscribe { CobblemonFlows.run(cobblemonResource("pokemon_released_pre"), it.getContext(), it.functions) }
+        CobblemonEvents.POKEMON_RELEASED_EVENT_POST.subscribe { CobblemonFlows.run(cobblemonResource("pokemon_released_post"), it.getContext()) }
         CobblemonEvents.POKE_BALL_CAPTURE_CALCULATED.subscribe { CobblemonFlows.run(cobblemonResource("poke_ball_capture_calculated"), it.context, it.functions) }
         CobblemonEvents.EVOLUTION_TESTED.subscribe { CobblemonFlows.run(cobblemonResource("evolution_tested"), it.context, it.functions) }
         CobblemonEvents.EVOLUTION_ACCEPTED.subscribe { CobblemonFlows.run(cobblemonResource("evolution_accepted"), it.context, it.functions) }
