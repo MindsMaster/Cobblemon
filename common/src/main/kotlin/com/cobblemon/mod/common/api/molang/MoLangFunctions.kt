@@ -1050,7 +1050,6 @@ object MoLangFunctions {
             map.put("friendship") { DoubleValue(pokemon.friendship.toDouble()) }
             map.put("behaviour") { pokemon.form.behaviour.struct }
             map.put("behavior") { pokemon.form.behaviour.struct } // Inferior
-            map.put("held_item") { StringValue(pokemon.heldItemNoCopy().toString()) }
             map.put("pokeball") { StringValue(pokemon.caughtBall.toString()) }
             map.put("evs") {
                 val struct = QueryStruct(hashMapOf())
@@ -1078,6 +1077,11 @@ object MoLangFunctions {
                 DoubleValue.ONE
             }
             map.put("owner") { pokemon.getOwnerPlayer()?.asMoLangValue() ?: DoubleValue.ZERO }
+            map.put("held_item") { StringValue(pokemon.heldItemNoCopy().toString()) }
+            map.put("held_itemstack") { pokemon.heldItem().asMoLangValue(pokemon.getOwnerPlayer()!!.registryAccess()) ?: DoubleValue.ZERO }
+            map.put("remove_held_item") { _ ->
+                pokemon.removeHeldItem()
+            }
             map.put("add_marks") { params ->
                 for (param in params.params) {
                     val identifier = param.asString().asIdentifierDefaultingNamespace()
