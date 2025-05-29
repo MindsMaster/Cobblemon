@@ -789,10 +789,28 @@
   "trim_pattern.cobblemon.automaton": "Automaton Armor Trim",
 
   "cobblemon.tooltip.see_more_info": "Hold shift to see info",
-  "cobblemon.item_class.fishing_bait": "Bait Effects",
-  "cobblemon.item_class.seasoning": "Seasoning",
-  "cobblemon.item_class.mob_effect": "Mob Effects",
-  "cobblemon.item_class.food": "Food",
+  "cobblemon.item_class.fishing_bait": "Fishing Bait",
+
+  "cobblemon.item_class.cooking_pot_recipe_absorbs": "Absorbs",
+  "cobblemon.item_class.seasonings": "Seasonings",
+  "cobblemon.item_class.flavor_seasoning": "Flavor Seasoning",
+  "cobblemon.item_class.bait_effect_seasoning": "Bait Seasoning",
+  "cobblemon.item_class.mob_effect_seasoning": "Effect Seasoning",
+  "cobblemon.item_class.food_seasoning": "Food Seasoning",
+
+  "cobblemon.seasoning_bait_effect_header": "Bait",
+  "cobblemon.seasoning_mob_effect_header": "Effect",
+  "cobblemon.seasoning_food_header": "Food",
+  "cobblemon.seasoning_flavor_header": "Flavor",
+  "cobblemon.seasoning_bait_effect_info_header": "Bait Info:",
+  "cobblemon.seasoning_mob_effect_info_header": "Effect Info:",
+  "cobblemon.seasoning_food_info_header": "Food Info:",
+  "cobblemon.seasoning_flavor_info_header": "Flavor Info:",
+  "cobblemon.seasoning_flavor.spicy": "Spicy",
+  "cobblemon.seasoning_flavor.dry": "Dry",
+  "cobblemon.seasoning_flavor.sweet": "Sweet",
+  "cobblemon.seasoning_flavor.bitter": "Bitter",
+  "cobblemon.seasoning_flavor.sour": "Sour",
 
   "cobblemon.cooking.cooking_quality": "Quality: %1$s",
   "cobblemon.cooking.cooking_quality.low": "Low",
@@ -995,7 +1013,7 @@
 
   "cobblemon.fishing.no_bite": "Not even a nibble.",
 
-  "cobblemon.fishing_bait_effect_header": "Bait Effects:",
+  "cobblemon.fishing_bait_effect_header": "Bait Info:",
   "cobblemon.fishing_bait_effects.nature.tooltip": "%1$s%% - Attract %2$s Nature",
   "cobblemon.fishing_bait_effects.iv.tooltip": "%1$s%% - %2$s IV +%3$s",
   "cobblemon.fishing_bait_effects.ev.tooltip": "%1$s%% - Attract %2$s EV Yields",
@@ -1026,13 +1044,6 @@
   "cobblemon.egg_group.ditto": "Ditto",
   "cobblemon.egg_group.dragon": "Dragon",
   "cobblemon.egg_group.undiscovered": "Undiscovered",
-
-  "cobblemon.seasoning_flavor_header": "Seasoning Flavor:",
-  "cobblemon.seasoning_flavor.spicy": "Spicy",
-  "cobblemon.seasoning_flavor.dry": "Dry",
-  "cobblemon.seasoning_flavor.sweet": "Sweet",
-  "cobblemon.seasoning_flavor.bitter": "Bitter",
-  "cobblemon.seasoning_flavor.sour": "Sour",
 
   "item.cobblemon.ponigiri": "Ponigiri",
   "item.cobblemon.jelly_doughnut": "Jelly Donut",
