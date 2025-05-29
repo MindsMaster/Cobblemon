@@ -29,6 +29,7 @@
 - Added Tatami blocks and Tatami Mat blocks, made from Hearty Grain, for decorating builds
 - Added `/pcsearch <player> <pokemonProperties>` command that searches for a specific Pokémon within a player's PC.
 - Added `/pctake <player> <box> <slot>` command that takes a specific Pokémon from a player's PC. Removes the pokemon if target is self or ran from the server.
+- Added Hyper Training items (IV Modification) as well as some additional candy items to do so (Health Candy, Sickly Candy)
 
 ### Pokémon Added
 
@@ -222,6 +223,8 @@
     }
   }
   `
+- The IVs class has now been extended to include Hyper Trained values.
+- Added `Pokemon#hyperTrainIV()` and `IVs#setHyperTrainedIV(Stat, Int)`
   
 ### MoLang & Datapacks
 - The following usages for item predicates can now use item conditions like advancements do, you can learn about them in the [Minecraft wiki](https://minecraft.wiki/w/Advancement_definition#minecraft:filled_bucket)
