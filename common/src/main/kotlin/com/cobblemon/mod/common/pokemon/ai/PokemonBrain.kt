@@ -161,6 +161,7 @@ object PokemonBrain {
         MemoryModuleType.ATTACK_COOLING_DOWN,
         CobblemonMemories.POKEMON_DROWSY,
         CobblemonMemories.POKEMON_BATTLE,
+        CobblemonMemories.HAS_MOVED_TO_BATTLE_POSITION,
         MemoryModuleType.HOME,
         CobblemonMemories.PATH_COOLDOWN,
         CobblemonMemories.TARGETED_BATTLE_POKEMON,
@@ -253,7 +254,7 @@ object PokemonBrain {
     private fun battlingTasks() = buildList<Pair<Int, BehaviorControl<in PokemonEntity>>> {
         add(0 toDF LookAtTargetedBattlePokemonTask.create())
         add(0 toDF LookAtTargetSink(Int.MAX_VALUE - 1, Int.MAX_VALUE - 1))
-
+        add(0 toDF BattleFlightTask())
         add(0 toDF SwapActivityTask.lacking(CobblemonMemories.POKEMON_BATTLE, Activity.IDLE))
     }
 
