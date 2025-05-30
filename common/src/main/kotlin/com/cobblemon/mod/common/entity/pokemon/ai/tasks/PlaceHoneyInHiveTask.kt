@@ -17,12 +17,19 @@ object PlaceHoneyInHiveTask {
         return BehaviorBuilder.create {
             it.group(
                     it.present(CobblemonMemories.HIVE_LOCATION),
-                    it.absent(CobblemonMemories.HIVE_COOLDOWN)
+                    it.registered(CobblemonMemories.HIVE_COOLDOWN)
             ).apply(it) { hiveMemory, hiveCooldown ->
                 Trigger { world, entity, time ->
                     val hiveCooldown = 100L
 
+                    // todo if cooldown is in affect then return early
+
                     if (entity !is PathfinderMob || !entity.isAlive) return@Trigger false
+
+                    // todo have a better way to assign this task to BeeLike pokemon
+                    if (entity.pokemon.species.name != "Combee" && entity.pokemon.species.name != "Vespiquen") {
+                        return@Trigger false
+                    }
 
                     val hiveLocation: BlockPos = (hiveMemory.value() as? IdF<BlockPos>)?.value() ?: return@Trigger false
                     val targetVec = Vec3.atCenterOf(hiveLocation)

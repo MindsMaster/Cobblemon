@@ -20,6 +20,15 @@ class BeeHiveSensor : Sensor<PokemonEntity>(300) {
         val brain = entity.brain
         val currentHive = brain.getMemory(CobblemonMemories.HIVE_LOCATION).orElse(null)
 
+        if (entity.pokemon.species.name == "Vespiquen") {
+            val test = 1
+        }
+
+        // todo have a better way to assign this sensor to BeeLike pokemon
+        if (entity.pokemon.species.name != "Combee" && entity.pokemon.species.name != "Vespiquen") {
+            return
+        }
+
         if (currentHive != null) {
             val state = world.getBlockState(currentHive)
             if (isHiveBlock(state) && isPathfindableTo(entity, currentHive)) {

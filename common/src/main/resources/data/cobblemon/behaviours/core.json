@@ -16,7 +16,9 @@
       "activity": "idle",
       "tasksByPriority": {
         "0": [
-          "look_at_target"
+          "look_at_target",
+          "path_to_hive",
+          "place_honey_in_hive"
         ]
       }
     }
