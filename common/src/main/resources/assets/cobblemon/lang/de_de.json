@@ -6568,5 +6568,10 @@
     "item.cobblemon.terrain_extender.tooltip": "Verlängert die Wirkung von eingesetzten Feld-Attacken und Feld-Fähigkeiten",
     "item.cobblemon.misty_seed.tooltip": "Erhöht die Sp. Vert. des Trägers, wenn Nebelfeld aktiv ist",
     "cobblemon.move.psyblade.desc": "Das Ziel wird mit einer immateriellen Klinge angegriffen. Die Stärke der Attacke steigt um 50 %, wenn beim Anwender ein Elektrofeld aktiv ist.",
-    "cobblemon.species.grimmsnarl-gmax.desc": "Es transformiert seine Beinhaare, um damit bohrende Tritte zu verteilen, die in der ganzen Galar-Region große Erdlöcher hinterlassen."
+    "cobblemon.species.grimmsnarl-gmax.desc": "Es transformiert seine Beinhaare, um damit bohrende Tritte zu verteilen, die in der ganzen Galar-Region große Erdlöcher hinterlassen.",
+    "cobblemon.ui.sort.level": "Nach Level sortieren",
+    "cobblemon.ui.sort.name": "Nach Name sortieren",
+    "cobblemon.ui.sort.pokedex_number": "Nach Poédex sortieren",
+    "cobblemon.ui.sort.gender": "Nach Geschlecht sortieren",
+    "cobblemon.ui.sort.type": "Nach Typ sortieren"
 }
