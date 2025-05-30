@@ -1077,8 +1077,7 @@ object MoLangFunctions {
                 DoubleValue.ONE
             }
             map.put("owner") { pokemon.getOwnerPlayer()?.asMoLangValue() ?: DoubleValue.ZERO }
-            map.put("held_item") { StringValue(pokemon.heldItemNoCopy().toString()) }
-            map.put("held_itemstack") { pokemon.heldItem().asMoLangValue(pokemon.getOwnerPlayer()!!.registryAccess()) ?: DoubleValue.ZERO }
+            map.put("held_item") { pokemon.heldItem().asMoLangValue(server()!!.registryAccess()) ?: DoubleValue.ZERO }
             map.put("remove_held_item") { _ ->
                 pokemon.removeHeldItem()
             }
