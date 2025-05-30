@@ -42,6 +42,9 @@ object CobblemonMemories {
     val NEAREST_VISIBLE_ATTACKER = register<LivingEntity>("nearest_visible_attacker")
     val NEARBY_GROWABLE_CROPS = register<BlockPos>("nearby_growable_crops")
     val RECENTLY_ATE_GRASS = register<Boolean>("recently_ate_grass")
+    val HIVE_LOCATION = register<BlockPos>("hive_location")
+    val RECENTLY_ADDED_HONEY = register<Boolean>("recently_added_honey", PrimitiveCodec.BOOL)
+    val HIVE_COOLDOWN = register<Boolean>("hive_cooldown")
 
     fun <U> register(id: String, codec: Codec<U>): MemoryModuleType<U> {
         val memoryModule = MemoryModuleType(Optional.of(codec))

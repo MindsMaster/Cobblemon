@@ -59,7 +59,8 @@ object PokemonBrain {
         CobblemonSensors.POKEMON_DROWSY,
         CobblemonSensors.POKEMON_ADULT,
         SensorType.IS_IN_WATER,
-        CobblemonSensors.NEARBY_GROWABLE_CROPS
+        CobblemonSensors.NEARBY_GROWABLE_CROPS,
+        CobblemonSensors.NEARBY_BEE_HIVE
 
 //            CobblemonSensors.BATTLING_POKEMON,
 //            CobblemonSensors.NPC_BATTLING
