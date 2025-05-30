@@ -1,21 +1,18 @@
 {
     "type": "minecraft:crafting_shaped",
     "pattern": [
-        " i ",
-        "cgc",
-        "aca"
+        "CGC",
+        "A A",
+        "CCC"
     ],
     "key": {
-        "i": {
-            "item": "minecraft:iron_nugget"
+        "C": {
+            "tag": "c:ingots/copper"
         },
-        "c": {
-            "item": "minecraft:copper_ingot"
-        },
-        "g": {
+        "G": {
             "item": "minecraft:glass"
         },
-        "a": {
+        "A": {
             "item": "cobblemon:black_apricorn"
         }
     },
