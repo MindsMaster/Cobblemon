@@ -50,7 +50,7 @@ interface ReleasePokemonEvent {
      */
     fun getContext(): MutableMap<String, MoValue> {
         return mutableMapOf(
-            "player" to (player.uuid.getPlayer()?.asMoLangValue() ?: DoubleValue.ZERO),
+            "player" to (player.asMoLangValue() ?: DoubleValue.ZERO),
             "pokemon" to pokemon.struct
         )
     }

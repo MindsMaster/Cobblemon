@@ -35,7 +35,7 @@ class PokemonNicknamedEvent(val player: ServerPlayer, val pokemon: Pokemon, var 
 
     fun getContext(): MutableMap<String, MoValue> {
         return mutableMapOf(
-            "player" to (player.uuid.getPlayer()?.asMoLangValue() ?: DoubleValue.ZERO),
+            "player" to (player.asMoLangValue() ?: DoubleValue.ZERO),
             "nickname" to StringValue(nicknameString),
             "pokemon" to pokemon.struct
         )

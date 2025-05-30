@@ -8,9 +8,9 @@
 
 package com.cobblemon.mod.common.api.events.pokemon
 
+import com.cobblemon.mod.common.util.server
 import com.bedrockk.molang.runtime.value.DoubleValue
 import com.bedrockk.molang.runtime.value.MoValue
-import com.bedrockk.molang.runtime.value.StringValue
 import com.cobblemon.mod.common.api.events.Cancelable
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMoLangValue
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.moLangFunctionMap
@@ -48,8 +48,8 @@ interface HeldItemEvent {
         fun getContext(): MutableMap<String, MoValue> {
             return mutableMapOf(
                 "pokemon" to pokemon.struct,
-                "receiving" to receiving.asMoLangValue(pokemon.getOwnerPlayer()!!.registryAccess()),
-                "returning" to returning.asMoLangValue(pokemon.getOwnerPlayer()!!.registryAccess()),
+                "receiving" to receiving.asMoLangValue(server()!!.registryAccess()),
+                "returning" to returning.asMoLangValue(server()!!.registryAccess()),
                 "decrement" to DoubleValue(if (decrement) 1.0 else 0.0),
             )
         }
@@ -72,8 +72,8 @@ interface HeldItemEvent {
         fun getContext(): MutableMap<String, MoValue> {
             return mutableMapOf(
                 "pokemon" to pokemon.struct,
-                "received" to StringValue(received.toString()),
-                "returned" to StringValue(returned.toString()),
+                "received" to received.asMoLangValue(server()!!.registryAccess()),
+                "returned" to returned.asMoLangValue(server()!!.registryAccess()),
                 "decremented" to DoubleValue(if (decremented) 1.0 else 0.0),
             )
         }

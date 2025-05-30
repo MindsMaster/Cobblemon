@@ -16,9 +16,9 @@ import com.cobblemon.mod.common.util.getPlayer
 
 class TradeCompletedEvent(val tradeParticipant1 : TradeParticipant, val tradeParticipant1Pokemon : Pokemon, val tradeParticipant2 : TradeParticipant, val tradeParticipant2Pokemon : Pokemon) {
     val context = mutableMapOf(
-        "tradeParticipant1" to (tradeParticipant1.uuid.getPlayer()?.asMoLangValue() ?: DoubleValue.ZERO),
-        "tradeParticipant2" to (tradeParticipant2.uuid.getPlayer()?.asMoLangValue() ?: DoubleValue.ZERO),
-        "tradeParticipant1Pokemon" to tradeParticipant1Pokemon.struct,
-        "tradeParticipant2Pokemon" to tradeParticipant2Pokemon.struct
+        "trade_participant_1" to (tradeParticipant1.uuid.getPlayer()?.asMoLangValue() ?: DoubleValue.ZERO),
+        "trade_participant_2" to (tradeParticipant2.uuid.getPlayer()?.asMoLangValue() ?: DoubleValue.ZERO),
+        "trade_participant_1_pokemon" to tradeParticipant1Pokemon.struct,
+        "trade_participant_2_pokemon" to tradeParticipant2Pokemon.struct
     )
 }
