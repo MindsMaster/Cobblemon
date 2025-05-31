@@ -32,10 +32,13 @@ class BeeHiveSensor : Sensor<PokemonEntity>(100) {
 
         if (currentHive != null) {
             val state = world.getBlockState(currentHive)
-            if (isHiveBlock(state) && isPathfindableTo(entity, currentHive) && state.getValue(BeehiveBlock.HONEY_LEVEL) == BeehiveBlock.MAX_HONEY_LEVELS) {
+            if (isValidHiveOrLeaf(state) && isPathfindableTo(entity, currentHive) && isAtMaxHoney(state)) {
+                // If it's still a valid hive or leaf, reachable, and already full — keep the memory but skip updating
                 return
+            } else if (isValidHiveOrLeaf(state) && isPathfindableTo(entity, currentHive)) {
+                // If it's valid and reachable but NOT full, keep the memory (don't erase), let the rest of doTick() handle updating
             } else {
-                // we want to clear the memory if that nest is no longer accessible or gone
+                // Invalid block (not a hive or leaf anymore) OR can't path to → erase memory
                 brain.eraseMemory(CobblemonMemories.HIVE_LOCATION)
             }
         }
@@ -52,11 +55,12 @@ class BeeHiveSensor : Sensor<PokemonEntity>(100) {
                 centerPos.offset(searchRadius, 2, searchRadius)
         ).forEach { pos ->
             val state = world.getBlockState(pos)
-            if (isHiveBlock(state) && isPathfindableTo(entity, pos) && state.getValue(BeehiveBlock.HONEY_LEVEL) != BeehiveBlock.MAX_HONEY_LEVELS) {
-                val distance = pos.distToCenterSqr(centerPos.x + 0.5, centerPos.y + 0.5, centerPos.z + 0.5)
-                if (distance < closestDistance) {
-                    closestDistance = distance
-                    closestHivePos = pos.immutable()
+            if (currentHive != null) {
+                val state = world.getBlockState(currentHive)
+                if (isValidHiveOrLeaf(state) && isPathfindableTo(entity, currentHive) && isAtMaxHoney(state)) {
+                    return
+                } else {
+                    brain.eraseMemory(CobblemonMemories.HIVE_LOCATION)
                 }
             }
         }
@@ -64,6 +68,22 @@ class BeeHiveSensor : Sensor<PokemonEntity>(100) {
         if (closestHivePos != null) {
             brain.setMemory(CobblemonMemories.HIVE_LOCATION, closestHivePos)
         }
+    }
+
+    private fun isAtMaxHoney(state: net.minecraft.world.level.block.state.BlockState): Boolean {
+        return when {
+            isHiveBlock(state) -> state.getValue(BeehiveBlock.HONEY_LEVEL) == BeehiveBlock.MAX_HONEY_LEVELS
+            isSaccharineLeafBlock(state) -> state.getValue(com.cobblemon.mod.common.block.SaccharineLeafBlock.AGE) == com.cobblemon.mod.common.block.SaccharineLeafBlock.MAX_AGE
+            else -> true // Unknown block type
+        }
+    }
+
+    private fun isValidHiveOrLeaf(state: net.minecraft.world.level.block.state.BlockState): Boolean {
+        return isHiveBlock(state) || isSaccharineLeafBlock(state)
+    }
+
+    private fun isSaccharineLeafBlock(state: net.minecraft.world.level.block.state.BlockState): Boolean {
+        return state.block is com.cobblemon.mod.common.block.SaccharineLeafBlock
     }
 
     private fun isHiveBlock(state: net.minecraft.world.level.block.state.BlockState): Boolean {

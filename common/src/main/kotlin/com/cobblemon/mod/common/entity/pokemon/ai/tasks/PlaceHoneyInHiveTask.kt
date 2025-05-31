@@ -57,11 +57,17 @@ object PlaceHoneyInHiveTask {
                         if (currentLevel < BeehiveBlock.MAX_HONEY_LEVELS) {
                             world.setBlock(hiveLocation, state.setValue(BeehiveBlock.HONEY_LEVEL, currentLevel + 1), 3)
 
-                            // todo set cooldown memories to prevent repeated adding of honey in short periods
                             entity.brain.setMemory(CobblemonMemories.RECENTLY_ADDED_HONEY, true)
                             entity.brain.setMemoryWithExpiry(CobblemonMemories.HIVE_COOLDOWN, true, hiveCooldown)
+                            entity.brain.eraseMemory(CobblemonMemories.POLLINATED)
+                        }
+                    } else if (block is com.cobblemon.mod.common.block.SaccharineLeafBlock) {
+                        val currentAge = state.getValue(com.cobblemon.mod.common.block.SaccharineLeafBlock.AGE)
+                        if (currentAge < com.cobblemon.mod.common.block.SaccharineLeafBlock.MAX_AGE) {
+                            world.setBlock(hiveLocation, state.setValue(com.cobblemon.mod.common.block.SaccharineLeafBlock.AGE, currentAge + 1), 3)
 
-                            // reset the pollinated state
+                            entity.brain.setMemory(CobblemonMemories.RECENTLY_ADDED_HONEY, true)
+                            entity.brain.setMemoryWithExpiry(CobblemonMemories.HIVE_COOLDOWN, true, hiveCooldown)
                             entity.brain.eraseMemory(CobblemonMemories.POLLINATED)
                         }
                     }
