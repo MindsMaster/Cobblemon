@@ -18,7 +18,9 @@
         "0": [
           "look_at_target",
           "path_to_hive",
-          "place_honey_in_hive"
+          "place_honey_in_hive",
+          "path_to_flower",
+          "pollinate_flower"
         ]
       }
     }

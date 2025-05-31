@@ -96,7 +96,9 @@ interface TaskConfig {
             cobblemonResource("find_air") to FindAirTaskConfig::class.java,
             cobblemonResource("go_to_land") to GoToLandTaskConfig::class.java,
             cobblemonResource("path_to_hive") to PathToBeeHiveTaskConfig::class.java,
-            cobblemonResource("place_honey_in_hive") to PlaceHoneyInHiveTaskConfig::class.java
+            cobblemonResource("place_honey_in_hive") to PlaceHoneyInHiveTaskConfig::class.java,
+            cobblemonResource("path_to_flower") to PathToFlowerTaskConfig::class.java,
+            cobblemonResource("pollinate_flower") to PollinateFlowerTaskConfig::class.java
         )
         
         val runtime = MoLangRuntime().setup()

@@ -9,6 +9,7 @@ import net.minecraft.world.entity.ai.behavior.BehaviorControl
 import net.minecraft.world.entity.ai.behavior.OneShot
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder
 import net.minecraft.world.entity.ai.behavior.declarative.Trigger
+import net.minecraft.world.entity.ai.memory.MemoryModuleType
 import net.minecraft.world.level.block.BeehiveBlock
 import net.minecraft.world.phys.Vec3
 
@@ -16,15 +17,26 @@ object PlaceHoneyInHiveTask {
     fun create(): OneShot<PokemonEntity> {
         return BehaviorBuilder.create {
             it.group(
-                    it.present(CobblemonMemories.HIVE_LOCATION),
-                    it.registered(CobblemonMemories.HIVE_COOLDOWN)
-            ).apply(it) { hiveMemory, hiveCooldown ->
+                it.present(MemoryModuleType.LOOK_TARGET),
+                it.absent(MemoryModuleType.WALK_TARGET),
+                it.registered(CobblemonMemories.POLLINATED),
+                it.present(CobblemonMemories.HIVE_LOCATION),
+                it.registered(CobblemonMemories.HIVE_COOLDOWN)
+            ).apply(it) { lookTarget, walkTarget, pollinated, hiveMemory, hiveCooldown ->
                 Trigger { world, entity, time ->
                     val hiveCooldown = 100L
 
-                    // todo if cooldown is in affect then return early
+                    // if on hive cooldown then end early
+                    if (entity.brain.getMemory(CobblemonMemories.HIVE_COOLDOWN).orElse(false) == true) {
+                        return@Trigger false
+                    }
 
                     if (entity !is PathfinderMob || !entity.isAlive) return@Trigger false
+
+                    // if not pollinated then end early
+                    if (entity.brain.getMemory(CobblemonMemories.POLLINATED).orElse(false) != true) {
+                        return@Trigger false
+                    }
 
                     // todo have a better way to assign this task to BeeLike pokemon
                     if (entity.pokemon.species.name != "Combee" && entity.pokemon.species.name != "Vespiquen") {
@@ -48,6 +60,9 @@ object PlaceHoneyInHiveTask {
                             // todo set cooldown memories to prevent repeated adding of honey in short periods
                             entity.brain.setMemory(CobblemonMemories.RECENTLY_ADDED_HONEY, true)
                             entity.brain.setMemoryWithExpiry(CobblemonMemories.HIVE_COOLDOWN, true, hiveCooldown)
+
+                            // reset the pollinated state
+                            entity.brain.eraseMemory(CobblemonMemories.POLLINATED)
                         }
                     }
 

@@ -7,11 +7,12 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.PathfinderMob
 import net.minecraft.world.entity.ai.memory.MemoryModuleType
 import net.minecraft.world.entity.ai.sensing.Sensor
+import net.minecraft.world.level.block.BeehiveBlock
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.pathfinder.PathType
 import kotlin.math.min
 
-class BeeHiveSensor : Sensor<PokemonEntity>(300) {
+class BeeHiveSensor : Sensor<PokemonEntity>(100) {
     override fun requires() = setOf(
             CobblemonMemories.HIVE_LOCATION
     )
@@ -31,7 +32,7 @@ class BeeHiveSensor : Sensor<PokemonEntity>(300) {
 
         if (currentHive != null) {
             val state = world.getBlockState(currentHive)
-            if (isHiveBlock(state) && isPathfindableTo(entity, currentHive)) {
+            if (isHiveBlock(state) && isPathfindableTo(entity, currentHive) && state.getValue(BeehiveBlock.HONEY_LEVEL) == BeehiveBlock.MAX_HONEY_LEVELS) {
                 return
             } else {
                 // we want to clear the memory if that nest is no longer accessible or gone
@@ -40,7 +41,7 @@ class BeeHiveSensor : Sensor<PokemonEntity>(300) {
         }
 
         // Search for nearest hive/nest
-        val searchRadius = 16  // is this too big for us to use?
+        val searchRadius = 32  // is this too big for us to use?
         val centerPos = entity.blockPosition()
 
         var closestHivePos: BlockPos? = null
@@ -51,7 +52,7 @@ class BeeHiveSensor : Sensor<PokemonEntity>(300) {
                 centerPos.offset(searchRadius, 2, searchRadius)
         ).forEach { pos ->
             val state = world.getBlockState(pos)
-            if (isHiveBlock(state) && isPathfindableTo(entity, pos)) {
+            if (isHiveBlock(state) && isPathfindableTo(entity, pos) && state.getValue(BeehiveBlock.HONEY_LEVEL) != BeehiveBlock.MAX_HONEY_LEVELS) {
                 val distance = pos.distToCenterSqr(centerPos.x + 0.5, centerPos.y + 0.5, centerPos.z + 0.5)
                 if (distance < closestDistance) {
                     closestDistance = distance
