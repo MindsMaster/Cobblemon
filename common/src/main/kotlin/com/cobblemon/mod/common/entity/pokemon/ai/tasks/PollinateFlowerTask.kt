@@ -19,7 +19,7 @@ object PollinateFlowerTask {
                 it.present(CobblemonMemories.NEARBY_FLOWER),
                 it.absent(MemoryModuleType.WALK_TARGET),
                 it.absent(CobblemonMemories.POLLINATED),
-                it.registered(CobblemonMemories.HIVE_COOLDOWN)
+                it.absent(CobblemonMemories.HIVE_COOLDOWN)
             ).apply(it) { flowerMemory, walkTarget, pollinated, hiveCooldown ->
                 Trigger { world, entity, time ->
                     if (entity !is PathfinderMob || !entity.isAlive) return@Trigger false

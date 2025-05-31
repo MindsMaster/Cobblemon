@@ -22,7 +22,7 @@ object PathToBeeHiveTask {
                     it.absent(MemoryModuleType.WALK_TARGET),
                     it.present(CobblemonMemories.POLLINATED),
                     it.present(CobblemonMemories.HIVE_LOCATION),
-                    it.registered(CobblemonMemories.HIVE_COOLDOWN)
+                    it.absent(CobblemonMemories.HIVE_COOLDOWN)
             ).apply(it) { lookTarget, walkTarget, pollinated, hiveMemory, hiveCooldown ->
                 Trigger { world, entity, time ->
                     if (entity !is PathfinderMob || !entity.isAlive) return@Trigger false
