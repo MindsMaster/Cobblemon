@@ -550,10 +550,6 @@ open class PokemonEntity(
                 discard()
                 return
             }
-            if (platform != PlatformType.NONE && beamMode == 0) {
-                // If somehow we maintained a platform after a battle, remove it.
-                platform = PlatformType.NONE
-            }
         }
 
         // We will be handling idle logic ourselves thank you
