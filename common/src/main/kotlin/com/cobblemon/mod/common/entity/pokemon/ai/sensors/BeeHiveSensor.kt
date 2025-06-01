@@ -32,13 +32,10 @@ class BeeHiveSensor : Sensor<PokemonEntity>(100) {
 
         if (currentHive != null) {
             val state = world.getBlockState(currentHive)
-            if (isValidHiveOrLeaf(state) && isPathfindableTo(entity, currentHive) && isAtMaxHoney(state)) {
-                // If it's still a valid hive or leaf, reachable, and already full — keep the memory but skip updating
-                return
-            } else if (isValidHiveOrLeaf(state) && isPathfindableTo(entity, currentHive)) {
-                // If it's valid and reachable but NOT full, keep the memory (don't erase), let the rest of doTick() handle updating
-            } else {
-                // Invalid block (not a hive or leaf anymore) OR can't path to → erase memory
+
+            if (!isValidHiveOrLeaf(state) || !isPathfindableTo(entity, currentHive)) {
+                brain.eraseMemory(CobblemonMemories.HIVE_LOCATION)
+            } else if (isAtMaxHoney(state)) {
                 brain.eraseMemory(CobblemonMemories.HIVE_LOCATION)
             }
         }
@@ -51,16 +48,16 @@ class BeeHiveSensor : Sensor<PokemonEntity>(100) {
         var closestDistance = Double.MAX_VALUE
 
         BlockPos.betweenClosedStream(
-                centerPos.offset(-searchRadius, -2, -searchRadius),
-                centerPos.offset(searchRadius, 2, searchRadius)
+            centerPos.offset(-searchRadius, -2, -searchRadius),
+            centerPos.offset(searchRadius, 2, searchRadius)
         ).forEach { pos ->
             val state = world.getBlockState(pos)
-            if (currentHive != null) {
-                val state = world.getBlockState(currentHive)
-                if (isValidHiveOrLeaf(state) && isPathfindableTo(entity, currentHive) && isAtMaxHoney(state)) {
-                    return
-                } else {
-                    brain.eraseMemory(CobblemonMemories.HIVE_LOCATION)
+
+            if (isValidHiveOrLeaf(state) && isPathfindableTo(entity, pos) && !isAtMaxHoney(state)) {
+                val distance = pos.distToCenterSqr(centerPos.x + 0.5, centerPos.y + 0.5, centerPos.z + 0.5)
+                if (distance < closestDistance) {
+                    closestDistance = distance
+                    closestHivePos = pos.immutable()
                 }
             }
         }
