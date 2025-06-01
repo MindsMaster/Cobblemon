@@ -453,7 +453,6 @@ open class PokemonEntity(
                 } else {
                     busyLocks.remove(BATTLE_LOCK)
                     brain.eraseMemory(CobblemonMemories.POKEMON_BATTLE)
-                    brain.eraseMemory(CobblemonMemories.HAS_MOVED_TO_BATTLE_POSITION)
                 }
             }
 

@@ -10,41 +10,39 @@ package com.cobblemon.mod.common.entity.pokemon.ai.tasks
 
 
 import com.cobblemon.mod.common.CobblemonMemories
-import com.cobblemon.mod.common.entity.PlatformType
+import com.cobblemon.mod.common.api.scheduling.afterOnServer
 import com.cobblemon.mod.common.entity.pokemon.PokemonBehaviourFlag
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
-import com.google.common.collect.ImmutableMap
-import net.minecraft.server.level.ServerLevel
-import net.minecraft.world.entity.ai.behavior.Behavior
-import net.minecraft.world.entity.ai.memory.MemoryStatus
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.ai.behavior.OneShot
+import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder
 
-class BattleFlightTask : Behavior<PokemonEntity>(
-    ImmutableMap.of(
-            CobblemonMemories.POKEMON_BATTLE, MemoryStatus.VALUE_PRESENT,
-    )
-){
-    override fun start(world: ServerLevel, entity: PokemonEntity, time: Long) {
-        entity.navigation.stop()
-    }
-
-    override fun canStillUse(world: ServerLevel, entity: PokemonEntity, time: Long): Boolean {
-        return entity.isBattling && entity.brain.checkMemory(CobblemonMemories.HAS_MOVED_TO_BATTLE_POSITION, MemoryStatus.VALUE_ABSENT)
-    }
+import net.minecraft.world.entity.ai.behavior.declarative.Trigger
 
 
-    override fun tick(world: ServerLevel, entity: PokemonEntity, time: Long) {
-        if (entity.exposedForm.behaviour.moving.fly.canFly) {
+object BattleFlightTask {
+    fun create(): OneShot<LivingEntity> = BehaviorBuilder.create { context ->
+        context.group(
+                context.present(CobblemonMemories.POKEMON_BATTLE)
+        ).apply(context) {
+            Trigger { _, entity, _ ->
 
-            if (entity.ticksLived > 0 && !entity.getBehaviourFlag(PokemonBehaviourFlag.FLYING) && entity.navigation.isAirborne(entity.level(), entity.blockPosition())) {
-                // Let flyers fly in battle if they're in the air
-                entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, true)
-            }
+                if (entity !is PokemonEntity) {
+                    return@Trigger false
+                }
+                if (entity.exposedForm.behaviour.moving.fly.canFly) {
 
-            if (entity.brain.checkMemory(CobblemonMemories.HAS_MOVED_TO_BATTLE_POSITION, MemoryStatus.VALUE_ABSENT) && entity.ticksLived > 5) {
-                entity.navigation.moveTo(entity.x, entity.y + 0.3, entity.z, 1.0)
-                entity.brain.setMemory(CobblemonMemories.HAS_MOVED_TO_BATTLE_POSITION, true)
+                    if (entity.ticksLived > 0 && !entity.getBehaviourFlag(PokemonBehaviourFlag.FLYING) && entity.navigation.isAirborne(entity.level(), entity.blockPosition())) {
+                        // Let flyers fly in battle if they're in the air
+                        entity.setBehaviourFlag(PokemonBehaviourFlag.FLYING, true)
+                        afterOnServer(0.1F) {
+                            entity.navigation.moveTo(entity.x, entity.y + 0.2, entity.z, 1.0)
+                        }
+                        return@Trigger true
+                    }
+                }
+                return@Trigger false
             }
         }
     }
-
 }

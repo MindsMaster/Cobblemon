@@ -30,7 +30,6 @@ object CobblemonMemories {
      */
 
     val BATTLING_POKEMON = register("battling_pokemon", ListCodec(UUIDUtil.CODEC, 0, 31))
-    val HAS_MOVED_TO_BATTLE_POSITION = register("has_moved_to_battle_position", PrimitiveCodec.BOOL)
     val NPC_BATTLING = register("npc_battling", PrimitiveCodec.BOOL)
     val DIALOGUES = register<List<ActiveDialogue>>("npc_dialogues")
     val ACTIVE_ACTION_EFFECT = register<ActionEffectContext>("active_action_effect")
