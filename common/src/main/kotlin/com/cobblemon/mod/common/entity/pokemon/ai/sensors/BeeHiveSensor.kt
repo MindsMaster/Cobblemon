@@ -12,7 +12,7 @@ import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.pathfinder.PathType
 import kotlin.math.min
 
-class BeeHiveSensor : Sensor<PokemonEntity>(100) {
+class BeeHiveSensor : Sensor<PokemonEntity>(300) {
     override fun requires() = setOf(
             CobblemonMemories.HIVE_LOCATION
     )
@@ -33,7 +33,7 @@ class BeeHiveSensor : Sensor<PokemonEntity>(100) {
         if (currentHive != null) {
             val state = world.getBlockState(currentHive)
 
-            if (!isValidHiveOrLeaf(state) || !isPathfindableTo(entity, currentHive)) {
+            if (!isValidHiveOrLeaf(state) || !hasReachableAdjacentSide(world, entity, currentHive)) {
                 brain.eraseMemory(CobblemonMemories.HIVE_LOCATION)
             } else if (isAtMaxHoney(state)) {
                 brain.eraseMemory(CobblemonMemories.HIVE_LOCATION)
@@ -41,7 +41,7 @@ class BeeHiveSensor : Sensor<PokemonEntity>(100) {
         }
 
         // Search for nearest hive/nest
-        val searchRadius = 32  // is this too big for us to use?
+        val searchRadius = 16  // is this too big for us to use?
         val centerPos = entity.blockPosition()
 
         var closestHivePos: BlockPos? = null
@@ -53,7 +53,7 @@ class BeeHiveSensor : Sensor<PokemonEntity>(100) {
         ).forEach { pos ->
             val state = world.getBlockState(pos)
 
-            if (isValidHiveOrLeaf(state) && isPathfindableTo(entity, pos) && !isAtMaxHoney(state)) {
+            if (isValidHiveOrLeaf(state) && !isAtMaxHoney(state) && hasReachableAdjacentSide(world, entity, pos)) {
                 val distance = pos.distToCenterSqr(centerPos.x + 0.5, centerPos.y + 0.5, centerPos.z + 0.5)
                 if (distance < closestDistance) {
                     closestDistance = distance
@@ -87,9 +87,17 @@ class BeeHiveSensor : Sensor<PokemonEntity>(100) {
         return state.`is`(Blocks.BEEHIVE) || state.`is`(Blocks.BEE_NEST)
     }
 
-    private fun isPathfindableTo(entity: PokemonEntity, pos: BlockPos): Boolean {
-        val nav = entity.navigation
-        val path = nav.createPath(pos, 0)
-        return path != null && path.canReach()
+    private fun hasReachableAdjacentSide(world: ServerLevel, entity: PokemonEntity, pos: BlockPos): Boolean {
+        for (dir in net.minecraft.core.Direction.values()) {
+            val adjacentPos = pos.relative(dir)
+            if (world.isEmptyBlock(adjacentPos)) {
+                val nav = entity.navigation
+                val path = nav.createPath(adjacentPos, 0)
+                if (path != null && path.canReach()) {
+                    return true
+                }
+            }
+        }
+        return false
     }
 }

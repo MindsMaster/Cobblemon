@@ -9,7 +9,7 @@ import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.pathfinder.PathType
 import kotlin.math.min
 
-class FlowerSensor : Sensor<PokemonEntity>(100) {
+class FlowerSensor : Sensor<PokemonEntity>(300) {
     override fun requires() = setOf(CobblemonMemories.NEARBY_FLOWER)
 
     override fun doTick(world: ServerLevel, entity: PokemonEntity) {
@@ -25,7 +25,7 @@ class FlowerSensor : Sensor<PokemonEntity>(100) {
             }
         }
 
-        val searchRadius = 30
+        val searchRadius = 16
         val centerPos = entity.blockPosition()
 
         var closestFlower: BlockPos? = null

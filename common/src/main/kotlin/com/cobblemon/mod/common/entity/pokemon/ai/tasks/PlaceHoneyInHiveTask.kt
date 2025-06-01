@@ -24,7 +24,7 @@ object PlaceHoneyInHiveTask {
                 it.absent(CobblemonMemories.HIVE_COOLDOWN)
             ).apply(it) { lookTarget, walkTarget, pollinated, hiveMemory, hiveCooldown ->
                 Trigger { world, entity, time ->
-                    val hiveCooldown = 100L
+                    val hiveCooldown = 1200L
 
                     // if on hive cooldown then end early
                     if (entity.brain.getMemory(CobblemonMemories.HIVE_COOLDOWN).orElse(false) == true) {
