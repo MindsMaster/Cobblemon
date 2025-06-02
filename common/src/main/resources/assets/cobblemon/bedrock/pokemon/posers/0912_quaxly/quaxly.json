@@ -19,8 +19,8 @@
   },
   "poses": {
     "sleep": {
-      "IsTouchingWater": "false",
-      "IsUnderWater": "false",
+      "isTouchingWater": "false",
+      "isUnderWater": "false",
       "poseTypes": [
         "SLEEP"
       ],
@@ -39,8 +39,8 @@
       ]
     },
     "surface_sleep": {
-      "IsTouchingWater": "true",
-      "IsUnderWater": "false",
+      "isTouchingWater": "true",
+      "isUnderWater": "false",
       "poseTypes": [
         "SLEEP"
       ],
@@ -59,8 +59,8 @@
       ]
     },
     "water_sleep": {
-      "IsTouchingWater": "true",
-      "IsUnderWater": "true",
+      "isTouchingWater": "true",
+      "isUnderWater": "true",
       "poseTypes": [
         "SLEEP"
       ],
@@ -152,8 +152,8 @@
       ]
     },
     "swim": {
-      "IsTouchingWater": "true",
-      "IsUnderWater": "true",
+      "isTouchingWater": "true",
+      "isUnderWater": "true",
       "poseTypes": [
         "SWIM"
       ],
@@ -177,9 +177,9 @@
       ]
     },
     "battle_idle": {
-      "IsTouchingWater": "false",
-      "IsUnderWater": "false",
-      "IsBattle": "true",
+      "isTouchingWater": "false",
+      "isUnderWater": "false",
+      "isBattle": "true",
       "poseTypes": [
         "STAND"
       ],
@@ -203,9 +203,9 @@
       ]
     },
     "water_battle_idle": {
-      "IsTouchingWater": "true",
-      "IsUnderWater": "true",
-      "IsBattle": "true",
+      "isTouchingWater": "true",
+      "isUnderWater": "true",
+      "isBattle": "true",
       "poseTypes": [
         "FLOAT"
       ],
@@ -229,9 +229,9 @@
       ]
     },
     "surface_battle_idle": {
-      "IsTouchingWater": "true",
-      "IsUnderWater": "false",
-      "IsBattle": "true",
+      "isTouchingWater": "true",
+      "isUnderWater": "false",
+      "iBattle": "true",
       "poseTypes": [
         "FLOAT"
       ],
@@ -255,8 +255,8 @@
       ]
     },
     "surface_idle": {
-      "IsTouchingWater": "true",
-      "IsUnderWater": "false",
+      "isTouchingWater": "true",
+      "isUnderWater": "false",
       "poseTypes": [
         "FLOAT"
       ],
@@ -279,8 +279,8 @@
       ]
     },
     "surface_swim": {
-      "IsTouchingWater": "true",
-      "IsUnderWater": "false",
+      "isTouchingWater": "true",
+      "isUnderWater": "false",
       "poseTypes": [
         "SWIM"
       ],
