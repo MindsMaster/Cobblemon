@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.api.pokemon
 
 import com.cobblemon.mod.common.Cobblemon
+import com.cobblemon.mod.common.Cobblemon.config
 import com.cobblemon.mod.common.api.abilities.Abilities
 import com.cobblemon.mod.common.api.abilities.Ability
 import com.cobblemon.mod.common.api.events.CobblemonEvents
@@ -42,6 +43,7 @@ import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.mojang.brigadier.StringReader
 import com.mojang.serialization.Codec
+import com.mojang.serialization.JsonOps
 import java.util.UUID
 import kotlin.math.min
 import kotlin.random.Random
@@ -50,6 +52,7 @@ import net.minecraft.commands.arguments.item.ItemParser
 import net.minecraft.core.HolderLookup
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
+import net.minecraft.nbt.NbtOps
 import net.minecraft.nbt.StringTag
 import net.minecraft.nbt.Tag
 import net.minecraft.network.chat.Component
@@ -58,6 +61,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
+import kotlin.jvm.optionals.getOrNull
 
 /**
  * A grouping of typical, selectable properties for a Pokémon. This is serializable
@@ -385,7 +389,13 @@ open class PokemonProperties {
         shiny?.let { pokemon.shiny = it }
         gender?.let { pokemon.gender = it }
         level?.let { pokemon.level = it }
-        friendship?.let { pokemon.setFriendship(it) }
+        friendship.also {
+            if (it != null) {
+                pokemon.setFriendship(it)
+            } else {
+                pokemon.setFriendship(pokemon.form.baseFriendship)
+            }
+        }
         pokeball?.let { PokeBalls.getPokeBall(it.asIdentifierDefaultingNamespace())?.let { pokeball -> pokemon.caughtBall = pokeball } }
         nature?.let  { Natures.getNature(it.asIdentifierDefaultingNamespace())?.let { nature -> pokemon.nature = nature } }
         ability?.let { this.createAbility(it, pokemon.form)?.let(pokemon::updateAbility) }
@@ -394,6 +404,9 @@ open class PokemonProperties {
         ivs?.let { ivs ->
             ivs.forEach { stat ->
                 pokemon.setIV(stat.key, stat.value)
+            }
+            ivs.hyperTrainedIVs.forEach { stat ->
+                pokemon.hyperTrainIV(stat.key, stat.value)
             }
         }
         evs?.let { evs ->
@@ -626,8 +639,8 @@ open class PokemonProperties {
         nature?.let { nbt.putString(DataKeys.POKEMON_NATURE, it) }
         ability?.let { nbt.putString(DataKeys.POKEMON_ABILITY, it) }
         status?.let { nbt.putString(DataKeys.POKEMON_STATUS_NAME, it) }
-        ivs?.let { nbt.put(DataKeys.POKEMON_IVS, it.saveToNBT(CompoundTag())) }
-        evs?.let { nbt.put(DataKeys.POKEMON_EVS, it.saveToNBT(CompoundTag())) }
+        ivs?.let { nbt.put(DataKeys.POKEMON_IVS, IVs.CODEC.encodeStart(NbtOps.INSTANCE, it).result().get()) }
+        evs?.let { nbt.put(DataKeys.POKEMON_EVS, EVs.CODEC.encodeStart(NbtOps.INSTANCE, it).result().get()) }
         type?.let { nbt.putString(DataKeys.ELEMENTAL_TYPE, it) }
         teraType?.let { nbt.putString(DataKeys.POKEMON_TERA_TYPE, it) }
         dmaxLevel?.let { nbt.putInt(DataKeys.POKEMON_DMAX_LEVEL, it) }
@@ -657,8 +670,8 @@ open class PokemonProperties {
         nature = if (tag.contains(DataKeys.POKEMON_NATURE)) tag.getString(DataKeys.POKEMON_NATURE) else null
         ability = if (tag.contains(DataKeys.POKEMON_ABILITY)) tag.getString(DataKeys.POKEMON_ABILITY) else null
         status = if (tag.contains(DataKeys.POKEMON_STATUS_NAME)) tag.getString(DataKeys.POKEMON_STATUS_NAME) else null
-        ivs = if (tag.contains(DataKeys.POKEMON_IVS)) IVs().loadFromNBT(tag.getCompound(DataKeys.POKEMON_IVS)) as IVs else null
-        evs = if (tag.contains(DataKeys.POKEMON_EVS)) EVs().loadFromNBT(tag.getCompound(DataKeys.POKEMON_EVS)) as EVs else null
+        ivs = if (tag.contains(DataKeys.POKEMON_IVS)) IVs.CODEC.decode(NbtOps.INSTANCE, tag.getCompound(DataKeys.POKEMON_IVS)).result().getOrNull()?.first else null
+        evs = if (tag.contains(DataKeys.POKEMON_EVS)) EVs.CODEC.decode(NbtOps.INSTANCE, tag.getCompound(DataKeys.POKEMON_EVS)).result().getOrNull()?.first else null
         type = if (tag.contains(DataKeys.ELEMENTAL_TYPE)) tag.getString(DataKeys.ELEMENTAL_TYPE) else null
         teraType = if (tag.contains(DataKeys.POKEMON_TERA_TYPE)) tag.getString(DataKeys.POKEMON_TERA_TYPE) else null
         dmaxLevel = if (tag.contains(DataKeys.POKEMON_DMAX_LEVEL)) tag.getInt(DataKeys.POKEMON_DMAX_LEVEL) else null
@@ -690,8 +703,8 @@ open class PokemonProperties {
         nature?.let { json.addProperty(DataKeys.POKEMON_NATURE, it) }
         ability?.let { json.addProperty(DataKeys.POKEMON_ABILITY, it) }
         status?.let { json.addProperty(DataKeys.POKEMON_STATUS_NAME, it) }
-        ivs?.let { json.add(DataKeys.POKEMON_IVS, it.saveToJSON(JsonObject())) }
-        evs?.let { json.add(DataKeys.POKEMON_EVS, it.saveToJSON(JsonObject())) }
+        ivs?.let { json.add(DataKeys.POKEMON_IVS, IVs.CODEC.encodeStart(JsonOps.INSTANCE, it).result().get()) }
+        evs?.let { json.add(DataKeys.POKEMON_EVS, EVs.CODEC.encodeStart(JsonOps.INSTANCE, it).result().get()) }
         type?.let { json.addProperty(DataKeys.ELEMENTAL_TYPE, it) }
         teraType?.let { json.addProperty(DataKeys.POKEMON_TERA_TYPE, it) }
         dmaxLevel?.let { json.addProperty(DataKeys.POKEMON_DMAX_LEVEL, it) }
@@ -722,8 +735,8 @@ open class PokemonProperties {
         nature = json.get(DataKeys.POKEMON_NATURE)?.asString
         ability = json.get(DataKeys.POKEMON_ABILITY)?.asString
         status = json.get(DataKeys.POKEMON_STATUS_NAME)?.asString
-        ivs = json.getAsJsonObject(DataKeys.POKEMON_IVS)?.let { IVs().loadFromJSON(it) } as? IVs
-        evs = json.getAsJsonObject(DataKeys.POKEMON_EVS)?.let { EVs().loadFromJSON(it) } as? EVs
+        ivs = json.getAsJsonObject(DataKeys.POKEMON_IVS)?.let { IVs.CODEC.decode(JsonOps.INSTANCE, it).result().getOrNull()?.first }
+        evs = json.getAsJsonObject(DataKeys.POKEMON_EVS)?.let { EVs.CODEC.decode(JsonOps.INSTANCE, it).result().getOrNull()?.first }
         type = json.get(DataKeys.ELEMENTAL_TYPE)?.asString
         teraType = json.get(DataKeys.POKEMON_TERA_TYPE)?.asString
         dmaxLevel = json.get(DataKeys.POKEMON_DMAX_LEVEL)?.asInt
@@ -798,4 +811,19 @@ open class PokemonProperties {
         return potentialAbility.template.create(false, potentialAbility.priority)
     }
 
+    /**
+     * Shared logic for figuring out what range of levels is possible for a Pokémon, given that some
+     * kind of optional level range has been requested. Used mainly as a thing for spawning to avoid
+     * copy-pasting code.
+     */
+    fun deriveLevelRange(levelRange: IntRange?): IntRange {
+        return levelRange.let { levelRange ->
+            val pokemonLevel = level
+            levelRange
+                ?: pokemonLevel?.until(pokemonLevel)
+                ?: IntRange(1, config.maxPokemonLevel)
+        }
+    }
+
+    fun hasSpecies() = species?.let { PokemonSpecies.getByIdentifier(it.asIdentifierDefaultingNamespace()) } != null
 }
