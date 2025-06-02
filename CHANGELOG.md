@@ -41,12 +41,17 @@
 - Grumpig
 - Snorunt
 - Glalie
+- Latias
+- Latios
 
 #### Gen 4
 - Bronzor
 - Bronzong
 - Croagunk
+- Toxicroak
 - Froslass
+- Glameow
+- Purugly
 
 #### Gen 5
 - Pansage
@@ -59,10 +64,22 @@
 - Musharna
 - Blitzle
 - Zebstrika
+- Drilbur
+- Excadrill
 - Trubbish
 - Garbodor
+- Gothita
+- Gothorita
+- Gothitelle
+- Solosis
+- Duosion
+- Reuniclus
 
 #### Gen 6
+- Inkay
+- Malamar
+- Hawlucha
+- Dedenne
 - Noibat
 - Noivern
 
@@ -72,13 +89,20 @@
 #### Gen 8
 - Silicobra
 - Sandaconda
+- Sinistea
+- Polteageist
 
 #### Gen 9
 - Smoliv
 - Dolliv
 - Arboliva
+- Tarountula
+- Spidops
 - Orthworm
 - Dudunsparce
+- Cyclizar
+- Poltchageist
+- Sinistcha
 
 ### Animation updates for the following Pokémon
 - Garchomp
@@ -91,6 +115,15 @@
 - Delphox
 - Cinderace
 - Kangaskhan
+- Gossifleur
+- Eldegoss
+- Stonjourner
+- Wailmer
+- Lechonk
+- Oinkologne
+- Dratini
+- Dragonair
+- Dragonite
 
 ### Model updates for the following Pokémon
 - Gyarados
@@ -108,15 +141,39 @@
 - Grovyle
 - Sceptile
 - Honchkrow
+- Gible
+- Gabite
 - Garchomp
 - Pidgeot
 - Nosepass
 - Probopass
 - Kangaskhan
 - Cinderace
+- Magnemite
+- Magneton
 - Magnezone
+- Beldum
+- Metang
 - Metagross
+- Hoothoot
+- Noctowl
+- Teddiursa
+- Ursaring
+- Ursaluna
+- Heatmor
+- Bouffalant
+- Sigilyph
+- Sharpedo
+- Maractus
+- Clodsire
+- Scyther
+- Scizor
+- Cacturne
+- Taillow
+- Swellow
 - Added Syrupy Apples.
+- Seel
+- Dewgong
 
 ### Changes
 - Renamed `chargeGainedPerTick` config to `secondsToChargeHealingMachine`.
@@ -193,6 +250,9 @@
 - Fixed the `dimensions` spawning condition using the incorrect ResourceLocation, causing it to not function properly.
 - Fix issue where locator X axis was not aligned with blockbench.
 - Fix issue where particle effects that play on frame 1 on sendout would never play (Gastly)
+- The Wiglett line will now sink in water again.
+- Fixed the Sprigatito line's portraits being zoomed in too far. 
+- Fixed Floragato's battle cry animation from breaking. 
 - Fixed the block texture name for the Pep-Up Flower being inaccurate
 - Fixed issue where the restoration tank would not accept valid items from a hopper.
 - Fixed energy root not being shearable
