@@ -148,6 +148,9 @@
 - Added all Potted Apricorn Sprouts, Potted Saccharine Saplings, and Potted Pep-Up Flowers to the `#minecraft:flower_pots` block tag
 - Corrected the healing values of the remedies and energy root, and reintroduced the friendship lowering mechanics for them, revivl herb, and heal powder
 - Updated battle language keys for side effects to use position-specific formats, improving grammatical consistency
+- Saccharine Leaves are now Collectable
+- Saccharine Leaves Age 1 or higher will now show Yellow particles when broken
+- Destroying a Saccharine Honey Log will now drop a Saccharine Log in stead of nothing
 
 ### Fixes
 - Fixed Particles sometimes facing the wrong direction (looking at you, Swords Dance)
