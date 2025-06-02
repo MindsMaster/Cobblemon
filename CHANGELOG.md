@@ -251,6 +251,8 @@
 - Fix issue where locator X axis was not aligned with blockbench.
 - Fix issue where particle effects that play on frame 1 on sendout would never play (Gastly)
 - The Wiglett line will now sink in water again.
+- Fixed the Sprigatito line's portraits being zoomed in too far. 
+- Fixed Floragato's battle cry animation from breaking. 
 - Fixed the block texture name for the Pep-Up Flower being inaccurate
 - Fixed issue where the restoration tank would not accept valid items from a hopper.
 - Fixed energy root not being shearable
