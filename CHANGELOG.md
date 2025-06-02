@@ -174,6 +174,9 @@
 - Added Syrupy Apples.
 - Seel
 - Dewgong
+- Honedge
+- Doublade
+- Aegislash
 
 ### Changes
 - Renamed `chargeGainedPerTick` config to `secondsToChargeHealingMachine`.
