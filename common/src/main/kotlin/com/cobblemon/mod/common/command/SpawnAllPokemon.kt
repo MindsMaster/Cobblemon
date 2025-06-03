@@ -47,7 +47,7 @@ object SpawnAllPokemon {
         for (species in PokemonSpecies.implemented) {
             if (species.nationalPokedexNumber in range) {
                 LOGGER.debug(species.name)
-                val pokemonEntity = PokemonProperties.parse("species=\"${species.name}\" level=10").createEntity(context.source.level)
+                val pokemonEntity = PokemonProperties.parse("species=${species.name} level=10").createEntity(context.source.level)
                 pokemonEntity.moveTo(player.x, player.y, player.z, pokemonEntity.yRot, pokemonEntity.xRot)
                 pokemonEntity.entityData.set(PokemonEntity.SPAWN_DIRECTION, pokemonEntity.random.nextFloat() * 360F)
                 context.source.level.addFreshEntity(pokemonEntity)
