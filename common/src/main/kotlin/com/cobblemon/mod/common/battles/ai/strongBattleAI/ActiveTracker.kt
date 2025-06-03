@@ -97,8 +97,13 @@ class TrackerSide {
                 .associateWith { stat ->  boostPerStat.getOrDefault(stat, 0) - unboostPerStat.getOrDefault(stat, 0) })
             trackMon.currentStatus = pokemon.effectedPokemon.status?.status?.showdownName ?: pokemon.contextManager.get(BattleContext.Type.STATUS)?.lastOrNull()?.id
             trackMon.currentVolatile = pokemon.contextManager.get(BattleContext.Type.VOLATILE)?.lastOrNull()?.id
+            val resetAbility = trackMon.species != (pokemon.entity?.exposedSpecies ?: pokemon.effectedPokemon.species) ||
+                    trackMon.form != (pokemon.entity?.exposedForm ?: pokemon.effectedPokemon.form)
             trackMon.species = pokemon.entity?.exposedSpecies ?: pokemon.effectedPokemon.species
             trackMon.form = pokemon.entity?.exposedForm ?: pokemon.effectedPokemon.form
+            if (trackMon.currentAbility != null || resetAbility) {
+                trackMon.currentAbility = (trackMon.form?.abilities ?: trackMon.species!!.abilities).first().template.create() //educated guess, abilities of a pokemon are known
+            }
             trackMon.currentHpPercent = pokemon.health.toDouble() / pokemon.maxHealth.toDouble()
         }
         //TODO count turns where applicable?
@@ -165,7 +170,7 @@ data class TrackerPokemon(
     var form: FormData? = null,
     var currentHp: Int? = null,
     var currentHpPercent: Double = 0.0,
-    var boosts: MutableMap<Stat, Int> = mutableMapOf(), // unused for now
+    var boosts: MutableMap<Stat, Int> = mutableMapOf(),
     var currentVolatile: String? = null,
     var currentStatus: String? = null,
     var currentAbility: Ability? = null, //TODO PICK UP FROM BATTLE ACTIVATION

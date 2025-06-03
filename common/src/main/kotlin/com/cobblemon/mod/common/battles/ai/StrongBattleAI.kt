@@ -19,6 +19,7 @@ import com.cobblemon.mod.common.api.moves.categories.DamageCategories
 import com.cobblemon.mod.common.api.pokemon.*
 import com.cobblemon.mod.common.api.pokemon.stats.Stat
 import com.cobblemon.mod.common.api.pokemon.stats.Stats
+import com.cobblemon.mod.common.api.pokemon.status.Statuses
 import com.cobblemon.mod.common.api.types.ElementalTypes
 import com.cobblemon.mod.common.battles.*
 import com.cobblemon.mod.common.battles.ai.strongBattleAI.AIUtility
@@ -117,24 +118,24 @@ class StrongBattleAI(skill: Int) : BattleAI {
         val statRatio = if (moveData.damageCategory == DamageCategories.PHYSICAL) physicalRatio else specialRatio
 
         val STAB = when {
-            moveData.elementalType in mon.pokemon!!.types && mon.pokemon!!.ability.name == "adaptability" -> 2.0
-            moveData.elementalType in mon.pokemon!!.types -> 1.5
+            moveData.getEffectiveElementalType(mon.pokemon) in mon.pokemon!!.types && mon.pokemon!!.ability.name == "adaptability" -> 2.0
+            moveData.getEffectiveElementalType(mon.pokemon) in mon.pokemon!!.types -> 1.5
             else -> 1.0
         }
         val weather = when {
             // Sunny Weather
-            activeTracker.currentWeather == "sunny" && (moveData.elementalType == ElementalTypes.FIRE || moveData.name == "hydrosteam") -> 1.5
-            activeTracker.currentWeather == "sunny" && moveData.elementalType == ElementalTypes.WATER && moveData.name != "hydrosteam" -> 0.5
+            activeTracker.currentWeather == "sunny" && (moveData.getEffectiveElementalType(mon.pokemon) == ElementalTypes.FIRE || moveData.name == "hydrosteam") -> 1.5
+            activeTracker.currentWeather == "sunny" && moveData.getEffectiveElementalType(mon.pokemon) == ElementalTypes.WATER && moveData.name != "hydrosteam" -> 0.5
 
             // Rainy Weather
-            activeTracker.currentWeather == "raining" && moveData.elementalType == ElementalTypes.WATER-> 1.5
-            activeTracker.currentWeather == "raining" && moveData.elementalType == ElementalTypes.FIRE-> 0.5
+            activeTracker.currentWeather == "raining" && moveData.getEffectiveElementalType(mon.pokemon) == ElementalTypes.WATER-> 1.5
+            activeTracker.currentWeather == "raining" && moveData.getEffectiveElementalType(mon.pokemon) == ElementalTypes.FIRE-> 0.5
 
             // Add other cases below for weather
 
             else -> 1.0
         }
-        val damageTypeMultiplier = moveDamageMultiplier(moveData, opponent)
+        val damageTypeMultiplier = moveDamageMultiplier(mon, moveData, opponent)
         val burn = when {
             opponent.pokemon!!.status?.status?.showdownName == "burn" && moveData.damageCategory == DamageCategories.PHYSICAL -> 0.5
             else -> 1.0
@@ -153,7 +154,7 @@ class StrongBattleAI(skill: Int) : BattleAI {
 
     // function for finding the most damaging moves in the moveset
     fun mostDamagingMove(selectedMove: InBattleMove, moveset: ShowdownMoveset?, mon: TrackerPokemon, opponent: TrackerPokemon): Boolean {
-        //val selectedMoveData = Moves.getByName(selectedMove.id)
+        //val selectedMoveData = Moves.getByName(selectedmove.first.id)
 
         if (moveset != null) {
             for (move in moveset.moves.filter { !it.disabled && it.id != selectedMove.id}) {
@@ -223,7 +224,6 @@ class StrongBattleAI(skill: Int) : BattleAI {
 
         if (!checkSkillLevel()){
             val move = availableMoves
-                    .filter { it.first.canBeUsed() }
                     .filter { it.first.target.targetList(activeBattlePokemon)?.isEmpty() != true }
                     .randomOrNull()
                     ?: return MoveActionResponse("struggle")
@@ -250,7 +250,7 @@ class StrongBattleAI(skill: Int) : BattleAI {
 
             // todo Pivot switches decided here if it wants to switchout anyways
             for (move in availableMoves) {
-                if (move.first.pp > 0 && move.first.id in AIUtility.pivotMoves && opponents.any { moveDamageMultiplier(move.second, it) != 0.0 })
+                if (move.first.id in AIUtility.pivotMoves && opponents.any { moveDamageMultiplier(activeTrackerPokemon, move.second, it) != 0.0 })
                     return chooseMove(move.first, activeBattlePokemon)
             }
 
@@ -283,7 +283,7 @@ class StrongBattleAI(skill: Int) : BattleAI {
 
 
             // Explosion/Self destruct
-            availableMoves?.firstOrNull {
+            availableMoves.firstOrNull {
                 (it.first.id.equals("explosion") || it.first.id.equals("selfdestruct"))
                         && mon.currentHpPercent < selfKoMoveMatchupThreshold
                         && opponents.any { opponent -> ElementalTypes.GHOST !in (opponent.form?.types ?: opponent.species!!.types) && opponent.currentHpPercent > 0.5 }
@@ -293,136 +293,124 @@ class StrongBattleAI(skill: Int) : BattleAI {
 
             // Self recovery moves
             for (move in availableMoves) {
-                if (move.first.id in AIUtility.selfRecoveryMoves && mon.currentHpPercent < recoveryMoveThreshold && move.first.pp > 0) {
+                if (move.first.id in AIUtility.selfRecoveryMoves && mon.currentHpPercent < recoveryMoveThreshold) {
                     return chooseMove(move.first, activeBattlePokemon)
                 }
             }
 
             // Deal with non-weather related field changing effects
             for (move in availableMoves) {
-                val availableSwitches = p2Actor.pokemonList.filter { it.uuid != mon.pokemon!!.uuid && it.health > 0 }
                 
                 // Tailwind
-                if (move.pp > 0 && move.id == "tailwind" && move.id != npcSideTailwindCondition && p2Actor.pokemonList.filter { it.uuid != mon.pokemon!!.uuid && it.health > 0 }.size > 2) {
-                    return chooseMove(move, activeBattlePokemon)
+                if (move.first.id == "tailwind" && move.first.id != activeTracker.alliedSide.tailwindCondition &&
+                    availableSwitches.size > 2) {
+                    return chooseMove(move.first, activeBattlePokemon)
                 }
 
                 // Trick room
-                if (move.pp > 0 && move.id == "trickroom" && move.id != currentRoom
-                        && availableSwitches.count { statEstimation(it.effectedPokemon, Stats.SPEED) <= trickRoomThreshold } >= 2) {
-                    return chooseMove(move, activeBattlePokemon)
+                if (move.first.id == "trickroom" && move.first.id != activeTracker.currentRoom
+                        && availableSwitches.count { statEstimationActive(it.first, Stats.SPEED) <= trickRoomThreshold } >= 2) {
+                    return chooseMove(move.first, activeBattlePokemon)
                 }
 
                 // todo find a way to get list of active screens
                 // Aurora veil
-                if (move.pp > 0 && move.id == "auroraveil" && move.id != npcSideScreenCondition
-                        && currentWeather in listOf("Hail", "Snow")) {
-                    return chooseMove(move, activeBattlePokemon)
+                if (move.first.id == "auroraveil" && move.first.id != activeTracker.alliedSide.screenCondition
+                        && activeTracker.currentWeather in listOf("Hail", "Snow")) {
+                    return chooseMove(move.first, activeBattlePokemon)
                 }
 
                 // todo find a way to get list of active screens
                 // Light Screen
-                if (move.pp > 0 && move.id == "lightscreen" && move.id != npcSideScreenCondition
-                        && getBaseStats(opponent.pokemon!!, "spa") > getBaseStats(opponent.pokemon!!, "atk")
-                        && p2Actor.pokemonList.filter { it.uuid != mon.pokemon!!.uuid && it.health > 0 }.size > 1) {
-                    return chooseMove(move, activeBattlePokemon)
+                if (move.first.id == "lightscreen" && move.first.id != activeTracker.alliedSide.screenCondition
+                    && opponents.any { (it.species?.baseStats?.get(Stats.SPECIAL_ATTACK) ?: 0) > (it.species?.baseStats?.get(Stats.ATTACK) ?: 0) } 
+                    && availableSwitches.size > 1) {
+                    return chooseMove(move.first, activeBattlePokemon)
                 }
 
                 // todo find a way to get list of active screens
                 // Reflect
-                if (move.pp > 0 && move.id == "reflect" && move.id != npcSideScreenCondition
-                        && getBaseStats(opponent.pokemon!!, "atk") > getBaseStats(opponent.pokemon!!, "spa")
-                        && p2Actor.pokemonList.filter { it.uuid != mon.pokemon!!.uuid && it.health > 0 }.size > 1) {
-                    return chooseMove(move, activeBattlePokemon)
+                if (move.first.id == "reflect" && move.first.id != activeTracker.alliedSide.screenCondition
+                    && opponents.any { (it.species?.baseStats?.get(Stats.ATTACK) ?: 0) > (it.species?.baseStats?.get(Stats.SPECIAL_ATTACK) ?: 0) }
+                    && availableSwitches.size > 1) {
+                    return chooseMove(move.first, activeBattlePokemon)
                 }
             }
 
             // Entry hazard setup and removal
-            for (move in moveset.moves.filter { !it.disabled }) {
+            for (move in availableMoves) {
                 // Setup
-                if (move.pp > 0 && nOppRemainingMons >= 3 && move.id in entryHazards
-                        && playerSideHazards.contains(move.id) != true ) {
-                        //&& entryHazards.none { it in oppSideConditionList }) {
-                    return chooseMove(move, activeBattlePokemon)
+                if (nOppRemainingMons >= 3 && move.first.id in AIUtility.entryHazards
+                        && !activeTracker.opponentSide.sideHazards.contains(move.first.id)) {
+                    return chooseMove(move.first, activeBattlePokemon)
                 }
 
                 // Removal
-                if (move.pp > 0 && nRemainingMons >= 2 && move.id in AIUtility.antiHazardsMoves
-                        && npcSideHazards.isNotEmpty()) {
+                if (nRemainingMons >= 2 && move.first.id in AIUtility.antiHazardsMoves
+                        && activeTracker.alliedSide.sideHazards.isNotEmpty()) {
                         //&& entryHazards.any { it in monSideConditionList }) {
-                    return chooseMove(move, activeBattlePokemon)
+                    return chooseMove(move.first, activeBattlePokemon)
                 }
             }
 
             // todo stat clearing moves like haze and clearsmog
-            for (move in moveset.moves.filter { !it.disabled }) {
-                if (move.id in antiBoostMoves && isBoosted(opponent) && move.pp > 0) {
-                    return chooseMove(move, activeBattlePokemon)
+            for (move in availableMoves) {
+                if (move.first.id in AIUtility.antiBoostMoves && opponents.any{ it.boosts.any { it.value > 0}}) {
+                    return chooseMove(move.first, activeBattlePokemon)
                 }
             }
 
             // Court Change
-            for (move in moveset.moves.filter { !it.disabled }) {
-                if (move.pp > 0 && move.id == "courtchange"
-                        && (!entryHazards.none { it in monSideConditionList }
-                                || setOf("tailwind", "lightscreen", "reflect").any { it in oppSideConditionList })
-                        && setOf("tailwind", "lightscreen", "reflect").none { it in monSideConditionList }
-                        && entryHazards.none { it in oppSideConditionList }) {
-                    return chooseMove(move, activeBattlePokemon)
+            for (move in availableMoves) {
+                if (move.first.id == "courtchange"
+                        && (!AIUtility.entryHazards.none { it in activeTracker.alliedSide.sideHazards }
+                                || setOf("tailwind", "lightscreen", "reflect").any { it in activeTracker.opponentSide.sideHazards })
+                        && setOf("tailwind", "lightscreen", "reflect").none { it in activeTracker.opponentSide.sideHazards }
+                        && AIUtility.entryHazards.none { it in activeTracker.opponentSide.sideHazards }) {
+                    return chooseMove(move.first, activeBattlePokemon)
                 }
             }
-
-            // todo Check why the hell they still spam heal moves
 
             // Strength Sap
-            for (move in moveset.moves.filter { !it.disabled }) {
-                if (move.id == "strengthsap" && (mon.currentHp.toDouble() / mon.pokemon!!.hp.toDouble()) < 0.5
-                        && getBaseStats(opponent.pokemon!!, "atk") > 80
-                        && move.pp > 0) {
-                    return chooseMove(move, activeBattlePokemon)
+            for (move in availableMoves) {
+                if (move.first.id == "strengthsap" && activeTrackerPokemon.currentHpPercent < 0.5
+                        && activeTrackerPokemon.species!!.baseStats.getOrDefault(Stats.ATTACK, 0) > 80) {
+                    return chooseMove(move.first, activeBattlePokemon)
                 }
             }
 
-            //val contextBoost = battle.contextManager.get(BattleContext.Type.BOOST)
-
-
-            //val pokemonBoost =
-
-            //battle.contextManager.get(BattleContext.Type.WEATHER).isNullOrEmpty()
-
             // Belly Drum
-            for (move in moveset.moves.filter { !it.disabled }) {
-                if (move.id == "bellydrum"
-                        && ((mon.currentHp.toDouble() / mon.pokemon!!.hp.toDouble()) > 0.6
+            for (move in availableMoves) {
+                if (move.first.id == "bellydrum"
+                        && (activeTrackerPokemon.currentHpPercent > 0.6
                                 && mon.pokemon!!.heldItem().item == CobblemonItems.SITRUS_BERRY
-                        || (mon.currentHp.toDouble() / mon.pokemon!!.hp.toDouble()) > 0.8)
-                        && npcATKBoosts < 1 // todo Why does Belly Drum only show up as a single boost to Atk stat
-                        && move.pp > 0) {
-                    return chooseMove(move, activeBattlePokemon)
+                        || activeTrackerPokemon.currentHpPercent > 0.8)
+                        && activeTrackerPokemon.boosts.getOrDefault(Stats.ATTACK, 0) < 1) { // todo Why does Belly Drum only show up as a single boost to Atk stat
+                    return chooseMove(move.first, activeBattlePokemon)
                 }
             }
 
             // todo have it not do this unless it is actually helpful for the team
             // Weather setup moves
-            for (move in moveset.moves.filter { !it.disabled }) {
-                weatherSetupMoves[move.id]?.let { requiredWeather ->
-                    if (move.pp > 0 && currentWeather != requiredWeather.lowercase() &&
-                            !(currentWeather == "PrimordialSea" && requiredWeather == "RainDance") &&
-                            !(currentWeather == "DesolateLand" && requiredWeather == "SunnyDay")) {
-                        return chooseMove(move, activeBattlePokemon)
+            for (move in availableMoves) {
+                AIUtility.weatherSetupMoves[move.first.id]?.let { requiredWeather ->
+                    if (activeTracker.currentWeather != requiredWeather.lowercase() &&
+                            !(activeTracker.currentWeather == "PrimordialSea" && requiredWeather == "RainDance") &&
+                            !(activeTracker.currentWeather == "DesolateLand" && requiredWeather == "SunnyDay")) {
+                        return chooseMove(move.first, activeBattlePokemon)
                     }
                 }
             }
 
             // todo GET THIS WORKING and ensure no crashes happen
             // Setup moves
-            if ((mon.currentHp.toDouble() / mon.pokemon!!.hp.toDouble()) == 1.0 && estimateMatchup(activeBattlePokemon, request, battle) > 0) {
-                for (move in moveset.moves.filter { !it.disabled }) {
-                    if (move.pp > 0 && AIUtility.setupMoves.contains(move.id) && ((getNonZeroStats(move.id).keys.minOfOrNull { // todo this can have a null exception with lvl 50 pidgeot with tailwind
+            if (activeTrackerPokemon.currentHpPercent == 1.0 && estimateMatchup(activeBattlePokemon, aiSide, battle) > 0) {
+                for (move in availableMoves) {
+                    if (AIUtility.setupMoves.contains(move.first.id) && ((getNonZeroStats(move.first.id).keys.minOfOrNull { // todo this can have a null exception with lvl 50 pidgeot with tailwind
                             mon.boosts[it] ?: 0
                         } ?: 0) < 6)) {  // todo something with a lvl 50 pikachu caused this to null exception
-                        if (!move.id.equals("curse") || ElementalTypes.GHOST !in mon.pokemon!!.types) {
-                            return MoveActionResponse(move.id)
+                        if (!move.first.id.equals("curse") || ElementalTypes.GHOST !in mon.pokemon!!.types) {
+                            return MoveActionResponse(move.first.id)
                         }
                     }
                 }
@@ -430,131 +418,126 @@ class StrongBattleAI(skill: Int) : BattleAI {
 
             // Status Inflicting Moves
             // todo calculate the chance of being able to knock out the opponent with one of the moves and if able to then do not do status move
-            for (move in moveset.moves.filter { !it.disabled }) {
+            for (move in availableMoves) {
+                val status = AIUtility.statusMoves[move.first.id] ?: continue
+                if (opponents.none { (calculateDamage(move.first, mon, it) >= (it.currentHpPercent * statusDamageConsiderationThreshold)) }) // if there is a move that could OHKO the opponent then don't bother using a status move
+                    if (opponents.any { it.currentStatus == null && it.currentHpPercent > 0.3 } && mon.currentHpPercent > 0.5) { // todo make sure this is the right status to use. It might not be
 
-                //val activeOpponent = opponent.pokemon
-                //activeOpponent?.let {
-                    // Make sure the opponent doesn't already have a status condition
-                    //if ((it.volatiles.containsKey("curse") || it.status != null) && // todo I removed this because idk why you would need to know if it had curse
-                if (moveset.moves.any { (calculateDamage(it, mon, opponent, currentWeather) >= (opponent.currentHp.toDouble() * statusDamageConsiderationThreshold)) } == false) // if there is a move that could OHKO the opponent then don't bother using a status move
-                    if (activePlayerPokemonStatus == "" && (opponent.currentHp.toDouble() / opponent.pokemon!!.hp.toDouble()) > 0.3 && (mon.currentHp.toDouble() / mon.pokemon!!.hp.toDouble()) > 0.5) { // todo make sure this is the right status to use. It might not be
-
-                        val status = (statusMoves.get(Moves.getByName(move.id)))
                         when (status) {
-                            "brn" -> {
-                                val typing = (activeTracker.p1Active.activePokemon.currentTypes?.contains("Fire") != true)
-                                val stats = getBaseStats(opponent.pokemon!!, "atk") > 80
-                                val notImmune = !hasMajorStatusImmunity(opponent)
-                                val notAbility = !listOf("waterbubble", "waterveil", "flareboost", "guts", "magicguard").contains(opponent.pokemon!!.ability.name)
+                            Statuses.BURN.showdownName -> {
+                                val typing = opponents.any { it.species!!.types.none {type -> type.name == "fire"}}
+                                val stats = opponents.any {it.species!!.baseStats.getOrDefault(Stats.ATTACK, 0) > 80}
+                                val notImmune = opponents.none { hasMajorStatusImmunity(it) }
+                                val notAbility = opponents.none { it.currentAbility?.name in listOf("waterbubble", "waterveil", "flareboost", "guts", "magicguard") }
 
                                 if (typing && stats && notImmune && notAbility) {
-                                    return chooseMove(move, activeBattlePokemon)
+                                    return chooseMove(move.first, activeBattlePokemon)
                                 }
                             }
 
-                            "par" -> {
-                                val typing = activeTracker.p1Active.activePokemon.currentTypes?.contains("Electric") != true
-                                val electricVersusGround = Moves.getByName(move.id)!!.elementalType == ElementalTypes.ELECTRIC && activeTracker.p1Active.activePokemon.currentTypes?.contains("Ground") == true
-                                val stats = getBaseStats(opponent.pokemon!!, "spe") > getBaseStats(mon.pokemon!!, "spe")
-                                val notImmune = !hasMajorStatusImmunity(opponent)
-                                val notAbility = !listOf("limber", "guts").contains(opponent.pokemon!!.ability.name)
+                            Statuses.PARALYSIS.showdownName -> {
+                                val typing = opponents.any { it.species!!.types.none { type -> type.name == "electric"}}
+                                val electricVersusGround = move.second.getEffectiveElementalType(activeTrackerPokemon.pokemon) == ElementalTypes.ELECTRIC &&
+                                        opponents.any { it.species!!.types.any { type -> type.name == "ground"}}
+                                val stats = opponents.any {it.species!!.baseStats.getOrDefault(Stats.SPEED, 0) > 
+                                        activeTrackerPokemon.pokemon!!.species.baseStats.getOrDefault(Stats.SPEED, 0)}
+                                val notImmune = opponents.none { hasMajorStatusImmunity(it) }
+                                val notAbility = opponents.none { it.currentAbility?.name in listOf("limber", "guts") }
 
                                 if (typing && !electricVersusGround && stats && notImmune && notAbility) {
-                                    return chooseMove(move, activeBattlePokemon)
+                                    return chooseMove(move.first, activeBattlePokemon)
                                 }
                             }
 
-                            "slp" -> {
-                                val typing = activeTracker.p1Active.activePokemon.currentTypes?.contains("Grass") != true
-                                val moveID = (move.id.equals("spore") || move.id.equals("sleeppowder"))
-                                val notImmune = !hasMajorStatusImmunity(opponent)
-                                val notAbility = !listOf("insomnia", "sweetveil").contains(opponent.pokemon!!.ability.name)
+                            Statuses.SLEEP.showdownName -> {
+                                val typing = opponents.any { it.species!!.types.none { type -> type.name == "grass"}}
+                                val moveID = (move.first.id.equals("spore") || move.first.id.equals("sleeppowder"))
+                                val notImmune = opponents.none { hasMajorStatusImmunity(it) }
+                                val notAbility = opponents.none { it.currentAbility?.name in listOf("insomnia", "sweetveil") }
 
                                 if (typing && moveID && notImmune && notAbility) {
-                                    return chooseMove(move, activeBattlePokemon)
+                                    return chooseMove(move.first, activeBattlePokemon)
                                 }
                             }
 
                             // todo weight the choice of doing this a bit lesser than the others maybe
-                            "confusion" -> if (activePlayerPokemonVolatile != "confusion" && !listOf("owntempo", "oblivious").contains(opponent.pokemon!!.ability.name)) {
-                                return chooseMove(move, activeBattlePokemon)
+                            Statuses.CONFUSE.showdownName -> if (opponents.any {it.currentVolatile != Statuses.CONFUSE.showdownName } &&
+                                opponents.none { it.currentAbility?.name in listOf("owntempo", "oblivious")}) {
+                                return chooseMove(move.first, activeBattlePokemon)
                             }
 
-                            "psn" -> {
-                                val typing = activeTracker.p1Active.activePokemon.currentTypes?.contains("Poison") != true && activeTracker.p1Active.activePokemon.currentTypes?.contains("Steel") != true
-                                val notImmune = !hasMajorStatusImmunity(opponent)
-                                val notAbility = !listOf("immunity", "poisonheal", "guts", "magicguard").contains(opponent.pokemon!!.ability.name)
+                            Statuses.POISON.showdownName -> {
+                                val typing = opponents.any { it.species!!.types.none {type -> type.name == "steel" || type.name == "posion"}}
+                                val notImmune = opponents.none { hasMajorStatusImmunity(it) }
+                                val notAbility = opponents.none { it.currentAbility?.name in listOf("immunity", "poisonheal", "guts", "magicguard") }
 
                                 if (typing && notImmune && notAbility) {
-                                    return chooseMove(move, activeBattlePokemon)
+                                    return chooseMove(move.first, activeBattlePokemon)
                                 }
                             }
 
-                            "tox" -> { // todo need access to baseType and currentType to go further with this for type changing teams
-                                val typing = activeTracker.p1Active.activePokemon.currentTypes?.contains("Poison") != true && activeTracker.p1Active.activePokemon.currentTypes?.contains("Steel") != true
-                                val notImmune = !hasMajorStatusImmunity(opponent)
-                                val notAbility = !listOf("immunity", "poisonheal", "guts", "magicguard").contains(opponent.pokemon!!.ability.name)
+                            Statuses.POISON_BADLY.showdownName -> { // todo need access to baseType and currentType to go further with this for type changing teams
+                                val typing = opponents.any { it.species!!.types.none {type -> type.name == "steel" || type.name == "posion"}}
+                                val notImmune = opponents.none { hasMajorStatusImmunity(it) }
+                                val notAbility = opponents.none { it.currentAbility?.name in listOf("immunity", "poisonheal", "guts", "magicguard") }
 
                                 if (typing && notImmune && notAbility) {
-                                    return chooseMove(move, activeBattlePokemon)
+                                    return chooseMove(move.first, activeBattlePokemon)
                                 }
                             }
 
-                            "cursed" -> if (activeNPCPokemonVolatile != "cursed" && activeTracker.p1Active.activePokemon.currentTypes?.contains("Ghost") != true
-                                    && !opponent.pokemon!!.ability.name.equals("magicguard")) {
-                                return chooseMove(move, activeBattlePokemon)
+                            "cursed" -> if (opponents.any {it.currentVolatile != "cursed" } && opponents.any { it.species!!.types.none {type -> type.name == "ghost"}}
+                                    && opponents.none { it.currentAbility?.name == "magicguard" }) {
+                                return chooseMove(move.first, activeBattlePokemon)
                             }
 
-                            "leech" -> if (activeNPCPokemonVolatile != "leech" && activeTracker.p1Active.activePokemon.currentTypes?.contains("Grass") != true
-                                    && !listOf("liquidooze", "magicguard").contains(opponent.pokemon!!.ability.name)) {
-                                return chooseMove(move, activeBattlePokemon)
+                            "leech" -> if (opponents.any {it.currentVolatile != "leech" } && opponents.any { it.species!!.types.none {type -> type.name == "grass"}}
+                                    && opponents.none { it.currentAbility?.name in listOf("liquidooze", "magicguard")}) {
+                                return chooseMove(move.first, activeBattlePokemon)
                             }
                         }
                     }
-                //}
+
             }
 
             // Accuracy lowering moves // todo seems to get stuck here. Try to check if it is an accuracy lowering move first before entering
-            for (move in moveset.moves.filter { !it.disabled }) {
-                if (move.pp > 0 && 1 == 2 && (mon.currentHp.toDouble() / mon.pokemon!!.hp.toDouble()) == 1.0 && estimateMatchup(activeBattlePokemon, request, battle) > 0 &&
-                        (opponent.boosts[Stats.ACCURACY] ?: 0) > accuracySwitchThreshold) {
-                    return chooseMove(move, activeBattlePokemon)
+            for (move in availableMoves) {
+                if (move.first.id in AIUtility.accuracyLoweringMoves && mon.currentHpPercent == 1.0 &&
+                    estimateMatchup(activeBattlePokemon, aiSide, battle) > 0 &&
+                    opponents.any { it.boosts.getOrDefault(Stats.ACCURACY, 0) > boostWeightCoefficient }) {
+                    return chooseMove(move.first, activeBattlePokemon)
                 }
             }
 
             // Protect style moves
-            for (move in moveset.moves.filter { !it.disabled }) {
-                val activeOpponent = opponent.pokemon
-                if (move.pp > 0 && move.id in listOf("protect", "banefulbunker", "obstruct", "craftyshield", "detect", "quickguard", "spikyshield", "silktrap")) {
+            for (move in availableMoves) {
+                if (move.first.id in listOf("protect", "banefulbunker", "obstruct", "craftyshield", "detect", "quickguard", "spikyshield", "silktrap")) {
                     // Stall out side conditions
-                    if ((oppSideConditionList.intersect(setOf("tailwind", "lightscreen", "reflect", "trickroom")).isNotEmpty() &&
-                                    monSideConditionList.intersect(setOf("tailwind", "lightscreen", "reflect")).isEmpty()) ||
-                            //(activeOpponent?.volatiles?.containsKey("curse") == true || (activeOpponent?.status == null)) && // todo I think this is the wrong status
-                            (activeOpponent?.status == null) && // todo I think this is the wrong status
-                            mon.protectCount == 0 && opponent.pokemon!!.ability.name != "unseenfist") {
+                    if ((activeTracker.opponentSide.screenCondition != null || activeTracker.opponentSide.tailwindCondition != null) &&
+                        (activeTracker.alliedSide.screenCondition == null || activeTracker.alliedSide.tailwindCondition == null)  ||
+                            opponents.any { it.currentStatus == null } && // todo I think this is the wrong status
+                            mon.protectCount == 0 && opponents.none { it.currentAbility?.name == "unseenfist"}) {
                         mon.protectCount = 3
-                        return chooseMove(move, activeBattlePokemon)
+                        return chooseMove(move.first, activeBattlePokemon)
                     }
                 }
             }
 
             // Damage dealing moves
-            val moveValues = mutableMapOf<InBattleMove, Double>()
-            for (move in moveset.moves.filter { !it.disabled }) {
-                val moveData = Moves.getByName(move.id)
-
+            val moveValues = mutableMapOf<Pair<InBattleMove, MoveTemplate>, Double>()
+            for (move in availableMoves) {
                 // calculate initial damage of this move
-                var value = calculateDamage(move, mon, opponent, currentWeather) // set value to be the output of damage to start with
+                var value = calculateDamage(move.first, mon, opponents.random()) // set value to be the output of damage to start with
 
 
 
                 // Handle special cases
-                if (move.id.equals("fakeout")) {
+                if (move.first.id.equals("fakeout")) {
                     value = 0.0
                 }
 
-                if (move.id.equals("synchronoise")
-                        && !(mon.pokemon!!.types.any { it in opponent.pokemon!!.types })) {
+                if (move.first.id.equals("synchronoise")
+                        && !(mon.pokemon!!.types.any { ownType -> opponents.any { opp -> opp.species!!.types.contains(ownType) } })) {
                     value = 0.0
                 }
 
@@ -566,111 +549,76 @@ class StrongBattleAI(skill: Int) : BattleAI {
 
                 // todo slack off
 
-                // todo soak
-                if (move.id.equals("soak"))
-                    // if opposing pokemon is steel type or poison type value this higher
-                    if (activeTracker.p1Active.activePokemon.currentTypes?.contains("Steel") == true && activeTracker.p1Active.activePokemon.currentTypes?.contains("Poison") == true)
-                        value = 200.0 // change this to not be so hardcoded but valued for different circumstances
+                // if opposing pokemon is steel type or poison type value this higher
+                if (move.first.id.equals("soak") && opponents.any { it.species!!.types.none {type -> type.name == "steel" || type.name == "posion"}})
+                    value = 200.0 // change this to not be so hardcoded but valued for different circumstances
 
 
 
                 // todo stealth rock. Make list of all active hazards to get referenced
 
-                val opponentAbility = opponent.pokemon!!.ability
-                if ((opponentAbility.template.name.equals("lightningrod") && moveData!!.elementalType == ElementalTypes.ELECTRIC) ||
-                        (opponentAbility.template.name.equals("flashfire") && moveData!!.elementalType == ElementalTypes.FIRE) ||
-                        (opponentAbility.template.name.equals("levitate") && moveData!!.elementalType == ElementalTypes.GROUND) ||
-                        (opponentAbility.template.name.equals("sapsipper") && moveData!!.elementalType == ElementalTypes.GRASS) ||
-                        (opponentAbility.template.name.equals("motordrive") && moveData!!.elementalType == ElementalTypes.ELECTRIC) ||
-                        (opponentAbility.template.name.equals("stormdrain") && moveData!!.elementalType == ElementalTypes.WATER) ||
-                        (opponentAbility.template.name.equals("voltabsorb") && moveData!!.elementalType == ElementalTypes.ELECTRIC) ||
-                        (opponentAbility.template.name.equals("waterabsorb") && moveData!!.elementalType == ElementalTypes.WATER) ||
-                        (opponentAbility.template.name.equals("immunity") && moveData!!.elementalType == ElementalTypes.POISON) ||
-                        (opponentAbility.template.name.equals("eartheater") && moveData!!.elementalType == ElementalTypes.GROUND) ||
-                        (opponentAbility.template.name.equals("suctioncup") && moveData!!.name == "roar" || moveData!!.name == "whirlwind")
+                if ((opponents.any { it.currentAbility?.name == "lightingrod" } && move.second.getEffectiveElementalType(activeTrackerPokemon.pokemon) == ElementalTypes.ELECTRIC) ||
+                        (opponents.any { it.currentAbility?.name == "flashfire" } && move.second.getEffectiveElementalType(activeTrackerPokemon.pokemon) == ElementalTypes.FIRE) ||
+                        (opponents.any { it.currentAbility?.name == "levitate" }  && move.second.getEffectiveElementalType(activeTrackerPokemon.pokemon) == ElementalTypes.GROUND) ||
+                        (opponents.any { it.currentAbility?.name == "sapsipper" } && move.second.getEffectiveElementalType(activeTrackerPokemon.pokemon) == ElementalTypes.GRASS) ||
+                        (opponents.any { it.currentAbility?.name == "motordrive" } && move.second.getEffectiveElementalType(activeTrackerPokemon.pokemon) == ElementalTypes.ELECTRIC) ||
+                        (opponents.any { it.currentAbility?.name == "stormdrain" } && move.second.getEffectiveElementalType(activeTrackerPokemon.pokemon) == ElementalTypes.WATER) ||
+                        (opponents.any { it.currentAbility?.name == "voltabsorb" } && move.second.getEffectiveElementalType(activeTrackerPokemon.pokemon) == ElementalTypes.ELECTRIC) ||
+                        (opponents.any { it.currentAbility?.name == "waterabsorb" } && move.second.getEffectiveElementalType(activeTrackerPokemon.pokemon) == ElementalTypes.WATER) ||
+                        (opponents.any { it.currentAbility?.name == "immunity" } && move.second.getEffectiveElementalType(activeTrackerPokemon.pokemon) == ElementalTypes.POISON) ||
+                        (opponents.any { it.currentAbility?.name == "eartheater" } && move.second.getEffectiveElementalType(activeTrackerPokemon.pokemon) == ElementalTypes.GROUND) ||
+                        (opponents.any { it.currentAbility?.name == "suctioncup" } && move.first.id == "roar" || move.first.id == "whirlwind")
                 ) {
                     value = 0.0
                 }
 
                 // reduce value of Pivot moves if user doesn't want to switchout anyways todo unless maybe it was the only damaging move and needs to
-                if(move.id in pivotMoves && moveDamageMultiplier(move.id, opponent) != 0.0 && (!shouldSwitchOut(request, battle, activeBattlePokemon, moveset) && !mostDamagingMove(move, moveset, mon, opponent, currentWeather)))
+                if(move.first.id in AIUtility.pivotMoves && opponents.all { moveDamageMultiplier(activeTrackerPokemon, move.second, it) != 0.0 }
+                    && (!shouldSwitchOut(aiSide, battle, activeBattlePokemon, moveset) && opponents.none { !mostDamagingMove(move.first, moveset, mon, it)}))
                     value = 0.0
 
-                if (move.pp == 0)
+                if (move.first.pp == 0)
                     value = 0.0
 
                 moveValues[move] = value
             }
 
-            val bestMoveValue = moveValues.maxByOrNull { it.value }?.value ?: 0.0
-            val bestMove = moveValues.entries.firstOrNull { it.value == bestMoveValue }?.key
-            val target = if (bestMove!!.mustBeUsed()) null else bestMove.target.targetList(activeBattlePokemon)
-            if (allMoves != null) {
-                if (allMoves.none { it.id == "recharge" || it.id == "struggle" }) {  //"recharge" !in moveValues) {
-                    if (target == null) {
-                        return MoveActionResponse(bestMove.id)
-                    }
-                    else {
-                        //return MoveActionResponse(getMoveSlot(bestMove, allMoves))//, false) //shouldDynamax(request, canDynamax))
-                        val chosenTarget = target.filter { !it.isAllied(activeBattlePokemon) }.randomOrNull()
-                                ?: target.random()
-
-                        return MoveActionResponse(bestMove.id, (chosenTarget as ActiveBattlePokemon).getPNX())
-                    }
-                } else {
-                    if (target == null) {
-                        return MoveActionResponse(allMoves.first().id)
-                    }
-                    else{
-                        val chosenTarget = target.filter { !it.isAllied(activeBattlePokemon) }.randomOrNull()
-                                ?: target.random()
-
-                        return MoveActionResponse(allMoves.first().id, (chosenTarget as ActiveBattlePokemon).getPNX())
-                    }
-
-                            //?: Moves.getByName("struggle")!!.name) //, false) //shouldDynamax(request, canDynamax))
-                }
+            val bestMove = moveValues.maxByOrNull { it.value }?.key
+            val target = if (bestMove!!.first.mustBeUsed()) null else bestMove.first.getTargets(activeBattlePokemon)
+            if (target == null) {
+                return MoveActionResponse(bestMove.first.id)
             }
+            else {
+                val chosenTarget = target.filter { !it.isAllied(activeBattlePokemon) }.randomOrNull()
+                    ?: target.random()
 
+                return MoveActionResponse(bestMove.first.id, (chosenTarget as ActiveBattlePokemon).getPNX())
+            }
         }
 
         // healing wish (dealing with it here because you'd only use it if you should switch out anyway)
-        for (move in moveset.moves.filter { !it.disabled }) {
-            if (move.id.equals("healingwish") && (mon.currentHp.toDouble() / mon.pokemon!!.hp.toDouble()) < selfKoMoveMatchupThreshold) {
-                return chooseMove(move, activeBattlePokemon)
+        for (move in availableMoves) {
+            if (move.first.id.equals("healingwish") && mon.currentHpPercent < selfKoMoveMatchupThreshold) {
+                return chooseMove(move.first, activeBattlePokemon)
             }
         }
 
         // switch out
-        if (shouldSwitchOut(request, battle, activeBattlePokemon, moveset)) {
-            val availableSwitches = p1Actor.pokemonList.filter { it.uuid != mon.pokemon!!.uuid && it.health > 0 }
-            val bestEstimation = availableSwitches.maxOfOrNull { estimateMatchup(activeBattlePokemon, request, battle, it.effectedPokemon) }
-            /*availableSwitches.forEach {
-                estimateMatchup(request, battle, it.effectedPokemon)
-            }*/
-            val bestMatchup = availableSwitches.find { estimateMatchup(activeBattlePokemon, request, battle, it.effectedPokemon) == bestEstimation }
-            bestMatchup?.let {
-                return SwitchActionResponse(it.uuid)
-                //Pair("switch ${getPokemonPos(request, it)}", canDynamax)
+        if (shouldSwitchOut(aiSide, battle, activeBattlePokemon, moveset)) {
+            val bestEstimation = availableSwitches.maxByOrNull { estimateMatchup(activeBattlePokemon, aiSide, battle, it.first) }
+            bestEstimation?.let {
+                return SwitchActionResponse(it.second.uuid)
             }
         }
         mon.firstTurn = 0
 
-        val move = moveset.moves
-                .filter { it.canBeUsed() }
-                .filter { it.mustBeUsed() || it.target.targetList(activeBattlePokemon)?.isEmpty() != true }
+        val move = availableMoves
+                .filter { it.first.canBeUsed() }
+                .filter { it.first.mustBeUsed() || it.first.target.targetList(activeBattlePokemon)?.isEmpty() != true }
                 .randomOrNull()
                 ?: return MoveActionResponse("struggle")
 
-        return chooseMove(move, activeBattlePokemon)
-        /*val target = if (move.mustBeUsed()) null else move.target.targetList(activeBattlePokemon)
-        return if (target == null) {
-            MoveActionResponse(move.id)
-        } else {
-            // prioritize opponents rather than allies
-            val chosenTarget = target.filter { !it.isAllied(activeBattlePokemon) }.randomOrNull() ?: target.random()
-            MoveActionResponse(move.id, (chosenTarget as ActiveBattlePokemon).getPNX())
-        }*/
+        return chooseMove(move.first, activeBattlePokemon)
     }
 
     // estimate mid-battle switch in value
@@ -716,7 +664,7 @@ class StrongBattleAI(skill: Int) : BattleAI {
     fun hasMajorStatusImmunity(target: TrackerPokemon) : Boolean {
         // TODO: Need to check for Safeguard and Misty Terrain
         val ability = target.pokemon?.ability?.name ?: target.currentAbility ?: return false
-        return listOf("comatose", "purifyingsalt").contains(ability) &&
+        return listOf("comatose", "purifyingsalt").contains(ability) ||
                 (activeTracker.currentWeather == "sunny" && ability == "leafguard")
     }
 
@@ -752,7 +700,7 @@ class StrongBattleAI(skill: Int) : BattleAI {
         val availableMoves = moveset.moves.filter { it.canBeUsed() }.mapNotNull { Moves.getByName(it.id) }
         val unavailableMoves = moveset.moves.filter { !it.canBeUsed() }.mapNotNull { Moves.getByName(it.id) }
         if (unavailableMoves.isNotEmpty() &&
-            availableMoves.all { move -> opponentActiveTracker.all { moveDamageMultiplier(move, it) == 0.0 } || move.power < 40 })
+            availableMoves.all { move -> opponentActiveTracker.all { moveDamageMultiplier(activeTrackerPokemon, move, it) == 0.0 } || move.power < 40 })
             return true
 
         // todo add more reasons to switch out
@@ -793,12 +741,12 @@ class StrongBattleAI(skill: Int) : BattleAI {
 
     // move: the move used
     // defender: the activeTracker Pokemon that the move is being used on
-    fun moveDamageMultiplier(move: MoveTemplate, defender: TrackerPokemon): Double {
+    fun moveDamageMultiplier(attacker: TrackerPokemon, move: MoveTemplate, defender: TrackerPokemon): Double {
         val defenderTypes = defender.pokemon?.types ?: defender.form?.types ?: defender.species?.types ?: emptyList()
         var multiplier = 1.0
 
         for (defenderType in defenderTypes)
-            multiplier *= AIUtility.getDamageMultiplier(move.elementalType, defenderType)
+            multiplier *= AIUtility.getDamageMultiplier(move.getEffectiveElementalType(attacker.pokemon), defenderType)
 
         return multiplier
     }

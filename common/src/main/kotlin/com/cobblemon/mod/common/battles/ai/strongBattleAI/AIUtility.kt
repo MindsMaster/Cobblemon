@@ -1,5 +1,8 @@
 package com.cobblemon.mod.common.battles.ai.strongBattleAI
 
+import com.cobblemon.mod.common.api.pokemon.stats.Stat
+import com.cobblemon.mod.common.api.pokemon.stats.Stats
+import com.cobblemon.mod.common.api.pokemon.status.Statuses
 import com.cobblemon.mod.common.api.types.ElementalTypes
 
 
@@ -126,74 +129,73 @@ object AIUtility {
 
     val multiHitMoves: Map<String, Pair<Int, Int>> = mapOf(
         // 2 - 5 hit moves
-        "armthrust" to Pair(2 to 5),
-        "barrage" to Pair(2 to 5),
-        "bonerush" to Pair(2 to 5),
-        "bulletseed" to Pair(2 to 5),
-        "cometpunch" to Pair(2 to 5),
-        "doubleslap" to Pair(2 to 5),
-        "furyattack" to Pair(2 to 5),
-        "furyswipes" to Pair(2 to 5),
-        "iciclespear" to Pair(2 to 5),
-        "pinmissile" to Pair(2 to 5),
-        "rockblast" to Pair(2 to 5),
-        "scaleshot" to Pair(2 to 5),
-        "spikecannon" to Pair(2 to 5),
-        "tailslap" to Pair(2 to 5),
-        "watershuriken" to Pair(2 to 5),
+        "armthrust" to Pair(2, 5),
+        "barrage" to Pair(2, 5),
+        "bonerush" to Pair(2,  5),
+        "bulletseed" to Pair(2, 5),
+        "cometpunch" to Pair(2, 5),
+        "doubleslap" to Pair(2,  5),
+        "furyattack" to Pair(2,  5),
+        "furyswipes" to Pair(2,  5),
+        "iciclespear" to Pair(2,  5),
+        "pinmissile" to Pair(2, 5),
+        "rockblast" to Pair(2, 5),
+        "scaleshot" to Pair(2, 5),
+        "spikecannon" to Pair(2, 5),
+        "tailslap" to Pair(2, 5),
+        "watershuriken" to Pair(2, 5),
 
         // fixed hit count
-        "bonemerang" to Pair(2 to 2),
-        "doublehit" to Pair(2 to 2),
-        "doubleironbash" to Pair(2 to 2),
-        "doublekick" to Pair(2 to 2),
-        "dragondarts" to Pair(2 to 2),
-        "dualchop" to Pair(2 to 2),
-        "dualwingbeat" to Pair(2 to 2),
-        "geargrind" to Pair(2 to 2),
-        "twinbeam" to Pair(2 to 2),
-        "twineedle" to Pair(2 to 2),
-        "suringstrikes" to Pair(3 to 3),
-        "tripledive" to Pair(3 to 3),
-        "watershuriken" to Pair(3 to 3),
+        "bonemerang" to Pair(2, 2),
+        "doublehit" to Pair(2, 2),
+        "doubleironbash" to Pair(2, 2),
+        "doublekick" to Pair(2, 2),
+        "dragondarts" to Pair(2, 2),
+        "dualchop" to Pair(2, 2),
+        "dualwingbeat" to Pair(2, 2),
+        "geargrind" to Pair(2, 2),
+        "twinbeam" to Pair(2, 2),
+        "twineedle" to Pair(2, 2),
+        "suringstrikes" to Pair(3, 3),
+        "tripledive" to Pair(3, 3),
+        "watershuriken" to Pair(3, 3),
 
         // accuracy based multi-hit moves
-        "tripleaxel" to Pair(1 to 3),
-        "triplekick" to Pair(1 to 3),
-        "populationbomb" to Pair(1 to 10)
+        "tripleaxel" to Pair(1, 3),
+        "triplekick" to Pair(1, 3),
+        "populationbomb" to Pair(1, 10)
     )
 
-    val statusMoves: Map<MoveTemplate?, String> = mapOf(
-        Moves.getByName("willowisp") to Statuses.BURN.showdownName,
-        Moves.getByName("scald") to Statuses.BURN.showdownName,
-        Moves.getByName("scorchingsands") to Statuses.BURN.showdownName,
-        Moves.getByName("glare") to Statuses.PARALYSIS.showdownName,
-        Moves.getByName("nuzzle") to Statuses.PARALYSIS.showdownName,
-        Moves.getByName("stunspore") to Statuses.PARALYSIS.showdownName,
-        Moves.getByName("thunderwave") to Statuses.PARALYSIS.showdownName,
-        Moves.getByName("Nuzzle") to Statuses.PARALYSIS.showdownName,
-        Moves.getByName("darkvoid") to Statuses.SLEEP.showdownName,
-        Moves.getByName("hypnosis") to Statuses.SLEEP.showdownName,
-        Moves.getByName("lovelykiss") to Statuses.SLEEP.showdownName,
-        Moves.getByName("relicsong") to Statuses.SLEEP.showdownName,
-        Moves.getByName("sing") to Statuses.SLEEP.showdownName,
-        Moves.getByName("sleeppower") to Statuses.SLEEP.showdownName,
-        Moves.getByName("spore") to Statuses.SLEEP.showdownName,
-        Moves.getByName("yawn") to Statuses.SLEEP.showdownName,
-        Moves.getByName("chatter") to "confusion",
-        Moves.getByName("confuseray") to "confusion",
-        Moves.getByName("dynamicpunch") to "confusion",
-        Moves.getByName("flatter") to "confusion",
-        Moves.getByName("supersonic") to "confusion",
-        Moves.getByName("swagger") to "confusion",
-        Moves.getByName("sweetkiss") to "confusion",
-        Moves.getByName("teeterdance") to "confusion",
-        Moves.getByName("poisongas") to Statuses.POISON.showdownName,
-        Moves.getByName("poisonpowder") to Statuses.POISON.showdownName,
-        Moves.getByName("toxic") to Statuses.POISON_BADLY.showdownName,
-        Moves.getByName("toxicthread") to Statuses.POISON.showdownName,
-        Moves.getByName("curse") to "cursed",
-        Moves.getByName("leechseed") to "leech"
+    val statusMoves: Map<String, String> = mapOf(
+        "willowisp" to Statuses.BURN.showdownName,
+        "scald" to Statuses.BURN.showdownName,
+        "scorchingsands" to Statuses.BURN.showdownName,
+        "glare" to Statuses.PARALYSIS.showdownName,
+        "nuzzle" to Statuses.PARALYSIS.showdownName,
+        "stunspore" to Statuses.PARALYSIS.showdownName,
+        "thunderwave" to Statuses.PARALYSIS.showdownName,
+        "darkvoid" to Statuses.SLEEP.showdownName,
+        "hypnosis" to Statuses.SLEEP.showdownName,
+        "lovelykiss" to Statuses.SLEEP.showdownName,
+        "relicsong" to Statuses.SLEEP.showdownName,
+        "sing" to Statuses.SLEEP.showdownName,
+        "sleeppower" to Statuses.SLEEP.showdownName,
+        "spore" to Statuses.SLEEP.showdownName,
+        "yawn" to Statuses.SLEEP.showdownName,
+        "chatter" to Statuses.CONFUSE.showdownName,
+        "confuseray" to Statuses.CONFUSE.showdownName,
+        "dynamicpunch" to Statuses.CONFUSE.showdownName,
+        "flatter" to Statuses.CONFUSE.showdownName,
+        "supersonic" to Statuses.CONFUSE.showdownName,
+        "swagger" to Statuses.CONFUSE.showdownName,
+        "sweetkiss" to Statuses.CONFUSE.showdownName,
+        "teeterdance" to Statuses.CONFUSE.showdownName,
+        "poisongas" to Statuses.POISON.showdownName,
+        "poisonpowder" to Statuses.POISON.showdownName,
+        "toxic" to Statuses.POISON_BADLY.showdownName,
+        "toxicthread" to Statuses.POISON.showdownName,
+        "curse" to "cursed",
+        "leechseed" to "leech"
     )
 
     val boostFromMoves: Map<String, Map<Stat, Int>> = mapOf(
@@ -248,4 +250,5 @@ object AIUtility {
         "snowscape" to "Snow",
         "sunnyday" to "SunnyDay"
     )
+    val accuracyLoweringMoves = setOf("flash", "kinesis", "leaftornado", "mirrorshot", "mudbomb", "mudslap", "muddywater", "nightgaze", "octazooka", "sandattack", "secretpower", "smokescreen")
 }
