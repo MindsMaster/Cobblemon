@@ -82,7 +82,7 @@ class TrackerSide {
 
     fun updateOpponentActiveState(side: BattleSide) {
         actors.associateWith { side.actors.first { actor -> actor.uuid == it.uuid} }
-            .forEach { (trackerActor, actor) -> trackerActor.updateAlliedActivePokemon(actor)}
+            .forEach { (trackerActor, actor) -> trackerActor.updateOpponentActivePokemon(actor)}
 
         val activePokemon = side.activePokemon.mapNotNull { it.battlePokemon }
         for (pokemon in activePokemon) {
@@ -121,12 +121,25 @@ class TrackerActor(val uuid: UUID) {
         get() = (party + activePokemon).count { (it.currentHp?.toDouble() ?: it.currentHpPercent) > 0 }
 
     fun updateAlliedActivePokemon(actor: BattleActor) {
-        actor.activePokemon.forEach {
-            val active = party.first { trackMon -> trackMon.id == it.battlePokemon!!.uuid }
+        actor.activePokemon.filter { newActive -> activePokemon.none { it.id == newActive.battlePokemon?.uuid } }.forEach {
+            val active = party.firstOrNull { trackMon -> trackMon.id == it.battlePokemon?.uuid } ?: return@forEach
             party.remove(active)
             activePokemon.add(active)
         }
-        val swappedOut = activePokemon.filter { trackMon -> actor.activePokemon.none { it.battlePokemon!!.uuid == trackMon.id } }
+        val swappedOut = activePokemon.filter { trackMon -> actor.activePokemon.none { it.battlePokemon?.uuid == trackMon.id } }
+        swappedOut.forEach {
+            activePokemon.remove(it)
+            party.add(it)
+        }
+    }
+
+    fun updateOpponentActivePokemon(actor: BattleActor) {
+        actor.activePokemon.filter { newActive -> activePokemon.none { it.id == newActive.battlePokemon?.uuid } }.forEach {
+            val active = party.firstOrNull { trackMon -> trackMon.id == it.battlePokemon?.uuid } ?: return@forEach
+            party.remove(active)
+            activePokemon.add(active)
+        }
+        val swappedOut = activePokemon.filter { trackMon -> actor.activePokemon.none { it.battlePokemon?.uuid == trackMon.id } }
         swappedOut.forEach {
             activePokemon.remove(it)
             party.add(it)

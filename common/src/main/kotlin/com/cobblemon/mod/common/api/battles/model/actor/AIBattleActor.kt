@@ -12,6 +12,7 @@ import com.cobblemon.mod.common.Cobblemon.LOGGER
 import com.cobblemon.mod.common.api.battles.model.ai.BattleAI
 import com.cobblemon.mod.common.api.net.NetworkPacket
 import com.cobblemon.mod.common.battles.PassActionResponse
+import com.cobblemon.mod.common.battles.ShowdownActionResponse
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon
 import com.cobblemon.mod.common.exception.IllegalActionChoiceException
 import com.cobblemon.mod.common.net.messages.client.battle.BattleFaintPacket
@@ -49,13 +50,32 @@ abstract class AIBattleActor(
      */
     open fun onChoiceRequested() {
         try {
-            setActionResponses(request!!.iterate(this.activePokemon) { battleMon, moveset, forceSwitch ->
-                battleAI.choose(battleMon, battle, getSide(), moveset, forceSwitch)
-            })
+            request?.let {
+                setActionResponses(it.iterate(this.activePokemon) { battleMon, moveset, forceSwitch ->
+                    battleAI.choose(battleMon, battle, getSide(), moveset, forceSwitch)
+                })
+            } ?: {
+                val response = mutableListOf<ShowdownActionResponse>()
+                repeat(activePokemon.size) {
+                    response.add(PassActionResponse)
+                }
+                setActionResponses(response)
+                LOGGER.warn("AI requested choice, but no request was set. Returning PassActionResponses.")
+            }
         } catch (exception: IllegalActionChoiceException) {
-            LOGGER.error("AI was unable to choose a move, we're going to need to pass!")
+            LOGGER.error("AI was unable to choose an action, we're going to need to pass!")
             exception.printStackTrace()
-            setActionResponses(request!!.iterate(this.activePokemon) { _, _, _ -> PassActionResponse })
+            request?.let {
+                setActionResponses(it.iterate(this.activePokemon) { _, _ , _->
+                    PassActionResponse
+                })
+            } ?: {
+                val response = mutableListOf<ShowdownActionResponse>()
+                repeat(activePokemon.size) {
+                    response.add(PassActionResponse)
+                }
+                setActionResponses(response)
+            }
         }
     }
 }

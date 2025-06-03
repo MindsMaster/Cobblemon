@@ -137,7 +137,7 @@ class StrongBattleAI(skill: Int) : BattleAI {
         }
         val damageTypeMultiplier = moveDamageMultiplier(mon, moveData, opponent)
         val burn = when {
-            opponent.pokemon!!.status?.status?.showdownName == "burn" && moveData.damageCategory == DamageCategories.PHYSICAL -> 0.5
+            (opponent.pokemon?.status?.status?.showdownName ?: opponent.currentStatus) == Statuses.BURN.showdownName && moveData.damageCategory == DamageCategories.PHYSICAL -> 0.5
             else -> 1.0
         }
         val hitsExpected = expectedHits(moveData)
@@ -179,8 +179,7 @@ class StrongBattleAI(skill: Int) : BattleAI {
     ): ShowdownActionResponse {
         updateActiveTracker(aiSide, battle)
 
-        val activeTrackerPokemon = activeTracker.alliedSide.activePokemon.first { it.id == activeBattlePokemon.battlePokemon!!.uuid }
-        val actorTracker = activeTracker.alliedSide.actors.first { activeTrackerPokemon in it.activePokemon }
+        val actorTracker = activeTracker.alliedSide.actors.first { it.uuid == activeBattlePokemon.actor.uuid }
         val availableSwitches = actorTracker.party
             .map {Pair(it, activeBattlePokemon.actor.pokemonList.first { poke -> poke.uuid == it.id })}
             .filter { it.second.canBeSentOut() }
@@ -193,18 +192,22 @@ class StrongBattleAI(skill: Int) : BattleAI {
                 return SwitchActionResponse(switchTo.uuid)
             }
             else {
-                val bestEstimation = availableSwitches.maxBy { estimateMatchup(activeBattlePokemon, aiSide, battle, it.first) }
+                val bestEstimation = availableSwitches.maxByOrNull { estimateMatchup(activeBattlePokemon, aiSide, battle, it.first) }
+                    ?: return PassActionResponse
 
                 bestEstimation.second.willBeSwitchedIn = true
                 return SwitchActionResponse(bestEstimation.second.uuid)
             }
         }
+        if (moveset == null) {
+            return PassActionResponse
+        }
         // if a move must be used (like recharge) is in moves list then do that since you have to
-        moveset!!.moves.firstOrNull {it.mustBeUsed() }?.let {
+        moveset.moves.firstOrNull {it.mustBeUsed() }?.let {
             return@choose chooseMove(it, activeBattlePokemon)
         }
 
-
+        val activeTrackerPokemon = activeTracker.alliedSide.activePokemon.first { it.id == activeBattlePokemon.battlePokemon!!.uuid }
         val mon = activeTracker.alliedSide.activePokemon.first {it.pokemon!!.uuid == activeBattlePokemon.battlePokemon!!.effectedPokemon.uuid}
         val opponents = activeTracker.opponentSide.activePokemon
 
@@ -256,6 +259,7 @@ class StrongBattleAI(skill: Int) : BattleAI {
 
             val bestMatchup = availableSwitches.find { estimateMatchup(activeBattlePokemon, aiSide, battle, it.first) == bestEstimation }
             bestMatchup?.let {
+                it.second.willBeSwitchedIn = true
                 return SwitchActionResponse(it.second.uuid)
             }
         }
@@ -607,6 +611,7 @@ class StrongBattleAI(skill: Int) : BattleAI {
         if (shouldSwitchOut(aiSide, battle, activeBattlePokemon, moveset)) {
             val bestEstimation = availableSwitches.maxByOrNull { estimateMatchup(activeBattlePokemon, aiSide, battle, it.first) }
             bestEstimation?.let {
+                it.second.willBeSwitchedIn = true
                 return SwitchActionResponse(it.second.uuid)
             }
         }
@@ -624,8 +629,7 @@ class StrongBattleAI(skill: Int) : BattleAI {
     // estimate mid-battle switch in value
     fun estimateMatchup(activeBattlePokemon: ActiveBattlePokemon, aiSide: BattleSide, battle: PokemonBattle, nonActiveMon: TrackerPokemon? = null): Double {
         updateActiveTracker(aiSide, battle)
-        var activeTrackerPokemon = activeTracker.alliedSide.activePokemon.first { it.id == activeBattlePokemon.battlePokemon!!.uuid }
-        nonActiveMon?.let { activeTrackerPokemon = it }
+        val activeTrackerPokemon = nonActiveMon ?: activeTracker.alliedSide.activePokemon.first { it.id == activeBattlePokemon.battlePokemon!!.uuid }
         val currentAbility = activeTrackerPokemon.pokemon!!.ability
         val speedEstimation = statEstimationActive(activeTrackerPokemon, Stats.SPEED)
 
