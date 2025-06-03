@@ -158,6 +158,7 @@ import net.minecraft.world.item.ItemUtils
 import net.minecraft.world.item.Items
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.LightLayer
+import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.gameevent.GameEvent
 import net.minecraft.world.level.material.FluidState
 import net.minecraft.world.level.pathfinder.PathType
@@ -2090,6 +2091,13 @@ open class PokemonEntity(
         }
     }
 
+    override fun maxUpStep(): Float {
+        val upStep = ifRidingAvailableSupply(fallback = null) { behaviour, settings, state ->
+            behaviour.maxUpStep(settings, state, this)
+        }
+        return upStep ?: super.maxUpStep()
+    }
+
     override fun getRiddenSpeed(controller: Player): Float {
         return ifRidingAvailableSupply(fallback = 0.05f) { behaviour, settings, state ->
             behaviour.speed(settings, state,this, controller)
@@ -2247,7 +2255,7 @@ open class PokemonEntity(
     override fun canSwimInWater() = behaviour.moving.swim.canSwimInWater
     override fun canFly() = behaviour.moving.fly.canFly
     override fun canSwimInLava() = behaviour.moving.swim.canSwimInLava
-    override fun isOnGround() = onGround()
+    override fun entityOnGround() = onGround()
 
     override fun canSwimUnderFluid(fluidState: FluidState): Boolean {
         return if (fluidState.`is`(FluidTags.LAVA)) {

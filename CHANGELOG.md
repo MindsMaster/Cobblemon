@@ -21,8 +21,15 @@
 - Fixed Moon Ball moon phase logic to actually work correctly
 - Added `translucent_cull` boolean option into resolver's layer to allow for translucent textures with culling
 - Added [LambDynamicLights](https://modrinth.com/mod/lambdynamiclights) support for items held by Pokémon.
+- Added the Clear Amulet, Grip Claw, Lagging Tail, Luminous Moss, Metal Alloy, Scroll of Darkness, Scroll of Waters
+- Added Recipes for Masterpiece Cup, Eject Pack
 - Added modification to Minecraft Creative Inventory search to account for item names that contain `poké` when input contains `poke`.
 - Added Campfire Pot as well as loads of new food items (Poke Puffs, Ponigiri, Sinister Tea, etc)
+- Added Hearty Grains, a new crop used in the new cooking mechanic
+- Added Tatami blocks and Tatami Mat blocks, made from Hearty Grain, for decorating builds
+- Added `/pcsearch <player> <pokemonProperties>` command that searches for a specific Pokémon within a player's PC.
+- Added `/pctake <player> <box> <slot>` command that takes a specific Pokémon from a player's PC. Removes the pokemon if target is self or ran from the server.
+- Added Hyper Training items (IV Modification) as well as some additional candy items to do so (Health Candy, Sickly Candy)
 
 ### Pokémon Added
 
@@ -34,12 +41,17 @@
 - Grumpig
 - Snorunt
 - Glalie
+- Latias
+- Latios
 
 #### Gen 4
 - Bronzor
 - Bronzong
 - Croagunk
+- Toxicroak
 - Froslass
+- Glameow
+- Purugly
 
 #### Gen 5
 - Pansage
@@ -52,10 +64,22 @@
 - Musharna
 - Blitzle
 - Zebstrika
+- Drilbur
+- Excadrill
 - Trubbish
 - Garbodor
+- Gothita
+- Gothorita
+- Gothitelle
+- Solosis
+- Duosion
+- Reuniclus
 
 #### Gen 6
+- Inkay
+- Malamar
+- Hawlucha
+- Dedenne
 - Noibat
 - Noivern
 
@@ -65,13 +89,20 @@
 #### Gen 8
 - Silicobra
 - Sandaconda
+- Sinistea
+- Polteageist
 
 #### Gen 9
 - Smoliv
 - Dolliv
 - Arboliva
+- Tarountula
+- Spidops
 - Orthworm
 - Dudunsparce
+- Cyclizar
+- Poltchageist
+- Sinistcha
 
 ### Animation updates for the following Pokémon
 - Garchomp
@@ -84,6 +115,15 @@
 - Delphox
 - Cinderace
 - Kangaskhan
+- Gossifleur
+- Eldegoss
+- Stonjourner
+- Wailmer
+- Lechonk
+- Oinkologne
+- Dratini
+- Dragonair
+- Dragonite
 
 ### Model updates for the following Pokémon
 - Gyarados
@@ -101,27 +141,52 @@
 - Grovyle
 - Sceptile
 - Honchkrow
+- Gible
+- Gabite
 - Garchomp
 - Pidgeot
 - Nosepass
 - Probopass
 - Kangaskhan
 - Cinderace
+- Magnemite
+- Magneton
 - Magnezone
+- Beldum
+- Metang
 - Metagross
+- Hoothoot
+- Noctowl
+- Teddiursa
+- Ursaring
+- Ursaluna
+- Heatmor
+- Bouffalant
+- Sigilyph
+- Sharpedo
+- Maractus
+- Clodsire
+- Scyther
+- Scizor
+- Cacturne
+- Taillow
+- Swellow
 - Added Syrupy Apples.
+- Seel
+- Dewgong
 
 ### Changes
 - Renamed `chargeGainedPerTick` config to `secondsToChargeHealingMachine`.
 - Made Blocks of Gold count as Big Nuggets when held by a Pokémon (for Fling functionality)
 - Players can now eat Sweet and Tart Apples, Whipped Dreams, and the Alcremie Sweets.
 - Updated Sweet and Tart Apple sprites
-- Updated the following recipes: Air Balloon, Assault Vest, Binding Band, Black Belt, Blunder Policy, Choice Band, Choice Scarf, Cleanse Tag, Covert Cloak, Destiny Knot, Eject Button, Expert Belt, Focus Band, Focus Sash, Magnet, Metronome, Muscle Band, Power Anklet, Power Band, Power Belt, Power Bracer, Power Lens, Power Weight, Protective Pads, Protein, Punching Glove, Reaper Cloth, Rocky Helmet, Room Service, Sachet, Safety Goggles, Silk Scarf, Spell Tag, Utility Umbrella, Weakness Policy, Zinc
-- Added alternate ingredient options to the following recipes: Cell Battery, Charcoal Stick, Dragon Fang, Miracle Seed, Mystic Water, Never Melt Ice, Twisted Spoon, Damp Rock, Heat Rock, Icy Rock, Smooth Rock
+- Updated the following recipes: Air Balloon, Assault Vest, Binding Band, Black Belt, Blunder Policy, Choice Band, Choice Scarf, Cleanse Tag, Covert Cloak, Destiny Knot, Eject Button, Expert Belt, Focus Band, Focus Sash, Magnet, Metronome, Muscle Band, Power Anklet, Power Band, Power Belt, Power Bracer, Power Lens, Power Weight, Protective Pads, Protein, Punching Glove, Reaper Cloth, Rocky Helmet, Room Service, Sachet, Safety Goggles, Silk Scarf, Spell Tag, Utility Umbrella, Weakness Policy, Zinc, Chipped Pot, Cracked Pot, Unremarkable Cup, Loaded Dice, Charcoal Stick, Dragon Fang, Miracle Seed, Mystic Water, Never Melt Ice, Twisted Spoon, Black Glasses, Fairy Feather, Hard Stone, Silver Powder, Soft Sand
+- Added alternate ingredient options to the following recipes: Cell Battery, Damp Rock, Heat Rock, Icy Rock, Smooth Rock
 - Grouped together some recipes within the Recipe Book. Groups include: the seven basic Poké Balls, the seven basic Ancient Poké Balls, Gilded Chests, Pokedexes, and the Weather Rocks.
 - Updated some item tags to better integrate behaviours between Cobblemon, Vanilla Minecraft, and other mods
   - Removed Cooked Meat, Raw Meat, Protein Ingredients, and Zinc Ingredients, the first two are now using `c` namespace tags, the latter have better integrated use of tags within their recipes which removes need for custom tags.
-  - Added our seeds tag into `#c:seeds`, which is now made use of for the Miracle Seed recipe. 
+  - Added our seeds tag into `#c:seeds`, which is now made use of for the Miracle Seed recipe.
+- Added herbs and snowballs to the consumable in PvE and Wild battle tags
 - Tweaked the Natural Materials Vanilla file to fit with the changes to tags
 - Substantially optimised spawning checks mainly by front-loading biome filtering.
 - When using the `cobblemon` or `generation_9` capture calculators a critical capture with a single shake will always play for successful captures when you've already registered the Pokémon as caught in your Pokédex.
@@ -136,10 +201,18 @@
 - Improved parity with vanilla mobs' drop behavior; loot and XP drop on death instead of after the entire death sequence finishes.
 - Quirk animations no longer play in the battle GUI since they were pretty distracting.
 - A number of Pokemon that float above the ground visually (Gastly, Klingklang, etc.)  are no longer considered to be touching the ground
+- Changed the recipes for Level, Lure, and Moon Balls to be cleaner
 - Renamed `pokemonId` and `type` to `species` in relevant Advancement triggers for conformity, this is a breaking change.
 - Added a separate `species` argument to the `pick_starter`, `pasture_use` and `resurrect_pokemon` Advancement triggers.
 - Made `CobblemonAgingDespawner` thresholds configurable via the config file.
 - Tweaked Berry flavor data to balance cooking pot mechanics
+- Made Red, Yellow, Green, Blue, Pink, Black, and White Apricorn Sprout and Saccharine Sapling able to be placed into flower pots.
+- Added all Potted Apricorn Sprouts, Potted Saccharine Saplings, and Potted Pep-Up Flowers to the `#minecraft:flower_pots` block tag
+- Corrected the healing values of the remedies and energy root, and reintroduced the friendship lowering mechanics for them, revivl herb, and heal powder
+- Updated battle language keys for side effects to use position-specific formats, improving grammatical consistency
+- Saccharine Leaves are now Collectable
+- Saccharine Leaves Age 1 or higher will now show Yellow particles when broken
+- Destroying a Saccharine Honey Log will now drop a Saccharine Log in stead of nothing
 
 ### Fixes
 - Fixed Particles sometimes facing the wrong direction (looking at you, Swords Dance)
@@ -180,6 +253,13 @@
 - Fixed the `dimensions` spawning condition using the incorrect ResourceLocation, causing it to not function properly.
 - Fix issue where locator X axis was not aligned with blockbench.
 - Fix issue where particle effects that play on frame 1 on sendout would never play (Gastly)
+- The Wiglett line will now sink in water again.
+- Fixed the Sprigatito line's portraits being zoomed in too far. 
+- Fixed Floragato's battle cry animation from breaking. 
+- Fixed the block texture name for the Pep-Up Flower being inaccurate
+- Fixed issue where the restoration tank would not accept valid items from a hopper.
+- Fixed energy root not being shearable
+- Fixed energy root always spreading into more energy roots instead of by chance (same as big root)
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
@@ -206,6 +286,9 @@
     }
   }
   `
+- The IVs class has now been extended to include Hyper Trained values.
+- Added `Pokemon#hyperTrainIV()` and `IVs#setHyperTrainedIV(Stat, Int)`.
+- Added `HyperTrainedIvEvent.Pre` and `HyperTrainedIvEvent.Post`.
   
 ### MoLang & Datapacks
 - The following usages for item predicates can now use item conditions like advancements do, you can learn about them in the [Minecraft wiki](https://minecraft.wiki/w/Advancement_definition#minecraft:filled_bucket)
@@ -225,9 +308,15 @@
 - Fixed `heldItem` property inside spawn files not working and causing crashes
 - Fixed `spawn_bedrock_particles` MoLang causing crashes when used in a server environment
 - The Pokédex form lang key definition now follows `cobblemon.ui.pokedex.info.form.{species}-{formname}` instead of `cobblemon.ui.pokedex.info.form.{formname}`.
+- Added `play_sound_on_server` as an available Molang function for the `worldHolder` & `player` functions.
+- Added `run_molang_after` as an available Molang function for the `entity` functions when schedulable.
+- Added an optional parameter for `run_molang` to schedule the function.
 - Added `labels` & `has_label` as available Molang functions for the `speciesFunctions`
 - Added datapack-defined starter categories via `data/<namespace>/starters/*.json`, with built-in fallback and `useConfigStarters` merge option.
+- The format of the `remedies.json` file has changed to allow for individual friendshipDrop amounts per remedy
 - Fixed `entity.find_nearby_block` causing crashes when attempting to use a block tag
+- Spawn Filters can now access `v.spawn.class` to get the identifier of an NPC class for when trying to influence NPC spawns
+- Added `pokemon.hyper_train_iv` as an available Molang function.
 
 ## [1.6.1 (January 26th, 2025)](#1-6-1)
 

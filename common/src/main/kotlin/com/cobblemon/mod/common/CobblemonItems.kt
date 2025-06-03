@@ -13,6 +13,7 @@ import com.cobblemon.mod.common.api.item.ability.AbilityChanger
 import com.cobblemon.mod.common.api.mulch.MulchVariant
 import com.cobblemon.mod.common.api.pokeball.PokeBalls
 import com.cobblemon.mod.common.api.pokemon.Natures
+import com.cobblemon.mod.common.api.pokemon.stats.Stat
 import com.cobblemon.mod.common.api.pokemon.stats.Stats
 import com.cobblemon.mod.common.api.pokemon.status.Statuses
 import com.cobblemon.mod.common.api.text.blue
@@ -40,6 +41,7 @@ import com.cobblemon.mod.common.item.interactive.*
 import com.cobblemon.mod.common.item.interactive.ability.AbilityChangeItem
 import com.cobblemon.mod.common.platform.PlatformRegistry
 import com.cobblemon.mod.common.pokeball.PokeBall
+import com.cobblemon.mod.common.pokemon.IVs
 import com.cobblemon.mod.common.pokemon.helditem.CobblemonHeldItemManager
 import com.cobblemon.mod.common.util.cobblemonResource
 import net.minecraft.core.Registry
@@ -189,22 +191,29 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
 
     val campfire_pots = mutableListOf<CampfirePotItem>()
     @JvmField
-    val CAMPFIRE_POT_BLACK = campfirePotItem(CobblemonBlocks.BLACK_CAMPFIRE_POT, "black")
+    val CAMPFIRE_POT_RED = campfirePotItem(CobblemonBlocks.RED_CAMPFIRE_POT, "red")
     @JvmField
-    val CAMPFIRE_POT_BLUE = campfirePotItem(CobblemonBlocks.BLUE_CAMPFIRE_POT, "blue")
+    val CAMPFIRE_POT_YELLOW = campfirePotItem(CobblemonBlocks.YELLOW_CAMPFIRE_POT, "yellow")
     @JvmField
     val CAMPFIRE_POT_GREEN = campfirePotItem(CobblemonBlocks.GREEN_CAMPFIRE_POT, "green")
     @JvmField
+    val CAMPFIRE_POT_BLUE = campfirePotItem(CobblemonBlocks.BLUE_CAMPFIRE_POT, "blue")
+    @JvmField
     val CAMPFIRE_POT_PINK = campfirePotItem(CobblemonBlocks.PINK_CAMPFIRE_POT, "pink")
     @JvmField
-    val CAMPFIRE_POT_RED = campfirePotItem(CobblemonBlocks.RED_CAMPFIRE_POT, "red")
+    val CAMPFIRE_POT_BLACK = campfirePotItem(CobblemonBlocks.BLACK_CAMPFIRE_POT, "black")
     @JvmField
     val CAMPFIRE_POT_WHITE = campfirePotItem(CobblemonBlocks.WHITE_CAMPFIRE_POT, "white")
-    @JvmField
-    val CAMPFIRE_POT_YELLOW = campfirePotItem(CobblemonBlocks.YELLOW_CAMPFIRE_POT, "yellow")
 
     @JvmField
-    val Hearty_Grains = compostableItem("hearty_grains", HeartyGrainsItem(CobblemonBlocks.HEARTY_GRAINS))
+    val HEARTY_GRAINS = compostableItem("hearty_grains", HeartyGrainsItem(CobblemonBlocks.HEARTY_GRAINS))
+    @JvmField
+    val HEARTY_GRAIN_BALE = compostableBlockItem("hearty_grain_bale", CobblemonBlocks.HEARTY_GRAIN_BALE, 0.85f)
+
+    @JvmField
+    val TATAMI_BLOCK = blockItem("tatami_block", CobblemonBlocks.TATAMI_BLOCK)
+    @JvmField
+    val TATAMI_MAT = blockItem("tatami_mat", CobblemonBlocks.TATAMI_MAT)
 
     @JvmField
     val VIVICHOKE = compostableItem("vivichoke")
@@ -351,19 +360,19 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
 
     val aprijuices = mutableListOf<AprijuiceItem>()
     @JvmField
-    val APRIJUICE_BLACK = aprijuiceItem(Apricorn.BLACK)
-    @JvmField
     val APRIJUICE_RED = aprijuiceItem(Apricorn.RED)
-    @JvmField
-    val APRIJUICE_BLUE = aprijuiceItem(Apricorn.BLUE)
-    @JvmField
-    val APRIJUICE_GREEN = aprijuiceItem(Apricorn.GREEN)
     @JvmField
     val APRIJUICE_YELLOW = aprijuiceItem(Apricorn.YELLOW)
     @JvmField
-    val APRIJUICE_WHITE = aprijuiceItem(Apricorn.WHITE)
+    val APRIJUICE_GREEN = aprijuiceItem(Apricorn.GREEN)
+    @JvmField
+    val APRIJUICE_BLUE = aprijuiceItem(Apricorn.BLUE)
     @JvmField
     val APRIJUICE_PINK = aprijuiceItem(Apricorn.PINK)
+    @JvmField
+    val APRIJUICE_BLACK = aprijuiceItem(Apricorn.BLACK)
+    @JvmField
+    val APRIJUICE_WHITE = aprijuiceItem(Apricorn.WHITE)
 
     @JvmField
     val PONIGIRI = create("ponigiri", PonigiriItem())
@@ -513,6 +522,9 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     @JvmField val AUSPICIOUS_ARMOR = heldItem("auspicious_armor")
     @JvmField val MALICIOUS_ARMOR = heldItem("malicious_armor")
     @JvmField val SHELL_HELMET = heldItem("shell_helmet")
+    @JvmField val METAL_ALLOY = noSettingsItem("metal_alloy")
+    @JvmField val SCROLL_OF_DARKNESS = noSettingsItem("scroll_of_darkness")
+    @JvmField val SCROLL_OF_WATERS = noSettingsItem("scroll_of_waters")
 
     private val berries = mutableMapOf<ResourceLocation, BerryItem>()
     // Plants
@@ -590,6 +602,33 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
 
     @JvmField
     val GALARICA_NUTS = create("galarica_nuts", GalaricaNutItem())
+
+    // Hyper Training Items
+    val hyperTrainingItems = mutableListOf<HyperTrainingItem>()
+    @JvmField
+    val HEALTH_CANDY = hyperTrainingItem("health_candy", 1, setOf(Stats.HP), 0..IVs.MAX_VALUE)
+    @JvmField
+    val MIGHTY_CANDY = hyperTrainingItem("mighty_candy", 1, setOf(Stats.ATTACK), 0..IVs.MAX_VALUE)
+    @JvmField
+    val TOUGH_CANDY = hyperTrainingItem("tough_candy", 1, setOf(Stats.DEFENCE), 0..IVs.MAX_VALUE)
+    @JvmField
+    val SMART_CANDY = hyperTrainingItem("smart_candy", 1, setOf(Stats.SPECIAL_ATTACK), 0..IVs.MAX_VALUE)
+    @JvmField
+    val COURAGE_CANDY = hyperTrainingItem("courage_candy", 1, setOf(Stats.SPECIAL_DEFENCE), 0..IVs.MAX_VALUE)
+    @JvmField
+    val QUICK_CANDY = hyperTrainingItem("quick_candy", 1, setOf(Stats.SPEED), 0..IVs.MAX_VALUE)
+    @JvmField
+    val SICKLY_CANDY = hyperTrainingItem("sickly_candy", -1, setOf(Stats.HP), 0..IVs.MAX_VALUE)
+    @JvmField
+    val WEAK_CANDY = hyperTrainingItem("weak_candy", -1, setOf(Stats.ATTACK), 0..IVs.MAX_VALUE)
+    @JvmField
+    val BRITTLE_CANDY = hyperTrainingItem("brittle_candy", -1, setOf(Stats.DEFENCE), 0..IVs.MAX_VALUE)
+    @JvmField
+    val NUMB_CANDY = hyperTrainingItem("numb_candy", -1, setOf(Stats.SPECIAL_ATTACK), 0..IVs.MAX_VALUE)
+    @JvmField
+    val COWARD_CANDY = hyperTrainingItem("coward_candy", -1, setOf(Stats.SPECIAL_DEFENCE), 0..IVs.MAX_VALUE)
+    @JvmField
+    val SLOW_CANDY = hyperTrainingItem("slow_candy", -1, setOf(Stats.SPEED), 0..IVs.MAX_VALUE)
 
     // Medicine
     @JvmField
@@ -912,8 +951,8 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     val CHOICE_SCARF = heldItem("choice_scarf")
     @JvmField
     val CLEANSE_TAG = heldItem("cleanse_tag")
-   // @JvmField
-   // val CLEAR_AMULET = heldItem("clear_amulet")
+    @JvmField
+    val CLEAR_AMULET = heldItem("clear_amulet")
     @JvmField
     val COVERT_CLOAK = heldItem("covert_cloak")
     @JvmField
@@ -942,16 +981,16 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     val FOCUS_SASH = heldItem("focus_sash")
     @JvmField
     val GRASSY_SEED = heldItem("grassy_seed")
-   // @JvmField
-   // val GRIP_CLAW = heldItem("grip_claw")
+    @JvmField
+    val GRIP_CLAW = heldItem("grip_claw")
     @JvmField
     val HARD_STONE = heldItem("hard_stone")
     @JvmField
     val HEAVY_DUTY_BOOTS = heldItem("heavy_duty_boots")
     @JvmField
     val IRON_BALL = heldItem("iron_ball")
-   // @JvmField
-   // val LAGGING_TAIL = heldItem("lagging_tail")
+    @JvmField
+    val LAGGING_TAIL = heldItem("lagging_tail")
     @JvmField
     val LEFTOVERS = heldItem("leftovers")
     @JvmField
@@ -964,8 +1003,8 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     val LOADED_DICE = heldItem("loaded_dice")
     @JvmField
     val LUCKY_EGG = heldItem("lucky_egg")
-   // @JvmField
-   // val LUMINOUS_MOSS = heldItem("luminous_moss")
+    @JvmField
+    val LUMINOUS_MOSS = heldItem("luminous_moss")
     @JvmField
     val MAGNET = heldItem("magnet")
     @JvmField
@@ -1572,6 +1611,12 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
         val item = this.create(name, mintItem)
         mints[item.nature.displayName] = item
         compostable(item, .65f)
+        return item
+    }
+
+    private fun hyperTrainingItem(name: String, increaseAmount: Int, targetStats: Set<Stat>, validRange: IntRange): HyperTrainingItem {
+        val item = this.create(name, HyperTrainingItem(increaseAmount, targetStats, validRange))
+        hyperTrainingItems.add(item)
         return item
     }
 

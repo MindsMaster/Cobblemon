@@ -174,13 +174,12 @@ object CobblemonClient {
 
     private fun registerTooltipManagers() {
         TooltipManager.registerTooltipGenerator(CobblemonTooltipGenerator)
+        TooltipManager.registerTooltipGenerator(RecipeSeasoningAbsorbtionTooltipGenerator)
         TooltipManager.registerTooltipGenerator(FishingBaitTooltipGenerator)
-        TooltipManager.registerTooltipGenerator(FishingRodTooltipGenerator)
         TooltipManager.registerTooltipGenerator(SeasoningTooltipGenerator)
+        TooltipManager.registerTooltipGenerator(FishingRodTooltipGenerator)
         TooltipManager.registerTooltipGenerator(AprijuiceTooltipGenerator)
         TooltipManager.registerTooltipGenerator(PokePuffTooltipGenerator)
-        TooltipManager.registerTooltipGenerator(FoodTooltipGenerator)
-        TooltipManager.registerTooltipGenerator(MobEffectTooltipGenerator)
     }
 
     fun registerFlywheelRenderers() {
@@ -223,6 +222,13 @@ object CobblemonClient {
             CobblemonBlocks.RED_APRICORN_SAPLING,
             CobblemonBlocks.WHITE_APRICORN_SAPLING,
             CobblemonBlocks.YELLOW_APRICORN_SAPLING,
+            CobblemonBlocks.POTTED_BLACK_APRICORN_SAPLING,
+            CobblemonBlocks.POTTED_BLUE_APRICORN_SAPLING,
+            CobblemonBlocks.POTTED_GREEN_APRICORN_SAPLING,
+            CobblemonBlocks.POTTED_PINK_APRICORN_SAPLING,
+            CobblemonBlocks.POTTED_RED_APRICORN_SAPLING,
+            CobblemonBlocks.POTTED_WHITE_APRICORN_SAPLING,
+            CobblemonBlocks.POTTED_YELLOW_APRICORN_SAPLING,
             CobblemonBlocks.BLACK_APRICORN,
             CobblemonBlocks.BLUE_APRICORN,
             CobblemonBlocks.GREEN_APRICORN,
@@ -272,6 +278,7 @@ object CobblemonClient {
             CobblemonBlocks.SACCHARINE_HANGING_SIGN,
             CobblemonBlocks.SACCHARINE_WALL_HANGING_SIGN,
             CobblemonBlocks.SACCHARINE_SAPLING,
+            CobblemonBlocks.POTTED_SACCHARINE_SAPLING,
             CobblemonBlocks.LURE_CAKE,
             CobblemonBlocks.POKE_CAKE,
             CobblemonBlocks.LECTERN,

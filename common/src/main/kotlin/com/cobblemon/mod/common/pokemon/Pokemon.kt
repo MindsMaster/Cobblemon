@@ -216,6 +216,7 @@ open class Pokemon : ShowdownIdentifiable {
             field = value
             value.changeFunction = oldChangeFunction
         }
+
     var evs = EVs.createEmpty().also { it.changeFunction = { onChange(EVsUpdatePacket({ this }, it as EVs)) } }
         internal set(value) {
             val oldChangeFunction = field.changeFunction
@@ -230,6 +231,20 @@ open class Pokemon : ShowdownIdentifiable {
         if (stat == Stats.HP) {
             updateHP(quotient)
         }
+    }
+
+    fun hyperTrainIV(stat: Stat, value: Int) {
+        val quotient = clamp(currentHealth / maxHealth.toFloat(), 0F, 1F)
+        CobblemonEvents.HYPER_TRAINED_IV_PRE.postThen(
+            event = HyperTrainedIvEvent.Pre(this, stat, value),
+            ifSucceeded = { _ ->
+                ivs.setHyperTrainedIV(stat, value)
+                if (stat == Stats.HP) {
+                    updateHP(quotient)
+                }
+                CobblemonEvents.HYPER_TRAINED_IV_POST.post(HyperTrainedIvEvent.Post(this, stat, value))
+            }
+        )
     }
 
     fun setEV(stat: Stat, value : Int) {
@@ -1262,6 +1277,9 @@ open class Pokemon : ShowdownIdentifiable {
         this.ivs.doWithoutEmitting {
             other.ivs.forEach {
                 this.ivs[it.key] = it.value
+            }
+            other.ivs.hyperTrainedIVs.forEach {
+                (stat, value) -> this.ivs.setHyperTrainedIV(stat, value)
             }
         }
         this.evs.doWithoutEmitting {
