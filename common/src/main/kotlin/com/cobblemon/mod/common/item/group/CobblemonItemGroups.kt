@@ -459,13 +459,6 @@ object CobblemonItemGroups {
         entries.accept(CobblemonItems.CLEVER_FEATHER)
         entries.accept(CobblemonItems.SWIFT_FEATHER)
 
-        entries.accept(CobblemonItems.HP_UP)
-        entries.accept(CobblemonItems.PROTEIN)
-        entries.accept(CobblemonItems.IRON)
-        entries.accept(CobblemonItems.CALCIUM)
-        entries.accept(CobblemonItems.ZINC)
-        entries.accept(CobblemonItems.CARBOS)
-
         entries.accept(CobblemonItems.HEALTH_MOCHI)
         entries.accept(CobblemonItems.MUSCLE_MOCHI)
         entries.accept(CobblemonItems.RESIST_MOCHI)
@@ -474,8 +467,15 @@ object CobblemonItemGroups {
         entries.accept(CobblemonItems.SWIFT_MOCHI)
         entries.accept(CobblemonItems.FRESH_START_MOCHI)
 
+        entries.accept(CobblemonItems.HP_UP)
+        entries.accept(CobblemonItems.PROTEIN)
+        entries.accept(CobblemonItems.IRON)
+        entries.accept(CobblemonItems.CALCIUM)
+        entries.accept(CobblemonItems.ZINC)
+        entries.accept(CobblemonItems.CARBOS)
         entries.accept(CobblemonItems.PP_UP)
         entries.accept(CobblemonItems.PP_MAX)
+
         entries.accept(CobblemonItems.EXPERIENCE_CANDY_XS)
         entries.accept(CobblemonItems.EXPERIENCE_CANDY_S)
         entries.accept(CobblemonItems.EXPERIENCE_CANDY_M)
@@ -777,6 +777,8 @@ object CobblemonItemGroups {
     private fun toolsAndUtilitiesInjections(injector: Injector) {
         injector.putAfter(CobblemonItems.APRICORN_BOAT, Items.BAMBOO_CHEST_RAFT)
         injector.putAfter(CobblemonItems.APRICORN_CHEST_BOAT, CobblemonItems.APRICORN_BOAT)
+        injector.putAfter(CobblemonItems.SACCHARINE_BOAT, CobblemonItems.APRICORN_CHEST_BOAT)
+        injector.putAfter(CobblemonItems.SACCHARINE_CHEST_BOAT, CobblemonItems.SACCHARINE_BOAT)
     }
 
     private fun ingredientsInjections(injector: Injector) {
