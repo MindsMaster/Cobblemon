@@ -9,7 +9,6 @@
 package com.cobblemon.mod.common.item
 
 import com.cobblemon.mod.common.block.BugwortBlock
-import com.cobblemon.mod.common.block.SaccharineSaplingBlock
 import net.minecraft.world.item.ItemNameBlockItem
 import net.minecraft.world.item.context.BlockPlaceContext
 import net.minecraft.world.level.block.state.BlockState
