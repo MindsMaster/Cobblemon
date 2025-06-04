@@ -1066,6 +1066,106 @@ object MoLangFunctions {
                 }
                 struct
             }
+            map.put("natdex_number") {
+                DoubleValue(pokemon.species.nationalPokedexNumber.toDouble())
+            }
+            map.put("types") {
+                val struct = QueryStruct(hashMapOf())
+                for ((index, type) in pokemon.form.types.withIndex()) {
+                    struct.addFunction(index.toString()) { StringValue(type.toString()) }
+                }
+                struct
+            }
+            map.put("gender_ratio") {
+                DoubleValue(pokemon.form.maleRatio.toDouble())
+            }
+            map.put("ev_yield") {
+                val struct = QueryStruct(hashMapOf())
+                for (stat in Stats.PERMANENT) {
+                    struct.addFunction(stat.showdownId) { DoubleValue(pokemon.form.evYield[stat]?.toDouble()) }
+                }
+                struct
+            }
+            map.put("base_stats") {
+                val struct = QueryStruct(hashMapOf())
+                for (stat in Stats.PERMANENT) {
+                    struct.addFunction(stat.showdownId) { DoubleValue(pokemon.form.baseStats[stat]?.toDouble()) }
+                }
+                struct
+            }
+            map.put("catch_rate") {
+                DoubleValue(pokemon.form.catchRate.toDouble())
+            }
+            map.put("base_experience_yield") {
+                DoubleValue(pokemon.form.baseExperienceYield.toDouble())
+            }
+            map.put("drops") {
+                val struct = QueryStruct(hashMapOf())
+                for ((index, drop) in pokemon.form?.drops?.entries?.withIndex()!!) {
+                    struct.addFunction(index.toString()) { drop }
+                }
+                struct
+            }
+            map.put("tm_learnset") {
+                val struct = QueryStruct(hashMapOf())
+                for ((index, move) in pokemon.form.moves.tmMoves.withIndex()) {
+                    struct.addFunction(index.toString()) { move.struct }
+                }
+                struct
+            }
+            map.put("egg_learnset") {
+                val struct = QueryStruct(hashMapOf())
+                for ((index, move) in pokemon.form.moves.eggMoves.withIndex()) {
+                    struct.addFunction(index.toString()) { move.struct }
+                }
+                struct
+            }
+            map.put("tutor_learnset") {
+                val struct = QueryStruct(hashMapOf())
+                for ((index, move) in pokemon.form.moves.tutorMoves.withIndex()) {
+                    struct.addFunction(index.toString()) { move.struct }
+                }
+                struct
+            }
+            map.put("level_learnset") {
+                val struct = QueryStruct(hashMapOf())
+                for ((index, move) in pokemon.form.moves.levelUpMoves) {
+                    struct.addFunction(index.toString()) { move }
+                }
+                struct
+            }
+            map.put("ability_pool") {
+                val struct = QueryStruct(hashMapOf())
+                for ((index, ability) in pokemon.form.abilities.withIndex()) {
+                    struct.addFunction(index.toString()) { StringValue(ability.toString()) }
+                }
+                struct
+            }
+            map.put("egg_groups") {
+                val struct = QueryStruct(hashMapOf())
+                for ((index, group) in pokemon.form.eggGroups.withIndex()) {
+                    struct.addFunction(index.toString()) { StringValue(group.toString()) }
+                }
+                struct
+            }
+            map.put("egg_cycles") {
+                DoubleValue(pokemon.species.eggCycles.toDouble())
+            }
+            map.put("labels") {
+                val struct = QueryStruct(hashMapOf())
+                for ((index, label) in pokemon.form.labels.withIndex()) {
+                    struct.addFunction(index.toString()) { StringValue(label) }
+                }
+                struct
+            }
+            // Yes, this is the lazy call for a single hardcoded pre-evolution.
+            // Lol. Lmao, even.
+            // TO-DO: Subscribe to [PokemonSpecies.observable].
+            map.put("prevolution") {
+                val prevolution = pokemon.species.preEvolution ?: return@put DoubleValue.ZERO
+                return@put prevolution
+            }
+            map.put("nature") { StringValue(pokemon.nature.toString()) }
             map.put("is_wild") { DoubleValue(pokemon.entity?.let { it.ownerUUID == null } == true) }
             map.put("is_shiny") { DoubleValue(pokemon.shiny) }
             map.put("is_in_party") { DoubleValue(pokemon.storeCoordinates.get()?.store is PartyStore) }
