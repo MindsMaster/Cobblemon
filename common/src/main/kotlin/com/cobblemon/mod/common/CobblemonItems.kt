@@ -349,7 +349,7 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     val SACCHARINE_SAPLING = compostableBlockItem("saccharine_sapling", CobblemonBlocks.SACCHARINE_SAPLING)
 
     @JvmField
-    val BUGWORT = bugwortItem("bugwort", BugwortItem(CobblemonBlocks.BUGWORT))
+    val BUGWORT = compostableBlockItem("bugwort", CobblemonBlocks.BUGWORT)
     @JvmField
     val POKE_BAIT = noSettingsItem("poke_bait")
 
@@ -1630,13 +1630,6 @@ object CobblemonItems : PlatformRegistry<Registry<Item>, ResourceKey<Registry<It
     private fun apricornSeedItem(name: String, apricornSeedItem: ApricornSeedItem): ApricornSeedItem {
         val finalName = "${name}_apricorn_seed"
         val item = this.create(finalName, apricornSeedItem)
-        compostable(item, .65f)
-        return item
-    }
-
-    private fun bugwortItem(name: String, bugwortItem: BugwortItem): BugwortItem {
-        val finalName = "bugwort"
-        val item = this.create(finalName, bugwortItem)
         compostable(item, .65f)
         return item
     }
