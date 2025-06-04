@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-package com.cobblemon.mod.common.block.varied
+package com.cobblemon.mod.common.block.general
 
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction

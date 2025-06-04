@@ -20,8 +20,8 @@ import com.cobblemon.mod.common.block.sign.CobblemonHangingSignBlock
 import com.cobblemon.mod.common.block.sign.CobblemonSignBlock
 import com.cobblemon.mod.common.block.sign.CobblemonWallHangingSignBlock
 import com.cobblemon.mod.common.block.sign.CobblemonWallSignBlock
-import com.cobblemon.mod.common.block.varied.HorizontalRotationCarpetBlock
-import com.cobblemon.mod.common.block.varied.HorizontalRotationalBlock
+import com.cobblemon.mod.common.block.general.HorizontalRotationCarpetBlock
+import com.cobblemon.mod.common.block.general.HorizontalRotationalBlock
 import com.cobblemon.mod.common.mixin.invoker.*
 import com.cobblemon.mod.common.platform.PlatformRegistry
 import com.cobblemon.mod.common.util.cobblemonResource
