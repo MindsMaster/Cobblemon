@@ -228,7 +228,7 @@ object CobblemonBlocks : PlatformRegistry<Registry<Block>, ResourceKey<Registry<
     @JvmField
     val SACCHARINE_TRAPDOOR = this.create("saccharine_trapdoor", TrapdoorBlockInvoker.`cobblemon$create`(SACCHARINE_BLOCK_SET_TYPE, BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).instrument(NoteBlockInstrument.BASS).strength(3.0F).sound(SoundType.WOOD).noOcclusion()))
     @JvmField
-    val SACCHARINE_SAPLING = this.create("saccharine_sapling", SaplingBlock(SaccharineTreeGrower(), PLANT_PROPERTIES))
+    val SACCHARINE_SAPLING = this.create("saccharine_sapling", SaccharineSaplingBlock(PLANT_PROPERTIES))
 
     @JvmField
     val MEDICINAL_LEEK = this.create("medicinal_leek", MedicinalLeekBlock(BlockBehaviour.Properties.of().pushReaction(PushReaction.DESTROY).ignitedByLava().mapColor(MapColor.CRIMSON_NYLIUM).noCollission().randomTicks().instabreak().sound(CobblemonSounds.MEDICINAL_LEEK_SOUNDS)))
@@ -707,4 +707,6 @@ object CobblemonBlocks : PlatformRegistry<Registry<Block>, ResourceKey<Registry<
         val block = BlocksInvoker.createLeavesBlock(SoundType.GRASS)
         return this.create(name, block)
     }
+
+    class SaccharineSaplingBlock(properties : Properties) : SaplingBlock(SaccharineTreeGrower(), properties)
 }
