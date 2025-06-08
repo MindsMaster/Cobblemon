@@ -267,6 +267,7 @@
 - Fixed issue where Pokémon spawned by the "spawnallpokemon" command potentially receiving a raft.
 - Fixed logspam on NeoForge when adorn is not installed
 - Fixed Cobblemon crashing if it tries to load a bedrock model not meant for cobblemon (example: Qlipoth Awakening)
+- Fixed Berries (and thus mulches) not being plantable on Farmers delight rich soil farmland
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
