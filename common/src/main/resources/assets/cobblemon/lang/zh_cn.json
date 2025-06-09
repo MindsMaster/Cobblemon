@@ -6710,7 +6710,7 @@
     "cobblemon.trade.error.duplicate": "您已经向 %1$s 发出了交换请求！",
     "cobblemon.ui.pc.search": "搜索",
     "cobblemon.ui.interact.give.cosmetic_item": "给予饰品",
-    "cobblemon.ui.interact.ride": "骑上",
+    "cobblemon.ui.interact.ride": "骑乘",
     "cobblemon.ui.interact.request_already_expired": "该请求已过期！",
     "cobblemon.ui.pokedex.search.search_by": "搜索 %1$s 中",
     "cobblemon.ui.pokedex.search.type.species": "物种名称",
