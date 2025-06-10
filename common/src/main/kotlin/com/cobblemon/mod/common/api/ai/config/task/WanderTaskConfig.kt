@@ -10,11 +10,14 @@ package com.cobblemon.mod.common.api.ai.config.task
 
 import com.cobblemon.mod.common.CobblemonMemories
 import com.cobblemon.mod.common.api.ai.BehaviourConfigurationContext
+import com.cobblemon.mod.common.api.ai.ExpressionOrEntityVariable
 import com.cobblemon.mod.common.api.ai.asVariables
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMostSpecificMoLangValue
 import com.cobblemon.mod.common.entity.ai.CobblemonWalkTarget
+import com.cobblemon.mod.common.util.asExpression
 import com.cobblemon.mod.common.util.resolveFloat
 import com.cobblemon.mod.common.util.withQueryValue
+import com.mojang.datafixers.util.Either
 import net.minecraft.core.BlockPos
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.PathfinderMob
@@ -34,15 +37,16 @@ class WanderTaskConfig : SingleTaskConfig {
     val wanderChance = numberVariable(WANDER, "wander_chance", 1/(20 * 6F)).asExpressible()
     val horizontalRange = numberVariable(WANDER, "horizontal_wander_range", 10).asExpressible()
     val verticalRange = numberVariable(WANDER, "vertical_wander_range", 5).asExpressible()
-
     val speedMultiplier = numberVariable(SharedEntityVariables.MOVEMENT_CATEGORY, SharedEntityVariables.WALK_SPEED, 0.35).asExpressible()
+    val avoidTargetingAir: ExpressionOrEntityVariable = Either.left("true".asExpression()) // Whether to avoid air blocks when wandering
 
     override fun getVariables(entity: LivingEntity) = listOf(
         condition,
         wanderChance,
         horizontalRange,
         verticalRange,
-        speedMultiplier
+        speedMultiplier,
+        avoidTargetingAir
     ).asVariables()
 
     override fun createTask(
@@ -67,14 +71,25 @@ class WanderTaskConfig : SingleTaskConfig {
 
                     runtime.withQueryValue("entity", entity.asMostSpecificMoLangValue())
                     val wanderChance = runtime.resolveFloat(wanderChanceExpression)
-                    if (wanderChance <= 0 || world.random.nextFloat() > wanderChance) return@Trigger false
+                    if (wanderChance <= 0 || world.random.nextFloat() > wanderChance) {
+                        return@Trigger false
+                    }
 
                     pathCooldown.setWithExpiry(true, 40L)
+                    val avoidsTargetingAir = avoidTargetingAir.resolveBoolean()
 
 //                    val targetVec = getLandTarget(entity) ?: return@Trigger true
                     val targetVec = LandRandomPos.getPos(entity, horizontalRange.resolveInt(), verticalRange.resolveInt()) ?: return@Trigger false
                     val pos = BlockPos.containing(targetVec)
-                    walkTarget.set(CobblemonWalkTarget(pos, speedMultiplier.resolveFloat(), 0, { it !in listOf(PathType.WATER, PathType.WATER_BORDER) }))
+                    walkTarget.set(
+                        CobblemonWalkTarget(
+                            pos = pos,
+                            speedModifier = speedMultiplier.resolveFloat(),
+                            completionRange = 0,
+                            nodeTypeFilter = { nodeType -> nodeType !in listOf(PathType.WATER, PathType.WATER_BORDER) },
+                            destinationNodeTypeFilter = { nodeType -> !avoidsTargetingAir || nodeType !in listOf(PathType.OPEN) }
+                        )
+                    )
                     lookTarget.erase()
                     return@Trigger true
                 }

@@ -82,6 +82,7 @@ interface TaskConfig {
             cobblemonResource("calm_down") to CalmDownTaskConfig::class.java,
             cobblemonResource("flee_attacker") to FleeAttackerTaskConfig::class.java,
             cobblemonResource("flee_nearest_hostile") to FleeNearestHostileTaskConfig::class.java,
+            cobblemonResource("fly_in_circles") to FlyInCirclesTaskConfig::class.java,
             cobblemonResource("run_script") to RunScript::class.java,
             cobblemonResource("look_in_direction") to LookInDirectionTaskConfig::class.java,
             cobblemonResource("wake_up") to WakeUpTaskConfig::class.java,

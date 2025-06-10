@@ -77,6 +77,7 @@ import com.cobblemon.mod.common.entity.OmniPathingEntity
 import com.cobblemon.mod.common.entity.PlatformType
 import com.cobblemon.mod.common.entity.PosableEntity
 import com.cobblemon.mod.common.entity.PoseType
+import com.cobblemon.mod.common.entity.PoseType.Companion.NO_GRAV_POSES
 import com.cobblemon.mod.common.entity.ai.OmniPathNavigation
 import com.cobblemon.mod.common.entity.generic.GenericBedrockEntity
 import com.cobblemon.mod.common.entity.npc.NPCEntity
@@ -442,7 +443,7 @@ open class PokemonEntity(
             SPECIES -> refreshDimensions()
             POSE_TYPE -> {
                 val value = entityData.get(data) as PoseType
-                isNoGravity = (value == PoseType.FLY || value == PoseType.HOVER) && passengers.isEmpty()
+                isNoGravity = (value in NO_GRAV_POSES) && passengers.isEmpty()
             }
 
             BATTLE_ID -> {

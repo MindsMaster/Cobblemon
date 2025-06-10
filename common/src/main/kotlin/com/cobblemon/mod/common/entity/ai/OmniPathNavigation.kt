@@ -51,7 +51,8 @@ class OmniPathNavigation(val world: Level, val entity: Mob) : GroundPathNavigati
         val onArrival: () -> Unit = {},
         val onCannotReach: () -> Unit = {},
         val sprinting: Boolean = false,
-        val destinationProximity: Float = 0.01F
+        val destinationProximity: Float = 0.01F,
+        val destinationPathTypeFilter: (PathType) -> Boolean = { true },
     )
 
     var navigationContext = NavigationContext()
