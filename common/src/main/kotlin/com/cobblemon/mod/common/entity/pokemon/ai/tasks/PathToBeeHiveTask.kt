@@ -37,16 +37,10 @@ object PathToBeeHiveTask {
                         return@Trigger false
                     }
 
-                    // todo if cooldown is in affect then return early
-
-                    // todo have a better way to assign this task to BeeLike pokemon
-                    if (entity.pokemon.species.name != "Combee" && entity.pokemon.species.name != "Vespiquen") {
-                        return@Trigger false
-                    }
-
                     val hiveLocation: BlockPos = (hiveMemory.value() as? IdF<BlockPos>)?.value() ?: return@Trigger false
                     val targetVec = Vec3.atCenterOf(hiveLocation)
 
+                    // if we are not close then don't end early
                     if (entity.distanceToSqr(targetVec) <= 2.0) {
                         return@Trigger false
                     }

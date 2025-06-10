@@ -10,7 +10,7 @@ import net.minecraft.world.entity.ai.behavior.BehaviorControl
 
 class PathToBeeHiveTaskConfig : SingleTaskConfig {
     companion object {
-        const val HONEY = "honey" // Category
+        const val HONEY = "honey"
     }
 
     val condition = booleanVariable(HONEY, "can_add_honey", true).asExpressible()

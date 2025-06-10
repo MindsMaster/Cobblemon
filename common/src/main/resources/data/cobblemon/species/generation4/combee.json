@@ -61,6 +61,14 @@
       }
     }
   },
+  "ai": [
+    {
+      "type": "apply_behaviours",
+      "behaviours": [
+        "cobblemon:pokemon_bee"
+      ]
+    }
+  ],
   "drops": {
     "amount": 4,
     "entries": [

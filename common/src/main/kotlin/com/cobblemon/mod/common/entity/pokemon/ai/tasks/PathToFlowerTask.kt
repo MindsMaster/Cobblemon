@@ -27,10 +27,6 @@ object PathToFlowerTask {
                 Trigger { world, entity, time ->
                     if (entity !is PathfinderMob || !entity.isAlive) return@Trigger false
 
-                    if (entity.pokemon.species.name != "Combee" && entity.pokemon.species.name != "Vespiquen") {
-                        return@Trigger false
-                    }
-
                     // if on hive cooldown then end early
                     if (entity.brain.getMemory(CobblemonMemories.HIVE_COOLDOWN).orElse(false) == true) {
                         return@Trigger false
@@ -44,6 +40,7 @@ object PathToFlowerTask {
                     val flowerLocation: BlockPos = (flowerMemory.value() as? IdF<BlockPos>)?.value() ?: return@Trigger false
                     val targetVec = Vec3.atCenterOf(flowerLocation)
 
+                    // if we aren't close to it yet then don't exit early
                     if (entity.distanceToSqr(targetVec) <= 2.0) {
                         return@Trigger false
                     }
