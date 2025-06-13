@@ -54,6 +54,9 @@ abstract class AIBattleActor(
                 setActionResponses(it.iterate(this.activePokemon) { battleMon, moveset, forceSwitch ->
                     battleAI.choose(battleMon, battle, getSide(), moveset, forceSwitch)
                 })
+                pokemonList.forEach { pokemon ->
+                    pokemon.willBeSwitchedIn = false
+                }
             } ?: {
                 val response = mutableListOf<ShowdownActionResponse>()
                 repeat(activePokemon.size) {

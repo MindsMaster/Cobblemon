@@ -1,8 +1,18 @@
+/*
+ * Copyright (C) 2023 Cobblemon Contributors
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package com.cobblemon.mod.common.battles.ai.strongBattleAI
 
+import com.cobblemon.mod.common.api.abilities.Ability
 import com.cobblemon.mod.common.api.pokemon.stats.Stat
 import com.cobblemon.mod.common.api.pokemon.stats.Stats
 import com.cobblemon.mod.common.api.pokemon.status.Statuses
+import com.cobblemon.mod.common.api.types.ElementalType
 import com.cobblemon.mod.common.api.types.ElementalTypes
 
 
@@ -11,12 +21,12 @@ import com.cobblemon.mod.common.api.types.ElementalTypes
  * when moves/abilities/types become data-packable or at least queryable from showdown
  */
 object AIUtility {
-    fun getDamageMultiplier(attackerType: com.cobblemon.mod.common.api.types.ElementalType, defenderType: com.cobblemon.mod.common.api.types.ElementalType): Double {
+    fun getDamageMultiplier(attackerType: ElementalType, defenderType: ElementalType): Double {
         return typeEffectiveness[attackerType]?.get(defenderType) ?: 1.0
 
     }
 
-    val typeEffectiveness: Map<com.cobblemon.mod.common.api.types.ElementalType, Map<com.cobblemon.mod.common.api.types.ElementalType, Double>> = mapOf(
+    val typeEffectiveness: Map<ElementalType, Map<ElementalType, Double>> = mapOf(
         ElementalTypes.NORMAL to mapOf(
             ElementalTypes.NORMAL to 1.0, ElementalTypes.FIRE to 1.0, ElementalTypes.WATER to 1.0, ElementalTypes.ELECTRIC to 1.0, ElementalTypes.GRASS to 1.0,
             ElementalTypes.ICE to 1.0, ElementalTypes.FIGHTING to 1.0, ElementalTypes.POISON to 1.0, ElementalTypes.GROUND to 1.0, ElementalTypes.FLYING to 1.0,
@@ -239,7 +249,7 @@ object AIUtility {
     val entryHazards = listOf("spikes", "stealthrock", "stickyweb", "toxicspikes")
     val antiHazardsMoves = listOf("rapidspin", "defog", "tidyup")
     val antiBoostMoves = listOf("slearsmog","haze")
-    val pivotMoves = listOf("uturn","flipturn", "partingshot", "batonpass", "chillyreception","shedtail", "voltswitch", "teleport")
+    val pivotMoves = listOf("uturn", "flipturn", "partingshot", "batonpass", "shedtail", "voltswitch", "teleport")
     val setupMoves = setOf("tailwind", "trickroom", "auroraveil", "lightscreen", "reflect")
     val selfRecoveryMoves = listOf("healorder", "milkdrink", "recover", "rest", "roost", "slackoff", "softboiled")
     val weatherSetupMoves = mapOf(
@@ -251,4 +261,35 @@ object AIUtility {
         "sunnyday" to "SunnyDay"
     )
     val accuracyLoweringMoves = setOf("flash", "kinesis", "leaftornado", "mirrorshot", "mudbomb", "mudslap", "muddywater", "nightgaze", "octazooka", "sandattack", "secretpower", "smokescreen")
+    val protectMoves = setOf("protect", "banefulbunker", "obstruct", "craftyshield", "detect", "quickguard", "spikyshield", "silktrap")
+
+    val statusImmunityMap = mapOf(
+        Statuses.BURN.showdownName to (setOf("fire") to setOf("waterbubble", "waterveil", "flareboost", "guts", "magicguard")),
+        Statuses.PARALYSIS.showdownName to (setOf("electric") to setOf("limber", "guts")),
+        Statuses.SLEEP.showdownName to (setOf("grass") to setOf("insomnia", "sweetveil")),
+        Statuses.CONFUSE.showdownName to (setOf("fire") to setOf("owntempo", "oblivious")),
+        Statuses.POISON.showdownName to (setOf("poison", "steel") to setOf("immunity", "poisonheal", "guts", "magicguard")),
+        Statuses.POISON_BADLY.showdownName to (setOf("poison", "steel") to setOf("immunity", "poisonheal", "guts", "magicguard")),
+        "cursed" to (setOf("ghost") to setOf("magicguard")),
+        "leech" to (setOf("grass") to setOf("liquidooze", "magicguard")),
+    )
+
+    fun canAffectWithStatus(status: String, types: Iterable<ElementalType>, ability: Ability? = null): Boolean {
+        val (typing, abilities) = statusImmunityMap[status] ?: return true // custom status? *shrug*
+
+        return types.none { it.name in typing } && ability?.name !in abilities
+    }
+
+    val typeImmuneAbilities = mapOf(
+        "lightingrod" to ElementalTypes.ELECTRIC,
+        "flashfire" to ElementalTypes.FIRE,
+        "levitate" to ElementalTypes.GROUND,
+        "sapsipper" to ElementalTypes.GRASS,
+        "motordrive" to ElementalTypes.ELECTRIC,
+        "stormdrain" to ElementalTypes.WATER,
+        "voltabsorb" to ElementalTypes.ELECTRIC,
+        "waterabsorb" to ElementalTypes.WATER,
+        "immunity" to ElementalTypes.POISON,
+        "eartheater" to ElementalTypes.GROUND
+    )
 }

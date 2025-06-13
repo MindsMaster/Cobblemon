@@ -22,9 +22,11 @@ import com.cobblemon.mod.common.api.molang.MoLangFunctions.addFunctions
 import com.cobblemon.mod.common.api.molang.ObjectValue
 import com.cobblemon.mod.common.api.text.text
 import com.cobblemon.mod.common.battles.BattleBuilder
+import com.cobblemon.mod.common.battles.BattleFormat
 import com.cobblemon.mod.common.battles.BattleRegistry
 import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
 import com.cobblemon.mod.common.util.asUUID
+import com.cobblemon.mod.common.util.getStringOrNull
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.ai.memory.MemoryModuleType
@@ -77,9 +79,15 @@ class NPCServerDelegate : NPCSideDelegate {
                         entity.server!!.playerList.getPlayerByName(paramString) ?: return@addFunction DoubleValue.ZERO
                     }
                 }
+                val format = when(params.getStringOrNull(1)) {
+                    "triple", "triples" -> BattleFormat.GEN_9_TRIPLES
+                    "double", "doubles" -> BattleFormat.GEN_9_DOUBLES
+                    else ->  BattleFormat.GEN_9_SINGLES
+                }
                 val battleStartResult = BattleBuilder.pvn(
                     player = opponent,
-                    npcEntity = entity
+                    npcEntity = entity,
+                    battleFormat = format
                 )
 
                 var returnValue: MoValue = DoubleValue.ZERO

@@ -1,3 +1,11 @@
+/*
+ * Copyright (C) 2023 Cobblemon Contributors
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 package com.cobblemon.mod.common.battles.ai.strongBattleAI
 
 import com.cobblemon.mod.common.api.abilities.Ability
@@ -188,7 +196,7 @@ data class TrackerPokemon(
     var currentStatus: String? = null,
     var currentAbility: Ability? = null, //TODO PICK UP FROM BATTLE ACTIVATION
     var moves: List<Move> = listOf(), //TODO PICK UP FROM BATTLE USEAGE
-    var firstTurn: Int = 1,
+    var firstTurn: Boolean = true,
     var protectCount: Int = 0 //TODO MAYBE PICK UP FROM BATTLE USAGE
 )
 
