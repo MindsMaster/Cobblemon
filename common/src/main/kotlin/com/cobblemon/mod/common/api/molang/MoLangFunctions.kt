@@ -1070,11 +1070,7 @@ object MoLangFunctions {
                 DoubleValue(pokemon.species.nationalPokedexNumber.toDouble())
             }
             map.put("types") {
-                val struct = QueryStruct(hashMapOf())
-                for ((index, type) in pokemon.form.types.withIndex()) {
-                    struct.addFunction(index.toString()) { StringValue(type.toString()) }
-                }
-                struct
+               pokemon.form.types.map { it.toString() }.asArrayValue(::StringValue)
             }
             map.put("gender_ratio") {
                 DoubleValue(pokemon.form.maleRatio.toDouble())
