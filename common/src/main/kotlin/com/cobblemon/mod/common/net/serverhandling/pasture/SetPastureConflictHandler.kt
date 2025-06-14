@@ -1,0 +1,20 @@
+package com.cobblemon.mod.common.net.serverhandling.pasture
+
+import com.cobblemon.mod.common.api.net.ServerNetworkPacketHandler
+import com.cobblemon.mod.common.entity.pokemon.PokemonBehaviourFlag
+import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
+import com.cobblemon.mod.common.net.messages.server.pasture.SetPastureConflictPacket
+import net.minecraft.server.MinecraftServer
+import net.minecraft.server.level.ServerPlayer
+
+object SetPastureConflictHandler : ServerNetworkPacketHandler<SetPastureConflictPacket> {
+    override fun handle(packet: SetPastureConflictPacket, server: MinecraftServer, player: ServerPlayer) {
+        val world = player.level()
+        val entity = world.getEntitiesOfClass(PokemonEntity::class.java, player.boundingBox.inflate(64.0))
+            .firstOrNull { it.pokemon.uuid == packet.pokemonId }
+            ?: return
+
+        entity.setBehaviourFlag(PokemonBehaviourFlag.EXCITED, packet.enabled)
+        entity.remakeBrain()
+    }
+}

@@ -155,6 +155,7 @@ import com.cobblemon.mod.common.net.messages.server.dialogue.InputToDialoguePack
 import com.cobblemon.mod.common.net.messages.server.npc.SaveNPCPacket
 import com.cobblemon.mod.common.net.messages.server.orientation.ServerboundUpdateOrientationPacket
 import com.cobblemon.mod.common.net.messages.server.pasture.PasturePokemonPacket
+import com.cobblemon.mod.common.net.messages.server.pasture.SetPastureConflictPacket
 import com.cobblemon.mod.common.net.messages.server.pasture.UnpastureAllPokemonPacket
 import com.cobblemon.mod.common.net.messages.server.pasture.UnpasturePokemonPacket
 import com.cobblemon.mod.common.net.messages.server.pokedex.scanner.FinishScanningPacket
@@ -203,6 +204,7 @@ import com.cobblemon.mod.common.net.serverhandling.evolution.AcceptEvolutionHand
 import com.cobblemon.mod.common.net.serverhandling.npc.SaveNPCHandler
 import com.cobblemon.mod.common.net.serverhandling.orientation.OrientationPacketHandler
 import com.cobblemon.mod.common.net.serverhandling.pasture.PasturePokemonHandler
+import com.cobblemon.mod.common.net.serverhandling.pasture.SetPastureConflictHandler
 import com.cobblemon.mod.common.net.serverhandling.pasture.UnpastureAllPokemonHandler
 import com.cobblemon.mod.common.net.serverhandling.pasture.UnpasturePokemonHandler
 import com.cobblemon.mod.common.net.serverhandling.pokedex.scanner.FinishScanningHandler
@@ -418,6 +420,7 @@ object CobblemonNetwork {
         list.add(PacketRegisterInfo(ClosePasturePacket.ID, ClosePasturePacket::decode, ClosePastureHandler))
         list.add(PacketRegisterInfo(PokemonPasturedPacket.ID, PokemonPasturedPacket::decode, PokemonPasturedHandler))
         list.add(PacketRegisterInfo(PokemonUnpasturedPacket.ID, PokemonUnpasturedPacket::decode, PokemonUnpasturedHandler))
+        list.add(PacketRegisterInfo(SetPastureConflictPacket.ID, SetPastureConflictPacket::decode, SetPastureConflictHandler))
 
         // Orientation
         list.add(PacketRegisterInfo(ClientboundUpdateOrientationPacket.ID, ClientboundUpdateOrientationPacket::decode, S2CUpdateOrientationHandler))

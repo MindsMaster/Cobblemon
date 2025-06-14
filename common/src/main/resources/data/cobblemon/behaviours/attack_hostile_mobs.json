@@ -1,0 +1,15 @@
+{
+  "name": "cobblemon.behaviour.attack_hostile_mobs.name",
+  "description": "cobblemon.behaviour.attack_hostile_mobs.desc",
+  "configurations": [
+    {
+      "type": "add_tasks_to_activity",
+      "activity": "core",
+      "tasksByPriority": {
+        "0": [
+          "attack_hostile_mobs"
+        ]
+      }
+    }
+  ]
+}

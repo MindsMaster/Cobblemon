@@ -14,6 +14,13 @@
       "behaviours": [
         "cobblemon:pokemon_sleeps_on_trainer_bed"
       ]
+    },
+    {
+      "type": "apply_behaviours",
+      "condition": "!q.entity.is_wild && q.entity.is_pastured && q.entity.pasture_conflict_enabled == 1",
+      "behaviours": [
+        "cobblemon:attack_hostile_mobs"
+      ]
     }
   ]
 }

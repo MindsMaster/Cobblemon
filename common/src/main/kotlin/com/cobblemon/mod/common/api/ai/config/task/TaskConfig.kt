@@ -20,6 +20,7 @@ import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMostSpecificMoLangV
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.setup
 import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
 import com.cobblemon.mod.common.entity.MoLangScriptingEntity
+import com.cobblemon.mod.common.entity.ai.AttackHostileMobsTaskConfig
 import com.cobblemon.mod.common.util.asExpression
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.common.util.lang
@@ -95,7 +96,8 @@ interface TaskConfig {
             cobblemonResource("eat_grass") to EatGrassTaskConfig::class.java,
             cobblemonResource("find_air") to FindAirTaskConfig::class.java,
             cobblemonResource("go_to_land") to GoToLandTaskConfig::class.java,
-            cobblemonResource("battle_flight_task") to BattleFlightTaskConfig::class.java
+            cobblemonResource("battle_flight_task") to BattleFlightTaskConfig::class.java,
+            cobblemonResource("attack_hostile_mobs") to AttackHostileMobsTaskConfig::class.java
         )
         
         val runtime = MoLangRuntime().setup()

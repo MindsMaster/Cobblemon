@@ -21,6 +21,7 @@ import com.cobblemon.mod.common.client.render.drawScaledText
 import com.cobblemon.mod.common.client.render.models.blockbench.FloatingState
 import com.cobblemon.mod.common.client.render.renderScaledGuiItemIcon
 import com.cobblemon.mod.common.net.messages.client.pasture.OpenPasturePacket
+import com.cobblemon.mod.common.net.messages.server.pasture.SetPastureConflictPacket
 import com.cobblemon.mod.common.net.messages.server.pasture.UnpasturePokemonPacket
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.common.util.lang
@@ -165,6 +166,14 @@ class PasturePokemonScrollList(
         fun isOwned() = client.player?.uuid == pokemon.playerId
         fun canUnpasture() = isOwned() || parent.pasturePCGUIConfiguration.permissions.canUnpastureOthers
 
+        private val conflictButton = PastureSlotIconButton(
+            xPos = 0,
+            yPos = 0,
+            onPress = {
+                SetPastureConflictPacket(pokemon.pokemonId, enabled = true).sendToServer()
+            }
+        )
+
         private val moveButton: PastureSlotIconButton = PastureSlotIconButton(
             xPos = 0,
             yPos = 0,
@@ -263,15 +272,26 @@ class PasturePokemonScrollList(
             }
 
             if (canUnpasture()) {
-                moveButton.setPos(x + 2, y + 9)
+                // Position buttons
+                conflictButton.setPos(x + 2, y + 4) // Place conflict button near the top
+                moveButton.setPos(x + 2, y + 13)    // Shifted down ~4px to make room
+
+                // Render buttons
+                conflictButton.render(context, mouseX, mouseY, partialTicks)
                 moveButton.render(context, mouseX, mouseY, partialTicks)
             }
         }
 
         override fun mouseClicked(mouseX: Double, mouseY: Double, delta: Int): Boolean {
-            if (moveButton.isHovered(mouseX, mouseY) && canUnpasture()) {
-                moveButton.onPress()
-                return true
+            if (canUnpasture()) {
+                if (conflictButton.isHovered(mouseX, mouseY)) {
+                    conflictButton.onPress()
+                    return true
+                }
+                if (moveButton.isHovered(mouseX, mouseY)) {
+                    moveButton.onPress()
+                    return true
+                }
             }
             return false
         }
