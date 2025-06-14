@@ -17,7 +17,10 @@ object AttackHostileMobsTask {
             it.present(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
         ).apply(it) { attackTarget, nearestVisibleLiving ->
             Trigger { world, entity, _ ->
-                val nearby = it.get(nearestVisibleLiving)
+                val nearby = entity.brain.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)?.value
+                        as? List<LivingEntity> ?: return@Trigger false
+
+                // Filter for hostile, non-player, living mobs. todo maybe we want to add Pokemon too?
                 val hostile = nearby.firstOrNull { entity ->
                     entity is Mob && entity !is Player && entity is Enemy && entity.isAlive
                 }
@@ -25,7 +28,9 @@ object AttackHostileMobsTask {
                 if (hostile != null) {
                     entity.brain.setMemory(MemoryModuleType.ATTACK_TARGET, hostile)
                     true
-                } else false
+                } else {
+                    false
+                }
             }
         }
     }

@@ -1141,7 +1141,7 @@ object MoLangFunctions {
             map.put("is_wearing_hat") { DoubleValue(pokemonEntity.entityData.get(PokemonEntity.SHOWN_HELD_ITEM).`is`(CobblemonItemTags.WEARABLE_HAT_ITEMS)) }
             map.put("is_wearing_face") { DoubleValue(pokemonEntity.entityData.get(PokemonEntity.SHOWN_HELD_ITEM).`is`(CobblemonItemTags.WEARABLE_FACE_ITEMS)) }
             map.put("is_pastured") {
-                DoubleValue((pokemonEntity.entityData.get(Pokemon)?.storeCoordinates?.get()?.store?.isPasture == true)
+                DoubleValue((pokemonEntity.entityData.get(Pokemon)?.storeCoordinates?.get()?.store?.isPasture == true))
             }
             map.put("pasture_conflict_enabled") {
                 DoubleValue(pokemonEntity.getBehaviourFlag(PokemonBehaviourFlag.PASTURE_CONFLICT) == true)
