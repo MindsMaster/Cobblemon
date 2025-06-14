@@ -19,6 +19,7 @@ import com.cobblemon.mod.common.util.resolveFloat
 import com.cobblemon.mod.common.util.withQueryValue
 import com.mojang.datafixers.util.Either
 import net.minecraft.core.BlockPos
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.PathfinderMob
 import net.minecraft.world.entity.ai.behavior.BehaviorControl
@@ -39,6 +40,8 @@ class WanderTaskConfig : SingleTaskConfig {
     val verticalRange = numberVariable(WANDER, "vertical_wander_range", 5).asExpressible()
     val speedMultiplier = numberVariable(SharedEntityVariables.MOVEMENT_CATEGORY, SharedEntityVariables.WALK_SPEED, 0.35).asExpressible()
     val avoidTargetingAir: ExpressionOrEntityVariable = Either.left("true".asExpression()) // Whether to avoid air blocks when wandering
+    val minimumHeight: ExpressionOrEntityVariable = Either.left("0".asExpression()) // Height off the ground
+    val maximumHeight: ExpressionOrEntityVariable = Either.left("-1".asExpression()) // Height off the ground
 
     override fun getVariables(entity: LivingEntity) = listOf(
         condition,
@@ -46,8 +49,45 @@ class WanderTaskConfig : SingleTaskConfig {
         horizontalRange,
         verticalRange,
         speedMultiplier,
-        avoidTargetingAir
+        avoidTargetingAir,
+        minimumHeight,
+        maximumHeight
     ).asVariables()
+
+    private fun applyHeightConstraints(
+        pos: BlockPos,
+        minimumHeight: Int,
+        maximumHeight: Int,
+        world: ServerLevel
+    ): BlockPos {
+        if (minimumHeight <= 0 && maximumHeight == -1) {
+            return pos // It ain't a hoverer
+        }
+
+        val block = world.getBlockState(pos)
+        val altitude = if (!block.isAir) {
+            0
+        } else {
+            (1..64).firstOrNull {
+                val newPos = pos.below(it)
+                return@firstOrNull !world.getBlockState(newPos).isAir
+            } ?: Int.MAX_VALUE
+        }
+
+        if (altitude > maximumHeight && maximumHeight >= 0) {
+            val excess = altitude - maximumHeight
+            val excessFromMinimum = altitude - minimumHeight
+            val correction = world.random.nextIntBetweenInclusive(excess, excessFromMinimum)
+            return pos.atY(pos.y - correction)
+        } else if (altitude < minimumHeight && minimumHeight >= 0) {
+            val deficit = minimumHeight - altitude
+            val deficitFromMaximum = maximumHeight - altitude
+            val correction = world.random.nextIntBetweenInclusive(deficit, deficitFromMaximum)
+            return pos.atY(pos.y + correction)
+        } else {
+            return pos
+        }
+    }
 
     override fun createTask(
         entity: LivingEntity,
@@ -79,8 +119,24 @@ class WanderTaskConfig : SingleTaskConfig {
                     val avoidsTargetingAir = avoidTargetingAir.resolveBoolean()
 
 //                    val targetVec = getLandTarget(entity) ?: return@Trigger true
-                    val targetVec = LandRandomPos.getPos(entity, horizontalRange.resolveInt(), verticalRange.resolveInt()) ?: return@Trigger false
-                    val pos = BlockPos.containing(targetVec)
+                    val targetVec = LandRandomPos.getPos(
+                        entity,
+                        horizontalRange.resolveInt(),
+                        verticalRange.resolveInt()
+                    ) ?: return@Trigger false
+
+                    val minimumHeight = minimumHeight.resolveInt()
+                    val maximumHeight = maximumHeight.resolveInt()
+
+                    val pos = applyHeightConstraints(
+                        pos = BlockPos.containing(targetVec),
+                        minimumHeight = minimumHeight,
+                        maximumHeight = maximumHeight,
+                        world = world
+                    )
+//                    if (targetVec.y < minimumHeight || targetVec.y > maximumHeight) {
+//                        return@Trigger false
+//                    }
                     walkTarget.set(
                         CobblemonWalkTarget(
                             pos = pos,
