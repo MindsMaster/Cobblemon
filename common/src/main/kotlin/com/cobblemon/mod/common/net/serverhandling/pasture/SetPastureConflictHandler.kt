@@ -14,7 +14,7 @@ object SetPastureConflictHandler : ServerNetworkPacketHandler<SetPastureConflict
             .firstOrNull { it.pokemon.uuid == packet.pokemonId }
             ?: return
 
-        entity.setBehaviourFlag(PokemonBehaviourFlag.EXCITED, packet.enabled)
+        entity.setBehaviourFlag(PokemonBehaviourFlag.PASTURE_CONFLICT, packet.enabled)
         entity.remakeBrain()
     }
 }
