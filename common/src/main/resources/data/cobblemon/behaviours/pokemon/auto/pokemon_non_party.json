@@ -28,6 +28,13 @@
       "behaviours": [
           "cobblemon:wanders_water"
       ]
+    },
+    {
+      "type": "apply_behaviours",
+      "condition": "!q.entity.is_in_party && q.entity.behaviour.moving.walk.avoids_land && q.entity.behaviour.moving.swim.can_swim_in_water",
+      "behaviours": [
+        "cobblemon:moves_to_water"
+      ]
     }
   ]
 }
