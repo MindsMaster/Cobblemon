@@ -166,7 +166,7 @@ class PasturePokemonScrollList(
         fun isOwned() = client.player?.uuid == pokemon.playerId
         fun canUnpasture() = isOwned() || parent.pasturePCGUIConfiguration.permissions.canUnpastureOthers
 
-        private val conflictButton = PastureSlotIconButton(
+        private val conflictButton: PastureSlotIconConflictButton = PastureSlotIconConflictButton(
             xPos = 0,
             yPos = 0,
             onPress = {
