@@ -1155,6 +1155,17 @@ object MoLangFunctions {
                 }
                 struct
             }
+            map.put("aspects") {
+                val aspects = pokemon.aspects
+                return@put aspects.asArrayValue { StringValue(it) }
+            }
+            map.put("form_aspects") {
+                val aspects = pokemon.form.aspects
+                return@put aspects.asArrayValue { StringValue(it) }
+            }
+            map.put("form_name") {
+                StringValue(pokemon.form.name.toString())
+            }
             // Yes, this is the lazy call for a single hardcoded pre-evolution.
             // Lol. Lmao, even.
             // TO-DO: Subscribe to [PokemonSpecies.observable].

@@ -289,6 +289,7 @@
 - The IVs class has now been extended to include Hyper Trained values.
 - Added `Pokemon#hyperTrainIV()` and `IVs#setHyperTrainedIV(Stat, Int)`.
 - Added `HyperTrainedIvEvent.Pre` and `HyperTrainedIvEvent.Post`.
+- Added `Pokemon#validateMoveSet()` to validate an existing Pokemon's moveset, clearing illegal moves.
   
 ### MoLang & Datapacks
 - The following usages for item predicates can now use item conditions like advancements do, you can learn about them in the [Minecraft wiki](https://minecraft.wiki/w/Advancement_definition#minecraft:filled_bucket)
@@ -319,6 +320,11 @@
 - Adds Flows for `STARTER_CHOSEN`, `EV_GAINED`, `POKEMON_RELEASED`, `POKEMON_NICKNAMED`, `HELD_ITEM`, and `TRADE_COMPLETED` events
 - Adds Pokemon functions for `pokeball`, `held_item` and `remove_held_item`
 - Added `pokemon.hyper_train_iv` as an available Molang function.
+- Added `pokemon.validate_moveset` as an available Molang function.
+- Added `pokemon.initialize_moveset` as an available Molang function.
+- Added `pokemon.add_exp` as an available Molang function.
+- Adds Flows for `COLLECT_EGG`, `HATCH_EGG`, and `EXPERIENCE_GAINED`.
+- Added `pokemon.aspects` as an available Molang function.
 
 ## [1.6.1 (January 26th, 2025)](#1-6-1)
 
