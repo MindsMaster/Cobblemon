@@ -323,7 +323,7 @@
 - Added `pokemon.validate_moveset` as an available Molang function.
 - Added `pokemon.initialize_moveset` as an available Molang function.
 - Added `pokemon.add_exp` as an available Molang function.
-- Adds Flows for `COLLECT_EGG`, `HATCH_EGG`, and `EXPERIENCE_GAINED`.
+- Adds Flows for `POKEMON_SEEN`, `COLLECT_EGG`, `HATCH_EGG`, and `EXPERIENCE_GAINED`.
 - Added `pokemon.aspects` as an available Molang function.
 
 ## [1.6.1 (January 26th, 2025)](#1-6-1)
