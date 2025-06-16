@@ -28,6 +28,7 @@ import com.cobblemon.mod.common.api.battles.model.actor.ActorType
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor
 import com.cobblemon.mod.common.api.dialogue.PlayerDialogueFaceProvider
 import com.cobblemon.mod.common.api.dialogue.ReferenceDialogueFaceProvider
+import com.cobblemon.mod.common.api.drop.DropEntry
 import com.cobblemon.mod.common.api.mark.Marks
 import com.cobblemon.mod.common.api.moves.animations.ActionEffectContext
 import com.cobblemon.mod.common.api.moves.animations.ActionEffects
@@ -1551,6 +1552,21 @@ object MoLangFunctions {
         }
     )
 
+    val dropEntryFunctions: MutableList<(DropEntry) -> HashMap<String, java.util.function.Function<MoParams, Any>>> = mutableListOf(
+        { dropEntry ->
+            val map = hashMapOf<String, java.util.function.Function<MoParams, Any>>()
+
+            map.put("percentage") { DoubleValue(dropEntry.percentage.toDouble()) }
+            map.put("quantity") { DoubleValue(dropEntry.quantity.toDouble()) }
+            map.put("max_selectable_times") { DoubleValue(dropEntry.maxSelectableTimes.toDouble()) }
+            map.put("can_drop") { params ->
+                val pokemon = params.getOrNull<ObjectValue<Pokemon>>(0)?.obj
+                DoubleValue(if (dropEntry.canDrop(pokemon)) 1.0 else 0.0)
+            }
+            map
+        }
+    )
+
     val pokemonPropertiesFunctions: MutableList<(PokemonProperties) -> HashMap<String, java.util.function.Function<MoParams, Any>>> = mutableListOf(
         { props ->
             val map = hashMapOf<String, java.util.function.Function<MoParams, Any>>()
@@ -1676,6 +1692,15 @@ object MoLangFunctions {
         )
         value.addFunctions(pokemonStoreFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())
         value.addFunctions(partyFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())
+        return value
+    }
+
+    fun DropEntry.asMoLangValue(): ObjectValue<DropEntry> {
+        val value = ObjectValue(
+            obj = this,
+            stringify = { it.toString() }
+        )
+        value.addFunctions(dropEntryFunctions.flatMap { it(this).entries.map { it.key to it.value } }.toMap())
         return value
     }
 
