@@ -45,6 +45,7 @@ import com.cobblemon.mod.common.api.pokedex.SeenCount
 import com.cobblemon.mod.common.api.pokedex.SeenPercent
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties
 import com.cobblemon.mod.common.api.pokemon.evolution.Evolution
+import com.cobblemon.mod.common.api.pokemon.experience.SidemodExperienceSource
 import com.cobblemon.mod.common.api.pokemon.stats.Stats
 import com.cobblemon.mod.common.api.scheduling.ClientTaskTracker
 import com.cobblemon.mod.common.api.scheduling.Schedulable
@@ -1218,6 +1219,21 @@ object MoLangFunctions {
                     Cobblemon.LOGGER.error("Unknown or non-permanent stat: ${stat.toString()}")
                     return@put DoubleValue.ZERO
                 }
+            }
+            map.put("add_exp") { params ->
+                val exp = params.getDouble(0).toInt()
+                pokemon.addExperience(SidemodExperienceSource("molang"), exp)
+                return@put DoubleValue.ONE
+            }
+            map.put("initialize_moveset") { params ->
+                val preferLatest = params.getBooleanOrNull(0) ?: true
+                pokemon.initializeMoveset(preferLatest)
+                return@put DoubleValue.ONE
+            }
+            map.put("validate_moveset") { params ->
+                val includeLegacy = params.getBooleanOrNull(0) ?: true
+                pokemon.validateMoveset(includeLegacy)
+                return@put DoubleValue.ONE
             }
             map
         }

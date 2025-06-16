@@ -42,6 +42,8 @@ object FlowHandler {
         CobblemonEvents.HYPER_TRAINED_IV_POST.subscribe { CobblemonFlows.run(cobblemonResource("hyper_trained_iv_post"), it.context) }
         CobblemonEvents.EV_GAINED_EVENT_PRE.subscribe { CobblemonFlows.run(cobblemonResource("ev_gained_pre"), it.context, it.functions) }
         CobblemonEvents.EV_GAINED_EVENT_POST.subscribe { CobblemonFlows.run(cobblemonResource("ev_gained_post"), it.context) }
+        CobblemonEvents.EXPERIENCE_GAINED_EVENT_PRE.subscribe { CobblemonFlows.run(cobblemonResource("experience_gained_pre"), it.context, it.functions) }
+        CobblemonEvents.EXPERIENCE_GAINED_EVENT_POST.subscribe { CobblemonFlows.run(cobblemonResource("experience_gained_post"), it.context) }
         CobblemonEvents.POKEMON_FAINTED.subscribe { CobblemonFlows.run(cobblemonResource("pokemon_fainted"), it.context) }
         CobblemonEvents.POKEMON_GAINED.subscribe { CobblemonFlows.run(cobblemonResource("pokemon_gained"), it.context, it.functions) }
         CobblemonEvents.POKEMON_RELEASED_EVENT_PRE.subscribe { CobblemonFlows.run(cobblemonResource("pokemon_released_pre"), it.getContext(), it.functions) }
@@ -57,6 +59,9 @@ object FlowHandler {
         CobblemonEvents.BOBBER_SPAWN_POKEMON_POST.subscribe { CobblemonFlows.run(cobblemonResource("bobber_spawn_pokemon_post"), it.context) }
         CobblemonEvents.TRADE_COMPLETED.subscribe { CobblemonFlows.run(cobblemonResource("trade_completed"), it.context) }
         CobblemonEvents.WALLPAPER_UNLOCKED_EVENT.subscribe { CobblemonFlows.run(cobblemonResource("wallpaper_unlocked"), it.context, it.functions) }
+        CobblemonEvents.COLLECT_EGG.subscribe { CobblemonFlows.run(cobblemonResource("collect_egg"), it.context, it.functions) }
+        CobblemonEvents.HATCH_EGG_PRE.subscribe { CobblemonFlows.run(cobblemonResource("hatch_egg_pre"), it.context, it.functions) }
+        CobblemonEvents.HATCH_EGG_POST.subscribe { CobblemonFlows.run(cobblemonResource("hatch_egg_post"), it.context) }
 
         PlatformEvents.SERVER_PLAYER_LOGIN.subscribe(priority = Priority.LOW) { CobblemonFlows.run(cobblemonResource("player_logged_in"), it.context) }
         PlatformEvents.SERVER_PLAYER_LOGOUT.subscribe(priority = Priority.HIGH) { CobblemonFlows.run(cobblemonResource("player_logged_out"), it.context) }

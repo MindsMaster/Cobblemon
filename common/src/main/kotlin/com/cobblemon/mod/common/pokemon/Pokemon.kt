@@ -1641,6 +1641,33 @@ open class Pokemon : ShowdownIdentifiable {
         return ability
     }
 
+    /**
+     * Validates the moveset of this Pokémon, removing any invalid moves.
+     * This will also remove any benched moves that cannot be learned by the current form.
+     *
+     * TO-DO: Implement Legacy source moves.
+     * @param includeLegacy If moves that were only learnable in previous versions should be considered valid.
+     */
+    fun validateMoveset(includeLegacy: Boolean = true) {
+        // Validate the moveset, removing any invalid moves
+        moveSet.doWithoutEmitting {
+            for (i in 0 until MoveSet.MOVE_COUNT) {
+                val move = this.moveSet[i]
+                if (move != null && !LearnsetQuery.ANY.canLearn(move.template, this.form.moves)) {
+                    this.moveSet.setMove(i, null)
+                }
+            }
+            val benchedIterator = this.benchedMoves.iterator()
+            while (benchedIterator.hasNext()) {
+                val benchedMove = benchedIterator.next()
+                if (!LearnsetQuery.ANY.canLearn(benchedMove.moveTemplate, this.form.moves)) {
+                    benchedIterator.remove()
+                }
+            }
+        }
+        moveSet.update()
+    }
+
     fun initializeMoveset(preferLatest: Boolean = true) {
         val possibleMoves = form.moves.getLevelUpMovesUpTo(level).toMutableList()
         moveSet.doWithoutEmitting {
