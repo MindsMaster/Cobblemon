@@ -49,6 +49,9 @@
     "fixed": false
   },
   "behaviour": {
+    "herd": {
+      "toleratedLeaders": ["cobblemon:magikarp"]
+    },
     "moving": {
       "canLook": false,
       "walk": {

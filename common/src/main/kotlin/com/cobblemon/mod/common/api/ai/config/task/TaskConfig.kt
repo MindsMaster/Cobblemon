@@ -97,7 +97,11 @@ interface TaskConfig {
             cobblemonResource("find_air") to FindAirTaskConfig::class.java,
             cobblemonResource("go_to_land") to GoToLandTaskConfig::class.java,
             cobblemonResource("battle_flight_task") to BattleFlightTaskConfig::class.java,
-            cobblemonResource("move_into_fluid") to MoveIntoFluidTaskConfig::class.java
+            cobblemonResource("move_into_fluid") to MoveIntoFluidTaskConfig::class.java,
+            cobblemonResource("find_herd_leader") to FindHerdLeaderTaskConfig::class.java,
+            cobblemonResource("follow_herd_leader") to FollowHerdLeaderTaskConfig::class.java,
+            cobblemonResource("switch_to_herd") to SwitchToHerdTaskConfig::class.java,
+            cobblemonResource("switch_from_herd") to SwitchFromHerdTaskConfig::class.java
         )
         
         val runtime = MoLangRuntime().setup()
