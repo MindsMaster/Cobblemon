@@ -13,10 +13,20 @@ import net.minecraft.world.phys.AABB
 object AttackHostileMobsTask {
     fun create(): OneShot<LivingEntity> = BehaviorBuilder.create {
         it.group(
-            it.absent(MemoryModuleType.ATTACK_TARGET),
+            it.registered(MemoryModuleType.ATTACK_TARGET),
             it.present(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
         ).apply(it) { attackTarget, nearestVisibleLiving ->
             Trigger { world, entity, _ ->
+                val currentTarget = entity.brain.getMemory(MemoryModuleType.ATTACK_TARGET).orElse(null)
+
+                if (currentTarget != null && currentTarget.isAlive) {
+                    // Valid target already present
+                    return@Trigger false
+                }
+
+                // Target is invalid or gone let's find a new one
+                entity.brain.eraseMemory(MemoryModuleType.ATTACK_TARGET)
+
                 val nearby = (entity.brain.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).orElse(null)
                     ?: return@Trigger false).findAll { true}
 
