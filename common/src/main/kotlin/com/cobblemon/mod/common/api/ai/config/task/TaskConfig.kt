@@ -101,7 +101,8 @@ interface TaskConfig {
             cobblemonResource("find_herd_leader") to FindHerdLeaderTaskConfig::class.java,
             cobblemonResource("follow_herd_leader") to FollowHerdLeaderTaskConfig::class.java,
             cobblemonResource("switch_to_herd") to SwitchToHerdTaskConfig::class.java,
-            cobblemonResource("switch_from_herd") to SwitchFromHerdTaskConfig::class.java
+            cobblemonResource("switch_from_herd") to SwitchFromHerdTaskConfig::class.java,
+            cobblemonResource("maintain_herd_leader") to MaintainHerdLeaderTaskConfig::class.java,
         )
         
         val runtime = MoLangRuntime().setup()

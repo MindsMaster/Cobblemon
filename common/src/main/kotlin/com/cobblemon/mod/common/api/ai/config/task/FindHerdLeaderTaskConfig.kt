@@ -14,6 +14,7 @@ import com.cobblemon.mod.common.api.ai.ExpressionOrEntityVariable
 import com.cobblemon.mod.common.api.ai.asVariables
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMostSpecificMoLangValue
 import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
+import com.cobblemon.mod.common.api.storage.party.PartyStore
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.asExpression
 import com.cobblemon.mod.common.util.withQueryValue
@@ -57,6 +58,7 @@ class FindHerdLeaderTaskConfig : SingleTaskConfig {
                     val toleratedLeaders = entity.behaviour.herd.toleratedLeaders
                     val nearbyLeaders = instance.get(nearbyEntities).findAll {
                         it is PokemonEntity &&
+                                it.pokemon.storeCoordinates.get()?.store !is PartyStore &&
                                 it.exposedSpecies.resourceIdentifier in toleratedLeaders &&
                                 !it.brain.hasMemoryValue(CobblemonMemories.HERD_LEADER) &&
                                 it.pokemon.level >= entity.pokemon.level
@@ -66,7 +68,7 @@ class FindHerdLeaderTaskConfig : SingleTaskConfig {
                         return@Trigger false
                     }
 
-                    val leader = nearbyLeaders.firstOrNull()
+                    val leader = nearbyLeaders.maxByOrNull { (it as PokemonEntity).pokemon.level }
                         ?: return@Trigger false
                     herdLeader.set(leader.uuid.toString())
                     return@Trigger true

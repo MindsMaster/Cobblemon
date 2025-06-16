@@ -26,7 +26,8 @@
           "cobblemon:switch_from_herd"
         ],
         "2": [
-          "cobblemon:follow_herd_leader"
+          "cobblemon:follow_herd_leader",
+          "cobblemon:maintain_herd_leader"
         ]
       }
     }
