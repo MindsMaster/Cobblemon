@@ -55,6 +55,8 @@ object FlowHandler {
         CobblemonEvents.POKEMON_NICKNAMED.subscribe { CobblemonFlows.run(cobblemonResource("pokemon_nicknamed"), it.getContext()) }
         CobblemonEvents.HELD_ITEM_PRE.subscribe { CobblemonFlows.run(cobblemonResource("held_item_pre"), it.getContext(), it.functions) }
         CobblemonEvents.HELD_ITEM_POST.subscribe { CobblemonFlows.run(cobblemonResource("held_item_post"), it.getContext()) }
+        CobblemonEvents.COSMETIC_ITEM_PRE.subscribe { CobblemonFlows.run(cobblemonResource("cosmetic_item_pre"), it.getContext(), it.functions) }
+        CobblemonEvents.COSMETIC_ITEM_POST.subscribe { CobblemonFlows.run(cobblemonResource("cosmetic_item_post"), it.getContext()) }
         CobblemonEvents.FOSSIL_REVIVED.subscribe { CobblemonFlows.run(cobblemonResource("fossil_revived"), it.context) }
         CobblemonEvents.BOBBER_SPAWN_POKEMON_POST.subscribe { CobblemonFlows.run(cobblemonResource("bobber_spawn_pokemon_post"), it.context) }
         CobblemonEvents.TRADE_COMPLETED.subscribe { CobblemonFlows.run(cobblemonResource("trade_completed"), it.context) }
