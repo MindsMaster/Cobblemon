@@ -323,7 +323,8 @@
 - Added `pokemon.validate_moveset` as an available Molang function.
 - Added `pokemon.initialize_moveset` as an available Molang function.
 - Added `pokemon.add_exp` as an available Molang function.
-- Adds Flows for `POKEMON_SCANNED`, `BERRY_HARVEST`, `LOOT_DROPPED`, `POKEMON_SEEN`, `COLLECT_EGG`, `HATCH_EGG`, and `EXPERIENCE_GAINED`.
+- Adds Flows for `POKEMON_HEALED`, `POKEMON_SCANNED`, `BERRY_HARVEST`, `LOOT_DROPPED`, `POKEMON_SEEN`, `COLLECT_EGG`, `HATCH_EGG`, and `EXPERIENCE_GAINED`.
+- Adds Flows for `CHANGE_PC_BOX_WALLPAPER_EVENT_PRE` and `CHANGE_PC_BOX_WALLPAPER_EVENT_POST`.
 - Added `pokemon.aspects` as an available Molang function.
 
 ## [1.6.1 (January 26th, 2025)](#1-6-1)

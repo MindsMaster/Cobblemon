@@ -38,6 +38,7 @@ object FlowHandler {
         CobblemonEvents.APRICORN_HARVESTED.subscribe { CobblemonFlows.run(cobblemonResource("apricorn_harvested"), it.context) }
         CobblemonEvents.BERRY_HARVEST.subscribe { CobblemonFlows.run(cobblemonResource("berry_harvested"), it.context) }
         CobblemonEvents.THROWN_POKEBALL_HIT.subscribe { CobblemonFlows.run(cobblemonResource("thrown_pokeball_hit"), it.context) }
+        CobblemonEvents.POKEMON_HEALED.subscribe { CobblemonFlows.run(cobblemonResource("pokemon_healed"), it.context, it.functions) }
         CobblemonEvents.LEVEL_UP_EVENT.subscribe { CobblemonFlows.run(cobblemonResource("level_up"), it.context, it.functions) }
         CobblemonEvents.HYPER_TRAINED_IV_PRE.subscribe { CobblemonFlows.run(cobblemonResource("hyper_trained_iv_pre"), it.context, it.functions) }
         CobblemonEvents.HYPER_TRAINED_IV_POST.subscribe { CobblemonFlows.run(cobblemonResource("hyper_trained_iv_post"), it.context) }
@@ -50,6 +51,8 @@ object FlowHandler {
         CobblemonEvents.POKEMON_GAINED.subscribe { CobblemonFlows.run(cobblemonResource("pokemon_gained"), it.context, it.functions) }
         CobblemonEvents.POKEMON_SEEN.subscribe { CobblemonFlows.run(cobblemonResource("pokemon_seen"), it.context, it.functions) }
         CobblemonEvents.POKEMON_SCANNED.subscribe { CobblemonFlows.run(cobblemonResource("pokemon_scanned"), it.context) }
+        CobblemonEvents.POKEMON_SENT_PRE.subscribe { CobblemonFlows.run(cobblemonResource("pokemon_sent_pre"), it.context, it.functions) }
+        CobblemonEvents.POKEMON_SENT_POST.subscribe { CobblemonFlows.run(cobblemonResource("pokemon_sent_post"), it.context) }
         CobblemonEvents.POKEMON_RELEASED_EVENT_PRE.subscribe { CobblemonFlows.run(cobblemonResource("pokemon_released_pre"), it.getContext(), it.functions) }
         CobblemonEvents.POKEMON_RELEASED_EVENT_POST.subscribe { CobblemonFlows.run(cobblemonResource("pokemon_released_post"), it.getContext()) }
         CobblemonEvents.POKE_BALL_CAPTURE_CALCULATED.subscribe { CobblemonFlows.run(cobblemonResource("poke_ball_capture_calculated"), it.context, it.functions) }
@@ -65,6 +68,8 @@ object FlowHandler {
         CobblemonEvents.BOBBER_SPAWN_POKEMON_POST.subscribe { CobblemonFlows.run(cobblemonResource("bobber_spawn_pokemon_post"), it.context) }
         CobblemonEvents.TRADE_COMPLETED.subscribe { CobblemonFlows.run(cobblemonResource("trade_completed"), it.context) }
         CobblemonEvents.WALLPAPER_UNLOCKED_EVENT.subscribe { CobblemonFlows.run(cobblemonResource("wallpaper_unlocked"), it.context, it.functions) }
+        CobblemonEvents.CHANGE_PC_BOX_WALLPAPER_EVENT_PRE.subscribe { CobblemonFlows.run(cobblemonResource("change_pc_box_wallpaper_pre"), it.context, it.functions) }
+        CobblemonEvents.CHANGE_PC_BOX_WALLPAPER_EVENT_POST.subscribe { CobblemonFlows.run(cobblemonResource("change_pc_box_wallpaper"), it.context) }
         CobblemonEvents.COLLECT_EGG.subscribe { CobblemonFlows.run(cobblemonResource("collect_egg"), it.context, it.functions) }
         CobblemonEvents.HATCH_EGG_PRE.subscribe { CobblemonFlows.run(cobblemonResource("hatch_egg_pre"), it.context, it.functions) }
         CobblemonEvents.HATCH_EGG_POST.subscribe { CobblemonFlows.run(cobblemonResource("hatch_egg_post"), it.context) }
