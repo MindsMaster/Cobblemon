@@ -50,7 +50,8 @@
   },
   "behaviour": {
     "herd": {
-      "toleratedLeaders": ["cobblemon:magikarp"]
+      "toleratedLeaders": ["cobblemon:magikarp"],
+      "maxSize": 9
     },
     "moving": {
       "canLook": false,

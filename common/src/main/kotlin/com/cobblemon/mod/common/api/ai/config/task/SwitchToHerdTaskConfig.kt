@@ -29,6 +29,7 @@ class SwitchToHerdTaskConfig : SingleTaskConfig {
             ).apply(it) { _ ->
                 Trigger { world, entity, time ->
                     entity.brain.setActiveActivityIfPossible(CobblemonActivities.POKEMON_HERD)
+                    entity.brain.eraseMemory(CobblemonMemories.HERD_SIZE)
                     return@Trigger true
                 }
             }

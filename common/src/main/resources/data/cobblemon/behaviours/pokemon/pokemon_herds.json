@@ -14,7 +14,11 @@
           }
         ],
         "9": [
-          "cobblemon:switch_to_herd"
+          "cobblemon:switch_to_herd",
+          {
+            "type": "cobblemon:count_followers",
+            "checkTicks": 10
+          }
         ]
       }
     },

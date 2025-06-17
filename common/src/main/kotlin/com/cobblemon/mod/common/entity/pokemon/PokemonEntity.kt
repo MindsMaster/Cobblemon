@@ -159,7 +159,6 @@ import net.minecraft.world.item.ItemUtils
 import net.minecraft.world.item.Items
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.LightLayer
-import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.gameevent.GameEvent
 import net.minecraft.world.level.material.FluidState
 import net.minecraft.world.level.pathfinder.PathType
@@ -2278,5 +2277,19 @@ open class PokemonEntity(
     override fun couldStopFlying() = isFlying() && !behaviour.moving.walk.avoidsLand && behaviour.moving.walk.canWalk
     override fun setFlying(state: Boolean) {
         setBehaviourFlag(PokemonBehaviourFlag.FLYING, state)
+    }
+
+    /**
+     * If the Pokémon is following another Pokémon, checks the herd size using the leader. Otherwise check this Pokémon's
+     * herd count. Not necessarily strictly up to date but it should be good enough for typical purposes.
+     */
+    fun getHerdSize(): Int {
+        val world = level() as? ServerLevel ?: return 0
+        val herdLeader = this.brain.getMemory(CobblemonMemories.HERD_LEADER).orElse(null)?.let(UUID::fromString)?.let(world::getEntity) as? PokemonEntity
+        return if (herdLeader == null) {
+            brain.getMemory(CobblemonMemories.HERD_SIZE).orElse(0)
+        } else {
+            herdLeader.brain.getMemory(CobblemonMemories.HERD_SIZE).orElse(0)
+        }
     }
 }
