@@ -61,8 +61,11 @@ class MaintainHerdLeaderTaskConfig : SingleTaskConfig {
                         return@Trigger false
                     }
 
-                    val leader = instance.get(herdLeader).let(UUID::fromString).let(world::getEntity) as? PokemonEntity ?: return@Trigger false
-                    if (leader.brain.hasMemoryValue(CobblemonMemories.HERD_LEADER)) {
+                    val leader = instance.get(herdLeader).let(UUID::fromString).let(world::getEntity) as? PokemonEntity
+                    if (leader == null) {
+                        entity.brain.eraseMemory(CobblemonMemories.HERD_LEADER)
+                        return@Trigger true // No leader, so we erase the memory
+                    } else if (leader.brain.hasMemoryValue(CobblemonMemories.HERD_LEADER)) {
                         entity.brain.eraseMemory(CobblemonMemories.HERD_LEADER)
                         return@Trigger true
                     } else if (leader.exposedSpecies.resourceIdentifier !in entity.behaviour.herd.toleratedLeaders) {
