@@ -1123,8 +1123,9 @@ open class Pokemon : ShowdownIdentifiable {
      *
      * @see [HeldItemEvent]
      */
-    fun swapHeldItem(stack: ItemStack, decrement: Boolean = true): ItemStack {
-        val existing = this.heldItem()
+fun swapHeldItem(stack: ItemStack, decrement: Boolean = true): ItemStack {
+    val existing = this.heldItem()
+    if (!isClient) {
         CobblemonEvents.HELD_ITEM_PRE.postThen(HeldItemEvent.Pre(this, stack, existing, decrement), ifSucceeded = { event ->
             val giving = event.receiving.copy().apply { count = 1 }
             if (event.decrement) {
@@ -1137,8 +1138,9 @@ open class Pokemon : ShowdownIdentifiable {
             }
             return event.returning
         })
-        return stack
     }
+    return stack
+}
 
     fun swapCosmeticItem(stack: ItemStack, decrement: Boolean = true): ItemStack {
         val existing = this.cosmeticItem.copy()
