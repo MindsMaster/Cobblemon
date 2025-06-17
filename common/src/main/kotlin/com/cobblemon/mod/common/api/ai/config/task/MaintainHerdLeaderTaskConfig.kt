@@ -45,11 +45,11 @@ class MaintainHerdLeaderTaskConfig : SingleTaskConfig {
         entity: LivingEntity,
         behaviourConfigurationContext: BehaviourConfigurationContext
     ): BehaviorControl<in LivingEntity>? {
-        runtime.withQueryValue("entity", entity.asMostSpecificMoLangValue())
-        val checkTicks = checkTicks.resolveInt()
         if (entity !is PokemonEntity) {
             return null
         }
+        runtime.withQueryValue("entity", entity.asMostSpecificMoLangValue())
+        val checkTicks = checkTicks.resolveInt()
         return BehaviorBuilder.create { instance ->
             instance.group(
                 instance.present(CobblemonMemories.HERD_LEADER),
