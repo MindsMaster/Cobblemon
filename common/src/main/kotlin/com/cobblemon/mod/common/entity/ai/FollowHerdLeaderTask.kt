@@ -59,7 +59,6 @@ class FollowHerdLeaderTask(
             }
             entity.setFlying(true)
             entity.addDeltaMovement(Vec3(0.0, 2.0, 0.0))
-            println("Lift off!")
         } else if (leaderMoveControl.banking) {
             if (leader.isInLiquid && !entity.isInLiquid) {
                 // We should get into water asap so we can mimic the banking
