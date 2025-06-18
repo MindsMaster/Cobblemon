@@ -1123,34 +1123,54 @@ open class Pokemon : ShowdownIdentifiable {
      *
      * @see [HeldItemEvent]
      */
-fun swapHeldItem(stack: ItemStack, decrement: Boolean = true): ItemStack {
-    val existing = this.heldItem()
-    if (!isClient) {
-        CobblemonEvents.HELD_ITEM_PRE.postThen(HeldItemEvent.Pre(this, stack, existing, decrement), ifSucceeded = { event ->
-            val giving = event.receiving.copy().apply { count = 1 }
-            if (event.decrement) {
-                event.receiving.shrink(1)
-            }
-            this.heldItem = giving
-            onChange(HeldItemUpdatePacket({ this }, giving))
-            CobblemonEvents.HELD_ITEM_POST.post(HeldItemEvent.Post(this, this.heldItem(), event.returning.copy(), event.decrement)) {
-                StashHandler.giveHeldItem(it)
-            }
-            return event.returning
-        })
+    fun swapHeldItem(stack: ItemStack, decrement: Boolean = true): ItemStack {
+        val existing = this.heldItem()
+        if (!isClient) {
+            CobblemonEvents.HELD_ITEM_PRE.postThen(HeldItemEvent.Pre(this, stack, existing, decrement), ifSucceeded = { event ->
+                val giving = event.receiving.copy().apply { count = 1 }
+                if (event.decrement) {
+                    event.receiving.shrink(1)
+                }
+                this.heldItem = giving
+                onChange(HeldItemUpdatePacket({ this }, giving))
+                CobblemonEvents.HELD_ITEM_POST.post(HeldItemEvent.Post(this, this.heldItem(), event.returning.copy(), event.decrement)) {
+                    StashHandler.giveHeldItem(it)
+                }
+                return event.returning
+            })
+        }
+        return stack
     }
-    return stack
-}
 
+    /**
+     * Returns a copy of the cosmetic item.
+     * In order to change the [ItemStack] use [swapCosmeticItem].
+     *
+     * @return A copy of the [ItemStack] cosmetic item held by this Pokémon.
+     */
+    fun cosmeticItem(): ItemStack = this.cosmeticItem.copy()
+
+    /**
+     * Swaps out the current [cosmeticItem] for the given [stack].
+     * The assigned [cosmeticItem] will always have the [ItemStack.count] of 1.
+     *
+     * The behavior of this method may be modified by third party, please see the [HeldItemEvent].
+     *
+     * @param stack The new [ItemStack] being set as the cosmetic item.
+     * @param decrement If the given [stack] should have [ItemStack.decrement] invoked with the parameter of 1. Default is true.
+     * @return The existing [ItemStack] being held or the [stack] if [HeldItemEvent.Pre] is canceled.
+     *
+     * @see [HeldItemEvent]
+     */
     fun swapCosmeticItem(stack: ItemStack, decrement: Boolean = true): ItemStack {
         val existing = this.cosmeticItem.copy()
-        CobblemonEvents.COSMETIC_ITEM_PRE.postThen(CosmeticItemEvent.Pre(this, stack, existing, decrement), ifSucceeded = { event ->
+        CobblemonEvents.COSMETIC_ITEM_PRE.postThen(HeldItemEvent.Pre(this, stack, existing, decrement), ifSucceeded = { event ->
             val giving = event.receiving.copy().apply { count = 1 }
             if (event.decrement) {
                 event.receiving.shrink(1)
             }
             this.cosmeticItem = giving
-            CobblemonEvents.COSMETIC_ITEM_POST.post(CosmeticItemEvent.Post(this, this.cosmeticItem.copy(), event.returning.copy(), event.decrement))
+            CobblemonEvents.COSMETIC_ITEM_POST.post(HeldItemEvent.Post(this, this.cosmeticItem.copy(), event.returning.copy(), event.decrement))
             return event.returning
         })
         return stack
@@ -1162,6 +1182,13 @@ fun swapHeldItem(stack: ItemStack, decrement: Boolean = true): ItemStack {
      * @return The existing [ItemStack] being held.
      */
     fun removeHeldItem(): ItemStack = this.swapHeldItem(ItemStack.EMPTY)
+
+    /**
+     * Swaps out the current [cosmeticItem] for an [ItemStack.EMPTY].
+     *
+     * @return The existing [ItemStack] being held.
+     */
+    fun removeCosmeticItem(): ItemStack = this.swapCosmeticItem(ItemStack.EMPTY)
 
     fun addPotentialMark(mark: Mark) {
         potentialMarks.add(mark)

@@ -317,15 +317,12 @@
 - The format of the `remedies.json` file has changed to allow for individual friendshipDrop amounts per remedy
 - Fixed `entity.find_nearby_block` causing crashes when attempting to use a block tag
 - Spawn Filters can now access `v.spawn.class` to get the identifier of an NPC class for when trying to influence NPC spawns
-- Adds Flows for `STARTER_CHOSEN`, `EV_GAINED`, `POKEMON_RELEASED`, `POKEMON_NICKNAMED`, `HELD_ITEM`, and `TRADE_COMPLETED` events
-- Adds Pokemon functions for `pokeball`, `held_item` and `remove_held_item`
-- Added `pokemon.hyper_train_iv` as an available Molang function.
-- Added `pokemon.validate_moveset` as an available Molang function.
-- Added `pokemon.initialize_moveset` as an available Molang function.
-- Added `pokemon.add_exp` as an available Molang function.
+- Added Molang functions for Pokémon: `pokeball`, `held_item`, `remove_held_item`, `hyper_train_iv`, `validate_moveset`, `initialize_moveset`, and `add_exp`.
+- Added Molang functions for Pokémon: `aspects`, `form_aspects`, `cosmetic_item`, and `remove_cosmetic_item`.
+- Adds Flows for `STARTER_CHOSEN`, `SHOULDER_MOUNTED`, `EV_GAINED`, `POKEMON_RELEASED`, `POKEMON_NICKNAMED`, `HELD_ITEM`, and `TRADE_COMPLETED` events
 - Adds Flows for `POKEMON_HEALED`, `POKEMON_SCANNED`, `BERRY_HARVEST`, `LOOT_DROPPED`, `POKEMON_SEEN`, `COLLECT_EGG`, `HATCH_EGG`, and `EXPERIENCE_GAINED`.
-- Adds Flows for `CHANGE_PC_BOX_WALLPAPER_EVENT_PRE` and `CHANGE_PC_BOX_WALLPAPER_EVENT_POST`.
-- Added `pokemon.aspects` as an available Molang function.
+- Adds Flows for `POKEMON_CATCH_RATE`, `BAIT_SET`, `BAIT_SET_PRE`, `BAIT_CONSUMED`, `POKEROD_CAST_PRE`, `POKEROD_CAST_POST`, `POKEROD_REEL`, and `BOBBER_SPAWN_POKEMON_PRE`.
+- Adds Flows for `POKEMON_ASPECTS_CHANGED`, `FRIENDSHIP_UPDATED`, `CHANGE_PC_BOX_WALLPAPER_EVENT_PRE`, `CHANGE_PC_BOX_WALLPAPER_EVENT_POST`, and `FULLNESS_UPDATED`.
 
 ## [1.6.1 (January 26th, 2025)](#1-6-1)
 

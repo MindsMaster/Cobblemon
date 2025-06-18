@@ -31,7 +31,7 @@ interface HeldItemEvent {
     val pokemon: Pokemon
 
     /**
-     * Fired at the start of [Pokemon.swapHeldItem].
+     * Fired at the start of [Pokemon.swapHeldItem] and [Pokemon.swapCosmeticItem].
      *
      * This event should be used to mutate the results of this transaction.
      *
@@ -59,7 +59,7 @@ interface HeldItemEvent {
     }
 
     /**
-     * Fired at the end of [Pokemon.swapHeldItem].
+     * Fired at the end of [Pokemon.swapHeldItem] and [Pokemon.swapCosmeticItem].
      *
      * @property pokemon The [Pokemon] triggering this event.
      * @property received The [ItemStack] considered as received and set to the [pokemon]. This is a copy and mutation will not be taken into account.

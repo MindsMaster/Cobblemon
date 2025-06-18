@@ -1191,6 +1191,10 @@ object MoLangFunctions {
             map.put("remove_held_item") { _ ->
                 pokemon.removeHeldItem()
             }
+            map.put("cosmetic_item") { pokemon.cosmeticItem().asMoLangValue(server()!!.registryAccess()) ?: DoubleValue.ZERO }
+            map.put("remove_cosmetic_item") { _ ->
+                pokemon.removeCosmeticItem()
+            }
             map.put("add_marks") { params ->
                 for (param in params.params) {
                     val identifier = param.asString().asIdentifierDefaultingNamespace()

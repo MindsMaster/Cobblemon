@@ -224,9 +224,9 @@ object CobblemonEvents {
     @JvmField
     val HELD_ITEM_POST = EventObservable<HeldItemEvent.Post>()
     @JvmField
-    val COSMETIC_ITEM_PRE = CancelableObservable<CosmeticItemEvent.Pre>()
+    val COSMETIC_ITEM_PRE = CancelableObservable<HeldItemEvent.Pre>()
     @JvmField
-    val COSMETIC_ITEM_POST = EventObservable<CosmeticItemEvent.Post>()
+    val COSMETIC_ITEM_POST = EventObservable<HeldItemEvent.Post>()
 
     @JvmField
     val POKEMON_GAINED = EventObservable<PokemonGainedEvent>()

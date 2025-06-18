@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.api.events.storage
 
 import com.bedrockk.molang.runtime.value.DoubleValue
+import com.bedrockk.molang.runtime.value.StringValue
 import com.cobblemon.mod.common.api.events.Cancelable
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMoLangValue
 import com.cobblemon.mod.common.api.storage.pc.PCBox
@@ -46,7 +47,9 @@ interface ChangePCBoxWallpaperEvent {
         override var wallpaper: ResourceLocation
     ) : ChangePCBoxWallpaperEvent, Cancelable() {
         val context = mutableMapOf(
-            "player" to player.asMoLangValue()
+            "player" to player.asMoLangValue(),
+            "box" to StringValue(box.toString()),
+            "wallpaper" to StringValue(wallpaper.toString())
         )
         val functions = mapOf(
             cancelFunc
@@ -59,7 +62,9 @@ interface ChangePCBoxWallpaperEvent {
         override val wallpaper: ResourceLocation
     ) : ChangePCBoxWallpaperEvent {
         val context = mutableMapOf(
-            "player" to player.asMoLangValue()
+            "player" to player.asMoLangValue(),
+            "box" to StringValue(box.toString()),
+            "wallpaper" to StringValue(wallpaper.toString())
         )
     }
 }

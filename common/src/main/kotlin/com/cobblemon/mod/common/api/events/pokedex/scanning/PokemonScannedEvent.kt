@@ -29,6 +29,7 @@ data class PokemonScannedEvent(val player: ServerPlayer, val scannedPokemonEntit
         "entity" to when (scannedEntity) {
             is LivingEntity -> scannedEntity.asMostSpecificMoLangValue()
             else -> DoubleValue.ZERO
-        }
+        },
+        "is_owned" to DoubleValue(if (isOwned) 1.0 else 0.0)
     )
 }
