@@ -195,6 +195,10 @@
         "swimSpeed": 0.1,
         "canWalkOnWater": true,
         "canSwimInLava": true
+      },
+      "combat": {
+        "willDefemdOwmer": true,
+        "willDefendSelf": true
       }
     }
   },
