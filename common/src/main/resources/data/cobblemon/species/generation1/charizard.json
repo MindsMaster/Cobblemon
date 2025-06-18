@@ -197,8 +197,7 @@
         "canSwimInLava": true
       },
       "combat": {
-        "willDefemdOwmer": true,
-        "willDefendSelf": true
+        "willDefendOwner": true
       }
     }
   },
