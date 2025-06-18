@@ -21,6 +21,20 @@
       "behaviours": [
           "cobblemon:wanders_water"
       ]
+    },
+    {
+      "type": "apply_behaviours",
+      "condition": "q.entity.is_wild && q.entity.behavior.combat.will_flee",
+      "behaviours": [
+        "cobblemon:panics"
+      ]
+    },
+    {
+      "type": "apply_behaviours",
+      "condition": "q.entity.is_wild && q.entity.behavior.combat.will_defend_self",
+      "behaviours": [
+        "cobblemon:retaliates"
+      ]
     }
   ]
 }
