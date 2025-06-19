@@ -23,12 +23,14 @@ import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.Mob
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation
+import net.minecraft.world.level.BlockGetter
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.pathfinder.Node
 import net.minecraft.world.level.pathfinder.Path
 import net.minecraft.world.level.pathfinder.PathComputationType
 import net.minecraft.world.level.pathfinder.PathFinder
 import net.minecraft.world.level.pathfinder.PathType
+import net.minecraft.world.level.pathfinder.WalkNodeEvaluator
 import net.minecraft.world.phys.Vec3
 
 /**
@@ -226,6 +228,12 @@ class OmniPathNavigation(val world: Level, val entity: Mob) : GroundPathNavigati
     fun moveTo(x: Double, y: Double, z: Double, speed: Double = 1.0, navigationContext: NavigationContext) {
         this.navigationContext = navigationContext
         this.moveTo(x, y, z, speed)
+    }
+
+    override fun getGroundY(vec: Vec3): Double {
+        val blockGetter: BlockGetter = level
+        val blockPos = BlockPos.containing(vec)
+        return if ((canFloat()) && blockGetter.getFluidState(blockPos).`is`(FluidTags.WATER)) vec.y + 0.5 else WalkNodeEvaluator.getFloorLevel(blockGetter, blockPos)
     }
 
     override fun createPath(entity: Entity, distance: Int): Path? {

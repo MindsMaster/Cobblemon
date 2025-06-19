@@ -270,6 +270,12 @@
 - Fixed Cobblemon crashing if it tries to load a bedrock model not meant for cobblemon (example: Qlipoth Awakening)
 - Fixed Berries (and thus mulches) not being plantable on Farmers delight rich soil farmland
 - Fixed wild Pokémon vanishing when third party mods try to tame them the "vanilla" way
+- Fixed Pokemon not being able to path over skulk veins, pressure plates, fence gates, signs, lanterns, chains, and many other short blocks.
+- Fixed some cases in which Pokemon could not path over fence posts situations.
+- Fixed flyers not being able to do vertical takeoff if surrounded by blocks.
+- Fixed swimming Pokemon attempting to swim up through solid blocks.
+- Fixed Pokemon surface swimming diving downward a block for the duration of the swim.
+- Improved flyers avoiding getting stuck on fence posts.
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
