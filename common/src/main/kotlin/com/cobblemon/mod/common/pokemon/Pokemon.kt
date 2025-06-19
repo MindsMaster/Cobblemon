@@ -1125,20 +1125,18 @@ open class Pokemon : ShowdownIdentifiable {
      */
     fun swapHeldItem(stack: ItemStack, decrement: Boolean = true): ItemStack {
         val existing = this.heldItem()
-        if (!isClient) {
-            CobblemonEvents.HELD_ITEM_PRE.postThen(HeldItemEvent.Pre(this, stack, existing, decrement), ifSucceeded = { event ->
+            CobblemonEvents.HELD_ITEM_PRE.postThen(HeldItemEvent.Pre(this, stack, existing, decrement, isClient), ifSucceeded = { event ->
                 val giving = event.receiving.copy().apply { count = 1 }
                 if (event.decrement) {
                     event.receiving.shrink(1)
                 }
                 this.heldItem = giving
                 onChange(HeldItemUpdatePacket({ this }, giving))
-                CobblemonEvents.HELD_ITEM_POST.post(HeldItemEvent.Post(this, this.heldItem(), event.returning.copy(), event.decrement)) {
+                CobblemonEvents.HELD_ITEM_POST.post(HeldItemEvent.Post(this, this.heldItem(), event.returning.copy(), event.decrement, isClient)) {
                     StashHandler.giveHeldItem(it)
                 }
                 return event.returning
             })
-        }
         return stack
     }
 

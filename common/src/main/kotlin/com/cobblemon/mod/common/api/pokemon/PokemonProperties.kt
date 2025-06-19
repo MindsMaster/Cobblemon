@@ -145,7 +145,6 @@ open class PokemonProperties {
             props.originalTrainer = parsePlayerProperty(keyPairs, listOf("originaltrainer", "ot"))
             props.moves = parseString(keyPairs, listOf("moves"))?.split(",")
             props.heldItem = parseString(keyPairs, listOf("helditem", "held_item"))
-            props.cosmeticItem = parseString(keyPairs, listOf("cosmeticitem", "cosmetic_item"))
 
             val maybeIVs = IVs()
             val maybeEVs = EVs()
