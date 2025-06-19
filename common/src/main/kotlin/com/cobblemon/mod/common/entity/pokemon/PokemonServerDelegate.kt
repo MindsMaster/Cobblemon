@@ -17,6 +17,7 @@ import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.OrientationControllable
 import com.cobblemon.mod.common.api.entity.PokemonSender
 import com.cobblemon.mod.common.api.entity.PokemonSideDelegate
+import com.cobblemon.mod.common.api.molang.MoLangFunctions.addPokemonEntityFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addPokemonFunctions
 import com.cobblemon.mod.common.api.molang.ObjectValue
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties
@@ -61,6 +62,7 @@ class PokemonServerDelegate : PokemonSideDelegate {
 //        entity.registerGoals()
         updateMaxHealth()
         entity.struct.addPokemonFunctions(pokemon)
+        entity.struct.addPokemonEntityFunctions(entity)
     }
 
     fun updatePathfindingPenalties(pokemon: Pokemon) {
