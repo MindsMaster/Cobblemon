@@ -24,14 +24,14 @@
     },
     {
       "type": "apply_behaviours",
-      "condition": "q.entity.is_wild && q.entity.behavior.combat.will_flee",
+      "condition": "q.entity.is_wild && q.entity.behaviour.combat.will_flee",
       "behaviours": [
         "cobblemon:panics"
       ]
     },
     {
       "type": "apply_behaviours",
-      "condition": "q.entity.is_wild && q.entity.behavior.combat.will_defend_self",
+      "condition": "q.entity.is_wild && q.entity.behaviour.combat.will_defend_self",
       "behaviours": [
         "cobblemon:retaliates"
       ]
