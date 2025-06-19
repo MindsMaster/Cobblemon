@@ -64,7 +64,8 @@ class PokemonPastureBlockEntity(pos: BlockPos, state: BlockState) :
         val tetheringId: UUID,
         val pokemonId: UUID,
         val pcId: UUID,
-        val entityId: Int
+        val entityId: Int,
+        val pasturePos: BlockPos
     ) {
         fun getPokemon() = Cobblemon.storage.getPC(pcId, server()!!.registryAccess())[pokemonId]
         val box = AABB(minRoamPos.toVec3d(), maxRoamPos.toVec3d())
@@ -185,7 +186,8 @@ class PokemonPastureBlockEntity(pos: BlockPos, state: BlockState) :
                         tetheringId = UUID.randomUUID(),
                         pokemonId = pokemon.uuid,
                         pcId = pc.uuid,
-                        entityId = entity.id
+                        entityId = entity.id,
+                        pasturePos = blockPos
                     )
                     pokemon.tetheringId = tethering.tetheringId
                     tetheredPokemon.add(tethering)
@@ -362,7 +364,8 @@ class PokemonPastureBlockEntity(pos: BlockPos, state: BlockState) :
                     tetheringId = tetheringId,
                     pokemonId = pokemonId,
                     pcId = pcId,
-                    entityId = entityId
+                    entityId = entityId,
+                    pasturePos = blockPos
                 )
             )
         }

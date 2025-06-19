@@ -725,6 +725,7 @@ open class PokemonEntity(
             tetheringNbt.putUUID(DataKeys.PC_ID, tethering.pcId)
             tetheringNbt.put(DataKeys.TETHER_MIN_ROAM_POS, NbtUtils.writeBlockPos(tethering.minRoamPos))
             tetheringNbt.put(DataKeys.TETHER_MAX_ROAM_POS, NbtUtils.writeBlockPos(tethering.maxRoamPos))
+            tetheringNbt.put(DataKeys.TETHER_PASTURE_POS, NbtUtils.writeBlockPos(tethering.pasturePos))
             nbt.put(DataKeys.TETHERING, tetheringNbt)
         } else {
             nbt.put(DataKeys.POKEMON, pokemon.saveToNBT(registryAccess()))
@@ -776,6 +777,7 @@ open class PokemonEntity(
             val playerId = tetheringNBT.getUUID(DataKeys.POKEMON_OWNER_ID)
             val minRoamPos = NbtUtils.readBlockPos(tetheringNBT, DataKeys.TETHER_MIN_ROAM_POS).get()
             val maxRoamPos = NbtUtils.readBlockPos(tetheringNBT, DataKeys.TETHER_MAX_ROAM_POS).get()
+            val pasturePos = NbtUtils.readBlockPos(tetheringNBT, DataKeys.TETHER_PASTURE_POS).get()
 
             val loadedPokemon = Cobblemon.storage.getPC(pcId, registryAccess())[pokemonId]
             if (loadedPokemon != null && loadedPokemon.tetheringId == tetheringId) {
@@ -788,7 +790,8 @@ open class PokemonEntity(
                     tetheringId = tetheringId,
                     pokemonId = pokemonId,
                     pcId = pcId,
-                    entityId = id // Doesn't really matter on the entity
+                    entityId = id, // Doesn't really matter on the entity
+                    pasturePos = pasturePos
                 )
             } else {
                 pokemon = this.createSidedPokemon()
@@ -1163,6 +1166,13 @@ open class PokemonEntity(
 
     fun getBehaviourFlag(flag: PokemonBehaviourFlag): Boolean =
         getBitForByte(entityData.get(BEHAVIOUR_FLAGS), flag.bit)
+
+    fun getActiveBehaviourFlags(): Set<PokemonBehaviourFlag> {
+        val flagsByte = this.entityData.get(PokemonEntity.BEHAVIOUR_FLAGS).toInt()
+        return PokemonBehaviourFlag.entries.filterTo(mutableSetOf()) { flag ->
+            (flagsByte and (1 shl (flag.bit - 1))) != 0
+        }
+    }
 
     @Suppress("UNUSED_PARAMETER")
     fun canBattle(player: Player): Boolean {
