@@ -13,7 +13,7 @@ import com.cobblemon.mod.common.api.molang.ObjectValue
 
 class CombatBehaviour {
     var willDefendSelf = false
-    var willDefendOwner = true
+    var willDefendOwner = false
 
     @Transient
     val struct = ObjectValue(this).also {
