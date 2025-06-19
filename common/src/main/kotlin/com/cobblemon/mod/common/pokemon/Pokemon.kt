@@ -1726,6 +1726,28 @@ open class Pokemon : ShowdownIdentifiable {
         moveSet.update()
     }
 
+    /**
+     * Removes the specified [move] from the Pokémon's current move set if it exists.
+     */
+    fun unlearnMove(move: MoveTemplate) {
+        moveSet.doWithoutEmitting {
+            for (i in 0 until MoveSet.MOVE_COUNT) {
+                val currentMove = this.moveSet[i]
+                if (currentMove != null && currentMove.template == move) {
+                    this.moveSet.setMove(i, null)
+                }
+            }
+            val benchedIterator = this.benchedMoves.iterator()
+            while (benchedIterator.hasNext()) {
+                val benchedMove = benchedIterator.next()
+                if (benchedMove.moveTemplate == move) {
+                    benchedIterator.remove()
+                }
+            }
+        }
+        moveSet.update()
+    }
+
     fun getMaxRideBoost(stat: RidingStat): Int {
         return form.riding.stats[stat]?.ranges?.maxOf { it.value.endInclusive } ?: 0
     }

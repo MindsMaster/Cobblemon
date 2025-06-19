@@ -30,6 +30,8 @@ import com.cobblemon.mod.common.api.dialogue.PlayerDialogueFaceProvider
 import com.cobblemon.mod.common.api.dialogue.ReferenceDialogueFaceProvider
 import com.cobblemon.mod.common.api.drop.DropEntry
 import com.cobblemon.mod.common.api.mark.Marks
+import com.cobblemon.mod.common.api.moves.MoveTemplate
+import com.cobblemon.mod.common.api.moves.Moves
 import com.cobblemon.mod.common.api.moves.animations.ActionEffectContext
 import com.cobblemon.mod.common.api.moves.animations.ActionEffects
 import com.cobblemon.mod.common.api.moves.animations.NPCProvider
@@ -1051,6 +1053,17 @@ object MoLangFunctions {
             map.put("max_hp") { DoubleValue(pokemon.maxHealth.toDouble()) }
             map.put("current_hp") { DoubleValue(pokemon.currentHealth.toDouble()) }
             map.put("friendship") { DoubleValue(pokemon.friendship.toDouble()) }
+            map.put("max_fullness") { DoubleValue(pokemon.getMaxFullness().toDouble()) }
+            map.put("fullness") { DoubleValue(pokemon.currentFullness.toDouble()) }
+            map.put("lose_fullness") { params ->
+                val amount = params.getDouble(0)
+                pokemon.loseFullness(amount.toInt())
+            }
+            map.put("feed_pokemon") { params ->
+                val amount = params.getDouble(0)
+                val playSound = params.getBooleanOrNull(1) ?: true
+                pokemon.feedPokemon(amount.toInt(), playSound)
+            }
             map.put("behaviour") { pokemon.form.behaviour.struct }
             map.put("behavior") { pokemon.form.behaviour.struct } // Inferior
             map.put("pokeball") { StringValue(pokemon.caughtBall.toString()) }
@@ -1065,6 +1078,13 @@ object MoLangFunctions {
                 val struct = QueryStruct(hashMapOf())
                 for (stat in Stats.PERMANENT) {
                     struct.addFunction(stat.showdownId) { DoubleValue(pokemon.ivs.getOrDefault(stat).toDouble()) }
+                }
+                struct
+            }
+            map.put("hyper_trained_ivs") {
+                val struct = QueryStruct(hashMapOf())
+                for (stat in Stats.PERMANENT) {
+                    struct.addFunction(stat.showdownId) { DoubleValue(pokemon.ivs.hyperTrainedIVs[stat] ?: -1.0) }
                 }
                 struct
             }
@@ -1250,6 +1270,16 @@ object MoLangFunctions {
                 val includeLegacy = params.getBooleanOrNull(0) ?: true
                 pokemon.validateMoveset(includeLegacy)
                 return@put DoubleValue.ONE
+            }
+            map.put("unlearn_move") { params ->
+                val moveName = params.getString(0)
+                val moveTemplate = Moves.getByName(moveName)
+                if (moveTemplate != null) {
+                    pokemon.unlearnMove(moveTemplate)
+                    return@put DoubleValue.ONE
+                } else {
+                    return@put DoubleValue.ZERO
+                }
             }
             map
         }
