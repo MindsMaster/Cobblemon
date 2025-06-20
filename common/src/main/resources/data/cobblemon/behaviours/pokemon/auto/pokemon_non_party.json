@@ -33,7 +33,8 @@
       "type": "apply_behaviours",
       "condition": "q.entity.is_wild && q.entity.behaviour.combat.will_defend_self",
       "behaviours": [
-        "cobblemon:retaliates"
+        "cobblemon:retaliates",
+        "cobblemon:fights_melee"
       ]
     }
   ]
