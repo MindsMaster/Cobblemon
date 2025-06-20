@@ -3716,6 +3716,12 @@
   "cobblemon.behaviour.moves_to_water.name": "Returns To Water",
   "cobblemon.behaviour.moves_to_water.desc": "Moves to water when it is nearby.",
 
+  "cobblemon.behaviour.moves_to_lava.name": "Returns To Lava",
+  "cobblemon.behaviour.moves_to_lava.desc": "Moves to lava when it is nearby.",
+
+  "cobblemon.behaviour.pokemon_herds.name": "Pokémon Herds",
+  "cobblemon.behaviour.pokemon_herds.desc": "Pokémon will form herds with Pokémon they consider suitable leaders.",
+
   "npc.sacchi.name": "Professor Sacchi",
   "npc.variable.challenge_cooldown.name": "Challenge Cooldown",
   "npc.variable.challenge_cooldown.desc": "How long the NPC will be un-challenge-able from that player's last challenge.",

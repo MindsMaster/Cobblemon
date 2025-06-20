@@ -43,10 +43,17 @@ class MoveIntoFluidTaskConfig : SingleTaskConfig {
     val movesIntoLava: ExpressionOrEntityVariable = Either.left("false".asExpression())
     val speedModifier: ExpressionOrEntityVariable = Either.left("0.5".asExpression())
 
+    val horizontalSearchRange: ExpressionOrEntityVariable = Either.left("8".asExpression())
+    val verticalSearchRange: ExpressionOrEntityVariable = Either.left("8".asExpression())
+
     override fun getVariables(entity: LivingEntity): List<MoLangConfigVariable> {
         return listOf(
+            condition,
             movesIntoWater,
-            movesIntoLava
+            movesIntoLava,
+            speedModifier,
+            horizontalSearchRange,
+            verticalSearchRange
         ).asVariables()
     }
 
@@ -59,6 +66,8 @@ class MoveIntoFluidTaskConfig : SingleTaskConfig {
         val movesIntoWater = this@MoveIntoFluidTaskConfig.movesIntoWater.resolveBoolean()
         val movesIntoLava = movesIntoLava.resolveBoolean()
         val speedModifier = speedModifier.resolveFloat()
+        val horizontalSearchRange = horizontalSearchRange.resolveInt()
+        val verticalSearchRange = verticalSearchRange.resolveInt()
         return BehaviorBuilder.create {
             it.group(
                 it.absent(MemoryModuleType.WALK_TARGET),
@@ -73,7 +82,13 @@ class MoveIntoFluidTaskConfig : SingleTaskConfig {
                     }
 
                     pathCooldown.setWithExpiry(true, 20L * 5L) // 5 seconds cooldown
-                    val target = findTarget(entity = entity, movesIntoWater = movesIntoWater, movesIntoLava = movesIntoLava)
+                    val target = findTarget(
+                        entity = entity,
+                        movesIntoWater = movesIntoWater,
+                        movesIntoLava = movesIntoLava,
+                        horizontalSearchRange = horizontalSearchRange,
+                        verticalSearchRange = verticalSearchRange
+                    )
                     if (target == null) {
                         return@Trigger false
                     }
@@ -97,18 +112,20 @@ class MoveIntoFluidTaskConfig : SingleTaskConfig {
     private fun findTarget(
         entity: LivingEntity,
         movesIntoWater: Boolean,
-        movesIntoLava: Boolean
+        movesIntoLava: Boolean,
+        horizontalSearchRange: Int,
+        verticalSearchRange: Int
     ): BlockPos? {
         val predicate: Predicate<FluidState> = Predicate { fluid ->
             (movesIntoWater && fluid.`is`(FluidTags.WATER)) || (movesIntoLava && fluid.`is`(FluidTags.LAVA))
         }
         val iterable = BlockPos.betweenClosed(
-            Mth.floor(entity.x - 8.0),
-            Mth.floor(entity.y - 8.0),
-            Mth.floor(entity.z - 8.0),
-            Mth.floor(entity.x + 8.0),
-            entity.blockY,
-            Mth.floor(entity.z + 2.0)
+            Mth.floor(entity.x - horizontalSearchRange),
+            Mth.floor(entity.y - verticalSearchRange),
+            Mth.floor(entity.z - horizontalSearchRange),
+            Mth.floor(entity.x + horizontalSearchRange),
+            entity.blockY + verticalSearchRange,
+            Mth.floor(entity.z + horizontalSearchRange)
         )
 
         val box = entity.boundingBox
