@@ -195,10 +195,10 @@
         "swimSpeed": 0.1,
         "canWalkOnWater": true,
         "canSwimInLava": true
-      },
-      "combat": {
-        "willDefendOwner": true
       }
+    },
+    "combat": {
+      "willDefendOwner": true
     }
   },
   "drops": {

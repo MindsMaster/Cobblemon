@@ -25,7 +25,7 @@
     },
     {
       "type": "apply_behaviours",
-      "condition": "!q.entity.is_wild && q.entity.is_pastured && q.entity.behaviour.combat.will_defend_owner",
+      "condition": "!q.entity.is_wild && !q.entity.is_pastured && q.entity.behaviour.combat.will_defend_owner",
       "behaviours": [
         "cobblemon:attacks_hostile_mobs",
         "cobblemon:fights_melee"
