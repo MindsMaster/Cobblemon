@@ -63,22 +63,6 @@ class OmniPathNavigation(val world: Level, val entity: Mob) : GroundPathNavigati
         return PathFinder(nodeEvaluator, range)
     }
 
-    override fun isStableDestination(pos: BlockPos): Boolean {
-        return if (pather.canSwimInWater()) {
-            !super.isStableDestination(pos)
-        } else {
-            super.isStableDestination(pos)
-        }
-    }
-
-    override fun canMoveDirectly(origin: Vec3, target: Vec3): Boolean {
-        return if (pather.canSwimInWater()) {
-            isClearForMovementBetween(this.mob, origin, target, false)
-        } else {
-            super.canMoveDirectly(origin, target)
-        }
-    }
-
     override fun canUpdatePath(): Boolean {
         val (isInLiquid, isTouchingLava) = mob.level().getWaterAndLavaIn(mob.boundingBox)
         val isAtValidPosition = (!mob.isInLava && !mob.isEyeInFluid(FluidTags.LAVA)) ||

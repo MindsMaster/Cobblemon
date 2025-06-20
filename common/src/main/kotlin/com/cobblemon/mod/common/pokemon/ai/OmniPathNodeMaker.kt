@@ -201,6 +201,7 @@ class OmniPathNodeMaker : NodeEvaluator() {
 
         return when {
             (type == PathType.BREACH || type == PathType.WATER || type == PathType.WATER_BORDER) && canSwimInWater() -> true
+            type == PathType.LAVA && canSwimInLava() -> true
             type == PathType.OPEN && canFly() -> true
             type == PathType.WALKABLE && (canWalk() || canFly()) -> true
             else -> false
@@ -252,7 +253,9 @@ class OmniPathNodeMaker : NodeEvaluator() {
             PathType.FENCE
         } else if (isWater && belowSolid && !canSwimInWater() && canBreatheUnderFluid) {
             PathType.WALKABLE
-        } else if (isWater || (isLava && canSwimUnderFluid(blockState.fluidState))) {
+        } else if (isLava && canSwimInLava()) {
+            PathType.LAVA
+        } else if (isWater) {
             PathType.WATER
             // This breaks lifting off from snow layers and carpets
 //        } else if (blockState.canPathfindThrough(world, pos, NavigationType.LAND) && !blockStateBelow.canPathfindThrough(world, below, NavigationType.AIR)) {
@@ -392,6 +395,14 @@ class OmniPathNodeMaker : NodeEvaluator() {
             (this.mob as OmniPathingEntity).canWalk()
         } else {
             true
+        }
+    }
+
+    fun canSwimInLava(): Boolean {
+        return if (this.mob is OmniPathingEntity) {
+            (this.mob as OmniPathingEntity).canSwimInLava()
+        } else {
+            false
         }
     }
 
