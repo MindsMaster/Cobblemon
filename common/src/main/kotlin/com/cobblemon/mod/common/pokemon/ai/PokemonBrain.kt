@@ -180,6 +180,9 @@ object PokemonBrain {
         CobblemonMemories.HIVE_COOLDOWN,
         CobblemonMemories.NEARBY_FLOWER,
         CobblemonMemories.POLLINATED
+        CobblemonMemories.RECENTLY_ATE_GRASS,
+        CobblemonMemories.HERD_LEADER,
+        CobblemonMemories.HERD_SIZE
     )
 
     private fun coreTasks(pokemon: Pokemon) = buildList<Pair<Int, BehaviorControl<in PokemonEntity>>> {
