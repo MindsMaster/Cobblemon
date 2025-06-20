@@ -1271,6 +1271,11 @@ object MoLangFunctions {
                 pokemon.validateMoveset(includeLegacy)
                 return@put DoubleValue.ONE
             }
+            map.put("teach_learnable_moves") { params ->
+                val includeLegacy = params.getBooleanOrNull(0) ?: true
+                pokemon.teachLearnableMoves(includeLegacy)
+                return@put DoubleValue.ONE
+            }
             map.put("unlearn_move") { params ->
                 val moveName = params.getString(0)
                 val moveTemplate = Moves.getByName(moveName)
