@@ -217,8 +217,11 @@ class PokemonMoveControl(val pokemonEntity: PokemonEntity) : MoveControl(pokemon
                     !blockState.`is`(BlockTags.DOORS) &&
                     !blockState.`is`(BlockTags.FENCES)
                 ) {
-                    mob.jumpControl.jump()
-                    operation = Operation.JUMPING
+//                    val wantedBlockPos = BlockPos(wantedX.toInt(), (wantedY).toInt(), wantedZ.toInt())
+//                    if (!voxelShape.isEmpty || (mob.y + pokemonEntity.behaviour.moving.stepHeight < mob.level().getBlockState(wantedBlockPos.below()).getCollisionShape(mob.level(), wantedBlockPos.below()).max(Direction.Axis.Y) + wantedBlockPos.below().y.toDouble())) {
+                        mob.jumpControl.jump()
+                        operation = Operation.JUMPING
+//                    }
                 }
             }
 
