@@ -1677,12 +1677,10 @@ open class Pokemon : ShowdownIdentifiable {
     fun teachLearnableMoves(includeLegacy: Boolean = true) {
         // Get all learnable moves
         val possibleMoves = form.moves.getAllLegalMoves()
-        println("Possible moves for ${this.form.species} (${this.form}): ${possibleMoves.joinToString(", ") { it.name }}")
         // Add all possible moves to the moveset
         val possibleMovesSet = HashSet<BenchedMove>()
         for (move in possibleMoves) {
             if (LearnsetQuery.ANY.canLearn(move, this.form.moves) && moveSet.none { it.template == move }) {
-
                 possibleMovesSet.add(BenchedMove(move, 0))
             }
         }
