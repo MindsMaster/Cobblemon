@@ -7,6 +7,7 @@
 - Added `/cobblemonconfig reload` command to reload `main.json` configuration. **Note:** Some settings require a server restart to take effect; use this command cautiously.
 - Added `blacklisted_items_to_hold` and `whitelisted_items_to_hold` tags to allow for controlling which items players can give to their Pokémon. If the whitelist is empty, it will consider all item as allowed (unless they are in the blacklist).
 - Pokémon now follow the mouse cursor on the Summary screen, with an option to disable this in the settings.
+- Added Datapackable Item interactions with Pokemon
 - Pokémon's held items can now be rendered, with a visibility toggle in the Summary screen.
 - Added cosmetic item functionality for Pokémon. Certain cosmetic items can be given to applicable Pokémon via the interact menu.
   - Added the various log blocks as cosmetic items for Timburr and Komala.
@@ -30,6 +31,7 @@
 - Added `/pcsearch <player> <pokemonProperties>` command that searches for a specific Pokémon within a player's PC.
 - Added `/pctake <player> <box> <slot>` command that takes a specific Pokémon from a player's PC. Removes the pokemon if target is self or ran from the server.
 - Added Hyper Training items (IV Modification) as well as some additional candy items to do so (Health Candy, Sickly Candy)
+- Added Galarica Nut Bushes
 
 ### Pokémon Added
 
@@ -179,6 +181,7 @@
 - Aegislash
 
 ### Changes
+- Changed pokemon caught and seen count to update based on the current pokedex being looked
 - Renamed `chargeGainedPerTick` config to `secondsToChargeHealingMachine`.
 - Made Blocks of Gold count as Big Nuggets when held by a Pokémon (for Fling functionality)
 - Players can now eat Sweet and Tart Apples, Whipped Dreams, and the Alcremie Sweets.
@@ -216,8 +219,10 @@
 - Saccharine Leaves are now Collectable
 - Saccharine Leaves Age 1 or higher will now show Yellow particles when broken
 - Destroying a Saccharine Honey Log will now drop a Saccharine Log in stead of nothing
+- Reworked some compost chances
 
 ### Fixes
+- Fixed game crashing when removing national pokedex using datapacks
 - Fixed Particles sometimes facing the wrong direction (looking at you, Swords Dance)
 - Fixed PCs always opening at box 2 instead of box 1.
 - Fixed not being able to do complex item requirements aside from just NBT with evolution conditions, requirements and fossil items.
@@ -263,6 +268,11 @@
 - Fixed issue where the restoration tank would not accept valid items from a hopper.
 - Fixed energy root not being shearable
 - Fixed energy root always spreading into more energy roots instead of by chance (same as big root)
+- Fixed issue where Pokémon spawned by the "spawnallpokemon" command potentially receiving a raft.
+- Fixed logspam on NeoForge when adorn is not installed
+- Fixed Cobblemon crashing if it tries to load a bedrock model not meant for cobblemon (example: Qlipoth Awakening)
+- Fixed Berries (and thus mulches) not being plantable on Farmers delight rich soil farmland
+- Fixed wild Pokémon vanishing when third party mods try to tame them the "vanilla" way
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
@@ -292,6 +302,7 @@
 - The IVs class has now been extended to include Hyper Trained values.
 - Added `Pokemon#hyperTrainIV()` and `IVs#setHyperTrainedIV(Stat, Int)`.
 - Added `HyperTrainedIvEvent.Pre` and `HyperTrainedIvEvent.Post`.
+- Added a `hoverText` option to PartySelectCallback, to display a tooltip on hovering over a Pokémon in the selection screen.
   
 ### MoLang & Datapacks
 - The following usages for item predicates can now use item conditions like advancements do, you can learn about them in the [Minecraft wiki](https://minecraft.wiki/w/Advancement_definition#minecraft:filled_bucket)
@@ -319,6 +330,8 @@
 - The format of the `remedies.json` file has changed to allow for individual friendshipDrop amounts per remedy
 - Fixed `entity.find_nearby_block` causing crashes when attempting to use a block tag
 - Spawn Filters can now access `v.spawn.class` to get the identifier of an NPC class for when trying to influence NPC spawns
+- Adds Flows for `STARTER_CHOSEN`, `EV_GAINED`, `POKEMON_RELEASED`, `POKEMON_NICKNAMED`, `HELD_ITEM`, and `TRADE_COMPLETED` events
+- Adds Pokemon functions for `pokeball`, `held_item` and `remove_held_item`
 - Added `pokemon.hyper_train_iv` as an available Molang function.
 
 ## [1.6.1 (January 26th, 2025)](#1-6-1)

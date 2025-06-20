@@ -10,6 +10,7 @@ package com.cobblemon.mod.common.client.render.models.blockbench.repository
 
 import com.bedrockk.molang.Expression
 import com.cobblemon.mod.common.Cobblemon
+import com.cobblemon.mod.common.Cobblemon.LOGGER
 import com.cobblemon.mod.common.api.molang.ExpressionLike
 import com.cobblemon.mod.common.client.render.ModelLayer
 import com.cobblemon.mod.common.client.render.ModelVariationSet
@@ -774,7 +775,7 @@ object VaryingModelRepository {
         for (directory in modelDirectories) {
             MODEL_FACTORIES.forEach { (key, func) ->
                 resourceManager.listResources(directory) { path -> path.endsWith(key) }
-                    .map { func.apply(it.key, it.value) }
+                    .mapNotNull { func.apply(it.key, it.value) }
                     .forEach {
                         texturedModels[it.first] = it.second
                         models++
@@ -844,7 +845,7 @@ object VaryingModelRepository {
         return null
     }
 
-    fun registerFactory(id: String, factory: BiFunction<ResourceLocation, Resource, Pair<ResourceLocation, Bone>>) {
+    fun registerFactory(id: String, factory: BiFunction<ResourceLocation, Resource, Pair<ResourceLocation, Bone>?>) {
         MODEL_FACTORIES[id] = factory
     }
 
@@ -852,13 +853,17 @@ object VaryingModelRepository {
         Needs to be java function to work with non kotlin sidemods.
         - Waterpicker
      */
-    private var MODEL_FACTORIES = mutableMapOf<String, BiFunction<ResourceLocation, Resource, Pair<ResourceLocation, Bone>>>().also {
-        it[".geo.json"] = BiFunction<ResourceLocation, Resource, Pair<ResourceLocation, Bone>> { identifier: ResourceLocation, resource: Resource ->
+    private var MODEL_FACTORIES = mutableMapOf<String, BiFunction<ResourceLocation, Resource, Pair<ResourceLocation, Bone>?>>().also {
+        it[".geo.json"] = BiFunction<ResourceLocation, Resource, Pair<ResourceLocation, Bone>?> { identifier: ResourceLocation, resource: Resource ->
             resource.open().use { stream ->
                 val json = String(stream.readAllBytes(), StandardCharsets.UTF_8)
                 val resolvedIdentifier = ResourceLocation.fromNamespaceAndPath(identifier.namespace, File(identifier.path).nameWithoutExtension)
 
                 val texturedModel = TexturedModel.from(json)
+                if (texturedModel == null) {
+                    LOGGER.warn("Failed to load model file with identifier $identifier You can ignore this (and the above message) if this is not a cobblemon model")
+                    return@BiFunction null
+                }
                 resolvedIdentifier to texturedModel.create().bakeRoot()
             }
         }
