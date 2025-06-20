@@ -9,8 +9,6 @@
 package com.cobblemon.mod.common.pokemon.ai
 
 import com.cobblemon.mod.common.entity.OmniPathingEntity
-import com.cobblemon.mod.common.entity.pokemon.PokemonBehaviourFlag
-import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.util.canFit
 import com.google.common.collect.Maps
 import it.unimi.dsi.fastutil.longs.Long2ObjectFunction
@@ -18,6 +16,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectMap
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
 import java.util.EnumSet
 import java.util.function.Predicate
+import kotlin.math.max
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.tags.BlockTags
@@ -30,11 +29,15 @@ import net.minecraft.world.level.block.BaseRailBlock
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.FenceGateBlock
 import net.minecraft.world.level.material.FluidState
-import net.minecraft.world.level.pathfinder.*
+import net.minecraft.world.level.pathfinder.Node
+import net.minecraft.world.level.pathfinder.NodeEvaluator
+import net.minecraft.world.level.pathfinder.PathComputationType
+import net.minecraft.world.level.pathfinder.PathType
+import net.minecraft.world.level.pathfinder.PathfindingContext
 import net.minecraft.world.level.pathfinder.Target
+import net.minecraft.world.level.pathfinder.WalkNodeEvaluator
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
-import kotlin.math.max
 
 /**
  * A path node maker that constructs paths knowing that the entity might be capable of
@@ -92,6 +95,7 @@ class OmniPathNodeMaker : NodeEvaluator() {
     private fun getMobJumpHeight(): Double {
         return max(1.125, mob.maxUpStep().toDouble())
     }
+
     protected fun findAcceptedNodeWalk(x: Int, y: Int, z: Int, verticalDeltaLimit: Int, nodeFloorLevel: Double, direction: Direction?, pathType: PathType?): Node? {
         var node: Node? = null
         val mutableBlockPos = BlockPos.MutableBlockPos()
@@ -128,6 +132,7 @@ class OmniPathNodeMaker : NodeEvaluator() {
             }
         }
     }
+
     private fun getBlockedNode(x: Int, y: Int, z: Int): Node? {
         val node = this.getNode(x, y, z) ?: return null
         node.type = PathType.BLOCKED
@@ -187,6 +192,7 @@ class OmniPathNodeMaker : NodeEvaluator() {
         node.costMalus = max(node.costMalus.toDouble(), malus.toDouble()).toFloat()
         return node
     }
+
     private fun tryJumpOn(x: Int, y: Int, z: Int, verticalDeltaLimit: Int, nodeFloorLevel: Double, direction: Direction, pathType: PathType, pos: BlockPos.MutableBlockPos): Node? {
         val node = findAcceptedNodeWalk(x, y + 1, z, verticalDeltaLimit - 1, nodeFloorLevel, direction, pathType)
         return if (node == null) {
@@ -356,6 +362,7 @@ class OmniPathNodeMaker : NodeEvaluator() {
 
         return when {
             (type == PathType.BREACH || type == PathType.WATER || type == PathType.WATER_BORDER) && canSwimInWater() -> true
+            type == PathType.LAVA && canSwimInLava() -> true
             type == PathType.OPEN && canFly() -> true
             type == PathType.WALKABLE && (canWalk() || canFly()) -> true
             else -> false
@@ -411,7 +418,9 @@ class OmniPathNodeMaker : NodeEvaluator() {
             }
         } else if (isWater && !canSwimInWater() && canBreatheUnderFluid && blockState.isPathfindable(PathComputationType.LAND) ) {
             PathType.OPEN
-        } else if (isWater || (isLava && canSwimUnderFluid(blockState.fluidState))) {
+        } else if (isLava && canSwimInLava()) {
+            PathType.LAVA
+        } else if (isWater) {
             PathType.WATER
             // This breaks lifting off from snow layers and carpets
 //        } else if (blockState.canPathfindThrough(world, pos, NavigationType.LAND) && !blockStateBelow.canPathfindThrough(world, below, NavigationType.AIR)) {
@@ -569,6 +578,14 @@ class OmniPathNodeMaker : NodeEvaluator() {
             (this.mob as OmniPathingEntity).canWalk()
         } else {
             true
+        }
+    }
+
+    fun canSwimInLava(): Boolean {
+        return if (this.mob is OmniPathingEntity) {
+            (this.mob as OmniPathingEntity).canSwimInLava()
+        } else {
+            false
         }
     }
 

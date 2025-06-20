@@ -53,7 +53,8 @@ class OmniPathNavigation(val world: Level, val entity: Mob) : GroundPathNavigati
         val onArrival: () -> Unit = {},
         val onCannotReach: () -> Unit = {},
         val sprinting: Boolean = false,
-        val destinationProximity: Float = 0.01F
+        val destinationProximity: Float = 0.01F,
+        val destinationPathTypeFilter: (PathType) -> Boolean = { true },
     )
 
     var navigationContext = NavigationContext()
@@ -62,22 +63,6 @@ class OmniPathNavigation(val world: Level, val entity: Mob) : GroundPathNavigati
         this.nodeEvaluator = OmniPathNodeMaker()
         nodeEvaluator.setCanOpenDoors(false)
         return PathFinder(nodeEvaluator, range)
-    }
-
-    override fun isStableDestination(pos: BlockPos): Boolean {
-        return if (pather.canSwimInWater()) {
-            !super.isStableDestination(pos)
-        } else {
-            super.isStableDestination(pos)
-        }
-    }
-
-    override fun canMoveDirectly(origin: Vec3, target: Vec3): Boolean {
-        return if (pather.canSwimInWater()) {
-            isClearForMovementBetween(this.mob, origin, target, false)
-        } else {
-            super.canMoveDirectly(origin, target)
-        }
     }
 
     override fun canUpdatePath(): Boolean {
