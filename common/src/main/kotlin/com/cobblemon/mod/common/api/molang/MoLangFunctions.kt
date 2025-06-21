@@ -63,6 +63,8 @@ import com.cobblemon.mod.common.api.storage.pc.PCPosition
 import com.cobblemon.mod.common.api.storage.pc.PCStore
 import com.cobblemon.mod.common.api.tags.CobblemonItemTags
 import com.cobblemon.mod.common.api.text.text
+import com.cobblemon.mod.common.battles.BattleBuilder
+import com.cobblemon.mod.common.battles.BattleFormat
 import com.cobblemon.mod.common.battles.BattleRegistry
 import com.cobblemon.mod.common.battles.actor.PlayerBattleActor
 import com.cobblemon.mod.common.battles.actor.PokemonBattleActor
@@ -524,6 +526,33 @@ object MoLangFunctions {
                         }
                     }
                     return@put DoubleValue.ZERO
+                }
+                map.put("start_battle") { params ->
+                    val opponentValue = params.get<MoValue>(0)
+                    val opponent = if (opponentValue is ObjectValue<*>) {
+                        opponentValue.obj as ServerPlayer
+                    } else {
+                        val paramString = opponentValue.asString()
+                        val playerUUID = paramString.asUUID
+                        if (playerUUID != null) {
+                            server()?.playerList?.getPlayer(playerUUID) ?: return@put DoubleValue.ZERO
+                        } else {
+                            server()?.playerList?.getPlayerByName(paramString) ?: return@put DoubleValue.ZERO
+                        }
+                    }
+                    val battleFormat = params.getStringOrNull(1)?.let { BattleFormat.fromIdentifier(it) } ?: BattleFormat.GEN_9_SINGLES
+                    val cloneParties = params.getBooleanOrNull(2) ?: false
+                    val healFirst = params.getBooleanOrNull(3) ?: false
+                    val battleStartResult = BattleBuilder.pvp1v1(
+                        player1 = player,
+                        player2 = opponent,
+                        battleFormat = battleFormat,
+                        cloneParties = cloneParties,
+                        healFirst = healFirst
+                    )
+                    var returnValue: MoValue = DoubleValue.ZERO
+                    battleStartResult.ifSuccessful { returnValue = it.struct }
+                    return@put returnValue
                 }
             }
             map

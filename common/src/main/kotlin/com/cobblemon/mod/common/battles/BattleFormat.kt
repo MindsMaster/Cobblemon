@@ -29,6 +29,15 @@ data class BattleFormat(
     var adjustLevel: Int = -1, // Stop gap rule before a more general system for rules enforced by Cobblemon is implemented.
 ) {
     companion object {
+        fun fromIdentifier(id: String): BattleFormat = when (id) {
+            "pvp_1v1_singles" -> GEN_9_SINGLES
+            "pvp_1v1_doubles" -> GEN_9_DOUBLES
+            "pvp_1v1_triples" -> GEN_9_TRIPLES
+            "pvp_2v2" -> GEN_9_MULTI
+            "pvp_1v1v1v1" -> GEN_9_ROYAL
+            else -> GEN_9_SINGLES
+        }
+
         val GEN_9_SINGLES = BattleFormat(
             battleType = BattleTypes.SINGLES,
             ruleSet = setOf(BattleRules.OBTAINABLE, BattleRules.PAST, BattleRules.UNOBTAINABLE)
