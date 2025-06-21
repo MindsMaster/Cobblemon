@@ -1401,6 +1401,12 @@ object MoLangFunctions {
                 val pokemon = party.get(index) ?: return@put DoubleValue.ZERO
                 return@put pokemon.struct
             }
+            map.put("set_pokemon") { params ->
+                val index = params.getInt(0)
+                val pokemon = params.get<ObjectValue<Pokemon>>(1).obj
+                party.set(index, pokemon)
+                return@put DoubleValue.ONE
+            }
             return@mutableListOf map
         })
 
@@ -1412,6 +1418,13 @@ object MoLangFunctions {
                 val slot = params.getInt(1)
                 val pokemon = pc[PCPosition(box, slot)] ?: return@put DoubleValue.ZERO
                 return@put pokemon.struct
+            }
+            map.put("set_pokemon") { params ->
+                val box = params.getInt(0)
+                val slot = params.getInt(1)
+                val pokemon = params.get<ObjectValue<Pokemon>>(2).obj
+                pc.set(PCPosition(box, slot), pokemon)
+                return@put DoubleValue.ONE
             }
             map.put("resize") { params ->
                 val newSize = params.getInt(0)
