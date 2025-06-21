@@ -31,14 +31,14 @@
     },
     {
       "type": "apply_behaviours",
-      "condition": "q.entity.is_wild && q.entity.behaviour.combat.will_flee",
+      "condition": "!q.entity.is_in_party && q.entity.behaviour.combat.will_flee",
       "behaviours": [
         "cobblemon:panics"
       ]
     },
     {
       "type": "apply_behaviours",
-      "condition": "q.entity.is_wild && q.entity.behaviour.combat.will_defend_self",
+      "condition": "!q.entity.is_in_party && q.entity.behaviour.combat.will_defend_self",
       "behaviours": [
         "cobblemon:retaliates",
         "cobblemon:fights_melee"
