@@ -76,6 +76,8 @@
 - Solosis
 - Duosion
 - Reuniclus
+- Mienfoo
+- Mienshao
 
 #### Gen 6
 - Inkay
