@@ -76,6 +76,8 @@
 - Solosis
 - Duosion
 - Reuniclus
+- Mienfoo
+- Mienshao
 
 #### Gen 6
 - Inkay
@@ -176,6 +178,9 @@
 - Added Syrupy Apples.
 - Seel
 - Dewgong
+- Honedge
+- Doublade
+- Aegislash
 
 ### Changes
 - Changed pokemon caught and seen count to update based on the current pokedex being looked
