@@ -6573,5 +6573,13 @@
     "cobblemon.ui.sort.name": "Nach Name sortieren",
     "cobblemon.ui.sort.pokedex_number": "Nach Poédex sortieren",
     "cobblemon.ui.sort.gender": "Nach Geschlecht sortieren",
-    "cobblemon.ui.sort.type": "Nach Typ sortieren"
+    "cobblemon.ui.sort.type": "Nach Typ sortieren",
+    "item.cobblemon.light_clay.tooltip": "Verlängert die Dauer von Barrieren wie Lichtschild und Reflektor",
+    "item.cobblemon.iron_ball.tooltip": "Senkt Initiative und verhindert Fliegen und Schweben",
+    "item.cobblemon.heavy_duty_boots.tooltip": "Der Träger wird nicht mehr durch Fallen und andere Objekte beeinträchtigt, die auf dem Boden liegen",
+    "item.cobblemon.leftovers.tooltip": "Füllt im Kampf stetig KP auf",
+    "item.cobblemon.light_ball.tooltip": "Erhöht Pikachu´s Angriff und Spezial-Angriff",
+    "item.cobblemon.loaded_dice.tooltip": "Serienattacken treffen mindestens viermal",
+    "item.cobblemon.lucky_egg.tooltip": "Erhöht die im Kampf erhaltene EP für den Träger",
+    "item.cobblemon.metronome.tooltip": "Verstärkt eine Attacke, je öfter sie in Folge ausgeführt wird"
 }
