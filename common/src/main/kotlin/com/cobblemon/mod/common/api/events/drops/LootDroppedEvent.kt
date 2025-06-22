@@ -48,9 +48,7 @@ class LootDroppedEvent(
     val context = mapOf<String, MoValue>(
         "player" to (player?.asMoLangValue() ?: DoubleValue.ZERO),
         "entity" to (entity?.asMostSpecificMoLangValue() ?: DoubleValue.ZERO),
-        "drops" to MoValue.of(
-            drops.asArrayValue { it.asMoLangValue() }
-        )
+        "drops" to drops.asArrayValue { it.asMoLangValue() }
     )
 
     val functions = moLangFunctionMap(
