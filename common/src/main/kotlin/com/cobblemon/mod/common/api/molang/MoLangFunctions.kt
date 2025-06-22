@@ -543,17 +543,23 @@ object MoLangFunctions {
                             server()?.playerList?.getPlayerByName(paramString) ?: return@put DoubleValue.ZERO
                         }
                     }
-                    val format = when(params.getStringOrNull(1)) {
-                        "triple", "triples" -> BattleFormat.GEN_9_TRIPLES
-                        "double", "doubles" -> BattleFormat.GEN_9_DOUBLES
-                        else ->  BattleFormat.GEN_9_SINGLES
-                    }
+                    val format = params.getStringOrNull(1)?.let { BattleFormat.fromFormatIdentifier(it) } ?: BattleFormat.GEN_9_SINGLES
+                    val modifiedBattleFormat = BattleFormat.setBattleRules(
+                        battleFormat = format,
+                        rules = params.getStringOrNull(4)
+                            ?.split(",")
+                            ?.map { it.trim().asIdentifierDefaultingNamespace().toString() }
+                            ?.toSet()
+                            ?: emptySet()
+                    )
                     val cloneParties = params.getBooleanOrNull(2) ?: false
                     val healFirst = params.getBooleanOrNull(3) ?: false
                     val battleStartResult = BattleBuilder.pvp1v1(
                         player1 = player,
                         player2 = opponent,
-                        battleFormat = format
+                        battleFormat = modifiedBattleFormat,
+                        cloneParties = cloneParties,
+                        healFirst = healFirst
                     )
                     var returnValue: MoValue = DoubleValue.ZERO
                     battleStartResult.ifSuccessful { returnValue = it.struct }

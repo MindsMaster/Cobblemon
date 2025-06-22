@@ -9,6 +9,7 @@
 package com.cobblemon.mod.common.battles
 
 import com.cobblemon.mod.common.net.IntSize
+import com.cobblemon.mod.common.util.getStringOrNull
 import com.cobblemon.mod.common.util.readSizedInt
 import com.cobblemon.mod.common.util.readString
 import com.cobblemon.mod.common.util.writeSizedInt
@@ -29,6 +30,20 @@ data class BattleFormat(
     var adjustLevel: Int = -1, // Stop gap rule before a more general system for rules enforced by Cobblemon is implemented.
 ) {
     companion object {
+        fun setBattleRules(
+            battleFormat: BattleFormat,
+            rules: Set<String>
+        ): BattleFormat {
+            return battleFormat.copy(ruleSet = battleFormat.ruleSet + rules)
+        }
+
+        fun fromFormatIdentifier(id: String): BattleFormat = when (id) {
+            "single", "singles" -> BattleFormat.GEN_9_SINGLES
+            "triple", "triples" -> BattleFormat.GEN_9_TRIPLES
+            "double", "doubles" -> BattleFormat.GEN_9_DOUBLES
+            else ->  BattleFormat.GEN_9_SINGLES
+        }
+
         val GEN_9_SINGLES = BattleFormat(
             battleType = BattleTypes.SINGLES,
             ruleSet = setOf(BattleRules.OBTAINABLE, BattleRules.PAST, BattleRules.UNOBTAINABLE)
