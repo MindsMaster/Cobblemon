@@ -65,6 +65,9 @@ import com.cobblemon.mod.common.api.tags.CobblemonItemTags
 import com.cobblemon.mod.common.api.text.text
 import com.cobblemon.mod.common.battles.BattleBuilder
 import com.cobblemon.mod.common.battles.BattleFormat
+import com.cobblemon.mod.common.battles.BattleFormat.Companion.GEN_9_DOUBLES
+import com.cobblemon.mod.common.battles.BattleFormat.Companion.GEN_9_SINGLES
+import com.cobblemon.mod.common.battles.BattleFormat.Companion.GEN_9_TRIPLES
 import com.cobblemon.mod.common.battles.BattleRegistry
 import com.cobblemon.mod.common.battles.actor.PlayerBattleActor
 import com.cobblemon.mod.common.battles.actor.PokemonBattleActor
@@ -540,15 +543,17 @@ object MoLangFunctions {
                             server()?.playerList?.getPlayerByName(paramString) ?: return@put DoubleValue.ZERO
                         }
                     }
-                    val battleFormat = params.getStringOrNull(1)?.let { BattleFormat.fromIdentifier(it) } ?: BattleFormat.GEN_9_SINGLES
+                    val format = when(params.getStringOrNull(1)) {
+                        "triple", "triples" -> BattleFormat.GEN_9_TRIPLES
+                        "double", "doubles" -> BattleFormat.GEN_9_DOUBLES
+                        else ->  BattleFormat.GEN_9_SINGLES
+                    }
                     val cloneParties = params.getBooleanOrNull(2) ?: false
                     val healFirst = params.getBooleanOrNull(3) ?: false
                     val battleStartResult = BattleBuilder.pvp1v1(
                         player1 = player,
                         player2 = opponent,
-                        battleFormat = battleFormat,
-                        cloneParties = cloneParties,
-                        healFirst = healFirst
+                        battleFormat = format
                     )
                     var returnValue: MoValue = DoubleValue.ZERO
                     battleStartResult.ifSuccessful { returnValue = it.struct }
