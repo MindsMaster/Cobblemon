@@ -26,7 +26,6 @@ import com.cobblemon.mod.common.battles.BattleFormat
 import com.cobblemon.mod.common.battles.BattleRegistry
 import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
 import com.cobblemon.mod.common.util.asUUID
-import com.cobblemon.mod.common.util.getBooleanOrNull
 import com.cobblemon.mod.common.util.getStringOrNull
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.server.level.ServerPlayer
@@ -80,15 +79,15 @@ class NPCServerDelegate : NPCSideDelegate {
                         entity.server!!.playerList.getPlayerByName(paramString) ?: return@addFunction DoubleValue.ZERO
                     }
                 }
-                val battleFormat = params.getStringOrNull(1)?.let { BattleFormat.fromIdentifier(it) } ?: BattleFormat.GEN_9_SINGLES
-                val cloneParties = params.getBooleanOrNull(2) ?: false
-                val healFirst = params.getBooleanOrNull(3) ?: false
+                val format = when(params.getStringOrNull(1)) {
+                    "triple", "triples" -> BattleFormat.GEN_9_TRIPLES
+                    "double", "doubles" -> BattleFormat.GEN_9_DOUBLES
+                    else ->  BattleFormat.GEN_9_SINGLES
+                }
                 val battleStartResult = BattleBuilder.pvn(
                     player = opponent,
                     npcEntity = entity,
-                    battleFormat = battleFormat,
-                    cloneParties = cloneParties,
-                    healFirst = healFirst
+                    battleFormat = format
                 )
 
                 var returnValue: MoValue = DoubleValue.ZERO
