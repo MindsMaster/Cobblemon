@@ -30,11 +30,10 @@ data class BattleFormat(
 ) {
     companion object {
         fun fromIdentifier(id: String): BattleFormat = when (id) {
-            "pvp_1v1_singles" -> GEN_9_SINGLES
-            "pvp_1v1_doubles" -> GEN_9_DOUBLES
-            "pvp_1v1_triples" -> GEN_9_TRIPLES
-            "pvp_2v2" -> GEN_9_MULTI
-            "pvp_1v1v1v1" -> GEN_9_ROYAL
+            "single", "singles", "single_battle" -> GEN_9_SINGLES
+            "double", "doubles", "double_battle" -> GEN_9_DOUBLES
+            "triple", "triples", "triple_battle" -> GEN_9_TRIPLES
+            "multi", "multis", "multi_battle" -> GEN_9_MULTI
             else -> GEN_9_SINGLES
         }
 
