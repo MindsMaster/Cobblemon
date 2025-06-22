@@ -44,14 +44,13 @@ interface HeldItemEvent {
      *
      * @see [Post]
      */
-    data class Pre(override val pokemon: Pokemon, var receiving: ItemStack, var returning: ItemStack, var decrement: Boolean, var isClient: Boolean) : HeldItemEvent, Cancelable() {
+    data class Pre(override val pokemon: Pokemon, var receiving: ItemStack, var returning: ItemStack, var decrement: Boolean) : HeldItemEvent, Cancelable() {
         fun getContext(): MutableMap<String, MoValue> {
             return mutableMapOf(
                 "pokemon" to pokemon.struct,
                 "receiving" to receiving.asMoLangValue(server()!!.registryAccess()),
                 "returning" to returning.asMoLangValue(server()!!.registryAccess()),
-                "decrement" to DoubleValue(if (decrement) 1.0 else 0.0),
-                "is_client" to DoubleValue(if (isClient) 1.0 else 0.0)
+                "decrement" to DoubleValue(if (decrement) 1.0 else 0.0)
             )
         }
         val functions = moLangFunctionMap(
@@ -69,14 +68,13 @@ interface HeldItemEvent {
      *
      * @see [Pre]
      */
-    data class Post(override val pokemon: Pokemon, val received: ItemStack, val returned: ItemStack, val decremented: Boolean, var isClient: Boolean) : HeldItemEvent {
+    data class Post(override val pokemon: Pokemon, val received: ItemStack, val returned: ItemStack, val decremented: Boolean) : HeldItemEvent {
         fun getContext(): MutableMap<String, MoValue> {
             return mutableMapOf(
                 "pokemon" to pokemon.struct,
                 "received" to received.asMoLangValue(server()!!.registryAccess()),
                 "returned" to returned.asMoLangValue(server()!!.registryAccess()),
-                "decremented" to DoubleValue(if (decremented) 1.0 else 0.0),
-                "is_client" to DoubleValue(if (isClient) 1.0 else 0.0)
+                "decremented" to DoubleValue(if (decremented) 1.0 else 0.0)
             )
         }
     }

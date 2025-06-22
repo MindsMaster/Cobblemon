@@ -1125,18 +1125,22 @@ open class Pokemon : ShowdownIdentifiable {
      */
     fun swapHeldItem(stack: ItemStack, decrement: Boolean = true): ItemStack {
         val existing = this.heldItem()
-        CobblemonEvents.HELD_ITEM_PRE.postThen(HeldItemEvent.Pre(this, stack, existing, decrement, isClient), ifSucceeded = { event ->
+        val event = HeldItemEvent.Pre(this, stack, existing, decrement)
+        if (!isClient) {
+            CobblemonEvents.HELD_ITEM_PRE.post(event)
+        }
+        if (!event.isCanceled) {
             val giving = event.receiving.copy().apply { count = 1 }
             if (event.decrement) {
                 event.receiving.shrink(1)
             }
             this.heldItem = giving
             onChange(HeldItemUpdatePacket({ this }, giving))
-            CobblemonEvents.HELD_ITEM_POST.post(HeldItemEvent.Post(this, this.heldItem(), event.returning.copy(), event.decrement, isClient)) {
+            CobblemonEvents.HELD_ITEM_POST.post(HeldItemEvent.Post(this, this.heldItem(), event.returning.copy(), event.decrement)) {
                 StashHandler.giveHeldItem(it)
             }
             return event.returning
-        })
+        }
         return stack
     }
 
@@ -1162,15 +1166,19 @@ open class Pokemon : ShowdownIdentifiable {
      */
     fun swapCosmeticItem(stack: ItemStack, decrement: Boolean = true): ItemStack {
         val existing = this.cosmeticItem.copy()
-        CobblemonEvents.COSMETIC_ITEM_PRE.postThen(HeldItemEvent.Pre(this, stack, existing, decrement, isClient), ifSucceeded = { event ->
+        val event = HeldItemEvent.Pre(this, stack, existing, decrement)
+        if (!isClient) {
+            CobblemonEvents.COSMETIC_ITEM_PRE.post(event)
+        }
+        if (!event.isCanceled) {
             val giving = event.receiving.copy().apply { count = 1 }
             if (event.decrement) {
                 event.receiving.shrink(1)
             }
             this.cosmeticItem = giving
-            CobblemonEvents.COSMETIC_ITEM_POST.post(HeldItemEvent.Post(this, this.cosmeticItem.copy(), event.returning.copy(), event.decrement, isClient))
+            CobblemonEvents.COSMETIC_ITEM_POST.post(HeldItemEvent.Post(this, this.cosmeticItem.copy(), event.returning.copy(), event.decrement))
             return event.returning
-        })
+        }
         return stack
     }
 
