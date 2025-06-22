@@ -1096,6 +1096,22 @@ object MoLangFunctions {
             map.put("behaviour") { pokemon.form.behaviour.struct }
             map.put("behavior") { pokemon.form.behaviour.struct } // Inferior
             map.put("pokeball") { StringValue(pokemon.caughtBall.toString()) }
+            map.put("has_learned") { params ->
+                val moveName = params.getString(0)
+                val move = pokemon.allAccessibleMoves.find { it.name == moveName }
+                if(move != null) {
+                    return@put DoubleValue.ONE
+                } else {
+                    return@put DoubleValue.ZERO
+                }
+            }
+            map.put("moveset") {
+                val struct = QueryStruct(hashMapOf())
+                for ((index, move) in pokemon.moveSet.withIndex()) {
+                    struct.addFunction(index.toString()) { move.struct }
+                }
+                struct
+            }
             map.put("evs") {
                 val struct = QueryStruct(hashMapOf())
                 for (stat in Stats.PERMANENT) {
