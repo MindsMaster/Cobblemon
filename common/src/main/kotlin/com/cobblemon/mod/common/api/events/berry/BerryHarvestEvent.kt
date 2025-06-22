@@ -46,7 +46,7 @@ data class BerryHarvestEvent(
 ) : BerryEvent {
     val context = mutableMapOf(
         "player" to player.asMoLangValue(),
-        "berry" to StringValue(berry.item().toString()),
+        "berry" to StringValue(berry.identifier.toString()),
         "world" to world.worldRegistry.wrapAsHolder(world).asMoLangValue(Registries.DIMENSION),
         "pos" to pos.toArrayStruct()
     )
