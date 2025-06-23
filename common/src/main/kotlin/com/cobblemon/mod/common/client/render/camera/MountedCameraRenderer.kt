@@ -43,6 +43,8 @@ object MountedCameraRenderer
         if (vehicle !is PokemonEntity) {
             return null
         }
+        val delegate = vehicle.delegate as? PokemonClientDelegate ?: return null
+
         val entityPos = Vec3(
             Mth.lerp(instance.partialTickTime.toDouble(), vehicle.xOld, vehicle.x),
             Mth.lerp(instance.partialTickTime.toDouble(), vehicle.yOld, vehicle.y),
@@ -61,7 +63,8 @@ object MountedCameraRenderer
         // First person and view bobbing are handled the same way.
         if (!instance.isDetached || Cobblemon.config.thirdPersonViewBobbing) {
             val delegate = vehicle.delegate as PokemonClientDelegate
-            val locator = delegate.locatorStates[seat.locator]
+            val locatorName = delegate.getSeatLocator(seatIndex)
+            val locator = delegate.locatorStates[locatorName]
 
             if (locator == null) {
                 return null
@@ -75,7 +78,7 @@ object MountedCameraRenderer
 
             // Get additional offset from poser and add to the eyeHeight offset when first person
             if (!instance.isDetached) {
-                offset.add(getFirstPersonOffset(model, seat))
+                offset.add(getFirstPersonOffset(model, locatorName))
             }
 
             // Rotate Offset if needed
@@ -102,8 +105,9 @@ object MountedCameraRenderer
             val pokemonCenter = Vector3f(0f, entity.bbHeight/2, 0f)
 
             var pivot = Vector3f(pokemonCenter)
-            if (pivotOffsets.containsKey(seat.locator)) {
-                pivot = pivotOffsets[seat.locator]!!.toVector3f()
+            val locatorName = delegate.getSeatLocator(seatIndex)
+            if (pivotOffsets.containsKey(locatorName)) {
+                pivot = pivotOffsets[locatorName]!!.toVector3f()
                 pivot.sub(pokemonCenter)
                 orientation.transform(pivot)
                 pivot.add(pokemonCenter)
@@ -112,7 +116,7 @@ object MountedCameraRenderer
             val pos = entityPos.toVector3f().add(pivot)
 
             // Get offset from poser
-            val offset = getThirdPersonOffset(thirdPersonReverse, model, seat)
+            val offset = getThirdPersonOffset(thirdPersonReverse, model, locatorName)
 
             if (thirdPersonReverse) offset.z *= -1f
             val rotatedOffset = orientation.transform(offset)
@@ -130,24 +134,24 @@ object MountedCameraRenderer
     private fun getThirdPersonOffset(
         thirdPersonReverse: Boolean,
         model: PosableModel,
-        seat: Seat
+        locatorName: String
     ): Vector3f {
         val cameraOffsets = model.thirdPersonCameraOffset
 
-        return if (thirdPersonReverse && cameraOffsets.containsKey(seat.locator + "_reverse")) {
-            cameraOffsets[seat.locator + "_reverse"]!!.toVector3f()
-        } else if (cameraOffsets.containsKey(seat.locator)) {
-            cameraOffsets[seat.locator]!!.toVector3f()
+        return if (thirdPersonReverse && cameraOffsets.containsKey(locatorName + "_reverse")) {
+            cameraOffsets[locatorName + "_reverse"]!!.toVector3f()
+        } else if (cameraOffsets.containsKey(locatorName)) {
+            cameraOffsets[locatorName]!!.toVector3f()
         } else {
             Vector3f(0f, 2f, 4f)
         }
     }
 
-    private fun getFirstPersonOffset(model: PosableModel, seat: Seat): Vector3f {
+    private fun getFirstPersonOffset(model: PosableModel, locatorName: String): Vector3f {
         val cameraOffsets = model.firstPersonCameraOffset
 
-        return if (cameraOffsets.containsKey(seat.locator)) {
-            cameraOffsets[seat.locator]!!.toVector3f()
+        return if (cameraOffsets.containsKey(locatorName)) {
+            cameraOffsets[locatorName]!!.toVector3f()
         } else {
             Vector3f(0f, 0f, 0f)
         }

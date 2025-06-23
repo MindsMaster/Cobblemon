@@ -1094,30 +1094,47 @@ open class PokemonEntity(
             }
         }
 
-        if (hand == InteractionHand.MAIN_HAND && player is ServerPlayer && pokemon.getOwnerPlayer() == player) {
-            val cosmeticItemDefinition = CobblemonCosmeticItems.findValidCosmeticForPokemonAndItem(
-                player.level().registryAccess(),
-                pokemon,
-                itemStack
-            )
+        if (hand == InteractionHand.MAIN_HAND && player is ServerPlayer) {
             if (player.isShiftKeyDown) {
-                val canRide = ifRidingAvailableSupply(false) { behaviour, settings, state ->
-                    this.canRide(player) && seats.isNotEmpty() && behaviour.isActive(settings, state, this)
-                }
-                InteractPokemonUIPacket(
-                    this.getUUID(),
-                    canSitOnShoulder() && pokemon in player.party(),
-                    !(pokemon.heldItemNoCopy().isEmpty && itemStack.isEmpty),
-                    (!pokemon.cosmeticItem.isEmpty && itemStack.isEmpty) || cosmeticItemDefinition != null,
-                    canRide
-                ).sendToPlayer(player)
-            } else {
+                showInteractionWheel(player, itemStack)
+            }
+            else if (pokemon.getOwnerPlayer() == player) {
                 // TODO #105
                 if (this.attemptItemInteraction(player, player.getItemInHand(hand))) return InteractionResult.SUCCESS
             }
         }
 
         return super.mobInteract(player, hand)
+    }
+
+    private fun showInteractionWheel(player: ServerPlayer, itemStack: ItemStack) {
+        val canRide = ifRidingAvailableSupply(false) { behaviour, settings, state ->
+            this.canRide(player) && seats.isNotEmpty() && behaviour.isActive(settings, state, this)
+        }
+        if (pokemon.getOwnerPlayer() == player) {
+            val cosmeticItemDefinition = CobblemonCosmeticItems.findValidCosmeticForPokemonAndItem(
+                player.level().registryAccess(),
+                pokemon,
+                itemStack
+            )
+
+            InteractPokemonUIPacket(
+                this.getUUID(),
+                canSitOnShoulder() && pokemon in player.party(),
+                !(pokemon.heldItemNoCopy().isEmpty && itemStack.isEmpty),
+                (!pokemon.cosmeticItem.isEmpty && itemStack.isEmpty) || cosmeticItemDefinition != null,
+                canRide
+            ).sendToPlayer(player)
+        }
+        else {
+            InteractPokemonUIPacket(
+                this.getUUID(),
+                false,
+                false,
+                false,
+                canRide
+            ).sendToPlayer(player)
+        }
     }
 
     override fun getDimensions(pose: Pose): EntityDimensions {
