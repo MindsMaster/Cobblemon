@@ -69,7 +69,7 @@ class LocatorAccess(
      * Updates all of the locator states with the position at this current frame.
      * This is the same logic as ModelPart uses, that's why we reuse ModelPart#rotate.
      */
-    fun update(matrixStack: PoseStack, entity: Entity?, scale: Float, state: MutableMap<String, MatrixWrapper>, isRoot: Boolean = false) {
+    fun update(matrixStack: PoseStack, entity: Entity?, scale: Float, state: MutableMap<String, MatrixWrapper>, isRoot: Boolean = false, currentLocators: MutableList<String> = mutableListOf<String>()) {
         matrixStack.pushPose()
         joint.transform(matrixStack)
 
@@ -102,19 +102,25 @@ class LocatorAccess(
             matrixStack.scale(-1F, -1F, 1F)
             state.getOrPut("top") { MatrixWrapper() }.updateMatrix(matrixStack.last().pose())
             matrixStack.popPose()
+
+            currentLocators.addAll( listOf("root", "target", "special_attack", "middle", "top") )
         }
 
         for ((name, locator) in locators) {
             matrixStack.pushPose()
             locator.transform(matrixStack)
             matrixStack.scale(-1F, -1F, 1F)
+            currentLocators.add(name)
             state.getOrPut(name) { MatrixWrapper() }.updateMatrix(matrixStack.last().pose())
             matrixStack.popPose()
         }
 
         children.forEach {
-            it.update(matrixStack, entity, scale, state, isRoot = false)
+            it.update(matrixStack, entity, scale, state, isRoot = false, currentLocators)
         }
+
+        // remove locator keys from state that are not in currentLocators. this ensures that the locatorState only has locators that are currently on the model
+        if (isRoot) state.keys.retainAll { it in currentLocators }
 
         matrixStack.popPose()
     }
