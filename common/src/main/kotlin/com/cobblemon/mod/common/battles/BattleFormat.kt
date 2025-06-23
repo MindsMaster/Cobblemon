@@ -32,9 +32,17 @@ data class BattleFormat(
     companion object {
         fun setBattleRules(
             battleFormat: BattleFormat,
-            rules: Set<String>
+            rules: Set<String>,
+            adjustLevel: Int
         ): BattleFormat {
-            return battleFormat.copy(ruleSet = battleFormat.ruleSet + rules)
+            val ruleValues = rules.mapNotNull { ruleName ->
+                BattleRules::class.members
+                    .filterIsInstance<kotlin.reflect.KProperty1<BattleRules, String>>()
+                    .find { it.name == ruleName }
+                    ?.getter
+                    ?.call()
+            }
+            return battleFormat.copy(ruleSet = battleFormat.ruleSet + ruleValues, adjustLevel = adjustLevel)
         }
 
         fun fromFormatIdentifier(id: String): BattleFormat = when (id) {
@@ -46,17 +54,17 @@ data class BattleFormat(
 
         val GEN_9_SINGLES = BattleFormat(
             battleType = BattleTypes.SINGLES,
-            ruleSet = setOf(BattleRules.OBTAINABLE, BattleRules.PAST, BattleRules.UNOBTAINABLE)
+            ruleSet = mutableSetOf(BattleRules.OBTAINABLE, BattleRules.PAST, BattleRules.UNOBTAINABLE)
         )
 
         val GEN_9_DOUBLES = BattleFormat(
             battleType = BattleTypes.DOUBLES,
-            ruleSet = setOf(BattleRules.OBTAINABLE, BattleRules.PAST, BattleRules.UNOBTAINABLE)
+            ruleSet = mutableSetOf(BattleRules.OBTAINABLE, BattleRules.PAST, BattleRules.UNOBTAINABLE)
         )
 
         val GEN_9_TRIPLES = BattleFormat(
                 battleType = BattleTypes.TRIPLES,
-                ruleSet = setOf(BattleRules.OBTAINABLE, BattleRules.PAST, BattleRules.UNOBTAINABLE)
+                ruleSet = mutableSetOf(BattleRules.OBTAINABLE, BattleRules.PAST, BattleRules.UNOBTAINABLE)
         )
 
         val GEN_9_MULTI = BattleFormat(

@@ -548,9 +548,10 @@ object MoLangFunctions {
                         battleFormat = format,
                         rules = params.getStringOrNull(4)
                             ?.split(",")
-                            ?.map { it.trim().asIdentifierDefaultingNamespace().toString() }
+                            ?.map { it }
                             ?.toSet()
-                            ?: emptySet()
+                            ?: emptySet(),
+                        adjustLevel = params.getInt(5) ?: -1
                     )
                     val cloneParties = params.getBooleanOrNull(2) ?: false
                     val healFirst = params.getBooleanOrNull(3) ?: false

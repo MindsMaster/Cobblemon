@@ -27,6 +27,7 @@ import com.cobblemon.mod.common.battles.BattleRegistry
 import com.cobblemon.mod.common.util.asIdentifierDefaultingNamespace
 import com.cobblemon.mod.common.util.asUUID
 import com.cobblemon.mod.common.util.getBooleanOrNull
+import com.cobblemon.mod.common.util.getIntOrNull
 import com.cobblemon.mod.common.util.getStringOrNull
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.server.level.ServerPlayer
@@ -85,9 +86,10 @@ class NPCServerDelegate : NPCSideDelegate {
                     battleFormat = format,
                     rules = params.getStringOrNull(4)
                         ?.split(",")
-                        ?.map { it.trim().asIdentifierDefaultingNamespace().toString() }
+                        ?.map { it }
                         ?.toSet()
-                        ?: emptySet()
+                        ?: emptySet(),
+                    adjustLevel = params.getIntOrNull(5) ?: -1
                 )
                 val cloneParties = params.getBooleanOrNull(2) ?: false
                 val healFirst = params.getBooleanOrNull(3) ?: false
