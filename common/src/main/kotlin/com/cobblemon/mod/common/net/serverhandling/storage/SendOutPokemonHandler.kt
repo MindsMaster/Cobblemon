@@ -51,12 +51,17 @@ object SendOutPokemonHandler : ServerNetworkPacketHandler<SendOutPokemonPacket> 
         }
     }
 
-    private fun stopRiding(pokemon: PokemonEntity, driver: ServerPlayer) {
+    private fun stopRiding(pokemon: PokemonEntity, passenger: ServerPlayer) {
         val shouldStopRiding = pokemon.ifRidingAvailableSupply(false) { behaviour, settings, state ->
             behaviour.getRidingStyle(settings, state) != RidingStyle.AIR
         }
         if (shouldStopRiding) {
-            driver.stopRiding()
+            if (pokemon.controllingPassenger == passenger) {
+                pokemon.passengers.forEach { it.stopRiding() }
+            }
+            else {
+                passenger.stopRiding()
+            }
         }
     }
 
