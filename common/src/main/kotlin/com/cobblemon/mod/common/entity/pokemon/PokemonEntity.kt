@@ -2134,9 +2134,7 @@ open class PokemonEntity(
     }
 
     override fun getDismountLocationForPassenger(passenger: LivingEntity): Vec3 {
-//        val seat = this.riding.seats.firstOrNull { it.occupant() == passenger }
-//        seat?.dismount()
-        return super.getDismountLocationForPassenger(passenger)
+        return Vec3(this.x, this.getBoundingBox().minY, this.z)
     }
 
     override fun getRiddenInput(controller: Player, movementInput: Vec3): Vec3 {
