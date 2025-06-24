@@ -6,6 +6,7 @@ import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.net.messages.server.pasture.SetPastureConflictPacket
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
+import com.cobblemon.mod.common.net.messages.client.pasture.UpdatePastureConflictFlagPacket
 
 object SetPastureConflictHandler : ServerNetworkPacketHandler<SetPastureConflictPacket> {
     override fun handle(packet: SetPastureConflictPacket, server: MinecraftServer, player: ServerPlayer) {
@@ -16,5 +17,8 @@ object SetPastureConflictHandler : ServerNetworkPacketHandler<SetPastureConflict
 
         entity.setBehaviourFlag(PokemonBehaviourFlag.PASTURE_CONFLICT, packet.enabled)
         entity.remakeBrain()
+
+        // Send packet from the server to client GUI to update the toggle button
+        UpdatePastureConflictFlagPacket(packet.pokemonId, packet.enabled).sendToPlayer(player)
     }
 }

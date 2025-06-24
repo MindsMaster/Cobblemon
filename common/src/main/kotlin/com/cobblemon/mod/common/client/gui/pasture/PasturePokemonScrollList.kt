@@ -166,12 +166,14 @@ class PasturePokemonScrollList(
         fun isOwned() = client.player?.uuid == pokemon.playerId
         fun canUnpasture() = isOwned() || parent.pasturePCGUIConfiguration.permissions.canUnpastureOthers
 
-        private val conflictButton: PastureSlotIconConflictButton = PastureSlotIconConflictButton(
+        val conflictButton: PastureSlotIconConflictButton = PastureSlotIconConflictButton(
             xPos = 0,
             yPos = 0,
             onPress = {
-                SetPastureConflictPacket(pokemon.pokemonId, enabled = true).sendToServer()
+                val currentlyEnabled = "cobblemon:pasture_conflict" in pokemon.behaviourFlags
+                SetPastureConflictPacket(pokemon.pokemonId, !currentlyEnabled).sendToServer()
             }
+
         )
 
         private val moveButton: PastureSlotIconButton = PastureSlotIconButton(

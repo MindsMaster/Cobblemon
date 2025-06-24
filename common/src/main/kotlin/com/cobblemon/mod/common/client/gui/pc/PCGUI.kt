@@ -19,6 +19,9 @@ import com.cobblemon.mod.common.client.CobblemonResources
 import com.cobblemon.mod.common.client.gui.CobblemonRenderable
 import com.cobblemon.mod.common.client.gui.ExitButton
 import com.cobblemon.mod.common.client.gui.TypeIcon
+import com.cobblemon.mod.common.client.gui.pasture.PasturePCGUIConfiguration
+import com.cobblemon.mod.common.client.gui.pasture.PasturePokemonScrollList
+import com.cobblemon.mod.common.client.gui.pasture.PastureWidget
 import com.cobblemon.mod.common.client.gui.summary.Summary
 import com.cobblemon.mod.common.client.gui.summary.Summary.Companion.iconCosmeticItemResource
 import com.cobblemon.mod.common.client.gui.summary.Summary.Companion.iconHeldItemResource
@@ -103,6 +106,9 @@ class PCGUI(
     }
 
     private lateinit var storageWidget: StorageWidget
+    val storage: StorageWidget
+        get() = storageWidget
+
     private lateinit var boxNameWidget: BoxNameWidget
     private lateinit var filterWidget: FilterWidget
     private lateinit var wallpaperWidget: WallpapersScrollingWidget
@@ -777,6 +783,10 @@ class PCGUI(
     private fun saveMarkings(isParty: Boolean = false) {
         if (::markingsWidget.isInitialized) markingsWidget.saveMarkingsToPokemon(isParty)
     }
+
+    val pastureScrollList: PasturePokemonScrollList?
+        get() = (configuration as? PasturePCGUIConfiguration)
+            ?.let { children().filterIsInstance<PastureWidget>().firstOrNull()?.scrollList }
 
     fun setPreviewPokemon(pokemon: Pokemon?, isParty: Boolean = false) {
         if (pokemon != null) {

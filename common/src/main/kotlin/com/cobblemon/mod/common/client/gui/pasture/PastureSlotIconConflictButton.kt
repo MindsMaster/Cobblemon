@@ -27,16 +27,32 @@ class PastureSlotIconConflictButton(
 
         private val baseResource = cobblemonResource("textures/gui/pasture/pasture_slot_icon_defend.png")
     }
+    private var enabled: Boolean = false
+
+    fun setEnabled(enabled: Boolean) {
+        this.enabled = enabled
+    }
+
+    fun isEnabled(): Boolean = enabled
 
     override fun renderWidget(context: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {
+        val hovered = isHovered(mouseX.toDouble(), mouseY.toDouble())
+
+        val vOffset = when {
+            !enabled && !hovered -> 0          // disabled
+            !enabled && hovered -> SIZE        // disabled + hover
+            enabled && !hovered -> SIZE * 2    // enabled
+            else -> SIZE * 3                   // enabled + hover
+        }
+
         blitk(
             matrixStack = context.pose(),
             x = xPos / SCALE,
             y = yPos / SCALE,
             width = SIZE,
             height = SIZE,
-            vOffset = if (isHovered(mouseX.toDouble(), mouseY.toDouble())) SIZE else 0,
-            textureHeight = SIZE * 2,
+            vOffset = vOffset,
+            textureHeight = SIZE * 4,
             texture = baseResource,
             scale = SCALE
         )

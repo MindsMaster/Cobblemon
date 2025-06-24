@@ -33,7 +33,8 @@ class OpenPasturePacket(val pcId: UUID, val pastureId: UUID, val limit: Int, val
         val aspects: Set<String>,
         val heldItem: ItemStack,
         val level: Int,
-        val entityKnown: Boolean
+        val entityKnown: Boolean,
+        var behaviourFlags: Set<String> = emptySet()
     ) {
         companion object {
             fun decode(buffer: RegistryFriendlyByteBuf): PasturePokemonDataDTO {
@@ -45,6 +46,7 @@ class OpenPasturePacket(val pcId: UUID, val pastureId: UUID, val limit: Int, val
                 val heldItem = buffer.readItemStack()
                 val level = buffer.readSizedInt(IntSize.U_SHORT)
                 val entityKnown = buffer.readBoolean()
+                val behaviourFlags = buffer.readList { it.readString() }.toSet()
 
                 return PasturePokemonDataDTO(
                     pokemonId = pokemonId,
@@ -54,7 +56,8 @@ class OpenPasturePacket(val pcId: UUID, val pastureId: UUID, val limit: Int, val
                     aspects = aspects,
                     heldItem = heldItem,
                     level = level,
-                    entityKnown = entityKnown
+                    entityKnown = entityKnown,
+                    behaviourFlags = behaviourFlags
                 )
             }
         }
@@ -68,6 +71,7 @@ class OpenPasturePacket(val pcId: UUID, val pastureId: UUID, val limit: Int, val
             buffer.writeItemStack(heldItem)
             buffer.writeSizedInt(IntSize.U_SHORT, level)
             buffer.writeBoolean(entityKnown)
+            buffer.writeCollection(behaviourFlags) { _, flag -> buffer.writeString(flag) }
         }
     }
 
