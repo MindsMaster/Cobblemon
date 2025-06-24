@@ -5118,5 +5118,9 @@
     "cobblemon.ability.embodyaspecthearthflame": "Incorporar Aspeto",
     "cobblemon.ability.embodyaspecthearthflame.desc": "O coração do Pokémon enche-se de memórias, fazendo com que a Máscara Fornalha brilhe e o atributo de Ataque do Pokémon seja aumentado.",
     "cobblemon.ability.embodyaspectteal": "Incorporar Aspeto",
-    "cobblemon.ability.embodyaspectcornerstone.desc": "O coração do Pokémon enche-se de memórias, fazendo com que a Máscara Pedra Angular brilhe e o atributo de Defesa do Pokémon seja aumentado."
+    "cobblemon.ability.embodyaspectcornerstone.desc": "O coração do Pokémon enche-se de memórias, fazendo com que a Máscara Pedra Angular brilhe e o atributo de Defesa do Pokémon seja aumentado.",
+    "cobblemon.ability.multitype": "Multitipo",
+    "cobblemon.ability.multitype.desc": "Altera o tipo do Pokémon para corresponder à placa que estiver a segurar.",
+    "cobblemon.ability.deltastream": "Corrente Delta",
+    "cobblemon.ability.deltastream.desc": "O Pokémon altera o clima para que nenhum movimento seja supereficaz contra o tipo Voador."
 }
