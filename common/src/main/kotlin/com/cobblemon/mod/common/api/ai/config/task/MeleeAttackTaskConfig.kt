@@ -19,7 +19,7 @@ import net.minecraft.world.entity.ai.behavior.BehaviorControl
 class MeleeAttackTaskConfig : SingleTaskConfig {
     val condition = booleanVariable(SharedEntityVariables.ATTACKING_CATEGORY, "attacks_melee", true).asExpressible()
     val range = numberVariable(SharedEntityVariables.ATTACKING_CATEGORY, "melee_range", 1.5F).asExpressible()
-    val cooldownTicks = numberVariable(SharedEntityVariables.ATTACKING_CATEGORY, "melee_cooldown", 30).asExpressible()
+    val cooldownTicks = numberVariable(SharedEntityVariables.ATTACKING_CATEGORY, "melee_cooldown", 20).asExpressible()
 
     override fun getVariables(entity: LivingEntity) = listOf(
         condition,

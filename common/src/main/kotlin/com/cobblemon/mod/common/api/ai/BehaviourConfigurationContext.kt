@@ -35,6 +35,10 @@ class BehaviourConfigurationContext {
             entity.initializeScripting()
         }
 
+        // TODO val sensors & memories = behaviourConfigs.flatMap { it.getSensors & memories }.distinct()
+        // brainProvider(ALL_MEMORIES.filter { it in memories }.toSet(), ALL_SENSORS.filter { it in sensors }.toSet())
+        // should escape the generic hell and keep superfluous things out
+
         // Setup the brain config
         behaviourConfigs.forEach { it.configure(entity, this) }
 

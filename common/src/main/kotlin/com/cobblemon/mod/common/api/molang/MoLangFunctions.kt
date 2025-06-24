@@ -297,6 +297,13 @@ object MoLangFunctions {
                     }
                 world.setBlock(BlockPos(x, y, z), block.defaultBlockState(), Block.UPDATE_ALL)
             }
+            map.put("is_air") { params ->
+                val x = params.getDouble(0).toInt()
+                val y = params.getDouble(1).toInt()
+                val z = params.getDouble(2).toInt()
+                val blockState = world.getBlockState(BlockPos(x, y, z))
+                return@put DoubleValue(blockState.isAir)
+            }
             map.put("get_block") { params ->
                 val x = params.getInt(0)
                 val y = params.getInt(1)

@@ -57,6 +57,7 @@ interface TaskConfig {
             cobblemonResource("do_nothing") to DoNothingTaskConfig::class.java,
             cobblemonResource("get_angry_at_attacker") to GetAngryAtAttackerTaskConfig::class.java,
             cobblemonResource("stop_being_angry_if_attacker_dead") to StopBeingAngryIfAttackerDeadTaskConfig::class.java,
+            cobblemonResource("stop_attacking_if_target_invalid") to StopAttackingIfTargetInvalidTaskConfig::class.java,
             cobblemonResource("switch_npc_to_battle") to SwitchToNPCBattleTaskConfig::class.java,
             cobblemonResource("look_at_battling_pokemon") to LookAtBattlingPokemonTaskConfig::class.java,
             cobblemonResource("switch_npc_from_battle") to SwitchFromNPCBattleTaskConfig::class.java,
@@ -104,8 +105,10 @@ interface TaskConfig {
             cobblemonResource("switch_from_herd") to SwitchFromHerdTaskConfig::class.java,
             cobblemonResource("maintain_herd_leader") to MaintainHerdLeaderTaskConfig::class.java,
             cobblemonResource("count_followers") to CountFollowersTaskConfig::class.java,
+            cobblemonResource("hate_entity") to HateEntityTaskConfig::class.java,
+            cobblemonResource("target_entity") to TargetEntityTaskConfig::class.java,
         )
-        
+
         val runtime = MoLangRuntime().setup()
     }
 

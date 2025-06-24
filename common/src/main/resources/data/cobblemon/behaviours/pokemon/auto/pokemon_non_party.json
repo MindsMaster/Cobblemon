@@ -40,8 +40,7 @@
       "type": "apply_behaviours",
       "condition": "!q.entity.is_in_party && q.entity.behaviour.combat.will_defend_self",
       "behaviours": [
-        "cobblemon:retaliates",
-        "cobblemon:fights_melee"
+        "cobblemon:retaliates"
       ]
     },
     {

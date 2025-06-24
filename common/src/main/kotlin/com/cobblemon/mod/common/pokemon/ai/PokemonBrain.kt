@@ -175,7 +175,8 @@ object PokemonBrain {
         CobblemonMemories.POKEMON_SLEEPING,
         CobblemonMemories.RECENTLY_ATE_GRASS,
         CobblemonMemories.HERD_LEADER,
-        CobblemonMemories.HERD_SIZE
+        CobblemonMemories.HERD_SIZE,
+        CobblemonMemories.ATTACK_TARGET_DATA
     )
 
     private fun coreTasks(pokemon: Pokemon) = buildList<Pair<Int, BehaviorControl<in PokemonEntity>>> {

@@ -57,6 +57,8 @@ class GoToLandTaskConfig : SingleTaskConfig {
 
                     entity as PathfinderMob
 
+                    val walkSpeedValue = walkSpeed.resolveFloat()
+
                     val iterable = BlockPos.betweenClosed(
                         Mth.floor(entity.x - 8.0),
                         entity.blockY,
@@ -72,7 +74,7 @@ class GoToLandTaskConfig : SingleTaskConfig {
                         isSafeLandPosAround(entity.level() as ServerLevel, it, entity)
                     } ?: return@Trigger false
 
-                    walkTarget.set(WalkTarget(blockPos.above(), 0.35F, 1))
+                    walkTarget.set(WalkTarget(blockPos.above(), walkSpeedValue, 0))
                     return@Trigger true
                 }
             }

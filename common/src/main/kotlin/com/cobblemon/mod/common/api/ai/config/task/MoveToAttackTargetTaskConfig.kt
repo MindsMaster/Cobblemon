@@ -18,7 +18,7 @@ import net.minecraft.world.entity.LivingEntity
 
 class MoveToAttackTargetTaskConfig : SingleTaskConfig {
     val speedMultiplier = numberVariable(SharedEntityVariables.ATTACKING_CATEGORY, "attacking_movement_speed", 0.5).asExpressible()
-    val closeEnoughDistance: ExpressionOrEntityVariable = Either.left("1".asExpression())
+    val closeEnoughDistance: ExpressionOrEntityVariable = Either.left("0".asExpression())
 
     override fun getVariables(entity: LivingEntity) = listOf(
         speedMultiplier,
