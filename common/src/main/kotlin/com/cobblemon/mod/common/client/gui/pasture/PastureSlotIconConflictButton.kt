@@ -33,8 +33,6 @@ class PastureSlotIconConflictButton(
         this.enabled = enabled
     }
 
-    fun isEnabled(): Boolean = enabled
-
     override fun renderWidget(context: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {
         val hovered = isHovered(mouseX.toDouble(), mouseY.toDouble())
 

@@ -10,6 +10,7 @@ package com.cobblemon.mod.common.client.gui.pasture
 
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.gui.blitk
+import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.api.text.bold
 import com.cobblemon.mod.common.api.text.text
 import com.cobblemon.mod.common.client.CobblemonResources
@@ -23,6 +24,7 @@ import com.cobblemon.mod.common.client.render.renderScaledGuiItemIcon
 import com.cobblemon.mod.common.net.messages.client.pasture.OpenPasturePacket
 import com.cobblemon.mod.common.net.messages.server.pasture.SetPastureConflictPacket
 import com.cobblemon.mod.common.net.messages.server.pasture.UnpasturePokemonPacket
+import com.cobblemon.mod.common.pokemon.Species
 import com.cobblemon.mod.common.util.cobblemonResource
 import com.cobblemon.mod.common.util.lang
 import com.cobblemon.mod.common.util.math.fromEulerXYZDegrees
@@ -165,6 +167,7 @@ class PasturePokemonScrollList(
 
         fun isOwned() = client.player?.uuid == pokemon.playerId
         fun canUnpasture() = isOwned() || parent.pasturePCGUIConfiguration.permissions.canUnpastureOthers
+        fun canDefend() = PokemonSpecies.getByIdentifier(pokemon.species)?.behaviour?.combat?.willDefendOwner
 
         val conflictButton: PastureSlotIconConflictButton = PastureSlotIconConflictButton(
             xPos = 0,
@@ -274,19 +277,22 @@ class PasturePokemonScrollList(
             }
 
             if (canUnpasture()) {
-                // Position buttons
-                conflictButton.setPos(x + 2, y + 4) // Place conflict button near the top
-                moveButton.setPos(x + 2, y + 13)    // Shifted down ~4px to make room
+                var yOffset = y + 4
 
-                // Render buttons
-                conflictButton.render(context, mouseX, mouseY, partialTicks)
+                if (canDefend() == true) {
+                    conflictButton.setPos(x + 2, yOffset)
+                    conflictButton.render(context, mouseX, mouseY, partialTicks)
+                    yOffset += 9
+                }
+
+                moveButton.setPos(x + 2, yOffset)
                 moveButton.render(context, mouseX, mouseY, partialTicks)
             }
         }
 
         override fun mouseClicked(mouseX: Double, mouseY: Double, delta: Int): Boolean {
             if (canUnpasture()) {
-                if (conflictButton.isHovered(mouseX, mouseY)) {
+                if (canDefend() == true && conflictButton.isHovered(mouseX, mouseY)) {
                     conflictButton.onPress()
                     return true
                 }
