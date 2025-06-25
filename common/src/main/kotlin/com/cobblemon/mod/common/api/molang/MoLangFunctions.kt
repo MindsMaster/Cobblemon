@@ -548,6 +548,7 @@ object MoLangFunctions {
                         ?: BattleFormat.GEN_9_SINGLES
 
                     val setLevel = params.getIntOrNull(2) ?: -1
+                    format.adjustLevel = setLevel
 
                     val rules = params.getStringOrNull(5)
                         ?.split(",")
@@ -557,11 +558,9 @@ object MoLangFunctions {
                     val modifiedBattleFormat = BattleFormat.setBattleRules(
                         battleFormat = format,
                         rules = rules
-                    ).apply {
-                        adjustLevel = setLevel
-                    }
+                    )
 
-                    val cloneParties = params.getBooleanOrNull(3) ?: false
+                    val cloneParties = (setLevel != -1) || (params.getBooleanOrNull(3) ?: false)
                     val healFirst = params.getBooleanOrNull(4) ?: false
 
                     val battleStartResult = BattleBuilder.pvp1v1(

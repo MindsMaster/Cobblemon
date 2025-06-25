@@ -81,11 +81,13 @@ class NPCServerDelegate : NPCSideDelegate {
                         entity.server!!.playerList.getPlayerByName(paramString) ?: return@addFunction DoubleValue.ZERO
                     }
                 }
-                val format = params.getStringOrNull(1)
+
+                val format = (params.getStringOrNull(1)
                     ?.let(BattleFormat::fromFormatIdentifier)
-                    ?: BattleFormat.GEN_9_SINGLES
+                    ?: BattleFormat.GEN_9_SINGLES)
 
                 val setLevel = params.getIntOrNull(2) ?: -1
+                format.adjustLevel = setLevel
 
                 val rules = params.getStringOrNull(5)
                     ?.split(",")
@@ -95,13 +97,12 @@ class NPCServerDelegate : NPCSideDelegate {
                 val modifiedBattleFormat = BattleFormat.setBattleRules(
                     battleFormat = format,
                     rules = rules
-                ).apply {
-                    adjustLevel = setLevel
-                }
+                )
 
-                val cloneParties = params.getBooleanOrNull(3) ?: false
+                val cloneParties = (setLevel != -1) || (params.getBooleanOrNull(3) ?: false)
                 val healFirst = params.getBooleanOrNull(4) ?: false
 
+                println("Cobblemon: Starting battle with format: $modifiedBattleFormat, level: ${modifiedBattleFormat.adjustLevel}")
                 val battleStartResult = BattleBuilder.pvn(
                     player = opponent,
                     npcEntity = entity,
