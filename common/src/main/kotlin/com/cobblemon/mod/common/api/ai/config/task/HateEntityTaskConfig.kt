@@ -22,6 +22,7 @@ import net.minecraft.world.entity.ai.behavior.BehaviorControl
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder
 import net.minecraft.world.entity.ai.behavior.declarative.Trigger
 import net.minecraft.world.entity.ai.memory.MemoryModuleType
+import net.minecraft.world.entity.ai.sensing.SensorType
 
 /**
  * Immediately gets angry at the nearest visible entity that matches the [entityCondition] and is within the [range].
@@ -39,6 +40,11 @@ class HateEntityTaskConfig : SingleTaskConfig {
         behaviourConfigurationContext: BehaviourConfigurationContext
     ): BehaviorControl<in LivingEntity>? {
         val range = range.resolveFloat()
+        behaviourConfigurationContext.addMemories(
+            MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
+            MemoryModuleType.ANGRY_AT
+        )
+        behaviourConfigurationContext.addSensors(SensorType.NEAREST_LIVING_ENTITIES)
         return BehaviorBuilder.create { instance ->
             instance.group(
                 instance.present(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES),

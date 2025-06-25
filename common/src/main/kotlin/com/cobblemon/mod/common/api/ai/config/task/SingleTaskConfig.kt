@@ -9,10 +9,13 @@
 package com.cobblemon.mod.common.api.ai.config.task
 
 import com.cobblemon.mod.common.api.ai.BehaviourConfigurationContext
+import com.cobblemon.mod.common.api.ai.config.task.TaskConfig.Companion.NO_MEMORIES
+import com.cobblemon.mod.common.api.ai.config.task.TaskConfig.Companion.NO_SENSORS
 import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.ai.behavior.BehaviorControl
 import net.minecraft.world.entity.ai.behavior.DoNothing
+import net.minecraft.world.entity.ai.memory.MemoryModuleType
 
 interface SingleTaskConfig : TaskConfig {
     companion object {

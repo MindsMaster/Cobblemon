@@ -24,6 +24,7 @@ import net.minecraft.world.entity.ai.behavior.BehaviorControl
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder
 import net.minecraft.world.entity.ai.behavior.declarative.Trigger
 import net.minecraft.world.entity.ai.memory.MemoryModuleType
+import net.minecraft.world.entity.ai.sensing.SensorType
 
 class FindHerdLeaderTaskConfig : SingleTaskConfig {
     // How frequently to check for whether it should herd. Probably isn't that expensive but might use this for chance.
@@ -41,6 +42,12 @@ class FindHerdLeaderTaskConfig : SingleTaskConfig {
             return null
         }
 
+        behaviourConfigurationContext.addMemories(
+            MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
+            CobblemonMemories.HERD_LEADER,
+            MemoryModuleType.WALK_TARGET
+        )
+        behaviourConfigurationContext.addSensors(SensorType.NEAREST_LIVING_ENTITIES)
         runtime.withQueryValue("entity", entity.asMostSpecificMoLangValue())
         val checkTicksValue = checkTicks.resolveInt()
         return BehaviorBuilder.create { instance ->

@@ -23,6 +23,7 @@ import com.cobblemon.mod.common.util.withQueryValue
 import com.mojang.datafixers.util.Either
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.ai.behavior.BehaviorControl
+import net.minecraft.world.entity.ai.memory.MemoryModuleType
 
 class FlyInCirclesTaskConfig : SingleTaskConfig {
     val poseTypes: Set<PoseType> = setOf(
@@ -55,6 +56,7 @@ class FlyInCirclesTaskConfig : SingleTaskConfig {
         if (entity !is PokemonEntity) {
             return null
         }
+        behaviourConfigurationContext.addMemories(MemoryModuleType.WALK_TARGET, MemoryModuleType.PATH)
         runtime.withQueryValue("entity", entity.asMostSpecificMoLangValue())
         return CircleAroundTask(
             poseTypes = poseTypes,

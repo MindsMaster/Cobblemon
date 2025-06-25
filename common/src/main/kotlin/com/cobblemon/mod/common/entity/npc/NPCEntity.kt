@@ -305,43 +305,13 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
 
 //        val BATTLING = Activity.register("npc_battling")
 
-        val SENSORS: Collection<SensorType<out Sensor<in NPCEntity>>> = listOf(
-            SensorType.NEAREST_LIVING_ENTITIES,
-            SensorType.HURT_BY,
-            SensorType.NEAREST_PLAYERS,
-            CobblemonSensors.BATTLING_POKEMON,
-            CobblemonSensors.NPC_BATTLING,
-            SensorType.VILLAGER_HOSTILES
-        )
-
-        val MEMORY_MODULES: List<MemoryModuleType<*>> = ImmutableList.of(
-            MemoryModuleType.LOOK_TARGET,
-            MemoryModuleType.WALK_TARGET,
-            MemoryModuleType.ATTACK_TARGET,
-            MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
-            MemoryModuleType.PATH,
-            MemoryModuleType.IS_PANICKING,
-            MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
-            CobblemonMemories.NPC_BATTLING,
-            CobblemonMemories.BATTLING_POKEMON,
-            MemoryModuleType.HURT_BY,
-            MemoryModuleType.HURT_BY_ENTITY,
-            MemoryModuleType.NEAREST_VISIBLE_PLAYER,
-            MemoryModuleType.ANGRY_AT,
-            MemoryModuleType.ATTACK_COOLING_DOWN,
-            CobblemonMemories.DIALOGUES,
-            CobblemonMemories.ACTIVE_ACTION_EFFECT,
-            MemoryModuleType.NEAREST_HOSTILE,
-            CobblemonMemories.PATH_COOLDOWN
-        )
-
         const val SEND_OUT_ANIMATION = "send_out"
         const val RECALL_ANIMATION = "recall"
         const val LOSE_ANIMATION = "lose"
         const val WIN_ANIMATION = "win"
     }
 
-    override fun brainProvider() = Brain.provider<NPCEntity>(MEMORY_MODULES, SENSORS)
+    override fun brainProvider() = Brain.provider<NPCEntity>(emptySet(), emptySet())
     override fun getBreedOffspring(world: ServerLevel, entity: AgeableMob) = null // No lovemaking! Unless...
     override fun getCurrentPoseType() = this.entityData.get(POSE_TYPE)
 
@@ -373,12 +343,26 @@ class NPCEntity(world: Level) : AgeableMob(CobblemonEntities.NPC, world), Npc, P
         makeBrain(this.brainDynamic ?: makeEmptyBrainDynamic())
     }
 
+    override fun assignNewBrainWithMemoriesAndSensors(
+        dynamic: Dynamic<*>,
+        memories: Set<MemoryModuleType<*>>,
+        sensors: Set<SensorType<*>>
+    ): Brain<out NPCEntity> {
+        val allSensors = BuiltInRegistries.SENSOR_TYPE.toSet().filterIsInstance<SensorType<Sensor<in NPCEntity>>>()
+        val brain = Brain.provider(
+            memories.toSet(),
+            allSensors.filter { it in sensors }.toSet()
+        ).makeBrain(dynamic)
+        this.brain = brain
+        return brain
+    }
+
     override fun makeBrain(dynamic: Dynamic<*>): Brain<out NPCEntity> {
         this.brainDynamic = dynamic
         val brain = brainProvider().makeBrain(dynamic)
         this.brain = brain
         if (npc != null) {
-            NPCBrain.configure(this, npc, brain)
+            NPCBrain.configure(this, npc, dynamic)
         }
         return brain
     }

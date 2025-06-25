@@ -15,6 +15,7 @@ import com.cobblemon.mod.common.entity.ai.MoveToAttackTargetTask
 import com.cobblemon.mod.common.util.asExpression
 import com.mojang.datafixers.util.Either
 import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.ai.memory.MemoryModuleType
 
 class MoveToAttackTargetTaskConfig : SingleTaskConfig {
     val speedMultiplier = numberVariable(SharedEntityVariables.ATTACKING_CATEGORY, "attacking_movement_speed", 0.5).asExpressible()
@@ -31,5 +32,10 @@ class MoveToAttackTargetTaskConfig : SingleTaskConfig {
     ) = MoveToAttackTargetTask.create(
         speedMultiplier = speedMultiplier.asExpression(),
         closeEnoughDistance = closeEnoughDistance.asExpression()
-    )
+    ).also {
+        behaviourConfigurationContext.addMemories(
+            MemoryModuleType.ATTACK_TARGET,
+            MemoryModuleType.WALK_TARGET
+        )
+    }
 }

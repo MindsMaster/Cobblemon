@@ -25,6 +25,7 @@ import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder
 import net.minecraft.world.entity.ai.behavior.declarative.Trigger
 import net.minecraft.world.entity.ai.memory.MemoryModuleType
 import net.minecraft.world.entity.ai.memory.MemoryStatus
+import net.minecraft.world.entity.ai.sensing.SensorType
 
 /**
  * Directly sets the attack target of the entity to the nearest visible entity that matches the [entityCondition]
@@ -43,6 +44,12 @@ class TargetEntityTaskConfig : SingleTaskConfig {
         behaviourConfigurationContext: BehaviourConfigurationContext
     ): BehaviorControl<in LivingEntity>? {
         val range = range.resolveFloat()
+        behaviourConfigurationContext.addMemories(
+            MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
+            MemoryModuleType.ATTACK_TARGET,
+            CobblemonMemories.ATTACK_TARGET_DATA
+        )
+        behaviourConfigurationContext.addSensors(SensorType.NEAREST_LIVING_ENTITIES)
         return BehaviorBuilder.create { instance ->
             instance.group(
                 instance.present(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES),
@@ -55,12 +62,8 @@ class TargetEntityTaskConfig : SingleTaskConfig {
                     }.orElse(null)
 
                     if (target != null && target.distanceTo(entity) <= range) {
-                        if (entity.brain.checkMemory(CobblemonMemories.ATTACK_TARGET_DATA, MemoryStatus.REGISTERED)) {
-                            val attackTargetData = CobblemonAttackTargetData(
-                                shouldContinue = entityCondition
-                            )
-                            entity.brain.setMemory(CobblemonMemories.ATTACK_TARGET_DATA, attackTargetData)
-                        }
+                        val attackTargetData = CobblemonAttackTargetData(shouldContinue = entityCondition)
+                        entity.brain.setMemory(CobblemonMemories.ATTACK_TARGET_DATA, attackTargetData)
                         attackTarget.set(target)
                     }
                     return@Trigger true

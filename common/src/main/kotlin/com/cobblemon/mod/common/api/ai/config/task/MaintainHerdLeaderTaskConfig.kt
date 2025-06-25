@@ -25,6 +25,7 @@ import net.minecraft.world.entity.ai.behavior.BehaviorControl
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder
 import net.minecraft.world.entity.ai.behavior.declarative.Trigger
 import net.minecraft.world.entity.ai.memory.MemoryModuleType
+import net.minecraft.world.entity.ai.sensing.SensorType
 
 /**
  * Task that looks around for a better herd leader or gives up on a leader
@@ -48,6 +49,11 @@ class MaintainHerdLeaderTaskConfig : SingleTaskConfig {
         if (entity !is PokemonEntity) {
             return null
         }
+        behaviourConfigurationContext.addMemories(
+            CobblemonMemories.HERD_LEADER,
+            MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
+        )
+        behaviourConfigurationContext.addSensors(SensorType.NEAREST_LIVING_ENTITIES)
         runtime.withQueryValue("entity", entity.asMostSpecificMoLangValue())
         val checkTicks = checkTicks.resolveInt()
         return BehaviorBuilder.create { instance ->

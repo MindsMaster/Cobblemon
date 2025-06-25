@@ -152,9 +152,11 @@ import net.minecraft.world.entity.ai.Brain
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier
 import net.minecraft.world.entity.ai.attributes.Attributes
 import net.minecraft.world.entity.ai.control.MoveControl
+import net.minecraft.world.entity.ai.memory.MemoryModuleType
+import net.minecraft.world.entity.ai.sensing.Sensor
+import net.minecraft.world.entity.ai.sensing.SensorType
 import net.minecraft.world.entity.animal.Animal
 import net.minecraft.world.entity.animal.ShoulderRidingEntity
-import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.DyeItem
 import net.minecraft.world.item.ItemStack
@@ -885,29 +887,43 @@ open class PokemonEntity(
     override fun getNavigation() = navigation as OmniPathNavigation
     override fun createNavigation(world: Level) = OmniPathNavigation(world, this)
 
-    override fun makeBrain(dynamic: Dynamic<*>): Brain<out PokemonEntity> {
+    override fun makeBrain(dynamic: Dynamic<*>): Brain<PokemonEntity> {
         this.brainDynamic = dynamic
-        val brain = brainProvider().makeBrain(dynamic)
-        this.brain = brain
         val target = pokemon
         if (target != null) {
-            PokemonBrain.makeBrain(this, target, brain)
+            PokemonBrain.applyBrain(this, target, dynamic)
+            return getBrain()
+        } else {
+            // Look around, nobody cares.
+            val brain = brainProvider().makeBrain(dynamic)
+            this.brain = brain
+            return brain
         }
-        return brain
     }
 
     override fun remakeBrain() {
         brain = makeBrain(brainDynamic ?: makeEmptyBrainDynamic())
     }
 
-    // cast is safe, mojang do the same thing.
-    override fun getBrain() = super.getBrain() as Brain<PokemonEntity>
-
-    override fun brainProvider(): Brain.Provider<PokemonEntity> = Brain.provider(PokemonBrain.MEMORY_MODULES, PokemonBrain.SENSORS)
-
-    override fun registerGoals() {
-        super.registerGoals()
+    override fun assignNewBrainWithMemoriesAndSensors(
+        dynamic: Dynamic<*>,
+        memories: Set<MemoryModuleType<*>>,
+        sensors: Set<SensorType<*>>
+    ): Brain<PokemonEntity> {
+        val allSensors = BuiltInRegistries.SENSOR_TYPE.toSet().filterIsInstance<SensorType<Sensor<in PokemonEntity>>>()
+        val brain = Brain.provider(
+            memories,
+            allSensors.filter { it in sensors }.toSet()
+        ).makeBrain(dynamic)
+        this.brain = brain
+        return brain
     }
+
+    // cast is safe, mojang do the same thing.
+    override fun getBrain(): Brain<PokemonEntity> = super.getBrain() as Brain<PokemonEntity>
+
+    // Won't be the final call but Mojang is very confident we'll use their same structure. Think again, bucko.
+    override fun brainProvider(): Brain.Provider<PokemonEntity> = Brain.provider(PokemonBrain.MEMORY_MODULES, PokemonBrain.SENSORS)
 
     override fun onPathfindingDone() {
         super.onPathfindingDone()

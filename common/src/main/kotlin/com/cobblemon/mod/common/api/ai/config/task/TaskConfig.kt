@@ -32,6 +32,8 @@ import com.cobblemon.mod.common.util.withQueryValue
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.ai.behavior.BehaviorControl
+import net.minecraft.world.entity.ai.memory.MemoryModuleType
+import net.minecraft.world.entity.ai.sensing.SensorType
 
 /**
  * A configuration for a brain task. Its purpose is to generate a list of tasks to add to the brain of
@@ -97,7 +99,7 @@ interface TaskConfig {
             cobblemonResource("eat_grass") to EatGrassTaskConfig::class.java,
             cobblemonResource("find_air") to FindAirTaskConfig::class.java,
             cobblemonResource("go_to_land") to GoToLandTaskConfig::class.java,
-            cobblemonResource("battle_flight_task") to BattleFlightTaskConfig::class.java,
+            cobblemonResource("manage_flight_in_battle") to ManageFlightInBattleTaskConfig::class.java,
             cobblemonResource("move_into_fluid") to MoveIntoFluidTaskConfig::class.java,
             cobblemonResource("find_herd_leader") to FindHerdLeaderTaskConfig::class.java,
             cobblemonResource("follow_herd_leader") to FollowHerdLeaderTaskConfig::class.java,
@@ -110,6 +112,9 @@ interface TaskConfig {
         )
 
         val runtime = MoLangRuntime().setup()
+
+        val NO_MEMORIES = emptySet<MemoryModuleType<*>>()
+        val NO_SENSORS = emptySet<SensorType<*>>()
     }
 
     val runtime: MoLangRuntime

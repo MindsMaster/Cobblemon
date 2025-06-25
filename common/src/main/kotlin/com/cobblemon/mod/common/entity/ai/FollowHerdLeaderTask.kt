@@ -23,7 +23,10 @@ class FollowHerdLeaderTask(
     val tooFar: Float = 16F,
     val closeEnough: Float = 8F
 ) : Behavior<PokemonEntity>(
-    ImmutableMap.of(CobblemonMemories.HERD_LEADER, MemoryStatus.VALUE_PRESENT),
+    ImmutableMap.of(
+        CobblemonMemories.HERD_LEADER, MemoryStatus.VALUE_PRESENT,
+        MemoryModuleType.WALK_TARGET, MemoryStatus.REGISTERED,
+    ),
     0,
     0
 ) {
