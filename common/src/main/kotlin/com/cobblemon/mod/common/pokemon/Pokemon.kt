@@ -564,7 +564,11 @@ open class Pokemon : ShowdownIdentifiable {
             onChange(MarkingsUpdatePacket({ this }, value))
         }
 
-    fun asRenderablePokemon() = RenderablePokemon(species, aspects)
+    fun asRenderablePokemon(sync:Boolean=false) : RenderablePokemon {
+        val renderable = RenderablePokemon(species, aspects, if (heldItemVisible) heldItem else ItemStack.EMPTY)
+        if (sync) renderable.syncPokemon = this
+        return renderable
+    }
 
     /**
      * A set of aspects that were not calculated and must always be a part of the Pokémon's aspect list. This is the
@@ -637,6 +641,10 @@ open class Pokemon : ShowdownIdentifiable {
      * Whether this Pokémon's held item is visible or not
      */
     var heldItemVisible: Boolean = true
+        set(value) {
+            field = value
+            onChange()
+        }
 
     val riding: RidingProperties
         get() = this.form.riding

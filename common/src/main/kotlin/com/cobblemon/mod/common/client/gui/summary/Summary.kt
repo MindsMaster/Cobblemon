@@ -193,7 +193,6 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
             clickAction = {
                 selectedPokemon.heldItemVisible = !selectedPokemon.heldItemVisible
                 heldItemVisibilityButton.buttonActive = !selectedPokemon.heldItemVisible
-                modelWidget.heldItem = if (selectedPokemon.heldItemVisible) selectedPokemon.heldItem else null
                 // Send item visibility update to server
                 sendToServer(SetItemHiddenPacket(selectedPokemon.uuid, selectedPokemon.heldItemVisible))
             },
@@ -283,12 +282,11 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
             pY = y + 32,
             pWidth = PORTRAIT_SIZE,
             pHeight = PORTRAIT_SIZE,
-            pokemon = selectedPokemon.asRenderablePokemon(),
+            pokemon = selectedPokemon.asRenderablePokemon(sync = true),
             baseScale = 2F,
             rotationY = 325F,
             offsetY = -10.0,
             shouldFollowCursor = true,
-            heldItem = if (selectedPokemon.heldItemVisible) selectedPokemon.heldItem else null
         )
         addRenderableOnly(this.modelWidget)
     }
@@ -330,8 +328,7 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
         children().find { it is EvolutionSelectScreen }?.let(this::removeWidget)
 
         if (::modelWidget.isInitialized) {
-            modelWidget.pokemon = selectedPokemon.asRenderablePokemon()
-            modelWidget.heldItem = if (selectedPokemon.heldItemVisible) selectedPokemon.heldItem else null
+            modelWidget.pokemon = selectedPokemon.asRenderablePokemon(sync = true)
             heldItemVisibilityButton.buttonActive = !selectedPokemon.heldItemVisible
         }
 
@@ -702,7 +699,7 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
             this.focused = null
         }
         if (Cobblemon.config.enableDebugKeys) {
-            val model = VaryingModelRepository.getPoser(selectedPokemon.species.resourceIdentifier, modelWidget.state)
+            val model = VaryingModelRepository.getPoser(selectedPokemon.species.resourceIdentifier, modelWidget.pokemon.state)
             if (keyCode == InputConstants.KEY_UP) {
                 model.profileTranslation = model.profileTranslation.add(0.0, -0.01, 0.0)
             }
@@ -731,7 +728,7 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
 
     override fun onClose() {
         if (Cobblemon.config.enableDebugKeys) {
-            val model = VaryingModelRepository.getPoser(selectedPokemon.species.resourceIdentifier, modelWidget.state)
+            val model = VaryingModelRepository.getPoser(selectedPokemon.species.resourceIdentifier, modelWidget.pokemon.state)
             Minecraft.getInstance().player?.sendSystemMessage(Component.literal("Profile Translation: ${model.profileTranslation}"))
             Minecraft.getInstance().player?.sendSystemMessage(Component.literal("Profile Scale: ${model.profileScale}"))
             Cobblemon.LOGGER.info("override var profileTranslation = Vec3d(${model.profileTranslation.x}, ${model.profileTranslation.y}, ${model.profileTranslation.z})")
