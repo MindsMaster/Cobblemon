@@ -543,18 +543,27 @@ object MoLangFunctions {
                             server()?.playerList?.getPlayerByName(paramString) ?: return@put DoubleValue.ZERO
                         }
                     }
-                    val format = params.getStringOrNull(1)?.let { BattleFormat.fromFormatIdentifier(it) } ?: BattleFormat.GEN_9_SINGLES
+                    val format = params.getStringOrNull(1)
+                        ?.let(BattleFormat::fromFormatIdentifier)
+                        ?: BattleFormat.GEN_9_SINGLES
+
+                    val setLevel = params.getIntOrNull(2) ?: -1
+
+                    val rules = params.getStringOrNull(5)
+                        ?.split(",")
+                        ?.toSet()
+                        ?: emptySet()
+
                     val modifiedBattleFormat = BattleFormat.setBattleRules(
                         battleFormat = format,
-                        rules = params.getStringOrNull(4)
-                            ?.split(",")
-                            ?.map { it }
-                            ?.toSet()
-                            ?: emptySet(),
-                        adjustLevel = params.getInt(5) ?: -1
-                    )
-                    val cloneParties = params.getBooleanOrNull(2) ?: false
-                    val healFirst = params.getBooleanOrNull(3) ?: false
+                        rules = rules
+                    ).apply {
+                        adjustLevel = setLevel
+                    }
+
+                    val cloneParties = params.getBooleanOrNull(3) ?: false
+                    val healFirst = params.getBooleanOrNull(4) ?: false
+
                     val battleStartResult = BattleBuilder.pvp1v1(
                         player1 = player,
                         player2 = opponent,

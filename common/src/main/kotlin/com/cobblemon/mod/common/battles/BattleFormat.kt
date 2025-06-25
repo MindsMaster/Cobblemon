@@ -32,23 +32,26 @@ data class BattleFormat(
     companion object {
         fun setBattleRules(
             battleFormat: BattleFormat,
-            rules: Set<String>,
-            adjustLevel: Int
+            rules: Set<String>? = null
         ): BattleFormat {
-            val ruleValues = rules.mapNotNull { ruleName ->
+            val filteredRules = rules?.filter { it.isNotBlank() }?.toSet()
+            val ruleValues = filteredRules?.mapNotNull { ruleName ->
                 BattleRules::class.members
                     .filterIsInstance<kotlin.reflect.KProperty1<BattleRules, String>>()
                     .find { it.name == ruleName }
                     ?.getter
                     ?.call()
-            }
-            return battleFormat.copy(ruleSet = battleFormat.ruleSet + ruleValues, adjustLevel = adjustLevel)
+            }.orEmpty()
+
+            return battleFormat.copy(
+                ruleSet = filteredRules ?: (battleFormat.ruleSet + ruleValues)
+            )
         }
 
         fun fromFormatIdentifier(id: String): BattleFormat = when (id) {
-            "single", "singles" -> BattleFormat.GEN_9_SINGLES
-            "triple", "triples" -> BattleFormat.GEN_9_TRIPLES
-            "double", "doubles" -> BattleFormat.GEN_9_DOUBLES
+            "single_battle", "single", "singles" -> BattleFormat.GEN_9_SINGLES
+            "double_battle", "double", "doubles" -> BattleFormat.GEN_9_DOUBLES
+            "triple_battle", "triple", "triples" -> BattleFormat.GEN_9_TRIPLES
             else ->  BattleFormat.GEN_9_SINGLES
         }
 
