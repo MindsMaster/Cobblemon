@@ -23,17 +23,6 @@ import net.minecraft.world.item.ItemStack
  */
 data class RenderablePokemon(var species: Species, var aspects: Set<String>, var heldItem: ItemStack = ItemStack.EMPTY) {
     val form: FormData by lazy { species.getForm(aspects) }
-    var state = FloatingState()
-    var syncPokemon: Pokemon? = null
-        set(value) {
-            value?.changeObservable?.subscribe {
-                species = value.species
-                aspects = value.aspects
-                heldItem = if (value.heldItemVisible) value.heldItem else ItemStack.EMPTY
-                state = FloatingState()
-            }
-            field = value
-        }
 
     fun saveToBuffer(buffer: RegistryFriendlyByteBuf): RegistryFriendlyByteBuf {
         buffer.writeIdentifier(species.resourceIdentifier)
