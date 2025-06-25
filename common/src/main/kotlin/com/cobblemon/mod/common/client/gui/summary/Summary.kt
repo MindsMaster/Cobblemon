@@ -13,6 +13,7 @@ import com.cobblemon.mod.common.CobblemonNetwork.sendToServer
 import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.gui.blitk
 import com.cobblemon.mod.common.api.moves.Move
+import com.cobblemon.mod.common.api.reactive.Observable.Companion.stopAfter
 import com.cobblemon.mod.common.api.scheduling.Schedulable
 import com.cobblemon.mod.common.api.scheduling.SchedulingTracker
 import com.cobblemon.mod.common.api.storage.party.PartyPosition
@@ -117,7 +118,8 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
 
     override val schedulingTracker = SchedulingTracker()
 
-    internal lateinit var selectedPokemon: Pokemon
+    private val party = ArrayList(party)
+    internal var selectedPokemon: Pokemon = this.party[selection] ?: this.party.first { it != null }!!
     private lateinit var mainScreen: AbstractWidget
     lateinit var sideScreen: GuiEventListener
     private lateinit var modelWidget: ModelWidget
@@ -128,7 +130,6 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
     private lateinit var heldItemVisibilityButton: SummaryButton
     private var mainScreenIndex = INFO
     var sideScreenIndex = PARTY
-    private val party = ArrayList(party)
 
     override fun renderBlurredBackground(delta: Float) { }
 
@@ -143,12 +144,7 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
         if (this.party.size > 6) {
             throw IllegalArgumentException("Summary UI cannot display more than six Pokemon")
         }
-        val idealSelected = this.party[selection]
-        if (idealSelected == null) {
-            this.selectedPokemon = this.party.first { it != null }!!
-        } else {
-            this.selectedPokemon = idealSelected
-        }
+        switchSelection(selection)
         this.listenToMoveSet()
 
         val x = (width - BASE_WIDTH) / 2
@@ -282,7 +278,7 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
             pY = y + 32,
             pWidth = PORTRAIT_SIZE,
             pHeight = PORTRAIT_SIZE,
-            pokemon = selectedPokemon.asRenderablePokemon(sync = true),
+            pokemon = selectedPokemon.asRenderablePokemon(),
             baseScale = 2F,
             rotationY = 325F,
             offsetY = -10.0,
@@ -322,13 +318,21 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
     fun switchSelection(newSelection: Int) {
         saveMarkings()
         this.selectedPokemon.moveSet.changeFunction = {}
-        this.party.getOrNull(newSelection)?.let { this.selectedPokemon = it }
+        this.party.getOrNull(newSelection)?.let {
+            it.changeObservable.pipe( stopAfter { Minecraft.getInstance().screen != this || this.selectedPokemon != it } ).subscribe {
+                updatePokemonInfo()
+            }
+            this.selectedPokemon = it
+        }
+        updatePokemonInfo()
         listenToMoveSet()
         displayMainScreen(mainScreenIndex)
         children().find { it is EvolutionSelectScreen }?.let(this::removeWidget)
+    }
 
+    fun updatePokemonInfo() {
         if (::modelWidget.isInitialized) {
-            modelWidget.pokemon = selectedPokemon.asRenderablePokemon(sync = true)
+            modelWidget.pokemon = selectedPokemon.asRenderablePokemon()
             heldItemVisibilityButton.buttonActive = !selectedPokemon.heldItemVisible
         }
 
@@ -699,7 +703,7 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
             this.focused = null
         }
         if (Cobblemon.config.enableDebugKeys) {
-            val model = VaryingModelRepository.getPoser(selectedPokemon.species.resourceIdentifier, modelWidget.pokemon.state)
+            val model = VaryingModelRepository.getPoser(selectedPokemon.species.resourceIdentifier, modelWidget.state)
             if (keyCode == InputConstants.KEY_UP) {
                 model.profileTranslation = model.profileTranslation.add(0.0, -0.01, 0.0)
             }
@@ -728,7 +732,7 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
 
     override fun onClose() {
         if (Cobblemon.config.enableDebugKeys) {
-            val model = VaryingModelRepository.getPoser(selectedPokemon.species.resourceIdentifier, modelWidget.pokemon.state)
+            val model = VaryingModelRepository.getPoser(selectedPokemon.species.resourceIdentifier, modelWidget.state)
             Minecraft.getInstance().player?.sendSystemMessage(Component.literal("Profile Translation: ${model.profileTranslation}"))
             Minecraft.getInstance().player?.sendSystemMessage(Component.literal("Profile Scale: ${model.profileScale}"))
             Cobblemon.LOGGER.info("override var profileTranslation = Vec3d(${model.profileTranslation.x}, ${model.profileTranslation.y}, ${model.profileTranslation.z})")

@@ -40,10 +40,12 @@ class ModelWidget(
         set (value) {
             field = value
             currentYawAndPitch = Pair(0f, 0f)
+            state = FloatingState()
         }
 
     private val heldItemRenderer = HeldItemRenderer()
 
+    var state = FloatingState()
     var lookStartTime: Long? = null
     var currentYawAndPitch: Pair<Float, Float> = Pair(0f, 0f)
     val rotationVector = Vector3f(13F, rotationY, 0F)
@@ -102,7 +104,7 @@ class ModelWidget(
             renderablePokemon = pokemon,
             matrixStack = matrices,
             rotation = rotation,
-            state = pokemon.state,
+            state = state,
             partialTicks = partialTicks,
             headYaw = currentYawAndPitch.first,
             headPitch = currentYawAndPitch.second,
@@ -110,7 +112,7 @@ class ModelWidget(
 
         heldItemRenderer.renderOnModel(
             pokemon.heldItem,
-            pokemon.state,
+            state,
             matrices,
             context.bufferSource(),
             light = 0xF000F0,
@@ -133,8 +135,8 @@ class ModelWidget(
 
     private fun playCry() {
         if (playCryOnClick) {
-            pokemon.state.activeAnimations.clear()
-            pokemon.state.addFirstAnimation(setOf("cry"))
+            state.activeAnimations.clear()
+            state.addFirstAnimation(setOf("cry"))
         }
     }
 }
