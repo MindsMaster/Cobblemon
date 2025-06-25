@@ -18,7 +18,7 @@ import com.cobblemon.mod.common.pokemon.Pokemon
 import net.minecraft.world.item.ItemStack
 
 /**
- * The base for all the events related to held items.
+ * The base for all the events related to held items and cosmetic items.
  *
  * @see [Pre]
  * @see [Post]
