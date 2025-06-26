@@ -23,11 +23,14 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType
 import net.minecraft.world.entity.ai.sensing.SensorType
 
 class CalmDownTaskConfig : SingleTaskConfig {
+    var condition: ExpressionOrEntityVariable = Either.left("true".asExpression())
     override fun getVariables(entity: LivingEntity) = emptyList<MoLangConfigVariable>()
     override fun createTask(
         entity: LivingEntity,
         behaviourConfigurationContext: BehaviourConfigurationContext
     ): BehaviorControl<in LivingEntity>? {
+        runtime.withQueryValue("entity", entity.asMostSpecificMoLangValue())
+        if (!condition.resolveBoolean()) return null
         behaviourConfigurationContext.addMemories(
             MemoryModuleType.HURT_BY,
             MemoryModuleType.HURT_BY_ENTITY,

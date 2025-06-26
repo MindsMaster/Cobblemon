@@ -9,10 +9,16 @@
 package com.cobblemon.mod.common.api.ai.config.task
 
 import com.cobblemon.mod.common.api.ai.BehaviourConfigurationContext
+import com.cobblemon.mod.common.api.ai.ExpressionOrEntityVariable
+import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMostSpecificMoLangValue
+import com.cobblemon.mod.common.util.asExpression
+import com.cobblemon.mod.common.util.withQueryValue
+import com.mojang.datafixers.util.Either
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.ai.behavior.BehaviorControl
 
 class AllOfTaskConfig : TaskConfig {
+    val condition: ExpressionOrEntityVariable = Either.left("true".asExpression())
     val tasks: List<TaskConfig> = emptyList()
 
     override fun getVariables(entity: LivingEntity) = tasks.flatMap { it.getVariables(entity) }
@@ -20,6 +26,9 @@ class AllOfTaskConfig : TaskConfig {
         entity: LivingEntity,
         behaviourConfigurationContext: BehaviourConfigurationContext
     ): List<BehaviorControl<in LivingEntity>> {
+        runtime.withQueryValue("entity", entity.asMostSpecificMoLangValue())
+        if (!condition.resolveBoolean()) return emptyList()
+
         return tasks.flatMap { it.createTasks(entity, behaviourConfigurationContext) }
     }
 }

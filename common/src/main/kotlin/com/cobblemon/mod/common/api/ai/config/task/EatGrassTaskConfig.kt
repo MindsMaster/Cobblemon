@@ -12,8 +12,6 @@ import com.cobblemon.mod.common.CobblemonMemories
 import com.cobblemon.mod.common.api.ai.BehaviourConfigurationContext
 import com.cobblemon.mod.common.api.ai.WrapperLivingEntityTask
 import com.cobblemon.mod.common.api.ai.asVariables
-import com.cobblemon.mod.common.api.ai.config.task.TaskConfig.Companion.NO_MEMORIES
-import com.cobblemon.mod.common.api.ai.config.task.TaskConfig.Companion.NO_SENSORS
 import com.cobblemon.mod.common.api.npc.configuration.MoLangConfigVariable
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.entity.pokemon.ai.tasks.EatGrassTask

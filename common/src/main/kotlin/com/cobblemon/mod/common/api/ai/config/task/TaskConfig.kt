@@ -112,9 +112,6 @@ interface TaskConfig {
         )
 
         val runtime = MoLangRuntime().setup()
-
-        val NO_MEMORIES = emptySet<MemoryModuleType<*>>()
-        val NO_SENSORS = emptySet<SensorType<*>>()
     }
 
     val runtime: MoLangRuntime

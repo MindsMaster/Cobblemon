@@ -12,7 +12,6 @@ import com.cobblemon.mod.common.CobblemonMemories
 import com.cobblemon.mod.common.CobblemonSensors
 import com.cobblemon.mod.common.api.ai.BehaviourConfigurationContext
 import com.cobblemon.mod.common.api.ai.asVariables
-import com.cobblemon.mod.common.api.ai.config.task.TaskConfig.Companion.NO_SENSORS
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMostSpecificMoLangValue
 import com.cobblemon.mod.common.battles.BattleRegistry
 import com.cobblemon.mod.common.entity.npc.NPCEntity
@@ -39,6 +38,8 @@ class ExitBattleWhenHurtTaskConfig : SingleTaskConfig {
         behaviourConfigurationContext: BehaviourConfigurationContext
     ): BehaviorControl<in LivingEntity>? {
         runtime.withQueryValue("entity", entity.asMostSpecificMoLangValue())
+        if (!condition.resolveBoolean()) return null
+
         val includePassiveDamage = includePassiveDamage.resolveBoolean()
 
         behaviourConfigurationContext.addMemories(

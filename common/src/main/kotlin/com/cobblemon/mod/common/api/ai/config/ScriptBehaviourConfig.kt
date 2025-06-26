@@ -15,8 +15,6 @@ import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.api.ai.ActivityConfigurationContext
 import com.cobblemon.mod.common.api.ai.BehaviourConfigurationContext
 import com.cobblemon.mod.common.api.ai.ExpressionOrEntityVariable
-import com.cobblemon.mod.common.api.ai.config.task.TaskConfig.Companion.NO_MEMORIES
-import com.cobblemon.mod.common.api.ai.config.task.TaskConfig.Companion.NO_SENSORS
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.addStandardFunctions
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.asMostSpecificMoLangValue
 import com.cobblemon.mod.common.api.molang.MoLangFunctions.setup
