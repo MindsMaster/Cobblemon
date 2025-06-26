@@ -307,6 +307,8 @@ open class PokemonEntity(
     }
 
     fun refreshRiding() {
+        pokemon.entity?.ejectPassengers()
+
         riding = null
         ridingState = null
         ridingBehaviourSettings = null
