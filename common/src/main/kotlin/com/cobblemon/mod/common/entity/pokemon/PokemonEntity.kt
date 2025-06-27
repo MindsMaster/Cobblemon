@@ -1989,6 +1989,16 @@ open class PokemonEntity(
         return passengers.size < seats.size
     }
 
+    override fun addPassenger(passenger: Entity) {
+        if (passenger is ServerPlayer) {
+            passenger.party()
+                .mapNotNull { it.entity }
+                .filter { it != this }
+                .forEach { it.recallWithAnimation() }
+        }
+        super.addPassenger(passenger)
+    }
+
     fun getIsJumping() = jumping
     fun setIsJumping(value: Boolean) {
         jumping = value
@@ -2300,12 +2310,6 @@ open class PokemonEntity(
 
     override fun resolveEntityScan(): LivingEntity {
         return this
-    }
-
-    fun canStopRiding(pokemon: PokemonEntity, player: ServerPlayer): Boolean {
-        if (pokemon.passengers.isEmpty()) return false
-        if (pokemon.controllingPassenger != player) return false
-        return true
     }
 
     override fun canWalk() = exposedForm.behaviour.moving.walk.canWalk
