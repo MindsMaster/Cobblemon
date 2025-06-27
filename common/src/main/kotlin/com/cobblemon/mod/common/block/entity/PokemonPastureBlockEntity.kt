@@ -67,7 +67,11 @@ class PokemonPastureBlockEntity(pos: BlockPos, state: BlockState) :
         val entityId: Int,
         val pasturePos: BlockPos
     ) {
-        fun getPokemon() = Cobblemon.storage.getPC(pcId, server()!!.registryAccess())[pokemonId]
+        fun getPokemon(): Pokemon? {
+            val srv = server() ?: return null
+            val pc = Cobblemon.storage.getPC(pcId, srv.registryAccess()) ?: return null
+            return pc[pokemonId]
+        }
         val box = AABB(minRoamPos.toVec3d(), maxRoamPos.toVec3d())
         open fun canRoamTo(pos: BlockPos) = box.contains(pos.center)
 
