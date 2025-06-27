@@ -76,7 +76,9 @@ class PokemonPastureBlockEntity(pos: BlockPos, state: BlockState) :
             val entity = player.level()
                 .getEntity(entityId) as? PokemonEntity
 
-            val flags = entity?.getActiveBehaviourFlags()?.map { it.name }?.toSet() ?: emptySet()
+            val behaviourFlags = entity?.getActiveBehaviourFlags()
+                ?.map { "cobblemon:" + it.name.lowercase() }
+                ?.toSet() ?: emptySet()
 
             return OpenPasturePacket.PasturePokemonDataDTO(
                 pokemonId = pokemonId,
@@ -91,7 +93,7 @@ class PokemonPastureBlockEntity(pos: BlockPos, state: BlockState) :
                 heldItem = pokemon.heldItem(),
                 level = pokemon.level,
                 entityKnown = (entity?.tethering?.tetheringId == tetheringId),
-                behaviourFlags = flags
+                behaviourFlags = behaviourFlags
             )
         }
     }
