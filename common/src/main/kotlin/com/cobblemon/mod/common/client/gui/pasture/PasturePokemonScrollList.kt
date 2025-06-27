@@ -176,8 +176,9 @@ class PasturePokemonScrollList(
                 val currentlyEnabled = "cobblemon:pasture_conflict" in pokemon.behaviourFlags
                 SetPastureConflictPacket(pokemon.pokemonId, !currentlyEnabled).sendToServer()
             }
-
-        )
+        ).apply {
+            setEnabled("cobblemon:pasture_conflict" in pokemon.behaviourFlags)
+        }
 
         private val moveButton: PastureSlotIconButton = PastureSlotIconButton(
             xPos = 0,

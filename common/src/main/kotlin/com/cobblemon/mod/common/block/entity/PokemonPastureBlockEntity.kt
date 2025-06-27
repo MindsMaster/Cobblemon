@@ -73,6 +73,11 @@ class PokemonPastureBlockEntity(pos: BlockPos, state: BlockState) :
 
         fun toDTO(player: ServerPlayer): OpenPasturePacket.PasturePokemonDataDTO? {
             val pokemon = getPokemon() ?: return null
+            val entity = player.level()
+                .getEntity(entityId) as? PokemonEntity
+
+            val flags = entity?.getActiveBehaviourFlags()?.map { it.name }?.toSet() ?: emptySet()
+
             return OpenPasturePacket.PasturePokemonDataDTO(
                 pokemonId = pokemonId,
                 playerId = playerId,
@@ -85,8 +90,8 @@ class PokemonPastureBlockEntity(pos: BlockPos, state: BlockState) :
                 aspects = pokemon.aspects,
                 heldItem = pokemon.heldItem(),
                 level = pokemon.level,
-                entityKnown = (player.level()
-                    .getEntity(entityId) as? PokemonEntity)?.tethering?.tetheringId == tetheringId
+                entityKnown = (entity?.tethering?.tetheringId == tetheringId),
+                behaviourFlags = flags
             )
         }
     }
