@@ -35,7 +35,7 @@ class DrowsySensor : Sensor<PokemonEntity>(20) {
 
             val isDrowsy = entity.brain.getMemory(CobblemonMemories.POKEMON_DROWSY).orElse(false)
             val hurtLately = entity.brain.hasMemoryValue(MemoryModuleType.HURT_BY)
-            val shouldBeDrowsy = rest.canSleep && !hurtLately && (world.dayTime.toInt() % 24000) in rest.times && entity.brain.getMemory(MemoryModuleType.ANGRY_AT).isEmpty
+            val shouldBeDrowsy = rest.canSleep && !hurtLately && (world.dayTime.toInt() % 24000) in rest.times && !entity.brain.hasMemoryValue(MemoryModuleType.ANGRY_AT)
             val forcedAsleep = entity.pokemon.status?.status == Statuses.SLEEP
 
             if (entity.isBattling) {

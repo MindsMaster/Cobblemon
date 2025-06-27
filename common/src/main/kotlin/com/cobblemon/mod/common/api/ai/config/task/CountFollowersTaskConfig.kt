@@ -66,7 +66,11 @@ class CountFollowersTaskConfig : SingleTaskConfig {
                                 && it.brain.hasMemoryValue(CobblemonMemories.HERD_LEADER)
                                 && it.brain.getMemory(CobblemonMemories.HERD_LEADER).getOrNull() == myUUID
                     }.count()
-                    herdCount.set(followersCount)
+                    if (followersCount == 0) {
+                        herdCount.erase()
+                    } else {
+                        herdCount.set(followersCount)
+                    }
                     return@Trigger true
                 }
             }

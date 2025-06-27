@@ -32,7 +32,7 @@ class FlyInCirclesTaskConfig : SingleTaskConfig {
     )
 
     val minAngularVelocityDegrees = numberVariable(WANDER, "min_fly_circling_angular_velocity", 0.0).asExpressible()
-    val maxAngularVelocityDegrees = numberVariable(WANDER, "max_fly_circling_angular_velocity", 2.0).asExpressible()
+    val maxAngularVelocityDegrees = numberVariable(WANDER, "max_fly_circling_angular_velocity", 1.0).asExpressible()
     val speed = numberVariable(WANDER, "fly_circling_speed", 0.6).asExpressible()
     val verticalSpeed: ExpressionOrEntityVariable = Either.left("0.0".asExpression())
     val minDurationTicks: ExpressionOrEntityVariable = Either.left("60".asExpression())

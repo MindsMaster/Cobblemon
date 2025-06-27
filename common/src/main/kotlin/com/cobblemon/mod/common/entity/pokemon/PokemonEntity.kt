@@ -2335,11 +2335,44 @@ open class PokemonEntity(
      */
     fun getHerdSize(): Int {
         val world = level() as? ServerLevel ?: return 0
-        val herdLeader = this.brain.getMemory(CobblemonMemories.HERD_LEADER).orElse(null)?.let(UUID::fromString)?.let(world::getEntity) as? PokemonEntity
+        val herdLeader = this.brain.getMemorySafely(CobblemonMemories.HERD_LEADER).orElse(null)?.let(UUID::fromString)?.let(world::getEntity) as? PokemonEntity
         return if (herdLeader == null) {
-            brain.getMemory(CobblemonMemories.HERD_SIZE).orElse(0)
+            brain.getMemorySafely(CobblemonMemories.HERD_SIZE).orElse(0)
         } else {
-            herdLeader.brain.getMemory(CobblemonMemories.HERD_SIZE).orElse(0)
+            herdLeader.brain.getMemorySafely(CobblemonMemories.HERD_SIZE).orElse(0)
+        }
+    }
+
+    /**
+     * Figures out what the strongest tier applied to this herd is from the perspective of this entity. This can be a
+     * bit confusing so bear with me.
+     *
+     * Every herd has a leader, and each Pokémon species specifies the Pokémon it is open to following, which will
+     * come with a 'tier' of that openness. Following a Gyarados is a higher sense of loyalty than following a Magikarp.
+     *
+     * The herd tier of a Pokémon entity depends on whether it is a follower or a leader:
+     * - If they are a follower, it will check the herd leader's tier. Fairly simple.
+     * - If they are a leader, it will check the herd tier of all nearby followers and return the maximum tier. This
+     *   represents a kind of 'responsibility' that the leader feels towards their followers - they believe in this
+     *   leader with some amount of fervor, and this gets used to ensure that the leader doesn't choose to follow a
+     *   different Pokémon that is of an equal or lower tier than this Pokémon is to its followers.
+     */
+    fun getHerdTier(): Int {
+        val world = level() as? ServerLevel ?: return 0
+        val herdLeader = this.brain.getMemorySafely(CobblemonMemories.HERD_LEADER).orElse(null)?.let(UUID::fromString)?.let(world::getEntity) as? PokemonEntity
+        return if (herdLeader == null) {
+            if (!brain.hasMemoryValue(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)) {
+                return 0
+            }
+            val nearbyEntities = brain.getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).get().findAll {
+                it is PokemonEntity && it.brain.getMemorySafely(CobblemonMemories.HERD_LEADER).map { it == this.uuid.toString() }.orElse(false)
+            }
+            nearbyEntities.maxOfOrNull {
+                it as PokemonEntity
+                it.behaviour.herd.bestMatchLeader(follower = it, possibleLeader = this)?.tier ?: 0
+            } ?: 0
+        } else {
+            herdLeader.behaviour.herd.bestMatchLeader(follower = this, possibleLeader = herdLeader)?.tier ?: 0
         }
     }
 }
