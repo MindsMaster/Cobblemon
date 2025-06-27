@@ -421,6 +421,14 @@ object MoLangFunctions {
             map.put("uuid") { _ -> StringValue(player.gameProfile.id.toString()) }
             map.put("main_held_item") { _ -> player.mainHandItem.asMoLangValue(player.registryAccess()) }
             map.put("off_held_item") { _ -> player.offhandItem.asMoLangValue(player.registryAccess()) }
+            map.put("inventory") { _ ->
+                val inventory = player.inventory
+                val items = ArrayStruct(hashMapOf())
+                for (i in 0 until inventory.containerSize) {
+                    items.setDirectly("$i", inventory.getItem(i).asMoLangValue(player.registryAccess()))
+                }
+                return@put items
+            }
             map.put("face") { params -> ObjectValue(PlayerDialogueFaceProvider(player.uuid, params.getBooleanOrNull(0) != false)) }
             map.put("swing_hand") { _ -> player.swing(player.usedItemHand) }
             map.put("food_level") { _ -> DoubleValue(player.foodData.foodLevel) }

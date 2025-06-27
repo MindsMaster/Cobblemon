@@ -337,6 +337,7 @@
 - Adds Flows for `POKEMON_CATCH_RATE`, `BAIT_SET`, `BAIT_SET_PRE`, `BAIT_CONSUMED`, `POKEROD_CAST_PRE`, `POKEROD_CAST_POST`, `POKEROD_REEL`, and `BOBBER_SPAWN_POKEMON_PRE`.
 - Adds Flows for `POKEMON_ASPECTS_CHANGED`, `FRIENDSHIP_UPDATED`, `CHANGE_PC_BOX_WALLPAPER_EVENT_PRE`, `CHANGE_PC_BOX_WALLPAPER_EVENT_POST`, and `FULLNESS_UPDATED`.
 - MoLang triggered battles may now set the battle format, whether to clone the player's party, set level, or heal prior.
+- Added Molang function for Player: `inventory`
 
 ## [1.6.1 (January 26th, 2025)](#1-6-1)
 
