@@ -30,6 +30,7 @@ import com.cobblemon.mod.common.api.dialogue.PlayerDialogueFaceProvider
 import com.cobblemon.mod.common.api.dialogue.ReferenceDialogueFaceProvider
 import com.cobblemon.mod.common.api.drop.DropEntry
 import com.cobblemon.mod.common.api.mark.Marks
+import com.cobblemon.mod.common.api.moves.BenchedMove
 import com.cobblemon.mod.common.api.moves.MoveTemplate
 import com.cobblemon.mod.common.api.moves.Moves
 import com.cobblemon.mod.common.api.moves.animations.ActionEffectContext
@@ -49,6 +50,7 @@ import com.cobblemon.mod.common.api.pokedex.SeenPercent
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties
 import com.cobblemon.mod.common.api.pokemon.evolution.Evolution
 import com.cobblemon.mod.common.api.pokemon.experience.SidemodExperienceSource
+import com.cobblemon.mod.common.api.pokemon.moves.LearnsetQuery
 import com.cobblemon.mod.common.api.pokemon.stats.Stats
 import com.cobblemon.mod.common.api.scheduling.ClientTaskTracker
 import com.cobblemon.mod.common.api.scheduling.Schedulable
@@ -1326,6 +1328,30 @@ object MoLangFunctions {
                 pokemon.addExperience(SidemodExperienceSource("molang"), exp)
                 return@put DoubleValue.ONE
             }
+            map.put("set_iv") { params ->
+                val statId = params.getString(0)
+                val stat = Stats.getStat(statId)
+                val value = params.getIntOrNull(1)?.coerceIn(0, IVs.MAX_VALUE) ?: IVs.MAX_VALUE
+
+                if (Stats.PERMANENT.contains(stat)) {
+                    pokemon.setIV(stat, value)
+                    return@put DoubleValue.ONE
+                } else {
+                    return@put DoubleValue.ZERO
+                }
+            }
+            map.put("set_ev") { params ->
+                val statId = params.getString(0)
+                val stat = Stats.getStat(statId)
+                val value = (params.getIntOrNull(1) ?: 0).coerceIn(0, 255)
+
+                if (Stats.PERMANENT.contains(stat)) {
+                    pokemon.setEV(stat, value)
+                    return@put DoubleValue.ONE
+                } else {
+                    return@put DoubleValue.ZERO
+                }
+            }
             map.put("initialize_moveset") { params ->
                 val preferLatest = params.getBooleanOrNull(0) ?: true
                 pokemon.initializeMoveset(preferLatest)
@@ -1340,6 +1366,38 @@ object MoLangFunctions {
                 val includeLegacy = params.getBooleanOrNull(0) ?: true
                 pokemon.teachLearnableMoves(includeLegacy)
                 return@put DoubleValue.ONE
+            }
+            map.put("teach_move") { params ->
+                val moveName = params.getString(0)
+                val moveTemplate = Moves.getByName(moveName) ?: return@put DoubleValue.ZERO
+                val bypass = params.getBooleanOrNull(1) ?: false
+
+                val canLearn = bypass || LearnsetQuery.ANY.canLearn(moveTemplate, pokemon.form.moves)
+                if (!canLearn) {
+                    return@put DoubleValue.ZERO
+                }
+
+                val alreadyKnows = pokemon.moveSet.getMoves().any { it.template == moveTemplate } ||
+                        pokemon.benchedMoves.any { it.moveTemplate == moveTemplate }
+                if (alreadyKnows) {
+                    return@put DoubleValue.ZERO
+                }
+
+                if (pokemon.moveSet.hasSpace()) {
+                    pokemon.moveSet.add(moveTemplate.create())
+                } else {
+                    pokemon.benchedMoves.add(BenchedMove(moveTemplate, 0))
+                }
+
+                DoubleValue.ONE
+            }
+            map.put("can_learn_move") { params ->
+                val moveName = params.getString(0)
+                val moveTemplate = Moves.getByName(moveName) ?: return@put DoubleValue.ZERO
+                val includeLegacy = params.getBooleanOrNull(1) ?: true
+
+                val canLearn = LearnsetQuery.ANY.canLearn(moveTemplate, pokemon.form.moves)
+                return@put DoubleValue(if (canLearn) 1.0 else 0.0)
             }
             map.put("unlearn_move") { params ->
                 val moveName = params.getString(0)
