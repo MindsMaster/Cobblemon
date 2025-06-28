@@ -1171,7 +1171,7 @@ open class PokemonEntity(
         getBitForByte(entityData.get(BEHAVIOUR_FLAGS), flag.bit)
 
     fun getActiveBehaviourFlags(): Set<PokemonBehaviourFlag> {
-        val flagsByte = this.entityData.get(PokemonEntity.BEHAVIOUR_FLAGS).toInt()
+        val flagsByte = this.entityData.get(BEHAVIOUR_FLAGS).toInt()
         return PokemonBehaviourFlag.entries.filterTo(mutableSetOf()) { flag ->
             (flagsByte and (1 shl (flag.bit - 1))) != 0
         }

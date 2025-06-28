@@ -77,8 +77,7 @@ class PokemonPastureBlockEntity(pos: BlockPos, state: BlockState) :
 
         fun toDTO(player: ServerPlayer): OpenPasturePacket.PasturePokemonDataDTO? {
             val pokemon = getPokemon() ?: return null
-            val entity = player.level()
-                .getEntity(entityId) as? PokemonEntity
+            val entity = pokemon.entity
 
             val behaviourFlags = entity?.getActiveBehaviourFlags()
                 ?.map { "cobblemon:" + it.name.lowercase() }
