@@ -1,5 +1,14 @@
-package com.cobblemon.mod.common.entity.ai
+/*
+ * Copyright (C) 2023 Cobblemon Contributors
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
 
+package com.cobblemon.mod.common.entity.pokemon.ai.tasks
+
+import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.Mob
 import net.minecraft.world.entity.ai.behavior.OneShot
@@ -8,7 +17,6 @@ import net.minecraft.world.entity.ai.behavior.declarative.Trigger
 import net.minecraft.world.entity.ai.memory.MemoryModuleType
 import net.minecraft.world.entity.monster.Enemy
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.phys.AABB
 
 object AttackHostileMobsTask {
     fun create(): OneShot<LivingEntity> = BehaviorBuilder.create {
@@ -21,7 +29,7 @@ object AttackHostileMobsTask {
 
                 // If we have a current target, check if it's still valid and within roam range (if tethered)
                 if (currentTarget != null && currentTarget.isAlive) {
-                    val tethering = (entity as? com.cobblemon.mod.common.entity.pokemon.PokemonEntity)?.tethering
+                    val tethering = (entity as? PokemonEntity)?.tethering
                     if (tethering == null || tethering.canRoamTo(currentTarget.blockPosition())) {
                         return@Trigger false // Keep the target
                     } else {
@@ -41,7 +49,7 @@ object AttackHostileMobsTask {
                     if (potentialTarget !is Mob || potentialTarget is Player || potentialTarget !is Enemy || !potentialTarget.isAlive)
                         return@firstOrNull false
 
-                    val tethering = (entity as? com.cobblemon.mod.common.entity.pokemon.PokemonEntity)?.tethering
+                    val tethering = (entity as? PokemonEntity)?.tethering
                     return@firstOrNull if (tethering != null) {
                         tethering.canRoamTo(potentialTarget.blockPosition())
                     } else {
