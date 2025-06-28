@@ -1126,6 +1126,7 @@ object MoLangFunctions {
             map.put("behaviour") { pokemon.form.behaviour.struct }
             map.put("behavior") { pokemon.form.behaviour.struct } // Inferior
             map.put("pokeball") { StringValue(pokemon.caughtBall.toString()) }
+            map.put("ability") { StringValue(pokemon.ability.name) }
             map.put("has_learned") { params ->
                 val moveName = params.getString(0)
                 val move = pokemon.allAccessibleMoves.find { it.name == moveName }
