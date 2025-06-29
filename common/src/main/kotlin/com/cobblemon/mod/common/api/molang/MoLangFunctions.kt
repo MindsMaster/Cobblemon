@@ -202,6 +202,48 @@ object MoLangFunctions {
             values.forEachIndexed { index, moValue -> array.setDirectly("$index", moValue) }
             return@Function array
         },
+        "length" to java.util.function.Function { params ->
+            val array = params.get<ArrayStruct>(0)
+            return@Function DoubleValue(array.map.size.toDouble())
+        },
+        "append" to java.util.function.Function { params ->
+            val array = params.get<ArrayStruct>(0)
+            val value = params.get<MoValue>(1)
+            val nextIndex = array.map.size
+            array.setDirectly("$nextIndex", value)
+            return@Function array
+        },
+        "insert" to java.util.function.Function { params ->
+            val array = params.get<ArrayStruct>(0)
+            val index = params.getInt(1)
+            val value = params.get<MoValue>(2)
+            val size = array.map.size
+
+            // Shift elements at and after index up by 1
+            for (i in (size - 1) downTo index) {
+                val current = array.map[i.toString()]
+                if (current != null) {
+                    array.map[(i + 1).toString()] = current
+                }
+            }
+            array.map[index.toString()] = value
+            return@Function array
+        },
+        "delete" to java.util.function.Function { params ->
+            val array = params.get<ArrayStruct>(0)
+            val index = params.getInt(1)
+            if (index in 0 until array.map.size) {
+                array.map.remove(index.toString())
+                // Re-index the array to keep keys sequential in numerical order
+                val newMap = hashMapOf<String, MoValue>()
+                array.map.keys.mapNotNull { it.toIntOrNull() }
+                    .sorted()
+                    .forEachIndexed { i, k -> newMap[i.toString()] = array.map[k.toString()]!! }
+                array.map.clear()
+                array.map.putAll(newMap)
+            }
+            return@Function array
+        },
         "run_script" to java.util.function.Function { params ->
             val runtime = MoLangRuntime()
             runtime.environment.query = params.environment.query
