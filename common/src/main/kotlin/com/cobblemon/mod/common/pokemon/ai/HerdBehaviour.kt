@@ -17,8 +17,8 @@ class HerdBehaviour {
     val toleratedLeaders = mutableListOf<ToleratedHerdLeader>()
     /** How many idiots can follow me? */
     val maxSize = 0
-    /** How closely am I brown nosing the leader */
-    val minMaxDistance: IntRange = 4..8
+    /** How closely am I brown nosing the leader, min to max */
+    val followDistance: IntRange = 4..8
 
     @Transient
     val struct = ObjectValue(this).also {

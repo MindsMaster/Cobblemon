@@ -24,7 +24,8 @@ class ToleratedHerdLeader(
     val tier: Int,
     /** If true, a lower level Pokémon can still lead it.*/
     val ignoresLevel: Boolean = false,
-    val minMaxDistance: IntRange? = null
+    /** In case some leaders require a different follow distance? */
+    val followDistance: IntRange? = null
 ) {
     fun initialize() {
         // First time this is deserialized, there is nothing in Species registry.

@@ -35,8 +35,8 @@ class FollowHerdLeaderTask : Behavior<PokemonEntity>(
         leader = level.getEntity(owner.brain.getMemory(CobblemonMemories.HERD_LEADER).map(UUID::fromString).orElse(null) ?: return false) as? PokemonEntity
         val definition = leader?.let { leader -> owner.behaviour.herd.bestMatchLeader(owner, leader) }
         definition?.let {
-            tooFar = (it.minMaxDistance?.endInclusive ?: owner.behaviour.herd.minMaxDistance.endInclusive).toFloat()
-            closeEnough = (it.minMaxDistance?.start ?: owner.behaviour.herd.minMaxDistance.start).toFloat()
+            tooFar = (it.followDistance?.endInclusive ?: owner.behaviour.herd.followDistance.endInclusive).toFloat()
+            closeEnough = (it.followDistance?.start ?: owner.behaviour.herd.followDistance.start).toFloat()
         }
         return leader != null
     }
