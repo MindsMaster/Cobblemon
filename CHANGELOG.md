@@ -281,7 +281,9 @@
 - Fixed swimming Pokémon attempting to swim up through solid blocks.
 - Fixed Pokémon surface swimming diving downward a block for the duration of the swim.
 - Improved flyers avoiding getting stuck on fence posts.
-- Fixed air balloon battle text not correctly displaying the Pokémon or item name,
+- Fixed air balloon battle text not correctly displaying the Pokémon or item name
+- Fixed an issue where items retrieved from a Display case would disappear if a player's inventory is full
+- Fixed Pokédex Scanner not respecting the "Invert Mouse" option
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
