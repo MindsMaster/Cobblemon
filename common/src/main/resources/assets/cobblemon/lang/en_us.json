@@ -2559,6 +2559,8 @@
   "cobblemon.config.ui.automatic_righting_delay.tooltip": "The delay before rolling is undone in seconds. A negative value means righting is disabled, while a value of 0 means whenever mouse movement stops it will start undoing roll immediately.",
   "cobblemon.config.ui.disable_roll": "Disable Roll",
   "cobblemon.config.ui.disable_roll.tooltip": "Stop the camera from rolling.",
+  "cobblemon.config.ui.display_controls_duration_seconds": "Display Controls Overlay Duration",
+  "cobblemon.config.ui.display_controls_duration_seconds.tooltip": "How long in seconds the display controls overlay should stay on screen after mounting a Pokémon.",
   "cobblemon.config.ui.despawner_near_distance": "Near Distance",
   "cobblemon.config.ui.despawner_near_distance.tooltip": "The minimum distance from a player within which Pokémon are not despawned, regardless of age.",
   "cobblemon.config.ui.despawner_far_distance": "Far Distance",

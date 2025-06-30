@@ -287,6 +287,9 @@ class CobblemonConfig {
     @CobblemonConfigField(Category.Riding, lang = "disable_roll")
     var disableRoll = false
 
+    @CobblemonConfigField(Category.Riding, lang = "display_controls_duration_seconds")
+    var displayControlSeconds = 5
+
     @CobblemonConfigField(Category.Debug, lang = "enable_debug_keys")
     var enableDebugKeys = true
 
