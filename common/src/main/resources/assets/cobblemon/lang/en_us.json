@@ -2559,6 +2559,8 @@
   "cobblemon.config.ui.automatic_righting_delay.tooltip": "The delay before rolling is undone in seconds. A negative value means righting is disabled, while a value of 0 means whenever mouse movement stops it will start undoing roll immediately.",
   "cobblemon.config.ui.disable_roll": "Disable Roll",
   "cobblemon.config.ui.disable_roll.tooltip": "Stop the camera from rolling.",
+  "cobblemon.config.ui.display_controls_duration_seconds": "Display Controls Overlay Duration",
+  "cobblemon.config.ui.display_controls_duration_seconds.tooltip": "How long in seconds the display controls overlay should stay on screen after mounting a Pokémon.",
   "cobblemon.config.ui.despawner_near_distance": "Near Distance",
   "cobblemon.config.ui.despawner_near_distance.tooltip": "The minimum distance from a player within which Pokémon are not despawned, regardless of age.",
   "cobblemon.config.ui.despawner_far_distance": "Far Distance",
@@ -9262,5 +9264,10 @@
   "cobblemon.ability.teraformzero": "Teraform Zero",
   "cobblemon.ability.teraformzero.desc": "When Terapagos changes into its Stellar Form, it uses its hidden powers to eliminate all effects of weather and terrain, reducing them to zero.",
   "cobblemon.ability.poisonpuppeteer": "Poison Puppeteer",
-  "cobblemon.ability.poisonpuppeteer.desc": "Pokémon poisoned by Pecharunt's moves will also become confused."
+  "cobblemon.ability.poisonpuppeteer.desc": "Pokémon poisoned by Pecharunt's moves will also become confused.",
+
+  "cobblemon.snapshots.warning.title": "Cobblemon Snapshot Warning",
+  "cobblemon.snapshots.warning.description": "You're using a %s snapshot of Cobblemon. Features in this build are still in development, and may not be safe to use in your worlds. Would you like to move forward knowing these risks?",
+  "cobblemon.snapshots.warning.dont_show_again": "Don't Show Again",
+  "cobblemon.snapshots.warning.dont_show_again_tip": "This setting may be ignored on newer Cobblemon snapshots (e.g. 1.7.0 vs 1.8.0)"
 }
