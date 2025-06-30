@@ -9262,5 +9262,10 @@
   "cobblemon.ability.teraformzero": "Teraform Zero",
   "cobblemon.ability.teraformzero.desc": "When Terapagos changes into its Stellar Form, it uses its hidden powers to eliminate all effects of weather and terrain, reducing them to zero.",
   "cobblemon.ability.poisonpuppeteer": "Poison Puppeteer",
-  "cobblemon.ability.poisonpuppeteer.desc": "Pokémon poisoned by Pecharunt's moves will also become confused."
+  "cobblemon.ability.poisonpuppeteer.desc": "Pokémon poisoned by Pecharunt's moves will also become confused.",
+
+  "cobblemon.snapshots.warning.title": "Cobblemon Snapshot Warning",
+  "cobblemon.snapshots.warning.description": "You're using a %s snapshot of Cobblemon. Features in this build are still in development, and may not be safe to use in your worlds. Would you like to move forward knowing these risks?",
+  "cobblemon.snapshots.warning.dont_show_again": "Don't Show Again",
+  "cobblemon.snapshots.warning.dont_show_again_tip": "This setting may be ignored on newer Cobblemon snapshots (e.g. 1.7.0 vs 1.8.0)"
 }
