@@ -198,6 +198,7 @@
       }
     },
     "combat": {
+      "willDefendSelf": true,
       "willDefendOwner": true
     }
   },
