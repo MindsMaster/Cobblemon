@@ -96,8 +96,8 @@ class RideControlsOverlay : Gui(Minecraft.getInstance()) {
                 resetOverlayState()
             }
 
-            // Don't render if duration config set to 0
-            if (maxDurationFrames == 0F) return
+            // Don't render if duration config set to 0 or less
+            if (maxDurationFrames <= 0F) return
 
             val rideBehaviourSettings = riddenEntity.ridingBehaviourSettings
             val rideBehaviourKey = rideBehaviourSettings?.key
