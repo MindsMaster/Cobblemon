@@ -89,11 +89,6 @@ class PokemonPastureBlockEntity(pos: BlockPos, state: BlockState) :
                 playerId = playerId,
                 displayName = if (playerId == player.uuid) pokemon.getDisplayName() else pokemon.getDisplayName().italicise(),
                 ownerName = if (playerId == player.uuid) null else playerName,
-//                displayName = if (playerId == player.uuid) pokemon.getDisplayName() else lang(
-//                    "ui.pasture.owned_name",
-//                    pokemon.getDisplayName(),
-//                    playerName
-//                ),
                 species = pokemon.species.resourceIdentifier,
                 aspects = pokemon.aspects,
                 heldItem = pokemon.heldItem(),
@@ -112,7 +107,7 @@ class PokemonPastureBlockEntity(pos: BlockPos, state: BlockState) :
                 blockEntity.checkPokemon()
             }
 
-            // for every tethered pokemon tick metabolism and interaction cooldown if fullness or cooldown is above 0
+            // for every tethered Pokémon, tick metabolism and interaction cooldown if fullness or cooldown is above 0
             val tetheredPokemonList = blockEntity.tetheredPokemon.filter { it.getPokemon() != null }
             for (tetheredPokemon in tetheredPokemonList) {
                 val pokemon = tetheredPokemon.getPokemon()!!
@@ -273,7 +268,7 @@ class PokemonPastureBlockEntity(pos: BlockPos, state: BlockState) :
     }
 
     // Place the tether block like this: https://gyazo.com/7c163bccfde238688e9a2c600c27aace
-    // You'll find you can't place pokemon into the tether. It's because of this function somehow
+    // You'll find you can't place Pokémon into the tether. It's because of this function somehow
     fun makeSuitableY(world: Level, pos: BlockPos, entity: PokemonEntity, box: AABB): BlockPos? {
         if (world.collidesWithSuffocatingBlock(entity, box)) {
             for (i in 1..15) {
