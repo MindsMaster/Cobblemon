@@ -15,6 +15,7 @@ import com.cobblemon.mod.common.CobblemonNetwork.sendPacket
 import com.cobblemon.mod.common.advancement.CobblemonCriteria
 import com.cobblemon.mod.common.api.pasture.PastureLinkManager
 import com.cobblemon.mod.common.api.scheduling.afterOnServer
+import com.cobblemon.mod.common.api.text.italicise
 import com.cobblemon.mod.common.api.text.red
 import com.cobblemon.mod.common.api.text.textClickHandlers
 import com.cobblemon.mod.common.block.PastureBlock
@@ -86,11 +87,13 @@ class PokemonPastureBlockEntity(pos: BlockPos, state: BlockState) :
             return OpenPasturePacket.PasturePokemonDataDTO(
                 pokemonId = pokemonId,
                 playerId = playerId,
-                displayName = if (playerId == player.uuid) pokemon.getDisplayName() else lang(
-                    "ui.pasture.owned_name",
-                    pokemon.getDisplayName(),
-                    playerName
-                ),
+                displayName = if (playerId == player.uuid) pokemon.getDisplayName() else pokemon.getDisplayName().italicise(),
+                ownerName = if (playerId == player.uuid) null else playerName,
+//                displayName = if (playerId == player.uuid) pokemon.getDisplayName() else lang(
+//                    "ui.pasture.owned_name",
+//                    pokemon.getDisplayName(),
+//                    playerName
+//                ),
                 species = pokemon.species.resourceIdentifier,
                 aspects = pokemon.aspects,
                 heldItem = pokemon.heldItem(),
