@@ -31,9 +31,8 @@ object MountedPlayerRenderer {
         if(player.vehicle !is Rideable) return
         val matrix = stack.last().pose()
 
-        val seatIndex = entity.passengers.indexOf(player)
         val delegate = entity.delegate as PokemonClientDelegate
-        val locatorName = delegate.getSeatLocator(seatIndex)
+        val locatorName = delegate.getSeatLocator(player)
         val locator = delegate.locatorStates[locatorName]
 
         //Positions player

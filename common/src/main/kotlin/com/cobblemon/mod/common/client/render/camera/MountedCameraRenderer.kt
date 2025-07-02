@@ -51,9 +51,6 @@ object MountedCameraRenderer
             Mth.lerp(instance.partialTickTime.toDouble(), vehicle.zOld, vehicle.z)
         )
         setup(vehicle, instance.partialTickTime)
-        val seatIndex: Int = vehicle.passengers.indexOf(entity)
-        val seat: Seat = vehicle.seats[seatIndex]
-
         val rollable = entity as OrientationControllable
         val controller = rollable.getOrientationController()
 
@@ -63,7 +60,7 @@ object MountedCameraRenderer
         // First person and view bobbing are handled the same way.
         if (!instance.isDetached || Cobblemon.config.thirdPersonViewBobbing) {
             val delegate = vehicle.delegate as PokemonClientDelegate
-            val locatorName = delegate.getSeatLocator(seatIndex)
+            val locatorName = delegate.getSeatLocator(entity)
             val locator = delegate.locatorStates[locatorName]
 
             if (locator == null) {
@@ -105,7 +102,7 @@ object MountedCameraRenderer
             val pokemonCenter = Vector3f(0f, entity.bbHeight/2, 0f)
 
             var pivot = Vector3f(pokemonCenter)
-            val locatorName = delegate.getSeatLocator(seatIndex)
+            val locatorName = delegate.getSeatLocator(entity)
             if (pivotOffsets.containsKey(locatorName)) {
                 pivot = pivotOffsets[locatorName]!!.toVector3f()
                 pivot.sub(pokemonCenter)

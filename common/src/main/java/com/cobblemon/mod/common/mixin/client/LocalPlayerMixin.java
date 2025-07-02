@@ -119,10 +119,8 @@ public abstract class LocalPlayerMixin extends AbstractClientPlayer implements O
     public HitResult pick(double hitDistance, float partialTicks, boolean hitFluids) {
         Entity vehicle = this.getVehicle();
         if (vehicle instanceof PokemonEntity pokemonEntity) {
-            int seatIndex = pokemonEntity.getPassengers().indexOf(this);
-
             PokemonClientDelegate delegate = (PokemonClientDelegate) pokemonEntity.getDelegate();
-            String locatorName = delegate.getSeatLocator(seatIndex);
+            String locatorName = delegate.getSeatLocator(this);
             MatrixWrapper locator = delegate.getLocatorStates().get(locatorName);
 
             if (locator == null) {

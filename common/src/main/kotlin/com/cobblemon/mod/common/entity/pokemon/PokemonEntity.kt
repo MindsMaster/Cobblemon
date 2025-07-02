@@ -317,6 +317,7 @@ open class PokemonEntity(
         riding = RidingBehaviours.get(pokemon.riding.behaviour!!.key)
         ridingBehaviourSettings = pokemon.riding.behaviour!!
         ridingState = riding!!.createDefaultState(ridingBehaviourSettings!!)
+        occupiedSeats = arrayOfNulls(seats.size)
     }
 
     /**
@@ -395,6 +396,8 @@ open class PokemonEntity(
     var isPokemonFlying = false
 
     var tickSpawned = 0
+
+    var occupiedSeats = arrayOfNulls<Entity>(seats.size)
 
     init {
         delegate.initialize(this)
@@ -505,6 +508,14 @@ open class PokemonEntity(
             this.navigation.path,
             this.navigation.path?.distToTarget ?: 0F
         )
+    }
+
+    public override fun removePassenger(passenger: Entity) {
+        val passengerIndex = occupiedSeats.indexOf(passenger)
+        if (passengerIndex != -1) {
+            occupiedSeats[passengerIndex] = null
+        }
+        super.removePassenger(passenger)
     }
 
     override fun tick() {
@@ -1989,12 +2000,16 @@ open class PokemonEntity(
         return passengers.size < seats.size
     }
 
-    override fun addPassenger(passenger: Entity) {
+    public override fun addPassenger(passenger: Entity) {
         if (passenger is ServerPlayer) {
             passenger.party()
                 .mapNotNull { it.entity }
                 .filter { it != this }
                 .forEach { it.recallWithAnimation() }
+        }
+        val passengerIndex = occupiedSeats.indexOfFirst { it == null }
+        if (passengerIndex != -1) {
+            occupiedSeats[passengerIndex] = passenger
         }
         super.addPassenger(passenger)
     }
