@@ -319,6 +319,7 @@ open class PokemonEntity(
         riding = RidingBehaviours.get(pokemon.riding.behaviour!!.key)
         ridingBehaviourSettings = pokemon.riding.behaviour!!
         ridingState = riding!!.createDefaultState(ridingBehaviourSettings!!)
+        occupiedSeats = arrayOfNulls(seats.size)
     }
 
     /**
@@ -397,6 +398,8 @@ open class PokemonEntity(
     var isPokemonFlying = false
 
     var tickSpawned = 0
+
+    var occupiedSeats = arrayOfNulls<Entity>(seats.size)
 
     init {
         delegate.initialize(this)
@@ -507,6 +510,14 @@ open class PokemonEntity(
             this.navigation.path,
             this.navigation.path?.distToTarget ?: 0F
         )
+    }
+
+    public override fun removePassenger(passenger: Entity) {
+        val passengerIndex = occupiedSeats.indexOf(passenger)
+        if (passengerIndex != -1) {
+            occupiedSeats[passengerIndex] = null
+        }
+        super.removePassenger(passenger)
     }
 
     override fun tick() {
@@ -1116,30 +1127,50 @@ open class PokemonEntity(
             }
         }
 
-        if (hand == InteractionHand.MAIN_HAND && player is ServerPlayer && pokemon.getOwnerPlayer() == player) {
-            val cosmeticItemDefinition = CobblemonCosmeticItems.findValidCosmeticForPokemonAndItem(
-                player.level().registryAccess(),
-                pokemon,
-                itemStack
-            )
+        if (hand == InteractionHand.MAIN_HAND && player is ServerPlayer) {
             if (player.isShiftKeyDown) {
-                val canRide = ifRidingAvailableSupply(false) { behaviour, settings, state ->
-                    this.canRide(player) && seats.isNotEmpty() && behaviour.isActive(settings, state, this)
-                }
-                InteractPokemonUIPacket(
-                    this.getUUID(),
-                    canSitOnShoulder() && pokemon in player.party(),
-                    !(pokemon.heldItemNoCopy().isEmpty && itemStack.isEmpty),
-                    (!pokemon.cosmeticItem.isEmpty && itemStack.isEmpty) || cosmeticItemDefinition != null,
-                    canRide
-                ).sendToPlayer(player)
-            } else {
+                showInteractionWheel(player, itemStack)
+            }
+            else if (pokemon.getOwnerPlayer() == player) {
                 // TODO #105
                 if (this.attemptItemInteraction(player, player.getItemInHand(hand))) return InteractionResult.SUCCESS
             }
         }
 
         return super.mobInteract(player, hand)
+    }
+
+    private fun showInteractionWheel(player: ServerPlayer, itemStack: ItemStack) {
+        val canRide = ifRidingAvailableSupply(false) { behaviour, settings, state ->
+            if (!this.canRide(player)) return@ifRidingAvailableSupply false
+            if (seats.isEmpty()) return@ifRidingAvailableSupply false
+            if (this.owner != player && this.passengers.isEmpty()) return@ifRidingAvailableSupply false
+            return@ifRidingAvailableSupply behaviour.isActive(settings, state, this)
+        }
+        if (pokemon.getOwnerPlayer() == player) {
+            val cosmeticItemDefinition = CobblemonCosmeticItems.findValidCosmeticForPokemonAndItem(
+                player.level().registryAccess(),
+                pokemon,
+                itemStack
+            )
+
+            InteractPokemonUIPacket(
+                this.getUUID(),
+                canSitOnShoulder() && pokemon in player.party(),
+                !(pokemon.heldItemNoCopy().isEmpty && itemStack.isEmpty),
+                (!pokemon.cosmeticItem.isEmpty && itemStack.isEmpty) || cosmeticItemDefinition != null,
+                canRide
+            ).sendToPlayer(player)
+        }
+        else {
+            InteractPokemonUIPacket(
+                this.getUUID(),
+                false,
+                false,
+                false,
+                canRide
+            ).sendToPlayer(player)
+        }
     }
 
     override fun getDimensions(pose: Pose): EntityDimensions {
@@ -1986,6 +2017,20 @@ open class PokemonEntity(
         return passengers.size < seats.size
     }
 
+    public override fun addPassenger(passenger: Entity) {
+        if (passenger is ServerPlayer) {
+            passenger.party()
+                .mapNotNull { it.entity }
+                .filter { it != this }
+                .forEach { it.recallWithAnimation() }
+        }
+        val passengerIndex = occupiedSeats.indexOfFirst { it == null }
+        if (passengerIndex != -1) {
+            occupiedSeats[passengerIndex] = passenger
+        }
+        super.addPassenger(passenger)
+    }
+
     fun getIsJumping() = jumping
     fun setIsJumping(value: Boolean) {
         jumping = value
@@ -2136,9 +2181,7 @@ open class PokemonEntity(
     }
 
     override fun getDismountLocationForPassenger(passenger: LivingEntity): Vec3 {
-//        val seat = this.riding.seats.firstOrNull { it.occupant() == passenger }
-//        seat?.dismount()
-        return super.getDismountLocationForPassenger(passenger)
+        return Vec3(this.x, this.getBoundingBox().minY, this.z)
     }
 
     override fun getRiddenInput(controller: Player, movementInput: Vec3): Vec3 {
@@ -2299,12 +2342,6 @@ open class PokemonEntity(
 
     override fun resolveEntityScan(): LivingEntity {
         return this
-    }
-
-    fun canStopRiding(pokemon: PokemonEntity, player: ServerPlayer): Boolean {
-        if (pokemon.passengers.isEmpty()) return false
-        if (pokemon.controllingPassenger != player) return false
-        return true
     }
 
     override fun canWalk() = exposedForm.behaviour.moving.walk.canWalk
