@@ -715,7 +715,7 @@ class PCGUI(
         storageWidget.pastureWidget?.let { pasture ->
             if (pasture.pastureScrollList.isHovered) pasture.pastureScrollList.mouseScrolled(mouseX, mouseY, amount, verticalAmount)
         }
-        if (storageWidget.isHovered && mouseX < (storageWidget.x + StorageWidget.SCREEN_WIDTH)) this.storageWidget.box += verticalAmount.toInt()
+        if (storageWidget.isHovered && mouseX < (storageWidget.x + StorageWidget.SCREEN_WIDTH)) this.storageWidget.box -= verticalAmount.toInt()
         return super.mouseScrolled(mouseX, mouseY, amount, verticalAmount)
     }
 
