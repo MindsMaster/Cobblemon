@@ -84,8 +84,11 @@ object PokemonBrain {
         ctx.apply(entity, behaviourConfigurations, dynamic)
         entity.behaviours.clear()
         entity.behaviours.addAll(ctx.appliedBehaviours)
+
         //run this before brain starts ticking as otherwise pokemon will instantly wake up despite being put to sleep
-        DrowsySensor.drowsyLogic(entity)
+        if (entity.brain.checkMemory(CobblemonMemories.POKEMON_DROWSY, MemoryStatus.REGISTERED)) {
+            DrowsySensor.drowsyLogic(entity)
+        }
 
         if (behaviourConfigurations.isNotEmpty()) {
             return
