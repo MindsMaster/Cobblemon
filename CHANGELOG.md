@@ -283,7 +283,8 @@
 - Improved flyers avoiding getting stuck on fence posts.
 - Fixed air balloon battle text not correctly displaying the Pokémon or item name
 - Fixed an issue where items retrieved from a Display case would disappear if a player's inventory is full
-- Fixed Pokédex Scanner not respecting the "Invert Mouse" option
+- Fixed Pokédex Scanner not respecting the "Invert Mouse" option.
+- Fixed a crash due to a ConcurrentModificationException that could occur during world generation.
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
