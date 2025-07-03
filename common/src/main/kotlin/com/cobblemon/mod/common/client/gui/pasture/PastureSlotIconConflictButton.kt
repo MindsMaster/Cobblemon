@@ -19,13 +19,17 @@ import net.minecraft.network.chat.Component
 class PastureSlotIconConflictButton(
     var xPos: Int, var yPos: Int,
     onPress: OnPress
-) : Button(xPos, yPos, (SIZE * SCALE).toInt(), (SIZE * SCALE).toInt(), Component.literal("Pasture Move"), onPress, DEFAULT_NARRATION), CobblemonRenderable {
+) : Button(xPos, yPos, WIDTH, HEIGHT, Component.literal("Pasture Defend"), onPress, DEFAULT_NARRATION), CobblemonRenderable {
 
     companion object {
-        const val SIZE = 14
+        const val WIDTH = 15
+        const val HEIGHT = 11
+        const val ICON_SIZE = 11
         private const val SCALE = 0.5F
 
-        private val baseResource = cobblemonResource("textures/gui/pasture/pasture_slot_icon_defend.png")
+        private val baseResource = cobblemonResource("textures/gui/pasture/pasture_slot_button.png")
+        private val baseActiveResource = cobblemonResource("textures/gui/pasture/pasture_slot_button_active.png")
+        private val iconResource = cobblemonResource("textures/gui/pasture/pasture_slot_icon_defend.png")
     }
     private var enabled: Boolean = false
 
@@ -34,24 +38,26 @@ class PastureSlotIconConflictButton(
     }
 
     override fun renderWidget(context: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {
-        val hovered = isHovered(mouseX.toDouble(), mouseY.toDouble())
-
-        val vOffset = when {
-            !enabled && !hovered -> 0          // disabled
-            !enabled && hovered -> SIZE        // disabled + hover
-            enabled && !hovered -> SIZE * 2    // enabled
-            else -> SIZE * 3                   // enabled + hover
-        }
+        blitk(
+            matrixStack = context.pose(),
+            x = xPos,
+            y = yPos,
+            width = WIDTH,
+            height = HEIGHT,
+            vOffset = if (isHovered(mouseX.toDouble(), mouseY.toDouble())) HEIGHT else 0,
+            textureHeight = HEIGHT * 2,
+            texture = if (enabled) baseActiveResource else baseResource,
+        )
 
         blitk(
             matrixStack = context.pose(),
-            x = xPos / SCALE,
-            y = yPos / SCALE,
-            width = SIZE,
-            height = SIZE,
-            vOffset = vOffset,
-            textureHeight = SIZE * 4,
-            texture = baseResource,
+            x = (xPos + 5) / SCALE,
+            y = (yPos + 3) / SCALE,
+            width = ICON_SIZE,
+            height = ICON_SIZE,
+            vOffset = if (enabled && isHovered(mouseX.toDouble(), mouseY.toDouble())) HEIGHT else 0,
+            textureHeight = ICON_SIZE * 2,
+            texture = iconResource,
             scale = SCALE
         )
     }
@@ -61,8 +67,7 @@ class PastureSlotIconConflictButton(
         yPos = y
     }
 
-    override fun playDownSound(pHandler: SoundManager) {
-    }
+    override fun playDownSound(pHandler: SoundManager) {}
 
-    fun isHovered(mouseX: Double, mouseY: Double) = mouseX.toFloat() in (xPos.toFloat()..(xPos.toFloat() + (SIZE * SCALE))) && mouseY.toFloat() in (yPos.toFloat()..(yPos.toFloat() + (SIZE * SCALE)))
+    fun isHovered(mouseX: Double, mouseY: Double) = mouseX.toFloat() in (xPos.toFloat()..(xPos.toFloat() + WIDTH)) && mouseY.toFloat() in (yPos.toFloat()..(yPos.toFloat() + HEIGHT))
 }

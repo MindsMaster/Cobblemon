@@ -12,6 +12,7 @@ import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.gui.blitk
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.api.text.bold
+import com.cobblemon.mod.common.api.text.italicise
 import com.cobblemon.mod.common.api.text.text
 import com.cobblemon.mod.common.client.CobblemonResources
 import com.cobblemon.mod.common.client.gui.CobblemonRenderable
@@ -19,6 +20,7 @@ import com.cobblemon.mod.common.client.gui.drawProfilePokemon
 import com.cobblemon.mod.common.client.gui.pc.StorageSlot
 import com.cobblemon.mod.common.client.gui.summary.widgets.PartySlotWidget
 import com.cobblemon.mod.common.client.render.drawScaledText
+import com.cobblemon.mod.common.client.render.drawScaledTextJustifiedRight
 import com.cobblemon.mod.common.client.render.models.blockbench.FloatingState
 import com.cobblemon.mod.common.client.render.renderScaledGuiItemIcon
 import com.cobblemon.mod.common.net.messages.client.pasture.OpenPasturePacket
@@ -48,12 +50,13 @@ class PasturePokemonScrollList(
         const val WIDTH = 70
         const val HEIGHT = 120
         const val SLOT_WIDTH = 62
-        const val SLOT_HEIGHT = 25
+        const val SLOT_HEIGHT = 29
         const val SLOT_SPACING = 3
         const val SCALE = 0.5F
 
         private val scrollOverlayResource = cobblemonResource("textures/gui/pasture/pasture_scroll_overlay.png")
         private val slotResource = cobblemonResource("textures/gui/pasture/pasture_slot.png")
+        private val slotOwnerResource = cobblemonResource("textures/gui/pasture/pasture_slot_owner.png")
     }
 
     private var scrolling = false
@@ -64,7 +67,6 @@ class PasturePokemonScrollList(
         this.x = listX
         this.y = listY
         correctSize()
-        //setRenderBackground(false)
 
         parent.pasturePCGUIConfiguration.pasturedPokemon.subscribeIncludingCurrent {
             val children = children()
@@ -86,7 +88,6 @@ class PasturePokemonScrollList(
         correctSize()
 
         context.pose().pushPose()
-//        context.pose().translate(0F, 0F, -10F)
 
         context.enableScissor(
             x,
@@ -133,7 +134,7 @@ class PasturePokemonScrollList(
     }
 
     override fun mouseDragged(mouseX: Double, mouseY: Double, button: Int, deltaX: Double, deltaY: Double): Boolean {
-        if (scrolling) {
+        if (scrolling && scrollbarVisible() && mouseX >= scrollbarPosition) {
             if (mouseY < this.listY) {
                 scrollAmount = 0.0
             } else if (mouseY > bottom) {
@@ -156,7 +157,6 @@ class PasturePokemonScrollList(
 
     private fun correctSize() {
         setRectangle(WIDTH, HEIGHT, listX, (listY - 4))
-//        setX(listX)
     }
 
     fun isHovered(mouseX: Double, mouseY: Double) = mouseX.toFloat() in (x.toFloat()..(x.toFloat() + WIDTH)) && mouseY.toFloat() in (y.toFloat()..(y.toFloat() + HEIGHT))
@@ -173,6 +173,7 @@ class PasturePokemonScrollList(
             xPos = 0,
             yPos = 0,
             onPress = {
+                parent.storageWidget.pcGui.playSound(CobblemonSounds.PC_CLICK)
                 val currentlyEnabled = "cobblemon:pasture_conflict" in pokemon.behaviourFlags
                 SetPastureConflictPacket(pokemon.pokemonId, !currentlyEnabled).sendToServer()
             }
@@ -212,7 +213,7 @@ class PasturePokemonScrollList(
             val matrixStack = context.pose()
             blitk(
                 matrixStack = matrixStack,
-                texture = slotResource,
+                texture = if (isOwned()) slotOwnerResource else slotResource,
                 x = x,
                 y = y,
                 height = SLOT_HEIGHT,
@@ -223,7 +224,7 @@ class PasturePokemonScrollList(
 
             // Render Pokémon
             matrixStack.pushPose()
-            matrixStack.translate(x + 11 + (StorageSlot.SIZE / 2.0), y - 5.0, 0.0)
+            matrixStack.translate(x + 11 + (StorageSlot.SIZE / 2.0), y - 1.0, 0.0)
             matrixStack.scale(2.5F, 2.5F, 1F)
             state.currentAspects = pokemon.aspects
             drawProfilePokemon(
@@ -241,27 +242,26 @@ class PasturePokemonScrollList(
                 renderScaledGuiItemIcon(
                     itemStack = heldItem,
                     x = x + 23.5,
-                    y = y + 9.0,
+                    y = y + 13.0,
                     scale = 0.5,
                     matrixStack = matrixStack
                 )
             }
 
-            drawScaledText(
+            drawScaledTextJustifiedRight(
                 context = context,
                 text = lang("ui.lv.number", pokemon.level),
-                x = x + 46,
-                y = y + 13,
+                x = x + 59,
+                y = y + 17,
                 shadow = true,
                 scale = SCALE
             )
 
             drawScaledText(
                 context = context,
-                text = pokemon.displayName.copy(),
+                text = if (isHovered && pokemon.ownerName != null) pokemon.ownerName.text().italicise() else pokemon.displayName.copy(),
                 x = x + 11,
-                y = y + 20,
-                maxCharacterWidth = 90,
+                y = y + 24,
                 scale = SCALE
             )
 
@@ -270,7 +270,7 @@ class PasturePokemonScrollList(
                     matrixStack = matrixStack,
                     texture = if ("male" in pokemon.aspects) PartySlotWidget.genderIconMale else PartySlotWidget.genderIconFemale,
                     x = (x + 56.5) / SCALE,
-                    y = (y + 20) / SCALE,
+                    y = (y + 24) / SCALE,
                     height = 7,
                     width = 5,
                     scale = SCALE
@@ -278,15 +278,12 @@ class PasturePokemonScrollList(
             }
 
             if (canUnpasture()) {
-                var yOffset = y + 4
-
                 if (canDefend() == true) {
-                    conflictButton.setPos(x + 2, yOffset)
+                    conflictButton.setPos(x + 44, y + 3)
                     conflictButton.render(context, mouseX, mouseY, partialTicks)
-                    yOffset += 9
                 }
 
-                moveButton.setPos(x + 2, yOffset)
+                moveButton.setPos(x + 2, y + 11)
                 moveButton.render(context, mouseX, mouseY, partialTicks)
             }
         }

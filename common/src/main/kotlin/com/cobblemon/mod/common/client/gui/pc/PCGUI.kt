@@ -15,13 +15,11 @@ import com.cobblemon.mod.common.api.pokemon.stats.Stats
 import com.cobblemon.mod.common.api.storage.pc.search.Search
 import com.cobblemon.mod.common.api.text.bold
 import com.cobblemon.mod.common.api.text.text
+import com.cobblemon.mod.common.client.CobblemonClient
 import com.cobblemon.mod.common.client.CobblemonResources
 import com.cobblemon.mod.common.client.gui.CobblemonRenderable
 import com.cobblemon.mod.common.client.gui.ExitButton
 import com.cobblemon.mod.common.client.gui.TypeIcon
-import com.cobblemon.mod.common.client.gui.pasture.PasturePCGUIConfiguration
-import com.cobblemon.mod.common.client.gui.pasture.PasturePokemonScrollList
-import com.cobblemon.mod.common.client.gui.pasture.PastureWidget
 import com.cobblemon.mod.common.client.gui.summary.Summary
 import com.cobblemon.mod.common.client.gui.summary.Summary.Companion.iconCosmeticItemResource
 import com.cobblemon.mod.common.client.gui.summary.Summary.Companion.iconHeldItemResource
@@ -55,7 +53,7 @@ class PCGUI(
     val pc: ClientPC,
     val party: ClientParty,
     val configuration: PCGUIConfiguration,
-    val openOnBox: Int = 0,
+    val openOnBox: Int = CobblemonClient.lastPcBoxViewed,
     val unseenWallpapers: MutableSet<ResourceLocation> = mutableSetOf()
 ) : Screen(Component.translatable("cobblemon.ui.pc.title")), CobblemonRenderable {
 
@@ -185,7 +183,7 @@ class PCGUI(
             pc = pc,
             party = party
         )
-        this.storageWidget.box = openOnBox
+        this.storageWidget.box = if (openOnBox < pc.boxes.size) openOnBox else 0
         this.addRenderableWidget(storageWidget)
 
         // Add Box Name
@@ -576,11 +574,15 @@ class PCGUI(
                     )
 
                     // Moves
-                    val moves = pokemon.moveSet.getMoves()
-                    for (i in moves.indices) {
+                    val moveList = pokemon.moveSet.getMoves()
+                        .take(4)
+                        .map { it.displayName }
+                        .plus(List(4 - pokemon.moveSet.getMoves().size) { "—".text() })
+
+                    for (i in moveList.indices) {
                         drawScaledText(
                             context = context,
-                            text = moves[i].displayName,
+                            text = moveList[i],
                             x = labelX,
                             y = y + 170.5 + (7 * i),
                             centered = true,
@@ -710,12 +712,17 @@ class PCGUI(
     }
 
     override fun mouseScrolled(mouseX: Double, mouseY: Double, amount: Double, verticalAmount: Double): Boolean {
-        if (storageWidget.pastureWidget != null) storageWidget.pastureWidget!!.pastureScrollList.mouseScrolled(mouseX, mouseY, amount, verticalAmount)
-        return children().any { it.mouseScrolled(mouseX, mouseY, amount, verticalAmount) }
+        storageWidget.pastureWidget?.let { pasture ->
+            if (pasture.pastureScrollList.isHovered) pasture.pastureScrollList.mouseScrolled(mouseX, mouseY, amount, verticalAmount)
+        }
+        if (storageWidget.isHovered && mouseX < (storageWidget.x + StorageWidget.SCREEN_WIDTH)) this.storageWidget.box -= verticalAmount.toInt()
+        return super.mouseScrolled(mouseX, mouseY, amount, verticalAmount)
     }
 
     override fun mouseDragged(mouseX: Double, mouseY: Double, button: Int, deltaX: Double, deltaY: Double): Boolean {
-        if (storageWidget.pastureWidget != null) storageWidget.pastureWidget!!.pastureScrollList.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)
+        storageWidget.pastureWidget?.let { pasture ->
+            if (pasture.pastureScrollList.isHovered) pasture.pastureScrollList.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)
+        }
         return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY)
     }
 
@@ -783,10 +790,6 @@ class PCGUI(
     private fun saveMarkings(isParty: Boolean = false) {
         if (::markingsWidget.isInitialized) markingsWidget.saveMarkingsToPokemon(isParty)
     }
-
-    val pastureScrollList: PasturePokemonScrollList?
-        get() = (configuration as? PasturePCGUIConfiguration)
-            ?.let { children().filterIsInstance<PastureWidget>().firstOrNull()?.scrollList }
 
     fun setPreviewPokemon(pokemon: Pokemon?, isParty: Boolean = false) {
         if (pokemon != null) {
