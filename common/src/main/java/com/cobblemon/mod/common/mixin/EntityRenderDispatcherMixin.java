@@ -9,20 +9,21 @@
 package com.cobblemon.mod.common.mixin;
 
 import com.cobblemon.mod.common.client.CobblemonClient;
-import com.cobblemon.mod.common.client.render.MatrixWrapper;
-import com.cobblemon.mod.common.client.render.models.blockbench.PosableModel;
 import com.cobblemon.mod.common.client.render.models.blockbench.PosableState;
 import com.cobblemon.mod.common.entity.PosableEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.resources.PlayerSkin;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.joml.AxisAngle4f;
 import org.joml.Vector3f;
-import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -30,11 +31,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Map;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.resources.PlayerSkin;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.world.entity.player.Player;
 
 @Mixin(EntityRenderDispatcher.class)
 public class EntityRenderDispatcherMixin {
@@ -77,6 +73,13 @@ public class EntityRenderDispatcherMixin {
                         0F,
                         1F
                     );
+
+                    PoseStack.Pose pose = poseStack.last();
+                    Vector3f vec = matrix.getMatrix().getRotation(new AxisAngle4f()).transform(new Vector3f(0, 0, 1));
+
+                    buffer.addVertex(pose, pos.toVector3f()).setColor(-256).setNormal(pose, (float)vec.x, (float)vec.y, (float)vec.z);
+                    buffer.addVertex(pose, (float)((double)pos.x() + vec.x), (float)((double)pos.y() + vec.y), (float)((double)pos.z() + vec.z)).setColor(-256).setNormal(pose, (float)vec.x, (float)vec.y, (float)vec.z);
+
                     poseStack.popPose();
                 });
 
