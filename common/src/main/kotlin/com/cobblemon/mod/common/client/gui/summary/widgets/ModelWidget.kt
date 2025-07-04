@@ -39,7 +39,7 @@ class ModelWidget(
     var pokemon: RenderablePokemon = pokemon
         set (value) {
             field = value
-            //currentYawAndPitch = Pair(0f, 0f)
+            currentYawAndPitch = Pair(0f, 0f)
             state = FloatingState()
         }
 

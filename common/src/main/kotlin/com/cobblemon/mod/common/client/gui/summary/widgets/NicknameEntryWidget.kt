@@ -39,7 +39,7 @@ class NicknameEntryWidget(
     }
 
     fun setSelectedPokemon(pokemon: Pokemon) {
-        if (this.pokemon != pokemon) {
+        if (isFocused) {
             isFocused = false
         }
 
@@ -53,7 +53,7 @@ class NicknameEntryWidget(
                 this.updateNickname(pokemonName)
             }
         }
-        value = if (pokemon.nickname!=null || !isFocused) pokemon.getDisplayName().string else ""
+        value = pokemon.getDisplayName().string
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {

@@ -32,6 +32,14 @@ data class RenderablePokemon(var species: Species, var aspects: Set<String>, var
         return buffer
     }
 
+    override fun equals(other: Any?): Boolean {
+        return if (other is RenderablePokemon) (
+            other.species.resourceIdentifier == this.species.resourceIdentifier &&
+            other.aspects == this.aspects &&
+            other.heldItem == this.heldItem
+        ) else false
+    }
+
     companion object {
         fun loadFromBuffer(buffer: RegistryFriendlyByteBuf): RenderablePokemon {
             val species = PokemonSpecies.getByIdentifier(buffer.readIdentifier())!!

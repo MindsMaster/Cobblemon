@@ -318,27 +318,26 @@ class Summary private constructor(party: Collection<Pokemon?>, private val edita
     fun switchSelection(newSelection: Int) {
         saveMarkings()
         this.selectedPokemon.moveSet.changeFunction = {}
-        this.party.getOrNull(newSelection)?.let {
-            it.changeObservable.pipe( stopAfter { Minecraft.getInstance().screen != this || this.selectedPokemon != it } ).subscribe {
+        this.party.getOrNull(newSelection)?.let { newPokemon ->
+            newPokemon.changeObservable.pipe( stopAfter { Minecraft.getInstance().screen != this || this.selectedPokemon != newPokemon } ).subscribe {
                 updatePokemonInfo()
             }
-            this.selectedPokemon = it
+            this.selectedPokemon = newPokemon
         }
         updatePokemonInfo()
         listenToMoveSet()
         displayMainScreen(mainScreenIndex)
+        if (::markingsWidget.isInitialized) markingsWidget.setActivePokemon(selectedPokemon)
         children().find { it is EvolutionSelectScreen }?.let(this::removeWidget)
     }
 
     fun updatePokemonInfo() {
-        if (::modelWidget.isInitialized) {
-            modelWidget.pokemon = selectedPokemon.asRenderablePokemon()
+        val pokemon = selectedPokemon.asRenderablePokemon()
+        if (::modelWidget.isInitialized && modelWidget.pokemon != pokemon) {
+            modelWidget.pokemon = pokemon
             heldItemVisibilityButton.buttonActive = !selectedPokemon.heldItemVisible
+            if (::nicknameEntryWidget.isInitialized) nicknameEntryWidget.setSelectedPokemon(selectedPokemon)
         }
-
-        if (::nicknameEntryWidget.isInitialized) nicknameEntryWidget.setSelectedPokemon(selectedPokemon)
-
-        if (::markingsWidget.isInitialized) markingsWidget.setActivePokemon(selectedPokemon)
     }
 
     /**
