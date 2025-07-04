@@ -74,10 +74,7 @@ class LocatorAccess(
         joint.transform(matrixStack)
 
         if (isRoot) {
-            matrixStack.pushPose()
-            matrixStack.scale(1F, -1F, 1F)
             state.getOrPut("root") { MatrixWrapper() }.updateMatrix(matrixStack.last().pose())
-            matrixStack.popPose()
 
             if (entity != null) {
                 // Put in an approximation of the target locator. If the model has one defined,
