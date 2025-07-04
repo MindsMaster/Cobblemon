@@ -222,6 +222,7 @@
 - Saccharine Leaves Age 1 or higher will now show Yellow particles when broken
 - Destroying a Saccharine Honey Log will now drop a Saccharine Log in stead of nothing
 - Reworked some compost chances
+- Updated interaction interface to include 4 more option spaces
 
 ### Fixes
 - Fixed game crashing when removing national pokedex using datapacks
