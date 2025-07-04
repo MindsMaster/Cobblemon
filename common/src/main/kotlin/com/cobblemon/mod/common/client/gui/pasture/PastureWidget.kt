@@ -48,9 +48,6 @@ class PastureWidget(
         parent = this
     )
 
-    val scrollList: PasturePokemonScrollList
-        get() = pastureScrollList
-
     override fun renderWidget(context: GuiGraphics, mouseX: Int, mouseY: Int, delta: Float) {
         blitk(
             matrixStack = context.pose(),
