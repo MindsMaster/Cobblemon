@@ -113,7 +113,7 @@ class InteractWheelGUI(private val options: Multimap<Orientation, InteractWheelO
 
     override fun <T> addRenderableWidget(drawableElement: T): T where T : GuiEventListener?, T : Renderable?, T : NarratableEntry? {
         if (drawableElement is InteractWheelButton) {
-//            buttons.add(drawableElement)
+            buttons.add(drawableElement)
         }
         return super.addRenderableWidget(drawableElement)
     }

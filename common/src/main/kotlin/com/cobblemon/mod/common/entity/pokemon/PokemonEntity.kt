@@ -1124,12 +1124,14 @@ open class PokemonEntity(
             } else if (itemStack.`is`(CobblemonItems.NPC_EDITOR) && (player is ServerPlayer) && player.isCreative) {
                 BehaviourEditingTracker.startEditing(player, this)
                 player.sendPacket(OpenBehaviourEditorPacket(id, (this as MoLangScriptingEntity).behaviours.toSet()))
+                return InteractionResult.sidedSuccess(level().isClientSide)
             }
         }
 
         if (hand == InteractionHand.MAIN_HAND && player is ServerPlayer) {
             if (player.isShiftKeyDown) {
                 showInteractionWheel(player, itemStack)
+                return InteractionResult.sidedSuccess(level().isClientSide)
             }
             else if (pokemon.getOwnerPlayer() == player) {
                 // TODO #105
