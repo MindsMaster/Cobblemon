@@ -1,0 +1,25 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "cobblemon:block/saccharine_log_slathered"
+    },
+    "facing=east": {
+      "model": "cobblemon:block/saccharine_log_slathered",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "cobblemon:block/saccharine_log_slathered"
+    },
+    "facing=south": {
+      "model": "cobblemon:block/saccharine_log_slathered",
+      "y": 180
+    },
+    "facing=up": {
+      "model": "cobblemon:block/saccharine_log_slathered"
+    },
+    "facing=west": {
+      "model": "cobblemon:block/saccharine_log_slathered",
+      "y": 270
+    }
+  }
+}
