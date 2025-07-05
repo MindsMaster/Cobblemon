@@ -9,7 +9,6 @@
 package com.cobblemon.mod.common.api.ai.config.task
 
 import com.cobblemon.mod.common.api.ai.BehaviourConfigurationContext
-import com.cobblemon.mod.common.api.ai.WrapperLivingEntityTask
 import com.cobblemon.mod.common.api.ai.asVariables
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.entity.pokemon.ai.tasks.PollinateFlowerTask
@@ -29,8 +28,14 @@ class PollinateFlowerTaskConfig : SingleTaskConfig {
 
     override fun createTask(
         entity: LivingEntity,
-        brainConfigurationContext: BehaviourConfigurationContext
+        behaviourConfigurationContext: BehaviourConfigurationContext
     ): BehaviorControl<in LivingEntity>? {
-        return WrapperLivingEntityTask(PollinateFlowerTask.create(), PokemonEntity::class.java)
+        if (entity !is PokemonEntity) {
+            return null
+        }
+        if (!checkCondition(entity, condition)) {
+            return null
+        }
+        return PollinateFlowerTask.create()
     }
 }

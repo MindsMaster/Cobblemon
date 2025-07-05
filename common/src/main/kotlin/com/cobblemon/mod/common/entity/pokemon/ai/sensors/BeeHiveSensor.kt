@@ -9,34 +9,20 @@
 package com.cobblemon.mod.common.entity.pokemon.ai.sensors
 
 import com.cobblemon.mod.common.CobblemonMemories
+import com.cobblemon.mod.common.block.SaccharineLeafBlock
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import net.minecraft.core.BlockPos
+import net.minecraft.core.Direction
 import net.minecraft.server.level.ServerLevel
-import net.minecraft.world.entity.PathfinderMob
-import net.minecraft.world.entity.ai.memory.MemoryModuleType
 import net.minecraft.world.entity.ai.sensing.Sensor
 import net.minecraft.world.level.block.BeehiveBlock
 import net.minecraft.world.level.block.Blocks
-import net.minecraft.world.level.pathfinder.PathType
-import kotlin.math.min
 
 class BeeHiveSensor : Sensor<PokemonEntity>(300) {
-    override fun requires() = setOf(
-            CobblemonMemories.HIVE_LOCATION
-    )
-
+    override fun requires() = setOf(CobblemonMemories.HIVE_LOCATION)
     override fun doTick(world: ServerLevel, entity: PokemonEntity) {
         val brain = entity.brain
         val currentHive = brain.getMemory(CobblemonMemories.HIVE_LOCATION).orElse(null)
-
-        if (entity.pokemon.species.name == "Vespiquen") {
-            val test = 1
-        }
-
-        // todo have a better way to assign this sensor to BeeLike pokemon
-        if (entity.pokemon.species.name != "Combee" && entity.pokemon.species.name != "Vespiquen") {
-            return
-        }
 
         if (currentHive != null) {
             val state = world.getBlockState(currentHive)
@@ -78,7 +64,7 @@ class BeeHiveSensor : Sensor<PokemonEntity>(300) {
     private fun isAtMaxHoney(state: net.minecraft.world.level.block.state.BlockState): Boolean {
         return when {
             isHiveBlock(state) -> state.getValue(BeehiveBlock.HONEY_LEVEL) == BeehiveBlock.MAX_HONEY_LEVELS
-            isSaccharineLeafBlock(state) -> state.getValue(com.cobblemon.mod.common.block.SaccharineLeafBlock.AGE) == com.cobblemon.mod.common.block.SaccharineLeafBlock.MAX_AGE
+            isSaccharineLeafBlock(state) -> state.getValue(SaccharineLeafBlock.AGE) == SaccharineLeafBlock.MAX_AGE
             else -> true // Unknown block type
         }
     }
@@ -88,7 +74,7 @@ class BeeHiveSensor : Sensor<PokemonEntity>(300) {
     }
 
     private fun isSaccharineLeafBlock(state: net.minecraft.world.level.block.state.BlockState): Boolean {
-        return state.block is com.cobblemon.mod.common.block.SaccharineLeafBlock
+        return state.block is SaccharineLeafBlock
     }
 
     private fun isHiveBlock(state: net.minecraft.world.level.block.state.BlockState): Boolean {
@@ -96,7 +82,7 @@ class BeeHiveSensor : Sensor<PokemonEntity>(300) {
     }
 
     private fun hasReachableAdjacentSide(world: ServerLevel, entity: PokemonEntity, pos: BlockPos): Boolean {
-        for (dir in net.minecraft.core.Direction.values()) {
+        for (dir in Direction.entries) {
             val adjacentPos = pos.relative(dir)
             if (world.isEmptyBlock(adjacentPos)) {
                 val nav = entity.navigation

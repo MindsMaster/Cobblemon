@@ -8,8 +8,9 @@
 
 package com.cobblemon.mod.common.api.ai.config.task
 
+import com.cobblemon.mod.common.CobblemonMemories
+import com.cobblemon.mod.common.CobblemonSensors
 import com.cobblemon.mod.common.api.ai.BehaviourConfigurationContext
-import com.cobblemon.mod.common.api.ai.WrapperLivingEntityTask
 import com.cobblemon.mod.common.api.ai.asVariables
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
 import com.cobblemon.mod.common.entity.pokemon.ai.tasks.PathToFlowerTask
@@ -29,8 +30,23 @@ class PathToFlowerTaskConfig : SingleTaskConfig {
 
     override fun createTask(
         entity: LivingEntity,
-        brainConfigurationContext: BehaviourConfigurationContext
+        behaviourConfigurationContext: BehaviourConfigurationContext
     ): BehaviorControl<in LivingEntity>? {
-        return WrapperLivingEntityTask(PathToFlowerTask.create(), PokemonEntity::class.java)
+        if (entity !is PokemonEntity) {
+            return null
+        }
+
+        if (!checkCondition(entity, condition)) {
+            return null
+        }
+        behaviourConfigurationContext.addMemories(
+            CobblemonMemories.NEARBY_FLOWER,
+            CobblemonMemories.HIVE_COOLDOWN,
+            CobblemonMemories.HIVE_LOCATION,
+            CobblemonMemories.RECENTLY_ADDED_HONEY,
+            CobblemonMemories.POLLINATED
+        )
+        behaviourConfigurationContext.addSensors(CobblemonSensors.NEARBY_BEE_HIVE, CobblemonSensors.NEARBY_FLOWER)
+        return PathToFlowerTask.create()
     }
 }
