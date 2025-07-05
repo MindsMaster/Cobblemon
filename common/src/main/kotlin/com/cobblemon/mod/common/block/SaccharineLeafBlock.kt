@@ -37,7 +37,6 @@ import net.minecraft.world.level.pathfinder.PathComputationType
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.shapes.VoxelShape
 
-@Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
 class SaccharineLeafBlock(settings: Properties) : LeavesBlock(settings) {
     companion object {
         val AGE: IntegerProperty = BlockStateProperties.AGE_2
@@ -68,35 +67,25 @@ class SaccharineLeafBlock(settings: Properties) : LeavesBlock(settings) {
                         stack.shrink(1)
 
                         val dispenserEntity = source.blockEntity
-                        if (dispenserEntity != null) {
-                            val outputItem = if (item == Items.HONEY_BOTTLE) Items.GLASS_BOTTLE else Items.HONEY_BOTTLE
-                            val outputStack = ItemStack(outputItem)
-                            var added = false
+                        val outputItem = if (item == Items.HONEY_BOTTLE) Items.GLASS_BOTTLE else Items.HONEY_BOTTLE
+                        val outputStack = ItemStack(outputItem)
+                        var added = false
 
-                            for (i in 0 until dispenserEntity.containerSize) {
-                                val slotStack = dispenserEntity.getItem(i)
+                        for (i in 0 until dispenserEntity.containerSize) {
+                            val slotStack = dispenserEntity.getItem(i)
 
-                                if (slotStack.isEmpty) {
-                                    dispenserEntity.setItem(i, outputStack.copy())
-                                    added = true
-                                    break
-                                } else if (slotStack.`is`(outputItem) && slotStack.count < slotStack.maxStackSize) {
-                                    slotStack.grow(1)
-                                    added = true
-                                    break
-                                }
-                            }
-
-                            if (!added) {
-                                Containers.dropItemStack(
-                                    level,
-                                    source.pos.x.toDouble(),
-                                    source.pos.y.toDouble(),
-                                    source.pos.z.toDouble(),
-                                    outputStack
-                                )
+                            if (slotStack.isEmpty) {
+                                dispenserEntity.setItem(i, outputStack.copy())
+                                added = true
+                                break
+                            } else if (slotStack.`is`(outputItem) && slotStack.count < slotStack.maxStackSize) {
+                                slotStack.grow(1)
+                                added = true
+                                break
                             }
                         }
+
+                        if (!added) Containers.dropItemStack(level, source.pos.x.toDouble(), source.pos.y.toDouble(), source.pos.z.toDouble(), outputStack)
                     }
                 }
                 stack
