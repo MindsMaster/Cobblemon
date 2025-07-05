@@ -1284,7 +1284,7 @@ object MoLangFunctions {
                 DoubleValue((pokemonEntity.tethering != null))
             }
             map.put("pasture_conflict_enabled") {
-                DoubleValue(pokemonEntity.getBehaviourFlag(PokemonBehaviourFlag.PASTURE_CONFLICT) == true)
+                DoubleValue(pokemonEntity.getBehaviourFlag(PokemonBehaviourFlag.PASTURE_CONFLICT))
             }
             map
         }

@@ -11,6 +11,7 @@ package com.cobblemon.mod.common.net.messages.client.pasture
 import com.cobblemon.mod.common.api.net.NetworkPacket
 import com.cobblemon.mod.common.api.pasture.PasturePermissions
 import com.cobblemon.mod.common.client.net.pasture.OpenPastureHandler
+import com.cobblemon.mod.common.entity.pokemon.PokemonBehaviourFlag
 import com.cobblemon.mod.common.net.IntSize
 import com.cobblemon.mod.common.util.*
 import java.util.UUID
@@ -38,7 +39,7 @@ class OpenPasturePacket(val pcId: UUID, val pastureId: UUID, val limit: Int, val
         val heldItem: ItemStack,
         val level: Int,
         val entityKnown: Boolean,
-        var behaviourFlags: Set<String> = emptySet()
+        var behaviourFlags: Set<PokemonBehaviourFlag> = emptySet()
     ) {
         companion object {
             fun decode(buffer: RegistryFriendlyByteBuf): PasturePokemonDataDTO {
@@ -51,7 +52,7 @@ class OpenPasturePacket(val pcId: UUID, val pastureId: UUID, val limit: Int, val
                 val heldItem = buffer.readItemStack()
                 val level = buffer.readSizedInt(IntSize.U_SHORT)
                 val entityKnown = buffer.readBoolean()
-                val behaviourFlags = buffer.readList { it.readString() }.toSet()
+                val behaviourFlags = buffer.readList { it.readEnumConstant(PokemonBehaviourFlag::class.java) }.toSet()
 
                 return PasturePokemonDataDTO(
                     pokemonId = pokemonId,
@@ -78,7 +79,7 @@ class OpenPasturePacket(val pcId: UUID, val pastureId: UUID, val limit: Int, val
             buffer.writeItemStack(heldItem)
             buffer.writeSizedInt(IntSize.U_SHORT, level)
             buffer.writeBoolean(entityKnown)
-            buffer.writeCollection(behaviourFlags) { _, flag -> buffer.writeString(flag) }
+            buffer.writeCollection(behaviourFlags) { _, flag -> buffer.writeEnumConstant(flag) }
         }
     }
 
