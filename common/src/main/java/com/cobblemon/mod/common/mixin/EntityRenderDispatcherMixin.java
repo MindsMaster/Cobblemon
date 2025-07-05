@@ -22,8 +22,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.joml.AxisAngle4f;
-import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -38,26 +36,26 @@ public class EntityRenderDispatcherMixin {
     @Shadow private Map<PlayerSkin.Model, EntityRenderer<? extends Player>> playerRenderers;
 
     @Inject(
-        method = "onResourceManagerReload",
-        at = @At(value = "TAIL")
+            method = "onResourceManagerReload",
+            at = @At(value = "TAIL")
     )
     public void resourceManagerReloadHook(ResourceManager resourceManager, CallbackInfo ci) {
         CobblemonClient.INSTANCE.onAddLayer(this.playerRenderers);
     }
 
     @Inject(
-        method = "renderHitbox(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;Lnet/minecraft/world/entity/Entity;FFFF)V",
-        at = @At(value = "TAIL")
+            method = "renderHitbox(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;Lnet/minecraft/world/entity/Entity;FFFF)V",
+            at = @At(value = "TAIL")
     )
     private static void renderLocators(
-        PoseStack poseStack,
-        VertexConsumer buffer,
-        Entity entity,
-        float red,
-        float green,
-        float blue,
-        float alpha,
-        CallbackInfo ci
+            PoseStack poseStack,
+            VertexConsumer buffer,
+            Entity entity,
+            float red,
+            float green,
+            float blue,
+            float alpha,
+            CallbackInfo ci
     ) {
         if (entity instanceof PosableEntity posableEntity) {
             if (posableEntity.getDelegate() instanceof PosableState state) {
@@ -65,22 +63,30 @@ public class EntityRenderDispatcherMixin {
                     poseStack.pushPose();
                     Vec3 pos = matrix.getOrigin().subtract(entity.position());
                     LevelRenderer.renderLineBox(
-                        poseStack,
-                        buffer,
-                        AABB.ofSize(pos, 0.25, 0.25, 0.25),
-                        0F,
-                        1F,
-                        0F,
-                        1F
+                            poseStack,
+                            buffer,
+                            AABB.ofSize(pos, 0.25, 0.25, 0.25),
+                            0F,
+                            1F,
+                            0F,
+                            1F
                     );
 
-                    PoseStack.Pose pose = poseStack.last();
+                    /*PoseStack.Pose pose = poseStack.last();
                     Vector3f vec = matrix.getMatrix().getRotation(new AxisAngle4f()).transform(new Vector3f(0, 0, 1));
 
                     buffer.addVertex(pose, pos.toVector3f()).setColor(-256).setNormal(pose, (float)vec.x, (float)vec.y, (float)vec.z);
                     buffer.addVertex(pose, (float)((double)pos.x() + vec.x), (float)((double)pos.y() + vec.y), (float)((double)pos.z() + vec.z)).setColor(-256).setNormal(pose, (float)vec.x, (float)vec.y, (float)vec.z);
 
-                    poseStack.popPose();
+                    vec = matrix.getMatrix().getRotation(new AxisAngle4f()).transform(new Vector3f(0, 1, 0));
+                    buffer.addVertex(pose, pos.toVector3f()).setColor(-256).setNormal(pose, (float)vec.x, (float)vec.y, (float)vec.z);
+                    buffer.addVertex(pose, (float)((double)pos.x() + vec.x), (float)((double)pos.y() + vec.y), (float)((double)pos.z() + vec.z)).setColor(-256).setNormal(pose, (float)vec.x, (float)vec.y, (float)vec.z);
+
+                    vec = matrix.getMatrix().getRotation(new AxisAngle4f()).transform(new Vector3f(-1, 0, 0));
+                    buffer.addVertex(pose, pos.toVector3f()).setColor(-256).setNormal(pose, (float)vec.x, (float)vec.y, (float)vec.z);
+                    buffer.addVertex(pose, (float)((double)pos.x() + vec.x), (float)((double)pos.y() + vec.y), (float)((double)pos.z() + vec.z)).setColor(-256).setNormal(pose, (float)vec.x, (float)vec.y, (float)vec.z);
+
+                    poseStack.popPose();*/
                 });
 
             }
