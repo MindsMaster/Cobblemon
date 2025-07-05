@@ -22,6 +22,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.joml.AxisAngle4f;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -72,21 +74,23 @@ public class EntityRenderDispatcherMixin {
                             1F
                     );
 
-                    /*PoseStack.Pose pose = poseStack.last();
-                    Vector3f vec = matrix.getMatrix().getRotation(new AxisAngle4f()).transform(new Vector3f(0, 0, 1));
+                    if (locator.contains("middle")){
+                        PoseStack.Pose pose = poseStack.last();
+                        Vector3f vec = matrix.getMatrix().getRotation(new AxisAngle4f()).transform(new Vector3f(0, 0, -1));
+                        buffer.addVertex(pose, pos.toVector3f()).setColor(0xffff00ff).setNormal(pose, vec.x, vec.y, vec.z); //Forward, pink
+                        buffer.addVertex(pose, (float)(pos.x() + vec.x), (float)(pos.y() + vec.y), (float)(pos.z() + vec.z)).setColor(0xffff00ff).setNormal(pose, vec.x, vec.y, vec.z);
 
-                    buffer.addVertex(pose, pos.toVector3f()).setColor(-256).setNormal(pose, (float)vec.x, (float)vec.y, (float)vec.z);
-                    buffer.addVertex(pose, (float)((double)pos.x() + vec.x), (float)((double)pos.y() + vec.y), (float)((double)pos.z() + vec.z)).setColor(-256).setNormal(pose, (float)vec.x, (float)vec.y, (float)vec.z);
+                        vec = matrix.getMatrix().getRotation(new AxisAngle4f()).transform(new Vector3f(0, 1, 0));
+                        buffer.addVertex(pose, pos.toVector3f()).setColor(0xffffff00).setNormal(pose, vec.x, vec.y, vec.z); //Up, yellow
+                        buffer.addVertex(pose, (float)(pos.x() + vec.x), (float)(pos.y() + vec.y), (float)(pos.z() + vec.z)).setColor(0xffffff00).setNormal(pose, vec.x, vec.y, vec.z);
 
-                    vec = matrix.getMatrix().getRotation(new AxisAngle4f()).transform(new Vector3f(0, 1, 0));
-                    buffer.addVertex(pose, pos.toVector3f()).setColor(-256).setNormal(pose, (float)vec.x, (float)vec.y, (float)vec.z);
-                    buffer.addVertex(pose, (float)((double)pos.x() + vec.x), (float)((double)pos.y() + vec.y), (float)((double)pos.z() + vec.z)).setColor(-256).setNormal(pose, (float)vec.x, (float)vec.y, (float)vec.z);
+                        vec = matrix.getMatrix().getRotation(new AxisAngle4f()).transform(new Vector3f(-1, 0, 0));
+                        buffer.addVertex(pose, pos.toVector3f()).setColor(0xff00ffff).setNormal(pose, vec.x, vec.y, vec.z); //Left, cyan
+                        buffer.addVertex(pose, (float)(pos.x() + vec.x), (float)(pos.y() + vec.y), (float)(pos.z() + vec.z)).setColor(0xff00ffff).setNormal(pose, vec.x, vec.y, vec.z);
+                    }
 
-                    vec = matrix.getMatrix().getRotation(new AxisAngle4f()).transform(new Vector3f(-1, 0, 0));
-                    buffer.addVertex(pose, pos.toVector3f()).setColor(-256).setNormal(pose, (float)vec.x, (float)vec.y, (float)vec.z);
-                    buffer.addVertex(pose, (float)((double)pos.x() + vec.x), (float)((double)pos.y() + vec.y), (float)((double)pos.z() + vec.z)).setColor(-256).setNormal(pose, (float)vec.x, (float)vec.y, (float)vec.z);
 
-                    poseStack.popPose();*/
+                    poseStack.popPose();
                 });
 
             }
