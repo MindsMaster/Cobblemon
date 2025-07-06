@@ -36,26 +36,26 @@ public class EntityRenderDispatcherMixin {
     @Shadow private Map<PlayerSkin.Model, EntityRenderer<? extends Player>> playerRenderers;
 
     @Inject(
-            method = "onResourceManagerReload",
-            at = @At(value = "TAIL")
+        method = "onResourceManagerReload",
+        at = @At(value = "TAIL")
     )
     public void resourceManagerReloadHook(ResourceManager resourceManager, CallbackInfo ci) {
         CobblemonClient.INSTANCE.onAddLayer(this.playerRenderers);
     }
 
     @Inject(
-            method = "renderHitbox(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;Lnet/minecraft/world/entity/Entity;FFFF)V",
-            at = @At(value = "TAIL")
+        method = "renderHitbox(Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;Lnet/minecraft/world/entity/Entity;FFFF)V",
+        at = @At(value = "TAIL")
     )
     private static void renderLocators(
-            PoseStack poseStack,
-            VertexConsumer buffer,
-            Entity entity,
-            float red,
-            float green,
-            float blue,
-            float alpha,
-            CallbackInfo ci
+        PoseStack poseStack,
+        VertexConsumer buffer,
+        Entity entity,
+        float red,
+        float green,
+        float blue,
+        float alpha,
+        CallbackInfo ci
     ) {
         if (entity instanceof PosableEntity posableEntity) {
             if (posableEntity.getDelegate() instanceof PosableState state) {
@@ -63,13 +63,13 @@ public class EntityRenderDispatcherMixin {
                     poseStack.pushPose();
                     Vec3 pos = matrix.getOrigin().subtract(entity.position());
                     LevelRenderer.renderLineBox(
-                            poseStack,
-                            buffer,
-                            AABB.ofSize(pos, 0.25, 0.25, 0.25),
-                            0F,
-                            1F,
-                            0F,
-                            1F
+                        poseStack,
+                        buffer,
+                        AABB.ofSize(pos, 0.25, 0.25, 0.25),
+                        0F,
+                        1F,
+                        0F,
+                        1F
                     );
 
                     /*if (locator.contains("middle")){
