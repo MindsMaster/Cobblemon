@@ -26,13 +26,18 @@ import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.level.Level
-import net.minecraft.world.level.block.*
+import net.minecraft.world.level.LevelAccessor
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.DispenserBlock
+import net.minecraft.world.level.block.LeavesBlock
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import net.minecraft.world.level.block.state.properties.BooleanProperty
 import net.minecraft.world.level.block.state.properties.IntegerProperty
 import net.minecraft.world.level.gameevent.GameEvent
+import net.minecraft.world.level.material.FluidState
+import net.minecraft.world.level.material.Fluids
 import net.minecraft.world.level.pathfinder.PathComputationType
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.shapes.VoxelShape
@@ -131,6 +136,21 @@ class SaccharineLeafBlock(settings: Properties) : LeavesBlock(settings) {
         super.randomTick(state, world, pos, random)
     }
 
+    override fun placeLiquid(level: LevelAccessor, pos: BlockPos, state: BlockState, fluidState: FluidState): Boolean {
+        if (!state.getValue(BlockStateProperties.WATERLOGGED) && fluidState.type === Fluids.WATER) {
+            val hasHoney = state.getValue(AGE) > 0
+            if (!level.isClientSide) {
+                val newState = state.setValue(BlockStateProperties.WATERLOGGED, true)
+                level.setBlock(pos, if (hasHoney) newState.setValue(AGE, 0) else newState, 3)
+                level.scheduleTick(pos, fluidState.type, fluidState.type.getTickDelay(level))
+            }
+            if (hasHoney) spawnDestroyHoneyParticles(level as Level, pos, state)
+            return true
+        } else {
+            return false
+        }
+    }
+
     override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
         builder.add(AGE)
         super.createBlockStateDefinition(builder)
@@ -198,29 +218,31 @@ class SaccharineLeafBlock(settings: Properties) : LeavesBlock(settings) {
     override fun isPathfindable(state: BlockState, type: PathComputationType): Boolean = false
 
     override fun useItemOn(stack: ItemStack, state: BlockState, level: Level, pos: BlockPos, player: Player, hand: InteractionHand, hit: BlockHitResult): ItemInteractionResult {
-        val itemStack = player.getItemInHand(hand)
-        val isGlassBottle = itemStack.`is`(Items.GLASS_BOTTLE)
-        val isHoneyBottle = itemStack.`is`(Items.HONEY_BOTTLE)
+        if (!state.getValue(WATERLOGGED)) {
+            val itemStack = player.getItemInHand(hand)
+            val isGlassBottle = itemStack.`is`(Items.GLASS_BOTTLE)
+            val isHoneyBottle = itemStack.`is`(Items.HONEY_BOTTLE)
 
-        if (isGlassBottle && !isAtMinAge(state)) {
-            // Decrement stack if not in creative mode
-            if (!player.isCreative) itemStack.shrink(1)
+            if (isGlassBottle && !isAtMinAge(state)) {
+                // Decrement stack if not in creative mode
+                if (!player.isCreative) itemStack.shrink(1)
 
-            // Give player honey bottle for now
-            player.addItem(Items.HONEY_BOTTLE.defaultInstance)
+                // Give player honey bottle for now
+                player.addItem(Items.HONEY_BOTTLE.defaultInstance)
 
-            level.playSound(null, pos, SoundEvents.BOTTLE_FILL, SoundSource.BLOCKS)
-            level.setBlock(pos, state.setValue(AGE, 0), 2)
-            level.gameEvent(null, GameEvent.BLOCK_CHANGE, pos)
-            return ItemInteractionResult.SUCCESS
-        } else if (isHoneyBottle && !isAtMaxAge(state)) {
-            // Decrement stack if not in creative mode
-            if (!player.isCreative) itemStack.shrink(1)
+                level.playSound(null, pos, SoundEvents.BOTTLE_FILL, SoundSource.BLOCKS)
+                level.setBlock(pos, state.setValue(AGE, 0), 2)
+                level.gameEvent(null, GameEvent.BLOCK_CHANGE, pos)
+                return ItemInteractionResult.SUCCESS
+            } else if (isHoneyBottle && !isAtMaxAge(state)) {
+                // Decrement stack if not in creative mode
+                if (!player.isCreative) itemStack.shrink(1)
 
-            level.playSound(null, pos, SoundEvents.HONEY_BLOCK_PLACE, SoundSource.BLOCKS)
-            level.setBlock(pos, state.setValue(AGE, 2), 2)
-            level.gameEvent(null, GameEvent.BLOCK_CHANGE, pos)
-            return ItemInteractionResult.SUCCESS
+                level.playSound(null, pos, SoundEvents.HONEY_BLOCK_PLACE, SoundSource.BLOCKS)
+                level.setBlock(pos, state.setValue(AGE, 2), 2)
+                level.gameEvent(null, GameEvent.BLOCK_CHANGE, pos)
+                return ItemInteractionResult.SUCCESS
+            }
         }
 
         return super.useItemOn(stack, state, level, pos, player, hand, hit)
@@ -235,7 +257,7 @@ class SaccharineLeafBlock(settings: Properties) : LeavesBlock(settings) {
         return state.setValue(AGE, newAge)
     }
 
-    override fun spawnDestroyParticles(level: Level, player: Player, pos: BlockPos, state: BlockState) {
+    private fun spawnDestroyHoneyParticles(level: Level, pos: BlockPos, state: BlockState) {
         if (!isAtMinAge(state)) {
             var amount = if (isAtMaxAge(state)) 30 else 10
             for (i in 0 until amount) {
@@ -252,6 +274,10 @@ class SaccharineLeafBlock(settings: Properties) : LeavesBlock(settings) {
                 )
             }
         }
+    }
+
+    override fun spawnDestroyParticles(level: Level, player: Player, pos: BlockPos, state: BlockState) {
+        spawnDestroyHoneyParticles(level, pos, state)
         super.spawnDestroyParticles(level, player, pos, state.setValue(AGE, state.getValue(AGE)))
     }
 }
