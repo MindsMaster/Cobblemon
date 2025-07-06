@@ -1,6 +1,6 @@
 {
-	"match": {
-		"items": "cobblemon:sun_stone"
-	},
-	"luminance": 5
+  "match": {
+    "items": "cobblemon:sun_stone"
+  },
+  "luminance": 5
 }

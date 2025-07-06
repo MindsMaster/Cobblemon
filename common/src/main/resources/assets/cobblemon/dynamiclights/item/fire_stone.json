@@ -1,6 +1,6 @@
 {
-	"match": {
-		"items": "cobblemon:fire_stone"
-	},
-	"luminance": 13
+  "match": {
+    "items": "cobblemon:fire_stone"
+  },
+  "luminance": 13
 }
