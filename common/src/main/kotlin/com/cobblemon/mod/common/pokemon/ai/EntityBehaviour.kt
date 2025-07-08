@@ -20,13 +20,13 @@ import net.minecraft.server.level.ServerPlayer
  */
 class EntityBehaviour {
     val avoidedByCreeper = false
-//    val avoidedByPhantom = false
+    val avoidedByPhantom = false
     val avoidedBySkeleton = false
 
     @Transient
     val struct = ObjectValue(this).also {
         it.addFunction("avoided_by_creeper") { DoubleValue(avoidedByCreeper) }
-//        it.addFunction("avoided_by_phantom") { DoubleValue(avoidedByPhantom) }
+        it.addFunction("avoided_by_phantom") { DoubleValue(avoidedByPhantom) }
         it.addFunction("avoided_by_skeleton") { DoubleValue(avoidedBySkeleton) }
     }
 
