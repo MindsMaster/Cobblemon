@@ -122,9 +122,7 @@ class FossilMultiblockStructure (
 
 
                 val ballType = (stack.item as PokeBallItem).pokeBall
-                if (!player.isCreative) {
-                    stack?.shrink(1)
-                }
+                stack?.consume(1, player)
 
                 val pokemon = this.resultingFossil?.result?.create(player)
 
@@ -181,9 +179,7 @@ class FossilMultiblockStructure (
                 }
                 if (player is ServerPlayer) {
                     val copyFossilStack = stack.copyWithCount(1)
-                    if (!player.isCreative) {
-                        stack?.shrink(1)
-                    }
+                    stack?.consume(1, player)
                     fossilOwnerUUID = player.uuid
                     fossilInventory.add(copyFossilStack)
                     this.updateFossilType(world)
@@ -203,7 +199,7 @@ class FossilMultiblockStructure (
                     && this.organicMaterialInside < MATERIAL_TO_START
                     && insertOrganicMaterial(ItemStack(stack.item, 1), world)) {
                 this.lastInteraction = world.gameTime
-                if (!player.isCreative) {
+                if (!player.hasInfiniteMaterials()) {
                     val returnItem = NaturalMaterials.getReturnItem(stack)
                     stack?.shrink(1)
                     player.giveOrDropItemStack(

@@ -57,9 +57,7 @@ class HyperTrainingItem(val ivIncreaseAmount: Int, val targetStats: Set<Stat>, v
             }
         }
 
-        if (!player.isCreative) {
-            stack.shrink(1)
-        }
+        stack.consume(1, player)
         pokemon.entity?.playSound(CobblemonSounds.MEDICINE_PILLS_USE, 1F, 1F)
         return InteractionResultHolder.success(stack)
     }

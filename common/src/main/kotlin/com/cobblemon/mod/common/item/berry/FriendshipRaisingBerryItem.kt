@@ -58,9 +58,7 @@ class FriendshipRaisingBerryItem(block: BerryBlock, val stat: Stat) : BerryItem(
         return if (increasedFriendship || decreasedEVs) {
             pokemon.feedPokemon(1)
 
-            if (!player.isCreative) {
-                stack.shrink(1)
-            }
+            stack.consume(1, player)
             InteractionResultHolder.success(stack)
         } else {
             InteractionResultHolder.pass(stack)

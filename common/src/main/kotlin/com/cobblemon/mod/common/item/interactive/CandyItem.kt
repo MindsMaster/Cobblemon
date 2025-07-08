@@ -60,9 +60,7 @@ class CandyItem(
                     // We do this just so we can post the event once the item has been consumed if needed instead of repeating the even post
                     var returnValue = false
                     if (result.experienceAdded > 0) {
-                        if (!player.isCreative) {
-                            stack.shrink(1)
-                        }
+                        stack.consume(1, player)
                         returnValue = true
                     }
                     pokemon.entity?.playSound(CobblemonSounds.MEDICINE_CANDY_USE, 1F, 1F)

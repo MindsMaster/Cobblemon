@@ -68,9 +68,7 @@ class PortionHealingBerryItem(block: BerryBlock, val canCauseConfusion: Boolean,
         }
         pokemon.currentHealth = amount
 
-        if (!player.isCreative) {
-            stack.shrink(1)
-        }
+        stack.consume(1, player)
         return InteractionResultHolder.success(stack)
     }
 

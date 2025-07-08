@@ -20,6 +20,7 @@ import com.cobblemon.mod.common.api.item.PokemonSelectingItem
 import com.cobblemon.mod.common.api.riding.stats.RidingStat
 import com.cobblemon.mod.common.pokemon.Nature
 import com.cobblemon.mod.common.pokemon.Pokemon
+import com.cobblemon.mod.common.util.adapters.pokemonPropertiesLongAdapter
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
@@ -116,7 +117,7 @@ class PokePuffItem : Item(Properties().stacksTo(16)), PokemonSelectingItem {
             if (newValue != current) {
                 pokemon.setFriendship(newValue)
                 pokemon.entity?.playSound(SoundEvents.PLAYER_BURP, 1F, 1F)
-                if (!player.isCreative) stack.shrink(1)
+                stack.consume(1, player)
                 return InteractionResultHolder.success(stack)
             }
         }
@@ -159,9 +160,7 @@ class PokePuffItem : Item(Properties().stacksTo(16)), PokemonSelectingItem {
 
             if (user.foodData.needsFood()) {
                 user.foodData.eat(nutrition, saturation)
-                if (!user.isCreative) {
-                    stack.shrink(1)
-                }
+                stack.consume(1, user)
             }
         }
 

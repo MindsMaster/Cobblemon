@@ -58,9 +58,7 @@ class PPRestoringBerryItem(block: BerryBlock, val amount: () -> ExpressionLike):
                 moveToRecover.currentPp =
                     min(moveToRecover.maxPp, moveToRecover.currentPp + genericRuntime.resolveInt(amount(), pokemon))
 
-                if (!player.isCreative) {
-                    stack.shrink(1)
-                }
+                stack.consume(1, player)
             }
         }
     }

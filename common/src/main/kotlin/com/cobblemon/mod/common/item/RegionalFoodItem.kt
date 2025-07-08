@@ -69,9 +69,7 @@ class RegionalFoodItem(properties: Properties) : Item(properties), PokemonSelect
         if (pokemon.status != null) {
             pokemon.status = null
             pokemon.entity?.playSound(SoundEvents.GENERIC_EAT, 1F, 1F)
-            if (!player.isCreative) {
-                stack.shrink(1)
-            }
+            stack.consume(1, player)
             return InteractionResultHolder.success(stack)
         }
         return InteractionResultHolder.fail(stack)

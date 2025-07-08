@@ -40,9 +40,7 @@ class FreshStartMochiItem : CobblemonItem(Properties()), PokemonSelectingItem {
         }
 
         //pokemon.entity?.playSound(CobblemonSounds.MOCHI_USE, 1F, 1F) todo use mochi sounds for fullness levels and replace above
-        if (!player.isCreative) {
-            stack.shrink(1)
-        }
+        stack.consume(1, player)
 
         return InteractionResultHolder.success(stack)
     }

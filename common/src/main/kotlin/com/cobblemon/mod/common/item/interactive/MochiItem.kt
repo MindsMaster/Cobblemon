@@ -27,9 +27,7 @@ class MochiItem(stat: Stats): EVIncreaseItem(stat, 10) {
 
         pokemon.feedPokemon(1)
 
-        if (!player.isCreative) {
-            stack.shrink(1)
-        }
+        stack.consume(1, player)
 
         return super.applyToPokemon(player, stack, pokemon)
     }

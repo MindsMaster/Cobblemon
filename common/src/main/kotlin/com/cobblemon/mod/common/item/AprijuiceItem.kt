@@ -113,9 +113,7 @@ class AprijuiceItem(val type: Apricorn): CobblemonItem(Properties().stacksTo(16)
             pokemon.addRideBoost(stat, value)
         }
 
-        if (!player.isCreative) {
-            stack.shrink(1)
-        }
+        stack.consume(1, player)
 
         return InteractionResultHolder.success(stack)
     }
@@ -146,9 +144,7 @@ class AprijuiceItem(val type: Apricorn): CobblemonItem(Properties().stacksTo(16)
 
         if (!hasFlavour && user is Player && !world.isClientSide) {
             user.foodData.eat(1, 0.1f)
-            if (!user.isCreative) {
-                stack.shrink(1)
-            }
+            stack.consume(1, user)
         }
 
         return super.finishUsingItem(stack, world, user)
