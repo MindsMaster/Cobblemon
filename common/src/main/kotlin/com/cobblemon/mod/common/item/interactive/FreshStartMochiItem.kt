@@ -8,7 +8,6 @@
 
 package com.cobblemon.mod.common.item.interactive
 
-import com.cobblemon.mod.common.CobblemonSounds
 import com.cobblemon.mod.common.api.item.PokemonSelectingItem
 import com.cobblemon.mod.common.item.CobblemonItem
 import com.cobblemon.mod.common.pokemon.Pokemon

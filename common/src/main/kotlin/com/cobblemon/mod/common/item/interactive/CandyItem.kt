@@ -14,13 +14,12 @@ import com.cobblemon.mod.common.api.events.pokemon.interaction.ExperienceCandyUs
 import com.cobblemon.mod.common.api.item.PokemonSelectingItem
 import com.cobblemon.mod.common.api.pokemon.experience.CandyExperienceSource
 import com.cobblemon.mod.common.item.CobblemonItem
-import com.cobblemon.mod.common.item.interactive.CandyItem.Calculator
 import com.cobblemon.mod.common.pokemon.Pokemon
-import net.minecraft.world.entity.player.Player
-import net.minecraft.world.item.ItemStack
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResultHolder
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Rarity
 import net.minecraft.world.level.Level
 

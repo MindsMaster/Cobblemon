@@ -8,22 +8,9 @@
 
 package com.cobblemon.mod.common.item
 
-import com.cobblemon.mod.common.CobblemonItemComponents
-import com.cobblemon.mod.common.CobblemonItems
-import com.cobblemon.mod.common.CobblemonSounds
-import com.cobblemon.mod.common.api.apricorn.Apricorn
-import com.cobblemon.mod.common.api.conditional.RegistryLikeIdentifierCondition
-import com.cobblemon.mod.common.api.cooking.Flavour
-import com.cobblemon.mod.common.api.cooking.PokePuffUtils
-import com.cobblemon.mod.common.api.cooking.Seasonings
 import com.cobblemon.mod.common.api.item.PokemonSelectingItem
-import com.cobblemon.mod.common.api.riding.stats.RidingStat
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity
-import com.cobblemon.mod.common.pokemon.Nature
 import com.cobblemon.mod.common.pokemon.Pokemon
-import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.network.chat.Component
-import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundEvents

@@ -603,8 +603,7 @@ class FossilMultiblockStructure (
         result.put(DataKeys.TANK_BASE_POS, NbtUtils.writeBlockPos(tankBasePos))
         result.putInt(DataKeys.TIME_LEFT, timeRemaining)
         result.putInt(DataKeys.PROTECTED_TIME_LEFT, protectionTime)
-        if(fossilOwnerUUID != null)
-            result.putUUID(DataKeys.FOSSIL_OWNER, fossilOwnerUUID)
+        fossilOwnerUUID?.let { result.putUUID(DataKeys.FOSSIL_OWNER, it) }
         result.putInt(DataKeys.ORGANIC_MATERIAL, organicMaterialInside)
         val fossilInv = ListTag()
 
