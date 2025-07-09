@@ -1,9 +1,9 @@
 {
   "variants": {
-    "facing=down": {
+    "axis=x": {
       "model": "cobblemon:block/saccharine_log_slathered_0"
     },
-    "facing=up": {
+    "axis=z": {
       "model": "cobblemon:block/saccharine_log_slathered_0"
     },
     "facing=east,honey_type=0": {
