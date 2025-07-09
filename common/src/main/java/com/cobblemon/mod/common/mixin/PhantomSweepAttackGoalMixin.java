@@ -47,6 +47,7 @@ public abstract class PhantomSweepAttackGoalMixin extends Goal {
                    if (entity instanceof PokemonEntity) {
                        ((PokemonEntity) entity).cry();
                    }
+                   //TODO: Find a way to make shoulder mounted Pokemon cry
                });
                 cir.setReturnValue(false);
             }
