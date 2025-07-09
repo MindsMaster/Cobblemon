@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Cobblemon Contributors
+ * Copyright (C) 2025 Cobblemon Contributors
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -20,16 +20,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/**
- * Accesses the synthetic `this$0` field, which refers to the outer Phantom instance.
- */
 
 
 @Mixin(targets = "net.minecraft.world.entity.monster.Phantom$PhantomSweepAttackGoal")
 public abstract class PhantomSweepAttackGoalMixin extends Goal {
 
     @Unique
-    private Phantom phantomSelf;
+    private Phantom phantomSelf; // Allows access to the outer class
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void onInit(Phantom phantom, CallbackInfo ci) {
@@ -38,30 +35,20 @@ public abstract class PhantomSweepAttackGoalMixin extends Goal {
 
     @Inject(method = "canContinueToUse", at = @At("RETURN"), cancellable = true)
     private void modifyCanContinueToUse(CallbackInfoReturnable<Boolean> cir) {
-        // Access the outer Phantom instance using our accessor
-        Phantom phantom = this.phantomSelf;
+        Phantom phantom = this.phantomSelf; // Outer class instance
         if(phantom == null) return;
 
         if (cir.getReturnValue()) {
-            var nearbyScaryPokemon = phantom.level().getEntitiesOfClass(
-                    PokemonEntity.class,
-                    phantom.getBoundingBox().inflate(16.0),
-                    entity -> entity.getBeamMode() == 0 && entity.getBehaviour().getEntityInteract().getAvoidedByPhantom()
-            );
-            nearbyScaryPokemon.forEach(PokemonEntity::cry);
-            if (!nearbyScaryPokemon.isEmpty()) {
+            var nearbyFearedEntities = phantom.level().getEntities(phantom, phantom.getBoundingBox().inflate(16.0),
+                    (entity -> ((entity instanceof PokemonEntity && ((PokemonEntity) entity).getBeamMode() == 0 && ((PokemonEntity) entity).getBehaviour().getEntityInteract().getAvoidedByPhantom())
+                            || (entity instanceof ServerPlayer && EntityBehaviour.Companion.hasPhantomFearedShoulderMount((ServerPlayer)entity)))));
+            if (!nearbyFearedEntities.isEmpty()) {
+               nearbyFearedEntities.forEach(entity -> {
+                   if (entity instanceof PokemonEntity) {
+                       ((PokemonEntity) entity).cry();
+                   }
+               });
                 cir.setReturnValue(false);
-            } else {
-                // Check for shoulder mounted pokemon
-                var nearbyPlayersWithScaryShoulders = phantom.level().getEntitiesOfClass(
-                        ServerPlayer.class,
-                        phantom.getBoundingBox().inflate(16.0),
-                        entity -> EntityBehaviour.Companion.hasPhantomFearedShoulderMount((ServerPlayer)entity)
-                );
-                if (!nearbyPlayersWithScaryShoulders.isEmpty()) {
-                    // TODO: Figure out how to make a shoulder mounted pokemon emit a cry
-                    cir.setReturnValue(false);
-                }
             }
         }
     }
