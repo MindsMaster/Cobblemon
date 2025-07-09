@@ -225,6 +225,7 @@
 - Updated interaction interface to include 4 more option spaces
 - Made lecterns that hold a Pokédex emit light.
 - Updated light levels for active PC, Pasture, Healing Machine, and Data Monitor.
+- Reorganised the `block` texture folder to be more organised, in line with the `item` texture folder.
 
 ### Fixes
 - Fixed game crashing when removing national pokedex using datapacks
