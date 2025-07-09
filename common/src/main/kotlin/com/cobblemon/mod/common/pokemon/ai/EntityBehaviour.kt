@@ -38,5 +38,9 @@ class EntityBehaviour {
         fun hasSkeletonFearedShoulderMount(player: ServerPlayer) : Boolean {
             return player.party().any { pokemon -> pokemon.state is ShoulderedState && pokemon.form.behaviour.entityInteract.avoidedBySkeleton }
         }
+
+        fun hasPhantomFearedShoulderMount(player: ServerPlayer) : Boolean {
+            return player.party().any { pokemon -> pokemon.state is ShoulderedState && pokemon.form.behaviour.entityInteract.avoidedByPhantom }
+        }
     }
 }
