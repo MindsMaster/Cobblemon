@@ -1,11 +1,5 @@
 {
   "variants": {
-    "axis=x": {
-      "model": "cobblemon:block/saccharine_log_slathered_0"
-    },
-    "axis=z": {
-      "model": "cobblemon:block/saccharine_log_slathered_0"
-    },
     "facing=east,honey_type=0": {
       "model": "cobblemon:block/saccharine_log_slathered_0",
       "y": 90
