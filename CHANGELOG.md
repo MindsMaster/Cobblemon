@@ -19,9 +19,8 @@
 - Added `/transformmodelpart (position|rotation|scale) <modelPart> <transform: x y z>` command that can add transformations to a pokemon's model part.
   - The player executing the command must be facing the target pokemon entity. Transformations are not persistent and will revert when resources are reloaded.
 - Added lang keys for all moves and abilities up to Generation 9.
-- Fixed Moon Ball moon phase logic to actually work correctly
 - Added `translucent_cull` boolean option into resolver's layer to allow for translucent textures with culling
-- Added [LambDynamicLights](https://modrinth.com/mod/lambdynamiclights) support for items held by Pokémon.
+- Added [LambDynamicLights](https://modrinth.com/mod/lambdynamiclights) support for items held by Pokémon, evolution stone blocks, evolution stone items, Pokédex, Luminous Moss, Flame Orb, and Magmarizer.
 - Added the Clear Amulet, Grip Claw, Lagging Tail, Luminous Moss, Metal Alloy, Scroll of Darkness, Scroll of Waters
 - Added Recipes for Masterpiece Cup, Eject Pack
 - Added modification to Minecraft Creative Inventory search to account for item names that contain `poké` when input contains `poke`.
@@ -33,6 +32,7 @@
 - Added Hyper Training items (IV Modification) as well as some additional candy items to do so (Health Candy, Sickly Candy)
 - Added Galarica Nut Bushes
 - Many Pokémon (mostly cats) are now feared by phantoms
+- Added functionality to Everstone when held by a Pokémon; suppresses evolution notification and hides evolve button in summary interface.
 
 ### Pokémon Added
 
@@ -224,6 +224,11 @@
 - Destroying a Saccharine Honey Log will now drop a Saccharine Log in stead of nothing
 - Reworked some compost chances
 - Updated interaction interface to include 4 more option spaces
+- Made lecterns that hold a Pokédex emit light.
+- Updated light levels for active PC, Pasture, Healing Machine, and Data Monitor.
+- Vivichokes now always drop one seed when harvested, and converting a fully grown Vivichoke to seeds via crafting results in 1 seed.
+- Healing Machine recipe rebalanced.
+- Reorganised the `block` texture folder to be more organised, in line with the `item` texture folder.
 
 ### Fixes
 - Fixed game crashing when removing national pokedex using datapacks
@@ -287,6 +292,7 @@
 - Fixed an issue where items retrieved from a Display case would disappear if a player's inventory is full
 - Fixed Pokédex Scanner not respecting the "Invert Mouse" option.
 - Fixed a crash due to a ConcurrentModificationException that could occur during world generation.
+- Fixed Moon Ball moon phase logic to actually work correctly
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
@@ -320,6 +326,9 @@
 - `PokemonEntity` instances spawned into the world now appropriately finalize the spawn for mod compatibility.
 - Added PokedexManager.obtain as a replacement for .catch which is not a friendly function name in Java.
 
+- Added `Pokemon#hyperTrainIV()` and `IVs#setHyperTrainedIV(Stat, Int)`
+- `ElementalType` now implelments `ShowdownIdentifiable` to ensure the communcation with showdown stays consistent (also in regards to TeraTypes)
+  
 ### MoLang & Datapacks
 - The following usages for item predicates can now use item conditions like advancements do, you can learn about them in the [Minecraft wiki](https://minecraft.wiki/w/Advancement_definition#minecraft:filled_bucket)
   - The `requiredContext` for an item interaction evolution
