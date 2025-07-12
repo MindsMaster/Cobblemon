@@ -225,6 +225,8 @@
 - Updated interaction interface to include 4 more option spaces
 - Made lecterns that hold a Pokédex emit light.
 - Updated light levels for active PC, Pasture, Healing Machine, and Data Monitor.
+- Vivichokes now always drop one seed when harvested, and converting a fully grown Vivichoke to seeds via crafting results in 1 seed.
+- Healing Machine recipe rebalanced.
 
 ### Fixes
 - Fixed game crashing when removing national pokedex using datapacks
