@@ -33,15 +33,15 @@ abstract class AIBattleActor(
     override fun sendUpdate(packet: NetworkPacket<*>) {
         super.sendUpdate(packet)
 
-        when {
-            packet is BattleMakeChoicePacket -> this.onChoiceRequested()
-            packet is BattlePersistentStatusPacket -> {}
-            packet is BattleFaintPacket -> {}
-            packet is BattleSwitchPokemonPacket && !packet.isAlly -> {} //TODO this might be redundant; switch on opposing site should be visible during turn
-            packet is BattleSwapPokemonPacket -> {} //TODO CONSIDER MULTI SHIFTING
-            packet is BattleHealthChangePacket -> battleAI.onHealthChange(packet)
-            packet is BattleTransformPokemonPacket && !packet.isAlly -> {} //TODO this might be redundant; switch on opposing site should be visible during turn
-            packet is BattleReplacePokemonPacket && !packet.isAlly -> {} //TODO this might be redundant; switch on opposing site should be visible during turn
+        when (packet) {
+            is BattleMakeChoicePacket -> this.onChoiceRequested()
+            is BattlePersistentStatusPacket -> {}
+            is BattleFaintPacket -> {}
+            is BattleSwitchPokemonPacket -> if (!packet.isAlly) { /* TODO this might be redundant; switch on opposing site should be visible during turn */ }
+            is BattleSwapPokemonPacket -> { /* TODO CONSIDER MULTI SHIFTING */ }
+            is BattleHealthChangePacket -> battleAI.onHealthChange(packet)
+            is BattleTransformPokemonPacket -> if (!packet.isAlly) { /* TODO this might be redundant; switch on opposing site should be visible during turn */ }
+            is BattleReplacePokemonPacket -> if (!packet.isAlly) { /* TODO this might be redundant; switch on opposing site should be visible during turn */ }
         }
     }
 

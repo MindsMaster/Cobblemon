@@ -1714,7 +1714,9 @@ open class Pokemon : ShowdownIdentifiable {
                 possibleMovesSet.add(BenchedMove(move, 0))
             }
         }
-        this.benchedMoves.addAll(possibleMovesSet)
+        this.benchedMoves.doWithoutEmitting {
+            this.benchedMoves.addAll(possibleMovesSet)
+        }
         moveSet.update()
     }
 
@@ -1728,17 +1730,19 @@ open class Pokemon : ShowdownIdentifiable {
     fun validateMoveset(includeLegacy: Boolean = true) {
         // Validate the moveset, removing any invalid moves
         moveSet.doWithoutEmitting {
-            for (i in 0 until MoveSet.MOVE_COUNT) {
-                val move = this.moveSet[i]
-                if (move != null && !LearnsetQuery.ANY.canLearn(move.template, this.form.moves)) {
-                    this.moveSet.setMove(i, null)
+            benchedMoves.doWithoutEmitting {
+                for (i in 0 until MoveSet.MOVE_COUNT) {
+                    val move = this.moveSet[i]
+                    if (move != null && !LearnsetQuery.ANY.canLearn(move.template, this.form.moves)) {
+                        this.moveSet.setMove(i, null)
+                    }
                 }
-            }
-            val benchedIterator = this.benchedMoves.iterator()
-            while (benchedIterator.hasNext()) {
-                val benchedMove = benchedIterator.next()
-                if (!LearnsetQuery.ANY.canLearn(benchedMove.moveTemplate, this.form.moves)) {
-                    benchedIterator.remove()
+                val benchedIterator = this.benchedMoves.iterator()
+                while (benchedIterator.hasNext()) {
+                    val benchedMove = benchedIterator.next()
+                    if (!LearnsetQuery.ANY.canLearn(benchedMove.moveTemplate, this.form.moves)) {
+                        benchedIterator.remove()
+                    }
                 }
             }
         }
@@ -1785,11 +1789,13 @@ open class Pokemon : ShowdownIdentifiable {
                     this.moveSet.setMove(i, null)
                 }
             }
-            val benchedIterator = this.benchedMoves.iterator()
-            while (benchedIterator.hasNext()) {
-                val benchedMove = benchedIterator.next()
-                if (benchedMove.moveTemplate == move) {
-                    benchedIterator.remove()
+            this.benchedMoves.doWithoutEmitting {
+                val benchedIterator = this.benchedMoves.iterator()
+                while (benchedIterator.hasNext()) {
+                    val benchedMove = benchedIterator.next()
+                    if (benchedMove.moveTemplate == move) {
+                        benchedIterator.remove()
+                    }
                 }
             }
         }
