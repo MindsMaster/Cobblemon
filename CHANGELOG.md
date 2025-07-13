@@ -32,6 +32,7 @@
 - Added Hyper Training items (IV Modification) as well as some additional candy items to do so (Health Candy, Sickly Candy)
 - Added Galarica Nut Bushes
 - Added functionality to Everstone when held by a Pokémon; suppresses evolution notification and hides evolve button in summary interface.
+- Added new optional property `attachment_options` for most EmitterShapes to be attached to the locator/entities scale, rotation, and/or position. Position is true by default.
 
 ### Pokémon Added
 
@@ -225,6 +226,7 @@
 - Updated interaction interface to include 4 more option spaces
 - Made lecterns that hold a Pokédex emit light.
 - Updated light levels for active PC, Pasture, Healing Machine, and Data Monitor.
+- Offset in EmitterShape now ignores scale to be more like Blockbench by default. You can get this behaviour back by adding `"scale": true` in the `attachment_options` property in most EmitterShapes.
 
 ### Fixes
 - Fixed game crashing when removing national pokedex using datapacks
