@@ -8,7 +8,6 @@
 
 package com.cobblemon.mod.common.battles
 
-import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.api.battles.model.PokemonBattle
 import com.cobblemon.mod.common.api.events.CobblemonEvents
 import com.cobblemon.mod.common.api.events.battles.BattleStartedPostEvent
@@ -113,7 +112,7 @@ object BattleRegistry {
             packedTeamBuilder.append("$pokeball,")
             // Hidden Power Type
             // This is empty if the pokemon is not Hyper Trained, and the provided type corresponds to base IVs and not battle IVs.
-            val hiddenPowerType = if (pk.ivs.hyperTrainedIVs.any()) HiddenPowerUtil.getHiddenPowerType(pk).name.replaceFirstChar { it.uppercase() } else ""
+            val hiddenPowerType = if (pk.ivs.hyperTrainedIVs.any()) HiddenPowerUtil.getHiddenPowerType(pk).name else ""
             packedTeamBuilder.append("$hiddenPowerType,")
             // Gigantamax
             packedTeamBuilder.append("${if (pk.gmaxFactor) "G" else ""},")
@@ -121,7 +120,7 @@ object BattleRegistry {
             // 0 - 9, empty == 10
             packedTeamBuilder.append("${if (pk.dmaxLevel < 10) pk.dmaxLevel else ""},")
             // Teratype
-            packedTeamBuilder.append("${pokemon.effectedPokemon.teraType.showdownId()},")
+            packedTeamBuilder.append("${pokemon.effectedPokemon.teraType.name},")
 
             team.add(packedTeamBuilder.toString())
         }
@@ -140,7 +139,7 @@ object BattleRegistry {
          * "But why are these showdown IDs so weird"
          *
          * I'll tell you, Jimmy.
-         * https://gitlab.com/cable-mc/pokemon-Cobblemon-showdown/-/blob/master/sim/SIM-PROTOCOL.md#user-content-identifying-pok%C3%A9mon
+         * https://gitlab.com/cable-mc/cobblemon-showdown/-/blob/master/sim/SIM-PROTOCOL.md#user-content-identifying-pok%C3%A9mon
          *
          * See the lines about multi battles and free for alls. The same side of the battle will share 'parity' (even or odd) across
          * all participants. So side 1 will be 1, 3, 5, ... while side 2 will be 2, 4, 6, ...

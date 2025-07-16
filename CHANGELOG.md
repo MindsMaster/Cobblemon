@@ -18,10 +18,10 @@
 - Added cosmetics for Gurdurr, Conkeldurr, Squirtle Line, Sneasler, Sandle line, Treecko line, Braixen, Delphox, and Dragonite.
 - Added `/transformmodelpart (position|rotation|scale) <modelPart> <transform: x y z>` command that can add transformations to a pokemon's model part.
   - The player executing the command must be facing the target pokemon entity. Transformations are not persistent and will revert when resources are reloaded.
+- Added `legacy` and `special` sourced moves to Pokémon.
 - Added lang keys for all moves and abilities up to Generation 9.
-- Fixed Moon Ball moon phase logic to actually work correctly
 - Added `translucent_cull` boolean option into resolver's layer to allow for translucent textures with culling
-- Added [LambDynamicLights](https://modrinth.com/mod/lambdynamiclights) support for items held by Pokémon.
+- Added [LambDynamicLights](https://modrinth.com/mod/lambdynamiclights) support for items held by Pokémon, evolution stone blocks, evolution stone items, Pokédex, Luminous Moss, Flame Orb, and Magmarizer.
 - Added the Clear Amulet, Grip Claw, Lagging Tail, Luminous Moss, Metal Alloy, Scroll of Darkness, Scroll of Waters
 - Added Recipes for Masterpiece Cup, Eject Pack
 - Added modification to Minecraft Creative Inventory search to account for item names that contain `poké` when input contains `poke`.
@@ -32,6 +32,9 @@
 - Added `/pctake <player> <box> <slot>` command that takes a specific Pokémon from a player's PC. Removes the pokemon if target is self or ran from the server.
 - Added Hyper Training items (IV Modification) as well as some additional candy items to do so (Health Candy, Sickly Candy)
 - Added Galarica Nut Bushes
+- Many Pokémon (mostly cats) are now feared by phantoms
+- Added functionality to Everstone when held by a Pokémon; suppresses evolution notification and hides evolve button in summary interface.
+- Added new optional property `attachment_options` for most EmitterShapes to be attached to the locator/entities scale, rotation, and/or position. Position is true by default.
 
 ### Pokémon Added
 
@@ -76,6 +79,8 @@
 - Solosis
 - Duosion
 - Reuniclus
+- Mienfoo
+- Mienshao
 
 #### Gen 6
 - Inkay
@@ -176,6 +181,9 @@
 - Added Syrupy Apples.
 - Seel
 - Dewgong
+- Honedge
+- Doublade
+- Aegislash
 
 ### Changes
 - Changed pokemon caught and seen count to update based on the current pokedex being looked
@@ -217,6 +225,13 @@
 - Saccharine Leaves Age 1 or higher will now show Yellow particles when broken
 - Destroying a Saccharine Honey Log will now drop a Saccharine Log in stead of nothing
 - Reworked some compost chances
+- Updated interaction interface to include 4 more option spaces
+- Made lecterns that hold a Pokédex emit light.
+- Updated light levels for active PC, Pasture, Healing Machine, and Data Monitor.
+- Vivichokes now always drop one seed when harvested, and converting a fully grown Vivichoke to seeds via crafting results in 1 seed.
+- Healing Machine recipe rebalanced.
+- Reorganised the `block` texture folder to be more organised, in line with the `item` texture folder.
+- Offset in EmitterShape now ignores scale to be more like Blockbench by default. You can get this behaviour back by adding `"scale": true` in the `attachment_options` property in most EmitterShapes.
 
 ### Fixes
 - Fixed game crashing when removing national pokedex using datapacks
@@ -246,6 +261,7 @@
 - Fixed Pokémon marked as silent still playing shiny sounds and effects.
 - Fixed an issue with newer versions of Fabric API where underground Pokémon were spawning in The End.
 - Fixed spawning not working well when you're at high points surrounded by lower altitude spawning areas, such as flying.
+- Fixed some Pokémon having erroneous tutor moves if another move included a valid tutor move as a substring.
 - Fixed certain Pokémon with forms not having appropriate stock Pokédex entries.
 - Fixed issue with Pokédex Scanner that caused the open/close overlay to have the wrong opacity values
 - Fixed dragon's breath not being usable on the restoration tank when it should be
@@ -270,6 +286,17 @@
 - Fixed Cobblemon crashing if it tries to load a bedrock model not meant for cobblemon (example: Qlipoth Awakening)
 - Fixed Berries (and thus mulches) not being plantable on Farmers delight rich soil farmland
 - Fixed wild Pokémon vanishing when third party mods try to tame them the "vanilla" way
+- Fixed Pokémon not being able to path over skulk veins, pressure plates, fence gates, signs, lanterns, chains, and many other short blocks.
+- Fixed some cases in which Pokémon could not path over fence posts situations.
+- Fixed flyers not being able to do vertical takeoff if surrounded by blocks.
+- Fixed swimming Pokémon attempting to swim up through solid blocks.
+- Fixed Pokémon surface swimming diving downward a block for the duration of the swim.
+- Improved flyers avoiding getting stuck on fence posts.
+- Fixed air balloon battle text not correctly displaying the Pokémon or item name
+- Fixed an issue where items retrieved from a Display case would disappear if a player's inventory is full
+- Fixed Pokédex Scanner not respecting the "Invert Mouse" option.
+- Fixed a crash due to a ConcurrentModificationException that could occur during world generation.
+- Fixed Moon Ball moon phase logic to actually work correctly
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
@@ -288,6 +315,11 @@
 - Updated NPCEntity pokeball throw positioning to properly account for the baseScale property.
 - Fixed `[Pokemon].copyFrom` error causing forms, IVs, and EVs to not be applied properly when using `[Pokemon].loadFromJSON` or `[Pokemon].loadFromNBT`
 - Added new item class, `WearableItem`. Instances of this class should have a corresponding 3D model. These models render when the items display context is `HEAD`.
+- Added new LearnsetQuery types:
+  - `LEGAL` for moves that are innately compatible and learnable by the Pokémon.
+  - `LEGACY` for moves that were once officially learnable by the Pokémon but aren't due to GameFreak's re-balancing.
+  - `SPECIAL` for moves that are not learnable by the Pokémon but may have appeared in a special event or distribution.
+
 - Pokemon now have a fireImmune attribute in their behaviour that can be set to true to ignore all fire damage (lava, magma blocks, etc.)
   `JSON
   {
@@ -301,6 +333,11 @@
 - Added `HyperTrainedIvEvent.Pre` and `HyperTrainedIvEvent.Post`.
 - Added `Pokemon#validateMoveSet()` to validate an existing Pokemon's moveset, clearing illegal moves.
 - Added a `hoverText` option to PartySelectCallback, to display a tooltip on hovering over a Pokémon in the selection screen.
+- `PokemonEntity` instances spawned into the world now appropriately finalize the spawn for mod compatibility.
+- Added PokedexManager.obtain as a replacement for .catch which is not a friendly function name in Java.
+
+- Added `Pokemon#hyperTrainIV()` and `IVs#setHyperTrainedIV(Stat, Int)`
+- `ElementalType` now implelments `ShowdownIdentifiable` to ensure the communcation with showdown stays consistent (also in regards to TeraTypes)
   
 ### MoLang & Datapacks
 - The following usages for item predicates can now use item conditions like advancements do, you can learn about them in the [Minecraft wiki](https://minecraft.wiki/w/Advancement_definition#minecraft:filled_bucket)
@@ -319,6 +356,9 @@
 - Added `pokemon` as an available Molang function for the `battleActor` functions.
 - Fixed `heldItem` property inside spawn files not working and causing crashes
 - Fixed `spawn_bedrock_particles` MoLang causing crashes when used in a server environment
+- The following move sources are now valid for the `moves` array in species data:
+  - `legacy:{move}`
+  - `special:{move}`
 - The Pokédex form lang key definition now follows `cobblemon.ui.pokedex.info.form.{species}-{formname}` instead of `cobblemon.ui.pokedex.info.form.{formname}`.
 - Added `play_sound_on_server` as an available Molang function for the `worldHolder` & `player` functions.
 - Added `run_molang_after` as an available Molang function for the `entity` functions when schedulable.
