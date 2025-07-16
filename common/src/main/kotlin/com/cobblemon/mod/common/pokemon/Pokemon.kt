@@ -1714,9 +1714,8 @@ open class Pokemon : ShowdownIdentifiable {
                 possibleMovesSet.add(BenchedMove(move, 0))
             }
         }
-        this.benchedMoves.doWithoutEmitting {
-            this.benchedMoves.addAll(possibleMovesSet)
-        }
+        this.benchedMoves.addAll(possibleMovesSet)
+        this.benchedMoves.update()
         moveSet.update()
     }
 
