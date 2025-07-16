@@ -1717,8 +1717,9 @@ open class Pokemon : ShowdownIdentifiable {
         val possibleMoves = form.moves.getAllLegalMoves()
         // Add all possible moves to the moveset
         val possibleMovesSet = HashSet<BenchedMove>()
+        val query = if (includeLegacy) LearnsetQuery.ANY else LearnsetQuery.LEGAL
         for (move in possibleMoves) {
-            if (LearnsetQuery.ANY.canLearn(move, this.form.moves) && moveSet.none { it.template == move }) {
+            if (query.canLearn(move, this.form.moves) && moveSet.none { it.template == move }) {
                 possibleMovesSet.add(BenchedMove(move, 0))
             }
         }
@@ -1736,18 +1737,19 @@ open class Pokemon : ShowdownIdentifiable {
      */
     fun validateMoveset(includeLegacy: Boolean = true) {
         // Validate the moveset, removing any invalid moves
+        val query = if (includeLegacy) LearnsetQuery.ANY else LearnsetQuery.LEGAL
         moveSet.doWithoutEmitting {
             benchedMoves.doWithoutEmitting {
                 for (i in 0 until MoveSet.MOVE_COUNT) {
                     val move = this.moveSet[i]
-                    if (move != null && !LearnsetQuery.ANY.canLearn(move.template, this.form.moves)) {
+                    if (move != null && !query.canLearn(move.template, this.form.moves)) {
                         this.moveSet.setMove(i, null)
                     }
                 }
                 val benchedIterator = this.benchedMoves.iterator()
                 while (benchedIterator.hasNext()) {
                     val benchedMove = benchedIterator.next()
-                    if (!LearnsetQuery.ANY.canLearn(benchedMove.moveTemplate, this.form.moves)) {
+                    if (!query.canLearn(benchedMove.moveTemplate, this.form.moves)) {
                         benchedIterator.remove()
                     }
                 }
