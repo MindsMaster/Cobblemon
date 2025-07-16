@@ -32,7 +32,9 @@
 - Added `/pctake <player> <box> <slot>` command that takes a specific Pokémon from a player's PC. Removes the pokemon if target is self or ran from the server.
 - Added Hyper Training items (IV Modification) as well as some additional candy items to do so (Health Candy, Sickly Candy)
 - Added Galarica Nut Bushes
+- Many Pokémon (mostly cats) are now feared by phantoms
 - Added functionality to Everstone when held by a Pokémon; suppresses evolution notification and hides evolve button in summary interface.
+- Added new optional property `attachment_options` for most EmitterShapes to be attached to the locator/entities scale, rotation, and/or position. Position is true by default.
 
 ### Pokémon Added
 
@@ -226,6 +228,10 @@
 - Updated interaction interface to include 4 more option spaces
 - Made lecterns that hold a Pokédex emit light.
 - Updated light levels for active PC, Pasture, Healing Machine, and Data Monitor.
+- Vivichokes now always drop one seed when harvested, and converting a fully grown Vivichoke to seeds via crafting results in 1 seed.
+- Healing Machine recipe rebalanced.
+- Reorganised the `block` texture folder to be more organised, in line with the `item` texture folder.
+- Offset in EmitterShape now ignores scale to be more like Blockbench by default. You can get this behaviour back by adding `"scale": true` in the `attachment_options` property in most EmitterShapes.
 
 ### Fixes
 - Fixed game crashing when removing national pokedex using datapacks
@@ -329,6 +335,9 @@
 - `PokemonEntity` instances spawned into the world now appropriately finalize the spawn for mod compatibility.
 - Added PokedexManager.obtain as a replacement for .catch which is not a friendly function name in Java.
 
+- Added `Pokemon#hyperTrainIV()` and `IVs#setHyperTrainedIV(Stat, Int)`
+- `ElementalType` now implelments `ShowdownIdentifiable` to ensure the communcation with showdown stays consistent (also in regards to TeraTypes)
+  
 ### MoLang & Datapacks
 - The following usages for item predicates can now use item conditions like advancements do, you can learn about them in the [Minecraft wiki](https://minecraft.wiki/w/Advancement_definition#minecraft:filled_bucket)
   - The `requiredContext` for an item interaction evolution
