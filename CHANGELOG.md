@@ -231,6 +231,7 @@
 - Healing Machine recipe rebalanced.
 - Reorganised the `block` texture folder to be more organised, in line with the `item` texture folder.
 - Offset in EmitterShape now ignores scale to be more like Blockbench by default. You can get this behaviour back by adding `"scale": true` in the `attachment_options` property in most EmitterShapes.
+- Not specifying a dex in `/pokedex printcalculations {player} {dex}` will now print the National Dex statistics instead of showing all dexes. `/pokedex printcalculations {player} all` is how to view all dex statistics in one command.
 
 ### Fixes
 - Fixed game crashing when removing national pokedex using datapacks
@@ -295,6 +296,7 @@
 - Fixed Pokédex Scanner not respecting the "Invert Mouse" option.
 - Fixed a crash due to a ConcurrentModificationException that could occur during world generation.
 - Fixed Moon Ball moon phase logic to actually work correctly
+- Fixed `/pokedex printcalculations` to now show the correct percentage completed of the Pokedex
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
