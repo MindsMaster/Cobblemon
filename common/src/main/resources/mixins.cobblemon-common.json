@@ -71,6 +71,7 @@
     "ServerLevelMixin",
     "ServerPlayerMixin",
     "ShearsDispenserBehaviorMixin",
+    "SimpleBlockFeatureMixin",
     "StructureMixin",
     "StructurePoolAccessor",
     "StructurePoolGeneratorMixin",
