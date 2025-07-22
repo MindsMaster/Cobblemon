@@ -303,6 +303,7 @@
 - Fixed a crash due to a ConcurrentModificationException that could occur during world generation.
 - Fixed Moon Ball moon phase logic to actually work correctly
 - Fixed `/pokedex printcalculations` to now show the correct percentage completed of the Pokedex
+- Fixed mod incompatibility with the `Raised` mod
 
 ### Developer
 - A finished battle now has winners and losers set inside of `PokemonBattle` instead of them always being empty.
