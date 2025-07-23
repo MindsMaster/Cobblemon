@@ -48,7 +48,6 @@ object PlaceHoneyInHiveTask {
                         val currentLevel = state.getValue(BeehiveBlock.HONEY_LEVEL)
                         if (currentLevel < BeehiveBlock.MAX_HONEY_LEVELS) {
                             world.setBlock(hiveLocation, state.setValue(BeehiveBlock.HONEY_LEVEL, currentLevel + 1), 3)
-                            entity.brain.setMemory(CobblemonMemories.RECENTLY_ADDED_HONEY, true)
                             entity.brain.setMemoryWithExpiry(CobblemonMemories.HIVE_COOLDOWN, true, hiveCooldown)
                             entity.brain.eraseMemory(CobblemonMemories.POLLINATED)
                         }
@@ -56,7 +55,6 @@ object PlaceHoneyInHiveTask {
                         val currentAge = state.getValue(SaccharineLeafBlock.AGE)
                         if (currentAge < SaccharineLeafBlock.MAX_AGE) {
                             world.setBlock(hiveLocation, state.setValue(SaccharineLeafBlock.AGE, currentAge + 1), 3)
-                            entity.brain.setMemory(CobblemonMemories.RECENTLY_ADDED_HONEY, true)
                             entity.brain.setMemoryWithExpiry(CobblemonMemories.HIVE_COOLDOWN, true, hiveCooldown)
                             entity.brain.eraseMemory(CobblemonMemories.POLLINATED)
                         }

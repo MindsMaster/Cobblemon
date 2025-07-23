@@ -43,7 +43,6 @@ class PathToFlowerTaskConfig : SingleTaskConfig {
             CobblemonMemories.NEARBY_FLOWERS,
             CobblemonMemories.HIVE_COOLDOWN,
             CobblemonMemories.HIVE_LOCATION,
-            CobblemonMemories.RECENTLY_ADDED_HONEY,
             CobblemonMemories.POLLINATED
         )
         behaviourConfigurationContext.addSensors(CobblemonSensors.NEARBY_BEE_HIVE, CobblemonSensors.NEARBY_FLOWER)
