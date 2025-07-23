@@ -70,7 +70,7 @@ class PokemonPastureBlockEntity(pos: BlockPos, state: BlockState) :
     ) {
         fun getPokemon(): Pokemon? {
             val srv = server() ?: return null
-            val pc = Cobblemon.storage.getPC(pcId, srv.registryAccess()) ?: return null
+            val pc = Cobblemon.storage.getPC(pcId, srv.registryAccess())
             return pc[pokemonId]
         }
         val box = AABB(minRoamPos.toVec3d(), maxRoamPos.toVec3d())
@@ -80,9 +80,7 @@ class PokemonPastureBlockEntity(pos: BlockPos, state: BlockState) :
             val pokemon = getPokemon() ?: return null
             val entity = pokemon.entity
 
-            val behaviourFlags = entity?.getActiveBehaviourFlags()
-                ?.map { "cobblemon:" + it.name.lowercase() }
-                ?.toSet() ?: emptySet()
+            val behaviourFlags = entity?.getActiveBehaviourFlags() ?: emptySet()
 
             return OpenPasturePacket.PasturePokemonDataDTO(
                 pokemonId = pokemonId,

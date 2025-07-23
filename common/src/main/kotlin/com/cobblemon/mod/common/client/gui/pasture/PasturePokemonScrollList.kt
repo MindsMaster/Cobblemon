@@ -23,6 +23,7 @@ import com.cobblemon.mod.common.client.render.drawScaledText
 import com.cobblemon.mod.common.client.render.drawScaledTextJustifiedRight
 import com.cobblemon.mod.common.client.render.models.blockbench.FloatingState
 import com.cobblemon.mod.common.client.render.renderScaledGuiItemIcon
+import com.cobblemon.mod.common.entity.pokemon.PokemonBehaviourFlag
 import com.cobblemon.mod.common.net.messages.client.pasture.OpenPasturePacket
 import com.cobblemon.mod.common.net.messages.server.pasture.SetPastureConflictPacket
 import com.cobblemon.mod.common.net.messages.server.pasture.UnpasturePokemonPacket
@@ -174,11 +175,11 @@ class PasturePokemonScrollList(
             yPos = 0,
             onPress = {
                 parent.storageWidget.pcGui.playSound(CobblemonSounds.PC_CLICK)
-                val currentlyEnabled = "cobblemon:pasture_conflict" in pokemon.behaviourFlags
+                val currentlyEnabled = PokemonBehaviourFlag.PASTURE_CONFLICT in pokemon.behaviourFlags
                 SetPastureConflictPacket(pokemon.pokemonId, !currentlyEnabled).sendToServer()
             }
         ).apply {
-            setEnabled("cobblemon:pasture_conflict" in pokemon.behaviourFlags)
+            setEnabled(PokemonBehaviourFlag.PASTURE_CONFLICT in pokemon.behaviourFlags)
         }
 
         private val moveButton: PastureSlotIconButton = PastureSlotIconButton(

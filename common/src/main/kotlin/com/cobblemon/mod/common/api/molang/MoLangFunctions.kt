@@ -1265,6 +1265,14 @@ object MoLangFunctions {
             map.put("remove_held_item") { _ ->
                 pokemon.removeHeldItem()
             }
+            map.put("add_aspects") { params ->
+                for (aspect in params.params) pokemon.forcedAspects += aspect.asString()
+                pokemon.updateAspects()
+            }
+            map.put("remove_aspects") { params ->
+                for (aspect in params.params) pokemon.forcedAspects -= aspect.asString()
+                pokemon.updateAspects()
+            }
             map.put("add_marks") { params ->
                 for (param in params.params) {
                     val identifier = param.asString().asIdentifierDefaultingNamespace()
@@ -1335,7 +1343,7 @@ object MoLangFunctions {
                 DoubleValue((pokemonEntity.tethering != null))
             }
             map.put("pasture_conflict_enabled") {
-                DoubleValue(pokemonEntity.getBehaviourFlag(PokemonBehaviourFlag.PASTURE_CONFLICT) == true)
+                DoubleValue(pokemonEntity.getBehaviourFlag(PokemonBehaviourFlag.PASTURE_CONFLICT))
             }
             map
         }
@@ -1603,8 +1611,8 @@ object MoLangFunctions {
 
             map.put("identifier") { StringValue(species.resourceIdentifier.toString()) }
             map.put("name") { StringValue(species.name) }
-            map.put("primary_type") { StringValue(species.primaryType.name) }
-            map.put("secondary_type") { StringValue(species.secondaryType?.name ?: "null") }
+            map.put("primary_type") { StringValue(species.primaryType.showdownId) }
+            map.put("secondary_type") { StringValue(species.secondaryType?.showdownId ?: "null") }
             map.put("experience_group") { StringValue(species.experienceGroup.name) }
             map.put("height") { DoubleValue(species.height) }
             map.put("weight") { DoubleValue(species.weight) }
