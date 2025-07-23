@@ -23,12 +23,11 @@ object PlaceHoneyInHiveTask {
     fun create(): OneShot<in LivingEntity> {
         return BehaviorBuilder.create {
             it.group(
-                it.present(MemoryModuleType.LOOK_TARGET),
                 it.absent(MemoryModuleType.WALK_TARGET),
                 it.present(CobblemonMemories.POLLINATED),
                 it.present(CobblemonMemories.HIVE_LOCATION),
                 it.absent(CobblemonMemories.HIVE_COOLDOWN)
-            ).apply(it) { lookTarget, walkTarget, pollinated, hiveMemory, hiveCooldown ->
+            ).apply(it) { walkTarget, pollinated, hiveMemory, hiveCooldown ->
                 Trigger { world, entity, time ->
                     if (entity !is PathfinderMob) {
                         return@Trigger false

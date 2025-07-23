@@ -40,7 +40,7 @@ class PathToFlowerTaskConfig : SingleTaskConfig {
             return null
         }
         behaviourConfigurationContext.addMemories(
-            CobblemonMemories.NEARBY_FLOWER,
+            CobblemonMemories.NEARBY_FLOWERS,
             CobblemonMemories.HIVE_COOLDOWN,
             CobblemonMemories.HIVE_LOCATION,
             CobblemonMemories.RECENTLY_ADDED_HONEY,

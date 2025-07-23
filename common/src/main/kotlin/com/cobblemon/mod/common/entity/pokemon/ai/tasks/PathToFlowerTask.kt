@@ -23,24 +23,32 @@ object PathToFlowerTask {
     fun create(): OneShot<in LivingEntity> {
         return BehaviorBuilder.create {
             it.group(
-                it.present(MemoryModuleType.LOOK_TARGET),
+                it.registered(MemoryModuleType.LOOK_TARGET),
                 it.absent(MemoryModuleType.WALK_TARGET),
-                it.present(CobblemonMemories.NEARBY_FLOWER),
+                it.present(CobblemonMemories.NEARBY_FLOWERS),
                 it.absent(CobblemonMemories.POLLINATED),
                 it.absent(CobblemonMemories.HIVE_COOLDOWN)
             ).apply(it) { lookTarget, walkTarget, flowerMemory, pollinated, hiveCooldown ->
                 Trigger { world, entity, time ->
                     if (entity !is PathfinderMob || !entity.isAlive) return@Trigger false
 
-                    val flowerLocation = it.get(flowerMemory)
-                    val targetVec = Vec3.atCenterOf(flowerLocation)
+                    val flowerLocations = it.get(flowerMemory).map(Vec3::atCenterOf)
+                    if (flowerLocations.isEmpty()) {
+                        return@Trigger false
+                    }
+                    val sortedByDistance = flowerLocations.sortedBy { it.distanceTo(entity.position()) }
+                    val closestHalf = sortedByDistance.subList(0, flowerLocations.size / 2 + 1)
+                    if (closestHalf.isEmpty()) {
+                        return@Trigger false
+                    }
+                    val targetVec = closestHalf.random()
 
-                    // if we aren't close to it yet then don't exit early
-                    if (entity.distanceToSqr(targetVec) <= 2.0) {
+                    // if we're really close to one then forget it, pollination is gonna occur
+                    if (flowerLocations.any { it.distanceToSqr(entity.x, entity.y, entity.z) <= 1.0 }) {
                         return@Trigger false
                     }
 
-                    walkTarget.set(WalkTarget(targetVec, 0.3F, 1))
+                    walkTarget.set(WalkTarget(targetVec, 0.3F, 0))
                     lookTarget.set(BlockPosTracker(targetVec.add(0.0, entity.eyeHeight.toDouble(), 0.0)))
 
                     return@Trigger true

@@ -115,6 +115,8 @@ interface TaskConfig {
             cobblemonResource("count_followers") to CountFollowersTaskConfig::class.java,
             cobblemonResource("hate_entity") to HateEntityTaskConfig::class.java,
             cobblemonResource("target_entity") to TargetEntityTaskConfig::class.java,
+            cobblemonResource("memory_aspect") to MemoryAspectTaskConfig::class.java,
+            cobblemonResource("activity_change") to ActivityChangeTaskConfig::class.java,
         )
 
         val runtime = MoLangRuntime().setup()

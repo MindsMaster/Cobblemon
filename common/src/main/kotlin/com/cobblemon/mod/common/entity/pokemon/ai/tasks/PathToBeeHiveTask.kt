@@ -25,7 +25,7 @@ object PathToBeeHiveTask {
     fun create(): OneShot<in LivingEntity> {
         return BehaviorBuilder.create {
             it.group(
-                it.present(MemoryModuleType.LOOK_TARGET),
+                it.registered(MemoryModuleType.LOOK_TARGET),
                 it.absent(MemoryModuleType.WALK_TARGET),
                 it.present(CobblemonMemories.POLLINATED),
                 it.present(CobblemonMemories.HIVE_LOCATION),
@@ -73,7 +73,7 @@ object PathToBeeHiveTask {
 //                    }
 
                     // Set path target toward hive
-                    walkTarget.set(WalkTarget(targetVec, 0.35F, 1))
+                    walkTarget.set(WalkTarget(targetVec, 0.35F, 0))
                     lookTarget.set(BlockPosTracker(targetVec.add(0.0, entity.eyeHeight.toDouble(), 0.0)))
 
                     return@Trigger true

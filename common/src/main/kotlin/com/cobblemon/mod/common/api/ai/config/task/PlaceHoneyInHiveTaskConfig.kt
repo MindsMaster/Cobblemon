@@ -23,7 +23,7 @@ class PlaceHoneyInHiveTaskConfig : SingleTaskConfig {
     val condition = booleanVariable(HONEY, "can_add_honey", true).asExpressible()
 
     override fun getVariables(entity: LivingEntity) = listOf(
-            condition
+        condition
     ).asVariables()
 
     override fun createTask(
