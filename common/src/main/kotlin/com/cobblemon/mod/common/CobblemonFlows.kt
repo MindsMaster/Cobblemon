@@ -93,7 +93,8 @@ object CobblemonFlows : DataRegistry {
         functions: Map<String, (MoParams) -> Any> = emptyMap(),
         cancelable: Cancelable? = null
     ) {
-        if (flows[eventResourceLocation] == null) return
+        if (eventResourceLocation !in flows) return
+
         if (cancelable == null) {
             runtime.environment.query.functions.remove("cancel")
         } else {
