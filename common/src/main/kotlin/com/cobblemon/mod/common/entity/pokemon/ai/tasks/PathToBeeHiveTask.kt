@@ -37,7 +37,6 @@ object PathToBeeHiveTask {
                     }
 
                     val hiveLocation = it.get(hiveMemory)
-                    var openSide = BlockPos.ZERO
                     val sidesByClosest = listOf(
                         hiveLocation.north(),
                         hiveLocation.south(),
@@ -45,7 +44,7 @@ object PathToBeeHiveTask {
                         hiveLocation.west()
                     ).sortedBy { it.distSqr(entity.blockPosition()) }
 
-                    openSide = BlockPos.ZERO
+                    var openSide = BlockPos.ZERO
                     for (side in sidesByClosest) {
                         if (world.getBlockState(side).isAir) {
                             openSide = side
@@ -65,11 +64,6 @@ object PathToBeeHiveTask {
                         }
                     }
                     val targetVec = Vec3.atCenterOf(openSide)
-
-//                    // if we are not close then don't end early
-//                    if (entity.distanceToSqr(targetVec) <= 2.0) {
-//                        return@Trigger false
-//                    }
 
                     // Set path target toward hive
                     walkTarget.set(WalkTarget(targetVec, 0.35F, 0))
