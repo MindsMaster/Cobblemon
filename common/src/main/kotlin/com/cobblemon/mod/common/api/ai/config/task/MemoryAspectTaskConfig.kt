@@ -10,6 +10,7 @@ package com.cobblemon.mod.common.api.ai.config.task
 
 import com.bedrockk.molang.ast.StringExpression
 import com.bedrockk.molang.runtime.value.StringValue
+import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.api.ai.BehaviourConfigurationContext
 import com.cobblemon.mod.common.api.ai.ExpressionOrEntityVariable
 import com.cobblemon.mod.common.api.ai.asVariables
@@ -40,6 +41,12 @@ class MemoryAspectTaskConfig : SingleTaskConfig {
         behaviourConfigurationContext: BehaviourConfigurationContext
     ): BehaviorControl<in LivingEntity>? {
         if (entity !is PokemonEntity && entity !is NPCEntity) {
+            return null
+        } else if (memory == MemoryModuleType.DUMMY) {
+            Cobblemon.LOGGER.error("MemoryAspectTaskConfig: Memory module type is not set for ${entity.name.string}.")
+            return null
+        } else if (aspect.left().orElse(null)?.originalString == "") {
+            Cobblemon.LOGGER.error("MemoryAspectTaskConfig: Aspect is not set for ${entity.name.string}.")
             return null
         }
 

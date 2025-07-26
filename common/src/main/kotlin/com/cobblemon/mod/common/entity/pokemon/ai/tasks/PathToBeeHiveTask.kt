@@ -63,7 +63,6 @@ object PathToBeeHiveTask {
                             // If no open sides or above/below positions are found, we cannot proceed
                             return@Trigger false
                         }
-                        // No open sides found, return false
                     }
                     val targetVec = Vec3.atCenterOf(openSide)
 

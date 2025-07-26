@@ -88,21 +88,17 @@ class WaterWanderTaskConfig : SingleTaskConfig {
                     var pos: BlockPos? = null
                     var target: Vec3? = null
                     var attempts = 0
-                    while (attempts < wanderControl.maxAttempts && pos == null) {
 
-                        target = BehaviorUtils.getRandomSwimmablePos(entity, horizontalRange.resolveInt(), verticalRange.resolveInt())
-                        if (target == null) {
-                            attempts++
-                            continue
-                        }
-                        pos = BlockPos.containing(target).takeIf { wanderControl.isSuitable(entity, it) }
+                    while (attempts < wanderControl.maxAttempts && pos == null) {
                         attempts++
+                        target = BehaviorUtils.getRandomSwimmablePos(entity, horizontalRange.resolveInt(), verticalRange.resolveInt())
+                            ?: continue
+                        pos = BlockPos.containing(target).takeIf { wanderControl.isSuitable(entity, it) }
                     }
 
-                    if (pos == null) {
+                    if (pos == null || target == null) {
                         return@Trigger false
                     }
-
 
                     walkTarget.set(
                         CobblemonWalkTarget(
@@ -112,7 +108,7 @@ class WaterWanderTaskConfig : SingleTaskConfig {
                             completionRange = 0
                         )
                     )
-                    lookTarget.set(BlockPosTracker(target!! /* trust me dude. */))
+                    lookTarget.set(BlockPosTracker(target /* trust me dude. */))
                     return@Trigger true
                 }
             }

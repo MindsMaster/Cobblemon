@@ -788,7 +788,7 @@ object MoLangFunctions {
                 val memoryType = BuiltInRegistries.MEMORY_MODULE_TYPE.get(id)
                 if (entity.brain.checkMemory(memoryType, MemoryStatus.VALUE_PRESENT)) {
                     val memory = entity.brain.getMemory(memoryType).get()
-                    when (memory) {
+                    return@put when (memory) {
                         is Vec3i -> VariableStruct(
                             mapOf(
                                 "x" to DoubleValue(memory.x),

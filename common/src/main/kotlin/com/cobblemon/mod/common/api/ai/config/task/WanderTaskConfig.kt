@@ -26,10 +26,10 @@ import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.PathfinderMob
 import net.minecraft.world.entity.ai.behavior.BehaviorControl
 import net.minecraft.world.entity.ai.behavior.BlockPosTracker
-import net.minecraft.world.entity.ai.behavior.PositionTracker
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder
 import net.minecraft.world.entity.ai.behavior.declarative.Trigger
 import net.minecraft.world.entity.ai.memory.MemoryModuleType
+import net.minecraft.world.entity.ai.util.HoverRandomPos
 import net.minecraft.world.entity.ai.util.LandRandomPos
 import net.minecraft.world.level.pathfinder.PathType
 
@@ -138,15 +138,24 @@ class WanderTaskConfig : SingleTaskConfig {
                     var pos: BlockPos? = null
                     while (attempts++ < wanderControl.maxAttempts && pos == null) {
 //                    val targetVec = getLandTarget(entity) ?: return@Trigger true
-                        val targetVec = LandRandomPos.getPos(
-                            entity,
-                            horizontalRange.resolveInt(),
-                            verticalRange.resolveInt()
-                        )
-
-                        if (targetVec == null) {
-                            continue
-                        }
+                        val targetVec = if (maximumHeight != -1) {
+                            HoverRandomPos.getPos(
+                                entity,
+                                horizontalRange.resolveInt(),
+                                maxOf(verticalRange.resolveInt(), maximumHeight), // In case they fly up pretty high and need to find a way down
+                                entity.random.nextFloat() - 0.5,
+                                entity.random.nextFloat() - 0.5,
+                                Math.PI.toFloat(),
+                                maximumHeight,
+                                minimumHeight
+                            )
+                        } else {
+                                LandRandomPos.getPos(
+                                    entity,
+                                    horizontalRange.resolveInt(),
+                                    verticalRange.resolveInt()
+                                )
+                        } ?: continue
 
                         pos = applyHeightConstraints(
                             pos = BlockPos.containing(targetVec),

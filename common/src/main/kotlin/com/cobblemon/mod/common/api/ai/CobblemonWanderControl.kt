@@ -80,14 +80,8 @@ class CobblemonWanderControl(
             maxAttempts = 4
         }
 
-    // Isolate purely the generation of the point as a function for each, repeat
-    // that one until it finds a path that suits the control data or reaches some
-    // cap, probably the best that can be done.
-
-
-
     fun isSuitable(entity: PathfinderMob, position: BlockPos): Boolean {
-        val center = center ?: return false
+        val center = center ?: return true
         val centerPos = BlockPos(center.x.toInt(), center.y.toInt(), center.z.toInt())
         val distance = sqrt(centerPos.distSqr(position))
         val suitable = distance >= center.minRange && distance <= center.maxRange

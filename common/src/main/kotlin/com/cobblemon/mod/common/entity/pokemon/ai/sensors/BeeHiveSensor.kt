@@ -15,6 +15,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.ai.sensing.Sensor
+import net.minecraft.world.level.block.BeehiveBlock
 import net.minecraft.world.level.block.Blocks
 
 class BeeHiveSensor : Sensor<PokemonEntity>(300) {
@@ -64,7 +65,7 @@ class BeeHiveSensor : Sensor<PokemonEntity>(300) {
 
     private fun isAtMaxHoney(state: net.minecraft.world.level.block.state.BlockState): Boolean {
         return when {
-            isHiveBlock(state) -> false // Bees will still use a full hive.//state.getValue(BeehiveBlock.HONEY_LEVEL) == BeehiveBlock.MAX_HONEY_LEVELS
+            isHiveBlock(state) -> state.getValue(BeehiveBlock.HONEY_LEVEL) == BeehiveBlock.MAX_HONEY_LEVELS
             isSaccharineLeafBlock(state) -> state.getValue(SaccharineLeafBlock.AGE) == SaccharineLeafBlock.MAX_AGE
             else -> true // Unknown block type
         }
