@@ -239,6 +239,7 @@
 - Reorganised the `block` texture folder to be more organised, in line with the `item` texture folder.
 - Offset in EmitterShape now ignores scale to be more like Blockbench by default. You can get this behaviour back by adding `"scale": true` in the `attachment_options` property in most EmitterShapes.
 - Not specifying a dex in `/pokedex printcalculations {player} {dex}` will now print the National Dex statistics instead of showing all dexes. `/pokedex printcalculations {player} all` is how to view all dex statistics in one command.
+- Removed Braised Vivichoke
 
 ### Fixes
 - Fixed game crashing when removing national pokedex using datapacks
