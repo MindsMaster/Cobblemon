@@ -1,6 +1,6 @@
 # Cobblemon
 
-> This repository is a fork of [Cobblemon]([https://gitlab.com/cobblemon/cobblemon](https://gitlab.com/cable-mc/cobblemon)), published under the Mozilla Public License 2.0. All original contributors are credited via Git history.
+This repository is a fork of [Cobblemon]([https://gitlab.com/cobblemon/cobblemon](https://gitlab.com/cable-mc/cobblemon)), published under the Mozilla Public License 2.0. All original contributors are credited via Git history.
 
 ## Getting started
 
