@@ -32,9 +32,19 @@ import net.minecraft.world.level.levelgen.structure.Structure
 abstract class SpawningCondition<T : SpawnablePosition> {
     companion object {
         val conditionTypes = mutableMapOf<String, Class<out SpawningCondition<*>>>()
+        // 缓存类型兼容性检查结果，避免重复的反射调用
+        private val compatibilityCache = mutableMapOf<Pair<Class<*>, Class<*>>, Boolean>()
+        
         fun getByName(name: String) = conditionTypes[name]
         fun <T : SpawnablePosition, C : SpawningCondition<T>> register(name: String, clazz: Class<C>) {
             conditionTypes[name] = clazz
+        }
+        
+        private fun isAssignableFromCached(targetClass: Class<*>, sourceClass: Class<*>): Boolean {
+            val key = Pair(targetClass, sourceClass)
+            return compatibilityCache.getOrPut(key) {
+                targetClass.isAssignableFrom(sourceClass)
+            }
         }
     }
 
@@ -64,7 +74,10 @@ abstract class SpawningCondition<T : SpawnablePosition> {
     var appendages = mutableListOf<AppendageCondition>()
 
     abstract fun spawnablePositionClass(): Class<out T>
-    fun spawnablePositionMatches(spawnablePosition: SpawnablePosition) = spawnablePositionClass().isAssignableFrom(spawnablePosition::class.java)
+    // 缓存spawnablePositionClass结果，避免重复调用
+    private val cachedSpawnablePositionClass by lazy { spawnablePositionClass() }
+    
+    fun spawnablePositionMatches(spawnablePosition: SpawnablePosition) = isAssignableFromCached(cachedSpawnablePositionClass, spawnablePosition::class.java)
 
     fun isSatisfiedBy(spawnablePosition: SpawnablePosition): Boolean {
         return if (spawnablePositionMatches(spawnablePosition)) {
@@ -75,62 +88,65 @@ abstract class SpawningCondition<T : SpawnablePosition> {
     }
 
     protected open fun fits(spawnablePosition: T): Boolean {
-        if (spawnablePosition.position.x < minX.orMin() || spawnablePosition.position.x > maxX.orMax()) {
-            return false
-        } else if (spawnablePosition.position.y < minY.orMin() || spawnablePosition.position.y > maxY.orMax()) {
-            return false
-        } else if (spawnablePosition.position.z < minZ.orMin() || spawnablePosition.position.z > maxZ.orMax()) {
-            return false
-        } else if (moonPhase != null && spawnablePosition.moonPhase !in moonPhase!!) {
-            return false
-        } else if (spawnablePosition.light > maxLight.orMax() || spawnablePosition.light < minLight.orMin()) {
-            return false
-        } else if (spawnablePosition.skyLight > maxSkyLight.orMax() || spawnablePosition.skyLight < minSkyLight.orMin()) {
-            return false
-        } else if (timeRange != null && !timeRange!!.contains((spawnablePosition.world.dayTime() % 24000).toInt())) {
-            return false
-        } else if (canSeeSky != null && canSeeSky != spawnablePosition.canSeeSky) {
-            return false
-        } else if (isRaining != null && spawnablePosition.world.isRaining != isRaining!!) {
-            return false
-        } else if (isThundering != null && spawnablePosition.world.isThundering != isThundering!!) {
-            return false
-        } else if (dimensions != null && dimensions!!.isNotEmpty() && spawnablePosition.world.dimension().location() !in dimensions!!) {
-            return false
-        } else if (markers != null && markers!!.isNotEmpty() && markers!!.none { marker -> marker in spawnablePosition.markers }) {
-            return false
-        } else if (biomes != null && biomes!!.isNotEmpty() && biomes!!.none { condition -> condition.fits(spawnablePosition.biomeHolder) }) {
-            return false
-        } else if (appendages.any { !it.fits(spawnablePosition) }) {
-            return false
-        } else if (structures != null && structures!!.isNotEmpty() &&
-            structures!!.let { structures ->
-                val structureAccess = spawnablePosition.world.structureManager()
-                val cache = spawnablePosition.getStructureCache(spawnablePosition.position)
-                return@let structures.none {
-                    it.map({ cache.check(structureAccess, spawnablePosition.position, it) }, { cache.check(structureAccess, spawnablePosition.position, it) })
-                }
-            }
-        ) {
-            return false
-        } else if (isSlimeChunk != null && isSlimeChunk != false) {
-            val isSlimeChunk = WorldgenRandom.seedSlimeChunk(spawnablePosition.position.x shr 4, spawnablePosition.position.z shr 4, spawnablePosition.world.seed, 987234911L).nextInt(10) == 0
-
-            if (!isSlimeChunk) {
-                return false
-            }
-
-            /*val chunkX = spawnablePosition.position.x shr 4
-            val chunkZ = spawnablePosition.position.z shr 4
-
-            val seed = (spawnablePosition.world.seed +
-                    (chunkX * chunkX * 4987142L) + (chunkX * 5947611L) +
-                    (chunkZ * chunkZ * 4392871L) + (chunkZ * 389711L)) xor 987234911L
-
-            val random = Random(seed)
-            return random.nextInt(10) == 0*/
+        // 缓存频繁访问的属性
+        val position = spawnablePosition.position
+        val world = spawnablePosition.world
+        
+        // 位置检查 - 最常见的过滤条件，优先检查
+        if (position.x < minX.orMin() || position.x > maxX.orMax()) return false
+        if (position.y < minY.orMin() || position.y > maxY.orMax()) return false
+        if (position.z < minZ.orMin() || position.z > maxZ.orMax()) return false
+        
+        // 光照检查 - 第二常见的过滤条件
+        if (spawnablePosition.light > maxLight.orMax() || spawnablePosition.light < minLight.orMin()) return false
+        if (spawnablePosition.skyLight > maxSkyLight.orMax() || spawnablePosition.skyLight < minSkyLight.orMin()) return false
+        
+        // 简单属性检查
+        moonPhase?.let { if (spawnablePosition.moonPhase !in it) return false }
+        canSeeSky?.let { if (it != spawnablePosition.canSeeSky) return false }
+        isRaining?.let { if (world.isRaining != it) return false }
+        isThundering?.let { if (world.isThundering != it) return false }
+        
+        // 时间检查
+        timeRange?.let { if (!it.contains((world.dayTime() % 24000).toInt())) return false }
+        
+        // 维度检查
+        dimensions?.let { dims -> 
+            if (dims.isNotEmpty() && world.dimension().location() !in dims) return false 
         }
-
+        
+        // 标记检查
+        markers?.let { marks -> 
+            if (marks.isNotEmpty() && marks.none { marker -> marker in spawnablePosition.markers }) return false 
+        }
+        
+        // 生物群系检查
+        biomes?.let { biomeConditions -> 
+            if (biomeConditions.isNotEmpty() && biomeConditions.none { condition -> condition.fits(spawnablePosition.biomeHolder) }) return false 
+        }
+        
+        // 附加条件检查
+        if (appendages.any { !it.fits(spawnablePosition) }) return false
+        
+        // 结构检查
+        structures?.let { structs ->
+            if (structs.isNotEmpty()) {
+                val structureAccess = world.structureManager()
+                val cache = spawnablePosition.getStructureCache(position)
+                if (structs.none {
+                    it.map({ cache.check(structureAccess, position, it) }, { cache.check(structureAccess, position, it) })
+                }) return false
+            }
+        }
+        
+        // 史莱姆区块检查
+        isSlimeChunk?.let { slimeChunk ->
+            if (slimeChunk) {
+                val isSlimeChunk = WorldgenRandom.seedSlimeChunk(position.x shr 4, position.z shr 4, world.seed, 987234911L).nextInt(10) == 0
+                if (!isSlimeChunk) return false
+            }
+        }
+        
         return true
     }
 

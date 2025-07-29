@@ -107,19 +107,24 @@ abstract class SpawnDetail : ModDependant {
     }
 
     open fun isSatisfiedBy(spawnablePosition: SpawnablePosition): Boolean {
-        if (!spawnablePosition.preFilter(this)) {
-            return false
-        } else if (conditions.isNotEmpty() && conditions.none { it.isSatisfiedBy(spawnablePosition) }) {
-            return false
-        } else if (anticonditions.isNotEmpty() && anticonditions.any { it.isSatisfiedBy(spawnablePosition) }) {
-            return false
-        } else if (compositeCondition?.satisfiedBy(spawnablePosition) == false) {
-            return false
-        } else if (!spawnablePosition.postFilter(this)) {
-            return false
-        }
-
-        return true
+        // 提前返回优化，避免不必要的条件检查
+        if (!spawnablePosition.preFilter(this)) return false
+        
+        // 缓存条件列表大小，避免重复访问
+        val conditionsSize = conditions.size
+        val anticonditionsSize = anticonditions.size
+        
+        // 优化条件检查：如果有条件但没有一个满足，直接返回false
+        if (conditionsSize > 0 && conditions.none { it.isSatisfiedBy(spawnablePosition) }) return false
+        
+        // 优化反条件检查：如果有反条件且任何一个满足，直接返回false
+        if (anticonditionsSize > 0 && anticonditions.any { it.isSatisfiedBy(spawnablePosition) }) return false
+        
+        // 复合条件检查
+        compositeCondition?.let { if (!it.satisfiedBy(spawnablePosition)) return false }
+        
+        // 最后进行postFilter检查（通常是最昂贵的操作）
+        return spawnablePosition.postFilter(this)
     }
 
     open fun isValid(): Boolean {
