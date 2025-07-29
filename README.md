@@ -1,6 +1,6 @@
 # Cobblemon
 
-An open-source Pokémon mod for Minecraft Java Edition, written in Kotlin for Fabric and NeoForge.
+> This repository is a fork of [Cobblemon]([https://gitlab.com/cobblemon/cobblemon](https://gitlab.com/cable-mc/cobblemon)), published under the Mozilla Public License 2.0. All original contributors are credited via Git history.
 
 ## Getting started
 
@@ -14,10 +14,4 @@ Troubleshooting:
 - Try deleting the `.idea` folder in the project root (make sure IntelliJ is closed when you try it).
 - Try completely reclone the thing lmao.
 
-## Contributing
-
-If you're interested in contributing to the project, you can simply fork the repository and comment on any of the issues 
-[here](https://gitlab.com/cable-mc/cobblemon/-/issues?scope=all&state=opened&label_name[]=accepted&assignee_id=None).
-
-If you want a more involved role in the project, involving branches on the main repository instead of forking and involvement
-in design discussions, you can either apply in the `application-box` forum of our Discord or add and message Hiroku (`hiroku_dev`) on our Discord here: https://discord.gg/cobblemon.
+## Is just a fork repo
