@@ -28,15 +28,24 @@ abstract class AreaTypeSpawningCondition<T : AreaSpawnablePosition> : SpawningCo
     override fun fits(spawnablePosition: T): Boolean {
         if (!super.fits(spawnablePosition)) {
             return false
-        } else if (minHeight != null && spawnablePosition.height < minHeight!!) {
-            return false
-        } else if (maxHeight != null && spawnablePosition.height > maxHeight!!) {
-            return false
-        } else if (neededNearbyBlocks != null && neededNearbyBlocks!!.none { cond -> spawnablePosition.nearbyBlockHolders.any { cond.fits(it) } }) {
-            return false
-        } else {
-            return true
         }
+        
+        val height = spawnablePosition.height
+        if (minHeight != null && height < minHeight!!) {
+            return false
+        }
+        if (maxHeight != null && height > maxHeight!!) {
+            return false
+        }
+        
+        if (neededNearbyBlocks != null) {
+            val nearbyBlocks = spawnablePosition.nearbyBlockHolders
+            if (neededNearbyBlocks!!.none { cond -> nearbyBlocks.any { cond.fits(it) } }) {
+                return false
+            }
+        }
+        
+        return true
     }
 
     override fun copyFrom(other: SpawningCondition<*>, merger: Merger) {

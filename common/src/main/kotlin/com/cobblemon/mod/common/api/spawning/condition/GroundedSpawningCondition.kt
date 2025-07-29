@@ -26,10 +26,6 @@ abstract class GroundedTypeSpawningCondition<T : GroundedSpawnablePosition> : Ar
     override fun fits(spawnablePosition: T): Boolean {
         return if (!super.fits(spawnablePosition)) {
             false
-        } else if (minHeight != null && spawnablePosition.height < minHeight!!) {
-            return false
-        } else if (maxHeight != null && spawnablePosition.height > maxHeight!!) {
-            return false
         } else if (neededBaseBlocks != null && neededBaseBlocks!!.none { it.fits(spawnablePosition.baseBlockHolder) }) {
             return false
         } else {

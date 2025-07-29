@@ -39,8 +39,8 @@ open class AreaSpawnablePosition(
     val nearbyBlocks: List<BlockState>,
     val zone: SpawningZone
 ) : SpawnablePosition() {
-    val nearbyBlockTypes: List<Block> by lazy { nearbyBlocks.mapNotNull { it.block }.distinct() }
-    val nearbyBlockHolders: List<Holder<Block>> by lazy { nearbyBlockTypes.mapNotNull(blockRegistry::wrapAsHolder) }
+    val nearbyBlockTypes: List<Block> = nearbyBlocks.mapNotNull { it.block }.distinct()
+    val nearbyBlockHolders: List<Holder<Block>> = nearbyBlockTypes.mapNotNull(blockRegistry::wrapAsHolder)
 
     override fun getStructureCache(pos: BlockPos): StructureChunkCache {
         return zone.getStructureCache(pos)

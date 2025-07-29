@@ -39,7 +39,7 @@ abstract class FlooredSpawnablePosition(
 ) : AreaSpawnablePosition(cause, world, position, light, skyLight, canSeeSky, influences, height, nearbyBlocks, zone) {
     /** The block that the spawning is occurring on. */
     val baseBlock = zone.getBlockState(position.x, position.y, position.z)
-    val baseBlockHolder: Holder<Block> by lazy { world.blockRegistry.wrapAsHolder(baseBlock.block) }
+    val baseBlockHolder: Holder<Block> = world.blockRegistry.wrapAsHolder(baseBlock.block)
 }
 
 /**
