@@ -47,6 +47,21 @@ abstract class SpawningCondition<T : SpawnablePosition> {
             }
         }
     }
+    
+    // 分层缓存系统
+    @Transient
+    private var staticConditionResult: Boolean? = null // 静态条件缓存（永不过期）
+    @Transient
+    private val worldConditionCache = mutableMapOf<String, Pair<Boolean, Long>>() // 世界级条件缓存
+    @Transient
+    private val positionConditionCache = mutableMapOf<String, Pair<Boolean, Long>>() // 位置级条件缓存
+    @Transient
+    private var lastCacheCleanup = 0L
+    
+    // 缓存超时设置（毫秒）
+    private val worldCacheTimeout = 5000L // 世界级条件5秒缓存
+    private val positionCacheTimeout = 1000L // 位置级条件1秒缓存
+    private val cacheCleanupInterval = 10000L // 10秒清理一次过期缓存
 
     var dimensions: MutableList<ResourceLocation>? = null
     /** This gets checked in a precalculation but still needs to be checked for things like rarity multipliers. */
@@ -81,10 +96,120 @@ abstract class SpawningCondition<T : SpawnablePosition> {
 
     fun isSatisfiedBy(spawnablePosition: SpawnablePosition): Boolean {
         return if (spawnablePositionMatches(spawnablePosition)) {
-            fits(spawnablePosition as T)
+            fitsWithCache(spawnablePosition as T)
         } else {
             false
         }
+    }
+    
+    private fun fitsWithCache(spawnablePosition: T): Boolean {
+        val now = System.currentTimeMillis()
+        
+        // 定期清理过期缓存
+        if (now - lastCacheCleanup > cacheCleanupInterval) {
+            cleanupExpiredCache(now)
+            lastCacheCleanup = now
+        }
+        
+        // 检查静态条件缓存
+        staticConditionResult?.let { return it }
+        
+        // 如果是静态条件，直接计算并缓存
+        if (isStaticCondition()) {
+            val result = fits(spawnablePosition)
+            staticConditionResult = result
+            return result
+        }
+        
+        // 检查世界级条件缓存
+        val worldKey = getWorldCacheKey(spawnablePosition)
+        worldKey?.let { key ->
+            val cached = worldConditionCache[key]
+            if (cached != null && now - cached.second < worldCacheTimeout) {
+                return cached.first
+            }
+        }
+        
+        // 检查位置级条件缓存
+        val positionKey = getPositionCacheKey(spawnablePosition)
+        positionKey?.let { key ->
+            val cached = positionConditionCache[key]
+            if (cached != null && now - cached.second < positionCacheTimeout) {
+                return cached.first
+            }
+        }
+        
+        // 计算结果
+        val result = fits(spawnablePosition)
+        
+        // 缓存结果
+        worldKey?.let { worldConditionCache[it] = result to now }
+        positionKey?.let { positionConditionCache[it] = result to now }
+        
+        return result
+    }
+    
+    /**
+     * 判断是否为静态条件（不依赖于位置、时间、天气等动态因素）
+     */
+    private fun isStaticCondition(): Boolean {
+        return dimensions == null && biomes == null && moonPhase == null && 
+               canSeeSky == null && minX == null && minY == null && minZ == null &&
+               maxX == null && maxY == null && maxZ == null && minLight == null &&
+               maxLight == null && minSkyLight == null && maxSkyLight == null &&
+               isRaining == null && isThundering == null && timeRange == null &&
+               structures == null && isSlimeChunk == null && markers == null &&
+               appendages.isEmpty()
+    }
+    
+    /**
+     * 生成世界级缓存键（用于天气、时间、月相等条件）
+     */
+    private fun getWorldCacheKey(spawnablePosition: T): String? {
+        if (hasWorldLevelConditions()) {
+            val world = spawnablePosition.world
+            return "${world.dimension().location()}_${world.isRaining}_${world.isThundering}_" +
+                   "${world.dayTime() / 1000}_${spawnablePosition.moonPhase}"
+        }
+        return null
+    }
+    
+    /**
+     * 生成位置级缓存键（用于坐标、光照、生物群系等条件）
+     */
+    private fun getPositionCacheKey(spawnablePosition: T): String? {
+        if (hasPositionLevelConditions()) {
+            val pos = spawnablePosition.position
+            return "${pos.x}_${pos.y}_${pos.z}_${spawnablePosition.light}_" +
+                   "${spawnablePosition.skyLight}_${spawnablePosition.canSeeSky}_" +
+                   "${spawnablePosition.biomeHolder.unwrapKey().orElse(null)}"
+        }
+        return null
+    }
+    
+    /**
+     * 检查是否有世界级条件
+     */
+    private fun hasWorldLevelConditions(): Boolean {
+        return isRaining != null || isThundering != null || timeRange != null || moonPhase != null
+    }
+    
+    /**
+     * 检查是否有位置级条件
+     */
+    private fun hasPositionLevelConditions(): Boolean {
+        return minX != null || minY != null || minZ != null || maxX != null || 
+               maxY != null || maxZ != null || minLight != null || maxLight != null ||
+               minSkyLight != null || maxSkyLight != null || canSeeSky != null ||
+               biomes != null || structures != null || isSlimeChunk != null || markers != null
+    }
+    
+    /**
+     * 清理过期缓存
+     */
+    private fun cleanupExpiredCache(now: Long) {
+        worldConditionCache.entries.removeIf { now - it.value.second > worldCacheTimeout }
+        positionConditionCache.entries.removeIf { now - it.value.second > positionCacheTimeout }
     }
 
     protected open fun fits(spawnablePosition: T): Boolean {
